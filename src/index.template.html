@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0a0908">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>KAGE — Wrath of Shadow</title>
+<style>/*__CSS__*/</style>
+</head>
+<body>
+<div id="app">
+  <canvas id="game" width="1280" height="720" aria-label="KAGE arena"></canvas>
+  <div id="ui">
+    <section class="screen" id="scr-title" aria-label="Title screen"></section>
+    <section class="screen" id="scr-campaign" aria-label="Campaign"></section>
+    <section class="screen" id="scr-armory" aria-label="Armory"></section>
+    <section class="screen" id="scr-prefight" aria-label="Pre-fight"></section>
+    <section class="screen" id="scr-hud" aria-label="Combat HUD"></section>
+    <section class="screen" id="scr-result" aria-label="Results"></section>
+    <section class="screen" id="scr-settings" aria-label="Settings"></section>
+    <section class="screen" id="scr-survival" aria-label="Survival"></section>
+    <div id="touch" aria-hidden="true"></div>
+    <div class="overlay" id="ov-pause" role="dialog" aria-label="Paused"></div>
+    <div class="overlay" id="ov-help" role="dialog" aria-label="Controls"></div>
+    <div class="overlay" id="ov-profile" role="dialog" aria-label="Records"></div>
+    <div class="overlay" id="ov-confirm" role="dialog" aria-label="Confirm"></div>
+    <div id="toasts" aria-live="polite"></div>
+    <div id="wipe" aria-hidden="true">
+      <svg viewBox="0 0 1700 900" preserveAspectRatio="none">
+        <path d="M150 0 L1560 0 L1548 60 L1590 120 L1556 210 L1600 300 L1562 380 L1610 470 L1566 560 L1604 650 L1560 740 L1596 820 L1550 900 L120 900 L150 830 L96 760 L140 680 L100 590 L146 500 L92 420 L138 330 L100 250 L150 160 L104 80 Z" fill="#030303"/>
+        <path d="M150 60 L1540 40" stroke="#a3302a" stroke-width="6" opacity=".55"/>
+        <path d="M120 860 L1500 880" stroke="#3a342b" stroke-width="10" opacity=".7"/>
+      </svg>
+    </div>
+    <div id="rotate-hint"><div><b>Turn your device sideways</b><span>KAGE plays in landscape</span></div></div>
+    <div id="boot" role="button" aria-label="KAGE: Wrath of Shadow. Tap or press any key to start"><canvas class="boot-cv"></canvas></div>
+  </div>
+</div>
+<script>/*__JS__*/</script>
+</body>
+</html>

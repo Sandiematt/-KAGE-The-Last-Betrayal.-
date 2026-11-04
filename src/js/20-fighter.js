@@ -1,0 +1,1414 @@
+/* KAGE — Fighter: procedural skeleton, pose blending, state machine, gear & weapon art (Player / Enemy share it) */
+
+const BODY = { torso: 60, neck: 7, head: 18, upper: 36, fore: 34, thigh: 45, shin: 47 };
+const SHAPE = {
+  fists: 'none', twin_blades: 'short', moon_katana: 'katana', mountain_cleaver: 'cleaver', dragon_spear: 'spear',
+  phantom_sickle: 'sickle', titan_hammer: 'hammer', shadow_daggers: 'short', hollow_crescents: 'crescent', mist_fans: 'fan',
+  sentinel_spear: 'spear', sage_staff: 'staff', storm_orbs: 'none', iron_fists: 'none', chain_hook: 'hook',
+  tyrant_cleaver: 'tyrant', cutter_blade: 'katana', temple_staff: 'staff', raider_cleaver: 'cleaver'
+};
+const IK_OFF = { katana: -0.17, spear: -0.3, hammer: 0.3, staff: -0.32 };
+const CARRY = { katana: 40, short: 30, cleaver: 60, spear: 10, sickle: 70, hammer: 100, staff: 0, crescent: 40, fan: 40, hook: 70, tyrant: 60, none: 0 };
+
+/* ---------------- Cloth (verlet chain) for scarves, capes, robes ---------------- */
+class Cloth {
+  constructor(n, seg, o) {
+    this.n = n; this.seg = seg; this.o = o; this.init = false;
+    this.px = new Float32Array(n); this.py = new Float32Array(n); this.ox = new Float32Array(n); this.oy = new Float32Array(n);
+  }
+  update(ax, ay, facing, vx, dt, t) {
+    const n = this.n, px = this.px, py = this.py, ox = this.ox, oy = this.oy, seg = this.seg;
+    if (!this.init) {
+      for (let i = 0; i < n; i++) { px[i] = ox[i] = ax - facing * i * seg; py[i] = oy[i] = ay + i * 2; }
+      this.init = true;
+    }
+    const wind = (this.o.wind || 520) + Math.sin(t * 3.1 + this.o.ph) * 260;
+    const g = this.o.grav || 700, dt2 = dt * dt;
+    for (let i = 1; i < n; i++) {
+      const vx_ = (px[i] - ox[i]) * 0.94, vy_ = (py[i] - oy[i]) * 0.94;
+      ox[i] = px[i]; oy[i] = py[i];
+      px[i] += vx_ + (-facing * wind - vx * 0.6) * dt2 * (i / n);
+      py[i] += vy_ + (g + Math.sin(t * 7 + i + this.o.ph) * 160) * dt2;
+    }
+    px[0] = ax; py[0] = ay; ox[0] = ax; oy[0] = ay;
+    for (let k = 0; k < 3; k++) {
+      for (let i = 1; i < n; i++) {
+        const dx = px[i] - px[i - 1], dy = py[i] - py[i - 1];
+        const d = Math.sqrt(dx * dx + dy * dy) || 0.001, diff = (d - seg) / d;
+        px[i] -= dx * diff; py[i] -= dy * diff;
+      }
+    }
+  }
+  draw(ctx, color, w0, w1, edge) {
+    const n = this.n, px = this.px, py = this.py;
+    if (!this.init) return;
+    ctx.beginPath();
+    const L = [], R = [];
+    for (let i = 0; i < n; i++) {
+      const a = i === 0 ? 0 : i - 1, b = i === n - 1 ? n - 1 : i + 1;
+      let dx = px[b] - px[a], dy = py[b] - py[a];
+      const d = Math.sqrt(dx * dx + dy * dy) || 1; dx /= d; dy /= d;
+      const w = lerp(w0, w1, i / (n - 1)) * 0.5;
+      L.push(px[i] - dy * w, py[i] + dx * w); R.push(px[i] + dy * w, py[i] - dx * w);
+    }
+    ctx.moveTo(L[0], L[1]);
+    for (let i = 2; i < L.length; i += 2) ctx.lineTo(L[i], L[i + 1]);
+    for (let i = R.length - 2; i >= 0; i -= 2) ctx.lineTo(R[i], R[i + 1]);
+    ctx.closePath();
+    ctx.fillStyle = color; ctx.fill();
+    if (edge) {
+      ctx.beginPath(); ctx.moveTo(px[0], py[0]);
+      for (let i = 1; i < n; i++) ctx.lineTo(px[i], py[i]);
+      ctx.strokeStyle = edge; ctx.lineWidth = 1.2; ctx.stroke();
+    }
+  }
+  strand(ctx, color, width) {
+    if (!this.init) return;
+    ctx.beginPath(); ctx.moveTo(this.px[0], this.py[0]);
+    for (let i = 1; i < this.n - 1; i++) {
+      const mx = (this.px[i] + this.px[i + 1]) / 2, my = (this.py[i] + this.py[i + 1]) / 2;
+      ctx.quadraticCurveTo(this.px[i], this.py[i], mx, my);
+    }
+    ctx.lineTo(this.px[this.n - 1], this.py[this.n - 1]);
+    ctx.strokeStyle = color; ctx.lineWidth = width; ctx.lineCap = 'round'; ctx.stroke();
+  }
+}
+
+/* ---------------- Fighter ---------------- */
+let FIGHTER_UID = 0;
+// double-jump flip: slow wind-up, a very fast middle, then an eased finish (a full 360 that ends exactly upright)
+const FLIP_DUR = 0.5;
+function flipEase(u) { return u < 0.5 ? 0.5 * Math.pow(2 * u, 2.6) : 1 - 0.5 * Math.pow(2 - 2 * u, 2.6); }
+function flipSpeed(u) { return Math.pow(u < 0.5 ? 2 * u : 2 - 2 * u, 1.6); } // 0..1, peaks mid-spin
+// knockback tumble: eases out of the launch, rolls fastest mid-air, slows to brace for the landing
+function tumbleEase(u) { return u < 0.5 ? 0.5 * Math.pow(2 * u, 1.7) : 1 - 0.5 * Math.pow(2 - 2 * u, 1.7); }
+function angDiff(a, b) { return ((a - b) % 360 + 540) % 360 - 180; }
+function blendPose(t, src, k) {
+  if (k <= 0) return;
+  for (let i = 0; i < POSE_KEYS.length; i++) { const key = POSE_KEYS[i], v = src[key]; if (v != null && t[key] != null) t[key] += (v - t[key]) * k; }
+}
+class Fighter {
+  constructor(o) {
+    this.uid = ++FIGHTER_UID;
+    this.def = o.def || null;
+    this.name = o.name; this.title = o.title || '';
+    this.team = o.team || 0; this.isPlayer = !!o.isPlayer; this.minion = !!o.minion; this.clone = !!o.clone;
+    this.build = Object.assign({ scale: 1, w: 10, head: 1, legs: 1, arms: 1, torso: 1 }, o.build || {});
+    this.scale = this.build.scale * 1.22;
+    this.x = o.x || 0; this.y = 0; this.vx = 0; this.vy = 0; this.facing = o.facing || 1;
+    this.baseWeapon = o.weapon || 'fists'; this.wlvl = o.wlvl || 1; this.hasWeapon = this.baseWeapon !== 'fists';
+    this.helmet = o.helmet || 'topknot'; this.armor = o.armor || 'wraps';
+    this.maxHp = o.hp || 200; this.hp = this.maxHp; this.dmgMul = o.dmgMul || 1; this.defense = o.defense || 0; this.speedMul = o.speedMul || 1;
+    this.rageMul = o.rageMul || 1; this.stunRes = o.stunRes || 0; this.dashBonus = o.dashBonus || 0; this.kunaiMul = o.kunaiMul || 1;
+    this.rage = 0; this.ammo = o.ammo == null ? 5 : o.ammo; this.maxAmmo = this.ammo; this.guard = 100;
+    this.eye = o.eye || C.bone; this.accent = o.accent || C.emberBright;
+    this.state = 'idle'; this.st = 0; this.alive = true;
+    this.move = null; this.mphase = 0; this.mt = 0; this.mdur = [0, 0, 0]; this.hitList = []; this.moveHit = false; this.multiN = 0; this.moveCharge = 0;
+    this.pose = Object.assign({}, STANCES[this.weapon().stance] || STANCES.fists);
+    if (this.pose.wa == null) this.pose.wa = 120; if (this.pose.wb == null) this.pose.wb = 120; this.pose.ik = this.pose.ik || 0;
+    if (this.pose.tw == null) this.pose.tw = -0.2; if (this.pose.hp == null) this.pose.hp = 0;
+    this.tgt = Object.assign({}, this.pose);
+    this.grounded = true; this.jumps = 0; this.airDash = false;
+    this.invuln = 0; this.hitstun = 0; this.stunT = 0; this.downT = 0; this.juggle = 0;
+    this.buf = { punch: 0, kick: 0, weapon: 0, special: 0, jump: 0, dash: 0 };
+    this.comboHits = 0; this.comboT = 0; this.lastMoveId = ''; this.lastMoveT = -9; this.repeat = 0;
+    this.trail = []; this.trail2 = []; this.flash = 0; this.telegraph = 0; this.alpha = 1; this.visible = true;
+    this.ctrl = makeCtrl(); this.charge = 0; this.blockT = 0; this.counterT = 0; this.dashT = 0; this.dashCd = 0; this.dashDir = 1;
+    this.walkT = 0; this.runDir = 0; this.walkPhase = 0; this.flipRot = 0; this.extraRot = 0;
+    this.bodyRot = 0; this.bodyRotVel = 0; this.tuckT = 0; this.flipT = 0; this.flipLand = false; this.landT = 0.08; this.landDepth = 0.5; this.jumpDir = 0;
+    this.poison = 0; this.slow = 1; this.abil = null; this.grabbedBy = null; this.grabbing = null;
+    this.turnDelay = o.turnDelay || 0; this.turnT = 0; this.superArmor = false;
+    this.hipOff = -(BODY.thigh + BODY.shin) * this.scale * this.build.legs * 0.94;
+    this.sk = {}; for (const k of ['hip', 'neck', 'sh', 'shF', 'shB', 'hipF', 'hipB', 'head', 'fel', 'fha', 'bel', 'bha', 'fkn', 'fft', 'bkn', 'bft', 'wt', 'wb', 'w2t', 'w2b']) this.sk[k] = { x: 0, y: 0 };
+    this.wAng = 0; this.w2Ang = 0; this.wVec = { x: 1, y: 0 }; this.w2Vec = { x: 1, y: 0 };
+    this.time = Math.random() * 10; this.poseName = null; this.stats = { dealt: 0, taken: 0, maxCombo: 0, parries: 0 };
+    this.turnX = 1; this.sqx = 1; this.sqy = 1;
+    this.outfit = o.outfit || (o.isPlayer ? 'gi' : (this.def && this.def.outfit) || (this.armor === 'robe' ? 'robe' : 'plain'));
+    this.cloths = [];
+    if (this.outfit === 'gi') {
+      const bc = o.isPlayer ? '#7a2219' : '#2a2620';
+      this.cloths.push({ kind: 'belt', c: new Cloth(6, 6 * this.scale, { ph: 7, wind: 260, grav: 1100 }), at: 'hip', color: bc, w: 4.2 * this.scale, dy: -10 });
+      this.cloths.push({ kind: 'belt', c: new Cloth(5, 6 * this.scale, { ph: 8, wind: 220, grav: 1200 }), at: 'hip', color: bc, w: 3.4 * this.scale, dy: -7 });
+    }
+    if (this.helmet === 'topknot') {
+      this.cloths.push({ kind: 'scarf', c: new Cloth(10, 8 * this.scale, { ph: 9, wind: 700 }), at: 'head', color: C.emberBright, w: 5 * this.scale, dy: -5, dx: 15 });
+      this.cloths.push({ kind: 'scarf', c: new Cloth(9, 7.5 * this.scale, { ph: 11, wind: 620 }), at: 'head', color: '#b8362b', w: 3.6 * this.scale, dy: -2, dx: 15 });
+    }
+    if (o.scarf && this.helmet !== 'topknot') {
+      this.cloths.push({ kind: 'scarf', c: new Cloth(9, 7 * this.scale, { ph: 0, wind: 560 }), at: 'neck', color: C.emberBright, w: 5.5 * this.scale });
+      this.cloths.push({ kind: 'scarf', c: new Cloth(8, 6.5 * this.scale, { ph: 2, wind: 480 }), at: 'neck', color: C.emberBright, w: 3.6 * this.scale, dy: 4 });
+    }
+    const cape = { cloak: [C.ink, '#9b8cff'], shadow_cloak: [C.ink, '#3a342b'], mist_shroud: ['rgba(150,160,165,0.55)', null], tyrant: ['#050404', C.emberBright] }[this.armor];
+    if (cape) this.cloths.push({ kind: 'cape', c: new Cloth(9, 11 * this.scale, { ph: 1, wind: 380, grav: 900 }), at: 'sh', color: cape[0], edge: cape[1], w0: 14 * this.scale, w1: 30 * this.scale });
+    if (this.armor === 'robe') this.cloths.push({ kind: 'robe', c: new Cloth(6, 10 * this.scale, { ph: 3, wind: 200, grav: 1200 }), at: 'hip', color: C.ink, w0: 26 * this.scale, w1: 40 * this.scale });
+    if (this.armor === 'storm_mantle' || this.helmet === 'storm_band') {
+      this.cloths.push({ kind: 'ribbon', c: new Cloth(10, 8 * this.scale, { ph: 4, wind: 700 }), at: this.helmet === 'storm_band' ? 'head' : 'sh', color: '#7fb8ff', w: 3 * this.scale });
+    }
+    if (this.helmet === 'veil') this.cloths.push({ kind: 'cape', c: new Cloth(8, 10 * this.scale, { ph: 5, wind: 420, grav: 600 }), at: 'head', color: 'rgba(160,170,176,0.5)', w0: 18 * this.scale, w1: 30 * this.scale });
+    if (this.helmet === 'sentinel_helm') this.cloths.push({ kind: 'scarf', c: new Cloth(6, 7 * this.scale, { ph: 6, wind: 600 }), at: 'head', color: C.ember, w: 6 * this.scale, dy: -14 });
+  }
+
+  /* ---- equipment helpers ---- */
+  elementOf(m) {
+    if (m && (m.kind === 'punch' || m.kind === 'kick' || m.kind === 'grab' || m.kind === 'throw')) return this.isPlayer ? 'wind' : null;
+    if (!this.hasWeapon && this.baseWeapon !== 'storm_orbs' && this.baseWeapon !== 'iron_fists') return this.isPlayer ? 'wind' : null;
+    return this.weapon().el || (this.isPlayer ? 'wind' : 'shade');
+  }
+  weaponId() { return this.hasWeapon ? this.baseWeapon : (this.baseWeapon === 'storm_orbs' || this.baseWeapon === 'iron_fists' ? this.baseWeapon : 'fists'); }
+  weapon() { return WEAPONS[this.weaponId()]; }
+  shape() { return SHAPE[this.weaponId()] || 'none'; }
+  height() { return 196 * this.scale; }
+  standHip() { return (BODY.thigh + BODY.shin) * this.scale * this.build.legs * 0.94; }
+  isAttacking() { return this.state === 'move' || this.state === 'ability'; }
+  isNeutral() { return this.state === 'idle' || this.state === 'walk' || this.state === 'run'; }
+  canAct() { return this.isNeutral() || this.state === 'block' || this.state === 'land'; }
+  airborne() { return !this.grounded; }
+
+  setState(s) { if (s !== 'down' && s !== 'getup') this.feetLand = false; this.state = s; this.st = 0; }
+
+  /* ---- per-tick simulation ---- */
+  update(dt, world) {
+    const c = this.ctrl;
+    dt *= this.slow;
+    this.time += dt; this.st += dt;
+    if (this.invuln > 0) this.invuln -= dt;
+    if (this.flash > 0) this.flash -= dt;
+    if (this.telegraph > 0) this.telegraph -= dt;
+    if (this.counterT > 0) this.counterT -= dt;
+    if (this.dashCd > 0) this.dashCd -= dt;
+    if (this.comboT > 0) { this.comboT -= dt; if (this.comboT <= 0) this.comboHits = 0; }
+    if (this.guard < 100 && this.state !== 'block') this.guard = Math.min(100, this.guard + 22 * dt);
+    if (this.poison > 0 && this.alive) {
+      this.poison -= dt;
+      if (((this.time * 4) | 0) !== (((this.time - dt) * 4) | 0)) { this.hp = Math.max(1, this.hp - 2.2); world && world.fx.poisonPuff(this); }
+    }
+    // input buffering
+    const b = this.buf;
+    for (const k in b) if (b[k] > 0) b[k] -= dt;
+    if (c.punchP) b.punch = 0.16; if (c.kickP) b.kick = 0.16; if (c.weaponP) b.weapon = 0.16;
+    if (c.specialP) b.special = 0.16; if (c.jumpP) b.jump = 0.12; if (c.dashP) b.dash = 0.12;
+
+    const opp = world ? world.opponentOf(this) : null;
+    switch (this.state) {
+      case 'idle': case 'walk': case 'run': this.updateNeutral(dt, world, opp); break;
+      case 'land':
+        this.friction(dt, 26);
+        if (this.st > this.landT) this.setState('idle');
+        else if (this.st > this.landT * 0.4) this.tryActions(world, opp);
+        break;
+      case 'prejump':
+        this.friction(dt, 20);
+        if (this.ctrl.dir) this.jumpDir = this.ctrl.dir;
+        if (this.st >= 0.075) this.launchJump(world);
+        break;
+      case 'kickcharge': this.updateCharge(dt, world); break;
+      case 'block': this.updateBlock(dt, world, opp); break;
+      case 'dash': this.updateDash(dt, world); break;
+      case 'air': this.updateAir(dt, world); break;
+      case 'move': this.updateMove(dt, world); break;
+      case 'hit': this.hitstun -= dt; this.friction(dt, 8); if (this.hitstun <= 0) this.setState(this.grounded ? 'idle' : 'air'); break;
+      case 'juggle': if (this.grounded && this.st > 0.05) this.onLandHard(world); break;
+      case 'down':
+        this.friction(dt, 10); this.invuln = Math.max(this.invuln, 0.1);
+        if (!this.alive) break;
+        if (this.st > this.downT) { this.setState('getup'); this.invuln = 0.45; }
+        break;
+      case 'getup': if (this.st > 0.36) this.setState('idle'); break;
+      case 'stun': this.stunT -= dt; this.friction(dt, 10); if (this.stunT <= 0) this.setState('idle'); break;
+      case 'grabbed': break;
+      case 'throwing': this.updateThrow(dt, world); break;
+      case 'ability': {
+        const a = this.abil;
+        if (!a) { this.setState('idle'); break; }
+        a.t += dt;
+        const r = a.update ? a.update(this, world, a.t, dt) : undefined;
+        if (this.abil === a && (r === false || a.t >= a.dur)) this.endAbility(world);
+        break;
+      }
+      case 'pose': this.friction(dt, 10); break;
+      case 'dead': this.friction(dt, 6); break;
+    }
+    this.physics(dt, world);
+    if (opp && (this.isNeutral() || this.state === 'block' || this.state === 'land' || this.state === 'kickcharge' || this.state === 'pose')) this.faceToward(opp, dt);
+    this.sqx = damp(this.sqx, 1, 14, dt); this.sqy = damp(this.sqy, 1, 14, dt);
+    this.updateFlip(dt, world);
+    this.updateTumble(dt, world);
+    this.updatePose(dt);
+    this.computeSkeleton();
+    this.updateCloth(dt);
+    this.recordTrail();
+  }
+
+  faceToward(o, dt) {
+    const want = o.x >= this.x ? 1 : -1;
+    if (want === this.facing) { this.turnT = 0; return; }
+    if (Math.abs(o.x - this.x) < 6) return;
+    this.turnT += dt;
+    if (this.turnT >= this.turnDelay) { this.facing = want; this.turnT = 0; }
+  }
+  friction(dt, k) { if (this.grounded) this.vx = damp(this.vx, 0, k, dt); }
+
+  tryActions(world, opp) {
+    const c = this.ctrl, b = this.buf;
+    if (c.grabP) { b.punch = 0; return this.startMove('grab', world); }
+    if (b.special > 0) { b.special = 0; return this.doSpecial(world); }
+    if (b.dash > 0 && this.dashCd <= 0) { b.dash = 0; return this.startDash(c.dir || this.facing, world); }
+    if (b.jump > 0) { b.jump = 0; return this.doJump(world); }
+    if (b.weapon > 0) {
+      b.weapon = 0;
+      const w = this.weapon();
+      if (this.counterT > 0 && w.counter) return this.startMove(w.counter, world);
+      return this.startMove(w.moves[0], world);
+    }
+    if (b.punch > 0) { b.punch = 0; return this.startMove('p1', world); }
+    if (c.kickP) { this.setState('kickcharge'); this.charge = 0; return true; }
+    return false;
+  }
+
+  updateNeutral(dt, world, opp) {
+    const c = this.ctrl;
+    if (c.blockHeld && !c.punchP) { this.setState('block'); this.blockT = 0; return; }
+    if (this.tryActions(world, opp)) return;
+    const spd = 245 * this.speedMul;
+    if (c.dir !== 0) {
+      if (this.runDir === c.dir) this.walkT += dt; else { this.runDir = c.dir; this.walkT = 0; }
+      const run = this.walkT > 0.38 && c.dir === this.facing;
+      const target = c.dir * (run ? spd * 1.65 : spd * (c.dir === this.facing ? 1 : 0.82));
+      this.vx = damp(this.vx, target, 16, dt);
+      const s = run ? 'run' : 'walk';
+      if (this.state !== s) { this.state = s; }
+    } else {
+      this.walkT = 0; this.runDir = 0;
+      this.vx = damp(this.vx, 0, 18, dt);
+      if (this.state !== 'idle') this.state = 'idle';
+    }
+    this.walkPhase += Math.abs(this.vx) * dt / (30 * this.scale);
+  }
+
+  updateCharge(dt, world) {
+    const c = this.ctrl;
+    this.charge += dt; this.friction(dt, 14);
+    if (this.charge > 0.18 && ((this.charge - dt) <= 0.18)) { AudioManager.play('charge'); }
+    if (!c.kickHeld || this.charge > 1.0) {
+      if (this.charge < 0.18) this.startMove('rk', world);
+      else this.startMove('hk', world, { charge: clamp((this.charge - 0.18) / 0.62, 0, 1) });
+    }
+  }
+
+  updateBlock(dt, world, opp) {
+    const c = this.ctrl;
+    this.blockT += dt; this.friction(dt, 20);
+    if (c.grabP) { this.buf.punch = 0; this.startMove('grab', world); return; }
+    if (this.buf.weapon > 0 && this.counterT > 0) { this.buf.weapon = 0; const w = this.weapon(); if (w.counter) { this.startMove(w.counter, world); return; } }
+    if (this.buf.dash > 0 && this.dashCd <= 0) { this.buf.dash = 0; this.startDash(c.dir || -this.facing, world); return; }
+    if (!c.blockHeld) this.setState('idle');
+  }
+
+  doJump(world) {
+    if (this.grounded) {
+      // anticipation: crouch for a few frames, then drive up through the legs
+      if (this.state === 'prejump') return true;
+      this.jumpDir = this.ctrl.dir; this.move = null; this.setState('prejump');
+      this.sqx = 1.08; this.sqy = 0.9;
+      return true;
+    }
+    if (this.jumps < 2) {
+      this.vy = -840; this.jumps = 2; this.flipT = 1e-4; this.flipLand = true; this.bodyRotVel = 0; this.sqx = 0.86; this.sqy = 1.16;
+      world && world.fx.riseLines(this.x, this.y + 10 * this.scale, 7, this.scale);
+      if (this.ctrl.dir) this.vx = this.ctrl.dir * 330 * this.speedMul;
+      this.setState('air'); AudioManager.play('djump');
+      world && world.fx.ring(this.x, this.y - 60 * this.scale, 40, 'rgba(236,229,211,0.5)', 0.25);
+      return true;
+    }
+    return false;
+  }
+
+  launchJump(world) {
+    this.vy = -930; this.grounded = false; this.jumps = 1; this.airDash = false; this.sqx = 0.84; this.sqy = 1.18;
+    this.vx = (this.jumpDir || this.ctrl.dir) * 290 * this.speedMul + this.vx * 0.3;
+    this.setState('air'); AudioManager.play('jump');
+    world && world.fx.dust(this.x, 0, 8);
+  }
+
+  startDash(dir, world) {
+    this.dashDir = dir || this.facing;
+    this.setState('dash'); this.dashT = 0.2;
+    this.invuln = Math.max(this.invuln, 0.17 + this.dashBonus * 0.5);
+    this.dashCd = 0.42 * (1 - this.dashBonus);
+    AudioManager.play('dash');
+    world && world.fx.dashLines(this);
+    if (!this.grounded) { this.airDash = true; this.vy = 0; }
+    return true;
+  }
+
+  updateDash(dt, world) {
+    this.dashT -= dt;
+    this.vx = this.dashDir * 900 * this.speedMul * (this.dashDir === this.facing ? 1 : 0.85);
+    if (!this.grounded) this.vy = Math.min(this.vy, 60);
+    if (this.st > 0.03) {
+      if (this.buf.punch > 0 && this.dashDir === this.facing) { this.buf.punch = 0; this.startMove('dp', world); return; }
+      if ((this.buf.kick > 0 || this.ctrl.kickP) && this.dashDir === this.facing && this.grounded) { this.buf.kick = 0; this.startMove('slide', world); return; }
+    }
+    if (world && (this.st * 60 | 0) % 2 === 0) world.fx.afterimage(this);
+    if (this.dashT <= 0) { this.vx *= 0.35; this.setState(this.grounded ? 'idle' : 'air'); }
+  }
+
+  updateAir(dt, world) {
+    const c = this.ctrl, b = this.buf;
+    if (c.dir) this.vx = damp(this.vx, c.dir * 330 * this.speedMul, 4, dt);
+    if (b.jump > 0 && this.jumps < 2) { b.jump = 0; this.doJump(world); return; }
+    if (b.dash > 0 && !this.airDash && this.dashCd <= 0) { b.dash = 0; this.startDash(c.dir || this.facing, world); return; }
+    if (b.special > 0) { b.special = 0; if (this.doSpecial(world)) return; }
+    if (b.weapon > 0) { b.weapon = 0; const w = this.weapon(); if (w.air) { this.startMove(w.air, world); return; } }
+    if (b.punch > 0) { b.punch = 0; this.startMove('ap', world); return; }
+    if (b.kick > 0 || c.kickP) { b.kick = 0; this.startMove('ak', world); return; }
+    if (this.tuckT > 0) this.tuckT -= dt;
+  }
+
+  /* ---- moves ---- */
+  startMove(id, world, opts) {
+    const m = MOVES[id];
+    if (!m) return false;
+    if (m.kind === 'throw') { if (this.ammo <= 0) { world && world.fx.popText(this, 'NO KUNAI', C.muted); return false; } }
+    const now = world ? world.time : 0;
+    if (m.id === this.lastMoveId && now - this.lastMoveT < 2.4) this.repeat++; else this.repeat = 0;
+    this.lastMoveId = m.id; this.lastMoveT = now;
+    this.move = m; this.setState('move'); this.mt = 0; this.mphase = 0; this.hitList.length = 0; this.moveHit = false; this.multiN = 0;
+    this.moveCharge = opts && opts.charge != null ? opts.charge : 0;
+    const wm = m.kind === 'weapon' || (m.kind === 'air' && WEAPONS[this.weaponId()].air === m.id) ? weaponMul(this.wlvl) : null;
+    const spd = (wm ? wm.spd : 1) * (this.isPlayer ? 1 : (this.def && this.def.speed ? Math.sqrt(this.def.speed) : 1));
+    this.mdur[0] = m.t[0] / spd; this.mdur[1] = m.t[1]; this.mdur[2] = m.t[2] / spd;
+    if (this.boostAtk) { this.mdur[0] *= this.boostAtk; this.mdur[2] *= this.boostAtk; }
+    this.superArmor = !!m.armor || !!(this.def && this.def.heavyArmor && m.imp >= 2);
+    this._snap = Object.assign(this._snap || {}, this.pose);
+    this.trail.length = 0; this.trail2.length = 0;
+    world && world.onMoveStart(this, m);
+    return true;
+  }
+
+  updateMove(dt, world) {
+    const m = this.move; if (!m) { this.setState('idle'); return; }
+    this.mt += dt;
+    const d0 = this.mdur[0], d1 = d0 + this.mdur[1], d2 = d1 + this.mdur[2];
+    if (this.mphase === 0 && this.mt >= d0) {
+      this.mphase = 1;
+      this.sqx = 1.1 + 0.04 * this.heft(); this.sqy = 0.93;
+      if (world && (m.kind === 'punch' || m.kind === 'kick' || (m.imp || 0) >= 2) && !this.clone) world.fx.kiai(this);
+      if (world && this.heft() >= 1.4) { world.fx.shake(0.05 * this.heft()); if (this.grounded) world.fx.dust(this.x + this.facing * 30 * this.scale, 0, 4); }
+      if (world && (m.spin || m.rot) && (m.kind === 'weapon' || m.kind === 'kick')) world.fx.elemRing(this.elementOf(m), this.x, this.y - 95 * this.scale, 120 * this.scale);
+      const ch = this.moveCharge;
+      if (m.lunge) this.vx = this.facing * m.lunge * (1 + ch * 0.6) * (this.grounded ? 1 : 0.5);
+      if (m.hop) { this.vy = m.hop; this.grounded = false; }
+      if (m.snd) AudioManager.play(m.snd, { pitch: this.isPlayer ? 1 : 0.9 });
+      if (m.proj && world) world.spawnProjectile(m.proj, this);
+      if (m.kind === 'throw') this.ammo--;
+    }
+    if (this.mphase === 1) {
+      if (m.multi && this.mt - d0 > (this.multiN + 1) * m.multi[1] && this.multiN < m.multi[0] - 1) { this.multiN++; this.hitList.length = 0; }
+      if (this.mt >= d1) {
+        this.mphase = 2;
+        if (!this.moveHit && this.heft() >= 1.3) this.mdur[2] *= 1 + 0.2 * (this.heft() - 1);
+        if (m.shock && world && this.grounded) world.spawnShock(this, m);
+      }
+    }
+    if (this.grounded) { if (this.mphase !== 1 || this.mt - d0 > 0.08) this.vx = damp(this.vx, 0, m.kind === 'kick' && m.id === 'slide' ? 4 : 11, dt); }
+    // air move landing
+    if (m.kind === 'air' && this.grounded && this.mt > 0.04) { this.move = null; this.setState('land'); AudioManager.play('land'); world && world.fx.dust(this.x, this.y, 6); return; }
+    // chains and cancels
+    if (this.mphase >= 1 && this.mt > d0 + this.mdur[1] * 0.5) {
+      const b = this.buf, wpn = this.weapon();
+      const btn = m.kind === 'weapon' ? 'weapon' : m.kind === 'kick' ? 'kick' : m.kind === 'punch' ? 'punch' : null;
+      if (m.next && btn && b[btn] > 0 && this.mphase === 2) { b[btn] = 0; this.startMove(m.next, world); return; }
+      if (this.moveHit && this.mphase === 2) {
+        if (b.special > 0 && this.rage >= 100) { b.special = 0; this.doSpecial(world); return; }
+        if (b.weapon > 0 && btn !== 'weapon') { b.weapon = 0; this.startMove(wpn.moves[0], world); return; }
+        if (b.kick > 0 && btn !== 'kick') { b.kick = 0; this.startMove('rk', world); return; }
+        if (b.punch > 0 && btn !== 'punch') { b.punch = 0; this.startMove('p1', world); return; }
+        if (b.jump > 0 && this.grounded && this.mt > d1 + this.mdur[2] * 0.4) { b.jump = 0; this.move = null; this.doJump(world); return; }
+      }
+    }
+    if (this.mt >= d2) {
+      this.move = null; this.superArmor = false;
+      this.setState(this.grounded ? 'idle' : 'air');
+    }
+  }
+
+  // hitbox in world space, or null
+  hitbox(out) {
+    if (this.state !== 'move' || this.mphase !== 1 || !this.move || !this.move.box) return null;
+    const b = this.move.box, s = this.scale;
+    const reach = (this.move.kind === 'weapon' || this.move.kind === 'air') && this.hasWeapon ? weaponMul(this.wlvl).reach : 1;
+    const x0 = b[0] * s, w = b[2] * s * reach * (this.move.id === 'hk' ? 1 + this.moveCharge * 0.15 : 1);
+    out.x = this.facing > 0 ? this.x + x0 : this.x - x0 - w;
+    out.y = this.y + b[1] * s; out.w = w; out.h = b[3] * s;
+    return out;
+  }
+  hurtbox(out) {
+    const sk = this.sk;
+    let top = sk.head.y - BODY.head * this.scale * this.build.head;
+    let bottom = Math.max(sk.fft.y, sk.bft.y, sk.hip.y + 10);
+    const cx = (sk.hip.x + sk.neck.x) / 2;
+    const w = 46 * this.scale * (this.build.w > 14 ? 1.25 : 1);
+    if (this.state === 'down' || this.state === 'dead') { top = this.y - 40 * this.scale; bottom = this.y; }
+    out.x = cx - w / 2; out.y = top; out.w = w; out.h = Math.max(30, bottom - top);
+    return out;
+  }
+
+  doSpecial(world) {
+    if (this.rage >= 100) {
+      const name = this.weapon().special || 'shadowPalm';
+      if (world && SPECIAL_IMPL[name]) { this.rage = 0; SPECIAL_IMPL[name](this, world); world.onSpecial(this, name); return true; }
+    }
+    if (this.grounded || true) return this.startMove('kunai', world);
+  }
+
+  startAbility(a, world) {
+    this.abil = Object.assign({ t: 0, dur: 1, pose: null, rate: 18 }, a);
+    this.move = null; this.setState('ability');
+    if (this.abil.start) this.abil.start(this, world);
+  }
+  endAbility(world) {
+    const a = this.abil; this.abil = null;
+    if (a && a.end) a.end(this, world);
+    if (this.state === 'ability') this.setState(this.grounded ? 'idle' : 'air');
+    this.superArmor = false; this.alpha = 1; this.visible = true;
+  }
+
+  updateThrow(dt, world) {
+    const v = this.grabbing;
+    this.friction(dt, 20);
+    if (!v) { this.setState('idle'); return; }
+    const t = this.st, dur = 0.5;
+    // victim follows the hands up and over
+    const k = clamp(t / dur, 0, 1);
+    const ang = lerp(0.2, Math.PI * 0.95, Ease.inOut(k));
+    v.x = this.x + this.facing * Math.cos(ang) * 70 * this.scale;
+    v.y = this.y - Math.sin(ang) * 120 * this.scale;
+    v.vx = 0; v.vy = 0; v.grounded = false;
+    if (t >= dur) {
+      this.grabbing = null; v.grabbedBy = null;
+      v.x = this.x - this.facing * 70 * this.scale; v.y = this.y - 30;
+      world.applyThrow(this, v);
+      this.setState('idle');
+    }
+  }
+
+  onLandHard(world) {
+    if (Math.abs(this.vyLand || 0) > 600 && this.bounced !== true) {
+      this.vy = -this.vyLand * 0.32; this.grounded = false; this.bounced = true;
+      world && world.fx.dust(this.x, this.y, 14); AudioManager.play('land');
+      return;
+    }
+    const impact = clamp(Math.abs(this.vyLand || 0) / 1400, 0, 1);
+    this.bounced = false; this.juggle = 0; this.vx *= 0.3;
+    world && world.fx.dust(this.x, this.y, 10 + impact * 14);
+    world && world.fx.shake(0.08 + impact * 0.2);
+    const feet = this.alive && Math.abs(angDiff(0, this.bodyRot)) < 75;
+    if (world) {
+      if (feet) { world.fx.landBurst(this.x, this.scale, 0.75 + impact * 0.6); world.fx.dust(this.x - 22, 0, 6); world.fx.dust(this.x + 22, 0, 6); }
+      else if (impact > 0.35) world.fx.elemRing('ink', this.x, -3, 70 + impact * 60);
+    }
+    if (feet) { this.sqx = 1.18; this.sqy = 0.84; }
+    AudioManager.play('land');
+    if (!this.alive) { this.setState('dead'); return; }
+    this.setState('down'); this.downT = 0.4 + impact * 0.45; this.feetLand = feet;
+  }
+
+  physics(dt, world) {
+    if (this.state === 'grabbed') return;
+    const floating = this.state === 'ability' && this.abil && this.abil.float;
+    if (!this.grounded && !floating) {
+      const g = this.state === 'juggle' ? 2500 * (1 + this.juggle * 0.12) : (this.state === 'dash' ? 0 : 2600);
+      this.vy += g * dt;
+    }
+    this.x += this.vx * dt; this.y += this.vy * dt;
+    if (this.y >= 0) {
+      if (!this.grounded) {
+        this.vyLand = this.vy;
+        const impact = clamp(this.vy / 1600, 0, 1); this.sqx = 1 + 0.22 * impact; this.sqy = 1 - 0.2 * impact;
+        this.y = 0; this.vy = 0; this.grounded = true; this.jumps = 0; this.airDash = false; this.tuckT = 0;
+        if (this.state === 'air') {
+          // weight on landing: deeper knees, longer recovery and a dust ring for big drops; no sliding
+          this.landDepth = 0.35 + impact * 0.65; this.landT = 0.06 + impact * 0.16; this.vx *= 0.35;
+          if (this.flipLand) { this.landDepth = Math.max(this.landDepth, 0.8); this.landT = Math.max(this.landT, 0.17); if (world) { world.fx.dust(this.x - 18, 0, 6); world.fx.dust(this.x + 18, 0, 6); world.fx.landBurst(this.x, this.scale, 0.7); } }
+          else if (world && impact > 0.55) world.fx.landBurst(this.x, this.scale, impact * 0.8);
+          this.flipLand = false;
+          this.setState('land'); AudioManager.play('land');
+          if (world) { world.fx.dust(this.x, 0, 4 + impact * 8); if (impact > 0.55) world.fx.elemRing('ink', this.x, -3, 50 + impact * 40); }
+        }
+        else if (this.state === 'dash') { /* keep dashing along ground */ }
+      } else { this.y = 0; this.vy = 0; }
+    } else if (!floating) this.grounded = false;
+    if (world) {
+      const l = world.bounds.l, r = world.bounds.r;
+      if (this.x < l) { this.x = l; if (this.state === 'juggle' && Math.abs(this.vx) > 300) world.wallBounce(this); else this.vx = Math.max(0, this.vx); }
+      if (this.x > r) { this.x = r; if (this.state === 'juggle' && Math.abs(this.vx) > 300) world.wallBounce(this); else this.vx = Math.min(0, this.vx); }
+    }
+  }
+
+  /* ---- pose target selection + blending ---- */
+  updatePose(dt) {
+    const t = this.tgt, wp = this.weapon(), stance = STANCES[wp.stance] || STANCES.fists;
+    let rate = 14;
+    const copy = src => { for (let i = 0; i < POSE_KEYS.length; i++) t[POSE_KEYS[i]] = src[POSE_KEYS[i]]; t.ik = src.ik || 0; };
+    this.extraRot = 0;
+    switch (this.state) {
+      case 'idle': case 'land': case 'kickcharge': case 'walk': case 'run': {
+        if (this.state === 'kickcharge' && this.charge > 0.12) { copy(MOVES.hk.w); rate = 16; t.lean += Math.sin(this.time * 40) * 1.5; break; }
+        copy(stance);
+        if (this.state === 'land') { blendPose(t, POSES.land, this.landDepth * (1 - 0.6 * clamp(this.st / this.landT, 0, 1))); t.wa = stance.wa; t.wb = stance.wb; t.fs = stance.fs; t.fe = stance.fe; t.ik = stance.ik || 0; rate = 32; break; }
+        // fighter's bounce: rhythmic knee flex while the guard breathes
+        const bt = this.time * TAU * 1.5, bounce = (1 + Math.sin(bt)) * 0.5, lowHp = this.hp < this.maxHp * 0.25;
+        t.fk -= bounce * 10; t.bk -= bounce * 8; t.fh += bounce * 3;
+        t.lean += Math.sin(bt) * 1.2 + (lowHp ? 7 : 0); t.head += Math.sin(bt) * 1.2 + (lowHp ? 6 : 0);
+        t.fe += Math.sin(bt + 0.6) * 4; t.be -= Math.sin(bt + 1.1) * 3;
+        if (this.state === 'walk') {
+          // shuffle footwork: lead foot first when advancing, rear foot first when retreating, feet never cross
+          const p = this.walkPhase, fwd = this.vx * this.facing >= 0;
+          const lead = fwd ? p : p - 1.3, rear = fwd ? p - 1.3 : p;
+          t.fh += 13 * Math.sin(lead); t.fk -= 26 * Math.max(0, Math.sin(lead));
+          t.bh += 13 * Math.sin(rear); t.bk -= 24 * Math.max(0, Math.sin(rear));
+          t.lean += fwd ? 3 : -4; rate = 16;
+        } else if (this.state === 'run') {
+          const p = this.walkPhase;
+          t.fh = 8 + 44 * Math.sin(p); t.fk = -10 - 80 * Math.max(0, Math.cos(p));
+          t.bh = 8 + 44 * Math.sin(p + Math.PI); t.bk = -10 - 80 * Math.max(0, Math.cos(p + Math.PI));
+          t.lean = 24; t.head = 10; rate = 16;
+          if (this.shape() === 'none' || this.shape() === 'short') { t.fs = -64 + Math.sin(p) * 8; t.fe = 14; t.bs = -76; t.be = 14; t.wa = -110; t.wb = -120; t.ik = 0; }
+          else t.lean = 18;
+        }
+        break;
+      }
+      case 'block': copy(this.shape() === 'none' || this.shape() === 'fan' ? POSES.blockFists : POSES.blockArmed); rate = 28;
+        if (this.weaponId() === 'sentinel_spear') { t.bs = 96; t.be = 10; t.wb = 180; }
+        break;
+      case 'dash': copy(this.dashDir === this.facing ? POSES.dash : POSES.backstep); rate = 30; break;
+      case 'air': {
+        if (this.flipT > 0) {
+          // takeoff knee-drive -> tight tuck through the fast spin -> open out and reach for the floor
+          const u = clamp(this.flipT / FLIP_DUR, 0, 1);
+          if (u < 0.18) { copy(POSES.flipTakeoff); }
+          else if (u < 0.72) { copy(POSES.flip); blendPose(t, POSES.flipTakeoff, clamp(1 - (u - 0.18) / 0.12, 0, 1)); }
+          else { copy(POSES.flip); blendPose(t, POSES.flipFinish, Ease.outCubic(clamp((u - 0.72) / 0.28, 0, 1))); }
+          rate = 34;
+        }
+        else if (this.tuckT > 0) { copy(POSES.tuck); rate = 20; }
+        else {
+          // rising -> apex -> falling, blended by vertical speed; legs reach for the floor when close
+          copy(POSES.jump); blendPose(t, POSES.fall, clamp((this.vy + 600) / 1300, 0, 1));
+          if (this.vy > 0) blendPose(t, POSES.landPrep, clamp(1 + this.y / 170, 0, 1) * 0.9);
+          t.fs += Math.sin(this.time * 9) * 4; t.bs -= Math.sin(this.time * 9 + 1) * 4;
+          rate = 13;
+        }
+        if (stance.wa != null) { t.wa = stance.wa + 30; t.wb = stance.wb; }
+        break;
+      }
+      case 'move': {
+        const m = this.move;
+        if (!m) { copy(stance); break; }
+        this.movePose(t); rate = 70;
+        if (m.rot && this.mphase === 1) this.extraRot = m.rot * clamp((this.mt - this.mdur[0]) / this.mdur[1], 0, 1);
+        if (m.id === 'hk') t.lean -= this.moveCharge * 6;
+        break;
+      }
+      case 'hit': copy(this.hitGut ? POSES.hitGut : POSES.hit); rate = 34; break;
+      case 'juggle': {
+        const T = this.tumble;
+        if (T && T.full && this.alive) {
+          // airborne -> controlled tumble -> head-down fall -> brace for landing
+          const u = clamp(T.t / T.dur, 0, 1);
+          if (u < 0.22) copy(POSES.launched);
+          else if (u < 0.58) copy(POSES.tumble);
+          else if (u < 0.8) copy(POSES.launchFall);
+          else copy(POSES.brace);
+          rate = 20;
+        } else if (T && T.bounce && this.alive) {
+          // ground bounce out of a feet-first landing: a braced crouch-hop, not a second launch
+          copy(POSES.brace); blendPose(t, POSES.braceLand, 0.45); rate = 18;
+        } else {
+          copy(POSES.launched); blendPose(t, POSES.launchFall, clamp((this.vy + 300) / 900, 0, 1)); rate = 12;
+          if (this.alive && this.vy > 0) blendPose(t, POSES.brace, clamp(1 + this.y / 160, 0, 1));
+        }
+        break;
+      }
+      case 'prejump': copy(stance); blendPose(t, POSES.jumpSquat, 0.85); rate = 40; break;
+      case 'down': case 'dead': copy(this.state === 'dead' ? POSES.dead : this.feetLand ? POSES.braceLand : POSES.down); rate = this.feetLand ? 26 : 10; break;
+      case 'getup':
+        if (this.feetLand) { copy(POSES.land); rate = 12; if (this.st > 0.12) { copy(stance); rate = 10; } break; }
+        copy(POSES.getup); rate = 14; if (this.st > 0.15) { copy(stance); rate = 12; } break;
+      case 'stun': copy(POSES.stun); rate = 6; t.lean += Math.sin(this.time * 5) * 10; t.head += Math.sin(this.time * 7) * 14; t.rx = Math.sin(this.time * 5) * 6; break;
+      case 'grabbed': copy(POSES.grabbed); rate = 20; this.extraRot = this.grabbedBy ? -this.grabbedBy.facing * this.facing * 0 : 0; break;
+      case 'throwing': copy(UNARMED.grab.s); t.fs = lerp(86, 200, clamp(this.st / 0.5, 0, 1)); t.bs = lerp(80, 190, clamp(this.st / 0.5, 0, 1)); t.lean = lerp(18, -30, clamp(this.st / 0.5, 0, 1)); rate = 30; break;
+      case 'ability': {
+        const a = this.abil;
+        copy(a && a.pose ? (typeof a.pose === 'function' ? a.pose(this, a.t) : a.pose) : stance); rate = a ? a.rate : 18;
+        if (a && a.rot) this.extraRot = a.rot(this, a.t);
+        break;
+      }
+      case 'pose': copy(POSES[this.poseName] || stance); rate = 8;
+        if (this.poseName === 'victory' || this.poseName === 'taunt') { const br = Math.sin(this.time * 2); t.lean += br; }
+        break;
+    }
+    // weapon angles: null -> follow forearm
+    const sh = this.shape();
+    if (t.tw == null) t.tw = 0; if (t.hp == null) t.hp = 0;
+    if (t.wa == null) t.wa = t.fs + t.fe + (CARRY[sh] || 0);
+    if (t.wb == null) t.wb = t.bs + t.be + (CARRY[sh] || 0);
+    if (sh === 'none') { t.ik = 0; }
+    this.updateBodyRot(dt);
+    this.extraRot += this.bodyRot + this.flipAngle();
+    if (this.state === 'move' && this.move && this.move.spin && this.mphase === 0) this.turnX = Math.cos(clamp(this.mt / this.mdur[0], 0, 1) * TAU);
+    else this.turnX = damp(this.turnX, 1, 30, dt);
+    const p = this.pose;
+    const k = 1 - Math.exp(-rate * dt);
+    for (let i = 0; i < POSE_KEYS.length; i++) { const key = POSE_KEYS[i]; p[key] += (t[key] - p[key]) * k; }
+    p.ik += ((t.ik || 0) - p.ik) * Math.min(1, k * 1.5);
+  }
+
+  flipAngle() { return this.flipT > 0 ? 360 * flipEase(clamp(this.flipT / FLIP_DUR, 0, 1)) : 0; }
+  updateFlip(dt, world) {
+    if (this.flipT <= 0) return;
+    const st = this.state;
+    // a hit or touching down ends the flip: whatever angle is left is handed to the body spring, so nothing snaps
+    if (this.grounded || st === 'hit' || st === 'juggle' || st === 'grabbed' || st === 'stun' || st === 'down' || st === 'dead') {
+      let a = this.flipAngle() % 360; if (a > 180) a -= 360;
+      this.bodyRot += a; this.flipT = 0; return;
+    }
+    const u0 = this.flipT / FLIP_DUR;
+    this.flipT += dt;
+    const u = this.flipT / FLIP_DUR;
+    if (world && dt > 0) {
+      if (u0 < 0.16 && u >= 0.16) AudioManager.play('whoosh');
+      if (u > 0.2 && u < 0.85 && ((this.flipT * 60) | 0) % 2 === 0) world.fx.afterimage(this, this.flipGhost());
+    }
+    if (u >= 1) this.flipT = 0;
+  }
+  // every launch (or re-launch mid-air) plans one backward tumble timed to land feet first;
+  // pops too short for a full turn get a small backward tilt instead
+  updateTumble(dt, world) {
+    if (this.state !== 'juggle') { this.tumble = null; this.lastVy = this.vy; return; }
+    const kicked = !this.tumble || this.vy < (this.lastVy || 0) - 150;
+    this.lastVy = this.vy;
+    if (kicked && !this.grounded) {
+      const g = 2500 * (1 + this.juggle * 0.12), y = Math.min(this.y, 0), vy = this.vy;
+      const dur = Math.max(0.12, (-vy + Math.sqrt(Math.max(0, vy * vy - 2 * g * y))) / g);
+      const a0 = this.bodyRot;
+      let dist = a0 >= 0 ? a0 : a0 + 360; if (dist < 180) dist += 360;
+      const bounce = this.bounced === true;
+      this.tumble = { t: 0, dur, a0, a1: a0 - dist, full: !bounce && this.alive && dur >= 0.28 && dist / dur < 1500, prev: a0, bounce };
+    }
+    if (!world || dt <= 0 || !this.tumble) return;
+    const T = this.tumble, u = T.t / T.dur, n = (this.st * 60) | 0;
+    // speed lines streaming behind the body while it travels fast
+    if (Math.hypot(this.vx, this.vy) > 420 && n % 2 === 0) world.fx.trailLines(this.sk.hip.x, this.sk.hip.y, Math.atan2(this.vy, this.vx), this.scale);
+    if (T.full && u > 0.2 && u < 0.8 && n % 3 === 0) world.fx.afterimage(this, 'rgba(236,229,211,0.16)');
+  }
+  flipColor() {
+    const el = this.elementOf(null) || 'ink';
+    if (el === 'wind' || el === 'ink' || el === 'shade' || !ELEMENTS[el]) return [132, 192, 255];
+    return ELEMENTS[el].smear;
+  }
+  flipGhost() { const c = this.flipColor(); return `rgba(${c[0]},${c[1]},${c[2]},0.24)`; }
+
+  // one body angle shared by every state: it springs toward a target, or rides momentum while launched,
+  // so it never snaps or resets between jump, knockback, fall, landing and recovery
+  updateBodyRot(dt) {
+    const st = this.state;
+    if (st === 'juggle' && this.alive && this.tumble) {
+      const T = this.tumble; T.t += dt;
+      const u = clamp(T.t / T.dur, 0, 1);
+      const a = T.full ? T.a0 + (T.a1 - T.a0) * tumbleEase(u) : T.a0 * (1 - Ease.outCubic(u)) - (T.bounce ? 10 : 48) * Math.sin(Math.PI * u);
+      if (dt > 0) this.bodyRotVel = (a - T.prev) / dt;
+      T.prev = a; this.bodyRot = ((a % 360) + 540) % 360 - 180;
+      return;
+    }
+    if (st === 'juggle') {
+      this.bodyRotVel += angDiff(-85, this.bodyRot) * (this.vy > 0 ? 5 : 1.2) * dt;
+      this.bodyRotVel *= Math.exp(-1.6 * dt);
+    } else {
+      let target = 0, k = 170;
+      if (st === 'air') target = clamp(this.vx * this.facing * 0.012, -7, 7) + (this.tuckT > 0 ? 10 : 0);
+      else if (st === 'hit') target = this.st < 0.14 ? (this.hitGut ? 5 : -8) : 0;
+      else if (st === 'down' || st === 'dead') { target = this.feetLand && st === 'down' ? 0 : -90; k = this.feetLand ? 200 : 110; }
+      else if (st === 'getup') { target = 0; k = 120; }
+      else if (st === 'grabbed') target = -25;
+      this.bodyRotVel += (k * angDiff(target, this.bodyRot) - 2 * Math.sqrt(k) * this.bodyRotVel) * dt;
+    }
+    // a whole turn looks identical, so keep the angle in -180..180 and always rotate the short way round
+    this.bodyRot += this.bodyRotVel * dt;
+    if (this.bodyRot > 180) this.bodyRot -= 360; else if (this.bodyRot <= -180) this.bodyRot += 360;
+    // a launched body tips back but never cartwheels: bleed off spin past the flat-on-back angle
+    if (st === 'juggle' && this.bodyRot < -110 && this.bodyRotVel < 0) this.bodyRotVel *= Math.exp(-12 * dt);
+  }
+
+  /* ---- forward kinematics ---- */
+  computeSkeleton() {
+    const p = this.pose, s = this.scale, b = this.build, f = this.facing, sk = this.sk;
+    const torso = BODY.torso * s * b.torso, upper = BODY.upper * s * b.arms, fore = BODY.fore * s * b.arms;
+    const thigh = BODY.thigh * s * b.legs, shin = BODY.shin * s * b.legs, hr = BODY.head * s * b.head, neck = BODY.neck * s;
+    const rot = (p.rot + this.extraRot) * DEG;
+    const cr = Math.cos(rot), sr = Math.sin(rot);
+    // local (facing-right, y down) positions relative to the hip
+    const L = this._L || (this._L = {});
+    const set = (k, x, y) => { const o = L[k] || (L[k] = { x: 0, y: 0 }); o.x = x; o.y = y; return o; };
+    const lean = p.lean * DEG;
+    const hip = set('hip', p.rx * s, 0);
+    const nk = set('neck', hip.x + Math.sin(lean) * torso, hip.y - Math.cos(lean) * torso);
+    const shd = set('sh', lerp(hip.x, nk.x, 0.9), lerp(hip.y, nk.y, 0.9));
+    // torso twist separates the shoulders along the chest normal; hip twist opens the pelvis (roundhouse turnover, cross punch)
+    const tfx = Math.cos(lean), tfy = Math.sin(lean), big = b.w > 13 ? 1.35 : 1, sep = 8 * s * big, hsep = 7 * s * big;
+    const twk = p.tw || 0, hpk = p.hp || 0;
+    const shF = set('shF', shd.x - tfx * sep * (twk * 0.55 - 0.12), shd.y - tfy * sep * (twk * 0.55 - 0.12));
+    const shB = set('shB', shd.x + tfx * sep * (twk * 0.85 - 0.12), shd.y + tfy * sep * (twk * 0.85 - 0.12));
+    const hipF = set('hipF', hip.x - hsep * (hpk * 0.5 - 0.15), hip.y);
+    const hipB = set('hipB', hip.x + hsep * (hpk * 0.8 - 0.15), hip.y);
+    const ha = (p.lean + p.head) * DEG;
+    set('head', nk.x + Math.sin(ha) * (neck + hr), nk.y - Math.cos(ha) * (neck + hr));
+    const limb = (ox, oy, a1, a2, l1, l2, k1, k2) => {
+      const A = a1 * DEG, B = (a1 + a2) * DEG;
+      const j = set(k1, ox + Math.sin(A) * l1, oy + Math.cos(A) * l1);
+      set(k2, j.x + Math.sin(B) * l2, j.y + Math.cos(B) * l2);
+    };
+    limb(shF.x, shF.y, p.fs, p.fe, upper, fore, 'fel', 'fha');
+    limb(shB.x, shB.y, p.bs, p.be, upper, fore, 'bel', 'bha');
+    limb(hipF.x, hipF.y, p.fh, p.fk, thigh, shin, 'fkn', 'fft');
+    limb(hipB.x, hipB.y, p.bh, p.bk, thigh, shin, 'bkn', 'bft');
+    // weapon direction (local)
+    const wl = this.weaponLen();
+    const wA = p.wa * DEG, wB = p.wb * DEG;
+    set('wv', Math.sin(wA), Math.cos(wA)); set('w2v', Math.sin(wB), Math.cos(wB));
+    // two-handed IK for the back arm
+    if (p.ik > 0.5 && wl > 0 && IK_OFF[this.shape()] != null) {
+      const off = IK_OFF[this.shape()] * wl;
+      const tx = L.fha.x + L.wv.x * off, ty = L.fha.y + L.wv.y * off;
+      this.solveIK(shB, tx, ty, upper, fore, L);
+    }
+    // rotate around hip and find ground contact
+    const keys = ['neck', 'sh', 'shF', 'shB', 'hipF', 'hipB', 'head', 'fel', 'fha', 'bel', 'bha', 'fkn', 'fft', 'bkn', 'bft'];
+    let maxY = 0;
+    for (const k of keys) {
+      const o = L[k], x = o.x - hip.x, y = o.y - hip.y;
+      o.x = hip.x + x * cr - y * sr; o.y = hip.y + x * sr + y * cr;
+      const yy = k === 'head' ? o.y + hr : o.y;
+      if (yy > maxY) maxY = yy;
+    }
+    for (const k of ['wv', 'w2v']) { const o = L[k], x = o.x, y = o.y; o.x = x * cr - y * sr; o.y = x * sr + y * cr; }
+    const targetOff = this.state === 'grabbed' ? -this.standHip() : (this.grounded || this.state === 'juggle') ? -maxY : Math.min(-this.standHip(), -maxY);
+    this.hipOff = this.hipOffInit ? lerp(this.hipOff, targetOff, 0.35) : targetOff;
+    this.hipOffInit = true;
+    const ox = this.x, oy = this.y + this.hipOff;
+    const out = (k, o) => { sk[k].x = ox + o.x * f; sk[k].y = oy + o.y; };
+    out('hip', hip); for (const k of keys) out(k, L[k]);
+    // weapons
+    this.wVec.x = L.wv.x * f; this.wVec.y = L.wv.y;
+    this.w2Vec.x = L.w2v.x * f; this.w2Vec.y = L.w2v.y;
+    this.wAng = Math.atan2(this.wVec.y, this.wVec.x); this.w2Ang = Math.atan2(this.w2Vec.y, this.w2Vec.x);
+    let ext = 0;
+    if (this.state === 'move' && this.move && this.move.chain) {
+      const m = this.move, a = this.mt - this.mdur[0];
+      if (this.mphase === 1 || (this.mphase === 2 && a < this.mdur[1] + 0.12)) ext = Math.sin(clamp(a / (this.mdur[1] + 0.12), 0, 1) * Math.PI) * m.chain * s;
+    }
+    this.chainExt = ext;
+    sk.wb.x = sk.fha.x + this.wVec.x * (wl * 0.55 + ext); sk.wb.y = sk.fha.y + this.wVec.y * (wl * 0.55 + ext);
+    sk.wt.x = sk.fha.x + this.wVec.x * (wl + ext); sk.wt.y = sk.fha.y + this.wVec.y * (wl + ext);
+    const wl2 = this.shape() === 'short' || this.shape() === 'crescent' || this.shape() === 'fan' ? wl : 0;
+    sk.w2b.x = sk.bha.x + this.w2Vec.x * wl2 * 0.3; sk.w2b.y = sk.bha.y + this.w2Vec.y * wl2 * 0.3;
+    sk.w2t.x = sk.bha.x + this.w2Vec.x * wl2; sk.w2t.y = sk.bha.y + this.w2Vec.y * wl2;
+  }
+  solveIK(sh, tx, ty, a, b, L) {
+    const dx = tx - sh.x, dy = ty - sh.y;
+    let d = Math.sqrt(dx * dx + dy * dy);
+    d = clamp(d, Math.abs(a - b) + 0.01, a + b - 0.01);
+    const base = Math.atan2(dy, dx);
+    const A = Math.acos(clamp((a * a + d * d - b * b) / (2 * a * d), -1, 1));
+    const e1x = sh.x + Math.cos(base + A) * a, e1y = sh.y + Math.sin(base + A) * a;
+    const e2x = sh.x + Math.cos(base - A) * a, e2y = sh.y + Math.sin(base - A) * a;
+    const pickFirst = e1y > e2y;
+    L.bel.x = pickFirst ? e1x : e2x; L.bel.y = pickFirst ? e1y : e2y;
+    const ang = Math.atan2(ty - L.bel.y, tx - L.bel.x);
+    L.bha.x = L.bel.x + Math.cos(ang) * b; L.bha.y = L.bel.y + Math.sin(ang) * b;
+  }
+  weaponLen() { const w = this.weapon(); return (w.len || 0) * this.scale * (this.hasWeapon ? weaponMul(this.wlvl).reach : 1); }
+
+  updateCloth(dt) {
+    for (const cl of this.cloths) {
+      const a = cl.at === 'neck' ? this.sk.neck : cl.at === 'sh' ? this.sk.sh : cl.at === 'hip' ? this.sk.hip : this.sk.head;
+      const ax = a.x - this.facing * (cl.dx != null ? cl.dx : 3) * this.scale, ay = a.y + (cl.dy || 0) * this.scale;
+      cl.c.update(ax, ay, this.facing, this.vx, Math.min(dt, 1 / 30), this.time);
+    }
+  }
+
+  recordTrail() {
+    const m = this.state === 'move' ? this.move : null;
+    const total = m ? this.mdur[0] + this.mdur[1] + this.mdur[2] : 0;
+    const tracking = (m && (this.mphase === 1 || (this.mphase === 0 && this.mt > this.mdur[0] * 0.5) || (this.mphase === 2 && this.mt < total - this.mdur[2] * 0.62))) || (this.state === 'ability' && this.abil && this.abil.trail);
+    const push = (arr, hx, hy, a, len, b0) => {
+      const e = arr.length >= 18 ? arr.shift() : {};
+      e.hx = hx; e.hy = hy; e.a = a; e.L = len; e.b0 = b0; e.t = 0; arr.push(e);
+    };
+    if (tracking) {
+      const limb = (m && m.limb) || 'w', sk = this.sk, wl = this.weaponLen();
+      const seg = (arr, a, b, b0) => push(arr, a.x, a.y, Math.atan2(b.y - a.y, b.x - a.x), Math.hypot(b.x - a.x, b.y - a.y), b0);
+      if ((limb === 'w' || !m) && wl > 0) push(this.trail, sk.fha.x, sk.fha.y, this.wAng, wl + (this.chainExt || 0), 0.1);
+      else if (limb === 'w2' && wl > 0) push(this.trail2, sk.bha.x, sk.bha.y, this.w2Ang, wl, 0.1);
+      else if (limb === 'fhand' || limb === 'w') seg(this.trail, sk.fel, sk.fha, 0.4);
+      else if (limb === 'bhand') seg(this.trail, sk.bel, sk.bha, 0.4);
+      else if (limb === 'ffoot') seg(this.trail, sk.fkn, sk.fft, 0.35);
+      else if (limb === 'bfoot') seg(this.trail, sk.bkn, sk.bft, 0.35);
+      if ((this.shape() === 'short' || this.shape() === 'crescent' || this.shape() === 'fan') && limb === 'w' && m && m.rot) push(this.trail2, sk.bha.x, sk.bha.y, this.w2Ang, wl, 0.1);
+    }
+    for (const arr of [this.trail, this.trail2]) {
+      for (const e of arr) e.t += STEP;
+      while (arr.length && arr[0].t > SMEAR_LIFE) arr.shift();
+    }
+  }
+
+  /* ---- timeline animation: snapshot -> anticipation -> wind-up -> strike (whip) -> hold -> follow-through -> stance ---- */
+  heft() {
+    const m = this.move;
+    if (m && (m.kind === 'weapon' || (m.kind === 'air' && this.hasWeapon))) return this.weapon().heft || 1;
+    return 0.7;
+  }
+  movePose(out) {
+    const m = this.move, d0 = this.mdur[0], d1 = this.mdur[1], d2 = this.mdur[2], t = this.mt, hf = this.heft();
+    const st = this.grounded ? (STANCES[this.weapon().stance] || STANCES.fists) : POSES.fall;
+    const K = this._keys || (this._keys = []);
+    K.length = 0;
+    K.push(this._snap, 0, 'inOut');
+    if (m.a) K.push(m.a, d0 * 0.42, 'inOut');
+    K.push(m.w, d0, m.a ? 'out' : 'inOut');
+    const strikeAt = d0 + Math.min(d1, Math.max(0.028, 0.035 + 0.025 * hf));
+    const strikeIdx = K.length / 3;
+    K.push(m.s, strikeAt, hf < 1.05 ? 'snap' : 'quart');
+    K.push(m.s, d0 + d1, 'lin');
+    K.push(m.f || m.s, d0 + d1 + d2 * 0.45, 'out');
+    K.push(st, d0 + d1 + d2, 'inOut');
+    const n = K.length / 3;
+    let j = 0;
+    while (j + 1 < n && t >= K[(j + 1) * 3 + 1]) j++;
+    const A = K[j * 3], B = j + 1 < n ? K[(j + 1) * 3] : A;
+    const ta = K[j * 3 + 1], tb = j + 1 < n ? K[(j + 1) * 3 + 1] : ta + 1;
+    const u = clamp((t - ta) / Math.max(0.001, tb - ta), 0, 1);
+    const ease = MOVE_EASE[j + 1 < n ? K[(j + 1) * 3 + 2] : 'lin'];
+    const e = ease(u);
+    // the blade lags behind the hands, then whips through (heavier weapons lag more)
+    const lag = j + 1 === strikeIdx ? 0.1 + 0.07 * hf : 0.04;
+    const eW = ease(clamp((u - lag) / (1 - lag), 0, 1));
+    const eH = ease(clamp((u - 0.1) / 0.9, 0, 1));
+    const carry = CARRY[this.shape()] || 0;
+    for (let i = 0; i < POSE_KEYS.length; i++) {
+      const k = POSE_KEYS[i];
+      let a = A[k], b = B[k];
+      if (k === 'wa') { if (a == null) a = A.fs + A.fe + carry; if (b == null) b = B.fs + B.fe + carry; out[k] = lerp(a, b, eW); continue; }
+      if (k === 'wb') { if (a == null) a = A.bs + A.be + carry; if (b == null) b = B.bs + B.be + carry; out[k] = lerp(a, b, eW); continue; }
+      out[k] = lerp(a || 0, b || 0, k === 'head' ? eH : e);
+    }
+    out.ik = u < 0.5 ? (A.ik || 0) : (B.ik || 0);
+    // momentum: heavy weapons drag the body forward through the follow-through; a whiff over-extends
+    if (this.mphase === 2) {
+      const rk = clamp((t - d0 - d1) / d2, 0, 1), bump = Math.sin(rk * Math.PI);
+      const over = (hf - 0.9) * (this.moveHit ? 0.5 : 1.25);
+      if (over > 0) { out.lean += 9 * over * bump; out.rx += 7 * over * bump; }
+    }
+  }
+}
+
+const SMEAR_LIFE = 0.24;
+const MOVE_EASE = {
+  lin: t => t, inOut: Ease.inOut, out: Ease.outCubic, quart: t => 1 - Math.pow(1 - t, 4),
+  snap: t => { const c1 = 1.35, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); }
+};
+
+/* ======================================================================== */
+/*  Drawing                                                                   */
+/* ======================================================================== */
+function strokeLimb(ctx, a, b, c) { ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.lineTo(c.x, c.y); ctx.stroke(); }
+
+/* ---- anatomical silhouette primitives ---- */
+// tapered limb with a muscle bulge: front = bulge on the side the fighter faces (quads, biceps), rear = opposite (calf, triceps)
+function limbShape(ctx, a, b, ra, rb, front, rear, facing, pos) {
+  const ax = a.x, ay = a.y, bx = b.x, by = b.y;
+  const dx = bx - ax, dy = by - ay, L = Math.sqrt(dx * dx + dy * dy) || 0.001;
+  const ux = dx / L, uy = dy / L, nx = -uy, ny = ux;
+  const nFront = nx * facing >= 0;
+  const rm = ra + (rb - ra) * pos;
+  const rP = rm + (nFront ? front : rear), rN = rm + (nFront ? rear : front);
+  const mx = ax + dx * pos, my = ay + dy * pos;
+  const p0x = ax + nx * ra, p0y = ay + ny * ra, p2x = bx + nx * rb, p2y = by + ny * rb;
+  const q0x = bx - nx * rb, q0y = by - ny * rb, q2x = ax - nx * ra, q2y = ay - ny * ra;
+  const an = Math.atan2(ny, nx);
+  ctx.beginPath();
+  ctx.moveTo(p0x, p0y);
+  ctx.quadraticCurveTo(2 * (mx + nx * rP) - (p0x + p2x) / 2, 2 * (my + ny * rP) - (p0y + p2y) / 2, p2x, p2y);
+  ctx.arc(bx, by, rb, an, an - Math.PI, true);
+  ctx.quadraticCurveTo(2 * (mx - nx * rN) - (q0x + q2x) / 2, 2 * (my - ny * rN) - (q0y + q2y) / 2, q2x, q2y);
+  ctx.arc(ax, ay, ra, an + Math.PI, an, true);
+  ctx.closePath(); ctx.fill();
+}
+// V-tapered torso: glutes, lower back, chest and lats, shoulders, neck — profile measured along the spine
+const TORSO_FRONT = [[-0.08, 0.6], [0.12, 0.72], [0.4, 0.6], [0.7, 1.02], [0.9, 0.82], [1.04, 0.34]];
+const TORSO_BACK = [[1.04, 0.36], [0.9, 0.8], [0.66, 0.86], [0.42, 0.58], [0.16, 0.86], [-0.08, 0.6]];
+const _tp = new Float32Array(24);
+function torsoShape(ctx, hip, neck, facing, Ut) {
+  const dx = neck.x - hip.x, dy = neck.y - hip.y, T = Math.sqrt(dx * dx + dy * dy) || 1, ux = dx / T, uy = dy / T;
+  let fx = -uy, fy = ux; if (fx * facing < 0) { fx = -fx; fy = -fy; }
+  let k = 0;
+  for (const [u, w] of TORSO_FRONT) { _tp[k++] = hip.x + ux * T * u + fx * w * Ut; _tp[k++] = hip.y + uy * T * u + fy * w * Ut; }
+  for (const [u, w] of TORSO_BACK) { _tp[k++] = hip.x + ux * T * u - fx * w * Ut; _tp[k++] = hip.y + uy * T * u - fy * w * Ut; }
+  const n = 12;
+  ctx.beginPath();
+  ctx.moveTo((_tp[0] + _tp[2]) / 2, (_tp[1] + _tp[3]) / 2);
+  for (let i = 1; i <= n; i++) {
+    const c = (i % n) * 2, nx = ((i + 1) % n) * 2;
+    ctx.quadraticCurveTo(_tp[c], _tp[c + 1], (_tp[c] + _tp[nx]) / 2, (_tp[c + 1] + _tp[nx + 1]) / 2);
+  }
+  ctx.closePath(); ctx.fill();
+}
+// foot: flat along the floor when standing, flexed (heel leading) when the shin swings forward into a kick
+function footShape(ctx, knee, ankle, facing, U, len) {
+  let sx = ankle.x - knee.x, sy = ankle.y - knee.y; const sl = Math.sqrt(sx * sx + sy * sy) || 1; sx /= sl; sy /= sl;
+  const fx = facing > 0 ? sy : -sy, fy = facing > 0 ? -sx : sx;
+  const ax = ankle.x, ay = ankle.y, h = U * 0.42;
+  ctx.beginPath();
+  ctx.moveTo(ax - fx * h * 0.9 - sx * h * 0.6, ay - fy * h * 0.9 - sy * h * 0.6);
+  ctx.lineTo(ax - fx * h * 1.0 + sx * h * 0.9, ay - fy * h * 1.0 + sy * h * 0.9);
+  ctx.lineTo(ax + fx * len + sx * h * 0.9, ay + fy * len + sy * h * 0.9);
+  ctx.quadraticCurveTo(ax + fx * (len + h * 0.6) + sx * h * 0.3, ay + fy * (len + h * 0.6) + sy * h * 0.3, ax + fx * len * 0.8 - sx * h * 0.05, ay + fy * len * 0.8 - sy * h * 0.05);
+  ctx.lineTo(ax + fx * h * 0.6 - sx * h * 0.7, ay + fy * h * 0.6 - sy * h * 0.7);
+  ctx.closePath(); ctx.fill();
+}
+function fistShape(ctx, p, r) { ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, TAU); ctx.fill(); }
+const _np = { x: 0, y: 0 };
+
+// flat 2D stickman: uniform round-capped limbs, plain circle head, no shading, no muscle volume
+Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
+  const sk = this.sk, s = this.scale, b = this.build, f = this.facing;
+  const big = b.w >= 16 ? 1.45 : b.w >= 13 ? 1.2 : 1;
+  const L = b.w * s * 0.42 * (b.w >= 13 ? 1.15 : 1);          // limb half-width, constant along the limb
+  const T = L * 1.25 * big, hr = BODY.head * s * b.head;
+  const seg = (a, c, r) => limbShape(ctx, a, c, r, r, 0, 0, f, 0.5);
+  ctx.fillStyle = front;
+  seg(sk.shB, sk.bel, L); seg(sk.bel, sk.bha, L);
+  this.drawOffhand(ctx, front, flat ? Object.assign({}, opt, { color: front }) : opt);
+  ctx.fillStyle = front;
+  seg(sk.hipB, sk.bkn, L * 1.05); seg(sk.bkn, sk.bft, L * 1.05);
+  seg(sk.hip, sk.neck, T);
+  drawArmor(ctx, this, front, flat ? { color: front } : opt, T * 1.25);
+  ctx.fillStyle = front;
+  seg(sk.hipF, sk.fkn, L * 1.05); seg(sk.fkn, sk.fft, L * 1.05);
+  _np.x = lerp(sk.neck.x, sk.head.x, 0.5); _np.y = lerp(sk.neck.y, sk.head.y, 0.5);
+  seg(sk.neck, _np, L * 0.9);
+  ctx.save(); ctx.translate(sk.head.x, sk.head.y); ctx.rotate((this.pose.lean + this.pose.head + this.pose.rot + this.extraRot) * DEG * f); ctx.scale(f, 1);
+  ctx.fillStyle = front;
+  ctx.beginPath(); ctx.arc(0, 0, hr, 0, TAU); ctx.fill();
+  drawHelmet(ctx, this.helmet, hr, front, flat ? { color: front } : opt, this);
+  if (!flat && !opt.noEyes) drawEyes(ctx, this, hr, opt);
+  ctx.restore();
+  ctx.fillStyle = front;
+  seg(sk.shF, sk.fel, L); seg(sk.fel, sk.fha, L);
+  if (this.weaponId() === 'iron_fists' || this.weaponId() === 'storm_orbs') this.drawFistGear(ctx, front, flat ? { color: front } : opt);
+  this.drawMainWeapon(ctx, front, flat ? Object.assign({}, opt, { color: front }) : opt);
+};
+
+// flat colour accents only (no highlights): Kael's red belt
+Fighter.prototype.drawDetails = function (ctx) {
+  if (this.outfit !== 'gi') return;
+  const sk = this.sk, s = this.scale, L = this.build.w * s * 0.42;
+  const k = 0.14, x = lerp(sk.hip.x, sk.neck.x, k), y = lerp(sk.hip.y, sk.neck.y, k);
+  const dx = sk.neck.x - sk.hip.x, dy = sk.neck.y - sk.hip.y, D = Math.hypot(dx, dy) || 1, w = L * 1.45;
+  ctx.strokeStyle = this.isPlayer ? C.emberBright : '#3a342b'; ctx.lineWidth = 4 * s; ctx.lineCap = 'butt';
+  ctx.beginPath(); ctx.moveTo(x + dy / D * w, y - dx / D * w); ctx.lineTo(x - dy / D * w, y + dx / D * w); ctx.stroke();
+};
+
+function flipCrescent(ctx, R, ry, p0, p1, w, col) {
+  const N = 20, pts = [];
+  ctx.fillStyle = col; ctx.beginPath();
+  for (let i = 0; i <= N; i++) { const k = i / N, p = p0 + (p1 - p0) * k; i ? ctx.lineTo(Math.cos(p) * R, Math.sin(p) * R * ry) : ctx.moveTo(Math.cos(p) * R, Math.sin(p) * R * ry); }
+  for (let i = N; i >= 0; i--) {
+    const k = i / N, p = p0 + (p1 - p0) * k, th = w * Math.pow(k, 1.25) * (k > 0.88 ? 0.35 + 0.65 * (1 - k) / 0.12 : 1), r = R - th;
+    ctx.lineTo(Math.cos(p) * r, Math.sin(p) * r * ry);
+  }
+  ctx.closePath(); ctx.fill();
+}
+Fighter.prototype.drawFlipArcs = function (ctx, front) {
+  if (this.flipT <= 0) return;
+  const u = clamp(this.flipT / FLIP_DUR, 0, 1), spd = flipSpeed(u);
+  const a = clamp(spd * 1.8, 0, 1) * (u > 0.85 ? (1 - u) / 0.15 : 1);
+  if (a < 0.04) return;
+  const sk = this.sk, s = this.scale, f = this.facing;
+  const cx = lerp(sk.hip.x, sk.neck.x, 0.35), cy = lerp(sk.hip.y, sk.neck.y, 0.35);
+  const R = 84 * s, ry = 0.7, tilt = -0.32 * f;
+  // the head's direction around the centre, re-expressed on the tilted ellipse
+  const ha = Math.atan2(sk.head.y - cy, sk.head.x - cx) - tilt;
+  const lead = Math.atan2(Math.sin(ha) / ry, Math.cos(ha)) + (front ? Math.PI : 0) + 0.25 * f;
+  const sweep = (0.7 + 3.0 * spd) * f, col = this.flipColor();
+  ctx.save(); ctx.translate(cx, cy); ctx.rotate(tilt); ctx.globalAlpha *= a;
+  const R2 = front ? R * 1.06 : R * 1.16;
+  flipCrescent(ctx, R2, ry, lead - sweep, lead, 28 * s, `rgb(${col[0]},${col[1]},${col[2]})`);
+  flipCrescent(ctx, R2, ry, lead - sweep * 0.8, lead, 11 * s, '#ffffff');
+  ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2 * s; ctx.lineCap = 'round';
+  for (const [rr, sw] of [[1.32, 0.45], [0.8, 0.35]]) {
+    ctx.beginPath();
+    for (let i = 0; i <= 10; i++) { const p = lead - sweep * sw * i / 10 - 0.3 * f; const x = Math.cos(p) * R * rr, y = Math.sin(p) * R * rr * ry; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+    ctx.stroke();
+  }
+  ctx.restore();
+};
+
+const OUTLINE_DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1], [0.71, 0.71], [-0.71, 0.71], [0.71, -0.71], [-0.71, -0.71]];
+Fighter.prototype.draw = function (ctx, opt) {
+  opt = opt || {};
+  if (!this.visible || this.alpha <= 0.01) return;
+  const sk = this.sk, s = this.scale;
+  const flashing = this.flash > 0 && !opt.noFlash && !opt.color;
+  const flat = !!opt.color || flashing;
+  const ink = opt.color || (flashing ? (opt.flashColor || C.bone) : C.ink);
+  ctx.save();
+  ctx.globalAlpha *= this.alpha;
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  // squash & stretch around the feet, then the spin turn
+  if (this.sqx !== 1 || this.sqy !== 1) { ctx.translate(this.x, this.y); ctx.scale(this.sqx, this.sqy); ctx.translate(-this.x, -this.y); }
+  if (this.turnX !== 1) { ctx.translate(this.x, 0); ctx.scale(Math.abs(this.turnX) < 0.12 ? 0.12 * Math.sign(this.turnX || 1) : this.turnX, 1); ctx.translate(-this.x, 0); }
+  if (!opt.color) this.drawFlipArcs(ctx, false);
+  for (const cl of this.cloths) if (cl.kind === 'cape' || cl.kind === 'robe') cl.c.draw(ctx, opt.color || cl.color, cl.w0, cl.w1, null);
+  // clean, even white outline: the silhouette stamped around itself, then the flat body on top
+  if (opt.rim && !opt.color) {
+    const d = 1.7 * s, oc = opt.outline || '#f1ebe0';
+    for (const [dx, dy] of OUTLINE_DIRS) { ctx.save(); ctx.translate(dx * d, dy * d); this.silhouette(ctx, oc, oc, true, opt); ctx.restore(); }
+  }
+  for (const cl of this.cloths) if (cl.kind === 'scarf' || cl.kind === 'ribbon' || cl.kind === 'belt') cl.c.strand(ctx, opt.color || (flashing ? ink : cl.color), cl.w);
+  this.silhouette(ctx, ink, ink, flat, opt);
+  if (!flat) this.drawDetails(ctx, opt);
+  if (!opt.color) this.drawFlipArcs(ctx, true);
+  if (this.state === 'kickcharge' && this.charge > 0.18 && !opt.color) {
+    const k = clamp((this.charge - 0.18) / 0.62, 0, 1), r = 10 + k * 18 + Math.sin(this.time * 40) * 2;
+    ctx.fillStyle = C.emberBright; ctx.beginPath(); ctx.arc(sk.fft.x, sk.fft.y, r, 0, TAU); ctx.fill();
+    ctx.fillStyle = '#ffd36a'; ctx.beginPath(); ctx.arc(sk.fft.x, sk.fft.y, r * 0.55, 0, TAU); ctx.fill();
+  }
+  ctx.restore();
+};
+
+Fighter.prototype.drawMainWeapon = function (ctx, ink, opt) {
+  const sh = this.shape(); if (sh === 'none') return;
+  const L = this.weaponLen(), sk = this.sk;
+  ctx.save();
+  if (this.chainExt > 1) {
+    // sickle / hook chain thrown out
+    const ex = sk.fha.x + this.wVec.x * this.chainExt, ey = sk.fha.y + this.wVec.y * this.chainExt;
+    ctx.strokeStyle = opt.color || '#4a443b'; ctx.lineWidth = 2.2 * this.scale; ctx.setLineDash([5, 3]);
+    ctx.beginPath(); ctx.moveTo(sk.fha.x, sk.fha.y); ctx.lineTo(ex, ey); ctx.stroke(); ctx.setLineDash([]);
+    ctx.translate(ex, ey);
+  } else ctx.translate(sk.fha.x, sk.fha.y);
+  ctx.rotate(this.wAng); if (this.facing < 0) ctx.scale(1, -1);
+  drawWeaponShape(ctx, sh, L, opt.color ? 'flat' : 'ink', this.scale, opt.color || ink, this);
+  ctx.restore();
+  // sickle chain hanging to the back hand
+  if ((sh === 'sickle' || sh === 'hook') && this.chainExt <= 1) {
+    ctx.strokeStyle = opt.color || '#3a342b'; ctx.lineWidth = 1.8 * this.scale;
+    const px = sk.fha.x - this.wVec.x * 6 * this.scale, py = sk.fha.y - this.wVec.y * 6 * this.scale;
+    ctx.beginPath(); ctx.moveTo(px, py); ctx.quadraticCurveTo((px + sk.bha.x) / 2, Math.max(py, sk.bha.y) + 30 * this.scale, sk.bha.x, sk.bha.y); ctx.stroke();
+  }
+};
+Fighter.prototype.drawOffhand = function (ctx, ink, opt) {
+  const sh = this.shape(), sk = this.sk;
+  if (sh === 'short' || sh === 'crescent' || sh === 'fan') {
+    ctx.save(); ctx.translate(sk.bha.x, sk.bha.y); ctx.rotate(this.w2Ang); if (this.facing < 0) ctx.scale(1, -1);
+    drawWeaponShape(ctx, sh, this.weaponLen(), opt.color ? 'flat' : 'ink', this.scale, opt.color || ink, this);
+    ctx.restore();
+  }
+  if (this.weapon().shield && this.hasWeapon) {
+    const s = this.scale;
+    ctx.save(); ctx.translate(sk.bha.x + this.facing * 6 * s, sk.bha.y);
+    ctx.fillStyle = opt.color || '#0b0a09';
+    ctx.beginPath(); ctx.ellipse(0, 0, 13 * s, 38 * s, 0, 0, TAU); ctx.fill();
+    if (!opt.color) { ctx.strokeStyle = C.goldDim; ctx.lineWidth = 2 * s; ctx.stroke(); ctx.beginPath(); ctx.arc(0, 0, 5 * s, 0, TAU); ctx.strokeStyle = C.gold; ctx.stroke(); }
+    ctx.restore();
+  }
+};
+Fighter.prototype.drawFistGear = function (ctx, ink, opt) {
+  const sk = this.sk, s = this.scale;
+  if (this.weaponId() === 'iron_fists') {
+    for (const h of [sk.fha, sk.bha]) {
+      const gr = this.build.w * s * 0.48;
+      ctx.fillStyle = opt.color || ink; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(h.x - gr, h.y - gr, gr * 2, gr * 2, gr * 0.4) : ctx.rect(h.x - gr, h.y - gr, gr * 2, gr * 2); ctx.fill();
+      if (!opt.color) { ctx.strokeStyle = 'rgba(255,106,60,0.55)'; ctx.lineWidth = 1.6; ctx.stroke(); }
+    }
+  } else if (!opt.color) {
+    for (const [h, ph] of [[sk.fha, 0], [sk.bha, 2]]) {
+      const ox = Math.cos(this.time * 4 + ph) * 10 * s, oy = Math.sin(this.time * 4 + ph) * 6 * s;
+      ctx.fillStyle = '#5aa6ff'; ctx.beginPath(); ctx.arc(h.x + ox, h.y + oy, 9 * s, 0, TAU); ctx.fill();
+      ctx.fillStyle = '#e6f4ff'; ctx.beginPath(); ctx.arc(h.x + ox, h.y + oy, 4.5 * s, 0, TAU); ctx.fill();
+    }
+    ctx.globalCompositeOperation = 'source-over';
+  }
+};
+
+function drawEyes(ctx, f, r, opt) {
+  if (opt.color) return;
+  ctx.save();
+  if (f.isPlayer) {
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath(); ctx.moveTo(r * 0.14, -r * 0.08); ctx.lineTo(r * 0.72, r * 0.0); ctx.lineTo(r * 0.6, r * 0.22); ctx.lineTo(r * 0.24, r * 0.16); ctx.closePath(); ctx.fill();
+    ctx.restore(); return;
+  }
+  // enemies: flat angry eyes in their colour, white when telegraphing
+  ctx.fillStyle = f.telegraph > 0 ? '#ffffff' : f.eye;
+  ctx.beginPath(); ctx.moveTo(r * 0.12, -r * 0.2); ctx.lineTo(r * 0.62, -r * 0.02); ctx.lineTo(r * 0.52, r * 0.18); ctx.lineTo(r * 0.18, r * 0.06); ctx.closePath(); ctx.fill();
+  if (f.telegraph > 0) { ctx.strokeStyle = f.eye; ctx.lineWidth = 2; const fl = r * (1 + 0.3 * Math.sin(f.time * 50)); ctx.beginPath(); ctx.moveTo(r * 0.38 - fl, 0); ctx.lineTo(r * 0.38 + fl, 0); ctx.moveTo(r * 0.38, -fl * 0.5); ctx.lineTo(r * 0.38, fl * 0.5); ctx.stroke(); }
+  ctx.restore();
+}
+
+/* ---- weapon art: origin at the grip, +x along the blade ---- */
+function drawWeaponShape(ctx, sh, L, mode, s, ink, f) {
+  const art = mode === 'art';
+  const steel = art ? C.bone : mode === 'flat' ? ink : '#e6e1d6';
+  const edge = art ? C.emberBright : null;
+  const dark = art ? '#2a2620' : ink;
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  const line = (x1, y1, x2, y2, w, col) => { ctx.strokeStyle = col; ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); };
+  switch (sh) {
+    case 'katana': case 'short': {
+      const hl = sh === 'katana' ? 0.26 : 0.32;
+      line(-L * hl, 0, 0, 0, 6 * s, dark);
+      if (art) { ctx.fillStyle = C.gold; for (let i = 1; i < 5; i++) { ctx.save(); ctx.translate(-L * hl * i / 5, 0); ctx.rotate(Math.PI / 4); ctx.fillRect(-2 * s, -2 * s, 4 * s, 4 * s); ctx.restore(); } }
+      ctx.fillStyle = art ? C.gold : ink; ctx.beginPath(); ctx.ellipse(0, 0, 2.6 * s, 7.5 * s, 0, 0, TAU); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(1, -2.6 * s); ctx.quadraticCurveTo(L * 0.6, -3 * s - L * 0.02, L, -L * 0.08);
+      ctx.quadraticCurveTo(L * 0.58, 3.4 * s - L * 0.012, 1, 2.6 * s); ctx.closePath();
+      ctx.fillStyle = steel; ctx.fill();
+      if (edge) { ctx.strokeStyle = edge; ctx.lineWidth = art ? 1.6 : 1.1; ctx.beginPath(); ctx.moveTo(4, -2.6 * s); ctx.quadraticCurveTo(L * 0.6, -3 * s - L * 0.02, L, -L * 0.08); ctx.stroke(); }
+      if (art) line(-L * hl, 0, -L * hl, 0, 9 * s, C.gold);
+      break;
+    }
+    case 'crescent': {
+      line(-L * 0.18, 0, 0, 0, 6 * s, dark);
+      ctx.beginPath(); ctx.arc(L * 0.45, -L * 0.05, L * 0.55, Math.PI * 0.95, Math.PI * 2.05, false);
+      ctx.arc(L * 0.45, -L * 0.22, L * 0.42, Math.PI * 2.0, Math.PI * 0.98, true); ctx.closePath();
+      ctx.fillStyle = steel; ctx.fill();
+      if (!art && mode !== 'flat') { ctx.strokeStyle = 'rgba(155,140,255,0.6)'; ctx.lineWidth = 1.3; ctx.stroke(); }
+      break;
+    }
+    case 'fan': {
+      ctx.beginPath(); ctx.moveTo(0, 0); ctx.arc(0, 0, L, -0.42, 0.18); ctx.closePath();
+      ctx.fillStyle = steel; ctx.fill();
+      ctx.strokeStyle = art ? C.goldDim : 'rgba(185,196,201,0.45)'; ctx.lineWidth = 1;
+      for (let a = -0.4; a <= 0.18; a += 0.1) { ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(Math.cos(a) * L, Math.sin(a) * L); ctx.stroke(); }
+      break;
+    }
+    case 'cleaver': case 'tyrant': {
+      const big = sh === 'tyrant';
+      line(-L * 0.3, 0, L * 0.05, 0, (big ? 8 : 6.5) * s, dark);
+      ctx.beginPath();
+      ctx.moveTo(L * 0.04, -6 * s); ctx.lineTo(L * 0.86, -12 * s); ctx.lineTo(L, -2 * s); ctx.lineTo(L * 0.98, (big ? 26 : 18) * s);
+      if (big) { for (let i = 0; i < 5; i++) ctx.lineTo(L * (0.84 - i * 0.15), (i % 2 ? 22 : 30) * s); }
+      ctx.lineTo(L * 0.2, (big ? 22 : 15) * s); ctx.lineTo(L * 0.04, 7 * s); ctx.closePath();
+      ctx.fillStyle = steel; ctx.fill();
+      if (edge) { ctx.strokeStyle = big && !art ? 'rgba(255,106,60,0.7)' : edge; ctx.lineWidth = art ? 2 : 1.3; ctx.beginPath(); ctx.moveTo(L * 0.2, (big ? 22 : 15) * s); ctx.lineTo(L * 0.98, (big ? 26 : 18) * s); ctx.stroke(); }
+      ctx.fillStyle = art ? C.void : 'rgba(236,229,211,0.2)'; ctx.beginPath(); ctx.arc(L * 0.8, -3 * s, 3 * s, 0, TAU); ctx.fill();
+      break;
+    }
+    case 'spear': {
+      line(-L * 0.42, 0, L * 0.84, 0, 4.2 * s, dark);
+      ctx.beginPath(); ctx.moveTo(L * 0.82, -5 * s); ctx.quadraticCurveTo(L * 0.92, -9 * s, L, 0); ctx.quadraticCurveTo(L * 0.92, 9 * s, L * 0.82, 5 * s); ctx.closePath();
+      ctx.fillStyle = steel; ctx.fill();
+      if (edge) { ctx.strokeStyle = edge; ctx.lineWidth = 1.1; ctx.stroke(); }
+      ctx.strokeStyle = art ? C.emberBright : 'rgba(210,74,60,0.85)'; ctx.lineWidth = 2;
+      const sw = f ? Math.sin(f.time * 9) * 4 : 0;
+      for (let i = -1; i <= 1; i++) { ctx.beginPath(); ctx.moveTo(L * 0.8, i * 2); ctx.quadraticCurveTo(L * 0.76, 10 * s, L * 0.74 + sw, (16 + i * 3) * s); ctx.stroke(); }
+      ctx.fillStyle = art ? C.gold : dark; ctx.fillRect(L * 0.78, -4 * s, 3 * s, 8 * s);
+      break;
+    }
+    case 'staff': {
+      line(-L * 0.5, 0, L * 0.5, 0, 4.6 * s, dark);
+      ctx.strokeStyle = art ? C.gold : 'rgba(127,208,200,0.5)'; ctx.lineWidth = 2;
+      for (const x of [-0.46, -0.4, 0.4, 0.46]) { ctx.beginPath(); ctx.moveTo(L * x, -4 * s); ctx.lineTo(L * x, 4 * s); ctx.stroke(); }
+      if (f && f.weaponId() === 'sage_staff') {
+        ctx.beginPath(); ctx.arc(L * 0.56, 0, 9 * s, -1.2, 1.2); ctx.strokeStyle = art ? C.gold : '#7fd0c8'; ctx.lineWidth = 2.4; ctx.stroke();
+        if (!art) { ctx.fillStyle = '#7fd0c8'; ctx.beginPath(); ctx.arc(L * 0.58, 0, 4 * s, 0, TAU); ctx.fill(); }
+      }
+      break;
+    }
+    case 'sickle': case 'hook': {
+      line(-6 * s, 0, L * 0.55, 0, 5 * s, dark);
+      ctx.beginPath();
+      if (sh === 'sickle') {
+        ctx.moveTo(L * 0.5, -3 * s); ctx.quadraticCurveTo(L * 0.95, -8 * s, L * 1.0, -L * 0.62); ctx.quadraticCurveTo(L * 0.8, -12 * s, L * 0.5, 4 * s);
+      } else {
+        ctx.moveTo(L * 0.5, -3 * s); ctx.quadraticCurveTo(L * 1.05, -4 * s, L * 0.9, -L * 0.42); ctx.lineTo(L * 0.8, -L * 0.3); ctx.quadraticCurveTo(L * 0.85, -6 * s, L * 0.5, 4 * s);
+      }
+      ctx.closePath(); ctx.fillStyle = steel; ctx.fill();
+      if (edge) { ctx.strokeStyle = sh === 'sickle' && !art ? 'rgba(155,140,255,0.65)' : edge; ctx.lineWidth = 1.2; ctx.stroke(); }
+      break;
+    }
+    case 'hammer': {
+      line(-L * 0.08, 0, L * 0.84, 0, 5 * s, dark);
+      ctx.fillStyle = steel; ctx.fillRect(L * 0.74, -24 * s, L * 0.28, 48 * s);
+      ctx.fillStyle = art ? C.goldDim : 'rgba(236,229,211,0.18)';
+      ctx.fillRect(L * 0.74, -24 * s, L * 0.04, 48 * s); ctx.fillRect(L * 0.98, -24 * s, L * 0.04, 48 * s);
+      if (!art && mode !== 'flat') { ctx.strokeStyle = 'rgba(210,74,60,0.6)'; ctx.lineWidth = 1.4; ctx.strokeRect(L * 0.74, -24 * s, L * 0.28, 48 * s); }
+      break;
+    }
+  }
+}
+
+/* ---- helmets: local head frame, origin = head centre, +x = facing ---- */
+function drawHelmet(ctx, key, r, ink, opt, f) {
+  const flat = !!opt.color;
+  const acc = (c) => (flat ? ink : c);
+  ctx.fillStyle = ink; ctx.strokeStyle = ink;
+  const t = f ? f.time : 0;
+  switch (key) {
+    case 'topknot': // crimson hachimaki tied at the back of the head
+      ctx.save(); ctx.beginPath(); ctx.arc(0, 0, r * 1.04, 0, TAU); ctx.clip();
+      ctx.fillStyle = flat ? ink : C.emberBright;
+      ctx.beginPath(); ctx.moveTo(-r * 1.1, -r * 0.62); ctx.lineTo(r * 1.1, -r * 0.42); ctx.lineTo(r * 1.1, -r * 0.12); ctx.lineTo(-r * 1.1, -r * 0.3); ctx.closePath(); ctx.fill();
+      if (!flat) { ctx.fillStyle = 'rgba(255,255,255,0.18)'; ctx.fillRect(-r * 1.1, -r * 0.6, r * 2.2, r * 0.06); }
+      ctx.restore();
+      ctx.fillStyle = flat ? ink : '#b8362b'; ctx.beginPath(); ctx.ellipse(-r * 0.98, -r * 0.42, r * 0.22, r * 0.17, 0.4, 0, TAU); ctx.fill();
+      break;
+    case 'ronin_hood': case 'reaper_cowl':
+      ctx.beginPath(); ctx.arc(0, -r * 0.05, r * 1.18, Math.PI * 0.55, Math.PI * 2.15); ctx.lineTo(-r * (key === 'reaper_cowl' ? 2.3 : 1.7), r * 0.8); ctx.closePath(); ctx.fill();
+      if (key === 'reaper_cowl') { ctx.beginPath(); ctx.moveTo(-r * 1.2, r * 0.3); ctx.lineTo(-r * 2.0, r * 1.3); ctx.lineTo(-r * 1.6, r * 0.4); ctx.fill(); }
+      ctx.strokeStyle = acc(key === 'reaper_cowl' ? 'rgba(236,229,211,0.45)' : 'rgba(160,151,133,0.4)'); ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.arc(0, -r * 0.05, r * 1.18, -Math.PI * 0.45, Math.PI * 0.2); ctx.stroke();
+      break;
+    case 'straw_kasa':
+      ctx.beginPath(); ctx.moveTo(-r * 2.1, -r * 0.45); ctx.lineTo(r * 0.1, -r * 1.55); ctx.lineTo(r * 2.1, -r * 0.45); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = acc('rgba(201,164,92,0.5)'); ctx.lineWidth = 1;
+      for (let i = -3; i <= 3; i++) { ctx.beginPath(); ctx.moveTo(r * 0.1, -r * 1.5); ctx.lineTo(i * r * 0.62, -r * 0.5); ctx.stroke(); }
+      break;
+    case 'iron_kabuto':
+      ctx.beginPath(); ctx.arc(0, -r * 0.1, r * 1.16, Math.PI, TAU); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(-r * 1.2, -r * 0.2); ctx.lineTo(-r * 1.7, r * 0.7); ctx.lineTo(-r * 0.6, r * 0.5); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = acc(C.gold); ctx.lineWidth = 2.4;
+      ctx.beginPath(); ctx.moveTo(r * 0.3, -r * 1.1); ctx.quadraticCurveTo(r * 1.3, -r * 1.9, r * 0.9, -r * 2.5); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(r * 0.1, -r * 1.15); ctx.quadraticCurveTo(-r * 0.6, -r * 2.1, -r * 0.1, -r * 2.6); ctx.stroke();
+      ctx.strokeStyle = acc('rgba(201,164,92,0.4)'); ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(0, -r * 0.1, r * 1.16, Math.PI * 1.05, Math.PI * 1.95); ctx.stroke();
+      break;
+    case 'oni': case 'oni_mask':
+      ctx.beginPath(); ctx.moveTo(r * 0.0, -r * 0.8); ctx.quadraticCurveTo(r * 0.6, -r * 1.6, r * 0.2, -r * 2.0); ctx.quadraticCurveTo(r * 0.5, -r * 1.3, r * 0.5, -r * 0.7); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(-r * 0.6, -r * 0.7); ctx.quadraticCurveTo(-r * 0.6, -r * 1.6, -r * 1.1, -r * 1.9); ctx.quadraticCurveTo(-r * 0.3, -r * 1.3, -r * 0.2, -r * 0.8); ctx.fill();
+      ctx.strokeStyle = acc(C.emberBright); ctx.lineWidth = 1.6;
+      ctx.beginPath(); ctx.moveTo(r * 0.3, r * 0.45); ctx.lineTo(r * 1.0, r * 0.45); ctx.stroke();
+      for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.moveTo(r * (0.4 + i * 0.22), r * 0.45); ctx.lineTo(r * (0.5 + i * 0.22), r * 0.68); ctx.stroke(); }
+      break;
+    case 'hollow_crest':
+      ctx.fillStyle = ink;
+      ctx.beginPath(); ctx.arc(-r * 0.3, -r * 0.2, r * 2.0, Math.PI * 0.8, Math.PI * 1.7); ctx.arc(-r * 0.05, -r * 0.35, r * 1.55, Math.PI * 1.68, Math.PI * 0.82, true); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = acc('#9b8cff'); ctx.lineWidth = 1.4; ctx.stroke();
+      ctx.fillStyle = ink; ctx.beginPath(); ctx.moveTo(r * 0.2, -r * 0.85); ctx.lineTo(r * 0.55, -r * 1.65); ctx.lineTo(r * 0.6, -r * 0.7); ctx.fill();
+      break;
+    case 'sentinel_helm':
+      ctx.beginPath(); ctx.arc(0, -r * 0.05, r * 1.15, Math.PI * 0.9, Math.PI * 2.1); ctx.lineTo(r * 1.1, r * 0.6); ctx.lineTo(r * 0.75, r * 0.6); ctx.lineTo(r * 0.8, -r * 0.1); ctx.lineTo(-r * 1.1, r * 0.8); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = acc(C.gold); ctx.lineWidth = 1.8; ctx.beginPath(); ctx.moveTo(r * 1.0, -r * 0.4); ctx.lineTo(r * 1.0, r * 0.6); ctx.stroke();
+      ctx.beginPath(); ctx.arc(0, -r * 0.05, r * 1.15, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke();
+      break;
+    case 'sage_antlers': {
+      ctx.lineWidth = r * 0.24; ctx.lineCap = 'round';
+      for (const sd of [1, -1]) {
+        ctx.beginPath(); ctx.moveTo(sd * r * 0.3, -r * 0.8); ctx.quadraticCurveTo(sd * r * 1.4, -r * 1.8, sd * r * 0.9, -r * 3.0); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(sd * r * 1.05, -r * 1.7); ctx.lineTo(sd * r * 1.9, -r * 2.2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(sd * r * 1.1, -r * 2.3); ctx.lineTo(sd * r * 1.6, -r * 2.9); ctx.stroke();
+      }
+      if (!flat) { ctx.fillStyle = 'rgba(127,208,200,0.8)'; for (const p of [[0.9, -3.0], [1.9, -2.2], [1.6, -2.9], [-0.9, -3.0], [-1.9, -2.2], [-1.6, -2.9]]) { ctx.beginPath(); ctx.arc(p[0] * r, p[1] * r, 1.8, 0, TAU); ctx.fill(); } }
+      break;
+    }
+    case 'ashen_crown': {
+      ctx.beginPath(); ctx.moveTo(-r * 1.0, -r * 0.55);
+      for (let i = 0; i <= 6; i++) { const x = -r + i * r / 3; ctx.lineTo(x, -r * (i % 2 ? 1.25 : 1.9 + (i === 3 ? 0.5 : 0))); }
+      ctx.lineTo(r * 1.0, -r * 0.55); ctx.closePath(); ctx.fill();
+      if (!flat) {
+        for (let i = 0; i <= 6; i += 2) {
+          const x = -r + i * r / 3, y = -r * (1.9 + (i === 3 ? 0.5 : 0)), fl = 4 + Math.sin(t * 12 + i) * 2;
+          ctx.fillStyle = '#ff7a2c'; ctx.beginPath(); ctx.moveTo(x - fl, y); ctx.quadraticCurveTo(x, y - fl * 4, x + fl, y); ctx.fill();
+          ctx.fillStyle = '#ffd36a'; ctx.beginPath(); ctx.moveTo(x - fl * 0.5, y); ctx.quadraticCurveTo(x, y - fl * 2.4, x + fl * 0.5, y); ctx.fill();
+        }
+        ctx.globalCompositeOperation = 'source-over';
+      }
+      break;
+    }
+    case 'veil':
+      ctx.beginPath(); ctx.arc(0, -r * 0.15, r * 1.12, Math.PI * 0.85, Math.PI * 2.05); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = acc('rgba(185,196,201,0.6)'); ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(-r * 0.2, r * 0.25); ctx.lineTo(r * 1.15, r * 0.25); ctx.stroke();
+      break;
+    case 'storm_band':
+      ctx.strokeStyle = acc('#7fb8ff'); ctx.lineWidth = 2.6; ctx.beginPath(); ctx.arc(0, 0, r * 1.02, Math.PI * 1.05, Math.PI * 1.95); ctx.stroke();
+      break;
+    case 'colossus':
+      ctx.beginPath(); ctx.roundRect ? ctx.roundRect(-r * 1.25, -r * 1.35, r * 2.5, r * 2.35, r * 0.5) : ctx.rect(-r * 1.25, -r * 1.35, r * 2.5, r * 2.35); ctx.fill();
+      if (!flat) { ctx.fillStyle = 'rgba(255,106,60,0.9)'; ctx.fillRect(r * 0.05, -r * 0.2, r * 1.15, r * 0.14); }
+      ctx.strokeStyle = acc('rgba(255,106,60,0.35)'); ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(-r * 1.25, -r * 0.6); ctx.lineTo(r * 1.25, -r * 0.6); ctx.stroke();
+      break;
+    case 'executioner':
+      ctx.beginPath(); ctx.moveTo(-r * 1.15, r * 0.9); ctx.lineTo(-r * 1.1, -r * 0.6); ctx.lineTo(-r * 0.2, -r * 2.9); ctx.lineTo(r * 1.15, -r * 0.5); ctx.lineTo(r * 1.15, r * 0.9); ctx.closePath(); ctx.fill();
+      break;
+  }
+}
+
+/* ---- armor drawn over the torso (Ut = torso width unit) ---- */
+function drawArmor(ctx, f, ink, opt, Ut) {
+  const sk = f.sk, s = f.scale, flat = !!opt.color, fc = f.facing;
+  const hx = sk.hip.x, hy = sk.hip.y, nx = sk.neck.x, ny = sk.neck.y;
+  const ang = Math.atan2(ny - hy, nx - hx);
+  const bands = (n, col, wid, u0, u1) => {
+    ctx.strokeStyle = col; ctx.lineWidth = 1.3 * s;
+    for (let i = 1; i <= n; i++) {
+      const k = (u0 || 0.2) + i * ((u1 || 0.8) - (u0 || 0.2)) / (n + 1);
+      const px = lerp(hx, nx, k), py = lerp(hy, ny, k), ox = Math.cos(ang + Math.PI / 2) * wid, oy = Math.sin(ang + Math.PI / 2) * wid;
+      ctx.beginPath(); ctx.moveTo(px - ox, py - oy); ctx.lineTo(px + ox, py + oy); ctx.stroke();
+    }
+  };
+  const plate = (r, edge) => {
+    ctx.fillStyle = ink; ctx.beginPath();
+    ctx.ellipse(sk.sh.x - fc * r * 0.12, sk.sh.y + r * 0.15, r * 1.15, r * 0.7, ang + Math.PI / 2, Math.PI * 0.95, Math.PI * 2.05); ctx.closePath(); ctx.fill();
+    if (!flat && edge) { ctx.strokeStyle = edge; ctx.lineWidth = 1.3 * s; ctx.stroke(); }
+  };
+  ctx.fillStyle = ink;
+  switch (f.armor) {
+    case 'jerkin': case 'executioner_garb':
+      torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.07);
+      if (!flat) bands(2, 'rgba(160,151,133,0.28)', Ut * 0.95, 0.25, 0.75);
+      if (f.armor === 'executioner_garb' && !flat) { ctx.strokeStyle = 'rgba(160,151,133,0.55)'; ctx.setLineDash([3 * s, 3 * s]); ctx.beginPath(); ctx.moveTo(lerp(hx, nx, 0.85) - fc * Ut, lerp(hy, ny, 0.85)); ctx.lineTo(lerp(hx, nx, 0.25) + fc * Ut, lerp(hy, ny, 0.25)); ctx.stroke(); ctx.setLineDash([]); }
+      break;
+    case 'lamellar':
+      torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.12);
+      if (!flat) bands(5, 'rgba(125,102,56,0.6)', Ut * 1.05, 0.12, 0.86);
+      plate(Ut * 0.55, 'rgba(201,164,92,0.4)');
+      break;
+    case 'pauldrons': case 'colossus_plate': case 'tyrant': {
+      const big = f.armor === 'colossus_plate' ? 1.2 : 1.14;
+      torsoShape(ctx, sk.hip, sk.neck, fc, Ut * big);
+      if (!flat) bands(f.armor === 'colossus_plate' ? 3 : 2, f.armor === 'tyrant' ? 'rgba(210,74,60,0.4)' : 'rgba(125,102,56,0.6)', Ut * big * 0.9, 0.2, 0.8);
+      const r = Ut * (f.armor === 'colossus_plate' ? 0.8 : 0.7);
+      plate(r, f.armor === 'tyrant' ? 'rgba(210,74,60,0.6)' : 'rgba(201,164,92,0.45)');
+      if (f.armor === 'tyrant') {
+        ctx.fillStyle = ink;
+        for (let i = -1; i <= 1; i++) { const a = ang + i * 0.5; ctx.beginPath(); ctx.moveTo(sk.sh.x + Math.cos(a + 1.3) * r, sk.sh.y + Math.sin(a + 1.3) * r); ctx.lineTo(sk.sh.x + Math.cos(a) * r * 2.1, sk.sh.y + Math.sin(a) * r * 2.1); ctx.lineTo(sk.sh.x + Math.cos(a - 0.3) * r, sk.sh.y + Math.sin(a - 0.3) * r); ctx.fill(); }
+      }
+      break;
+    }
+    case 'robe':
+      torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.05);
+      if (!flat) { ctx.strokeStyle = f.accent || C.gold; ctx.lineWidth = 2 * s; ctx.beginPath(); ctx.moveTo(lerp(hx, nx, 0.9) - fc * Ut * 0.3, lerp(hy, ny, 0.9)); ctx.lineTo(lerp(hx, nx, 0.3) + fc * Ut * 0.7, lerp(hy, ny, 0.3)); ctx.stroke(); }
+      break;
+  }
+}
+
+/* ---- render a fighter into a UI canvas (portraits, armory preview, map silhouettes) ---- */
+function makeFighterFromEnemy(id, extra) {
+  const d = ENEMIES[id];
+  return new Fighter(Object.assign({ def: d, name: d.name, title: d.title, weapon: d.weapon, helmet: d.helmet, armor: d.armor, build: d.build, eye: d.eye, accent: d.accent, hp: d.hp, facing: -1 }, extra || {}));
+}
+function makePlayerFighter(save, extra) {
+  return new Fighter(Object.assign({ name: 'Kael', isPlayer: true, scarf: true, weapon: save.equipped.weapon, wlvl: save.owned.weapons[save.equipped.weapon] || 1, helmet: save.equipped.helmet, armor: save.equipped.armor, build: { scale: 1, w: 10 }, facing: 1 }, extra || {}));
+}
+function poseFighter(f, poseName, settle) {
+  f.state = 'pose'; f.poseName = poseName;
+  const src = POSES[poseName] || STANCES[f.weapon().stance] || STANCES.fists;
+  for (const k of POSE_KEYS) if (src[k] != null) f.pose[k] = src[k];
+  f.pose.ik = src.ik || 0;
+  if (src.wa == null) f.pose.wa = f.pose.fs + f.pose.fe + (CARRY[f.shape()] || 0);
+  if (src.wb == null) f.pose.wb = f.pose.bs + f.pose.be + (CARRY[f.shape()] || 0);
+  f.hipOffInit = false;
+  f.computeSkeleton();
+  for (let i = 0; i < (settle || 40); i++) { f.updatePose(STEP); f.computeSkeleton(); f.updateCloth(STEP); f.time += STEP; }
+}
