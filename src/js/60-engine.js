@@ -187,7 +187,25 @@ class FightSession {
   }
 
   // ---- main simulation tick ----
+  // render interpolation: remember the previous tick, draw in between ticks, then put the simulation state back
+  snapPrev() {
+    for (const f of this.fighters) f.snapPrev();
+    const c = this.cam; this._pc = this._pc || {}; this._pc.x = c.x; this._pc.y = c.y; this._pc.zoom = c.zoom; this._pcOk = true;
+  }
+  beginRender(alpha) {
+    this._interp = this._interp || []; this._interp.length = 0;
+    for (const f of this.fighters) if (f.beginInterp(alpha)) this._interp.push(f);
+    const c = this.cam, p = this._pc;
+    this._cc = this._cc || {}; this._cc.x = c.x; this._cc.y = c.y; this._cc.zoom = c.zoom;
+    if (this._pcOk) { c.x = lerp(p.x, c.x, alpha); c.y = lerp(p.y, c.y, alpha); c.zoom = lerp(p.zoom, c.zoom, alpha); }
+  }
+  endRender() {
+    for (const f of this._interp) f.endInterp();
+    this._interp.length = 0;
+    const c = this.cam; c.x = this._cc.x; c.y = this._cc.y; c.zoom = this._cc.zoom;
+  }
   step(dt) {
+    this.snapPrev();
     this.time += dt; this.phaseT += dt;
     const p = this.player, e = this.enemy;
     switch (this.phase) {
@@ -389,10 +407,16 @@ const Game = {
             this.acc += real * s.fx.slowScale;
             let n = 0;
             while (this.acc >= STEP && n < 5) { s.step(STEP); InputManager.endTick(); this.acc -= STEP; n++; if (this.scene !== 'fight') break; }
+            if (this.acc > STEP) this.acc = STEP; // never try to catch up a backlog after a hitch
             s.fx.update(real, real * s.fx.slowScale);
           }
         }
-        if (this.session) { Renderer.drawFight(this.session, this.t); UIManager.hud.update(this.session); }
+        if (this.session) {
+          const ss = this.session;
+          ss.beginRender(clamp(this.acc / STEP, 0, 1));
+          try { Renderer.drawFight(ss, this.t); } finally { ss.endRender(); }
+          UIManager.hud.update(ss);
+        }
       } else if (this.scene === 'title') {
         TitleScene.frame(real); InputManager.endTick();
       } else if (this.scene === 'tableau' && this.tableau) {

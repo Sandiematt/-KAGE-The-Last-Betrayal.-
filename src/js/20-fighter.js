@@ -183,9 +183,10 @@ class Fighter {
       if (((this.time * 4) | 0) !== (((this.time - dt) * 4) | 0)) { this.hp = Math.max(1, this.hp - 2.2); world && world.fx.poisonPuff(this); }
     }
     // input buffering
-    const b = this.buf;
-    for (const k in b) if (b[k] > 0) b[k] -= dt;
-    if (c.punchP) b.punch = 0.16; if (c.kickP) b.kick = 0.16; if (c.weaponP) b.weapon = 0.16;
+    // attack presses made during a wind-up are held until the chain window opens, so mashing a heavy weapon never drops inputs
+    const b = this.buf, holdAtk = this.state === 'move' && this.mphase === 0;
+    for (const k in b) if (b[k] > 0 && !(holdAtk && (k === 'punch' || k === 'kick' || k === 'weapon'))) b[k] -= dt;
+    if (c.punchP) b.punch = 0.2; if (c.kickP) b.kick = 0.2; if (c.weaponP) b.weapon = 0.2;
     if (c.specialP) b.special = 0.16; if (c.jumpP) b.jump = 0.12; if (c.dashP) b.dash = 0.12;
 
     const opp = world ? world.opponentOf(this) : null;
@@ -290,7 +291,8 @@ class Fighter {
     this.charge += dt; this.friction(dt, 14);
     if (this.charge > 0.18 && ((this.charge - dt) <= 0.18)) { AudioManager.play('charge'); }
     if (!c.kickHeld || this.charge > 1.0) {
-      if (this.charge < 0.18) this.startMove('rk', world);
+      // a tap: the time spent holding the button already counts as the roundhouse wind-up, so a quick kick adds no extra delay
+      if (this.charge < 0.18) { const held = this.charge; if (this.startMove('rk', world)) this.mt = Math.min(held, this.mdur[0] * 0.6); }
       else this.startMove('hk', world, { charge: clamp((this.charge - 0.18) / 0.62, 0, 1) });
     }
   }
@@ -379,6 +381,20 @@ class Fighter {
     const spd = (wm ? wm.spd : 1) * (this.isPlayer ? 1 : (this.def && this.def.speed ? Math.sqrt(this.def.speed) : 1));
     this.mdur[0] = m.t[0] / spd; this.mdur[1] = m.t[1]; this.mdur[2] = m.t[2] / spd;
     if (this.boostAtk) { this.mdur[0] *= this.boostAtk; this.mdur[2] *= this.boostAtk; }
+    // player attack assist: turn to face a foe who crossed over, and glide the last short gap during the wind-up so near-misses connect
+    this.magV = 0;
+    if (this.isPlayer && world && m.box && m.kind !== 'grab' && m.kind !== 'throw') {
+      const o = world.opponentOf(this);
+      if (o && o.alive && o.visible && o.state !== 'down' && o.state !== 'getup') {
+        const dx = o.x - this.x, ad = Math.abs(dx), side = Math.sign(dx) || this.facing;
+        if (ad > 10 && ad < 520 && side !== this.facing) this.facing = side;
+        if (this.grounded && side === this.facing) {
+          const reach = (m.box[0] + m.box[2]) * this.scale * (wm ? wm.reach : 1);
+          const gap = ad - 22 * o.scale - reach * 0.85;
+          if (gap > 0 && gap < 75 * this.scale) this.magV = Math.min(gap / Math.max(0.05, this.mdur[0]), 900);
+        }
+      }
+    }
     this.superArmor = !!m.armor || !!(this.def && this.def.heavyArmor && m.imp >= 2);
     this._snap = Object.assign(this._snap || {}, this.pose);
     this.trail.length = 0; this.trail2.length = 0;
@@ -390,8 +406,9 @@ class Fighter {
     const m = this.move; if (!m) { this.setState('idle'); return; }
     this.mt += dt;
     const d0 = this.mdur[0], d1 = d0 + this.mdur[1], d2 = d1 + this.mdur[2];
+    if (this.mphase === 0 && this.magV) this.x += this.facing * this.magV * dt;
     if (this.mphase === 0 && this.mt >= d0) {
-      this.mphase = 1;
+      this.mphase = 1; this.magV = 0;
       this.sqx = 1.1 + 0.04 * this.heft(); this.sqy = 0.93;
       if (world && (m.kind === 'punch' || m.kind === 'kick' || (m.imp || 0) >= 2) && !this.clone) world.fx.kiai(this);
       if (world && this.heft() >= 1.4) { world.fx.shake(0.05 * this.heft()); if (this.grounded) world.fx.dust(this.x + this.facing * 30 * this.scale, 0, 4); }
@@ -421,17 +438,39 @@ class Fighter {
       if (m.next && btn && b[btn] > 0 && this.mphase === 2) { b[btn] = 0; this.startMove(m.next, world); return; }
       if (this.moveHit && this.mphase === 2) {
         if (b.special > 0 && this.rage >= 100) { b.special = 0; this.doSpecial(world); return; }
-        if (b.weapon > 0 && btn !== 'weapon') { b.weapon = 0; this.startMove(wpn.moves[0], world); return; }
-        if (b.kick > 0 && btn !== 'kick') { b.kick = 0; this.startMove('rk', world); return; }
-        if (b.punch > 0 && btn !== 'punch') { b.punch = 0; this.startMove('p1', world); return; }
-        if (b.jump > 0 && this.grounded && this.mt > d1 + this.mdur[2] * 0.4) { b.jump = 0; this.move = null; this.doJump(world); return; }
+        if (!this.grounded) {
+          // air strings: each connecting air attack can flow into a different one, or a double jump to keep the juggle going
+          if (b.jump > 0 && this.jumps < 2) { b.jump = 0; this.endMove(); this.doJump(world); return; }
+          if (b.weapon > 0 && wpn.air && m.id !== wpn.air) { b.weapon = 0; this.startMove(wpn.air, world); return; }
+          if (b.kick > 0 && m.id !== 'ak') { b.kick = 0; this.startMove('ak', world); return; }
+          if (b.punch > 0 && m.id !== 'ap') { b.punch = 0; this.startMove('ap', world); return; }
+        } else {
+          if (b.weapon > 0 && btn !== 'weapon') { b.weapon = 0; this.startMove(wpn.moves[0], world); return; }
+          if (b.kick > 0 && btn !== 'kick') { b.kick = 0; this.startMove('rk', world); return; }
+          if (b.punch > 0 && btn !== 'punch') { b.punch = 0; this.startMove('p1', world); return; }
+          if (b.jump > 0 && this.mt > d1 + this.mdur[2] * 0.4) { b.jump = 0; this.endMove(); this.doJump(world); return; }
+        }
+      }
+    }
+    // recovery cancels (player): after a hit the tail of the move flows straight into movement, defence or a new attack;
+    // a whiff still commits for most of the recovery, so heavy weapons keep their weight
+    if (this.mphase === 2 && this.isPlayer && m.kind !== 'grab') {
+      const c = this.ctrl, b = this.buf, rk = (this.mt - d1) / Math.max(0.001, this.mdur[2]);
+      if (b.dash > 0 && this.dashCd <= 0 && (this.grounded || !this.airDash) && (this.moveHit || rk > 0.45)) {
+        b.dash = 0; this.endMove(); this.startDash(c.dir || this.facing, world); return;
+      }
+      if (this.grounded && rk > (this.moveHit ? 0.3 : 0.62)) {
+        if (c.blockHeld && !c.punchP) { this.endMove(); this.setState('block'); this.blockT = 0; return; }
+        if (b.weapon > 0 || b.punch > 0 || b.special > 0 || b.jump > 0 || c.kickP || c.grabP) { this.endMove(); this.setState('idle'); this.tryActions(world); return; }
+        if (c.dir !== 0) { this.endMove(); this.setState('walk'); return; }
       }
     }
     if (this.mt >= d2) {
-      this.move = null; this.superArmor = false;
+      this.endMove();
       this.setState(this.grounded ? 'idle' : 'air');
     }
   }
+  endMove() { this.move = null; this.superArmor = false; this.magV = 0; }
 
   // hitbox in world space, or null
   hitbox(out) {
@@ -556,6 +595,8 @@ class Fighter {
       case 'idle': case 'land': case 'kickcharge': case 'walk': case 'run': {
         if (this.state === 'kickcharge' && this.charge > 0.12) { copy(MOVES.hk.w); rate = 16; t.lean += Math.sin(this.time * 40) * 1.5; break; }
         copy(stance);
+        // the knee starts to chamber the instant kick is pressed, before we know whether it is a tap or a charge
+        if (this.state === 'kickcharge') { blendPose(t, MOVES.rk.w, clamp(this.charge / 0.12, 0, 1) * 0.55); rate = 30; break; }
         if (this.state === 'land') { blendPose(t, POSES.land, this.landDepth * (1 - 0.6 * clamp(this.st / this.landT, 0, 1))); t.wa = stance.wa; t.wb = stance.wb; t.fs = stance.fs; t.fe = stance.fe; t.ik = stance.ik || 0; rate = 32; break; }
         // fighter's bounce: rhythmic knee flex while the guard breathes
         const bt = this.time * TAU * 1.5, bounce = (1 + Math.sin(bt)) * 0.5, lowHp = this.hp < this.maxHp * 0.25;
@@ -912,6 +953,64 @@ class Fighter {
     }
   }
 }
+
+/* ---- render interpolation: the simulation ticks at a fixed 60 Hz, but 120/144 Hz displays draw in between ticks.
+   Each tick stores the previous skeleton; at draw time the fighter is blended between the two ticks, then restored. ---- */
+const SK_KEYS = ['hip', 'neck', 'sh', 'shF', 'shB', 'hipF', 'hipB', 'head', 'fel', 'fha', 'bel', 'bha', 'fkn', 'fft', 'bkn', 'bft', 'wt', 'wb', 'w2t', 'w2b'];
+Fighter.prototype.packRender = function (a) {
+  let i = 0;
+  const sk = this.sk;
+  for (let k = 0; k < SK_KEYS.length; k++) { const p = sk[SK_KEYS[k]]; a[i++] = p.x; a[i++] = p.y; }
+  a[i++] = this.x; a[i++] = this.y; a[i++] = this.wVec.x; a[i++] = this.wVec.y; a[i++] = this.w2Vec.x; a[i++] = this.w2Vec.y;
+  for (const cl of this.cloths) { const c = cl.c; for (let j = 0; j < c.n; j++) { a[i++] = c.px[j]; a[i++] = c.py[j]; } }
+  return i;
+};
+Fighter.prototype.unpackRender = function (a) {
+  let i = 0;
+  const sk = this.sk;
+  for (let k = 0; k < SK_KEYS.length; k++) { const p = sk[SK_KEYS[k]]; p.x = a[i++]; p.y = a[i++]; }
+  this.x = a[i++]; this.y = a[i++]; this.wVec.x = a[i++]; this.wVec.y = a[i++]; this.w2Vec.x = a[i++]; this.w2Vec.y = a[i++];
+  for (const cl of this.cloths) { const c = cl.c; for (let j = 0; j < c.n; j++) { c.px[j] = a[i++]; c.py[j] = a[i++]; } }
+  this.wAng = Math.atan2(this.wVec.y, this.wVec.x); this.w2Ang = Math.atan2(this.w2Vec.y, this.w2Vec.x);
+};
+Fighter.prototype.snapPrev = function () {
+  this._prev = this._prev || [];
+  this._prevN = this.packRender(this._prev); this._prevFacing = this.facing;
+};
+// returns true when the fighter was moved to its in-between pose (call endInterp afterwards)
+Fighter.prototype.beginInterp = function (alpha) {
+  if (!this._prevN || this._prevFacing !== this.facing || alpha >= 0.999) return false;
+  const cur = this._cur || (this._cur = []);
+  const n = this.packRender(cur);
+  if (n !== this._prevN || Math.abs(cur[40] - this._prev[40]) > 160 || Math.abs(cur[41] - this._prev[41]) > 160) return false; // teleports snap
+  const mix = this._mix || (this._mix = []), p = this._prev;
+  for (let i = 0; i < n; i++) mix[i] = p[i] + (cur[i] - p[i]) * alpha;
+  this.unpackRender(mix);
+  // blades rotate rather than slide: rebuild them from the blended hand along the blended direction at full length
+  const sk = this.sk;
+  const blade = (h, v, tip, base, ih, it, ib) => {
+    const L = Math.hypot(v.x, v.y) || 1; v.x /= L; v.y /= L;
+    const lt = Math.hypot(cur[it] - cur[ih], cur[it + 1] - cur[ih + 1]), lb = Math.hypot(cur[ib] - cur[ih], cur[ib + 1] - cur[ih + 1]);
+    tip.x = h.x + v.x * lt; tip.y = h.y + v.y * lt; base.x = h.x + v.x * lb; base.y = h.y + v.y * lb;
+  };
+  blade(sk.fha, this.wVec, sk.wt, sk.wb, 18, 32, 34);
+  blade(sk.bha, this.w2Vec, sk.w2t, sk.w2b, 22, 36, 38);
+  this.wAng = Math.atan2(this.wVec.y, this.wVec.x); this.w2Ang = Math.atan2(this.w2Vec.y, this.w2Vec.x);
+  // the newest smear sample is pulled back to the blended blade so the trail never runs ahead of the weapon
+  const sv = this._trailSave || (this._trailSave = [{}, {}]);
+  [this.trail, this.trail2].forEach((arr, k) => {
+    const s = sv[k]; s.e = null;
+    const n2 = arr.length, e = arr[n2 - 1], q = arr[n2 - 2];
+    if (!e || !q || e.t !== 0) return;
+    s.e = e; s.hx = e.hx; s.hy = e.hy; s.a = e.a; s.L = e.L;
+    e.hx = lerp(q.hx, e.hx, alpha); e.hy = lerp(q.hy, e.hy, alpha); e.a = q.a + angDiff(e.a / DEG, q.a / DEG) * DEG * alpha; e.L = lerp(q.L, e.L, alpha);
+  });
+  return true;
+};
+Fighter.prototype.endInterp = function () {
+  this.unpackRender(this._cur);
+  if (this._trailSave) for (const s of this._trailSave) if (s.e) { s.e.hx = s.hx; s.e.hy = s.hy; s.e.a = s.a; s.e.L = s.L; s.e = null; }
+};
 
 const SMEAR_LIFE = 0.24;
 const MOVE_EASE = {

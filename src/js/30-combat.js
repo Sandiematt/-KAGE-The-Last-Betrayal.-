@@ -728,6 +728,8 @@ const Combat = {
     att.rage = Math.min(100, att.rage + dmg * 0.9 * att.rageMul);
     def.rage = Math.min(100, def.rage + dmg * 0.45 * def.rageMul);
     att.comboHits++; att.comboT = 1.1; att.moveHit = true;
+    // air attacks that connect hang the attacker briefly so juggles can be extended instead of falling away from the target
+    if (!m.proj && !att.grounded && att.state === 'move' && att.move && att.move.kind === 'air') att.vy = Math.min(att.vy, -170);
     if (att.comboHits > att.stats.maxCombo) att.stats.maxCombo = att.comboHits;
     if (att.poisonBlade && !m.proj) def.poison = 3;
     tier = tier == null ? (m.imp || 0) : tier;
