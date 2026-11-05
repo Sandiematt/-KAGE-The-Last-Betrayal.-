@@ -824,6 +824,86 @@ function fbox(f, x, y, w, h) {
 }
 
 /* ======================================================================== */
+/* Final Flow: one runner for Shinsen's rage art and a boss ability             */
+/* ======================================================================== */
+// Drives fighter `f` through Final Flow (Logic.finalFlow, FINAL_FLOW in 10-data.js): a short gathering stance with gold
+// embers and a glint, then the table's cuts in order (rising, overhead, a diagonal after stepping through to the
+// target's other side, a back diagonal), each with a gold trail, a short hit-stop and an impact; then a held beat and
+// ONE decisive horizontal cut: impact frame, gold finisher slash, a short freeze and slow motion.
+//   o.tune     overrides merged over the table (Logic.finalFlow(o.tune)): windup, dmg, unb, unbFinisher, label...
+//   o.target   the fighter to follow (default: the nearest foe)
+//   o.dmgMul   damage multiplier (the player passes weaponMul(...).dmg, a boss its f.dmgMul)
+//   o.banner   true shows the rage-art banner (player); otherwise a call-out over the fighter's head (boss)
+//   o.armor    true gives super armour during the gathering stance instead of invulnerability (boss)
+// The player calls it from SPECIAL_IMPL.finalFlow, a boss from BOSS_ABILITIES.finalFlow (40-ai.js).
+function finalFlow(f, world, o) {
+  o = o || {};
+  const ff = Logic.finalFlow(o.tune), cuts = ff.cuts, W = ff.windup, last = cuts[cuts.length - 1];
+  const tgt = o.target || world.nearestEnemy(f), mul = (o.dmgMul != null ? o.dmgMul : 1) * ff.dmg;
+  const poseAt = k => {
+    if (k < 0) return MOVES[cuts[0].pose].w;
+    let c = -1; while (c + 1 < cuts.length && k >= cuts[c + 1].at) c++;
+    if (c < 0) return MOVES[cuts[0].pose].w;
+    const n = cuts[c + 1];
+    // hold the strike briefly, then wind into the next cut (the finisher's wind-up is the held beat)
+    return n && k > cuts[c].at + 0.07 ? MOVES[n.pose].w : MOVES[cuts[c].pose].s;
+  };
+  f.startAbility({ dur: W + last.at + 0.55, uninterruptible: true, rate: 34, trail: true, el: ff.el, flow: ff,
+    pose: (f, t) => poseAt(t - W),
+    start(f) {
+      if (o.armor) f.superArmor = true; else f.invuln = W + last.at + 0.3;
+      if (tgt) f.facing = Math.sign(tgt.x - f.x) || f.facing;
+      if (o.banner) world.fx.banner(ff.name, 'Rage art', '#e8c25c'); else world.fx.popText(f, ff.label, '#e8c25c');
+      if (!o.banner) f.telegraph = W;
+      AudioManager.play('teleport', { pitch: 0.8 });
+    },
+    update(f, w, t, dt) {
+      const k = t - W;
+      if (k < 0) {
+        f.vx = damp(f.vx, 0, 12, dt);
+        if (((t * 60) | 0) % 2 === 0) w.fx.embers(f.sk.wt.x, f.sk.wt.y, 1, '#e8c25c');
+        if (!this.glint && k > -0.1) { this.glint = 1; w.fx.glint(f.sk.wt.x, f.sk.wt.y, '#ffe6a0'); }
+        return;
+      }
+      if (o.armor && !this.armorOff) { this.armorOff = 1; f.superArmor = false; }
+      const live = tgt && tgt.alive;
+      // keep close to the target between cuts so every cut connects, facing it from whichever side Kage is on
+      if (live) {
+        const side = Math.sign(f.x - tgt.x) || -f.facing, want = clamp(tgt.x + side * ff.stick * tgt.scale, w.bounds.l + 20, w.bounds.r - 20);
+        f.x = damp(f.x, want, 12, dt); f.facing = Math.sign(tgt.x - f.x) || f.facing;
+      }
+      f.vx = damp(f.vx, 0, 10, dt);
+      this.done = this.done || [];
+      cuts.forEach((c, i) => {
+        if (this.done[i] || k < c.at) return;
+        this.done[i] = 1;
+        if (c.cross && live) {
+          // step through to the target's other side: the sequence changes direction
+          w.fx.afterimage(f, 'rgba(232,186,84,0.45)');
+          const side = -(Math.sign(f.x - tgt.x) || -f.facing);
+          f.x = clamp(tgt.x + side * ff.stick * tgt.scale, w.bounds.l + 20, w.bounds.r - 20); f.facing = Math.sign(tgt.x - f.x) || f.facing;
+          f.trail.length = 0; f.trail2.length = 0;   // a fresh smear from the new side, never one stretched across the step
+          w.fx.dashLines(f);
+        }
+        f.vx = f.facing * (c.finisher ? 520 : 220);
+        AudioManager.play(c.finisher ? 'heavyswing' : 'swing', { pitch: c.finisher ? 0.85 : 1 + i * 0.06 });
+        const m = { dmg: c.dmg * mul, kb: c.kb, up: c.up, hs: c.finisher ? 0.6 : 0.28, imp: c.finisher ? 3 : 1, hsnd: 'slash',
+          unb: c.finisher ? ff.unbFinisher : ff.unb, kd: c.finisher ? 1 : 0, stamp: c.finisher ? 'FLOW' : null };
+        const box = fbox(f, -10, -232, ff.reach, 224);
+        const hit = Combat.area(w, f, box, m);
+        const ix = live ? tgt.x : box.x + box.w / 2, iy = live ? tgt.y - 110 * tgt.scale : f.y - 110 * f.scale;
+        if (!c.finisher) { if (hit) { w.fx.stop(0.05); w.fx.impactFrame(ix, iy, 1); } w.fx.shake(0.12); return; }
+        // the decisive horizontal cut
+        w.fx.stop(c.freeze); w.fx.impactFrame(ix, iy, 3); w.fx.finisher(ix, iy, f.facing);
+        w.fx.slowmo(0.3, c.slow); w.fx.shake(0.85); w.fx.punch(0.1);
+        w.fx.ring(ix, iy, 190, 'rgba(232,186,84,0.9)', 0.45, 6);
+        for (let j = 0; j < 22; j++) w.fx.part({ x: ix, y: iy, vx: f.facing * rand(200, 900), vy: rand(-260, 160), life: rand(0.3, 0.6), size: rand(1.6, 3.4), color: j % 3 ? '#ffd27a' : '#fff4d6', type: 'spark', grav: 200, drag: 2.5, add: true });
+      });
+    },
+    end(f) { f.superArmor = false; f.invuln = Math.min(f.invuln, 0.2); } });
+}
+
+/* ======================================================================== */
 /* Rage specials (one per weapon)                                             */
 /* ======================================================================== */
 const SPECIAL_IMPL = {
@@ -972,6 +1052,8 @@ const SPECIAL_IMPL = {
       },
       end(f) { f.alpha = 1; f.invuln = 0.2; } });
   },
+  // Shinsen: Final Flow (the shared runner above; Takashi's BOSS_ABILITIES.finalFlow runs the same sequence)
+  finalFlow(f, world) { finalFlow(f, world, { banner: true, dmgMul: weaponMul(f.weaponId(), f.wlvl).dmg }); },
   earthshatter(f, world) {
     f.startAbility({ dur: 1.25, uninterruptible: true, rate: 20, trail: true,
       pose: (f, t) => (t < 0.55 ? MOVES.m1.w : MOVES.m1.s),

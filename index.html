@@ -1575,10 +1575,23 @@ const WEAPONS = {
      Never upgraded and never scaled with player level: their fixed stats are the top tier.
      `special` is a placeholder rage art until the boss tickets add each weapon's real one (noted per weapon);
      Raikō no Tachi and Kagehira & Yūrei already have their own (Thunder Swing, Smoke Step). ---- */
-  shinsen: { heft: 1.5, el: 'moon', name: 'Shinsen', cls: 'Odachi', tab: 'blades', tier: 'boss', base: 'kagetsu', hands: 2, len: 112, stance: 'katana', stats: [150, 120, 132],
-    exclusive: true, hint: 'Defeat Takashi', special: 'crescentMoon', // real rage art: Final Flow
-    trail: '#c9a45c', desc: 'Takashi\'s odachi on the katana forms. Every cut lands like a cleaver.',
-    lore: 'Takashi\'s own odachi, gold along its spine. He forged it the year he built the Echo System and never let the Order touch it.' },
+  // Shinsen ("True Flash"), Takashi's abandoned odachi: granted when Akari falls (act2.boss's reward). Its own move set,
+  // the father-style variations of the family form (FAMILY_FORM): a heavy opening cut, a rising cut (`family.rise`) and
+  // a broad horizontal flow (`family.flow`). Longer start-up and recovery than Kagetsu, broader arcs, more damage and
+  // more heft, so the two blades feel clearly different. Gold trails (el 'gold'). Rage art: Final Flow (FINAL_FLOW).
+  // `base: 'kagetsu'` keeps its damage measured against Kagetsu's (weaponMul) while the moves are its own.
+  shinsen: { heft: 1.6, el: 'gold', name: 'Shinsen', cls: 'Odachi', tab: 'blades', tier: 'boss', base: 'kagetsu', hands: 2, len: 114, stance: 'katana', stats: [150, 120, 132],
+    exclusive: true, hint: 'Defeat Akari', special: 'finalFlow',
+    trail: '#e8c25c', desc: 'Takashi\'s odachi. Slow, broad father-style arcs that land like a cleaver. Rage art: Final Flow.',
+    lore: 'Takashi\'s own odachi, gold along its spine. He forged it the year he built the Echo System, then left it behind.',
+    moves: ['sh1', 'sh2', 'sh3'], air: 'sha', counter: 'shc', family: { rise: 'sh2', aerial: 'sha', flow: 'sh3' },
+    defs: {
+      sh1: { kind: 'weapon', a: { lean: -12, head: -2, fs: 184, fe: 4, wa: 214, fh: 20, fk: -26, bh: -24, bk: -12 }, w: { lean: -14, fs: 190, fe: 20, wa: 226, fh: 22, fk: -28, bh: -26, bk: -12 }, s: { lean: 28, rx: 18, head: 10, fs: 66, fe: 0, wa: 8, fh: 44, fk: -30, bh: -38, bk: -6 }, f: { lean: 32, rx: 14, head: 10, fs: 36, fe: 0, wa: -22, fh: 46, fk: -36, bh: -38, bk: -8 }, t: [0.19, 0.09, 0.32], dmg: 12, kb: 280, hs: 0.42, box: [16, -236, 176, 196], limb: 'w', snd: 'heavyswing', hsnd: 'slash', imp: 2, next: 'sh2' },
+      sh2: { kind: 'weapon', w: { lean: 20, head: 12, fs: 10, fe: 6, wa: -40, fh: 38, fk: -40, bh: -30, bk: -14 }, s: { lean: -8, fs: 160, fe: 10, wa: 204 }, f: { lean: -12, head: -6, fs: 176, fe: 16, wa: 220 }, t: [0.19, 0.09, 0.32], dmg: 12, kb: 160, up: -480, hs: 0.46, box: [16, -246, 166, 206], limb: 'w', snd: 'heavyswing', hsnd: 'slash', imp: 2, next: 'sh3' },
+      sh3: { kind: 'weapon', a: { lean: -4, rx: -10, fs: 30, fe: 100, wa: 100, fh: 18, fk: -24, bh: -14, bk: -24 }, w: { lean: -6, rx: -18, fs: 36, fe: 124, wa: 96, fh: 20, fk: -26, bh: -16, bk: -24 }, s: { lean: 34, rx: 42, head: 8, fs: 94, fe: 0, wa: 92, fh: 50, fk: -30, bh: -48, bk: -2 }, f: { lean: 28, rx: 36, fs: 84, fe: 10, wa: 94, fh: 48, fk: -30, bh: -46, bk: -4 }, t: [0.26, 0.1, 0.42], dmg: 17, kb: 600, hs: 0.56, kd: 1, box: [26, -176, 216, 58], limb: 'w', snd: 'heavyswing', hsnd: 'slash', imp: 3, stamp: 'FLOW', lunge: 420 },
+      sha: { kind: 'air', w: { lean: -6, fs: 178, fe: 8, wa: 220 }, s: { lean: 26, fs: 58, fe: 0, wa: -14 }, t: [0.11, 0.1, 0.22], dmg: 11, kb: 260, up: 260, hs: 0.4, box: [10, -210, 160, 200], limb: 'w', snd: 'heavyswing', hsnd: 'slash', imp: 2 },
+      shc: { kind: 'weapon', counter: 1, w: { lean: 16, head: 10, fs: 2, fe: 20, wa: -52, fh: 38, fk: -42, bh: -36, bk: -20 }, s: { lean: 30, rx: 36, head: 8, fs: 100, fe: 0, wa: 156, fh: 48, fk: -32, bh: -48, bk: 0 }, f: { lean: 18, fs: 166, fe: 10, wa: 182 }, t: [0.06, 0.09, 0.32], dmg: 20, kb: 520, up: -280, hs: 0.58, box: [16, -226, 190, 186], limb: 'w', snd: 'heavyswing', hsnd: 'slash', imp: 3, stamp: 'COUNTER', lunge: 440 }
+    } },
   raiko_no_tachi: { heft: 1.9, el: 'redline', name: 'Raikō no Tachi', cls: 'Odachi', tab: 'heavy', tier: 'boss', base: 'onikiri', hands: 1, len: 128, stance: 'cleaver', stats: [190, 92, 120],
     exclusive: true, hint: 'Defeat Raikon', special: 'thunderSwing',
     trail: '#ff4a3c', desc: 'Raikon\'s broad odachi on the cleaver forms. Slow, guard-breaking, thunderous.',
@@ -1638,6 +1651,7 @@ const TWIST = {
   c1: [-0.8, 0.8, 0.95, 0.5], c2: [0.5, -0.6, -0.7, -0.3], c3: [-0.9, 0.9, 1, 0.6], ca: [-0.6, 0.7, 0.7, 0.3],
   s1: [-0.4, 0.55, 0.4, 0.4], s2: [-0.4, 0.5, 0.35, 0.35], s3: [-0.7, 0.9, 0.8, 0.6], sa: [-0.4, 0.5, 0.4, 0.2],
   h1: [-0.6, 0.6, 0.5, 0.3], h2: [-0.7, 0.8, 0.6, 0.4], h3: [0.4, -0.6, -0.5, -0.3], ha: [-0.5, 0.5, 0.4, 0.2],
+  sh1: [-0.85, 0.85, 1, 0.55], sh2: [0.5, -0.65, -0.8, -0.25], sh3: [-0.65, 0.7, 0.55, 0.45], sha: [-0.6, 0.7, 0.7, 0.25], shc: [-0.95, 1, 0.85, 0.65],
   m1: [-0.9, 0.85, 1, 0.6], m2: [0.6, -0.8, -0.9, -0.4], ma: [-0.7, 0.7, 0.8, 0.4], pa1: [-0.8, 0.5, 0.3, 0.4], pa2: [-0.4, 0.6, 0.5, 0.4]
 };
 function applyTwist(m) {
@@ -1659,7 +1673,7 @@ const MOVES = {};
   }
   for (const wid in WEAPONS) {
     const wp = WEAPONS[wid];
-    if (wp.base) continue;
+    if (wp.base && wp.defs === WEAPONS[wp.base].defs) continue;   // inherits its base's forms (a weapon with its own defs, like Shinsen, builds them)
     const st = STANCES[wp.stance];
     for (const k in wp.defs) {
       const m = wp.defs[k]; m.id = k;
@@ -1684,7 +1698,8 @@ const SPECIALS = {
   reapersHarvest:{ name: "Reaper's Harvest", desc: 'The chain finds the enemy anywhere, drags and slams them.' },
   earthshatter:  { name: 'Earthshatter', desc: 'The ground itself breaks. Every grounded enemy is stunned.' },
   thunderSwing:  { name: 'Thunder Swing', desc: 'A wide arc that sends red lightning racing along the ground. Unblockable.' },
-  smokeStep:     { name: 'Smoke Step', desc: 'Vanish in a puff of smoke, leave an afterimage behind, and strike from behind the enemy. Unblockable.' }
+  smokeStep:     { name: 'Smoke Step', desc: 'Vanish in a puff of smoke, leave an afterimage behind, and strike from behind the enemy. Unblockable.' },
+  finalFlow:     { name: 'Final Flow', desc: 'Rising, overhead and diagonal cuts from both sides, then one decisive horizontal cut. Unblockable.' }
 };
 
 /* ---------------- Helmets & armor ----------------
@@ -1975,6 +1990,30 @@ const AKARI_MOVES = {
   petalCross:   { label: 'PETAL CROSS', cd: 7, range: [120, 520], chance: 0.7, windup: 0.72, dmg: 24, dash: 1100, reach: 190 }
 };
 
+/* ---------------- Final Flow ----------------
+   Shinsen's rage art and, later, one of Takashi's boss abilities (SAN-40): one table, one runner (finalFlow() in
+   30-combat.js, called by SPECIAL_IMPL.finalFlow for the player and BOSS_ABILITIES.finalFlow for a boss).
+   A short gathering stance (`windup` seconds; a boss scales it by its difficulty windup), then the `cuts` in order:
+     dir     rising | overhead | diagonal | horizontal (only the last, decisive cut is horizontal)
+     at      seconds after the wind-up ends that the cut lands     pose  the MOVES id whose wind (w) and strike (s) it swings
+     dmg     base damage (x weaponMul for the player, x dmgMul for a boss, x the table's `dmg`)   kb / up  knockback, lift
+     cross   the fighter steps through to the target's other side before this cut (the sequence changes direction)
+     finisher  the one horizontal finishing cut: knockdown, an impact frame, a gold finisher slash and a `freeze`
+               (hit-stop seconds) followed by `slow` seconds of slow motion
+   `el` is the trail element (gold), `reach` the hit box length, `stick` how close the fighter keeps to the target
+   between cuts, and `unb` makes every cut unblockable (the player's rage art; a boss passes unb: 0 and keeps only the
+   finisher unblockable with `unbFinisher`). Logic.finalFlow(o) returns a copy with `o` merged over the top level. */
+const FINAL_FLOW = {
+  name: 'Final Flow', label: 'FINAL FLOW', el: 'gold', windup: 0.24, dmg: 1, reach: 190, stick: 105, unb: 1, unbFinisher: 1,
+  cuts: [
+    { dir: 'rising',     at: 0.06, pose: 'sh2', dmg: 3,  kb: 40,  up: -240 },
+    { dir: 'overhead',   at: 0.24, pose: 'sh1', dmg: 3,  kb: 40,  up: 80 },
+    { dir: 'diagonal',   at: 0.42, pose: 'shc', dmg: 3,  kb: 40,  up: -120, cross: 1 },
+    { dir: 'diagonal',   at: 0.60, pose: 'k1',  dmg: 4,  kb: 60,  up: -160 },
+    { dir: 'horizontal', at: 0.98, pose: 'sh3', dmg: 12, kb: 780, up: -360, finisher: true, freeze: 0.22, slow: 0.7 }
+  ]
+};
+
 /* ---------------- The family form ----------------
    Takashi's sword grammar, shared by Kage, Rem and Takashi (the spec's "shared attack language"): a grounded opening
    stance, a short dash, a rising cut, an aerial follow-up, a controlled landing, then a finishing horizontal flow.
@@ -2135,10 +2174,11 @@ const CAMPAIGN = (function buildCampaign() {
   Object.assign(chapters[1].stages.find(st => st.id === 'act1.boss'), {
     enemy: 'raikon', reward: { weapons: ['raiko_no_tachi'], helmets: ['raijin_kabuto'] },
     scenes: { before: 'act1.raikon.before', defeat: 'act1.raikon.defeat' } });
-  // Act II's boss: Akari, in the City of Echoes. She drops her Mei-En Garb and Kagehira & Yūrei; her dying words hand
-  // Kage Shinsen (story flag act2.shinsen_received; the weapon grant itself is SAN-38's).
+  // Act II's boss: Akari, in the City of Echoes. She drops her Mei-En Garb and Kagehira & Yūrei, and her dying words
+  // hand Kage Shinsen (story flag act2.shinsen_received). This reward is Shinsen's one source: Logic.grantStageReward
+  // gives it once, the first time the stage is won.
   Object.assign(chapters[3].stages.find(st => st.id === 'act2.boss'), {
-    enemy: 'akari', reward: { weapons: ['kagehira_yurei'], armors: ['mei_en_garb'] },
+    enemy: 'akari', reward: { weapons: ['kagehira_yurei', 'shinsen'], armors: ['mei_en_garb'] },
     scenes: { before: 'act2.akari.before', defeat: 'act2.akari.defeat' } });
   // Act I, The Missing Brother: four stretches through Yomi's outer districts, where the Order of Silence has erased
   // the records of the Silent War. Mostly Order soldiers with a few Hollows, more of them each stretch; survivors'
@@ -2821,6 +2861,22 @@ const Logic = {
     if (!AKARI_ABILITIES.includes(id) || !AKARI_MOVES[id]) return null;
     return JSON.parse(JSON.stringify(Object.assign({ id }, AKARI_MOVES[id])));
   },
+  // A weapon's grounded string as it plays at a level: [{ id, startup, active, recovery, dmg, reach }] with the
+  // weapon's speed, damage and reach multipliers (weaponMul) applied, so two blades can be compared (Shinsen vs Kagetsu).
+  weaponMoves(id, lvl) {
+    const w = WEAPONS[id]; if (!w) return [];
+    const wm = weaponMul(id, lvl);
+    return (w.moves || []).map(mid => {
+      const m = MOVES[mid];
+      return { id: mid, startup: m.t[0] / wm.spd, active: m.t[1], recovery: m.t[2] / wm.spd, dmg: m.dmg * wm.dmg, reach: (m.box[0] + m.box[2]) * wm.reach };
+    });
+  },
+  // Final Flow (FINAL_FLOW in 10-data.js): Shinsen's rage art and a boss ability Takashi reuses. A deep copy of the
+  // table with `o` (optional) merged over its top level, e.g. { windup, dmg, unb, label } for a boss's tuning; the
+  // runner finalFlow() in 30-combat.js performs whatever this returns.
+  finalFlow(o) {
+    return Object.assign(JSON.parse(JSON.stringify(FINAL_FLOW)), o ? JSON.parse(JSON.stringify(o)) : {});
+  },
   // How a beaten boss leaves: 'finisher' | 'escape' | 'reabsorb' (unknown values fall back to the finisher);
   // null for a foe that is not a boss.
   bossDefeat(enemyId) {
@@ -3122,7 +3178,7 @@ const HERO_FACEWRAP = '#efe9dd', HERO_FACEWRAP_SHADE = '#b4ac9f';   // Kage's wh
 const BODY = { torso: 60, neck: 7, head: 18, upper: 36, fore: 34, thigh: 45, shin: 47 };
 const SHAPE = {
   fists: 'none', tsubame: 'short', kagetsu: 'katana', shizuka: 'katana', onikiri: 'cleaver', mizuchi: 'spear',
-  yamigama: 'sickle', iwakudaki: 'hammer', shinsen: 'katana', raiko_no_tachi: 'odachi', raikon_tachi: 'odachi', kagehira_yurei: 'short', akari_blades: 'short', mugen_no_ha: 'katana',
+  yamigama: 'sickle', iwakudaki: 'hammer', shinsen: 'shinsen', raiko_no_tachi: 'odachi', raikon_tachi: 'odachi', kagehira_yurei: 'short', akari_blades: 'short', mugen_no_ha: 'katana',
   shadow_daggers: 'short', hollow_crescents: 'crescent', mist_fans: 'fan',
   sentinel_spear: 'spear', vanguard_yari: 'spear', sage_staff: 'staff', storm_orbs: 'none', iron_fists: 'none', chain_hook: 'hook',
   tyrant_cleaver: 'tyrant', cutter_blade: 'katana', temple_staff: 'staff', raider_cleaver: 'cleaver', bokken: 'bokken'
@@ -4595,6 +4651,39 @@ function drawWeaponShape(ctx, sh, L, mode, s, ink, f) {
       }
       break;
     }
+    case 'shinsen': {
+      // Shinsen, Takashi's odachi: a long, well-balanced blade with a gentle sori, a gold line along the spine, a gold
+      // habaki, a simple round tsuba rimmed in gold, a long two-hand tsuka with gold wraps, and the Tachibana family mark
+      // (a small ring around a dot) engraved in gold near the guard. Never heavy-looking: slimmer than Raiko no Tachi.
+      const hl = 0.29, hw = 2.3 * s, gold = art ? C.gold : '#d9b055';
+      line(-L * hl, 0, -1.8 * s, 0, hw * 2, dark);
+      if (!rim && mode !== 'flat') {
+        ctx.fillStyle = gold;
+        for (let i = 1; i < 6; i++) { ctx.save(); ctx.translate(-L * hl * (i + 0.1) / 6.2, 0); ctx.rotate(Math.PI / 4); ctx.fillRect(-0.95 * s, -0.95 * s, 1.9 * s, 1.9 * s); ctx.restore(); }
+        ctx.beginPath(); ctx.arc(-L * hl, 0, hw * 1.05, 0, TAU); ctx.fill();                                          // gold kashira
+      }
+      ctx.fillStyle = art ? C.gold : ink; ctx.beginPath(); ctx.ellipse(-0.8 * s, 0, 2 * s, 6.2 * s, 0, 0, TAU); ctx.fill();   // round tsuba
+      if (!rim && mode !== 'flat') { ctx.strokeStyle = gold; ctx.lineWidth = 0.9 * s; ctx.stroke(); }
+      if (rim) break;
+      const N = 10, sori = L * 0.05, w0 = 2 * s, w1 = 1.35 * s, yk = 0.9, bx = 1.6 * s;
+      const cy = u => -sori * u * u, X = u => bx + (L - bx) * u;
+      ctx.beginPath(); ctx.moveTo(bx, cy(0) - w0);
+      for (let i = 1; i <= N; i++) { const u = yk * i / N; ctx.lineTo(X(u), cy(u) - lerp(w0, w1, u / yk)); }
+      ctx.lineTo(L, cy(1) - w1 * 0.55);
+      ctx.quadraticCurveTo(X(0.97), cy(0.97) + w1 * 0.9, X(yk), cy(yk) + w1);
+      for (let i = N - 1; i >= 0; i--) { const u = yk * i / N; ctx.lineTo(X(u), cy(u) + lerp(w0, w1, u / yk)); }
+      ctx.closePath(); ctx.fillStyle = steel; ctx.fill();
+      if (mode !== 'flat') {
+        ctx.strokeStyle = gold; ctx.lineWidth = (art ? 1.4 : 1) * s;                                                    // gold spine
+        ctx.beginPath(); ctx.moveTo(bx + 3 * s, cy(0) - w0 * 0.85);
+        for (let i = 1; i <= N; i++) { const u = yk * i / N; ctx.lineTo(X(u), cy(u) - lerp(w0, w1, u / yk) * 0.85); } ctx.stroke();
+        ctx.fillStyle = gold; ctx.fillRect(bx, cy(0) - w0, 3.2 * s, w0 * 2);                                               // habaki
+        const mx = X(0.09), my = cy(0.09);                                                                                // family mark
+        ctx.beginPath(); ctx.arc(mx, my, 1.15 * s, 0, TAU); ctx.lineWidth = 0.45 * s; ctx.stroke();
+        ctx.beginPath(); ctx.arc(mx, my, 0.4 * s, 0, TAU); ctx.fill();
+      }
+      break;
+    }
     case 'bokken': {
       // the Interlude's wooden practice sword: one piece of pale oak with a gentle curve, a darker worn grip and a
       // small round guard, no steel and no edge line
@@ -6001,6 +6090,86 @@ function fbox(f, x, y, w, h) {
 }
 
 /* ======================================================================== */
+/* Final Flow: one runner for Shinsen's rage art and a boss ability             */
+/* ======================================================================== */
+// Drives fighter `f` through Final Flow (Logic.finalFlow, FINAL_FLOW in 10-data.js): a short gathering stance with gold
+// embers and a glint, then the table's cuts in order (rising, overhead, a diagonal after stepping through to the
+// target's other side, a back diagonal), each with a gold trail, a short hit-stop and an impact; then a held beat and
+// ONE decisive horizontal cut: impact frame, gold finisher slash, a short freeze and slow motion.
+//   o.tune     overrides merged over the table (Logic.finalFlow(o.tune)): windup, dmg, unb, unbFinisher, label...
+//   o.target   the fighter to follow (default: the nearest foe)
+//   o.dmgMul   damage multiplier (the player passes weaponMul(...).dmg, a boss its f.dmgMul)
+//   o.banner   true shows the rage-art banner (player); otherwise a call-out over the fighter's head (boss)
+//   o.armor    true gives super armour during the gathering stance instead of invulnerability (boss)
+// The player calls it from SPECIAL_IMPL.finalFlow, a boss from BOSS_ABILITIES.finalFlow (40-ai.js).
+function finalFlow(f, world, o) {
+  o = o || {};
+  const ff = Logic.finalFlow(o.tune), cuts = ff.cuts, W = ff.windup, last = cuts[cuts.length - 1];
+  const tgt = o.target || world.nearestEnemy(f), mul = (o.dmgMul != null ? o.dmgMul : 1) * ff.dmg;
+  const poseAt = k => {
+    if (k < 0) return MOVES[cuts[0].pose].w;
+    let c = -1; while (c + 1 < cuts.length && k >= cuts[c + 1].at) c++;
+    if (c < 0) return MOVES[cuts[0].pose].w;
+    const n = cuts[c + 1];
+    // hold the strike briefly, then wind into the next cut (the finisher's wind-up is the held beat)
+    return n && k > cuts[c].at + 0.07 ? MOVES[n.pose].w : MOVES[cuts[c].pose].s;
+  };
+  f.startAbility({ dur: W + last.at + 0.55, uninterruptible: true, rate: 34, trail: true, el: ff.el, flow: ff,
+    pose: (f, t) => poseAt(t - W),
+    start(f) {
+      if (o.armor) f.superArmor = true; else f.invuln = W + last.at + 0.3;
+      if (tgt) f.facing = Math.sign(tgt.x - f.x) || f.facing;
+      if (o.banner) world.fx.banner(ff.name, 'Rage art', '#e8c25c'); else world.fx.popText(f, ff.label, '#e8c25c');
+      if (!o.banner) f.telegraph = W;
+      AudioManager.play('teleport', { pitch: 0.8 });
+    },
+    update(f, w, t, dt) {
+      const k = t - W;
+      if (k < 0) {
+        f.vx = damp(f.vx, 0, 12, dt);
+        if (((t * 60) | 0) % 2 === 0) w.fx.embers(f.sk.wt.x, f.sk.wt.y, 1, '#e8c25c');
+        if (!this.glint && k > -0.1) { this.glint = 1; w.fx.glint(f.sk.wt.x, f.sk.wt.y, '#ffe6a0'); }
+        return;
+      }
+      if (o.armor && !this.armorOff) { this.armorOff = 1; f.superArmor = false; }
+      const live = tgt && tgt.alive;
+      // keep close to the target between cuts so every cut connects, facing it from whichever side Kage is on
+      if (live) {
+        const side = Math.sign(f.x - tgt.x) || -f.facing, want = clamp(tgt.x + side * ff.stick * tgt.scale, w.bounds.l + 20, w.bounds.r - 20);
+        f.x = damp(f.x, want, 12, dt); f.facing = Math.sign(tgt.x - f.x) || f.facing;
+      }
+      f.vx = damp(f.vx, 0, 10, dt);
+      this.done = this.done || [];
+      cuts.forEach((c, i) => {
+        if (this.done[i] || k < c.at) return;
+        this.done[i] = 1;
+        if (c.cross && live) {
+          // step through to the target's other side: the sequence changes direction
+          w.fx.afterimage(f, 'rgba(232,186,84,0.45)');
+          const side = -(Math.sign(f.x - tgt.x) || -f.facing);
+          f.x = clamp(tgt.x + side * ff.stick * tgt.scale, w.bounds.l + 20, w.bounds.r - 20); f.facing = Math.sign(tgt.x - f.x) || f.facing;
+          f.trail.length = 0; f.trail2.length = 0;   // a fresh smear from the new side, never one stretched across the step
+          w.fx.dashLines(f);
+        }
+        f.vx = f.facing * (c.finisher ? 520 : 220);
+        AudioManager.play(c.finisher ? 'heavyswing' : 'swing', { pitch: c.finisher ? 0.85 : 1 + i * 0.06 });
+        const m = { dmg: c.dmg * mul, kb: c.kb, up: c.up, hs: c.finisher ? 0.6 : 0.28, imp: c.finisher ? 3 : 1, hsnd: 'slash',
+          unb: c.finisher ? ff.unbFinisher : ff.unb, kd: c.finisher ? 1 : 0, stamp: c.finisher ? 'FLOW' : null };
+        const box = fbox(f, -10, -232, ff.reach, 224);
+        const hit = Combat.area(w, f, box, m);
+        const ix = live ? tgt.x : box.x + box.w / 2, iy = live ? tgt.y - 110 * tgt.scale : f.y - 110 * f.scale;
+        if (!c.finisher) { if (hit) { w.fx.stop(0.05); w.fx.impactFrame(ix, iy, 1); } w.fx.shake(0.12); return; }
+        // the decisive horizontal cut
+        w.fx.stop(c.freeze); w.fx.impactFrame(ix, iy, 3); w.fx.finisher(ix, iy, f.facing);
+        w.fx.slowmo(0.3, c.slow); w.fx.shake(0.85); w.fx.punch(0.1);
+        w.fx.ring(ix, iy, 190, 'rgba(232,186,84,0.9)', 0.45, 6);
+        for (let j = 0; j < 22; j++) w.fx.part({ x: ix, y: iy, vx: f.facing * rand(200, 900), vy: rand(-260, 160), life: rand(0.3, 0.6), size: rand(1.6, 3.4), color: j % 3 ? '#ffd27a' : '#fff4d6', type: 'spark', grav: 200, drag: 2.5, add: true });
+      });
+    },
+    end(f) { f.superArmor = false; f.invuln = Math.min(f.invuln, 0.2); } });
+}
+
+/* ======================================================================== */
 /* Rage specials (one per weapon)                                             */
 /* ======================================================================== */
 const SPECIAL_IMPL = {
@@ -6149,6 +6318,8 @@ const SPECIAL_IMPL = {
       },
       end(f) { f.alpha = 1; f.invuln = 0.2; } });
   },
+  // Shinsen: Final Flow (the shared runner above; Takashi's BOSS_ABILITIES.finalFlow runs the same sequence)
+  finalFlow(f, world) { finalFlow(f, world, { banner: true, dmgMul: weaponMul(f.weaponId(), f.wlvl).dmg }); },
   earthshatter(f, world) {
     f.startAbility({ dur: 1.25, uninterruptible: true, rate: 20, trail: true,
       pose: (f, t) => (t < 0.55 ? MOVES.m1.w : MOVES.m1.s),
@@ -6187,7 +6358,9 @@ const ELEMENTS = {
   redline:   { smear: [255, 58, 46], alt: [120, 10, 10], edge: 'rgba(255,240,236,1)', glow: [255, 60, 40], alpha: 0.55, bolts: 1, boltColor: '#ffe9e4' },
   earth:     { smear: [210, 168, 112], edge: 'rgba(255,232,190,0.9)', glow: [255, 150, 70], alpha: 0.48 },
   // Akari's twin blades (Kagehira & Yurei): a NARROW violet slash with a thin white core, shedding a few flat petals
-  petal:     { smear: [155, 107, 214], edge: 'rgba(246,238,255,1)', glow: [155, 107, 214], alpha: 0.55, narrow: 0.32 }
+  petal:     { smear: [155, 107, 214], edge: 'rgba(246,238,255,1)', glow: [155, 107, 214], alpha: 0.55, narrow: 0.32 },
+  // Shinsen and the Tachibana father style (Takashi): a broad GOLD slash with a pale-gold outer band and a white core
+  gold:      { smear: [232, 186, 84], alt: [255, 226, 150], edge: 'rgba(255,250,232,1)', glow: [240, 196, 90], alpha: 0.56, layers: 1 }
 };
 const _sp = [];
 function smearSamples(arr) {
@@ -6254,13 +6427,14 @@ const VFX = {
   emit(f, fx) {
     const arr = f.trail; if (arr.length < 2 || arr[arr.length - 1].t > 0.001) return;
     const m = f.move; if (!(f.state === 'move' && f.mphase === 1) && !(f.state === 'ability' && f.abil && f.abil.trail)) return;
-    const el = f.elementOf(m); if (!el || el === 'shade' || el === 'ink') return;
+    const el = (f.state === 'ability' && f.abil && f.abil.el) || f.elementOf(m); if (!el || el === 'shade' || el === 'ink') return;
     const A = arr[arr.length - 2], B = arr[arr.length - 1];
     const tx = B.hx + Math.cos(B.a) * B.L, ty = B.hy + Math.sin(B.a) * B.L;
     const vx = (tx - (A.hx + Math.cos(A.a) * A.L)) * 30, vy = (ty - (A.hy + Math.sin(A.a) * A.L)) * 30;
     if (el === 'water') for (let i = 0; i < 2; i++) fx.part({ x: tx, y: ty, vx: vx * rand(0.2, 0.5) + rand(-60, 60), vy: vy * rand(0.2, 0.5) - rand(40, 160), life: rand(0.4, 0.7), size: rand(1.6, 3.2), color: i ? '#bfe6ff' : '#4f9dff', type: 'drop', grav: 1300, drag: 0.6, sq: 0.8 });
     else if (el === 'flame') { fx.part({ x: tx, y: ty, vx: rand(-40, 40), vy: rand(-220, -80), life: rand(0.35, 0.7), size: rand(1.4, 2.6), color: '#ffb35a', type: 'spark', grav: -140, drag: 1.2, add: true }); fx.part({ x: tx, y: ty, vx: rand(-30, 30), vy: rand(-120, -40), life: 0.3, size: rand(6, 10), color: 'rgba(255,120,40,0.5)', type: 'flame', grav: -200, drag: 2, add: true, grow: -10 }); }
     else if (el === 'moon' || el === 'blood') fx.part({ x: tx + rand(-6, 6), y: ty + rand(-6, 6), vx: vx * 0.1, vy: vy * 0.1, life: rand(0.3, 0.55), size: rand(2.5, 4.5), color: el === 'moon' ? (chance(0.5) ? '#d9ccff' : '#ff6a82') : (chance(0.6) ? '#ff5470' : '#cdbfff'), type: 'star', grav: 0, drag: 3, add: true });
+    else if (el === 'gold') fx.part({ x: tx + rand(-5, 5), y: ty + rand(-5, 5), vx: vx * 0.1 + rand(-30, 30), vy: vy * 0.1 - rand(10, 40), life: rand(0.3, 0.55), size: rand(1.6, 3), color: chance(0.6) ? '#ffd27a' : '#fff4d6', type: 'spark', grav: 120, drag: 3, add: true });
     else if (el === 'petal') { if (chance(0.5)) fx.part({ x: tx + rand(-5, 5), y: ty + rand(-5, 5), vx: vx * 0.08 + rand(-40, 40), vy: vy * 0.08 - rand(10, 50), life: rand(0.35, 0.6), size: rand(2.6, 4.2), color: chance(0.6) ? '#b48ae6' : '#ece2ff', type: 'ash', grav: 60, drag: 2.4, rot: rand(0, TAU), vr: rand(-10, 10) }); }
     else if (el === 'redline') fx.part({ x: tx, y: ty, vx: rand(-220, 220), vy: rand(-220, 120), life: rand(0.08, 0.18), size: rand(1.2, 2.4), color: chance(0.6) ? '#ff5a46' : '#ffffff', type: 'spark', grav: 0, drag: 4, add: true });
     else if (el === 'lightning') fx.part({ x: tx, y: ty, vx: rand(-200, 200), vy: rand(-200, 200), life: rand(0.08, 0.16), size: rand(1, 2), color: '#cfeeff', type: 'spark', grav: 0, drag: 4, add: true });
@@ -6307,6 +6481,14 @@ Object.assign(Effects.prototype, {
         for (let i = 0; i < 3 + t; i++) { const a = (dir > 0 ? 0 : Math.PI) + rand(-1.1, 1.1), L = (50 + t * 30) * big; this.lightning(x, y, x + Math.cos(a) * L, y + Math.sin(a) * L, { w: 1.6 + t * 0.3, branches: 1, dur: 0.12 + t * 0.02 }); }
         V.streaks.push({ x, y, a: dir > 0 ? rand(-0.6, -0.2) : Math.PI + rand(0.2, 0.6), len: 100 + t * 40, t: 0, dur: 0.3 });
         this.sparks(x, y, dir, 6 + t * 4, '#ffb0a4', 1.3);
+        break;
+      }
+      case 'gold': {
+        // two gold crescents through the target, a flat gold ring on heavy blows and a spray of gold sparks
+        const a0 = dir > 0 ? rand(-0.5, 0.1) : Math.PI + rand(-0.1, 0.5);
+        V.cres.push({ x, y, a: a0, s: (60 + t * 20) * big, t: 0, dur: 0.38, c: [232, 186, 84] }, { x, y, a: a0 + 1.8, s: (46 + t * 14) * big, t: 0.03, dur: 0.34, c: [255, 240, 200] });
+        if (t >= 2) V.rings.push({ x, y, r: 74 + t * 22, t: 0, dur: 0.45, c: [232, 186, 84], flat: 0.45 });
+        this.sparks(x, y, dir, 8 + t * 4, '#ffd98a', 1.3);
         break;
       }
       case 'petal': {
@@ -7170,6 +7352,18 @@ const BOSS_ABILITIES = {
         // Combat.applyHit calls this when a blow lands on the guard: switch to the punish
         onCounter(f) { f.counterStance = false; this.charge = false; this.punish = this.t; this.dur = this.t + P2 + 0.55; f.telegraph = P2; },
         end(f) { f.counterStance = false; f.redline = false; } });
+    } },
+  /* ---- Takashi's Final Flow (SAN-40 adds him): the same sequence as Shinsen's rage art, run by the shared finalFlow()
+     in 30-combat.js. The gathering stance is the tell: FINAL_FLOW.windup x `windup` (default 2.6, so ~0.62 s on
+     Normal) x the difficulty's windup, with white eyes, gold embers and a glint; super armour while gathering. The
+     player's hits are blockable except the finisher. `o` (optional) is merged over the table (Logic.finalFlow), e.g.
+     { windup: 0.8, dmg: 0.8 } for a phase's tuning. ---- */
+  finalFlow: { id: 'finalFlow', cd: 9, range: [0, 360], chance: 0.6,
+    run(f, w, ai, p, o) {
+      const tune = Object.assign({ unb: 0, unbFinisher: 1, dmg: 0.8 }, o || {});
+      tune.windup = (tune.windup || FINAL_FLOW.windup * 2.6) * ai.p.windup;
+      f.facing = w.player.x > f.x ? 1 : -1;
+      finalFlow(f, w, { tune, target: w.player, dmgMul: f.dmgMul, armor: true });
     } },
   /* ---- Akari, the Memory Blade (Act II boss). Numbers come from AKARI_MOVES (10-data.js); `o` (optional) overrides
      them, for Act II's sub-bosses later. Every tell is `windup x Logic.aiTuning(...).windup` seconds long, with white
@@ -9751,7 +9945,7 @@ const Game = {
   buildWarrior() {
     const save = SaveManager.data;
     this.warrior = makePlayerFighter(save, { x: 0, facing: -1 });
-    poseFighter(this.warrior, WEAPONS[save.equipped.weapon].hands === 2 && SHAPE[save.equipped.weapon] === 'katana' ? 'gedan' : null, 60);
+    poseFighter(this.warrior, WEAPONS[save.equipped.weapon].hands === 2 && ['katana', 'shinsen'].includes(SHAPE[save.equipped.weapon]) ? 'gedan' : null, 60);
   },
   resize() {
     const vw = window.innerWidth, vh = window.innerHeight;
@@ -10716,7 +10910,7 @@ const UIManager = {
         <div><b>${playerMaxHp(s)}</b><span>Health</span></div>
       </div>
       <div class="stack"><button class="btn-primary" data-a="armory-from-ov" data-focus>Open Armory</button><button class="btn-ghost" data-a="close-ov">Close</button></div></div>`);
-    setTimeout(() => { const cv = $('#ov-profile canvas[data-lo]'); if (cv) { const f = makePlayerFighter(s); poseFighter(f, WEAPONS[eq.weapon].hands === 2 && SHAPE[eq.weapon] === 'katana' ? 'hasso' : null, 40); drawFighterInto(cv, f, { glow: 'rgba(163,48,42,0.55)', rim: 'rgba(255,190,150,0.9)', fit: 0.95, tall: 1.3 }); } }, 30);
+    setTimeout(() => { const cv = $('#ov-profile canvas[data-lo]'); if (cv) { const f = makePlayerFighter(s); poseFighter(f, WEAPONS[eq.weapon].hands === 2 && ['katana', 'shinsen'].includes(SHAPE[eq.weapon]) ? 'hasso' : null, 40); drawFighterInto(cv, f, { glow: 'rgba(163,48,42,0.55)', rim: 'rgba(255,190,150,0.9)', fit: 0.95, tall: 1.3 }); } }, 30);
   },
 
   /* ---------------- campaign ----------------

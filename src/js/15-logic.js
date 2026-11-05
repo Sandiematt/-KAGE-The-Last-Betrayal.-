@@ -340,6 +340,22 @@ const Logic = {
     if (!AKARI_ABILITIES.includes(id) || !AKARI_MOVES[id]) return null;
     return JSON.parse(JSON.stringify(Object.assign({ id }, AKARI_MOVES[id])));
   },
+  // A weapon's grounded string as it plays at a level: [{ id, startup, active, recovery, dmg, reach }] with the
+  // weapon's speed, damage and reach multipliers (weaponMul) applied, so two blades can be compared (Shinsen vs Kagetsu).
+  weaponMoves(id, lvl) {
+    const w = WEAPONS[id]; if (!w) return [];
+    const wm = weaponMul(id, lvl);
+    return (w.moves || []).map(mid => {
+      const m = MOVES[mid];
+      return { id: mid, startup: m.t[0] / wm.spd, active: m.t[1], recovery: m.t[2] / wm.spd, dmg: m.dmg * wm.dmg, reach: (m.box[0] + m.box[2]) * wm.reach };
+    });
+  },
+  // Final Flow (FINAL_FLOW in 10-data.js): Shinsen's rage art and a boss ability Takashi reuses. A deep copy of the
+  // table with `o` (optional) merged over its top level, e.g. { windup, dmg, unb, label } for a boss's tuning; the
+  // runner finalFlow() in 30-combat.js performs whatever this returns.
+  finalFlow(o) {
+    return Object.assign(JSON.parse(JSON.stringify(FINAL_FLOW)), o ? JSON.parse(JSON.stringify(o)) : {});
+  },
   // How a beaten boss leaves: 'finisher' | 'escape' | 'reabsorb' (unknown values fall back to the finisher);
   // null for a foe that is not a boss.
   bossDefeat(enemyId) {

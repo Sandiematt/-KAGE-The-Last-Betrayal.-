@@ -16,7 +16,9 @@ const ELEMENTS = {
   redline:   { smear: [255, 58, 46], alt: [120, 10, 10], edge: 'rgba(255,240,236,1)', glow: [255, 60, 40], alpha: 0.55, bolts: 1, boltColor: '#ffe9e4' },
   earth:     { smear: [210, 168, 112], edge: 'rgba(255,232,190,0.9)', glow: [255, 150, 70], alpha: 0.48 },
   // Akari's twin blades (Kagehira & Yurei): a NARROW violet slash with a thin white core, shedding a few flat petals
-  petal:     { smear: [155, 107, 214], edge: 'rgba(246,238,255,1)', glow: [155, 107, 214], alpha: 0.55, narrow: 0.32 }
+  petal:     { smear: [155, 107, 214], edge: 'rgba(246,238,255,1)', glow: [155, 107, 214], alpha: 0.55, narrow: 0.32 },
+  // Shinsen and the Tachibana father style (Takashi): a broad GOLD slash with a pale-gold outer band and a white core
+  gold:      { smear: [232, 186, 84], alt: [255, 226, 150], edge: 'rgba(255,250,232,1)', glow: [240, 196, 90], alpha: 0.56, layers: 1 }
 };
 const _sp = [];
 function smearSamples(arr) {
@@ -83,13 +85,14 @@ const VFX = {
   emit(f, fx) {
     const arr = f.trail; if (arr.length < 2 || arr[arr.length - 1].t > 0.001) return;
     const m = f.move; if (!(f.state === 'move' && f.mphase === 1) && !(f.state === 'ability' && f.abil && f.abil.trail)) return;
-    const el = f.elementOf(m); if (!el || el === 'shade' || el === 'ink') return;
+    const el = (f.state === 'ability' && f.abil && f.abil.el) || f.elementOf(m); if (!el || el === 'shade' || el === 'ink') return;
     const A = arr[arr.length - 2], B = arr[arr.length - 1];
     const tx = B.hx + Math.cos(B.a) * B.L, ty = B.hy + Math.sin(B.a) * B.L;
     const vx = (tx - (A.hx + Math.cos(A.a) * A.L)) * 30, vy = (ty - (A.hy + Math.sin(A.a) * A.L)) * 30;
     if (el === 'water') for (let i = 0; i < 2; i++) fx.part({ x: tx, y: ty, vx: vx * rand(0.2, 0.5) + rand(-60, 60), vy: vy * rand(0.2, 0.5) - rand(40, 160), life: rand(0.4, 0.7), size: rand(1.6, 3.2), color: i ? '#bfe6ff' : '#4f9dff', type: 'drop', grav: 1300, drag: 0.6, sq: 0.8 });
     else if (el === 'flame') { fx.part({ x: tx, y: ty, vx: rand(-40, 40), vy: rand(-220, -80), life: rand(0.35, 0.7), size: rand(1.4, 2.6), color: '#ffb35a', type: 'spark', grav: -140, drag: 1.2, add: true }); fx.part({ x: tx, y: ty, vx: rand(-30, 30), vy: rand(-120, -40), life: 0.3, size: rand(6, 10), color: 'rgba(255,120,40,0.5)', type: 'flame', grav: -200, drag: 2, add: true, grow: -10 }); }
     else if (el === 'moon' || el === 'blood') fx.part({ x: tx + rand(-6, 6), y: ty + rand(-6, 6), vx: vx * 0.1, vy: vy * 0.1, life: rand(0.3, 0.55), size: rand(2.5, 4.5), color: el === 'moon' ? (chance(0.5) ? '#d9ccff' : '#ff6a82') : (chance(0.6) ? '#ff5470' : '#cdbfff'), type: 'star', grav: 0, drag: 3, add: true });
+    else if (el === 'gold') fx.part({ x: tx + rand(-5, 5), y: ty + rand(-5, 5), vx: vx * 0.1 + rand(-30, 30), vy: vy * 0.1 - rand(10, 40), life: rand(0.3, 0.55), size: rand(1.6, 3), color: chance(0.6) ? '#ffd27a' : '#fff4d6', type: 'spark', grav: 120, drag: 3, add: true });
     else if (el === 'petal') { if (chance(0.5)) fx.part({ x: tx + rand(-5, 5), y: ty + rand(-5, 5), vx: vx * 0.08 + rand(-40, 40), vy: vy * 0.08 - rand(10, 50), life: rand(0.35, 0.6), size: rand(2.6, 4.2), color: chance(0.6) ? '#b48ae6' : '#ece2ff', type: 'ash', grav: 60, drag: 2.4, rot: rand(0, TAU), vr: rand(-10, 10) }); }
     else if (el === 'redline') fx.part({ x: tx, y: ty, vx: rand(-220, 220), vy: rand(-220, 120), life: rand(0.08, 0.18), size: rand(1.2, 2.4), color: chance(0.6) ? '#ff5a46' : '#ffffff', type: 'spark', grav: 0, drag: 4, add: true });
     else if (el === 'lightning') fx.part({ x: tx, y: ty, vx: rand(-200, 200), vy: rand(-200, 200), life: rand(0.08, 0.16), size: rand(1, 2), color: '#cfeeff', type: 'spark', grav: 0, drag: 4, add: true });
@@ -136,6 +139,14 @@ Object.assign(Effects.prototype, {
         for (let i = 0; i < 3 + t; i++) { const a = (dir > 0 ? 0 : Math.PI) + rand(-1.1, 1.1), L = (50 + t * 30) * big; this.lightning(x, y, x + Math.cos(a) * L, y + Math.sin(a) * L, { w: 1.6 + t * 0.3, branches: 1, dur: 0.12 + t * 0.02 }); }
         V.streaks.push({ x, y, a: dir > 0 ? rand(-0.6, -0.2) : Math.PI + rand(0.2, 0.6), len: 100 + t * 40, t: 0, dur: 0.3 });
         this.sparks(x, y, dir, 6 + t * 4, '#ffb0a4', 1.3);
+        break;
+      }
+      case 'gold': {
+        // two gold crescents through the target, a flat gold ring on heavy blows and a spray of gold sparks
+        const a0 = dir > 0 ? rand(-0.5, 0.1) : Math.PI + rand(-0.1, 0.5);
+        V.cres.push({ x, y, a: a0, s: (60 + t * 20) * big, t: 0, dur: 0.38, c: [232, 186, 84] }, { x, y, a: a0 + 1.8, s: (46 + t * 14) * big, t: 0.03, dur: 0.34, c: [255, 240, 200] });
+        if (t >= 2) V.rings.push({ x, y, r: 74 + t * 22, t: 0, dur: 0.45, c: [232, 186, 84], flat: 0.45 });
+        this.sparks(x, y, dir, 8 + t * 4, '#ffd98a', 1.3);
         break;
       }
       case 'petal': {

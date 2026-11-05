@@ -764,7 +764,7 @@ const Game = {
   buildWarrior() {
     const save = SaveManager.data;
     this.warrior = makePlayerFighter(save, { x: 0, facing: -1 });
-    poseFighter(this.warrior, WEAPONS[save.equipped.weapon].hands === 2 && SHAPE[save.equipped.weapon] === 'katana' ? 'gedan' : null, 60);
+    poseFighter(this.warrior, WEAPONS[save.equipped.weapon].hands === 2 && ['katana', 'shinsen'].includes(SHAPE[save.equipped.weapon]) ? 'gedan' : null, 60);
   },
   resize() {
     const vw = window.innerWidth, vh = window.innerHeight;

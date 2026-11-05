@@ -56,13 +56,13 @@ test('Akari is defeated with the finisher and recorded as killed', () => {
   assert.equal(Logic.bossFate(s, 'act2.boss'), 'killed');
 });
 
-test('clearing Akari\'s stage grants the Mei-En Garb and Kagehira & Yūrei exactly once', () => {
+test('clearing Akari\'s stage grants the Mei-En Garb, Kagehira & Yūrei and Shinsen exactly once', () => {
   const s = Logic.defaultSave(); clearUpTo(Logic, s, 'act2.boss');
   assert.equal(Logic.isLocked(s, 'weapons', 'kagehira_yurei'), true);
   assert.equal(Logic.isLocked(s, 'armors', 'mei_en_garb'), true);
   const out = Logic.applyFightResult(s, win('act2.boss'));
   assert.deepEqual(out.unlocks.filter(u => u.kind !== 'chapter').map(u => ({ ...u })),
-    [{ kind: 'weapons', id: 'kagehira_yurei' }, { kind: 'armors', id: 'mei_en_garb' }]);
+    [{ kind: 'weapons', id: 'kagehira_yurei' }, { kind: 'weapons', id: 'shinsen' }, { kind: 'armors', id: 'mei_en_garb' }]);
   assert.equal(s.owned.weapons.kagehira_yurei, 1);
   assert.equal(s.owned.armors.mei_en_garb, 1);
   assert.equal(Logic.equipItem(s, 'weapons', 'kagehira_yurei'), true);

@@ -338,7 +338,7 @@ const UIManager = {
         <div><b>${playerMaxHp(s)}</b><span>Health</span></div>
       </div>
       <div class="stack"><button class="btn-primary" data-a="armory-from-ov" data-focus>Open Armory</button><button class="btn-ghost" data-a="close-ov">Close</button></div></div>`);
-    setTimeout(() => { const cv = $('#ov-profile canvas[data-lo]'); if (cv) { const f = makePlayerFighter(s); poseFighter(f, WEAPONS[eq.weapon].hands === 2 && SHAPE[eq.weapon] === 'katana' ? 'hasso' : null, 40); drawFighterInto(cv, f, { glow: 'rgba(163,48,42,0.55)', rim: 'rgba(255,190,150,0.9)', fit: 0.95, tall: 1.3 }); } }, 30);
+    setTimeout(() => { const cv = $('#ov-profile canvas[data-lo]'); if (cv) { const f = makePlayerFighter(s); poseFighter(f, WEAPONS[eq.weapon].hands === 2 && ['katana', 'shinsen'].includes(SHAPE[eq.weapon]) ? 'hasso' : null, 40); drawFighterInto(cv, f, { glow: 'rgba(163,48,42,0.55)', rim: 'rgba(255,190,150,0.9)', fit: 0.95, tall: 1.3 }); } }, 30);
   },
 
   /* ---------------- campaign ----------------

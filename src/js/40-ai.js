@@ -563,6 +563,18 @@ const BOSS_ABILITIES = {
         onCounter(f) { f.counterStance = false; this.charge = false; this.punish = this.t; this.dur = this.t + P2 + 0.55; f.telegraph = P2; },
         end(f) { f.counterStance = false; f.redline = false; } });
     } },
+  /* ---- Takashi's Final Flow (SAN-40 adds him): the same sequence as Shinsen's rage art, run by the shared finalFlow()
+     in 30-combat.js. The gathering stance is the tell: FINAL_FLOW.windup x `windup` (default 2.6, so ~0.62 s on
+     Normal) x the difficulty's windup, with white eyes, gold embers and a glint; super armour while gathering. The
+     player's hits are blockable except the finisher. `o` (optional) is merged over the table (Logic.finalFlow), e.g.
+     { windup: 0.8, dmg: 0.8 } for a phase's tuning. ---- */
+  finalFlow: { id: 'finalFlow', cd: 9, range: [0, 360], chance: 0.6,
+    run(f, w, ai, p, o) {
+      const tune = Object.assign({ unb: 0, unbFinisher: 1, dmg: 0.8 }, o || {});
+      tune.windup = (tune.windup || FINAL_FLOW.windup * 2.6) * ai.p.windup;
+      f.facing = w.player.x > f.x ? 1 : -1;
+      finalFlow(f, w, { tune, target: w.player, dmgMul: f.dmgMul, armor: true });
+    } },
   /* ---- Akari, the Memory Blade (Act II boss). Numbers come from AKARI_MOVES (10-data.js); `o` (optional) overrides
      them, for Act II's sub-bosses later. Every tell is `windup x Logic.aiTuning(...).windup` seconds long, with white
      eyes (telegraph), a held pose and a violet glint on the blade that will cut. ---- */

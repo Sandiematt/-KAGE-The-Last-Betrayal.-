@@ -211,10 +211,23 @@ const WEAPONS = {
      Never upgraded and never scaled with player level: their fixed stats are the top tier.
      `special` is a placeholder rage art until the boss tickets add each weapon's real one (noted per weapon);
      Raikō no Tachi and Kagehira & Yūrei already have their own (Thunder Swing, Smoke Step). ---- */
-  shinsen: { heft: 1.5, el: 'moon', name: 'Shinsen', cls: 'Odachi', tab: 'blades', tier: 'boss', base: 'kagetsu', hands: 2, len: 112, stance: 'katana', stats: [150, 120, 132],
-    exclusive: true, hint: 'Defeat Takashi', special: 'crescentMoon', // real rage art: Final Flow
-    trail: '#c9a45c', desc: 'Takashi\'s odachi on the katana forms. Every cut lands like a cleaver.',
-    lore: 'Takashi\'s own odachi, gold along its spine. He forged it the year he built the Echo System and never let the Order touch it.' },
+  // Shinsen ("True Flash"), Takashi's abandoned odachi: granted when Akari falls (act2.boss's reward). Its own move set,
+  // the father-style variations of the family form (FAMILY_FORM): a heavy opening cut, a rising cut (`family.rise`) and
+  // a broad horizontal flow (`family.flow`). Longer start-up and recovery than Kagetsu, broader arcs, more damage and
+  // more heft, so the two blades feel clearly different. Gold trails (el 'gold'). Rage art: Final Flow (FINAL_FLOW).
+  // `base: 'kagetsu'` keeps its damage measured against Kagetsu's (weaponMul) while the moves are its own.
+  shinsen: { heft: 1.6, el: 'gold', name: 'Shinsen', cls: 'Odachi', tab: 'blades', tier: 'boss', base: 'kagetsu', hands: 2, len: 114, stance: 'katana', stats: [150, 120, 132],
+    exclusive: true, hint: 'Defeat Akari', special: 'finalFlow',
+    trail: '#e8c25c', desc: 'Takashi\'s odachi. Slow, broad father-style arcs that land like a cleaver. Rage art: Final Flow.',
+    lore: 'Takashi\'s own odachi, gold along its spine. He forged it the year he built the Echo System, then left it behind.',
+    moves: ['sh1', 'sh2', 'sh3'], air: 'sha', counter: 'shc', family: { rise: 'sh2', aerial: 'sha', flow: 'sh3' },
+    defs: {
+      sh1: { kind: 'weapon', a: { lean: -12, head: -2, fs: 184, fe: 4, wa: 214, fh: 20, fk: -26, bh: -24, bk: -12 }, w: { lean: -14, fs: 190, fe: 20, wa: 226, fh: 22, fk: -28, bh: -26, bk: -12 }, s: { lean: 28, rx: 18, head: 10, fs: 66, fe: 0, wa: 8, fh: 44, fk: -30, bh: -38, bk: -6 }, f: { lean: 32, rx: 14, head: 10, fs: 36, fe: 0, wa: -22, fh: 46, fk: -36, bh: -38, bk: -8 }, t: [0.19, 0.09, 0.32], dmg: 12, kb: 280, hs: 0.42, box: [16, -236, 176, 196], limb: 'w', snd: 'heavyswing', hsnd: 'slash', imp: 2, next: 'sh2' },
+      sh2: { kind: 'weapon', w: { lean: 20, head: 12, fs: 10, fe: 6, wa: -40, fh: 38, fk: -40, bh: -30, bk: -14 }, s: { lean: -8, fs: 160, fe: 10, wa: 204 }, f: { lean: -12, head: -6, fs: 176, fe: 16, wa: 220 }, t: [0.19, 0.09, 0.32], dmg: 12, kb: 160, up: -480, hs: 0.46, box: [16, -246, 166, 206], limb: 'w', snd: 'heavyswing', hsnd: 'slash', imp: 2, next: 'sh3' },
+      sh3: { kind: 'weapon', a: { lean: -4, rx: -10, fs: 30, fe: 100, wa: 100, fh: 18, fk: -24, bh: -14, bk: -24 }, w: { lean: -6, rx: -18, fs: 36, fe: 124, wa: 96, fh: 20, fk: -26, bh: -16, bk: -24 }, s: { lean: 34, rx: 42, head: 8, fs: 94, fe: 0, wa: 92, fh: 50, fk: -30, bh: -48, bk: -2 }, f: { lean: 28, rx: 36, fs: 84, fe: 10, wa: 94, fh: 48, fk: -30, bh: -46, bk: -4 }, t: [0.26, 0.1, 0.42], dmg: 17, kb: 600, hs: 0.56, kd: 1, box: [26, -176, 216, 58], limb: 'w', snd: 'heavyswing', hsnd: 'slash', imp: 3, stamp: 'FLOW', lunge: 420 },
+      sha: { kind: 'air', w: { lean: -6, fs: 178, fe: 8, wa: 220 }, s: { lean: 26, fs: 58, fe: 0, wa: -14 }, t: [0.11, 0.1, 0.22], dmg: 11, kb: 260, up: 260, hs: 0.4, box: [10, -210, 160, 200], limb: 'w', snd: 'heavyswing', hsnd: 'slash', imp: 2 },
+      shc: { kind: 'weapon', counter: 1, w: { lean: 16, head: 10, fs: 2, fe: 20, wa: -52, fh: 38, fk: -42, bh: -36, bk: -20 }, s: { lean: 30, rx: 36, head: 8, fs: 100, fe: 0, wa: 156, fh: 48, fk: -32, bh: -48, bk: 0 }, f: { lean: 18, fs: 166, fe: 10, wa: 182 }, t: [0.06, 0.09, 0.32], dmg: 20, kb: 520, up: -280, hs: 0.58, box: [16, -226, 190, 186], limb: 'w', snd: 'heavyswing', hsnd: 'slash', imp: 3, stamp: 'COUNTER', lunge: 440 }
+    } },
   raiko_no_tachi: { heft: 1.9, el: 'redline', name: 'Raikō no Tachi', cls: 'Odachi', tab: 'heavy', tier: 'boss', base: 'onikiri', hands: 1, len: 128, stance: 'cleaver', stats: [190, 92, 120],
     exclusive: true, hint: 'Defeat Raikon', special: 'thunderSwing',
     trail: '#ff4a3c', desc: 'Raikon\'s broad odachi on the cleaver forms. Slow, guard-breaking, thunderous.',
@@ -274,6 +287,7 @@ const TWIST = {
   c1: [-0.8, 0.8, 0.95, 0.5], c2: [0.5, -0.6, -0.7, -0.3], c3: [-0.9, 0.9, 1, 0.6], ca: [-0.6, 0.7, 0.7, 0.3],
   s1: [-0.4, 0.55, 0.4, 0.4], s2: [-0.4, 0.5, 0.35, 0.35], s3: [-0.7, 0.9, 0.8, 0.6], sa: [-0.4, 0.5, 0.4, 0.2],
   h1: [-0.6, 0.6, 0.5, 0.3], h2: [-0.7, 0.8, 0.6, 0.4], h3: [0.4, -0.6, -0.5, -0.3], ha: [-0.5, 0.5, 0.4, 0.2],
+  sh1: [-0.85, 0.85, 1, 0.55], sh2: [0.5, -0.65, -0.8, -0.25], sh3: [-0.65, 0.7, 0.55, 0.45], sha: [-0.6, 0.7, 0.7, 0.25], shc: [-0.95, 1, 0.85, 0.65],
   m1: [-0.9, 0.85, 1, 0.6], m2: [0.6, -0.8, -0.9, -0.4], ma: [-0.7, 0.7, 0.8, 0.4], pa1: [-0.8, 0.5, 0.3, 0.4], pa2: [-0.4, 0.6, 0.5, 0.4]
 };
 function applyTwist(m) {
@@ -295,7 +309,7 @@ const MOVES = {};
   }
   for (const wid in WEAPONS) {
     const wp = WEAPONS[wid];
-    if (wp.base) continue;
+    if (wp.base && wp.defs === WEAPONS[wp.base].defs) continue;   // inherits its base's forms (a weapon with its own defs, like Shinsen, builds them)
     const st = STANCES[wp.stance];
     for (const k in wp.defs) {
       const m = wp.defs[k]; m.id = k;
@@ -320,7 +334,8 @@ const SPECIALS = {
   reapersHarvest:{ name: "Reaper's Harvest", desc: 'The chain finds the enemy anywhere, drags and slams them.' },
   earthshatter:  { name: 'Earthshatter', desc: 'The ground itself breaks. Every grounded enemy is stunned.' },
   thunderSwing:  { name: 'Thunder Swing', desc: 'A wide arc that sends red lightning racing along the ground. Unblockable.' },
-  smokeStep:     { name: 'Smoke Step', desc: 'Vanish in a puff of smoke, leave an afterimage behind, and strike from behind the enemy. Unblockable.' }
+  smokeStep:     { name: 'Smoke Step', desc: 'Vanish in a puff of smoke, leave an afterimage behind, and strike from behind the enemy. Unblockable.' },
+  finalFlow:     { name: 'Final Flow', desc: 'Rising, overhead and diagonal cuts from both sides, then one decisive horizontal cut. Unblockable.' }
 };
 
 /* ---------------- Helmets & armor ----------------
@@ -611,6 +626,30 @@ const AKARI_MOVES = {
   petalCross:   { label: 'PETAL CROSS', cd: 7, range: [120, 520], chance: 0.7, windup: 0.72, dmg: 24, dash: 1100, reach: 190 }
 };
 
+/* ---------------- Final Flow ----------------
+   Shinsen's rage art and, later, one of Takashi's boss abilities (SAN-40): one table, one runner (finalFlow() in
+   30-combat.js, called by SPECIAL_IMPL.finalFlow for the player and BOSS_ABILITIES.finalFlow for a boss).
+   A short gathering stance (`windup` seconds; a boss scales it by its difficulty windup), then the `cuts` in order:
+     dir     rising | overhead | diagonal | horizontal (only the last, decisive cut is horizontal)
+     at      seconds after the wind-up ends that the cut lands     pose  the MOVES id whose wind (w) and strike (s) it swings
+     dmg     base damage (x weaponMul for the player, x dmgMul for a boss, x the table's `dmg`)   kb / up  knockback, lift
+     cross   the fighter steps through to the target's other side before this cut (the sequence changes direction)
+     finisher  the one horizontal finishing cut: knockdown, an impact frame, a gold finisher slash and a `freeze`
+               (hit-stop seconds) followed by `slow` seconds of slow motion
+   `el` is the trail element (gold), `reach` the hit box length, `stick` how close the fighter keeps to the target
+   between cuts, and `unb` makes every cut unblockable (the player's rage art; a boss passes unb: 0 and keeps only the
+   finisher unblockable with `unbFinisher`). Logic.finalFlow(o) returns a copy with `o` merged over the top level. */
+const FINAL_FLOW = {
+  name: 'Final Flow', label: 'FINAL FLOW', el: 'gold', windup: 0.24, dmg: 1, reach: 190, stick: 105, unb: 1, unbFinisher: 1,
+  cuts: [
+    { dir: 'rising',     at: 0.06, pose: 'sh2', dmg: 3,  kb: 40,  up: -240 },
+    { dir: 'overhead',   at: 0.24, pose: 'sh1', dmg: 3,  kb: 40,  up: 80 },
+    { dir: 'diagonal',   at: 0.42, pose: 'shc', dmg: 3,  kb: 40,  up: -120, cross: 1 },
+    { dir: 'diagonal',   at: 0.60, pose: 'k1',  dmg: 4,  kb: 60,  up: -160 },
+    { dir: 'horizontal', at: 0.98, pose: 'sh3', dmg: 12, kb: 780, up: -360, finisher: true, freeze: 0.22, slow: 0.7 }
+  ]
+};
+
 /* ---------------- The family form ----------------
    Takashi's sword grammar, shared by Kage, Rem and Takashi (the spec's "shared attack language"): a grounded opening
    stance, a short dash, a rising cut, an aerial follow-up, a controlled landing, then a finishing horizontal flow.
@@ -771,10 +810,11 @@ const CAMPAIGN = (function buildCampaign() {
   Object.assign(chapters[1].stages.find(st => st.id === 'act1.boss'), {
     enemy: 'raikon', reward: { weapons: ['raiko_no_tachi'], helmets: ['raijin_kabuto'] },
     scenes: { before: 'act1.raikon.before', defeat: 'act1.raikon.defeat' } });
-  // Act II's boss: Akari, in the City of Echoes. She drops her Mei-En Garb and Kagehira & Yūrei; her dying words hand
-  // Kage Shinsen (story flag act2.shinsen_received; the weapon grant itself is SAN-38's).
+  // Act II's boss: Akari, in the City of Echoes. She drops her Mei-En Garb and Kagehira & Yūrei, and her dying words
+  // hand Kage Shinsen (story flag act2.shinsen_received). This reward is Shinsen's one source: Logic.grantStageReward
+  // gives it once, the first time the stage is won.
   Object.assign(chapters[3].stages.find(st => st.id === 'act2.boss'), {
-    enemy: 'akari', reward: { weapons: ['kagehira_yurei'], armors: ['mei_en_garb'] },
+    enemy: 'akari', reward: { weapons: ['kagehira_yurei', 'shinsen'], armors: ['mei_en_garb'] },
     scenes: { before: 'act2.akari.before', defeat: 'act2.akari.defeat' } });
   // Act I, The Missing Brother: four stretches through Yomi's outer districts, where the Order of Silence has erased
   // the records of the Silent War. Mostly Order soldiers with a few Hollows, more of them each stretch; survivors'

@@ -148,7 +148,7 @@ test('only Act I (Raikon and its four sub-bosses) and Akari grant gear so far: t
   const granting = ['act1.sub1', 'act1.sub2', 'act1.sub3', 'act1.sub4', 'act1.boss', 'act2.boss'];
   for (const st of Logic.stages()) if (!granting.includes(st.id)) assert.equal(st.reward, undefined, st.id);
   assert.deepEqual(Logic.stage('act1.boss').reward, { weapons: ['raiko_no_tachi'], helmets: ['raijin_kabuto'] });
-  assert.deepEqual(Logic.stage('act2.boss').reward, { weapons: ['kagehira_yurei'], armors: ['mei_en_garb'] });
+  assert.deepEqual(Logic.stage('act2.boss').reward, { weapons: ['kagehira_yurei', 'shinsen'], armors: ['mei_en_garb'] });
 });
 
 test('clearing a stage with a gear reward grants it once and reports it', () => {
@@ -169,11 +169,11 @@ test('clearing a stage with a gear reward grants it once and reports it', () => 
 
 test('a New Game+ only trophy drops only when the stage is cleared during New Game+', () => {
   const L = loadLogic().Logic;
-  L.stage('act3.boss').reward = { weapons: ['shinsen'], armors: ['shinsei_yoroi'] };
+  L.stage('act3.boss').reward = { weapons: ['mugen_no_ha'], armors: ['shinsei_yoroi'] };
   const s = L.defaultSave();
   clearUpTo(L, s, 'act3.boss');
   const first = L.completeStage(s, 'act3.boss');
-  assert.deepEqual(first.gear, [{ kind: 'weapons', id: 'shinsen' }]);
+  assert.deepEqual(first.gear, [{ kind: 'weapons', id: 'mugen_no_ha' }]);
   assert.equal(s.owned.armors.shinsei_yoroi, undefined);
   for (const st of L.stages()) L.completeStage(s, st.id);
   assert.equal(L.startNewGamePlus(s), true);
@@ -181,5 +181,5 @@ test('a New Game+ only trophy drops only when the stage is cleared during New Ga
   const ng = L.completeStage(s, 'act3.boss');
   assert.deepEqual(ng.gear, [{ kind: 'armors', id: 'shinsei_yoroi' }]);
   assert.equal(s.owned.armors.shinsei_yoroi, 1);
-  assert.equal(s.owned.weapons.shinsen, 1);
+  assert.equal(s.owned.weapons.mugen_no_ha, 1);
 });

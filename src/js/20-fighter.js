@@ -4,7 +4,7 @@ const HERO_FACEWRAP = '#efe9dd', HERO_FACEWRAP_SHADE = '#b4ac9f';   // Kage's wh
 const BODY = { torso: 60, neck: 7, head: 18, upper: 36, fore: 34, thigh: 45, shin: 47 };
 const SHAPE = {
   fists: 'none', tsubame: 'short', kagetsu: 'katana', shizuka: 'katana', onikiri: 'cleaver', mizuchi: 'spear',
-  yamigama: 'sickle', iwakudaki: 'hammer', shinsen: 'katana', raiko_no_tachi: 'odachi', raikon_tachi: 'odachi', kagehira_yurei: 'short', akari_blades: 'short', mugen_no_ha: 'katana',
+  yamigama: 'sickle', iwakudaki: 'hammer', shinsen: 'shinsen', raiko_no_tachi: 'odachi', raikon_tachi: 'odachi', kagehira_yurei: 'short', akari_blades: 'short', mugen_no_ha: 'katana',
   shadow_daggers: 'short', hollow_crescents: 'crescent', mist_fans: 'fan',
   sentinel_spear: 'spear', vanguard_yari: 'spear', sage_staff: 'staff', storm_orbs: 'none', iron_fists: 'none', chain_hook: 'hook',
   tyrant_cleaver: 'tyrant', cutter_blade: 'katana', temple_staff: 'staff', raider_cleaver: 'cleaver', bokken: 'bokken'
@@ -1474,6 +1474,39 @@ function drawWeaponShape(ctx, sh, L, mode, s, ink, f) {
         ctx.beginPath(); ctx.moveTo(bx + 3 * s, cy(0) - w0 * 0.25);
         for (let i = 1; i <= N; i++) { const u = yk * i / N; ctx.lineTo(X(u), cy(u) - lerp(w0, w1, u / yk) * 0.25); } ctx.stroke();  // shinogi line
         ctx.fillStyle = art ? C.gold : '#b9b3a6'; ctx.fillRect(bx, cy(0) - w0, 3 * s, w0 * 2);                    // habaki
+      }
+      break;
+    }
+    case 'shinsen': {
+      // Shinsen, Takashi's odachi: a long, well-balanced blade with a gentle sori, a gold line along the spine, a gold
+      // habaki, a simple round tsuba rimmed in gold, a long two-hand tsuka with gold wraps, and the Tachibana family mark
+      // (a small ring around a dot) engraved in gold near the guard. Never heavy-looking: slimmer than Raiko no Tachi.
+      const hl = 0.29, hw = 2.3 * s, gold = art ? C.gold : '#d9b055';
+      line(-L * hl, 0, -1.8 * s, 0, hw * 2, dark);
+      if (!rim && mode !== 'flat') {
+        ctx.fillStyle = gold;
+        for (let i = 1; i < 6; i++) { ctx.save(); ctx.translate(-L * hl * (i + 0.1) / 6.2, 0); ctx.rotate(Math.PI / 4); ctx.fillRect(-0.95 * s, -0.95 * s, 1.9 * s, 1.9 * s); ctx.restore(); }
+        ctx.beginPath(); ctx.arc(-L * hl, 0, hw * 1.05, 0, TAU); ctx.fill();                                          // gold kashira
+      }
+      ctx.fillStyle = art ? C.gold : ink; ctx.beginPath(); ctx.ellipse(-0.8 * s, 0, 2 * s, 6.2 * s, 0, 0, TAU); ctx.fill();   // round tsuba
+      if (!rim && mode !== 'flat') { ctx.strokeStyle = gold; ctx.lineWidth = 0.9 * s; ctx.stroke(); }
+      if (rim) break;
+      const N = 10, sori = L * 0.05, w0 = 2 * s, w1 = 1.35 * s, yk = 0.9, bx = 1.6 * s;
+      const cy = u => -sori * u * u, X = u => bx + (L - bx) * u;
+      ctx.beginPath(); ctx.moveTo(bx, cy(0) - w0);
+      for (let i = 1; i <= N; i++) { const u = yk * i / N; ctx.lineTo(X(u), cy(u) - lerp(w0, w1, u / yk)); }
+      ctx.lineTo(L, cy(1) - w1 * 0.55);
+      ctx.quadraticCurveTo(X(0.97), cy(0.97) + w1 * 0.9, X(yk), cy(yk) + w1);
+      for (let i = N - 1; i >= 0; i--) { const u = yk * i / N; ctx.lineTo(X(u), cy(u) + lerp(w0, w1, u / yk)); }
+      ctx.closePath(); ctx.fillStyle = steel; ctx.fill();
+      if (mode !== 'flat') {
+        ctx.strokeStyle = gold; ctx.lineWidth = (art ? 1.4 : 1) * s;                                                    // gold spine
+        ctx.beginPath(); ctx.moveTo(bx + 3 * s, cy(0) - w0 * 0.85);
+        for (let i = 1; i <= N; i++) { const u = yk * i / N; ctx.lineTo(X(u), cy(u) - lerp(w0, w1, u / yk) * 0.85); } ctx.stroke();
+        ctx.fillStyle = gold; ctx.fillRect(bx, cy(0) - w0, 3.2 * s, w0 * 2);                                               // habaki
+        const mx = X(0.09), my = cy(0.09);                                                                                // family mark
+        ctx.beginPath(); ctx.arc(mx, my, 1.15 * s, 0, TAU); ctx.lineWidth = 0.45 * s; ctx.stroke();
+        ctx.beginPath(); ctx.arc(mx, my, 0.4 * s, 0, TAU); ctx.fill();
       }
       break;
     }
