@@ -52,6 +52,28 @@ function playerMaxHp(save) {
 }
 function xpForLevel(lvl) { return 200 + 120 * (lvl - 1); }
 
+/* ---------------- difficulty modes ----------------
+   The player picks one (new game, pause menu, Settings); the game never changes it. Every field is a multiplier
+   on today's tuning, so Normal (all 1, branch 0.15) plays exactly as before.
+   hp / dmg        regular foes' health and damage (minions too)      bossHp / bossDmg  the same for sub-bosses and bosses
+   windup          enemy attack start-up and telegraph length          recovery          enemy attack recovery (the opening after a swing)
+   react           AI reaction delay to an incoming attack             idle              AI pause between decisions and after a string
+   aggr            AI attack chance                                    guard             AI block and parry chance
+   punish          AI chance to punish an opening                      branch            chance an AI string becomes a mixed weapon-punch combo
+   dodge           the player's dash invulnerability window            unique            Impossible's extra combo variations
+   cap             ceiling on AI attack and punish chances */
+const DIFFICULTY_IDS = ['easy', 'normal', 'hard', 'impossible'];
+const DIFFICULTIES = {
+  easy:       { id: 'easy', label: 'Easy', blurb: 'Lower enemy health and damage, slower wind-ups, wider dodge windows.',
+    hp: 0.7, dmg: 0.6, bossHp: 0.75, bossDmg: 0.65, windup: 1.35, react: 1.4, aggr: 0.75, guard: 0.8, branch: 0.08, punish: 0.6, recovery: 1.3, idle: 1.35, dodge: 1.5, cap: 0.95, unique: false },
+  normal:     { id: 'normal', label: 'Normal', blurb: 'The duel as it was meant to be fought.',
+    hp: 1, dmg: 1, bossHp: 1, bossDmg: 1, windup: 1, react: 1, aggr: 1, guard: 1, branch: 0.15, punish: 1, recovery: 1, idle: 1, dodge: 1, cap: 0.95, unique: false },
+  hard:       { id: 'hard', label: 'Hard', blurb: 'Faster enemies, shorter recovery, more combo branches, stronger punishes.',
+    hp: 1.3, dmg: 1.25, bossHp: 1.25, bossDmg: 1.2, windup: 0.85, react: 0.8, aggr: 1.15, guard: 1.15, branch: 0.3, punish: 1.2, recovery: 0.8, idle: 0.8, dodge: 0.92, cap: 0.97, unique: false },
+  impossible: { id: 'impossible', label: 'Impossible', blurb: 'Unique combo variations, fewer openings, tighter timing.',
+    hp: 1.6, dmg: 1.5, bossHp: 1.5, bossDmg: 1.4, windup: 0.72, react: 0.6, aggr: 1.3, guard: 1.3, branch: 0.45, punish: 1.4, recovery: 0.65, idle: 0.6, dodge: 0.85, cap: 0.99, unique: true }
+};
+
 // The campaign map flattened in story order, and indexed by stage id.
 const STAGE_LIST = CAMPAIGN.chapters.reduce((all, ch) => all.concat(ch.stages), []);
 const STAGE_BY_ID = {}; for (const st of STAGE_LIST) STAGE_BY_ID[st.id] = st;
@@ -83,6 +105,8 @@ const Logic = {
       owned: { weapons: { kagetsu: 1 }, helmets: { shiro_maki: 1 }, armors: { tachibana_yoroi: 1 } },
       equipped: { weapon: 'kagetsu', helmet: 'shiro_maki', armor: 'tachibana_yoroi' },
       seenRewards: {},
+      difficulty: 'normal',    // Easy / Normal / Hard / Impossible (DIFFICULTY_IDS); only the player changes it
+      difficultyPicked: false, // false until the new-game mode picker has been answered
       survivalBest: 0,
       stats: { wins: 0, losses: 0, perfects: 0, bosses: 0, playTime: 0 },
       settings: { shake: 'full', reduceFlash: false, sound: true, music: true, touch: 'auto', stick: 'float' }
@@ -122,6 +146,8 @@ const Logic = {
     for (const k in s.defeated || {}) if (STAGE_BY_ID[k] && s.defeated[k] > 0) d.defeated[k] = s.defeated[k];
     delete d.unlockedActs;
     d.seenRewards = s.seenRewards || {};
+    d.difficulty = this.normalizeDifficulty(s.difficulty);
+    d.difficultyPicked = !!s.difficultyPicked;
     return d;
   },
   /* ---------------- campaign map ----------------
@@ -204,6 +230,69 @@ const Logic = {
   startNewGamePlus(save) {
     if (!save.ngUnlocked) return false;
     save.ng = (save.ng || 0) + 1; save.cleared = {};
+    return true;
+  },
+
+  /* ---------------- difficulty ---------------- */
+  DIFFICULTY_IDS,
+  // A mode's tuning; anything unknown reads as Normal.
+  difficulty(id) { return DIFFICULTIES[this.normalizeDifficulty(id)]; },
+  normalizeDifficulty(id) { return DIFFICULTIES[id] ? id : 'normal'; },
+  // The authored challenge curve of a fight: chapter tier (`diff`), stage position, foe weight class, or the
+  // survival wave. Drives AI sharpness. It never reads the player's level, experience or gear.
+  stageLevel(cfg, enemyId, wave) {
+    const d = ENEMIES[enemyId];
+    if (cfg.mode === 'survival') return 1 + (wave || cfg.wave || 1) * 0.35;
+    const tier = (cfg.diff || 1) - 1, st = cfg.pos || 0;
+    return 1 + tier * 1.6 + st * 0.22 + (d.type === 'sub' ? 0.4 : d.type === 'boss' ? 0.8 : 0);
+  },
+  // A foe's fight stats: { hp, dmgMul, wlvl, defense, speedMul, level, ng, difficulty }. They depend only on the
+  // chosen mode (save.difficulty), the authored curve (stage / chapter tier, survival wave, New Game+ cycle) and the
+  // foe's role: 'minion' (a boss's summoned recruit, 70 base health, 60% damage) or 'clone' (1 health, half damage).
+  // Sub-bosses and bosses take the mode's boss multipliers; everyone else the regular ones.
+  enemyStats(save, cfg, enemyId, opts) {
+    opts = opts || {};
+    const d = ENEMIES[enemyId], ng = cfg.ng || 0, mode = this.difficulty(save.difficulty);
+    const wave = opts.wave || cfg.wave || 1, survival = cfg.mode === 'survival';
+    const role = opts.role || null, bossy = (d.type === 'boss' || d.type === 'sub') && role !== 'minion';
+    let hpMul = 1 + 0.35 * ng, dmgMul = (d.dmg || 1) * (1 + 0.25 * ng);
+    if (survival) { hpMul *= 0.85 + wave * 0.07; dmgMul *= 0.9 + wave * 0.04; }
+    hpMul *= bossy ? mode.bossHp : mode.hp;
+    dmgMul *= bossy ? mode.bossDmg : mode.dmg;
+    let hp = Math.round(d.hp * hpMul);
+    if (role === 'minion') { hp = Math.round(70 * mode.hp); dmgMul *= 0.6; }
+    if (role === 'clone') { hp = 1; dmgMul *= 0.5; }
+    const raw = Math.round(1 + ((cfg.diff || 1) - 1) * 2.2 + (cfg.pos || 0) * 0.3 + ng * 2 + (survival ? wave * 0.3 : 0));
+    return {
+      hp, dmgMul, wlvl: Math.min(8, Math.max(1, raw)),
+      defense: ((HELMETS[d.helmet] || {}).def || 0) * 0.6 + ((ARMORS[d.armor] || {}).def || 0) * 0.6,
+      speedMul: d.speed || 1, level: this.stageLevel(cfg, enemyId, wave), ng, difficulty: mode.id
+    };
+  },
+  // An enemy's AI tuning: a fresh copy of AI_PROFILES[profile], sharpened by the authored curve (stage level, New
+  // Game+) and scaled by the mode, plus the mode's timing fields the AI and fighter read (windup, recovery, idle,
+  // branch, unique). Clones and minions use a fixed aggression (0.8 / 0.6) scaled by the mode. On Normal this is
+  // exactly the original tuning.
+  aiTuning(profile, opts) {
+    opts = opts || {};
+    const base = AI_PROFILES[profile] || AI_PROFILES.regular, m = this.difficulty(opts.difficulty);
+    const p = Object.assign({}, base, { react: base.react.slice(), combo: base.combo.slice() });
+    const lvl = opts.level || 1, ng = opts.ng || 0;
+    const k = Math.min(1.4, Math.max(0, (lvl - 1) / 4)) + ng * 0.35;
+    p.aggr = Math.min(m.cap, p.aggr * (0.8 + k * 0.35) * m.aggr);
+    p.block = Math.min(0.85, p.block * (0.75 + k * 0.3) * m.guard);
+    p.parry = Math.min(0.4, p.parry * (0.7 + k * 0.5) * m.guard);
+    p.react = [p.react[0] * (1.25 - k * 0.2) * m.react, p.react[1] * (1.25 - k * 0.2) * m.react];
+    p.punish = Math.min(m.cap, p.punish * (0.85 + k * 0.2) * m.punish);
+    if (opts.role === 'clone') p.aggr = Math.min(m.cap, 0.8 * m.aggr);
+    if (opts.role === 'minion') p.aggr = Math.min(m.cap, 0.6 * m.aggr);
+    Object.assign(p, { windup: m.windup, recovery: m.recovery, idle: m.idle, branch: m.branch, unique: m.unique });
+    return p;
+  },
+  // The player's choice (new-game picker, pause menu, Settings). Returns false for an unknown mode.
+  setDifficulty(save, id) {
+    if (!DIFFICULTIES[id]) return false;
+    save.difficulty = id; save.difficultyPicked = true;
     return true;
   },
 

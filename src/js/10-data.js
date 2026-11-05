@@ -468,7 +468,9 @@ const CAMPAIGN = (function buildCampaign() {
   for (const ch of chapters) ch.stages.forEach((st, i) => { st.chapter = ch.id; st.pos = i; });
   return { chapters };
 })();
-const DIFF_LABEL = ['Easy', 'Normal', 'Hard', 'Brutal', 'Mythic'];
+// Threat of a stage on the authored curve (chapter tier + NG+), shown on stage cards. Not the difficulty mode
+// (Easy / Normal / Hard / Impossible, see Logic.difficulty), hence different words.
+const DIFF_LABEL = ['Calm', 'Tense', 'Fierce', 'Brutal', 'Mythic'];
 
 /* ---------------- Survival ---------------- */
 const SURVIVAL = {
@@ -478,4 +480,15 @@ const SURVIVAL = {
   heal: 0.35,
   coins: w => 25 + w * 12,
   gemsEvery: 5
+};
+
+/* Enemy AI archetypes (ENEMIES[id].ai). Logic.aiTuning sharpens them by stage level, New Game+ and difficulty mode;
+   40-ai.js reads the tuned copy. react = reaction delay range (s), combo = string length range. */
+const AI_PROFILES = {
+  regular:   { pref: 125, aggr: 0.55, block: 0.38, parry: 0.06, dodge: 0.12, react: [0.24, 0.4], combo: [1, 3], jump: 0.05, punish: 0.55, grab: 0.05, kunai: 0.05 },
+  agile:     { pref: 160, aggr: 0.62, block: 0.18, parry: 0.05, dodge: 0.38, react: [0.15, 0.27], combo: [2, 4], jump: 0.2, punish: 0.7, grab: 0.03, kunai: 0.06, dashIn: 0.35 },
+  defensive: { pref: 115, aggr: 0.34, block: 0.62, parry: 0.16, dodge: 0.08, react: [0.17, 0.3], combo: [1, 2], jump: 0.02, punish: 0.85, grab: 0.2, kunai: 0.02 },
+  ranged:    { pref: 430, aggr: 0.42, block: 0.32, parry: 0.04, dodge: 0.28, react: [0.2, 0.34], combo: [1, 2], jump: 0.1, punish: 0.45, grab: 0.02, kunai: 0.55, ranged: 1 },
+  heavy:     { pref: 140, aggr: 0.5, block: 0.12, parry: 0, dodge: 0.03, react: [0.32, 0.52], combo: [1, 2], jump: 0, punish: 0.45, grab: 0, kunai: 0, heavy: 1 },
+  boss:      { pref: 150, aggr: 0.62, block: 0.42, parry: 0.12, dodge: 0.18, react: [0.16, 0.28], combo: [2, 4], jump: 0.06, punish: 0.78, grab: 0.06, kunai: 0.05 }
 };

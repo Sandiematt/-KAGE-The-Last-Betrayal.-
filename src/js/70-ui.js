@@ -139,7 +139,26 @@ const UIManager = {
   /* ---------------- actions ---------------- */
   action(a, el) {
     const save = SaveManager.data, d = el.dataset;
+    // a new game asks for a difficulty mode before the first campaign or survival entry
+    if ((a === 'play' || a === 'campaign' || a === 'survival') && !save.difficultyPicked) { this.openModePicker(a); return; }
     switch (a) {
+      case 'pick-mode': {
+        const next = this._modeNext; this._modeNext = null;
+        if (!Logic.setDifficulty(save, d.v)) break;
+        SaveManager.save(); this.closeOverlay();
+        this.toast('Difficulty', Logic.difficulty(save.difficulty).label);
+        if (next) this.action(next, el);
+        break;
+      }
+      case 'difficulty': {
+        if (!Logic.setDifficulty(save, d.v)) break;
+        SaveManager.save();
+        if (Game.session) Game.session.applyDifficulty();
+        if (this.current === 'settings') this.renderSettings();
+        if (this.overlay === 'pause') this.openPause();
+        if (this.current === 'prefight' && this.pfCfg) this.renderPrefight();
+        break;
+      }
       case 'play': {
         const n = Game.nextStage();
         if (n && Logic.isCombatStage(n)) { this.selStage = n; this.go('prefight', () => this.preparePrefight(Game.stageConfig(n))); }
@@ -581,7 +600,7 @@ const UIManager = {
       <div class="plate left">
         <div class="eyebrow">Level ${save.level} · ${playerMaxHp(save)} HP</div>
         <div class="nm disp">Kage</div>
-        <div class="gear-chips"><span class="chip">Helm <b>${esc(HELMETS[save.equipped.helmet].name)}</b></span><span class="chip">Armor <b>${esc(ARMORS[save.equipped.armor].name)}</b></span><button class="chip" data-a="pf-gear" style="color:var(--accent-gold);border-color:var(--accent-gold-dim)">Change gear</button></div>
+        <div class="gear-chips"><span class="chip">Helm <b>${esc(HELMETS[save.equipped.helmet].name)}</b></span><span class="chip">Armor <b>${esc(ARMORS[save.equipped.armor].name)}</b></span><span class="chip" data-mode-chip>Mode <b>${esc(Logic.difficulty(save.difficulty).label)}</b></span><button class="chip" data-a="pf-gear" style="color:var(--accent-gold);border-color:var(--accent-gold-dim)">Change gear</button></div>
       </div>
       <div class="plate right">
         <div class="tag"><div class="diff"><div class="pips">${[0, 1, 2].map(k => `<i class="${k < Math.min(3, Math.max(1, dl)) ? 'on' : ''}"></i>`).join('')}</div></div><span class="eyebrow red">${esc(tag)}</span></div>
@@ -790,6 +809,19 @@ const UIManager = {
     const v = SaveManager.data.settings[k];
     return `<div class="seg">${opts.map(([val, lbl]) => `<button class="${String(v) === String(val) ? 'on' : ''}" data-a="set" data-k="${k}" data-v="${val}">${lbl}</button>`).join('')}</div>`;
   },
+  // The difficulty row (pause menu and Settings): all four modes, always available, changed only by the player.
+  difficultyRow() {
+    const cur = SaveManager.data.difficulty, m = Logic.difficulty(cur);
+    return `<div class="set-row"><div class="k">Difficulty<small>${esc(m.blurb)}</small></div><div class="seg">${Logic.DIFFICULTY_IDS.map(id => `<button class="${id === cur ? 'on' : ''}" data-a="difficulty" data-v="${id}">${esc(Logic.difficulty(id).label)}</button>`).join('')}</div></div>`;
+  },
+  openModePicker(next) {
+    this._modeNext = next || null;
+    const cur = SaveManager.data.difficulty;
+    this.openOverlay('mode', `<div class="ov-card wide"><div class="eyebrow">New game</div><h3 class="disp">Choose your difficulty</h3>
+      <div class="big-line">Enemy health, damage and timing follow the mode you pick, never your level. You can change it any time from the pause menu or Settings.</div>
+      <div class="mode-grid">${Logic.DIFFICULTY_IDS.map(id => { const m = Logic.difficulty(id); return `<button class="mode-card ${id}${id === cur ? ' on' : ''}" data-a="pick-mode" data-v="${id}" ${id === cur ? 'data-focus' : ''}><b>${esc(m.label)}</b><span>${esc(m.blurb)}</span></button>`; }).join('')}</div>
+      <div class="stack"><button class="btn-ghost" data-a="close-ov">Back</button></div></div>`);
+  },
   settingsRows() {
     return `
       <div class="set-row"><div class="k">Screen shake<small>Camera shake on heavy impacts</small></div>${this.seg('shake', [['full', 'Full'], ['half', 'Half'], ['off', 'Off']])}</div>
@@ -805,7 +837,7 @@ const UIManager = {
     el.innerHTML = `
       <div class="topbar"><div class="head"><button class="round-btn" data-a="back" aria-label="Back">${ICON.back}</button><h2 class="disp">Settings</h2></div>${currencyHTML()}</div>
       <div class="panel-wrap">
-        <div class="panel"><div class="eyebrow">Feel &amp; sound</div>${this.settingsRows()}</div>
+        <div class="panel"><div class="eyebrow">Challenge</div>${this.difficultyRow()}<div class="eyebrow" style="margin-top:1rem">Feel &amp; sound</div>${this.settingsRows()}</div>
         <div style="display:flex;flex-direction:column;gap:1.6rem">
           <div class="panel" style="animation-delay:.08s"><div class="eyebrow">New Game+</div><h3 class="disp">${save.ng ? `Cycle ${save.ng}` : 'The road again'}</h3>
             <div class="big-line">${save.ngUnlocked ? 'Enemies gain health, damage and aggression. Rewards grow by 60% per cycle.' : 'Finish the story, through the Epilogue, to unlock New Game+.'}</div>
@@ -854,9 +886,9 @@ const UIManager = {
   openPause() {
     if (!Game.session) return;
     Game.paused = true; this.updateTouch();
-    this.openOverlay('pause', `<div class="ov-card"><div class="eyebrow">Paused</div><h3 class="disp">${esc(Game.session.enemy.name)}</h3>
+    this.openOverlay('pause', `<div class="ov-card"><div class="eyebrow">Paused · ${esc(Logic.difficulty(SaveManager.data.difficulty).label)}</div><h3 class="disp">${esc(Game.session.enemy.name)}</h3>
       <div class="stack"><button class="btn-primary" data-a="resume" data-focus>Resume</button><button class="btn-ghost" data-a="restart">${ICON.retry} Restart fight</button><button class="btn-ghost" data-a="help">${ICON.help} Controls</button><button class="btn-ghost" data-a="quit">Quit to ${Game.session.mode === 'survival' ? 'survival' : 'map'}</button></div>
-      <div>${this.settingsRows()}</div></div>`);
+      <div>${this.difficultyRow()}${this.settingsRows()}</div></div>`);
   },
   openHelp() {
     const back = this.overlay === 'pause';

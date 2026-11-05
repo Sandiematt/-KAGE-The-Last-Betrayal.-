@@ -32,27 +32,36 @@ class FightSession {
     const f = makePlayerFighter(save, {
       x: -300, team: 0, hp: g.hp, defense: g.defense, speedMul: 1 + (pk.speed || 0), rageMul: 1 + (pk.rage || 0),
       stunRes: pk.stunRes || 0, dashBonus: pk.dash || 0, ammo: 5 + (pk.ammo || 0), kunaiMul: 1 + (pk.kunai || 0), blockRage: pk.blockRage || 0,
-      dmgMul: (1 + 0.012 * (save.level - 1)) * (1 + (pk.dmg || 0))
+      dmgMul: (1 + 0.012 * (save.level - 1)) * (1 + (pk.dmg || 0)),
+      dodgeMul: Logic.difficulty(save.difficulty).dodge   // Easy widens the dash i-frames
     });
     f.name = 'Kage';
     return f;
   }
-  difficultyLevel(d) {
-    if (this.mode === 'survival') return 1 + this.wave * 0.35;
-    const tier = (this.cfg.diff || 1) - 1, st = this.cfg.pos || 0;
-    return 1 + tier * 1.6 + st * 0.22 + (d.type === 'sub' ? 0.4 : d.type === 'boss' ? 0.8 : 0);
-  }
-  makeEnemy(id, x, extra) {
-    const d = ENEMIES[id], ng = this.cfg.ng || 0;
-    let hpMul = 1 + 0.35 * ng, dmgMul = (d.dmg || 1) * (1 + 0.25 * ng);
-    if (this.mode === 'survival') { hpMul *= 0.85 + this.wave * 0.07; dmgMul *= 0.9 + this.wave * 0.04; }
-    const lvl = this.difficultyLevel(d);
-    const wl = clamp(Math.round(1 + ((this.cfg.diff || 1) - 1) * 2.2 + (this.cfg.pos || 0) * 0.3 + ng * 2 + (this.mode === 'survival' ? this.wave * 0.3 : 0)), 1, 8);
-    const gearDefE = ((HELMETS[d.helmet] || {}).def || 0) * 0.6 + ((ARMORS[d.armor] || {}).def || 0) * 0.6;
-    const f = makeFighterFromEnemy(id, Object.assign({ x, team: 1, hp: Math.round(d.hp * hpMul), dmgMul, wlvl: wl, defense: gearDefE, speedMul: d.speed || 1 }, extra || {}));
-    f.baseSpeed = f.speedMul;
-    f.ai = new AIController(f, this, { level: lvl, ng });
+  // The authored challenge curve (chapter tier, stage position, survival wave); see Logic.stageLevel.
+  difficultyLevel(d) { return Logic.stageLevel(this.cfg, d.id, this.wave); }
+  // Every foe (campaign, survival waves, boss minions and clones) is built here from Logic.enemyStats: the chosen
+  // difficulty mode and the authored curve only, never the player's level. role: null | 'minion' | 'clone'.
+  makeEnemy(id, x, extra, role) {
+    const st = this.enemyStats(id, role);
+    const f = makeFighterFromEnemy(id, Object.assign({ x, team: 1, hp: st.hp, dmgMul: st.dmgMul, wlvl: st.wlvl, defense: st.defense, speedMul: st.speedMul }, extra || {}));
+    f.baseSpeed = f.speedMul; f.role = role || null;
+    f.ai = new AIController(f, this, { level: st.level, ng: st.ng, difficulty: st.difficulty, role });
+    f.windupMul = f.ai.p.windup; f.recoveryMul = f.ai.p.recovery;
     return f;
+  }
+  enemyStats(id, role) { return Logic.enemyStats(SaveManager.data, this.cfg, id, { wave: this.wave, role }); }
+  // The player changed the mode mid-fight (pause menu): re-tune every foe in place, keeping its health fraction.
+  applyDifficulty() {
+    const mode = Logic.difficulty(SaveManager.data.difficulty);
+    this.player.dodgeMul = mode.dodge;
+    for (const f of this.fighters) {
+      if (!f.ai || !f.def) continue;
+      const st = this.enemyStats(f.def.id, f.role), k = f.maxHp > 0 ? f.hp / f.maxHp : 1;
+      f.maxHp = st.hp; f.hp = f.alive ? Math.max(1, Math.round(st.hp * k)) : 0; f.dmgMul = st.dmgMul;
+      f.ai.retune({ level: st.level, ng: st.ng, difficulty: st.difficulty, role: f.role });
+      f.windupMul = f.ai.p.windup; f.recoveryMul = f.ai.p.recovery;
+    }
   }
 
   setupIntro() {
@@ -117,17 +126,17 @@ class FightSession {
   spawnClones(owner, n) {
     for (let i = 0; i < n; i++) {
       const side = i % 2 ? 1 : -1;
-      const c = this.makeEnemy(owner.def.id, clamp(this.player.x + side * rand(260, 380), this.bounds.l + 40, this.bounds.r - 40), { hp: 1, clone: true });
-      c.clone = true; c.maxHp = 1; c.hp = 1; c.alpha = 0.72; c.eye = 'rgba(0,0,0,0)'; c.dmgMul *= 0.5;
-      c.ai.phases = null; c.ai.abilities = []; c.ai.p.aggr = 0.8; c.life = 9;
+      const c = this.makeEnemy(owner.def.id, clamp(this.player.x + side * rand(260, 380), this.bounds.l + 40, this.bounds.r - 40), { clone: true }, 'clone');
+      c.clone = true; c.alpha = 0.72; c.eye = 'rgba(0,0,0,0)';
+      c.ai.phases = null; c.ai.abilities = []; c.life = 9;
       this.fighters.push(c); this.smokeCloud(c.x);
     }
   }
   spawnMinions(owner, n) {
     for (let i = 0; i < n; i++) {
       const x = i % 2 ? this.bounds.r - 30 : this.bounds.l + 30;
-      const m = this.makeEnemy('order_recruit', x, { hp: 70, build: { scale: 0.88, w: 10 } });
-      m.minion = true; m.maxHp = 70; m.hp = 70; m.dmgMul *= 0.6; m.ai.p.aggr = 0.6;
+      const m = this.makeEnemy('order_recruit', x, { build: { scale: 0.88, w: 10 } }, 'minion');
+      m.minion = true;
       this.fighters.push(m); this.fx.embers(x, -60, 20);
     }
   }
@@ -229,7 +238,7 @@ class FightSession {
       case 'round':
         if (this.phaseT < 0.05 && !this.roundShown) {
           this.roundShown = true; this.rounds.n++;
-          if (this.mode !== 'survival') this.fx.banner(this.roundsToWin > 1 ? `Round ${ROMAN[this.rounds.n - 1]}` : 'Final Duel', this.isBoss ? 'Three phases stand between you and the throne' : `${e.name} · ${DIFF_LABEL[clamp((this.cfg.diff || 1) + (this.cfg.ng || 0), 0, 4)]}`, C.gold);
+          if (this.mode !== 'survival') this.fx.banner(this.roundsToWin > 1 ? `Round ${ROMAN[this.rounds.n - 1]}` : 'Final Duel', this.isBoss ? `Three phases stand between you and the throne · ${Logic.difficulty(SaveManager.data.difficulty).label}` : `${e.name} · ${DIFF_LABEL[clamp((this.cfg.diff || 1) + (this.cfg.ng || 0), 0, 4)]} · ${Logic.difficulty(SaveManager.data.difficulty).label}`, C.gold);
           AudioManager.play('round');
         }
         if (this.phaseT > 1.25 && !this.fightShown) { this.fightShown = true; this.fx.stamp('FIGHT', (p.x + e.x) / 2, -150, 3, C.emberBright); this.fightFlash = 1; }

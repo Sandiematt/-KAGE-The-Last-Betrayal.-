@@ -778,6 +778,15 @@ body { font-family: var(--font-num); }
   .camp .stage-card .foe { font-size: .85rem; }
   .camp .stage-card .btn-primary { height: 2.7rem; font-size: 1rem; }
 }
+
+/* difficulty mode picker (new game) and mode chips */
+.mode-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; }
+.mode-card { text-align: left; padding: 1rem 1.1rem; border: 1px solid var(--line-ash); background: rgba(0,0,0,.25); display: flex; flex-direction: column; gap: .35rem; transition: border-color .16s, background .16s; }
+.mode-card b { font-family: var(--font-display); font-size: 1.5rem; color: var(--text-bone); letter-spacing: .04em; }
+.mode-card span { font-size: .92rem; color: var(--text-muted); line-height: 1.35; }
+.mode-card:hover, .mode-card:focus-visible, .mode-card.on { border-color: var(--accent-gold); background: rgba(201,164,92,.08); }
+.mode-card.impossible b { color: var(--accent-ember-bright); }
+@media (max-width: 640px) { .mode-grid { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -797,6 +806,7 @@ body { font-family: var(--font-num); }
     <div class="overlay" id="ov-help" role="dialog" aria-label="Controls"></div>
     <div class="overlay" id="ov-profile" role="dialog" aria-label="Records"></div>
     <div class="overlay" id="ov-confirm" role="dialog" aria-label="Confirm"></div>
+    <div class="overlay" id="ov-mode" role="dialog" aria-label="Choose difficulty"></div>
     <div id="toasts" aria-live="polite"></div>
     <div id="wipe" aria-hidden="true">
       <svg viewBox="0 0 1700 900" preserveAspectRatio="none">
@@ -1751,7 +1761,9 @@ const CAMPAIGN = (function buildCampaign() {
   for (const ch of chapters) ch.stages.forEach((st, i) => { st.chapter = ch.id; st.pos = i; });
   return { chapters };
 })();
-const DIFF_LABEL = ['Easy', 'Normal', 'Hard', 'Brutal', 'Mythic'];
+// Threat of a stage on the authored curve (chapter tier + NG+), shown on stage cards. Not the difficulty mode
+// (Easy / Normal / Hard / Impossible, see Logic.difficulty), hence different words.
+const DIFF_LABEL = ['Calm', 'Tense', 'Fierce', 'Brutal', 'Mythic'];
 
 /* ---------------- Survival ---------------- */
 const SURVIVAL = {
@@ -1761,6 +1773,17 @@ const SURVIVAL = {
   heal: 0.35,
   coins: w => 25 + w * 12,
   gemsEvery: 5
+};
+
+/* Enemy AI archetypes (ENEMIES[id].ai). Logic.aiTuning sharpens them by stage level, New Game+ and difficulty mode;
+   40-ai.js reads the tuned copy. react = reaction delay range (s), combo = string length range. */
+const AI_PROFILES = {
+  regular:   { pref: 125, aggr: 0.55, block: 0.38, parry: 0.06, dodge: 0.12, react: [0.24, 0.4], combo: [1, 3], jump: 0.05, punish: 0.55, grab: 0.05, kunai: 0.05 },
+  agile:     { pref: 160, aggr: 0.62, block: 0.18, parry: 0.05, dodge: 0.38, react: [0.15, 0.27], combo: [2, 4], jump: 0.2, punish: 0.7, grab: 0.03, kunai: 0.06, dashIn: 0.35 },
+  defensive: { pref: 115, aggr: 0.34, block: 0.62, parry: 0.16, dodge: 0.08, react: [0.17, 0.3], combo: [1, 2], jump: 0.02, punish: 0.85, grab: 0.2, kunai: 0.02 },
+  ranged:    { pref: 430, aggr: 0.42, block: 0.32, parry: 0.04, dodge: 0.28, react: [0.2, 0.34], combo: [1, 2], jump: 0.1, punish: 0.45, grab: 0.02, kunai: 0.55, ranged: 1 },
+  heavy:     { pref: 140, aggr: 0.5, block: 0.12, parry: 0, dodge: 0.03, react: [0.32, 0.52], combo: [1, 2], jump: 0, punish: 0.45, grab: 0, kunai: 0, heavy: 1 },
+  boss:      { pref: 150, aggr: 0.62, block: 0.42, parry: 0.12, dodge: 0.18, react: [0.16, 0.28], combo: [2, 4], jump: 0.06, punish: 0.78, grab: 0.06, kunai: 0.05 }
 };
 
 
@@ -1819,6 +1842,28 @@ function playerMaxHp(save) {
 }
 function xpForLevel(lvl) { return 200 + 120 * (lvl - 1); }
 
+/* ---------------- difficulty modes ----------------
+   The player picks one (new game, pause menu, Settings); the game never changes it. Every field is a multiplier
+   on today's tuning, so Normal (all 1, branch 0.15) plays exactly as before.
+   hp / dmg        regular foes' health and damage (minions too)      bossHp / bossDmg  the same for sub-bosses and bosses
+   windup          enemy attack start-up and telegraph length          recovery          enemy attack recovery (the opening after a swing)
+   react           AI reaction delay to an incoming attack             idle              AI pause between decisions and after a string
+   aggr            AI attack chance                                    guard             AI block and parry chance
+   punish          AI chance to punish an opening                      branch            chance an AI string becomes a mixed weapon-punch combo
+   dodge           the player's dash invulnerability window            unique            Impossible's extra combo variations
+   cap             ceiling on AI attack and punish chances */
+const DIFFICULTY_IDS = ['easy', 'normal', 'hard', 'impossible'];
+const DIFFICULTIES = {
+  easy:       { id: 'easy', label: 'Easy', blurb: 'Lower enemy health and damage, slower wind-ups, wider dodge windows.',
+    hp: 0.7, dmg: 0.6, bossHp: 0.75, bossDmg: 0.65, windup: 1.35, react: 1.4, aggr: 0.75, guard: 0.8, branch: 0.08, punish: 0.6, recovery: 1.3, idle: 1.35, dodge: 1.5, cap: 0.95, unique: false },
+  normal:     { id: 'normal', label: 'Normal', blurb: 'The duel as it was meant to be fought.',
+    hp: 1, dmg: 1, bossHp: 1, bossDmg: 1, windup: 1, react: 1, aggr: 1, guard: 1, branch: 0.15, punish: 1, recovery: 1, idle: 1, dodge: 1, cap: 0.95, unique: false },
+  hard:       { id: 'hard', label: 'Hard', blurb: 'Faster enemies, shorter recovery, more combo branches, stronger punishes.',
+    hp: 1.3, dmg: 1.25, bossHp: 1.25, bossDmg: 1.2, windup: 0.85, react: 0.8, aggr: 1.15, guard: 1.15, branch: 0.3, punish: 1.2, recovery: 0.8, idle: 0.8, dodge: 0.92, cap: 0.97, unique: false },
+  impossible: { id: 'impossible', label: 'Impossible', blurb: 'Unique combo variations, fewer openings, tighter timing.',
+    hp: 1.6, dmg: 1.5, bossHp: 1.5, bossDmg: 1.4, windup: 0.72, react: 0.6, aggr: 1.3, guard: 1.3, branch: 0.45, punish: 1.4, recovery: 0.65, idle: 0.6, dodge: 0.85, cap: 0.99, unique: true }
+};
+
 // The campaign map flattened in story order, and indexed by stage id.
 const STAGE_LIST = CAMPAIGN.chapters.reduce((all, ch) => all.concat(ch.stages), []);
 const STAGE_BY_ID = {}; for (const st of STAGE_LIST) STAGE_BY_ID[st.id] = st;
@@ -1850,6 +1895,8 @@ const Logic = {
       owned: { weapons: { kagetsu: 1 }, helmets: { shiro_maki: 1 }, armors: { tachibana_yoroi: 1 } },
       equipped: { weapon: 'kagetsu', helmet: 'shiro_maki', armor: 'tachibana_yoroi' },
       seenRewards: {},
+      difficulty: 'normal',    // Easy / Normal / Hard / Impossible (DIFFICULTY_IDS); only the player changes it
+      difficultyPicked: false, // false until the new-game mode picker has been answered
       survivalBest: 0,
       stats: { wins: 0, losses: 0, perfects: 0, bosses: 0, playTime: 0 },
       settings: { shake: 'full', reduceFlash: false, sound: true, music: true, touch: 'auto', stick: 'float' }
@@ -1889,6 +1936,8 @@ const Logic = {
     for (const k in s.defeated || {}) if (STAGE_BY_ID[k] && s.defeated[k] > 0) d.defeated[k] = s.defeated[k];
     delete d.unlockedActs;
     d.seenRewards = s.seenRewards || {};
+    d.difficulty = this.normalizeDifficulty(s.difficulty);
+    d.difficultyPicked = !!s.difficultyPicked;
     return d;
   },
   /* ---------------- campaign map ----------------
@@ -1971,6 +2020,69 @@ const Logic = {
   startNewGamePlus(save) {
     if (!save.ngUnlocked) return false;
     save.ng = (save.ng || 0) + 1; save.cleared = {};
+    return true;
+  },
+
+  /* ---------------- difficulty ---------------- */
+  DIFFICULTY_IDS,
+  // A mode's tuning; anything unknown reads as Normal.
+  difficulty(id) { return DIFFICULTIES[this.normalizeDifficulty(id)]; },
+  normalizeDifficulty(id) { return DIFFICULTIES[id] ? id : 'normal'; },
+  // The authored challenge curve of a fight: chapter tier (`diff`), stage position, foe weight class, or the
+  // survival wave. Drives AI sharpness. It never reads the player's level, experience or gear.
+  stageLevel(cfg, enemyId, wave) {
+    const d = ENEMIES[enemyId];
+    if (cfg.mode === 'survival') return 1 + (wave || cfg.wave || 1) * 0.35;
+    const tier = (cfg.diff || 1) - 1, st = cfg.pos || 0;
+    return 1 + tier * 1.6 + st * 0.22 + (d.type === 'sub' ? 0.4 : d.type === 'boss' ? 0.8 : 0);
+  },
+  // A foe's fight stats: { hp, dmgMul, wlvl, defense, speedMul, level, ng, difficulty }. They depend only on the
+  // chosen mode (save.difficulty), the authored curve (stage / chapter tier, survival wave, New Game+ cycle) and the
+  // foe's role: 'minion' (a boss's summoned recruit, 70 base health, 60% damage) or 'clone' (1 health, half damage).
+  // Sub-bosses and bosses take the mode's boss multipliers; everyone else the regular ones.
+  enemyStats(save, cfg, enemyId, opts) {
+    opts = opts || {};
+    const d = ENEMIES[enemyId], ng = cfg.ng || 0, mode = this.difficulty(save.difficulty);
+    const wave = opts.wave || cfg.wave || 1, survival = cfg.mode === 'survival';
+    const role = opts.role || null, bossy = (d.type === 'boss' || d.type === 'sub') && role !== 'minion';
+    let hpMul = 1 + 0.35 * ng, dmgMul = (d.dmg || 1) * (1 + 0.25 * ng);
+    if (survival) { hpMul *= 0.85 + wave * 0.07; dmgMul *= 0.9 + wave * 0.04; }
+    hpMul *= bossy ? mode.bossHp : mode.hp;
+    dmgMul *= bossy ? mode.bossDmg : mode.dmg;
+    let hp = Math.round(d.hp * hpMul);
+    if (role === 'minion') { hp = Math.round(70 * mode.hp); dmgMul *= 0.6; }
+    if (role === 'clone') { hp = 1; dmgMul *= 0.5; }
+    const raw = Math.round(1 + ((cfg.diff || 1) - 1) * 2.2 + (cfg.pos || 0) * 0.3 + ng * 2 + (survival ? wave * 0.3 : 0));
+    return {
+      hp, dmgMul, wlvl: Math.min(8, Math.max(1, raw)),
+      defense: ((HELMETS[d.helmet] || {}).def || 0) * 0.6 + ((ARMORS[d.armor] || {}).def || 0) * 0.6,
+      speedMul: d.speed || 1, level: this.stageLevel(cfg, enemyId, wave), ng, difficulty: mode.id
+    };
+  },
+  // An enemy's AI tuning: a fresh copy of AI_PROFILES[profile], sharpened by the authored curve (stage level, New
+  // Game+) and scaled by the mode, plus the mode's timing fields the AI and fighter read (windup, recovery, idle,
+  // branch, unique). Clones and minions use a fixed aggression (0.8 / 0.6) scaled by the mode. On Normal this is
+  // exactly the original tuning.
+  aiTuning(profile, opts) {
+    opts = opts || {};
+    const base = AI_PROFILES[profile] || AI_PROFILES.regular, m = this.difficulty(opts.difficulty);
+    const p = Object.assign({}, base, { react: base.react.slice(), combo: base.combo.slice() });
+    const lvl = opts.level || 1, ng = opts.ng || 0;
+    const k = Math.min(1.4, Math.max(0, (lvl - 1) / 4)) + ng * 0.35;
+    p.aggr = Math.min(m.cap, p.aggr * (0.8 + k * 0.35) * m.aggr);
+    p.block = Math.min(0.85, p.block * (0.75 + k * 0.3) * m.guard);
+    p.parry = Math.min(0.4, p.parry * (0.7 + k * 0.5) * m.guard);
+    p.react = [p.react[0] * (1.25 - k * 0.2) * m.react, p.react[1] * (1.25 - k * 0.2) * m.react];
+    p.punish = Math.min(m.cap, p.punish * (0.85 + k * 0.2) * m.punish);
+    if (opts.role === 'clone') p.aggr = Math.min(m.cap, 0.8 * m.aggr);
+    if (opts.role === 'minion') p.aggr = Math.min(m.cap, 0.6 * m.aggr);
+    Object.assign(p, { windup: m.windup, recovery: m.recovery, idle: m.idle, branch: m.branch, unique: m.unique });
+    return p;
+  },
+  // The player's choice (new-game picker, pause menu, Settings). Returns false for an unknown mode.
+  setDifficulty(save, id) {
+    if (!DIFFICULTIES[id]) return false;
+    save.difficulty = id; save.difficultyPicked = true;
     return true;
   },
 
@@ -2234,6 +2346,8 @@ class Fighter {
     this.helmet = gearLook('helmets', this.helmetId); this.armor = gearLook('armors', this.armorId);
     this.maxHp = o.hp || 200; this.hp = this.maxHp; this.dmgMul = o.dmgMul || 1; this.defense = o.defense || 0; this.speedMul = o.speedMul || 1;
     this.blockRage = o.blockRage || 0; this.rageMul = o.rageMul || 1; this.stunRes = o.stunRes || 0; this.dashBonus = o.dashBonus || 0; this.kunaiMul = o.kunaiMul || 1;
+    // difficulty mode: player dash i-frame scale; enemy attack start-up and recovery scales (all 1 on Normal)
+    this.dodgeMul = o.dodgeMul || 1; this.windupMul = o.windupMul || 1; this.recoveryMul = o.recoveryMul || 1;
     this.rage = 0; this.ammo = o.ammo == null ? 5 : o.ammo; this.maxAmmo = this.ammo; this.guard = 100;
     this.eye = o.eye || C.bone; this.accent = o.accent || C.emberBright;
     this.state = 'idle'; this.st = 0; this.alive = true;
@@ -2477,7 +2591,7 @@ class Fighter {
   startDash(dir, world) {
     this.dashDir = dir || this.facing;
     this.setState('dash'); this.dashT = 0.2;
-    this.invuln = Math.max(this.invuln, 0.17 + this.dashBonus * 0.5);
+    this.invuln = Math.max(this.invuln, (0.17 + this.dashBonus * 0.5) * this.dodgeMul);
     this.dashCd = 0.42 * (1 - this.dashBonus);
     AudioManager.play('dash');
     world && world.fx.dashLines(this);
@@ -2523,6 +2637,8 @@ class Fighter {
     const spd = (wm ? wm.spd : 1) * (this.isPlayer ? 1 : (this.def && this.def.speed ? Math.sqrt(this.def.speed) : 1));
     this.mdur[0] = m.t[0] / spd; this.mdur[1] = m.t[1]; this.mdur[2] = m.t[2] / spd;
     if (this.boostAtk) { this.mdur[0] *= this.boostAtk; this.mdur[2] *= this.boostAtk; }
+    if (this.windupMul !== 1) this.mdur[0] *= this.windupMul;
+    if (this.recoveryMul !== 1) this.mdur[2] *= this.recoveryMul;
     // player attack assist: turn to face a foe who crossed over, and glide the last short gap during the wind-up so near-misses connect
     this.magV = 0;
     if (this.isPlayer && world && m.box && m.kind !== 'grab' && m.kind !== 'throw') {
@@ -5029,28 +5145,20 @@ Object.assign(Effects.prototype, {
 /* ===== 40-ai.js ===== */
 /* KAGE — Enemy AI (regular / agile / defensive / ranged / heavy) and BossAI (phases + signature abilities) */
 
-const AI_PROFILES = {
-  regular:   { pref: 125, aggr: 0.55, block: 0.38, parry: 0.06, dodge: 0.12, react: [0.24, 0.4], combo: [1, 3], jump: 0.05, punish: 0.55, grab: 0.05, kunai: 0.05 },
-  agile:     { pref: 160, aggr: 0.62, block: 0.18, parry: 0.05, dodge: 0.38, react: [0.15, 0.27], combo: [2, 4], jump: 0.2, punish: 0.7, grab: 0.03, kunai: 0.06, dashIn: 0.35 },
-  defensive: { pref: 115, aggr: 0.34, block: 0.62, parry: 0.16, dodge: 0.08, react: [0.17, 0.3], combo: [1, 2], jump: 0.02, punish: 0.85, grab: 0.2, kunai: 0.02 },
-  ranged:    { pref: 430, aggr: 0.42, block: 0.32, parry: 0.04, dodge: 0.28, react: [0.2, 0.34], combo: [1, 2], jump: 0.1, punish: 0.45, grab: 0.02, kunai: 0.55, ranged: 1 },
-  heavy:     { pref: 140, aggr: 0.5, block: 0.12, parry: 0, dodge: 0.03, react: [0.32, 0.52], combo: [1, 2], jump: 0, punish: 0.45, grab: 0, kunai: 0, heavy: 1 },
-  boss:      { pref: 150, aggr: 0.62, block: 0.42, parry: 0.12, dodge: 0.18, react: [0.16, 0.28], combo: [2, 4], jump: 0.06, punish: 0.78, grab: 0.06, kunai: 0.05 }
+// AI_PROFILES (the per-archetype tuning) live in 10-data.js; Logic.aiTuning applies the stage curve and the difficulty mode.
+// Impossible's unique combo variations: follow-ups appended to a string (dash-cancel, jump-in, kick into weapon).
+const AI_VARIATIONS = {
+  armed: [['dash', 'weapon', 'weapon'], ['kick', 'weapon'], ['jump', 'fwd', 'weapon'], ['punch', 'heavy']],
+  unarmed: [['dash', 'punch', 'kick'], ['kick', 'heavy'], ['jump', 'fwd', 'kick'], ['punch', 'punch', 'kick']]
 };
 
 class AIController {
   constructor(f, world, opts) {
     this.f = f; this.world = world;
     const d = f.def || {};
-    this.p = Object.assign({}, AI_PROFILES[d.ai || 'regular']);
-    const lvl = opts.level || 1, ng = opts.ng || 0;
-    // difficulty: act/stage level and New Game+ sharpen reactions and aggression
-    const k = clamp((lvl - 1) / 4, 0, 1.4) + ng * 0.35;
-    this.p.aggr = Math.min(0.95, this.p.aggr * (0.8 + k * 0.35));
-    this.p.block = Math.min(0.85, this.p.block * (0.75 + k * 0.3));
-    this.p.parry = Math.min(0.4, this.p.parry * (0.7 + k * 0.5));
-    this.p.react = [this.p.react[0] * (1.25 - k * 0.2), this.p.react[1] * (1.25 - k * 0.2)];
-    this.p.punish = Math.min(0.95, this.p.punish * (0.85 + k * 0.2));
+    // stage level, New Game+ and the difficulty mode sharpen the archetype (Logic.aiTuning); p also carries the
+    // mode's timing: windup, recovery, idle (decision gaps), branch (mixed-string chance), unique (Impossible)
+    this.retune(opts);
     this.t = rand(0.3, 0.7); this.plan = 'wait'; this.planT = 0; this.seq = null; this.seqI = 0; this.seqT = 0;
     this.dir = 0; this.block = 0; this.kickHold = 0; this.react = 0; this.reactTo = null; this.cds = {};
     this.phase = 0; this.phases = d.phases || null; this.abilities = d.abilities || [];
@@ -5059,6 +5167,7 @@ class AIController {
     else { f.ammo = this.p.kunai > 0.3 ? 30 : 3; f.turnDelay = d.ai === 'heavy' ? 0.4 : d.ai === 'defensive' ? 0.25 : 0.1; }
     if (this.p.ranged && f.baseWeapon === 'storm_orbs') this.abilities = this.abilities.concat(['orbVolley']);
   }
+  retune(opts) { this.opts = opts || {}; this.p = Logic.aiTuning((this.f.def || {}).ai || 'regular', this.opts); }
   target() { return this.world.player; }
   reachOf(f, kind) {
     if (kind === 'weapon') { const m = MOVES[f.weapon().moves[0]]; return (m.box[0] + m.box[2]) * f.scale * (f.hasWeapon ? weaponMul(f.weaponId(), f.wlvl).reach : 1); }
@@ -5112,7 +5221,7 @@ class AIController {
         const btn = this.seq[this.seqI++];
         if (btn) { if (btn === 'fwd') c.dir = toward; else this.press(btn); }
         this.seqT = 0.1;
-        if (this.seqI >= this.seq.length) { this.seq = null; this.t = rand(0.15, 0.35); }
+        if (this.seqI >= this.seq.length) { this.seq = null; this.t = rand(0.15, 0.35) * this.p.idle; }
       }
       if (this.seq && f.isNeutral() && dist > this.reachOf(f, 'weapon') + 60) c.dir = toward;
       return;
@@ -5169,7 +5278,7 @@ class AIController {
 
   decide(p, dist, toward) {
     const f = this.f, pr = this.p, w = this.world;
-    this.t = rand(0.22, 0.5) * (pr.heavy ? 1.3 : 1);
+    this.t = rand(0.22, 0.5) * (pr.heavy ? 1.3 : 1) * pr.idle;
     const hpK = f.hp / f.maxHp;
     let aggr = pr.aggr;
     if (hpK < 0.35) aggr += f.def && (f.def.ai === 'defensive' || f.def.ai === 'ranged') ? -0.1 : 0.15;
@@ -5203,17 +5312,23 @@ class AIController {
     const reachW = this.reachOf(f, 'weapon');
     const hasW = f.weapon().moves && f.weaponId() !== 'fists' || f.baseWeapon === 'iron_fists';
     const n = randi(pr.combo[0], pr.combo[1]);
-    if (quick) { this.startSeq(dist < 100 * f.scale ? ['punch', 'punch'] : hasW ? ['weapon', 'weapon'] : ['kick']); return; }
-    const flash = f.def && f.def.flashEyes;
-    const delay = flash ? 0.32 : 0;
-    if (flash) { f.telegraph = 0.32; AudioManager.play('teleport'); }
-    if (pr.heavy && chance(0.45)) { f.telegraph = Math.max(f.telegraph, 0.3); this.startSeq(['heavy'], 0.2); return; }
+    if (quick) {
+      const q = dist < 100 * f.scale ? ['punch', 'punch'] : hasW ? ['weapon', 'weapon'] : ['kick'];
+      // Impossible: punishes run on into a launcher
+      this.startSeq(pr.unique && chance(0.6) ? q.concat(hasW ? ['weapon'] : ['kick']) : q); return;
+    }
+    const flash = f.def && f.def.flashEyes, tell = pr.windup;
+    const delay = flash ? 0.32 * tell : 0;
+    if (flash) { f.telegraph = 0.32 * tell; AudioManager.play('teleport'); }
+    if (pr.heavy && chance(0.45)) { f.telegraph = Math.max(f.telegraph, 0.3 * tell); this.startSeq(['heavy'], 0.2 * tell); return; }
     const roll = Math.random();
     let seq;
     if (hasW && dist < reachW + 10 && roll < 0.6) seq = new Array(n).fill('weapon');
     else if (dist < 105 * f.scale && roll < 0.75) seq = new Array(Math.min(3, n)).fill('punch');
-    else if (roll < 0.85) seq = chance(0.5) ? ['kick'] : ['heavy'];
+    else if (roll < 1 - pr.branch) seq = chance(0.5) ? ['kick'] : ['heavy'];
     else seq = hasW ? ['weapon', 'punch', 'punch'] : ['punch', 'kick'];
+    // Impossible: unique combo variations that extend the string and leave fewer openings
+    if (pr.unique && chance(0.5)) seq = seq.concat(pick(hasW ? AI_VARIATIONS.armed : AI_VARIATIONS.unarmed));
     if (this.phaseData && this.phaseData.unblockable) f.unblockable = true;
     this.startSeq(seq, delay);
   }
@@ -6279,27 +6394,36 @@ class FightSession {
     const f = makePlayerFighter(save, {
       x: -300, team: 0, hp: g.hp, defense: g.defense, speedMul: 1 + (pk.speed || 0), rageMul: 1 + (pk.rage || 0),
       stunRes: pk.stunRes || 0, dashBonus: pk.dash || 0, ammo: 5 + (pk.ammo || 0), kunaiMul: 1 + (pk.kunai || 0), blockRage: pk.blockRage || 0,
-      dmgMul: (1 + 0.012 * (save.level - 1)) * (1 + (pk.dmg || 0))
+      dmgMul: (1 + 0.012 * (save.level - 1)) * (1 + (pk.dmg || 0)),
+      dodgeMul: Logic.difficulty(save.difficulty).dodge   // Easy widens the dash i-frames
     });
     f.name = 'Kage';
     return f;
   }
-  difficultyLevel(d) {
-    if (this.mode === 'survival') return 1 + this.wave * 0.35;
-    const tier = (this.cfg.diff || 1) - 1, st = this.cfg.pos || 0;
-    return 1 + tier * 1.6 + st * 0.22 + (d.type === 'sub' ? 0.4 : d.type === 'boss' ? 0.8 : 0);
-  }
-  makeEnemy(id, x, extra) {
-    const d = ENEMIES[id], ng = this.cfg.ng || 0;
-    let hpMul = 1 + 0.35 * ng, dmgMul = (d.dmg || 1) * (1 + 0.25 * ng);
-    if (this.mode === 'survival') { hpMul *= 0.85 + this.wave * 0.07; dmgMul *= 0.9 + this.wave * 0.04; }
-    const lvl = this.difficultyLevel(d);
-    const wl = clamp(Math.round(1 + ((this.cfg.diff || 1) - 1) * 2.2 + (this.cfg.pos || 0) * 0.3 + ng * 2 + (this.mode === 'survival' ? this.wave * 0.3 : 0)), 1, 8);
-    const gearDefE = ((HELMETS[d.helmet] || {}).def || 0) * 0.6 + ((ARMORS[d.armor] || {}).def || 0) * 0.6;
-    const f = makeFighterFromEnemy(id, Object.assign({ x, team: 1, hp: Math.round(d.hp * hpMul), dmgMul, wlvl: wl, defense: gearDefE, speedMul: d.speed || 1 }, extra || {}));
-    f.baseSpeed = f.speedMul;
-    f.ai = new AIController(f, this, { level: lvl, ng });
+  // The authored challenge curve (chapter tier, stage position, survival wave); see Logic.stageLevel.
+  difficultyLevel(d) { return Logic.stageLevel(this.cfg, d.id, this.wave); }
+  // Every foe (campaign, survival waves, boss minions and clones) is built here from Logic.enemyStats: the chosen
+  // difficulty mode and the authored curve only, never the player's level. role: null | 'minion' | 'clone'.
+  makeEnemy(id, x, extra, role) {
+    const st = this.enemyStats(id, role);
+    const f = makeFighterFromEnemy(id, Object.assign({ x, team: 1, hp: st.hp, dmgMul: st.dmgMul, wlvl: st.wlvl, defense: st.defense, speedMul: st.speedMul }, extra || {}));
+    f.baseSpeed = f.speedMul; f.role = role || null;
+    f.ai = new AIController(f, this, { level: st.level, ng: st.ng, difficulty: st.difficulty, role });
+    f.windupMul = f.ai.p.windup; f.recoveryMul = f.ai.p.recovery;
     return f;
+  }
+  enemyStats(id, role) { return Logic.enemyStats(SaveManager.data, this.cfg, id, { wave: this.wave, role }); }
+  // The player changed the mode mid-fight (pause menu): re-tune every foe in place, keeping its health fraction.
+  applyDifficulty() {
+    const mode = Logic.difficulty(SaveManager.data.difficulty);
+    this.player.dodgeMul = mode.dodge;
+    for (const f of this.fighters) {
+      if (!f.ai || !f.def) continue;
+      const st = this.enemyStats(f.def.id, f.role), k = f.maxHp > 0 ? f.hp / f.maxHp : 1;
+      f.maxHp = st.hp; f.hp = f.alive ? Math.max(1, Math.round(st.hp * k)) : 0; f.dmgMul = st.dmgMul;
+      f.ai.retune({ level: st.level, ng: st.ng, difficulty: st.difficulty, role: f.role });
+      f.windupMul = f.ai.p.windup; f.recoveryMul = f.ai.p.recovery;
+    }
   }
 
   setupIntro() {
@@ -6364,17 +6488,17 @@ class FightSession {
   spawnClones(owner, n) {
     for (let i = 0; i < n; i++) {
       const side = i % 2 ? 1 : -1;
-      const c = this.makeEnemy(owner.def.id, clamp(this.player.x + side * rand(260, 380), this.bounds.l + 40, this.bounds.r - 40), { hp: 1, clone: true });
-      c.clone = true; c.maxHp = 1; c.hp = 1; c.alpha = 0.72; c.eye = 'rgba(0,0,0,0)'; c.dmgMul *= 0.5;
-      c.ai.phases = null; c.ai.abilities = []; c.ai.p.aggr = 0.8; c.life = 9;
+      const c = this.makeEnemy(owner.def.id, clamp(this.player.x + side * rand(260, 380), this.bounds.l + 40, this.bounds.r - 40), { clone: true }, 'clone');
+      c.clone = true; c.alpha = 0.72; c.eye = 'rgba(0,0,0,0)';
+      c.ai.phases = null; c.ai.abilities = []; c.life = 9;
       this.fighters.push(c); this.smokeCloud(c.x);
     }
   }
   spawnMinions(owner, n) {
     for (let i = 0; i < n; i++) {
       const x = i % 2 ? this.bounds.r - 30 : this.bounds.l + 30;
-      const m = this.makeEnemy('order_recruit', x, { hp: 70, build: { scale: 0.88, w: 10 } });
-      m.minion = true; m.maxHp = 70; m.hp = 70; m.dmgMul *= 0.6; m.ai.p.aggr = 0.6;
+      const m = this.makeEnemy('order_recruit', x, { build: { scale: 0.88, w: 10 } }, 'minion');
+      m.minion = true;
       this.fighters.push(m); this.fx.embers(x, -60, 20);
     }
   }
@@ -6476,7 +6600,7 @@ class FightSession {
       case 'round':
         if (this.phaseT < 0.05 && !this.roundShown) {
           this.roundShown = true; this.rounds.n++;
-          if (this.mode !== 'survival') this.fx.banner(this.roundsToWin > 1 ? `Round ${ROMAN[this.rounds.n - 1]}` : 'Final Duel', this.isBoss ? 'Three phases stand between you and the throne' : `${e.name} · ${DIFF_LABEL[clamp((this.cfg.diff || 1) + (this.cfg.ng || 0), 0, 4)]}`, C.gold);
+          if (this.mode !== 'survival') this.fx.banner(this.roundsToWin > 1 ? `Round ${ROMAN[this.rounds.n - 1]}` : 'Final Duel', this.isBoss ? `Three phases stand between you and the throne · ${Logic.difficulty(SaveManager.data.difficulty).label}` : `${e.name} · ${DIFF_LABEL[clamp((this.cfg.diff || 1) + (this.cfg.ng || 0), 0, 4)]} · ${Logic.difficulty(SaveManager.data.difficulty).label}`, C.gold);
           AudioManager.play('round');
         }
         if (this.phaseT > 1.25 && !this.fightShown) { this.fightShown = true; this.fx.stamp('FIGHT', (p.x + e.x) / 2, -150, 3, C.emberBright); this.fightFlash = 1; }
@@ -7192,7 +7316,26 @@ const UIManager = {
   /* ---------------- actions ---------------- */
   action(a, el) {
     const save = SaveManager.data, d = el.dataset;
+    // a new game asks for a difficulty mode before the first campaign or survival entry
+    if ((a === 'play' || a === 'campaign' || a === 'survival') && !save.difficultyPicked) { this.openModePicker(a); return; }
     switch (a) {
+      case 'pick-mode': {
+        const next = this._modeNext; this._modeNext = null;
+        if (!Logic.setDifficulty(save, d.v)) break;
+        SaveManager.save(); this.closeOverlay();
+        this.toast('Difficulty', Logic.difficulty(save.difficulty).label);
+        if (next) this.action(next, el);
+        break;
+      }
+      case 'difficulty': {
+        if (!Logic.setDifficulty(save, d.v)) break;
+        SaveManager.save();
+        if (Game.session) Game.session.applyDifficulty();
+        if (this.current === 'settings') this.renderSettings();
+        if (this.overlay === 'pause') this.openPause();
+        if (this.current === 'prefight' && this.pfCfg) this.renderPrefight();
+        break;
+      }
       case 'play': {
         const n = Game.nextStage();
         if (n && Logic.isCombatStage(n)) { this.selStage = n; this.go('prefight', () => this.preparePrefight(Game.stageConfig(n))); }
@@ -7634,7 +7777,7 @@ const UIManager = {
       <div class="plate left">
         <div class="eyebrow">Level ${save.level} · ${playerMaxHp(save)} HP</div>
         <div class="nm disp">Kage</div>
-        <div class="gear-chips"><span class="chip">Helm <b>${esc(HELMETS[save.equipped.helmet].name)}</b></span><span class="chip">Armor <b>${esc(ARMORS[save.equipped.armor].name)}</b></span><button class="chip" data-a="pf-gear" style="color:var(--accent-gold);border-color:var(--accent-gold-dim)">Change gear</button></div>
+        <div class="gear-chips"><span class="chip">Helm <b>${esc(HELMETS[save.equipped.helmet].name)}</b></span><span class="chip">Armor <b>${esc(ARMORS[save.equipped.armor].name)}</b></span><span class="chip" data-mode-chip>Mode <b>${esc(Logic.difficulty(save.difficulty).label)}</b></span><button class="chip" data-a="pf-gear" style="color:var(--accent-gold);border-color:var(--accent-gold-dim)">Change gear</button></div>
       </div>
       <div class="plate right">
         <div class="tag"><div class="diff"><div class="pips">${[0, 1, 2].map(k => `<i class="${k < Math.min(3, Math.max(1, dl)) ? 'on' : ''}"></i>`).join('')}</div></div><span class="eyebrow red">${esc(tag)}</span></div>
@@ -7843,6 +7986,19 @@ const UIManager = {
     const v = SaveManager.data.settings[k];
     return `<div class="seg">${opts.map(([val, lbl]) => `<button class="${String(v) === String(val) ? 'on' : ''}" data-a="set" data-k="${k}" data-v="${val}">${lbl}</button>`).join('')}</div>`;
   },
+  // The difficulty row (pause menu and Settings): all four modes, always available, changed only by the player.
+  difficultyRow() {
+    const cur = SaveManager.data.difficulty, m = Logic.difficulty(cur);
+    return `<div class="set-row"><div class="k">Difficulty<small>${esc(m.blurb)}</small></div><div class="seg">${Logic.DIFFICULTY_IDS.map(id => `<button class="${id === cur ? 'on' : ''}" data-a="difficulty" data-v="${id}">${esc(Logic.difficulty(id).label)}</button>`).join('')}</div></div>`;
+  },
+  openModePicker(next) {
+    this._modeNext = next || null;
+    const cur = SaveManager.data.difficulty;
+    this.openOverlay('mode', `<div class="ov-card wide"><div class="eyebrow">New game</div><h3 class="disp">Choose your difficulty</h3>
+      <div class="big-line">Enemy health, damage and timing follow the mode you pick, never your level. You can change it any time from the pause menu or Settings.</div>
+      <div class="mode-grid">${Logic.DIFFICULTY_IDS.map(id => { const m = Logic.difficulty(id); return `<button class="mode-card ${id}${id === cur ? ' on' : ''}" data-a="pick-mode" data-v="${id}" ${id === cur ? 'data-focus' : ''}><b>${esc(m.label)}</b><span>${esc(m.blurb)}</span></button>`; }).join('')}</div>
+      <div class="stack"><button class="btn-ghost" data-a="close-ov">Back</button></div></div>`);
+  },
   settingsRows() {
     return `
       <div class="set-row"><div class="k">Screen shake<small>Camera shake on heavy impacts</small></div>${this.seg('shake', [['full', 'Full'], ['half', 'Half'], ['off', 'Off']])}</div>
@@ -7858,7 +8014,7 @@ const UIManager = {
     el.innerHTML = `
       <div class="topbar"><div class="head"><button class="round-btn" data-a="back" aria-label="Back">${ICON.back}</button><h2 class="disp">Settings</h2></div>${currencyHTML()}</div>
       <div class="panel-wrap">
-        <div class="panel"><div class="eyebrow">Feel &amp; sound</div>${this.settingsRows()}</div>
+        <div class="panel"><div class="eyebrow">Challenge</div>${this.difficultyRow()}<div class="eyebrow" style="margin-top:1rem">Feel &amp; sound</div>${this.settingsRows()}</div>
         <div style="display:flex;flex-direction:column;gap:1.6rem">
           <div class="panel" style="animation-delay:.08s"><div class="eyebrow">New Game+</div><h3 class="disp">${save.ng ? `Cycle ${save.ng}` : 'The road again'}</h3>
             <div class="big-line">${save.ngUnlocked ? 'Enemies gain health, damage and aggression. Rewards grow by 60% per cycle.' : 'Finish the story, through the Epilogue, to unlock New Game+.'}</div>
@@ -7907,9 +8063,9 @@ const UIManager = {
   openPause() {
     if (!Game.session) return;
     Game.paused = true; this.updateTouch();
-    this.openOverlay('pause', `<div class="ov-card"><div class="eyebrow">Paused</div><h3 class="disp">${esc(Game.session.enemy.name)}</h3>
+    this.openOverlay('pause', `<div class="ov-card"><div class="eyebrow">Paused · ${esc(Logic.difficulty(SaveManager.data.difficulty).label)}</div><h3 class="disp">${esc(Game.session.enemy.name)}</h3>
       <div class="stack"><button class="btn-primary" data-a="resume" data-focus>Resume</button><button class="btn-ghost" data-a="restart">${ICON.retry} Restart fight</button><button class="btn-ghost" data-a="help">${ICON.help} Controls</button><button class="btn-ghost" data-a="quit">Quit to ${Game.session.mode === 'survival' ? 'survival' : 'map'}</button></div>
-      <div>${this.settingsRows()}</div></div>`);
+      <div>${this.difficultyRow()}${this.settingsRows()}</div></div>`);
   },
   openHelp() {
     const back = this.overlay === 'pause';

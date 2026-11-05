@@ -761,3 +761,12 @@ body { font-family: var(--font-num); }
   .camp .stage-card .foe { font-size: .85rem; }
   .camp .stage-card .btn-primary { height: 2.7rem; font-size: 1rem; }
 }
+
+/* difficulty mode picker (new game) and mode chips */
+.mode-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; }
+.mode-card { text-align: left; padding: 1rem 1.1rem; border: 1px solid var(--line-ash); background: rgba(0,0,0,.25); display: flex; flex-direction: column; gap: .35rem; transition: border-color .16s, background .16s; }
+.mode-card b { font-family: var(--font-display); font-size: 1.5rem; color: var(--text-bone); letter-spacing: .04em; }
+.mode-card span { font-size: .92rem; color: var(--text-muted); line-height: 1.35; }
+.mode-card:hover, .mode-card:focus-visible, .mode-card.on { border-color: var(--accent-gold); background: rgba(201,164,92,.08); }
+.mode-card.impossible b { color: var(--accent-ember-bright); }
+@media (max-width: 640px) { .mode-grid { grid-template-columns: 1fr; } }

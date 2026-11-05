@@ -1,27 +1,19 @@
 /* KAGE — Enemy AI (regular / agile / defensive / ranged / heavy) and BossAI (phases + signature abilities) */
 
-const AI_PROFILES = {
-  regular:   { pref: 125, aggr: 0.55, block: 0.38, parry: 0.06, dodge: 0.12, react: [0.24, 0.4], combo: [1, 3], jump: 0.05, punish: 0.55, grab: 0.05, kunai: 0.05 },
-  agile:     { pref: 160, aggr: 0.62, block: 0.18, parry: 0.05, dodge: 0.38, react: [0.15, 0.27], combo: [2, 4], jump: 0.2, punish: 0.7, grab: 0.03, kunai: 0.06, dashIn: 0.35 },
-  defensive: { pref: 115, aggr: 0.34, block: 0.62, parry: 0.16, dodge: 0.08, react: [0.17, 0.3], combo: [1, 2], jump: 0.02, punish: 0.85, grab: 0.2, kunai: 0.02 },
-  ranged:    { pref: 430, aggr: 0.42, block: 0.32, parry: 0.04, dodge: 0.28, react: [0.2, 0.34], combo: [1, 2], jump: 0.1, punish: 0.45, grab: 0.02, kunai: 0.55, ranged: 1 },
-  heavy:     { pref: 140, aggr: 0.5, block: 0.12, parry: 0, dodge: 0.03, react: [0.32, 0.52], combo: [1, 2], jump: 0, punish: 0.45, grab: 0, kunai: 0, heavy: 1 },
-  boss:      { pref: 150, aggr: 0.62, block: 0.42, parry: 0.12, dodge: 0.18, react: [0.16, 0.28], combo: [2, 4], jump: 0.06, punish: 0.78, grab: 0.06, kunai: 0.05 }
+// AI_PROFILES (the per-archetype tuning) live in 10-data.js; Logic.aiTuning applies the stage curve and the difficulty mode.
+// Impossible's unique combo variations: follow-ups appended to a string (dash-cancel, jump-in, kick into weapon).
+const AI_VARIATIONS = {
+  armed: [['dash', 'weapon', 'weapon'], ['kick', 'weapon'], ['jump', 'fwd', 'weapon'], ['punch', 'heavy']],
+  unarmed: [['dash', 'punch', 'kick'], ['kick', 'heavy'], ['jump', 'fwd', 'kick'], ['punch', 'punch', 'kick']]
 };
 
 class AIController {
   constructor(f, world, opts) {
     this.f = f; this.world = world;
     const d = f.def || {};
-    this.p = Object.assign({}, AI_PROFILES[d.ai || 'regular']);
-    const lvl = opts.level || 1, ng = opts.ng || 0;
-    // difficulty: act/stage level and New Game+ sharpen reactions and aggression
-    const k = clamp((lvl - 1) / 4, 0, 1.4) + ng * 0.35;
-    this.p.aggr = Math.min(0.95, this.p.aggr * (0.8 + k * 0.35));
-    this.p.block = Math.min(0.85, this.p.block * (0.75 + k * 0.3));
-    this.p.parry = Math.min(0.4, this.p.parry * (0.7 + k * 0.5));
-    this.p.react = [this.p.react[0] * (1.25 - k * 0.2), this.p.react[1] * (1.25 - k * 0.2)];
-    this.p.punish = Math.min(0.95, this.p.punish * (0.85 + k * 0.2));
+    // stage level, New Game+ and the difficulty mode sharpen the archetype (Logic.aiTuning); p also carries the
+    // mode's timing: windup, recovery, idle (decision gaps), branch (mixed-string chance), unique (Impossible)
+    this.retune(opts);
     this.t = rand(0.3, 0.7); this.plan = 'wait'; this.planT = 0; this.seq = null; this.seqI = 0; this.seqT = 0;
     this.dir = 0; this.block = 0; this.kickHold = 0; this.react = 0; this.reactTo = null; this.cds = {};
     this.phase = 0; this.phases = d.phases || null; this.abilities = d.abilities || [];
@@ -30,6 +22,7 @@ class AIController {
     else { f.ammo = this.p.kunai > 0.3 ? 30 : 3; f.turnDelay = d.ai === 'heavy' ? 0.4 : d.ai === 'defensive' ? 0.25 : 0.1; }
     if (this.p.ranged && f.baseWeapon === 'storm_orbs') this.abilities = this.abilities.concat(['orbVolley']);
   }
+  retune(opts) { this.opts = opts || {}; this.p = Logic.aiTuning((this.f.def || {}).ai || 'regular', this.opts); }
   target() { return this.world.player; }
   reachOf(f, kind) {
     if (kind === 'weapon') { const m = MOVES[f.weapon().moves[0]]; return (m.box[0] + m.box[2]) * f.scale * (f.hasWeapon ? weaponMul(f.weaponId(), f.wlvl).reach : 1); }
@@ -83,7 +76,7 @@ class AIController {
         const btn = this.seq[this.seqI++];
         if (btn) { if (btn === 'fwd') c.dir = toward; else this.press(btn); }
         this.seqT = 0.1;
-        if (this.seqI >= this.seq.length) { this.seq = null; this.t = rand(0.15, 0.35); }
+        if (this.seqI >= this.seq.length) { this.seq = null; this.t = rand(0.15, 0.35) * this.p.idle; }
       }
       if (this.seq && f.isNeutral() && dist > this.reachOf(f, 'weapon') + 60) c.dir = toward;
       return;
@@ -140,7 +133,7 @@ class AIController {
 
   decide(p, dist, toward) {
     const f = this.f, pr = this.p, w = this.world;
-    this.t = rand(0.22, 0.5) * (pr.heavy ? 1.3 : 1);
+    this.t = rand(0.22, 0.5) * (pr.heavy ? 1.3 : 1) * pr.idle;
     const hpK = f.hp / f.maxHp;
     let aggr = pr.aggr;
     if (hpK < 0.35) aggr += f.def && (f.def.ai === 'defensive' || f.def.ai === 'ranged') ? -0.1 : 0.15;
@@ -174,17 +167,23 @@ class AIController {
     const reachW = this.reachOf(f, 'weapon');
     const hasW = f.weapon().moves && f.weaponId() !== 'fists' || f.baseWeapon === 'iron_fists';
     const n = randi(pr.combo[0], pr.combo[1]);
-    if (quick) { this.startSeq(dist < 100 * f.scale ? ['punch', 'punch'] : hasW ? ['weapon', 'weapon'] : ['kick']); return; }
-    const flash = f.def && f.def.flashEyes;
-    const delay = flash ? 0.32 : 0;
-    if (flash) { f.telegraph = 0.32; AudioManager.play('teleport'); }
-    if (pr.heavy && chance(0.45)) { f.telegraph = Math.max(f.telegraph, 0.3); this.startSeq(['heavy'], 0.2); return; }
+    if (quick) {
+      const q = dist < 100 * f.scale ? ['punch', 'punch'] : hasW ? ['weapon', 'weapon'] : ['kick'];
+      // Impossible: punishes run on into a launcher
+      this.startSeq(pr.unique && chance(0.6) ? q.concat(hasW ? ['weapon'] : ['kick']) : q); return;
+    }
+    const flash = f.def && f.def.flashEyes, tell = pr.windup;
+    const delay = flash ? 0.32 * tell : 0;
+    if (flash) { f.telegraph = 0.32 * tell; AudioManager.play('teleport'); }
+    if (pr.heavy && chance(0.45)) { f.telegraph = Math.max(f.telegraph, 0.3 * tell); this.startSeq(['heavy'], 0.2 * tell); return; }
     const roll = Math.random();
     let seq;
     if (hasW && dist < reachW + 10 && roll < 0.6) seq = new Array(n).fill('weapon');
     else if (dist < 105 * f.scale && roll < 0.75) seq = new Array(Math.min(3, n)).fill('punch');
-    else if (roll < 0.85) seq = chance(0.5) ? ['kick'] : ['heavy'];
+    else if (roll < 1 - pr.branch) seq = chance(0.5) ? ['kick'] : ['heavy'];
     else seq = hasW ? ['weapon', 'punch', 'punch'] : ['punch', 'kick'];
+    // Impossible: unique combo variations that extend the string and leave fewer openings
+    if (pr.unique && chance(0.5)) seq = seq.concat(pick(hasW ? AI_VARIATIONS.armed : AI_VARIATIONS.unarmed));
     if (this.phaseData && this.phaseData.unblockable) f.unblockable = true;
     this.startSeq(seq, delay);
   }

@@ -129,6 +129,8 @@ class Fighter {
     this.helmet = gearLook('helmets', this.helmetId); this.armor = gearLook('armors', this.armorId);
     this.maxHp = o.hp || 200; this.hp = this.maxHp; this.dmgMul = o.dmgMul || 1; this.defense = o.defense || 0; this.speedMul = o.speedMul || 1;
     this.blockRage = o.blockRage || 0; this.rageMul = o.rageMul || 1; this.stunRes = o.stunRes || 0; this.dashBonus = o.dashBonus || 0; this.kunaiMul = o.kunaiMul || 1;
+    // difficulty mode: player dash i-frame scale; enemy attack start-up and recovery scales (all 1 on Normal)
+    this.dodgeMul = o.dodgeMul || 1; this.windupMul = o.windupMul || 1; this.recoveryMul = o.recoveryMul || 1;
     this.rage = 0; this.ammo = o.ammo == null ? 5 : o.ammo; this.maxAmmo = this.ammo; this.guard = 100;
     this.eye = o.eye || C.bone; this.accent = o.accent || C.emberBright;
     this.state = 'idle'; this.st = 0; this.alive = true;
@@ -372,7 +374,7 @@ class Fighter {
   startDash(dir, world) {
     this.dashDir = dir || this.facing;
     this.setState('dash'); this.dashT = 0.2;
-    this.invuln = Math.max(this.invuln, 0.17 + this.dashBonus * 0.5);
+    this.invuln = Math.max(this.invuln, (0.17 + this.dashBonus * 0.5) * this.dodgeMul);
     this.dashCd = 0.42 * (1 - this.dashBonus);
     AudioManager.play('dash');
     world && world.fx.dashLines(this);
@@ -418,6 +420,8 @@ class Fighter {
     const spd = (wm ? wm.spd : 1) * (this.isPlayer ? 1 : (this.def && this.def.speed ? Math.sqrt(this.def.speed) : 1));
     this.mdur[0] = m.t[0] / spd; this.mdur[1] = m.t[1]; this.mdur[2] = m.t[2] / spd;
     if (this.boostAtk) { this.mdur[0] *= this.boostAtk; this.mdur[2] *= this.boostAtk; }
+    if (this.windupMul !== 1) this.mdur[0] *= this.windupMul;
+    if (this.recoveryMul !== 1) this.mdur[2] *= this.recoveryMul;
     // player attack assist: turn to face a foe who crossed over, and glide the last short gap during the wind-up so near-misses connect
     this.magV = 0;
     if (this.isPlayer && world && m.box && m.kind !== 'grab' && m.kind !== 'throw') {

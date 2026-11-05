@@ -7,13 +7,13 @@ const assert = require('node:assert/strict');
 const { loadLogic, moduleSource } = require('./helpers/load-logic');
 
 const { Logic, ENEMIES, WEAPONS, HELMETS, ARMORS, SURVIVAL } = loadLogic();
+const AI_PROFILES = Object.keys(loadLogic().AI_PROFILES);
 // Names declared as `  key: {` at the top level of an object literal in a non-pure module.
 const keysOf = (file, objName) => {
   const src = moduleSource(file), start = src.indexOf(`const ${objName} = {`);
   const body = src.slice(start, src.indexOf('\n};', start));
   return [...body.matchAll(/^ {2}([A-Za-z_]+):\s*\{/gm)].map(m => m[1]);
 };
-const AI_PROFILES = keysOf('40-ai.js', 'AI_PROFILES');
 const BOSS_ABILITIES = keysOf('40-ai.js', 'BOSS_ABILITIES');
 const ARENAS = keysOf('50-world.js', 'ENVS');
 
