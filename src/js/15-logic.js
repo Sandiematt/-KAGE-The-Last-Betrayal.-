@@ -27,9 +27,24 @@ function xpForLevel(lvl) { return 200 + 120 * (lvl - 1); }
 
 const Logic = {
   /* ---------------- save schema ---------------- */
+  // The Last Betrayal starts over: its saves live under a new key and schema version.
+  SAVE_KEY: 'kage.lastbetrayal.save.v2',
+  SAVE_VERSION: 2,
+  // Keys written by the old game (Ashbound, then the first KAGE). They are deleted on launch and never read.
+  LEGACY_SAVE_KEYS: ['kage.save.v1', 'ashbound.save.v1'],
+  // What to do with storage on launch. `stored` maps each key in SAVE_KEY / LEGACY_SAVE_KEYS to its stored
+  // text (null or missing when absent). Returns the save to play with (from SAVE_KEY only; nothing migrates),
+  // any load error, the legacy keys to delete, and `fresh` when no save existed yet and one should be written.
+  openSave(stored) {
+    stored = stored || {};
+    const remove = this.LEGACY_SAVE_KEYS.filter(k => stored[k] != null);
+    const raw = stored[this.SAVE_KEY] == null ? null : stored[this.SAVE_KEY];
+    const { save, error } = this.loadSave(raw);
+    return { save, error, remove, fresh: raw == null };
+  },
   defaultSave() {
     return {
-      v: 1,
+      v: Logic.SAVE_VERSION,  // schema version
       coins: 250, gems: 5, xp: 0, level: 1,
       ng: 0, ngUnlocked: false, ngCompletions: 0,
       cleared: {},            // "act-stage" -> true, current cycle

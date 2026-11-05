@@ -51,27 +51,29 @@ const isTouchDevice = () => ('ontouchstart' in window) || navigator.maxTouchPoin
 /* live in Logic (15-logic.js), which gets the raw text from here.      */
 /* ------------------------------------------------------------------ */
 const SaveManager = {
-  KEY: 'kage.save.v1',
-  LEGACY: ['ashbound.save.v1'], // saves from the previous working title are migrated once
+  // the key and the legacy keys are Logic's rule (Logic.SAVE_KEY / Logic.LEGACY_SAVE_KEYS); this only does the I/O
+  get KEY() { return Logic.SAVE_KEY; },
   data: null,
   available: true,
   defaults() { return Logic.defaultSave(); },
+  // On launch: read the current key and the old game's keys, permanently remove the old ones
+  // (nothing is carried over), and write a fresh save when there was none.
   load() {
-    let raw = null;
+    const stored = {};
     try {
-      raw = window.localStorage.getItem(this.KEY);
-      if (!raw) for (const k of this.LEGACY) { const r = window.localStorage.getItem(k); if (r) { raw = r; break; } }
+      for (const k of [Logic.SAVE_KEY, ...Logic.LEGACY_SAVE_KEYS]) stored[k] = window.localStorage.getItem(k);
     } catch (e) {
       console.warn('[KAGE] Save could not be read, starting fresh.', e);
       this.available = false;
-      raw = null;
     }
-    const { save, error } = Logic.loadSave(raw);
+    const { save, error, remove, fresh } = Logic.openSave(stored);
+    try { for (const k of remove) window.localStorage.removeItem(k); } catch (e) { console.warn('[KAGE] Old saves could not be removed.', e); }
     if (error) {
       console.warn('[KAGE] Save could not be read, starting fresh.', error);
       this.available = false;
     }
     this.data = save;
+    if (fresh && this.available) this.save();
     return save;
   },
   save() {

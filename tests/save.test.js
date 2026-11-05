@@ -76,3 +76,49 @@ test('erasing progress gives a fresh save but keeps the player\'s settings', () 
   assert.equal(fresh.level, 1);
   assert.equal(fresh.settings.reduceFlash, true);
 });
+
+/* ---------------- The Last Betrayal: new save key, old saves deleted ---------------- */
+
+test('on first launch both saves from the old game are deleted and nothing carries over', () => {
+  const rich = JSON.stringify({ coins: 99999, gems: 400, level: 30, cleared: { '0-0': true }, unlockedActs: 3 });
+  const { save, error, remove } = Logic.openSave({ 'kage.save.v1': rich, 'ashbound.save.v1': rich });
+  assert.equal(error, null);
+  assert.deepEqual([...remove].sort(), ['ashbound.save.v1', 'kage.save.v1']);
+  assert.equal(save.coins, 250);
+  assert.equal(save.level, 1);
+  assert.deepEqual(save.cleared, {});
+  assert.deepEqual(save, Logic.defaultSave());
+});
+
+test('a brand-new player gets a fresh default save that should be written, with nothing to delete', () => {
+  const { save, error, remove, fresh } = Logic.openSave({});
+  assert.equal(error, null);
+  assert.deepEqual(remove, []);
+  assert.equal(fresh, true);
+  assert.deepEqual(save, Logic.defaultSave());
+});
+
+test('new saves use schema version 2 under a key different from both old keys', () => {
+  assert.equal(Logic.defaultSave().v, 2);
+  assert.equal(Logic.SAVE_KEY, 'kage.lastbetrayal.save.v2');
+  assert.ok(!['kage.save.v1', 'ashbound.save.v1'].includes(Logic.SAVE_KEY));
+});
+
+test('a corrupt new save falls back to a fresh save, reports the error, and the old saves are still deleted', () => {
+  const { save, error, remove } = Logic.openSave({ 'kage.lastbetrayal.save.v2': '{"coins": 9000,,, oops', 'kage.save.v1': '{"coins": 777}' });
+  assert.ok(error instanceof Error);
+  assert.deepEqual(remove, ['kage.save.v1']);
+  assert.deepEqual(save, Logic.defaultSave());
+});
+
+test('a returning player keeps their Last Betrayal progress and is not given a fresh save', () => {
+  const s = Logic.defaultSave();
+  s.coins = 1600; s.level = 4; s.cleared['0-0'] = true;
+  const { save, error, remove, fresh } = Logic.openSave({ 'kage.lastbetrayal.save.v2': JSON.stringify(s), 'ashbound.save.v1': '{"coins": 5}' });
+  assert.equal(error, null);
+  assert.equal(fresh, false);
+  assert.deepEqual(remove, ['ashbound.save.v1']);
+  assert.equal(save.coins, 1600);
+  assert.equal(save.level, 4);
+  assert.equal(save.cleared['0-0'], true);
+});

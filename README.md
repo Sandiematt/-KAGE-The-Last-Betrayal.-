@@ -1,18 +1,18 @@
-<p align="center"><img src="docs/logo.webp" alt="KAGE — Wrath of Shadow" width="360"></p>
+<h1 align="center">KAGE — The Last Betrayal</h1>
 
-<h1 align="center">KAGE — Wrath of Shadow</h1>
+<p align="center"><i>Brothers until the end.</i></p>
 
-<p align="center"><i>Step out of the shadow. Draw the blade. Answer the blood moon.</i></p>
+KAGE — The Last Betrayal is a story-driven, side-view 2D stickman action game. You play Kage (影, "shadow"), a black silhouette with a white face-wrap and one red sash, searching for his missing brother Rem through a world rebuilt from fragments of memory. The fights use katanas, spears, hammers and bare hands, with elemental sword arcs, perfect parries, slow-motion finishers and a dark Japanese ink identity.
 
-KAGE (影, "shadow") is a cinematic 2D stickman sword-fighting game set under a crimson moon. You fight duelists, sub-bosses and three-phase masters with katanas, spears, hammers and bare hands. Elemental sword arcs, perfect parries, slow-motion finishers and a dark Japanese ink identity drive the fights.
+The game is being rebuilt from the earlier arena duel game into this story campaign. The combat, VFX, HUD and audio carry over; the story campaign, enemies and gear arrive in later updates, so the current build still plays the old duel campaign and roster.
 
 The whole game ships as **one self-contained `index.html`**: HTML5, Canvas 2D, vanilla JavaScript and Web Audio, with no libraries. The fonts and key-art images are inlined by the build, so it runs offline and wraps easily for mobile.
 
-- **Home screen:** the key art comes alive. The moon breathes, the hero's headband blows in the wind, his blade glows, the cracked ground smoulders and embers rise, and the 2.5D parallax layers follow your pointer.
+- **Opening and home screen:** the splash writes K-A-G-E stroke by stroke under the red moon, then *The Last Betrayal* and its tagline. On the home screen the key art comes alive: the moon breathes, Kage's face-wrap strip blows in the wind, his blade glows, the cracked ground smoulders and embers rise, and the 2.5D parallax layers follow your pointer.
 - **Campaign:** 3 acts, each with 4 duelists, 2 sub-bosses and 1 three-phase main boss (21 fights).
 - **Survival:** endless waves, a sub-boss every 5th wave, coins every wave and a gem every 5 waves.
 - **Armory:** 6 weapons, 10 helmets and 9 armors. Each item can be bought, upgraded and equipped. Boss trophies are exclusive.
-- **Progression:** coins, gems, XP and levels, performance ratings, honor seals, New Game+, and saves in `localStorage`.
+- **Progression:** coins, gems, XP and levels, performance ratings, honor seals, New Game+, and saves in `localStorage` (key `kage.lastbetrayal.save.v2`, schema version 2). Saves from the old game (`kage.save.v1`, `ashbound.save.v1`) are deleted on first launch and nothing is carried over.
 - **Look and feel:** procedural skeletal stickmen, inverted impact frames, stamped onomatopoeia, hit-stop, trauma-based screen shake, slow-motion finishers and ink-wipe screen transitions.
 - **UI:** a dark Japanese identity — brush KAGE logo, brush-stroke menu buttons, crimson and muted gold, a premium combat HUD (portrait medallions, gold-framed health bars with smooth drain, glowing rage meter, cinematic boss bar). Layout tokens started from the Wonder design file *Vole*.
 - **Sword animation:** every technique runs on a timeline (anticipation → wind-up → whipping strike → follow-through → stance) with torso and hip twist, per-weapon weight, and over-extended recovery after a heavy whiff.
@@ -41,7 +41,7 @@ The shipped file is built from readable modules in `src/`:
 |---|---|
 | `src/js/00-core.js` | constants, **SaveManager**, **AudioManager** (procedural SFX + generative music), **InputManager** (keyboard / touch / gamepad) |
 | `src/js/10-data.js` | pure data: poses, move tables, **weapons**, helmets, armor, **enemies & bosses**, acts, survival |
-| `src/js/15-logic.js` | **Logic**: the pure rules — campaign unlocks and next stage, fight rewards and ratings, economy formulas and shop actions, save defaults / loading / corrupt-save fallback. No DOM, canvas, storage, audio or input; tested under Node |
+| `src/js/15-logic.js` | **Logic**: the pure rules — campaign unlocks and next stage, fight rewards and ratings, economy formulas and shop actions, save key and schema, deleting the old game's saves, save defaults / loading / corrupt-save fallback. No DOM, canvas, storage, audio or input; tested under Node |
 | `src/js/20-fighter.js` | **Player / Enemy** `Fighter`: skeleton, pose blending, state machine, cloth physics, gear & weapon art |
 | `src/js/30-combat.js` | **CombatSystem**, **WeaponSystem** (projectiles, shockwaves, dropped weapons, rage arts), **ParticleSystem** + effects |
 | `src/js/40-ai.js` | enemy **AI** profiles and **BossAI** abilities / phases |
@@ -64,7 +64,7 @@ All progression rules live in `src/js/15-logic.js`, exposed as the global `Logic
 
 - It may only use the data tables from `src/js/10-data.js` (also pure). It must never touch `document`, `window`, `localStorage`, canvas, `AudioManager`, `InputManager`, `SaveManager`, `Game` or `UIManager`; `tests/purity.test.js` fails if it does.
 - It works on plain save objects. Functions that change progression (`applyFightResult`, `startNewGamePlus`, `buyItem`, `upgradeItem`, `equipItem`) update the save in place and return what happened; the caller persists it with `SaveManager.save()`.
-- `SaveManager` (in `00-core.js`) only does storage: it reads the raw text from `localStorage` and hands it to `Logic.loadSave(raw)`, which returns `{ save, error }` (defaults filled in, a fresh save when the text is corrupt).
+- `SaveManager` (in `00-core.js`) only does storage. On launch it reads `Logic.SAVE_KEY` and every key in `Logic.LEGACY_SAVE_KEYS`, and hands the texts to `Logic.openSave(stored)`. That returns `{ save, error, remove, fresh }`: the save to play with (read from the current key only, defaults filled in, a fresh save when the text is corrupt), the old game's keys to delete, and whether a fresh save should be written. `SaveManager` then removes those keys from `localStorage` and writes the fresh save.
 - The engine (`Game.finishFight`, `nextStage`, `stageUnlocked`, `rate`, `stageConfig`, `startNewGamePlus`, survival wave rewards) and the UI (stage cards, act locks, Armory buy/upgrade/equip) call `Logic` instead of holding the rules. New rules go into `Logic` first, with a test.
 - The economy formulas (`weaponMul`, `weaponStats`, `gearDef`, `upgradeCost`, `playerMaxHp`, `xpForLevel`, `gearTable`) are also top-level functions in `15-logic.js`, because combat code calls them directly; they are on `Logic` too.
 - In the browser console it is available as `KAGE.Logic`.

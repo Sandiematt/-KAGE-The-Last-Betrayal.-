@@ -269,8 +269,9 @@ const UIManager = {
     el.innerHTML = `
       <div class="tl-art" aria-hidden="true"></div>
       <div class="tl-logo">
-        <div class="logo-row"><h1 class="logo-mark" aria-label="KAGE"></h1><div class="logo-banner"><span>影</span></div></div>
-        <div class="logo-sub"><i></i><span>Wrath of Shadow</span><i></i></div>
+        <div class="logo-row"><h1 class="logo-mark" aria-label="KAGE — The Last Betrayal"></h1><div class="logo-banner"><span>影</span></div></div>
+        <div class="logo-sub"><i></i><span>The Last Betrayal</span><i></i></div>
+        <p class="logo-tag">Brothers until the end.</p>
       </div>
       <nav class="tl-menu">
         ${item('play', MENU_IC.swords, 'Play', `<span class="tm-ctx">${esc(ctx)}${save.ng ? ` · NG+${save.ng}` : ''}</span><span class="tm-chev">${ICON.back}</span>`, true)}
