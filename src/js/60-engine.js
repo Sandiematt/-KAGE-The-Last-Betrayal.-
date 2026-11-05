@@ -16,6 +16,9 @@ class FightSession {
     this.rounds = { p: 0, e: 0, n: 0 };
     this.wave = cfg.wave || 1; this.survivalCoins = 0; this.survivalGems = 0; this.wavesCleared = 0;
     this.dialogue = null; this.combo = 0; this.comboT = 0; this.damageTaken = 0; this.fightTime = 0;
+    // the Interlude spar (Logic.fightFormat 'spar'): young Kage instead of the geared player, drawn as a memory
+    this.spar = !cfg.stretch && (cfg.format || Logic.fightFormat(cfg)).name === 'spar';
+    this.memory = this.spar;
     this.player = this.makePlayer(save);
     this.setup();
   }
@@ -41,6 +44,13 @@ class FightSession {
   roundTime() { return (this.format && this.format.timer) || 0; }
 
   makePlayer(save) {
+    if (this.spar) {
+      // young Kage: fixed health and a bokken, none of the player's gear, level or perks (Logic.youngKage)
+      const k = Logic.youngKage(save);
+      const y = makeYoungKage({ x: -300, team: 0, hp: k.hp, defense: k.defense, dmgMul: k.dmgMul, ammo: 0, dodgeMul: Logic.difficulty(save.difficulty).dodge });
+      y.name = 'Kage';
+      return y;
+    }
     const g = Logic.playerCombatStats(save), pk = g.perks;
     const f = makePlayerFighter(save, {
       x: -300, team: 0, hp: g.hp, defense: g.defense, speedMul: 1 + (pk.speed || 0), rageMul: 1 + (pk.rage || 0),
@@ -279,7 +289,8 @@ class FightSession {
       case 'round':
         if (this.phaseT < 0.05 && !this.roundShown) {
           this.roundShown = true; this.rounds.n++;
-          if (this.mode !== 'survival') this.fx.banner(this.roundsToWin > 1 ? `Round ${ROMAN[this.rounds.n - 1]}` : 'Final Duel', this.bossFormat ? `One life · three phases · ${Logic.difficulty(SaveManager.data.difficulty).label}` : `${e.name} · ${DIFF_LABEL[clamp((this.cfg.diff || 1) + (this.cfg.ng || 0), 0, 4)]} · ${Logic.difficulty(SaveManager.data.difficulty).label}`, C.gold);
+          if (this.spar) this.fx.banner('Sparring Match', "A memory · Takashi's yard", C.gold);
+          else if (this.mode !== 'survival') this.fx.banner(this.roundsToWin > 1 ? `Round ${ROMAN[this.rounds.n - 1]}` : 'Final Duel', this.bossFormat ? `One life · three phases · ${Logic.difficulty(SaveManager.data.difficulty).label}` : `${e.name} · ${DIFF_LABEL[clamp((this.cfg.diff || 1) + (this.cfg.ng || 0), 0, 4)]} · ${Logic.difficulty(SaveManager.data.difficulty).label}`, C.gold);
           AudioManager.play('round');
         }
         if (this.phaseT > 1.25 && !this.fightShown) { this.fightShown = true; this.fx.stamp('FIGHT', (p.x + e.x) / 2, -150, 3, C.emberBright); this.fightFlash = 1; }
@@ -287,7 +298,15 @@ class FightSession {
         break;
       case 'fight':
         this.fightTime += dt;
-        if (this.format.timer) { this.timer -= dt; if (this.timer <= 0) this.timeOut(); }
+        if (this.format.timer) this.timer -= dt;
+        // the spar never times out or ends in a KO: Takashi calls the boys in (Logic.sparOutcome)
+        if (this.spar) { if (Logic.sparOutcome(this.format, { playerHp: p.hp / p.maxHp, foeHp: e.hp / e.maxHp, time: this.fightTime })) this.interrupt(); }
+        else if (this.format.timer && this.timer <= 0) this.timeOut();
+        break;
+      case 'interrupt':
+        // everyone stops where they stand; once both are down on their feet they drop their guard and face each other
+        for (const f of [p, e]) if (f.grounded && f.state !== 'pose' && f.state !== 'down' && f.state !== 'getup' && this.phaseT > 0.5) { f.endMove(); f.abil = null; f.vx = 0; f.setState('pose'); f.poseName = null; f.faceToward(f === p ? e : p, 1); }
+        if (this.phaseT > 3.4 || (this.phaseT > 1.2 && (InputManager.pressed('punch') || InputManager.pressed('jump') || UIManager.skipRequested()))) { this.phase = 'done'; Game.finishFight(this.buildResult()); }
         break;
       case 'ko':
         if (this.phaseT > 2.2) this.afterKO();
@@ -300,7 +319,7 @@ class FightSession {
   // Everything both modes share each tick: controls, AI, fighters, hits, projectiles, separation and the camera.
   simulate(dt, p, e) {
     if (this.cine) { this.cine.t -= dt; if (this.cine.t <= 0) this.cine = null; }
-    this.letterbox = damp(this.letterbox, this.phase === 'intro' || this.phase === 'outro' || this.cine ? 1 : 0, 6, dt);
+    this.letterbox = damp(this.letterbox, this.phase === 'intro' || this.phase === 'outro' || this.phase === 'interrupt' || this.cine ? 1 : 0, 6, dt);
     this.fightFlash = Math.max(0, this.fightFlash - dt * 3);
     if (this.dialogue) this.dialogue.t += dt;
     if (this.comboT > 0) { this.comboT -= dt; if (this.comboT <= 0) this.combo = 0; }
@@ -332,6 +351,19 @@ class FightSession {
     const loser = pk >= ek ? e : p;
     loser.alive = false; loser.hp = 0; loser.move = null; loser.setState('juggle'); loser.grounded = false; loser.vy = -300; loser.vx = (loser === e ? 1 : -1) * 200;
     this.onKO(loser, loser === e ? p : e);
+  }
+  // The spar's scripted ending: the fight freezes and Takashi's voice calls the boys in. No KO, no winner; the stage
+  // completes as 'interrupted' (Logic.applyFightResult) and the `after` scene plays over the frozen yard.
+  interrupt() {
+    const p = this.player, e = this.enemy;
+    this.outcome = 'interrupted'; this.win = true;
+    this.phase = 'interrupt'; this.phaseT = 0;
+    for (const f of [p, e]) { f.move = null; f.abil = null; f.ctrl.dir = 0; if (f.grounded && f.state !== 'down') f.vx *= 0.2; }
+    this.fx.slowmo(0.35, 0.7); this.fx.shake(0.25);
+    this.fx.stamp('ENOUGH', (p.x + e.x) / 2, -190, 3, C.gold, 'ENOUGH!');
+    this.dialogue = { name: 'Takashi', title: 'from the veranda', text: 'Enough! Both of you. Inside, now.', t: 0 };
+    AudioManager.play('round');
+    AudioManager.setMusic('none');
   }
   afterKO() {
     const pWon = this.koTarget !== this.player;
@@ -374,7 +406,7 @@ class FightSession {
   buildResult() {
     const p = this.player, e = this.enemy;
     return {
-      mode: this.mode, win: !!this.win, enemyId: e.def.id, stageId: this.cfg.stageId, foeName: e.name, ng: this.cfg.ng || 0,
+      mode: this.mode, win: !!this.win, outcome: this.outcome || null, enemyId: e.def.id, stageId: this.cfg.stageId, foeName: e.name, ng: this.cfg.ng || 0,
       time: this.fightTime, hpLeft: p.hp / p.maxHp, flawless: this.damageTaken < 1, maxCombo: p.stats.maxCombo, parries: p.stats.parries,
       enemyDamage: 1 - Math.max(0, e.hp) / e.maxHp, waves: this.wavesCleared, survivalCoins: this.survivalCoins, survivalGems: this.survivalGems,
       env: this.cfg.env

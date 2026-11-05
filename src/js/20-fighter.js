@@ -7,7 +7,7 @@ const SHAPE = {
   yamigama: 'sickle', iwakudaki: 'hammer', shinsen: 'katana', raiko_no_tachi: 'odachi', raikon_tachi: 'odachi', kagehira_yurei: 'short', mugen_no_ha: 'katana',
   shadow_daggers: 'short', hollow_crescents: 'crescent', mist_fans: 'fan',
   sentinel_spear: 'spear', sage_staff: 'staff', storm_orbs: 'none', iron_fists: 'none', chain_hook: 'hook',
-  tyrant_cleaver: 'tyrant', cutter_blade: 'katana', temple_staff: 'staff', raider_cleaver: 'cleaver'
+  tyrant_cleaver: 'tyrant', cutter_blade: 'katana', temple_staff: 'staff', raider_cleaver: 'cleaver', bokken: 'bokken'
 };
 const IK_OFF = { katana: -0.2, spear: -0.3, hammer: 0.3, staff: -0.32 };
 const CARRY = { katana: 40, short: 30, cleaver: 60, odachi: 56, spear: 10, sickle: 70, hammer: 100, staff: 0, crescent: 40, fan: 40, hook: 70, tyrant: 60, none: 0 };
@@ -161,7 +161,8 @@ class Fighter {
     this.outfit = o.outfit || (o.isPlayer ? 'gi' : (this.def && this.def.outfit) || (this.armor === 'robe' ? 'robe' : 'plain'));
     this.cloths = [];
     if (this.outfit === 'gi') {
-      const fam = this.family, bc = o.isPlayer ? C.emberBright : fam ? fam.trim : '#2a2620', bc2 = o.isPlayer ? '#b8362b' : fam ? '#9298a0' : '#2a2620';
+      const fam = this.family, sash = this.def && this.def.sash;   // `sash` on an ENEMIES entry colours the obi (young Rem's purple)
+      const bc = o.isPlayer ? C.emberBright : sash || (fam ? fam.trim : '#2a2620'), bc2 = o.isPlayer ? '#b8362b' : sash ? sash : fam ? '#9298a0' : '#2a2620';
       this.cloths.push({ kind: 'belt', c: new Cloth(6, 5.6 * this.scale, { ph: 7, wind: 200, grav: 1250, stiff: 1.7 }), at: 'hip', color: bc, w: 4 * this.scale, w1: 2.4 * this.scale, dy: -11, dx: -3 });
       this.cloths.push({ kind: 'belt', c: new Cloth(5, 5.4 * this.scale, { ph: 8, wind: 170, grav: 1300, stiff: 1.7 }), at: 'hip', color: bc2, w: 3.2 * this.scale, w1: 2 * this.scale, dy: -10, dx: -1 });
     }
@@ -174,6 +175,12 @@ class Fighter {
       // two thin hachimaki tails of different length, out of phase so they never move as one strip
       this.cloths.push({ kind: 'scarf', c: new Cloth(10, 7.6 * this.scale, { ph: 9, wind: 860, grav: 680, stiff: 1.75 }), at: 'head', color: C.emberBright, w: 3.4 * this.scale, w1: 1.3 * this.scale, dy: -8, dx: 16 });
       this.cloths.push({ kind: 'scarf', c: new Cloth(8, 7 * this.scale, { ph: 12.5, wind: 740, grav: 760, stiff: 1.75 }), at: 'head', color: '#b8362b', w: 2.8 * this.scale, w1: 1.1 * this.scale, dy: -6, dx: 16 });
+    }
+    if (this.helmet === 'headband') {
+      // two short tails of the training band, knotted at the back of the head
+      const hc = headbandColor(this);
+      this.cloths.push({ kind: 'scarf', c: new Cloth(6, 5.6 * this.scale, { ph: 9, wind: 820, grav: 700, stiff: 1.8 }), at: 'head', color: hc, w: 2.8 * this.scale, w1: 1.1 * this.scale, dy: -5, dx: 16 });
+      this.cloths.push({ kind: 'scarf', c: new Cloth(5, 5 * this.scale, { ph: 12.5, wind: 700, grav: 780, stiff: 1.8 }), at: 'head', color: hc, w: 2.3 * this.scale, w1: 1 * this.scale, dy: -3, dx: 16 });
     }
     if (o.scarf && this.helmet !== 'topknot') {
       // under another helmet the face-wrap still trails a short white strip from the neck (the sash stays the one red accent)
@@ -1219,7 +1226,7 @@ Fighter.prototype.drawSash = function (ctx, T) {
   const k = 0.16, x = lerp(sk.hip.x, sk.neck.x, k), y = lerp(sk.hip.y, sk.neck.y, k);
   const dx = sk.neck.x - sk.hip.x, dy = sk.neck.y - sk.hip.y, D = Math.hypot(dx, dy) || 1, ux = dx / D, uy = dy / D;
   let nx = -uy, ny = ux; if (nx * f < 0) { nx = -nx; ny = -ny; }
-  const w = T * 0.98, col = this.isPlayer ? C.emberBright : this.family ? this.family.trim : '#3a342b';
+  const w = T * 0.98, col = this.isPlayer ? C.emberBright : this.def && this.def.sash ? this.def.sash : this.family ? this.family.trim : '#3a342b';
   ctx.strokeStyle = col; ctx.lineWidth = (this.isPlayer ? 7 : this.family ? 5 : 4) * s; ctx.lineCap = 'butt';
   ctx.beginPath(); ctx.moveTo(x - nx * w, y - ny * w); ctx.lineTo(x + nx * w, y + ny * w); ctx.stroke();
   if (this.isPlayer) { ctx.fillStyle = '#b8362b'; ctx.beginPath(); ctx.ellipse(x + nx * w * 0.8, y + ny * w * 0.8 + 1.5 * s, 3 * s, 3.6 * s, 0, 0, TAU); ctx.fill(); }
@@ -1457,6 +1464,21 @@ function drawWeaponShape(ctx, sh, L, mode, s, ink, f) {
       }
       break;
     }
+    case 'bokken': {
+      // the Interlude's wooden practice sword: one piece of pale oak with a gentle curve, a darker worn grip and a
+      // small round guard, no steel and no edge line
+      const hl = 0.3, wood = art ? '#c9a878' : mode === 'flat' ? ink : '#b8915e', grip = art ? '#5a3c22' : mode === 'flat' ? ink : '#6e4a2a';
+      line(-L * hl, 0, -1.5 * s, 0, 2.2 * s * 2, grip);
+      ctx.fillStyle = grip; ctx.beginPath(); ctx.ellipse(-0.6 * s, 0, 1.6 * s, 4.2 * s, 0, 0, TAU); ctx.fill();
+      if (rim) break;
+      const N = 8, sori = L * 0.035, w0 = 2.1 * s, w1 = 1.5 * s;
+      ctx.beginPath(); ctx.moveTo(1.2 * s, -w0);
+      for (let i = 1; i <= N; i++) { const u = i / N; ctx.lineTo(1.2 * s + (L - 1.2 * s) * u, -sori * u * u - lerp(w0, w1, u)); }
+      ctx.quadraticCurveTo(L + w1 * 1.2, -sori, L, -sori + w1);
+      for (let i = N; i >= 0; i--) { const u = i / N; ctx.lineTo(1.2 * s + (L - 1.2 * s) * u, -sori * u * u + lerp(w0, w1, u)); }
+      ctx.closePath(); ctx.fillStyle = wood; ctx.fill();
+      break;
+    }
     case 'short': {
       if (rim) { line(-L * 0.32, 0, 0, 0, 6 * s, dark); break; }
       const hl = 0.32;
@@ -1622,6 +1644,15 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
       ctx.restore();
       ctx.fillStyle = flat ? ink : '#b8362b'; ctx.beginPath(); ctx.ellipse(-r * 1.0, -r * 0.39, r * 0.15, r * 0.12, 0.4, 0, TAU); ctx.fill();
       break;
+    case 'headband': { // the Interlude's young brothers: a plain cloth training band (Kage pale, Rem in his purple accent)
+      drawHeroHair(ctx, r, ink);
+      ctx.save(); ctx.beginPath(); ctx.arc(0, 0, r * 1.04, 0, TAU); ctx.clip();
+      ctx.fillStyle = flat ? ink : headbandColor(f);
+      ctx.beginPath(); ctx.moveTo(-r * 1.1, -r * 0.42); ctx.lineTo(r * 1.1, -r * 0.34); ctx.lineTo(r * 1.1, -r * 0.12); ctx.lineTo(-r * 1.1, -r * 0.2); ctx.closePath(); ctx.fill();
+      ctx.restore();
+      ctx.fillStyle = flat ? ink : headbandColor(f); ctx.beginPath(); ctx.ellipse(-r * 1.0, -r * 0.3, r * 0.15, r * 0.12, 0.4, 0, TAU); ctx.fill();
+      break;
+    }
     case 'ronin_hood': case 'reaper_cowl':
       ctx.beginPath(); ctx.arc(0, -r * 0.05, r * 1.18, Math.PI * 0.55, Math.PI * 2.15); ctx.lineTo(-r * (key === 'reaper_cowl' ? 2.3 : 1.7), r * 0.8); ctx.closePath(); ctx.fill();
       if (key === 'reaper_cowl') { ctx.beginPath(); ctx.moveTo(-r * 1.2, r * 0.3); ctx.lineTo(-r * 2.0, r * 1.3); ctx.lineTo(-r * 1.6, r * 0.4); ctx.fill(); }
@@ -1764,6 +1795,7 @@ function drawArmor(ctx, f, ink, opt, Ut) {
   };
   ctx.fillStyle = ink;
   switch (f.armor) {
+    case 'training': break;   // the Interlude's plain training clothes: just the gi and its obi
     case 'tachibana': {
       // Kage's starting Tachibana Yoroi: a compact shoulder guard (the forearm guards are the hero wraps)
       // and the small family crest, half-hidden behind the front arm
@@ -1868,6 +1900,14 @@ function drawArmor(ctx, f, ink, opt, Ut) {
 function makeFighterFromEnemy(id, extra) {
   const d = ENEMIES[id];
   return new Fighter(Object.assign({ def: d, name: d.name, title: d.title, weapon: d.weapon, helmet: d.helmet, armor: d.armor, build: d.build, eye: d.eye, accent: d.accent, hp: d.hp, facing: -1 }, extra || {}));
+}
+// the training headband's colour: pale cloth for young Kage, the accent (Rem's purple) for anyone else
+function headbandColor(f) { return f && !f.isPlayer ? (f.accent || '#9a6bff') : '#d9cfb8'; }
+// Young Kage for the Interlude spar: a smaller build in plain training clothes with a pale headband and a bokken. None
+// of the player's gear applies (Logic.youngKage); no face-wrap yet, that comes later in his life.
+function makeYoungKage(extra) {
+  const k = Logic.youngKage();
+  return new Fighter(Object.assign({ name: 'Kage', title: 'Young Kage', isPlayer: true, scarf: false, weapon: k.weapon, wlvl: 1, helmet: k.helmet, armor: k.armor, build: k.build, hp: k.hp, ammo: 0, facing: 1 }, extra || {}));
 }
 function makePlayerFighter(save, extra) {
   return new Fighter(Object.assign({ name: 'Kage', isPlayer: true, scarf: true, weapon: save.equipped.weapon, wlvl: save.owned.weapons[save.equipped.weapon] || 1, helmet: save.equipped.helmet, armor: save.equipped.armor, build: { scale: 1, w: 9.6, legs: 0.9, head: 1.05 }, facing: 1 }, extra || {}));

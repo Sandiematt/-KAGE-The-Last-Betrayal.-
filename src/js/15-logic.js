@@ -210,7 +210,8 @@ const Logic = {
     if (!st || !this.isStageUnlocked(save, id)) return null;
     const firstClear = !this.isStageComplete(save, id), unlocks = [];
     save.cleared[id] = true;
-    save.defeated[id] = (save.defeated[id] || 0) + 1;
+    // the spar has no winner (Takashi interrupts it), so young Rem is never recorded as beaten
+    if (st.kind !== 'spar') save.defeated[id] = (save.defeated[id] || 0) + 1;
     const next = this.nextStage(save);
     if (firstClear) {
       const ch = this.chapter(st.chapter), i = CAMPAIGN.chapters.indexOf(ch), nextCh = CAMPAIGN.chapters[i + 1];
@@ -263,7 +264,9 @@ const Logic = {
                  three phases, no round clock and so no time-out loss; `defeat` says how the boss leaves;
        duel      every other arena fight: best of three rounds against a 75 s clock;
        survival  one round per wave against a 90 s clock;
-       stretch   a side-scrolling level: no rounds, no clock.
+       stretch   a side-scrolling level: no rounds, no clock;
+       spar      the Interlude (kind 'spar'): one round on a clock and no KO (`preventKO`). Takashi interrupts when
+                 either brother's health falls to `interruptAt` or the clock runs out (sparOutcome); nobody wins.
      A boss's phases and defeat outcome are data on its ENEMIES entry (see 10-data.js). */
   BOSS_DEFEATS: ['finisher', 'escape', 'reabsorb'],
   fightFormat(cfg) {
@@ -271,9 +274,37 @@ const Logic = {
     if (cfg.mode === 'survival') return { name: 'survival', roundsToWin: 1, timer: 90, phases: 0, defeat: null };
     if (cfg.stretch) return { name: 'stretch', roundsToWin: 1, timer: 0, phases: 0, defeat: null };
     const st = this.stage(cfg.stageId), d = ENEMIES[cfg.enemyId];
+    if (st && st.kind === 'spar') return { name: 'spar', roundsToWin: 1, timer: SPAR.timer, phases: 0, defeat: null, interruptAt: SPAR.interruptAt, preventKO: true };
     if (st && (st.kind === 'boss' || st.format === 'boss'))
       return { name: 'boss', roundsToWin: 1, timer: 0, phases: Math.max(3, this.bossPhases(cfg.enemyId).length), defeat: this.bossDefeat(cfg.enemyId) || 'finisher' };
     return { name: 'duel', roundsToWin: d && d.type === 'boss' ? 1 : 2, timer: 75, phases: 0, defeat: null };
+  },
+  /* ---------------- the spar (Interlude) ---------------- */
+  // 'interrupted' once Takashi calls the boys in: either brother's health fraction at or below the format's
+  // `interruptAt`, or the fight time at the clock; null while the spar goes on. hp values are fractions of max health.
+  sparOutcome(format, st) {
+    if (!format || format.name !== 'spar') return null;
+    if (st.playerHp <= format.interruptAt || st.foeHp <= format.interruptAt || st.time >= format.timer) return 'interrupted';
+    return null;
+  },
+  // A fighter's health after a blow: in a spar (`preventKO`) it never drops below 1, so nobody is ever knocked out and
+  // the interruption always comes first; in any other format the blow lands as it is.
+  sparHealth(format, hp) { return format && format.preventKO ? Math.max(1, hp) : hp; },
+  // Young Kage in the spar: fixed health and look and a bokken, none of the player's gear, level or perks (SPAR.kage).
+  youngKage() { const k = SPAR.kage; return { hp: k.hp, defense: 0, dmgMul: 1, weapon: k.weapon, helmet: k.helmet, armor: k.armor, build: Object.assign({}, k.build) }; },
+  // The family form (FAMILY_FORM in 10-data.js) expanded for one style ('kage', 'rem'; unknown styles run Kage's):
+  // { name, style, tempo, steps: [{ step, act, move?, wait }] }. `wait` is the pause before the step; aerial steps
+  // repeat for the style's `aerials` and the flow step runs once per finishing move.
+  familyForm(style) {
+    const id = FAMILY_FORM.styles[style] ? style : 'kage', sty = FAMILY_FORM.styles[id], steps = [];
+    for (const p of FAMILY_FORM.pattern) {
+      const one = (move, wait) => steps.push(Object.assign({ step: p.step, act: p.act, wait }, move ? { move } : {}));
+      if (p.step === 'stance') one(null, sty.hold);
+      else if (p.step === 'aerial') for (let i = 0; i < sty.aerials; i++) one(p.move, sty.gap);
+      else if (p.step === 'flow') sty.flow.forEach(m => one(m, sty.gap));
+      else one(p.move, sty.gap);
+    }
+    return { name: FAMILY_FORM.name, style: id, tempo: sty.tempo, steps };
   },
   // A boss's phases with the health fraction each one opens at (`at`; 1, 0.66 and 0.33 unless the data says
   // otherwise). [] for a foe without phases.
@@ -541,6 +572,9 @@ const Logic = {
     if (r.mode === 'campaign') {
       const id = r.stageId, type = this.stageRewardType(id), diff = this.chapterOf(id).diff;
       const base = this.stageBaseCoins(id);
+      // the spar cannot be lost and has no winner: whatever the health bars said, Takashi interrupted it
+      const spar = this.stage(id).kind === 'spar';
+      if (spar) { r = Object.assign({}, r, { win: true }); out.win = true; out.outcome = 'interrupted'; out.winner = null; }
       out.rating = this.rateFight(r);
       out.seals = [r.win, r.win && r.time < 60, r.win && r.flawless];
       if (r.win) {
@@ -549,7 +583,7 @@ const Logic = {
         out.coins = Math.round(base * ngMul * ({ S: 1.5, A: 1.25, B: 1.1, C: 1 }[out.rating]) * (out.firstClear ? 1 : 0.5) / 5) * 5;
         out.gems = (out.firstClear ? this.firstClearGems(type) : (type === 'boss' ? 1 : 0)) + (r.flawless ? 1 : 0);
         out.xp = Math.round((type === 'boss' ? 300 : type === 'sub' ? 150 : 80) * diff * ngMul);
-        save.stats.wins++; if (r.flawless) save.stats.perfects++;
+        if (!spar) { save.stats.wins++; if (r.flawless) save.stats.perfects++; }
         if (type === 'boss') save.stats.bosses++;
         out.unlocks.push(...done.unlocks);
         out.next = done.next;

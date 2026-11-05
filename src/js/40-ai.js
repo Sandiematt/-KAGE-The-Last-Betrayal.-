@@ -18,6 +18,8 @@ class AIController {
     this.dir = 0; this.block = 0; this.kickHold = 0; this.react = 0; this.reactTo = null; this.cds = {};
     this.phase = 0; this.phases = d.phases || null; this.abilities = d.abilities || [];
     this.adapted = null; this.lastSeen = null; this.recentHits = 0;
+    // the family form (FAMILY_FORM, Logic.familyForm): a foe with `form` runs it as a scripted chain (startForm)
+    this.form = d.form ? Logic.familyForm(d.form) : null; this.running = null; this.formCd = 1.2;
     if (d.type === 'boss' || d.type === 'sub') { f.ammo = 6; f.turnDelay = d.ai === 'defensive' || d.ai === 'heavy' ? 0.35 : 0.08; }
     else { f.ammo = this.p.kunai > 0.3 ? 30 : 3; f.turnDelay = d.ai === 'heavy' ? 0.4 : d.ai === 'defensive' ? 0.25 : 0.1; }
     if (this.p.ranged && f.baseWeapon === 'storm_orbs') this.abilities = this.abilities.concat(['orbVolley']);
@@ -48,6 +50,8 @@ class AIController {
     if (f.mimic && this.updateMimic(dt, p)) return;
     const dx = p.x - f.x, dist = Math.abs(dx), toward = Math.sign(dx) || 1;
     this.checkPhase();
+    if (this.formCd > 0) this.formCd -= dt;
+    if (this.running) { this.stepForm(dt, toward); return; }
     // disarmed: go get the weapon back
     if (!f.hasWeapon && f.weaponId() === 'fists' && f.baseWeapon !== 'fists') {
       const pk = w.pickups.find(k => k.owner === f);
@@ -161,6 +165,8 @@ class AIController {
     if (w.mayEngage && !w.mayEngage(f)) { this.waitTurn(dist, toward); return; }
     // boss / sub-boss signature abilities
     if (this.tryAbility(p, dist, toward)) return;
+    // the family form: from dash range, open with the whole chain
+    if (this.form && this.formCd <= 0 && dist > 170 && dist < 480 && f.canAct() && chance(0.7)) { this.startForm(); return; }
     // ranged behaviour
     if (pr.ranged) {
       if (dist < pr.pref - 120 && chance(0.6)) { if (chance(pr.dodge)) { f.ctrl.dashP = true; f.ctrl.dir = -toward; } else this.plan = 'retreat'; return; }
@@ -215,6 +221,47 @@ class AIController {
     if (pr.unique && chance(0.5)) seq = seq.concat(pick(hasW ? AI_VARIATIONS.armed : AI_VARIATIONS.unarmed));
     if (this.phaseData && this.phaseData.unblockable) f.unblockable = true;
     this.startSeq(seq, delay);
+  }
+
+  /* ---- the family form ----
+     Runs Logic.familyForm(def.form) step by step as a script: each step waits its `wait`, then fires as soon as the
+     fighter can perform it (a cut chains from the previous one's follow-through, an aerial jumps off the rising cut and
+     cuts near the top of the jump, a later aerial goes off the double jump). The style's `tempo` scales every cut's
+     start-up and recovery while the form runs (Fighter.boostAtk). Getting hit, or a step that cannot fire in time, breaks
+     the form off. */
+  startForm() {
+    const f = this.f;
+    this.running = { i: 0, t: 0, wait: this.form.steps[0].wait, boost: f.boostAtk };
+    f.boostAtk = (f.boostAtk || 1) * this.form.tempo;
+  }
+  endForm() {
+    const r = this.running; if (!r) return;
+    this.f.boostAtk = r.boost; this.running = null;
+    this.formCd = rand(1.4, 2.6) * this.p.idle; this.t = rand(0.15, 0.3) * this.p.idle;
+  }
+  stepForm(dt, toward) {
+    const f = this.f, c = f.ctrl, w = this.world, r = this.running, steps = this.form.steps, st = steps[r.i];
+    r.t += dt;
+    const broken = f.state === 'hit' || f.state === 'juggle' || f.state === 'stun' || f.state === 'down' || f.state === 'getup' || f.state === 'grabbed';
+    if (broken || r.t > 1.6) return this.endForm();
+    if (!f.grounded || f.state === 'prejump') c.dir = toward;   // drift toward the target through the air
+    if (r.wait > 0) { r.wait -= dt; return; }
+    const ready = f.canAct() || (f.state === 'move' && f.mphase === 2 && f.move.kind !== 'air' && f.grounded);
+    let done = false;
+    switch (st.act) {
+      case 'stance': done = true; break;   // the stance is the step's hold (its wait)
+      case 'dash': if (f.canAct()) { f.startDash(toward, w); done = true; } break;
+      case 'move': if (ready) { f.endMove(); f.startMove(st.move, w); done = true; } break;
+      case 'air':
+        if (f.state === 'air' && f.vy > -420) { f.startMove(st.move, w); done = true; }
+        else if (f.state === 'move' && f.move.kind === 'air' && f.mphase === 2 && f.jumps < 2) { f.endMove(); f.setState('air'); c.dir = toward; f.doJump(w); }
+        else if (ready && f.grounded) { f.endMove(); f.setState('idle'); c.dir = toward; f.doJump(w); }
+        break;
+      case 'land': if (f.grounded && f.canAct()) done = true; break;
+    }
+    if (!done) return;
+    r.i++; r.t = 0;
+    if (r.i >= steps.length) this.endForm(); else r.wait = steps[r.i].wait;
   }
 
   /* ---- bosses ---- */

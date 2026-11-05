@@ -178,6 +178,73 @@ const ENVS = {
       ctx.globalCompositeOperation = 'source-over';
     }
   },
+  // Takashi's training yard in Hoshimura, as the brothers remember it (the Interlude spar): a low dusk sun, the dojo's
+  // roof and veranda behind a wooden fence, a pine, a striking post and a rack of practice swords, packed warm earth.
+  // Drawn in the memory filter by the fight renderer (Renderer.drawMemoryFilter).
+  yard: {
+    name: 'Takashi\'s Training Yard', rim: 'rgba(236,206,160,0.75)', light: { x: -0.5, y: -0.86 }, trail: '#c9a878',
+    build() {
+      const r = seeded(43);
+      this.sky = makeLayer(W, H, (g) => {
+        const gr = g.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, '#2a1d17'); gr.addColorStop(0.45, '#6a4128'); gr.addColorStop(0.7, '#a06a3c'); gr.addColorStop(1, '#3a281c');
+        g.fillStyle = gr; g.fillRect(0, 0, W, H);
+        for (let i = 0; i < 6; i++) { g.fillStyle = `rgba(236,206,160,${0.05 + r() * 0.06})`; g.beginPath(); g.ellipse(r() * W, 80 + r() * 200, 160 + r() * 200, 10 + r() * 12, 0, 0, TAU); g.fill(); }
+      });
+      this.far = makeLayer(LW, H, (g) => {
+        g.fillStyle = 'rgba(74,48,32,0.75)'; mountainPath(g, LW, 430, 110, 150, r); g.fill();
+        g.fillStyle = '#3c2a1e'; mountainPath(g, LW, 470, 60, 120, r); g.fill();
+      });
+      this.mid = makeLayer(LW, H, (g) => {
+        // the dojo: a long hipped roof over a raised veranda, sliding doors lit warm from inside
+        const dx = 320, dw = 820, top = 300;
+        g.fillStyle = '#24180f';
+        g.beginPath(); g.moveTo(dx - 80, top + 60); g.quadraticCurveTo(dx + dw / 2, top - 40, dx + dw + 80, top + 60); g.lineTo(dx + dw + 50, top + 78); g.lineTo(dx - 50, top + 78); g.fill();
+        g.fillRect(dx, top + 78, dw, 150);
+        for (let i = 0; i < 8; i++) { g.fillStyle = `rgba(236,196,130,${0.16 + r() * 0.12})`; g.fillRect(dx + 24 + i * 100, top + 96, 80, 110); g.fillStyle = 'rgba(36,24,15,0.8)'; g.fillRect(dx + 62 + i * 100, top + 96, 3, 110); g.fillRect(dx + 24 + i * 100, top + 150, 80, 2); }
+        g.fillStyle = '#1c130c'; g.fillRect(dx - 30, top + 226, dw + 60, 16);
+        // the wooden fence along the back of the yard
+        g.fillStyle = '#2e2015';
+        g.fillRect(0, 520, LW, 10); g.fillRect(0, 560, LW, 8);
+        for (let x = 0; x < LW; x += 34) g.fillRect(x, 500 + r() * 6, 12, 120);
+        // a pine at the left
+        const px = 150; g.fillStyle = '#20160e'; g.fillRect(px - 9, 260, 18, 300);
+        for (let k = 0; k < 5; k++) { const yy = 230 + k * 55, ww = 70 + k * 26; g.beginPath(); g.ellipse(px + (k % 2 ? 30 : -20), yy, ww, 26, 0, 0, TAU); g.fill(); }
+      });
+      this.leaves = []; for (let i = 0; i < 26; i++) this.leaves.push({ x: r() * W, y: r() * H, s: 18 + r() * 26, ph: r() * 6, sz: 2 + r() * 2.5 });
+    },
+    back(ctx, cx, t) {
+      ctx.drawImage(this.sky, 0, 0);
+      // the low dusk sun the boys trained under
+      const sx = 860 - cx * 0.04, sy = 330, sg = ctx.createRadialGradient(sx, sy, 0, sx, sy, 260);
+      sg.addColorStop(0, 'rgba(255,214,150,0.55)'); sg.addColorStop(1, 'rgba(255,214,150,0)');
+      ctx.fillStyle = sg; ctx.fillRect(sx - 260, sy - 260, 520, 520);
+      ctx.fillStyle = 'rgba(255,224,170,0.85)'; ctx.beginPath(); ctx.arc(sx, sy, 54, 0, TAU); ctx.fill();
+      drawTiled(ctx, this.far, -260 - cx * 0.15);
+      drawTiled(ctx, this.mid, -260 - cx * 0.4);
+      // striking post (makiwara) and a rack of bokken, nearer the fighters
+      const po = -cx * 0.75;
+      ctx.fillStyle = '#1a110a';
+      const mx = 140 + po; ctx.fillRect(mx - 7, 470, 14, GROUND - 470); ctx.fillStyle = '#5a3c22'; ctx.fillRect(mx - 9, 480, 18, 30);
+      ctx.fillStyle = '#1a110a';
+      const rx = 1120 + po; ctx.fillRect(rx, 500, 8, GROUND - 500); ctx.fillRect(rx + 120, 500, 8, GROUND - 500); ctx.fillRect(rx - 6, 520, 140, 7); ctx.fillRect(rx - 6, 580, 140, 7);
+      ctx.strokeStyle = '#7a5532'; ctx.lineWidth = 4; ctx.lineCap = 'round';
+      for (let i = 0; i < 4; i++) { ctx.beginPath(); ctx.moveTo(rx + 18 + i * 28, 600); ctx.lineTo(rx + 26 + i * 28, 486); ctx.stroke(); }
+      const haze = ctx.createLinearGradient(0, 430, 0, GROUND + 40); haze.addColorStop(0, 'rgba(160,106,60,0)'); haze.addColorStop(1, 'rgba(160,106,60,0.35)');
+      ctx.fillStyle = haze; ctx.fillRect(0, 430, W, GROUND - 390);
+    },
+    floor(ctx) {
+      const gr = ctx.createLinearGradient(0, GROUND, 0, H); gr.addColorStop(0, '#4a3220'); gr.addColorStop(1, '#22170e');
+      ctx.fillStyle = gr; ctx.fillRect(0, GROUND, W, H - GROUND);
+      ctx.fillStyle = 'rgba(236,206,160,0.35)'; ctx.fillRect(0, GROUND, W, 1);
+    },
+    front(ctx, cx, t) {
+      // a few leaves drifting across the yard
+      for (const l of this.leaves) {
+        const x = (l.x + t * l.s - cx * 0.8 + W * 40) % W, y = (l.y + t * l.s * 0.5 + Math.sin(t + l.ph) * 20 + H * 20) % H;
+        ctx.fillStyle = `rgba(190,120,60,${0.35 + 0.2 * Math.sin(t * 2 + l.ph)})`; ctx.beginPath(); ctx.ellipse(x, y, l.sz * 1.6, l.sz, t + l.ph, 0, TAU); ctx.fill();
+      }
+    }
+  },
   // Hoshimura, the abandoned village (the Prologue): the highlands' red moon over a burnt-out village. Charred
   // rooftops and broken beams in two parallax rows, a cold ash haze, grey ash falling and a few embers.
   hoshimura: {
@@ -361,6 +428,30 @@ const Renderer = {
     ctx.restore();
     env.front(ctx, 0, t);
     ctx.drawImage(this.vignette, 0, 0);
+    if (opts.memory) this.drawMemoryFilter(ctx, t);
+  },
+  /* ---- the memory filter (the Interlude spar, FightSession.memory): the scene drawn as a flashback while staying flat
+     2D. Colour drained toward a warm sepia, a soft warm vignette, and a few violet memory flecks drifting up. ---- */
+  memVignette: null,
+  drawMemoryFilter(ctx, t) {
+    if (!this.memVignette) this.memVignette = makeLayer(W, H, (g) => {
+      const v = g.createRadialGradient(W / 2, H * 0.48, H * 0.3, W / 2, H / 2, H * 0.92);
+      v.addColorStop(0, 'rgba(60,36,18,0)'); v.addColorStop(0.7, 'rgba(60,36,18,0.22)'); v.addColorStop(1, 'rgba(34,20,10,0.72)');
+      g.fillStyle = v; g.fillRect(0, 0, W, H);
+    });
+    ctx.save();
+    ctx.globalCompositeOperation = 'saturation'; ctx.fillStyle = 'rgba(128,128,128,0.6)'; ctx.fillRect(0, 0, W, H);
+    ctx.globalCompositeOperation = 'color'; ctx.fillStyle = 'rgba(178,134,84,0.32)'; ctx.fillRect(0, 0, W, H);
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.drawImage(this.memVignette, 0, 0);
+    // violet memory flecks: a handful at a time, each fading in and out as it drifts up
+    for (let i = 0; i < 16; i++) {
+      const life = 5 + (i * 1.37) % 3, u = ((t + i * 0.83) % life) / life;
+      const x = (i * 263.7 + Math.sin(t * 0.4 + i) * 30) % W, y = H - u * (H + 60) + ((i * 97) % 120);
+      const a = Math.sin(u * Math.PI) * (0.35 + 0.25 * Math.sin(t * 3 + i)), sz = 1.5 + (i % 3);
+      ctx.fillStyle = `rgba(185,160,255,${Math.max(0, a)})`; ctx.beginPath(); ctx.ellipse(x, y, sz * 1.6, sz, t + i, 0, TAU); ctx.fill();
+    }
+    ctx.restore();
   },
 
   /* ---- live fight ---- */
@@ -417,6 +508,7 @@ const Renderer = {
       if (set.reduceFlash && imp.t < imp.dur) { ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.fillRect(0, 0, W, H); this.focusLines(ctx, sp.x, sp.y, C.bone, 0.18, 30); }
       else this.focusLines(ctx, sp.x, sp.y, C.bone, 0.22 * (1 - k), 30);
     }
+    if (s.memory) this.drawMemoryFilter(ctx, realT);
     if (s.fightFlash > 0) { ctx.fillStyle = `rgba(210,74,60,${s.fightFlash * 0.25})`; ctx.fillRect(0, 0, W, H); }
     // cinematic letterbox
     if (s.letterbox > 0.01) { const h = 70 * s.letterbox; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, h); ctx.fillRect(0, H - h, W, h); }

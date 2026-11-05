@@ -13,10 +13,10 @@ const INK_GLYPH = {
   SMASH: '砕', BREAK: '破', SLASH: '斬', CRACK: '撃', WHAM: '打', PARRY: '弾', COUNTER: '返', 'GUARD BREAK': '崩', CLANG: '剣',
   SWEEP: '払', YANK: '引', REAP: '刈', THROW: '投', PIERCE: '貫', SPLIT: '裂', MOONFALL: '月', SHATTER: '砕', SLAM: '震', BASH: '盾',
   CRUSH: '圧', CHARGE: '突', STAGGERED: '隙', ADAPTED: '読', COUNTERED: '返', 'SHIELD BREAK': '崩', WALL: '壁', FIGHT: '闘', TIME: '時',
-  FINISH: '終', FALLEN: '敗', 'K.O.': '斬', PERFECT: '極', CRITICAL: '烈', EVADE: '避', COMBO: '連', 'RAGE READY': '怒'
+  FINISH: '終', FALLEN: '敗', 'K.O.': '斬', PERFECT: '極', CRITICAL: '烈', EVADE: '避', COMBO: '連', 'RAGE READY': '怒', ENOUGH: '止'
 };
 const BANNER_GLYPH = {
-  'Round I': '壱', 'Round II': '弐', 'Round III': '参', 'Final Duel': '決', 'Phase II': '弐', 'Phase III': '参',
+  'Round I': '壱', 'Round II': '弐', 'Round III': '参', 'Final Duel': '決', 'Sparring Match': '稽', 'Phase II': '弐', 'Phase III': '参',
   Raikon: '雷', Akari: '霧', Takashi: '父', Rem: '弟', 'The Witness': '鏡', 'Hollow Raikon': '雷', 'Hollow Akari': '霧', 'Hollow Takashi': '父', 'Hollow Rem': '弟',
   'Shadow Palm': '影', 'Thousand Cuts': '千', 'Crescent Moon': '月', 'Mountain Split': '山', 'Dragon Lance': '龍', "Reaper's Harvest": '刈',
   Earthshatter: '震', 'Hollow Illusions': '幻', 'Stilled Time': '時', 'Ashen Wrath': '怒'
@@ -792,6 +792,8 @@ const Combat = {
     this.checkKO(world, att, def, m);
   },
   checkKO(world, att, def, m) {
+    // the spar (Logic.fightFormat 'spar', preventKO): no blow ever knocks a brother out; Takashi interrupts first
+    if (def.hp <= 0 && world.format && world.format.preventKO && (def === world.player || def === world.enemy)) def.hp = Logic.sparHealth(world.format, def.hp);
     if (def.hp > 0 || !def.alive) return;
     def.hp = 0; def.alive = false; def.move = null; def.abil = null; def.visible = true; def.alpha = 1;
     def.setState('juggle'); def.grounded = false; def.vy = -560; def.vx = att.facing * 560; def.bodyRotVel = -240;

@@ -1607,7 +1607,12 @@ const WEAPONS = {
   // copy is raiko_no_tachi, granted when Raikon falls)
   raikon_tachi: { heft: 1.9, el: 'redline', enemy: 1, name: 'Raikō no Tachi', base: 'onikiri', len: 128, stats: [64, 40, 60], trail: '#ff4a3c' },
   temple_staff: { heft: 1.1, el: 'shade', enemy: 1, name: 'Temple Staff', base: 'mizuchi', len: 180, trail: '#ece5d3', staff: 1, stance: 'staff' },
-  raider_cleaver: { heft: 1.4, el: 'shade', enemy: 1, name: 'Raider Cleaver', base: 'onikiri', len: 86, trail: '#d24a3c' }
+  raider_cleaver: { heft: 1.4, el: 'shade', enemy: 1, name: 'Raider Cleaver', base: 'onikiri', len: 86, trail: '#d24a3c' },
+  // the Interlude's wooden practice sword (bokken): both young brothers spar with it (see SPAR and FAMILY_FORM). Katana
+  // forms, but its string is the family form's rising cut into the horizontal flow (k2 -> k3) and its air cut is ka;
+  // damage stat 30 against Kagetsu's 60, so a wooden blow lands at half strength. Never sold or owned (`enemy`).
+  bokken: { heft: 0.8, el: 'wind', enemy: 1, name: 'Bokken', base: 'kagetsu', len: 80, stats: [30, 64, 58], trail: '#c9a878',
+    moves: ['k2', 'k3'], air: 'ka', special: 'shadowPalm', counter: 'kc' }
 };
 // resolve enemy weapons onto their base move-sets
 for (const id in WEAPONS) {
@@ -1830,6 +1835,15 @@ const ENEMIES = {
               { name: 'Redline', at: 0.66, abilities: ['thunderSwing', 'stormBreak', 'redlineCounter'] },
               { name: 'Lightning Ascendant', at: 0.33, abilities: ['thunderSwing', 'stormBreak', 'redlineCounter'], secondWave: 0.7, aggressive: 1 }
             ] },
+  // ---- the Interlude ----
+  // Young Rem (interlude.spar): a memory, gifted, impulsive and competitive. A smaller build in plain training clothes
+  // with a purple sash and headband, a bokken, and the family form (FAMILY_FORM) at his own fast, fluid tempo (`form`).
+  // `sash` colours his obi and its tails. He is never beaten: Takashi calls the spar first (Logic.fightFormat 'spar').
+  young_rem: { name: 'Rem', title: 'Young Rem', type: 'sub', ai: 'agile', weapon: 'bokken', helmet: 'headband', armor: 'training', outfit: 'gi',
+            hp: 300, dmg: 0.9, speed: 1.12, build: { scale: 0.84, w: 8.6, legs: 0.92, head: 1.12 }, eye: '#e6dcff', accent: '#a970ff', sash: '#9b5cf0',
+            form: 'rem',
+            taunt: 'Ready, big brother? Try to keep up this time.', defeatLine: 'Hey! That one doesn’t count!', win: 'Again! Again!',
+            tip: 'Rem runs the family form faster than you. Block the rising cut, then punish his landing.' },
   // ---- placeholder sub-boss and boss rigs ----
   echo_sentinel: { name: 'Echo Sentinel', title: 'Placeholder sub-boss', type: 'sub', ai: 'agile', weapon: 'hollow_crescents', helmet: 'oni', armor: 'cloak', hp: 340, dmg: 1.05, speed: 1.15, build: { scale: 1.04, w: 10 }, eye: '#9b8cff', accent: '#9b8cff',
             taunt: 'This memory is guarded. Prove you belong in it.', defeatLine: 'The memory… lets you pass…', win: 'Forget this place.',
@@ -1844,6 +1858,46 @@ const ENEMIES = {
             ] }
 };
 for (const id in ENEMIES) ENEMIES[id].id = id;
+
+/* ---------------- The family form ----------------
+   Takashi's sword grammar, shared by Kage, Rem and Takashi (the spec's "shared attack language"): a grounded opening
+   stance, a short dash, a rising cut, an aerial follow-up, a controlled landing, then a finishing horizontal flow.
+   `pattern` is the form once, in order; `act` says how a step is performed:
+     stance  stand in guard for the style's `hold` seconds        dash   a short forward dash
+     move    a grounded weapon move (`move` = a MOVES id)          air    jump (a double jump for later aerials) and the air cut
+     land    wait for the controlled landing
+   `styles` say how each fighter runs it: `gap` seconds between steps, `hold` for the opening stance, `aerials` (how many
+   aerial follow-ups), `flow` (the finishing moves, in order) and `tempo` (a multiplier on each cut's start-up and recovery).
+   Logic.familyForm(style) expands a style into its step list; the AI (AIController.startForm, 40-ai.js) performs it. The
+   player's bokken string (k2 -> k3, air ka) is the same grammar under the player's own hands. Later fights reuse it:
+   Hollow Rem (SAN-43) runs 'rem'; Takashi (SAN-40) adds his own heavier style here. */
+const FAMILY_FORM = {
+  name: 'Tachibana form',
+  pattern: [
+    { step: 'stance', act: 'stance' },
+    { step: 'dash', act: 'dash' },
+    { step: 'rise', act: 'move', move: 'k2' },
+    { step: 'aerial', act: 'air', move: 'ka' },
+    { step: 'landing', act: 'land' },
+    { step: 'flow', act: 'move', move: 'k3' }
+  ],
+  styles: {
+    // Kage: tight and defensive, one aerial, one clean finishing cut, a measured pause between steps
+    kage: { gap: 0.2, hold: 0.45, aerials: 1, flow: ['k3'], tempo: 1 },
+    // Rem: fast and fluid, barely a pause, a second aerial off the double jump, and a longer finishing flow
+    rem:  { gap: 0.04, hold: 0.12, aerials: 2, flow: ['k1', 'k3'], tempo: 0.72 }
+  }
+};
+
+/* ---------------- The spar (Interlude) ----------------
+   interlude.spar is fought in the spar format (Logic.fightFormat): one round on a `timer`, and no KO. When either
+   brother's health drops to `interruptAt` (a fraction) or the clock runs out, Takashi calls them in and the stage
+   completes with no winner (outcome 'interrupted'). `kage` is young Kage: fixed stats and look, none of the player's
+   gear (Logic.youngKage). The arena is Takashi's training yard (env 'yard') under a memory filter. */
+const SPAR = {
+  timer: 45, interruptAt: 0.3,
+  kage: { hp: 260, weapon: 'bokken', helmet: 'headband', armor: 'training', build: { scale: 0.86, w: 8.8, legs: 0.9, head: 1.12 } }
+};
 
 /* ---------------- Campaign map ----------------
    Chapters in story order, each with its stages in play order. Stage ids are stable strings
@@ -1945,7 +1999,8 @@ const CAMPAIGN = (function buildCampaign() {
         } }] },
     act('act1', 'Act I', 'The Outer Districts', 'Order territory', 'rooftops', 1, SQUADS.act1, 'Raikon', 'the Lightning Ascendant'),
     { id: 'interlude', name: 'Interlude', title: 'Brothers', place: 'A memory of the training yard', env: 'highlands', diff: 1,
-      stages: [{ id: 'interlude.spar', kind: 'spar', name: 'The Spar', foe: 'Rem', foeTitle: 'Young Rem', enemy: 'echo_sentinel' }] },
+      stages: [{ id: 'interlude.spar', kind: 'spar', name: 'The Spar', foe: 'Rem', foeTitle: 'Young Rem', enemy: 'young_rem', env: 'yard',
+        scenes: { before: 'interlude.spar.before', after: 'interlude.spar.after' } }] },
     act('act2', 'Act II', 'The City of Echoes', 'Where the Hollows gather', 'rooftops', 2, SQUADS.act2, 'Akari', 'the Memory Blade'),
     act('act3', 'Act III', 'The Fortress of Silence', 'Seat of the Order', 'wasteland', 3, SQUADS.act3, 'Takashi', 'the Father'),
     { id: 'core', name: 'The Core', title: 'The Echo System', place: 'Corrupted memory', env: 'wasteland', diff: 3,
@@ -2117,6 +2172,33 @@ const SCENES = {
       { illus: null },
       { say: 'raikon', text: 'Losing to you... it broke the binding. For the first time since they woke me, nobody is holding the chain.' },
       { say: 'raikon', text: 'It feels like rain. Go, shadow. Find him.' }
+    ]
+  },
+  // ---- Interlude: Brothers (stage interlude.spar, Takashi's training yard, a memory) ----
+  // The question "who won?" is never answered here; the Epilogue pays it off ("So... who won?" / "I did." /
+  // "Keep dreaming."), so these scenes must not say those lines.
+  'interlude.spar.before': { memory: true,
+    steps: [
+      { say: 'narrator', text: 'Hoshimura. Takashi’s yard, years before the fire. The light is warmer than Kage remembers it being.' },
+      { say: 'rem', name: 'Young Rem', text: 'Yesterday doesn’t count. You slipped on the wet boards.' },
+      { say: 'kage', name: 'Young Kage', text: 'You slipped. I just happened to be standing where you fell.' },
+      { say: 'rem', name: 'Young Rem', text: 'Then I’ll fall on you again. Faster this time. Father, watch!' },
+      { say: 'takashi', text: 'I am watching. Bokken only. Stance first, then the form, the way I taught you. Both of you.' },
+      { say: 'rem', name: 'Young Rem', text: 'Stance, dash, rise, spin, land, flow. I could do it asleep.' },
+      { say: 'kage', name: 'Young Kage', text: 'You do do it asleep. That’s why you leave your left side open.' },
+      { say: 'takashi', text: 'Enough talking. Begin.' }
+    ]
+  },
+  'interlude.spar.after': { memory: true,
+    steps: [
+      { say: 'takashi', text: 'Rice is getting cold. Swords on the rack. Now.' },
+      { say: 'rem', name: 'Young Rem', text: 'But we’re not finished! One more touch and I had him!' },
+      { say: 'kage', name: 'Young Kage', text: 'One more touch and you’d be face-down in the dirt.' },
+      { say: 'rem', name: 'Young Rem', text: 'Father, tell him. You saw it.' },
+      { say: 'takashi', text: 'I saw two boys who still drop their guard when they get angry. Inside.' },
+      { say: 'rem', name: 'Young Rem', text: 'This isn’t over. We settle it tomorrow.' },
+      { say: 'kage', name: 'Young Kage', text: 'Tomorrow, then.' },
+      { say: 'narrator', text: 'They never did settle it. Somewhere in the ash, the question is still waiting.' }
     ]
   },
   // Stub; SAN-44 writes the real Epilogue.
@@ -2343,7 +2425,8 @@ const Logic = {
     if (!st || !this.isStageUnlocked(save, id)) return null;
     const firstClear = !this.isStageComplete(save, id), unlocks = [];
     save.cleared[id] = true;
-    save.defeated[id] = (save.defeated[id] || 0) + 1;
+    // the spar has no winner (Takashi interrupts it), so young Rem is never recorded as beaten
+    if (st.kind !== 'spar') save.defeated[id] = (save.defeated[id] || 0) + 1;
     const next = this.nextStage(save);
     if (firstClear) {
       const ch = this.chapter(st.chapter), i = CAMPAIGN.chapters.indexOf(ch), nextCh = CAMPAIGN.chapters[i + 1];
@@ -2396,7 +2479,9 @@ const Logic = {
                  three phases, no round clock and so no time-out loss; `defeat` says how the boss leaves;
        duel      every other arena fight: best of three rounds against a 75 s clock;
        survival  one round per wave against a 90 s clock;
-       stretch   a side-scrolling level: no rounds, no clock.
+       stretch   a side-scrolling level: no rounds, no clock;
+       spar      the Interlude (kind 'spar'): one round on a clock and no KO (`preventKO`). Takashi interrupts when
+                 either brother's health falls to `interruptAt` or the clock runs out (sparOutcome); nobody wins.
      A boss's phases and defeat outcome are data on its ENEMIES entry (see 10-data.js). */
   BOSS_DEFEATS: ['finisher', 'escape', 'reabsorb'],
   fightFormat(cfg) {
@@ -2404,9 +2489,37 @@ const Logic = {
     if (cfg.mode === 'survival') return { name: 'survival', roundsToWin: 1, timer: 90, phases: 0, defeat: null };
     if (cfg.stretch) return { name: 'stretch', roundsToWin: 1, timer: 0, phases: 0, defeat: null };
     const st = this.stage(cfg.stageId), d = ENEMIES[cfg.enemyId];
+    if (st && st.kind === 'spar') return { name: 'spar', roundsToWin: 1, timer: SPAR.timer, phases: 0, defeat: null, interruptAt: SPAR.interruptAt, preventKO: true };
     if (st && (st.kind === 'boss' || st.format === 'boss'))
       return { name: 'boss', roundsToWin: 1, timer: 0, phases: Math.max(3, this.bossPhases(cfg.enemyId).length), defeat: this.bossDefeat(cfg.enemyId) || 'finisher' };
     return { name: 'duel', roundsToWin: d && d.type === 'boss' ? 1 : 2, timer: 75, phases: 0, defeat: null };
+  },
+  /* ---------------- the spar (Interlude) ---------------- */
+  // 'interrupted' once Takashi calls the boys in: either brother's health fraction at or below the format's
+  // `interruptAt`, or the fight time at the clock; null while the spar goes on. hp values are fractions of max health.
+  sparOutcome(format, st) {
+    if (!format || format.name !== 'spar') return null;
+    if (st.playerHp <= format.interruptAt || st.foeHp <= format.interruptAt || st.time >= format.timer) return 'interrupted';
+    return null;
+  },
+  // A fighter's health after a blow: in a spar (`preventKO`) it never drops below 1, so nobody is ever knocked out and
+  // the interruption always comes first; in any other format the blow lands as it is.
+  sparHealth(format, hp) { return format && format.preventKO ? Math.max(1, hp) : hp; },
+  // Young Kage in the spar: fixed health and look and a bokken, none of the player's gear, level or perks (SPAR.kage).
+  youngKage() { const k = SPAR.kage; return { hp: k.hp, defense: 0, dmgMul: 1, weapon: k.weapon, helmet: k.helmet, armor: k.armor, build: Object.assign({}, k.build) }; },
+  // The family form (FAMILY_FORM in 10-data.js) expanded for one style ('kage', 'rem'; unknown styles run Kage's):
+  // { name, style, tempo, steps: [{ step, act, move?, wait }] }. `wait` is the pause before the step; aerial steps
+  // repeat for the style's `aerials` and the flow step runs once per finishing move.
+  familyForm(style) {
+    const id = FAMILY_FORM.styles[style] ? style : 'kage', sty = FAMILY_FORM.styles[id], steps = [];
+    for (const p of FAMILY_FORM.pattern) {
+      const one = (move, wait) => steps.push(Object.assign({ step: p.step, act: p.act, wait }, move ? { move } : {}));
+      if (p.step === 'stance') one(null, sty.hold);
+      else if (p.step === 'aerial') for (let i = 0; i < sty.aerials; i++) one(p.move, sty.gap);
+      else if (p.step === 'flow') sty.flow.forEach(m => one(m, sty.gap));
+      else one(p.move, sty.gap);
+    }
+    return { name: FAMILY_FORM.name, style: id, tempo: sty.tempo, steps };
   },
   // A boss's phases with the health fraction each one opens at (`at`; 1, 0.66 and 0.33 unless the data says
   // otherwise). [] for a foe without phases.
@@ -2674,6 +2787,9 @@ const Logic = {
     if (r.mode === 'campaign') {
       const id = r.stageId, type = this.stageRewardType(id), diff = this.chapterOf(id).diff;
       const base = this.stageBaseCoins(id);
+      // the spar cannot be lost and has no winner: whatever the health bars said, Takashi interrupted it
+      const spar = this.stage(id).kind === 'spar';
+      if (spar) { r = Object.assign({}, r, { win: true }); out.win = true; out.outcome = 'interrupted'; out.winner = null; }
       out.rating = this.rateFight(r);
       out.seals = [r.win, r.win && r.time < 60, r.win && r.flawless];
       if (r.win) {
@@ -2682,7 +2798,7 @@ const Logic = {
         out.coins = Math.round(base * ngMul * ({ S: 1.5, A: 1.25, B: 1.1, C: 1 }[out.rating]) * (out.firstClear ? 1 : 0.5) / 5) * 5;
         out.gems = (out.firstClear ? this.firstClearGems(type) : (type === 'boss' ? 1 : 0)) + (r.flawless ? 1 : 0);
         out.xp = Math.round((type === 'boss' ? 300 : type === 'sub' ? 150 : 80) * diff * ngMul);
-        save.stats.wins++; if (r.flawless) save.stats.perfects++;
+        if (!spar) { save.stats.wins++; if (r.flawless) save.stats.perfects++; }
         if (type === 'boss') save.stats.bosses++;
         out.unlocks.push(...done.unlocks);
         out.next = done.next;
@@ -2722,7 +2838,7 @@ const SHAPE = {
   yamigama: 'sickle', iwakudaki: 'hammer', shinsen: 'katana', raiko_no_tachi: 'odachi', raikon_tachi: 'odachi', kagehira_yurei: 'short', mugen_no_ha: 'katana',
   shadow_daggers: 'short', hollow_crescents: 'crescent', mist_fans: 'fan',
   sentinel_spear: 'spear', sage_staff: 'staff', storm_orbs: 'none', iron_fists: 'none', chain_hook: 'hook',
-  tyrant_cleaver: 'tyrant', cutter_blade: 'katana', temple_staff: 'staff', raider_cleaver: 'cleaver'
+  tyrant_cleaver: 'tyrant', cutter_blade: 'katana', temple_staff: 'staff', raider_cleaver: 'cleaver', bokken: 'bokken'
 };
 const IK_OFF = { katana: -0.2, spear: -0.3, hammer: 0.3, staff: -0.32 };
 const CARRY = { katana: 40, short: 30, cleaver: 60, odachi: 56, spear: 10, sickle: 70, hammer: 100, staff: 0, crescent: 40, fan: 40, hook: 70, tyrant: 60, none: 0 };
@@ -2876,7 +2992,8 @@ class Fighter {
     this.outfit = o.outfit || (o.isPlayer ? 'gi' : (this.def && this.def.outfit) || (this.armor === 'robe' ? 'robe' : 'plain'));
     this.cloths = [];
     if (this.outfit === 'gi') {
-      const fam = this.family, bc = o.isPlayer ? C.emberBright : fam ? fam.trim : '#2a2620', bc2 = o.isPlayer ? '#b8362b' : fam ? '#9298a0' : '#2a2620';
+      const fam = this.family, sash = this.def && this.def.sash;   // `sash` on an ENEMIES entry colours the obi (young Rem's purple)
+      const bc = o.isPlayer ? C.emberBright : sash || (fam ? fam.trim : '#2a2620'), bc2 = o.isPlayer ? '#b8362b' : sash ? sash : fam ? '#9298a0' : '#2a2620';
       this.cloths.push({ kind: 'belt', c: new Cloth(6, 5.6 * this.scale, { ph: 7, wind: 200, grav: 1250, stiff: 1.7 }), at: 'hip', color: bc, w: 4 * this.scale, w1: 2.4 * this.scale, dy: -11, dx: -3 });
       this.cloths.push({ kind: 'belt', c: new Cloth(5, 5.4 * this.scale, { ph: 8, wind: 170, grav: 1300, stiff: 1.7 }), at: 'hip', color: bc2, w: 3.2 * this.scale, w1: 2 * this.scale, dy: -10, dx: -1 });
     }
@@ -2889,6 +3006,12 @@ class Fighter {
       // two thin hachimaki tails of different length, out of phase so they never move as one strip
       this.cloths.push({ kind: 'scarf', c: new Cloth(10, 7.6 * this.scale, { ph: 9, wind: 860, grav: 680, stiff: 1.75 }), at: 'head', color: C.emberBright, w: 3.4 * this.scale, w1: 1.3 * this.scale, dy: -8, dx: 16 });
       this.cloths.push({ kind: 'scarf', c: new Cloth(8, 7 * this.scale, { ph: 12.5, wind: 740, grav: 760, stiff: 1.75 }), at: 'head', color: '#b8362b', w: 2.8 * this.scale, w1: 1.1 * this.scale, dy: -6, dx: 16 });
+    }
+    if (this.helmet === 'headband') {
+      // two short tails of the training band, knotted at the back of the head
+      const hc = headbandColor(this);
+      this.cloths.push({ kind: 'scarf', c: new Cloth(6, 5.6 * this.scale, { ph: 9, wind: 820, grav: 700, stiff: 1.8 }), at: 'head', color: hc, w: 2.8 * this.scale, w1: 1.1 * this.scale, dy: -5, dx: 16 });
+      this.cloths.push({ kind: 'scarf', c: new Cloth(5, 5 * this.scale, { ph: 12.5, wind: 700, grav: 780, stiff: 1.8 }), at: 'head', color: hc, w: 2.3 * this.scale, w1: 1 * this.scale, dy: -3, dx: 16 });
     }
     if (o.scarf && this.helmet !== 'topknot') {
       // under another helmet the face-wrap still trails a short white strip from the neck (the sash stays the one red accent)
@@ -3934,7 +4057,7 @@ Fighter.prototype.drawSash = function (ctx, T) {
   const k = 0.16, x = lerp(sk.hip.x, sk.neck.x, k), y = lerp(sk.hip.y, sk.neck.y, k);
   const dx = sk.neck.x - sk.hip.x, dy = sk.neck.y - sk.hip.y, D = Math.hypot(dx, dy) || 1, ux = dx / D, uy = dy / D;
   let nx = -uy, ny = ux; if (nx * f < 0) { nx = -nx; ny = -ny; }
-  const w = T * 0.98, col = this.isPlayer ? C.emberBright : this.family ? this.family.trim : '#3a342b';
+  const w = T * 0.98, col = this.isPlayer ? C.emberBright : this.def && this.def.sash ? this.def.sash : this.family ? this.family.trim : '#3a342b';
   ctx.strokeStyle = col; ctx.lineWidth = (this.isPlayer ? 7 : this.family ? 5 : 4) * s; ctx.lineCap = 'butt';
   ctx.beginPath(); ctx.moveTo(x - nx * w, y - ny * w); ctx.lineTo(x + nx * w, y + ny * w); ctx.stroke();
   if (this.isPlayer) { ctx.fillStyle = '#b8362b'; ctx.beginPath(); ctx.ellipse(x + nx * w * 0.8, y + ny * w * 0.8 + 1.5 * s, 3 * s, 3.6 * s, 0, 0, TAU); ctx.fill(); }
@@ -4172,6 +4295,21 @@ function drawWeaponShape(ctx, sh, L, mode, s, ink, f) {
       }
       break;
     }
+    case 'bokken': {
+      // the Interlude's wooden practice sword: one piece of pale oak with a gentle curve, a darker worn grip and a
+      // small round guard, no steel and no edge line
+      const hl = 0.3, wood = art ? '#c9a878' : mode === 'flat' ? ink : '#b8915e', grip = art ? '#5a3c22' : mode === 'flat' ? ink : '#6e4a2a';
+      line(-L * hl, 0, -1.5 * s, 0, 2.2 * s * 2, grip);
+      ctx.fillStyle = grip; ctx.beginPath(); ctx.ellipse(-0.6 * s, 0, 1.6 * s, 4.2 * s, 0, 0, TAU); ctx.fill();
+      if (rim) break;
+      const N = 8, sori = L * 0.035, w0 = 2.1 * s, w1 = 1.5 * s;
+      ctx.beginPath(); ctx.moveTo(1.2 * s, -w0);
+      for (let i = 1; i <= N; i++) { const u = i / N; ctx.lineTo(1.2 * s + (L - 1.2 * s) * u, -sori * u * u - lerp(w0, w1, u)); }
+      ctx.quadraticCurveTo(L + w1 * 1.2, -sori, L, -sori + w1);
+      for (let i = N; i >= 0; i--) { const u = i / N; ctx.lineTo(1.2 * s + (L - 1.2 * s) * u, -sori * u * u + lerp(w0, w1, u)); }
+      ctx.closePath(); ctx.fillStyle = wood; ctx.fill();
+      break;
+    }
     case 'short': {
       if (rim) { line(-L * 0.32, 0, 0, 0, 6 * s, dark); break; }
       const hl = 0.32;
@@ -4337,6 +4475,15 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
       ctx.restore();
       ctx.fillStyle = flat ? ink : '#b8362b'; ctx.beginPath(); ctx.ellipse(-r * 1.0, -r * 0.39, r * 0.15, r * 0.12, 0.4, 0, TAU); ctx.fill();
       break;
+    case 'headband': { // the Interlude's young brothers: a plain cloth training band (Kage pale, Rem in his purple accent)
+      drawHeroHair(ctx, r, ink);
+      ctx.save(); ctx.beginPath(); ctx.arc(0, 0, r * 1.04, 0, TAU); ctx.clip();
+      ctx.fillStyle = flat ? ink : headbandColor(f);
+      ctx.beginPath(); ctx.moveTo(-r * 1.1, -r * 0.42); ctx.lineTo(r * 1.1, -r * 0.34); ctx.lineTo(r * 1.1, -r * 0.12); ctx.lineTo(-r * 1.1, -r * 0.2); ctx.closePath(); ctx.fill();
+      ctx.restore();
+      ctx.fillStyle = flat ? ink : headbandColor(f); ctx.beginPath(); ctx.ellipse(-r * 1.0, -r * 0.3, r * 0.15, r * 0.12, 0.4, 0, TAU); ctx.fill();
+      break;
+    }
     case 'ronin_hood': case 'reaper_cowl':
       ctx.beginPath(); ctx.arc(0, -r * 0.05, r * 1.18, Math.PI * 0.55, Math.PI * 2.15); ctx.lineTo(-r * (key === 'reaper_cowl' ? 2.3 : 1.7), r * 0.8); ctx.closePath(); ctx.fill();
       if (key === 'reaper_cowl') { ctx.beginPath(); ctx.moveTo(-r * 1.2, r * 0.3); ctx.lineTo(-r * 2.0, r * 1.3); ctx.lineTo(-r * 1.6, r * 0.4); ctx.fill(); }
@@ -4479,6 +4626,7 @@ function drawArmor(ctx, f, ink, opt, Ut) {
   };
   ctx.fillStyle = ink;
   switch (f.armor) {
+    case 'training': break;   // the Interlude's plain training clothes: just the gi and its obi
     case 'tachibana': {
       // Kage's starting Tachibana Yoroi: a compact shoulder guard (the forearm guards are the hero wraps)
       // and the small family crest, half-hidden behind the front arm
@@ -4584,6 +4732,14 @@ function makeFighterFromEnemy(id, extra) {
   const d = ENEMIES[id];
   return new Fighter(Object.assign({ def: d, name: d.name, title: d.title, weapon: d.weapon, helmet: d.helmet, armor: d.armor, build: d.build, eye: d.eye, accent: d.accent, hp: d.hp, facing: -1 }, extra || {}));
 }
+// the training headband's colour: pale cloth for young Kage, the accent (Rem's purple) for anyone else
+function headbandColor(f) { return f && !f.isPlayer ? (f.accent || '#9a6bff') : '#d9cfb8'; }
+// Young Kage for the Interlude spar: a smaller build in plain training clothes with a pale headband and a bokken. None
+// of the player's gear applies (Logic.youngKage); no face-wrap yet, that comes later in his life.
+function makeYoungKage(extra) {
+  const k = Logic.youngKage();
+  return new Fighter(Object.assign({ name: 'Kage', title: 'Young Kage', isPlayer: true, scarf: false, weapon: k.weapon, wlvl: 1, helmet: k.helmet, armor: k.armor, build: k.build, hp: k.hp, ammo: 0, facing: 1 }, extra || {}));
+}
 function makePlayerFighter(save, extra) {
   return new Fighter(Object.assign({ name: 'Kage', isPlayer: true, scarf: true, weapon: save.equipped.weapon, wlvl: save.owned.weapons[save.equipped.weapon] || 1, helmet: save.equipped.helmet, armor: save.equipped.armor, build: { scale: 1, w: 9.6, legs: 0.9, head: 1.05 }, facing: 1 }, extra || {}));
 }
@@ -4616,10 +4772,10 @@ const INK_GLYPH = {
   SMASH: '砕', BREAK: '破', SLASH: '斬', CRACK: '撃', WHAM: '打', PARRY: '弾', COUNTER: '返', 'GUARD BREAK': '崩', CLANG: '剣',
   SWEEP: '払', YANK: '引', REAP: '刈', THROW: '投', PIERCE: '貫', SPLIT: '裂', MOONFALL: '月', SHATTER: '砕', SLAM: '震', BASH: '盾',
   CRUSH: '圧', CHARGE: '突', STAGGERED: '隙', ADAPTED: '読', COUNTERED: '返', 'SHIELD BREAK': '崩', WALL: '壁', FIGHT: '闘', TIME: '時',
-  FINISH: '終', FALLEN: '敗', 'K.O.': '斬', PERFECT: '極', CRITICAL: '烈', EVADE: '避', COMBO: '連', 'RAGE READY': '怒'
+  FINISH: '終', FALLEN: '敗', 'K.O.': '斬', PERFECT: '極', CRITICAL: '烈', EVADE: '避', COMBO: '連', 'RAGE READY': '怒', ENOUGH: '止'
 };
 const BANNER_GLYPH = {
-  'Round I': '壱', 'Round II': '弐', 'Round III': '参', 'Final Duel': '決', 'Phase II': '弐', 'Phase III': '参',
+  'Round I': '壱', 'Round II': '弐', 'Round III': '参', 'Final Duel': '決', 'Sparring Match': '稽', 'Phase II': '弐', 'Phase III': '参',
   Raikon: '雷', Akari: '霧', Takashi: '父', Rem: '弟', 'The Witness': '鏡', 'Hollow Raikon': '雷', 'Hollow Akari': '霧', 'Hollow Takashi': '父', 'Hollow Rem': '弟',
   'Shadow Palm': '影', 'Thousand Cuts': '千', 'Crescent Moon': '月', 'Mountain Split': '山', 'Dragon Lance': '龍', "Reaper's Harvest": '刈',
   Earthshatter: '震', 'Hollow Illusions': '幻', 'Stilled Time': '時', 'Ashen Wrath': '怒'
@@ -5395,6 +5551,8 @@ const Combat = {
     this.checkKO(world, att, def, m);
   },
   checkKO(world, att, def, m) {
+    // the spar (Logic.fightFormat 'spar', preventKO): no blow ever knocks a brother out; Takashi interrupts first
+    if (def.hp <= 0 && world.format && world.format.preventKO && (def === world.player || def === world.enemy)) def.hp = Logic.sparHealth(world.format, def.hp);
     if (def.hp > 0 || !def.alive) return;
     def.hp = 0; def.alive = false; def.move = null; def.abil = null; def.visible = true; def.alpha = 1;
     def.setState('juggle'); def.grounded = false; def.vy = -560; def.vx = att.facing * 560; def.bodyRotVel = -240;
@@ -5947,6 +6105,8 @@ class AIController {
     this.dir = 0; this.block = 0; this.kickHold = 0; this.react = 0; this.reactTo = null; this.cds = {};
     this.phase = 0; this.phases = d.phases || null; this.abilities = d.abilities || [];
     this.adapted = null; this.lastSeen = null; this.recentHits = 0;
+    // the family form (FAMILY_FORM, Logic.familyForm): a foe with `form` runs it as a scripted chain (startForm)
+    this.form = d.form ? Logic.familyForm(d.form) : null; this.running = null; this.formCd = 1.2;
     if (d.type === 'boss' || d.type === 'sub') { f.ammo = 6; f.turnDelay = d.ai === 'defensive' || d.ai === 'heavy' ? 0.35 : 0.08; }
     else { f.ammo = this.p.kunai > 0.3 ? 30 : 3; f.turnDelay = d.ai === 'heavy' ? 0.4 : d.ai === 'defensive' ? 0.25 : 0.1; }
     if (this.p.ranged && f.baseWeapon === 'storm_orbs') this.abilities = this.abilities.concat(['orbVolley']);
@@ -5977,6 +6137,8 @@ class AIController {
     if (f.mimic && this.updateMimic(dt, p)) return;
     const dx = p.x - f.x, dist = Math.abs(dx), toward = Math.sign(dx) || 1;
     this.checkPhase();
+    if (this.formCd > 0) this.formCd -= dt;
+    if (this.running) { this.stepForm(dt, toward); return; }
     // disarmed: go get the weapon back
     if (!f.hasWeapon && f.weaponId() === 'fists' && f.baseWeapon !== 'fists') {
       const pk = w.pickups.find(k => k.owner === f);
@@ -6090,6 +6252,8 @@ class AIController {
     if (w.mayEngage && !w.mayEngage(f)) { this.waitTurn(dist, toward); return; }
     // boss / sub-boss signature abilities
     if (this.tryAbility(p, dist, toward)) return;
+    // the family form: from dash range, open with the whole chain
+    if (this.form && this.formCd <= 0 && dist > 170 && dist < 480 && f.canAct() && chance(0.7)) { this.startForm(); return; }
     // ranged behaviour
     if (pr.ranged) {
       if (dist < pr.pref - 120 && chance(0.6)) { if (chance(pr.dodge)) { f.ctrl.dashP = true; f.ctrl.dir = -toward; } else this.plan = 'retreat'; return; }
@@ -6144,6 +6308,47 @@ class AIController {
     if (pr.unique && chance(0.5)) seq = seq.concat(pick(hasW ? AI_VARIATIONS.armed : AI_VARIATIONS.unarmed));
     if (this.phaseData && this.phaseData.unblockable) f.unblockable = true;
     this.startSeq(seq, delay);
+  }
+
+  /* ---- the family form ----
+     Runs Logic.familyForm(def.form) step by step as a script: each step waits its `wait`, then fires as soon as the
+     fighter can perform it (a cut chains from the previous one's follow-through, an aerial jumps off the rising cut and
+     cuts near the top of the jump, a later aerial goes off the double jump). The style's `tempo` scales every cut's
+     start-up and recovery while the form runs (Fighter.boostAtk). Getting hit, or a step that cannot fire in time, breaks
+     the form off. */
+  startForm() {
+    const f = this.f;
+    this.running = { i: 0, t: 0, wait: this.form.steps[0].wait, boost: f.boostAtk };
+    f.boostAtk = (f.boostAtk || 1) * this.form.tempo;
+  }
+  endForm() {
+    const r = this.running; if (!r) return;
+    this.f.boostAtk = r.boost; this.running = null;
+    this.formCd = rand(1.4, 2.6) * this.p.idle; this.t = rand(0.15, 0.3) * this.p.idle;
+  }
+  stepForm(dt, toward) {
+    const f = this.f, c = f.ctrl, w = this.world, r = this.running, steps = this.form.steps, st = steps[r.i];
+    r.t += dt;
+    const broken = f.state === 'hit' || f.state === 'juggle' || f.state === 'stun' || f.state === 'down' || f.state === 'getup' || f.state === 'grabbed';
+    if (broken || r.t > 1.6) return this.endForm();
+    if (!f.grounded || f.state === 'prejump') c.dir = toward;   // drift toward the target through the air
+    if (r.wait > 0) { r.wait -= dt; return; }
+    const ready = f.canAct() || (f.state === 'move' && f.mphase === 2 && f.move.kind !== 'air' && f.grounded);
+    let done = false;
+    switch (st.act) {
+      case 'stance': done = true; break;   // the stance is the step's hold (its wait)
+      case 'dash': if (f.canAct()) { f.startDash(toward, w); done = true; } break;
+      case 'move': if (ready) { f.endMove(); f.startMove(st.move, w); done = true; } break;
+      case 'air':
+        if (f.state === 'air' && f.vy > -420) { f.startMove(st.move, w); done = true; }
+        else if (f.state === 'move' && f.move.kind === 'air' && f.mphase === 2 && f.jumps < 2) { f.endMove(); f.setState('air'); c.dir = toward; f.doJump(w); }
+        else if (ready && f.grounded) { f.endMove(); f.setState('idle'); c.dir = toward; f.doJump(w); }
+        break;
+      case 'land': if (f.grounded && f.canAct()) done = true; break;
+    }
+    if (!done) return;
+    r.i++; r.t = 0;
+    if (r.i >= steps.length) this.endForm(); else r.wait = steps[r.i].wait;
   }
 
   /* ---- bosses ---- */
@@ -6658,6 +6863,73 @@ const ENVS = {
       ctx.globalCompositeOperation = 'source-over';
     }
   },
+  // Takashi's training yard in Hoshimura, as the brothers remember it (the Interlude spar): a low dusk sun, the dojo's
+  // roof and veranda behind a wooden fence, a pine, a striking post and a rack of practice swords, packed warm earth.
+  // Drawn in the memory filter by the fight renderer (Renderer.drawMemoryFilter).
+  yard: {
+    name: 'Takashi\'s Training Yard', rim: 'rgba(236,206,160,0.75)', light: { x: -0.5, y: -0.86 }, trail: '#c9a878',
+    build() {
+      const r = seeded(43);
+      this.sky = makeLayer(W, H, (g) => {
+        const gr = g.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, '#2a1d17'); gr.addColorStop(0.45, '#6a4128'); gr.addColorStop(0.7, '#a06a3c'); gr.addColorStop(1, '#3a281c');
+        g.fillStyle = gr; g.fillRect(0, 0, W, H);
+        for (let i = 0; i < 6; i++) { g.fillStyle = `rgba(236,206,160,${0.05 + r() * 0.06})`; g.beginPath(); g.ellipse(r() * W, 80 + r() * 200, 160 + r() * 200, 10 + r() * 12, 0, 0, TAU); g.fill(); }
+      });
+      this.far = makeLayer(LW, H, (g) => {
+        g.fillStyle = 'rgba(74,48,32,0.75)'; mountainPath(g, LW, 430, 110, 150, r); g.fill();
+        g.fillStyle = '#3c2a1e'; mountainPath(g, LW, 470, 60, 120, r); g.fill();
+      });
+      this.mid = makeLayer(LW, H, (g) => {
+        // the dojo: a long hipped roof over a raised veranda, sliding doors lit warm from inside
+        const dx = 320, dw = 820, top = 300;
+        g.fillStyle = '#24180f';
+        g.beginPath(); g.moveTo(dx - 80, top + 60); g.quadraticCurveTo(dx + dw / 2, top - 40, dx + dw + 80, top + 60); g.lineTo(dx + dw + 50, top + 78); g.lineTo(dx - 50, top + 78); g.fill();
+        g.fillRect(dx, top + 78, dw, 150);
+        for (let i = 0; i < 8; i++) { g.fillStyle = `rgba(236,196,130,${0.16 + r() * 0.12})`; g.fillRect(dx + 24 + i * 100, top + 96, 80, 110); g.fillStyle = 'rgba(36,24,15,0.8)'; g.fillRect(dx + 62 + i * 100, top + 96, 3, 110); g.fillRect(dx + 24 + i * 100, top + 150, 80, 2); }
+        g.fillStyle = '#1c130c'; g.fillRect(dx - 30, top + 226, dw + 60, 16);
+        // the wooden fence along the back of the yard
+        g.fillStyle = '#2e2015';
+        g.fillRect(0, 520, LW, 10); g.fillRect(0, 560, LW, 8);
+        for (let x = 0; x < LW; x += 34) g.fillRect(x, 500 + r() * 6, 12, 120);
+        // a pine at the left
+        const px = 150; g.fillStyle = '#20160e'; g.fillRect(px - 9, 260, 18, 300);
+        for (let k = 0; k < 5; k++) { const yy = 230 + k * 55, ww = 70 + k * 26; g.beginPath(); g.ellipse(px + (k % 2 ? 30 : -20), yy, ww, 26, 0, 0, TAU); g.fill(); }
+      });
+      this.leaves = []; for (let i = 0; i < 26; i++) this.leaves.push({ x: r() * W, y: r() * H, s: 18 + r() * 26, ph: r() * 6, sz: 2 + r() * 2.5 });
+    },
+    back(ctx, cx, t) {
+      ctx.drawImage(this.sky, 0, 0);
+      // the low dusk sun the boys trained under
+      const sx = 860 - cx * 0.04, sy = 330, sg = ctx.createRadialGradient(sx, sy, 0, sx, sy, 260);
+      sg.addColorStop(0, 'rgba(255,214,150,0.55)'); sg.addColorStop(1, 'rgba(255,214,150,0)');
+      ctx.fillStyle = sg; ctx.fillRect(sx - 260, sy - 260, 520, 520);
+      ctx.fillStyle = 'rgba(255,224,170,0.85)'; ctx.beginPath(); ctx.arc(sx, sy, 54, 0, TAU); ctx.fill();
+      drawTiled(ctx, this.far, -260 - cx * 0.15);
+      drawTiled(ctx, this.mid, -260 - cx * 0.4);
+      // striking post (makiwara) and a rack of bokken, nearer the fighters
+      const po = -cx * 0.75;
+      ctx.fillStyle = '#1a110a';
+      const mx = 140 + po; ctx.fillRect(mx - 7, 470, 14, GROUND - 470); ctx.fillStyle = '#5a3c22'; ctx.fillRect(mx - 9, 480, 18, 30);
+      ctx.fillStyle = '#1a110a';
+      const rx = 1120 + po; ctx.fillRect(rx, 500, 8, GROUND - 500); ctx.fillRect(rx + 120, 500, 8, GROUND - 500); ctx.fillRect(rx - 6, 520, 140, 7); ctx.fillRect(rx - 6, 580, 140, 7);
+      ctx.strokeStyle = '#7a5532'; ctx.lineWidth = 4; ctx.lineCap = 'round';
+      for (let i = 0; i < 4; i++) { ctx.beginPath(); ctx.moveTo(rx + 18 + i * 28, 600); ctx.lineTo(rx + 26 + i * 28, 486); ctx.stroke(); }
+      const haze = ctx.createLinearGradient(0, 430, 0, GROUND + 40); haze.addColorStop(0, 'rgba(160,106,60,0)'); haze.addColorStop(1, 'rgba(160,106,60,0.35)');
+      ctx.fillStyle = haze; ctx.fillRect(0, 430, W, GROUND - 390);
+    },
+    floor(ctx) {
+      const gr = ctx.createLinearGradient(0, GROUND, 0, H); gr.addColorStop(0, '#4a3220'); gr.addColorStop(1, '#22170e');
+      ctx.fillStyle = gr; ctx.fillRect(0, GROUND, W, H - GROUND);
+      ctx.fillStyle = 'rgba(236,206,160,0.35)'; ctx.fillRect(0, GROUND, W, 1);
+    },
+    front(ctx, cx, t) {
+      // a few leaves drifting across the yard
+      for (const l of this.leaves) {
+        const x = (l.x + t * l.s - cx * 0.8 + W * 40) % W, y = (l.y + t * l.s * 0.5 + Math.sin(t + l.ph) * 20 + H * 20) % H;
+        ctx.fillStyle = `rgba(190,120,60,${0.35 + 0.2 * Math.sin(t * 2 + l.ph)})`; ctx.beginPath(); ctx.ellipse(x, y, l.sz * 1.6, l.sz, t + l.ph, 0, TAU); ctx.fill();
+      }
+    }
+  },
   // Hoshimura, the abandoned village (the Prologue): the highlands' red moon over a burnt-out village. Charred
   // rooftops and broken beams in two parallax rows, a cold ash haze, grey ash falling and a few embers.
   hoshimura: {
@@ -6841,6 +7113,30 @@ const Renderer = {
     ctx.restore();
     env.front(ctx, 0, t);
     ctx.drawImage(this.vignette, 0, 0);
+    if (opts.memory) this.drawMemoryFilter(ctx, t);
+  },
+  /* ---- the memory filter (the Interlude spar, FightSession.memory): the scene drawn as a flashback while staying flat
+     2D. Colour drained toward a warm sepia, a soft warm vignette, and a few violet memory flecks drifting up. ---- */
+  memVignette: null,
+  drawMemoryFilter(ctx, t) {
+    if (!this.memVignette) this.memVignette = makeLayer(W, H, (g) => {
+      const v = g.createRadialGradient(W / 2, H * 0.48, H * 0.3, W / 2, H / 2, H * 0.92);
+      v.addColorStop(0, 'rgba(60,36,18,0)'); v.addColorStop(0.7, 'rgba(60,36,18,0.22)'); v.addColorStop(1, 'rgba(34,20,10,0.72)');
+      g.fillStyle = v; g.fillRect(0, 0, W, H);
+    });
+    ctx.save();
+    ctx.globalCompositeOperation = 'saturation'; ctx.fillStyle = 'rgba(128,128,128,0.6)'; ctx.fillRect(0, 0, W, H);
+    ctx.globalCompositeOperation = 'color'; ctx.fillStyle = 'rgba(178,134,84,0.32)'; ctx.fillRect(0, 0, W, H);
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.drawImage(this.memVignette, 0, 0);
+    // violet memory flecks: a handful at a time, each fading in and out as it drifts up
+    for (let i = 0; i < 16; i++) {
+      const life = 5 + (i * 1.37) % 3, u = ((t + i * 0.83) % life) / life;
+      const x = (i * 263.7 + Math.sin(t * 0.4 + i) * 30) % W, y = H - u * (H + 60) + ((i * 97) % 120);
+      const a = Math.sin(u * Math.PI) * (0.35 + 0.25 * Math.sin(t * 3 + i)), sz = 1.5 + (i % 3);
+      ctx.fillStyle = `rgba(185,160,255,${Math.max(0, a)})`; ctx.beginPath(); ctx.ellipse(x, y, sz * 1.6, sz, t + i, 0, TAU); ctx.fill();
+    }
+    ctx.restore();
   },
 
   /* ---- live fight ---- */
@@ -6897,6 +7193,7 @@ const Renderer = {
       if (set.reduceFlash && imp.t < imp.dur) { ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.fillRect(0, 0, W, H); this.focusLines(ctx, sp.x, sp.y, C.bone, 0.18, 30); }
       else this.focusLines(ctx, sp.x, sp.y, C.bone, 0.22 * (1 - k), 30);
     }
+    if (s.memory) this.drawMemoryFilter(ctx, realT);
     if (s.fightFlash > 0) { ctx.fillStyle = `rgba(210,74,60,${s.fightFlash * 0.25})`; ctx.fillRect(0, 0, W, H); }
     // cinematic letterbox
     if (s.letterbox > 0.01) { const h = 70 * s.letterbox; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, h); ctx.fillRect(0, H - h, W, h); }
@@ -7866,6 +8163,9 @@ class FightSession {
     this.rounds = { p: 0, e: 0, n: 0 };
     this.wave = cfg.wave || 1; this.survivalCoins = 0; this.survivalGems = 0; this.wavesCleared = 0;
     this.dialogue = null; this.combo = 0; this.comboT = 0; this.damageTaken = 0; this.fightTime = 0;
+    // the Interlude spar (Logic.fightFormat 'spar'): young Kage instead of the geared player, drawn as a memory
+    this.spar = !cfg.stretch && (cfg.format || Logic.fightFormat(cfg)).name === 'spar';
+    this.memory = this.spar;
     this.player = this.makePlayer(save);
     this.setup();
   }
@@ -7891,6 +8191,13 @@ class FightSession {
   roundTime() { return (this.format && this.format.timer) || 0; }
 
   makePlayer(save) {
+    if (this.spar) {
+      // young Kage: fixed health and a bokken, none of the player's gear, level or perks (Logic.youngKage)
+      const k = Logic.youngKage(save);
+      const y = makeYoungKage({ x: -300, team: 0, hp: k.hp, defense: k.defense, dmgMul: k.dmgMul, ammo: 0, dodgeMul: Logic.difficulty(save.difficulty).dodge });
+      y.name = 'Kage';
+      return y;
+    }
     const g = Logic.playerCombatStats(save), pk = g.perks;
     const f = makePlayerFighter(save, {
       x: -300, team: 0, hp: g.hp, defense: g.defense, speedMul: 1 + (pk.speed || 0), rageMul: 1 + (pk.rage || 0),
@@ -8129,7 +8436,8 @@ class FightSession {
       case 'round':
         if (this.phaseT < 0.05 && !this.roundShown) {
           this.roundShown = true; this.rounds.n++;
-          if (this.mode !== 'survival') this.fx.banner(this.roundsToWin > 1 ? `Round ${ROMAN[this.rounds.n - 1]}` : 'Final Duel', this.bossFormat ? `One life · three phases · ${Logic.difficulty(SaveManager.data.difficulty).label}` : `${e.name} · ${DIFF_LABEL[clamp((this.cfg.diff || 1) + (this.cfg.ng || 0), 0, 4)]} · ${Logic.difficulty(SaveManager.data.difficulty).label}`, C.gold);
+          if (this.spar) this.fx.banner('Sparring Match', "A memory · Takashi's yard", C.gold);
+          else if (this.mode !== 'survival') this.fx.banner(this.roundsToWin > 1 ? `Round ${ROMAN[this.rounds.n - 1]}` : 'Final Duel', this.bossFormat ? `One life · three phases · ${Logic.difficulty(SaveManager.data.difficulty).label}` : `${e.name} · ${DIFF_LABEL[clamp((this.cfg.diff || 1) + (this.cfg.ng || 0), 0, 4)]} · ${Logic.difficulty(SaveManager.data.difficulty).label}`, C.gold);
           AudioManager.play('round');
         }
         if (this.phaseT > 1.25 && !this.fightShown) { this.fightShown = true; this.fx.stamp('FIGHT', (p.x + e.x) / 2, -150, 3, C.emberBright); this.fightFlash = 1; }
@@ -8137,7 +8445,15 @@ class FightSession {
         break;
       case 'fight':
         this.fightTime += dt;
-        if (this.format.timer) { this.timer -= dt; if (this.timer <= 0) this.timeOut(); }
+        if (this.format.timer) this.timer -= dt;
+        // the spar never times out or ends in a KO: Takashi calls the boys in (Logic.sparOutcome)
+        if (this.spar) { if (Logic.sparOutcome(this.format, { playerHp: p.hp / p.maxHp, foeHp: e.hp / e.maxHp, time: this.fightTime })) this.interrupt(); }
+        else if (this.format.timer && this.timer <= 0) this.timeOut();
+        break;
+      case 'interrupt':
+        // everyone stops where they stand; once both are down on their feet they drop their guard and face each other
+        for (const f of [p, e]) if (f.grounded && f.state !== 'pose' && f.state !== 'down' && f.state !== 'getup' && this.phaseT > 0.5) { f.endMove(); f.abil = null; f.vx = 0; f.setState('pose'); f.poseName = null; f.faceToward(f === p ? e : p, 1); }
+        if (this.phaseT > 3.4 || (this.phaseT > 1.2 && (InputManager.pressed('punch') || InputManager.pressed('jump') || UIManager.skipRequested()))) { this.phase = 'done'; Game.finishFight(this.buildResult()); }
         break;
       case 'ko':
         if (this.phaseT > 2.2) this.afterKO();
@@ -8150,7 +8466,7 @@ class FightSession {
   // Everything both modes share each tick: controls, AI, fighters, hits, projectiles, separation and the camera.
   simulate(dt, p, e) {
     if (this.cine) { this.cine.t -= dt; if (this.cine.t <= 0) this.cine = null; }
-    this.letterbox = damp(this.letterbox, this.phase === 'intro' || this.phase === 'outro' || this.cine ? 1 : 0, 6, dt);
+    this.letterbox = damp(this.letterbox, this.phase === 'intro' || this.phase === 'outro' || this.phase === 'interrupt' || this.cine ? 1 : 0, 6, dt);
     this.fightFlash = Math.max(0, this.fightFlash - dt * 3);
     if (this.dialogue) this.dialogue.t += dt;
     if (this.comboT > 0) { this.comboT -= dt; if (this.comboT <= 0) this.combo = 0; }
@@ -8182,6 +8498,19 @@ class FightSession {
     const loser = pk >= ek ? e : p;
     loser.alive = false; loser.hp = 0; loser.move = null; loser.setState('juggle'); loser.grounded = false; loser.vy = -300; loser.vx = (loser === e ? 1 : -1) * 200;
     this.onKO(loser, loser === e ? p : e);
+  }
+  // The spar's scripted ending: the fight freezes and Takashi's voice calls the boys in. No KO, no winner; the stage
+  // completes as 'interrupted' (Logic.applyFightResult) and the `after` scene plays over the frozen yard.
+  interrupt() {
+    const p = this.player, e = this.enemy;
+    this.outcome = 'interrupted'; this.win = true;
+    this.phase = 'interrupt'; this.phaseT = 0;
+    for (const f of [p, e]) { f.move = null; f.abil = null; f.ctrl.dir = 0; if (f.grounded && f.state !== 'down') f.vx *= 0.2; }
+    this.fx.slowmo(0.35, 0.7); this.fx.shake(0.25);
+    this.fx.stamp('ENOUGH', (p.x + e.x) / 2, -190, 3, C.gold, 'ENOUGH!');
+    this.dialogue = { name: 'Takashi', title: 'from the veranda', text: 'Enough! Both of you. Inside, now.', t: 0 };
+    AudioManager.play('round');
+    AudioManager.setMusic('none');
   }
   afterKO() {
     const pWon = this.koTarget !== this.player;
@@ -8224,7 +8553,7 @@ class FightSession {
   buildResult() {
     const p = this.player, e = this.enemy;
     return {
-      mode: this.mode, win: !!this.win, enemyId: e.def.id, stageId: this.cfg.stageId, foeName: e.name, ng: this.cfg.ng || 0,
+      mode: this.mode, win: !!this.win, outcome: this.outcome || null, enemyId: e.def.id, stageId: this.cfg.stageId, foeName: e.name, ng: this.cfg.ng || 0,
       time: this.fightTime, hpLeft: p.hp / p.maxHp, flawless: this.damageTaken < 1, maxCombo: p.stats.maxCombo, parries: p.stats.parries,
       enemyDamage: 1 - Math.max(0, e.hp) / e.maxHp, waves: this.wavesCleared, survivalCoins: this.survivalCoins, survivalGems: this.survivalGems,
       env: this.cfg.env
@@ -9771,23 +10100,26 @@ const UIManager = {
   },
   renderPrefight() {
     const save = SaveManager.data, cfg = this.pfCfg, d = ENEMIES[cfg.enemyId], el = $('#scr-prefight');
-    const player = makePlayerFighter(save, { x: -205, weapon: this.pfWeapon || save.equipped.weapon });
+    // the Interlude spar: young Kage with a bokken; the player's gear and weapon choice don't apply (Logic.youngKage)
+    const spar = !!(cfg.format && cfg.format.name === 'spar');
+    const player = spar ? makeYoungKage({ x: -205 }) : makePlayerFighter(save, { x: -205, weapon: this.pfWeapon || save.equipped.weapon });
     const enemy = makeFighterFromEnemy(cfg.enemyId, { x: 205 });
     poseFighter(player, null, 40); poseFighter(enemy, 'taunt', 40);
     const env = cfg.env;
     const fitZoom = Math.min(1.55, (H * 0.6) / (Math.max(player.height(), enemy.height()) * 1.18));
-    Game.setTableau(env, { fighters: [player, enemy], zoom: fitZoom, ground: 612, lights: [{ x: 330, y: 470, r: 360, c: 'rgba(201,164,92,0.18)' }, { x: 960, y: 450, r: 400, c: 'rgba(163,48,42,0.32)' }] });
+    Game.setTableau(env, { memory: spar, fighters: [player, enemy], zoom: fitZoom, ground: 612, lights: [{ x: 330, y: 470, r: 360, c: 'rgba(201,164,92,0.18)' }, { x: 960, y: 450, r: 400, c: 'rgba(163,48,42,0.32)' }] });
     const dl = clamp((cfg.mode === 'campaign' ? cfg.diff : 2) + (cfg.ng || 0) + (d.type === 'boss' ? 1 : 0), 0, 4);
     const foeName = cfg.foeName || d.name, foeTitle = cfg.foeTitle || d.title;
-    const tag = cfg.mode === 'survival' ? `Survival · Wave ${ROMAN[cfg.wave - 1] || cfg.wave}` : cfg.stretch ? `Stretch · ${DIFF_LABEL[dl]}` : `${d.type === 'boss' ? 'Boss' : d.type === 'sub' ? 'Sub-boss' : 'Duelist'} · ${DIFF_LABEL[dl]}`;
+    const tag = cfg.mode === 'survival' ? `Survival · Wave ${ROMAN[cfg.wave - 1] || cfg.wave}` : cfg.stretch ? `Stretch · ${DIFF_LABEL[dl]}` : spar ? 'Memory spar · no winner' : `${d.type === 'boss' ? 'Boss' : d.type === 'sub' ? 'Sub-boss' : 'Duelist'} · ${DIFF_LABEL[dl]}`;
     const taunt = cfg.stretch ? `${cfg.stretch.encounters.length} encounter${cfg.stretch.encounters.length === 1 ? '' : 's'} on the road · clues found ${Logic.cluesFound(save, cfg.stageId).length}/${cfg.stretch.clues.length}` : d.taunt;
-    const owned = Object.keys(save.owned.weapons).filter(w => WEAPONS[w] && !WEAPONS[w].enemy);
+    const owned = spar ? [] : Object.keys(save.owned.weapons).filter(w => WEAPONS[w] && !WEAPONS[w].enemy);
     el.innerHTML = `
       <button class="round-btn pf-back" data-a="back" aria-label="Back">${ICON.back}</button>
       <div class="plate left">
-        <div class="eyebrow">Level ${save.level} · ${playerMaxHp(save)} HP</div>
-        <div class="nm disp">Kage</div>
-        <div class="gear-chips"><span class="chip">Helm <b>${esc(HELMETS[save.equipped.helmet].name)}</b></span><span class="chip">Armor <b>${esc(ARMORS[save.equipped.armor].name)}</b></span><span class="chip" data-mode-chip>Mode <b>${esc(Logic.difficulty(save.difficulty).label)}</b></span><button class="chip" data-a="pf-gear" style="color:var(--accent-gold);border-color:var(--accent-gold-dim)">Change gear</button></div>
+        <div class="eyebrow">${spar ? `A memory · ${Logic.youngKage(save).hp} HP` : `Level ${save.level} · ${playerMaxHp(save)} HP`}</div>
+        <div class="nm disp">${spar ? 'Young Kage' : 'Kage'}</div>
+        ${spar ? `<div class="gear-chips"><span class="chip">Training clothes <b>Bokken</b></span><span class="chip" data-mode-chip>Mode <b>${esc(Logic.difficulty(save.difficulty).label)}</b></span></div>` : ''}
+        <div class="gear-chips" ${spar ? 'style="display:none"' : ''}><span class="chip">Helm <b>${esc(HELMETS[save.equipped.helmet].name)}</b></span><span class="chip">Armor <b>${esc(ARMORS[save.equipped.armor].name)}</b></span><span class="chip" data-mode-chip>Mode <b>${esc(Logic.difficulty(save.difficulty).label)}</b></span><button class="chip" data-a="pf-gear" style="color:var(--accent-gold);border-color:var(--accent-gold-dim)">Change gear</button></div>
       </div>
       <div class="plate right">
         <div class="tag"><div class="diff"><div class="pips">${[0, 1, 2].map(k => `<i class="${k < Math.min(3, Math.max(1, dl)) ? 'on' : ''}"></i>`).join('')}</div></div><span class="eyebrow red">${esc(tag)}</span></div>
@@ -9797,7 +10129,7 @@ const UIManager = {
       <div class="taunt">${esc(taunt)}</div>
       <div class="vs"><i></i><span>vs</span><i></i></div>
       <div class="dock">
-        <div class="choose"><span class="eyebrow">Choose weapon</span>
+        <div class="choose" ${spar ? 'style="display:none"' : ''}><span class="eyebrow">Choose weapon</span>
           <div class="slots">${owned.map(w => `<button class="slot ${w === this.pfWeapon ? 'sel' : ''}" data-a="pf-weapon" data-id="${w}" aria-label="${esc(WEAPONS[w].name)}"><canvas data-w="${w}"></canvas><span class="nm">${esc(WEAPONS[w].name)}</span></button>`).join('')}</div>
         </div>
         <button class="btn-primary" data-a="pf-fight" data-focus>Fight</button>
@@ -9817,7 +10149,7 @@ const UIManager = {
       <div class="fp left" data-pp>
         <div class="medal"><canvas data-portrait="p"></canvas></div>
         <div class="fp-body">
-          <div class="fp-name"><b>Kage</b><span>Lv ${SaveManager.data.level}</span></div>
+          <div class="fp-name"><b>${s.spar ? 'Young Kage' : 'Kage'}</b><span>${s.spar ? 'Memory' : `Lv ${SaveManager.data.level}`}</span></div>
           <div class="hbar"><div class="hbar-in"><i class="hb-chip"></i><i class="hb-fill"></i><i class="hb-gloss"></i></div><span class="hb-val" data-php></span></div>
           <div class="rbar" data-rage><span class="rb-ic">怒</span><div class="rbar-in"><i class="rb-fill"></i></div><span class="rb-ready">Rage ready</span><span class="kunai" data-kunai></span></div>
         </div>
@@ -9966,11 +10298,14 @@ const UIManager = {
     const gainPct = r.levelUps ? xpNow / xpNeed * 100 : Math.min(100, r.xp / xpNeed * 100);
     const basePct = r.levelUps ? 0 : Math.max(0, (xpNow - r.xp) / xpNeed * 100);
     const unlockHTML = r.unlocks.filter(u => u.kind !== 'chapter' && u.kind !== 'ng').map(u => `<div class="item"><canvas data-unlock="${u.kind}:${u.id}"></canvas>${esc(gearName(u.kind, u.id))}</div>`).join('');
-    const sealNames = r.mode === 'survival' ? ['5 waves', '10 waves', '15 waves'] : ['Victory', 'Under 60s', 'Flawless'];
+    // the Interlude spar has no winner (outcome 'interrupted'): Takashi called the boys in
+    const sparred = r.outcome === 'interrupted';
+    const sealNames = r.mode === 'survival' ? ['5 waves', '10 waves', '15 waves'] : [sparred ? 'Remembered' : 'Victory', 'Under 60s', 'Flawless'];
     const win = r.mode === 'survival' ? r.waves > 0 : r.win;
-    const title = r.mode === 'survival' ? (r.newBest ? 'New Record' : 'Fallen') : r.win ? 'Victory' : 'Defeated';
+    const title = r.mode === 'survival' ? (r.newBest ? 'New Record' : 'Fallen') : sparred ? 'Interrupted' : r.win ? 'Victory' : 'Defeated';
     const stretch = r.kind === 'stretch';
     const line = r.mode === 'survival' ? (r.newBest ? `Wave ${r.waves}. The pit will remember your name.` : `Wave ${r.waves}. Best: wave ${save.survivalBest}.`)
+      : sparred ? 'Takashi called you in before anyone won. Nobody ever settled it.'
       : stretch ? (r.win ? `The road is walked.${r.clues ? ` Clues found: ${r.clues}.` : ''}` : `The road still bars the way. Rise again.`)
       : r.win ? `${foeName} ${d.type === 'boss' ? 'has fallen. The way opens.' : 'has fallen.'}` : `${foeName} still stands. Rise again.`;
     el.innerHTML = `

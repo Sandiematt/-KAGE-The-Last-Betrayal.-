@@ -243,7 +243,12 @@ const WEAPONS = {
   // copy is raiko_no_tachi, granted when Raikon falls)
   raikon_tachi: { heft: 1.9, el: 'redline', enemy: 1, name: 'Raikō no Tachi', base: 'onikiri', len: 128, stats: [64, 40, 60], trail: '#ff4a3c' },
   temple_staff: { heft: 1.1, el: 'shade', enemy: 1, name: 'Temple Staff', base: 'mizuchi', len: 180, trail: '#ece5d3', staff: 1, stance: 'staff' },
-  raider_cleaver: { heft: 1.4, el: 'shade', enemy: 1, name: 'Raider Cleaver', base: 'onikiri', len: 86, trail: '#d24a3c' }
+  raider_cleaver: { heft: 1.4, el: 'shade', enemy: 1, name: 'Raider Cleaver', base: 'onikiri', len: 86, trail: '#d24a3c' },
+  // the Interlude's wooden practice sword (bokken): both young brothers spar with it (see SPAR and FAMILY_FORM). Katana
+  // forms, but its string is the family form's rising cut into the horizontal flow (k2 -> k3) and its air cut is ka;
+  // damage stat 30 against Kagetsu's 60, so a wooden blow lands at half strength. Never sold or owned (`enemy`).
+  bokken: { heft: 0.8, el: 'wind', enemy: 1, name: 'Bokken', base: 'kagetsu', len: 80, stats: [30, 64, 58], trail: '#c9a878',
+    moves: ['k2', 'k3'], air: 'ka', special: 'shadowPalm', counter: 'kc' }
 };
 // resolve enemy weapons onto their base move-sets
 for (const id in WEAPONS) {
@@ -466,6 +471,15 @@ const ENEMIES = {
               { name: 'Redline', at: 0.66, abilities: ['thunderSwing', 'stormBreak', 'redlineCounter'] },
               { name: 'Lightning Ascendant', at: 0.33, abilities: ['thunderSwing', 'stormBreak', 'redlineCounter'], secondWave: 0.7, aggressive: 1 }
             ] },
+  // ---- the Interlude ----
+  // Young Rem (interlude.spar): a memory, gifted, impulsive and competitive. A smaller build in plain training clothes
+  // with a purple sash and headband, a bokken, and the family form (FAMILY_FORM) at his own fast, fluid tempo (`form`).
+  // `sash` colours his obi and its tails. He is never beaten: Takashi calls the spar first (Logic.fightFormat 'spar').
+  young_rem: { name: 'Rem', title: 'Young Rem', type: 'sub', ai: 'agile', weapon: 'bokken', helmet: 'headband', armor: 'training', outfit: 'gi',
+            hp: 300, dmg: 0.9, speed: 1.12, build: { scale: 0.84, w: 8.6, legs: 0.92, head: 1.12 }, eye: '#e6dcff', accent: '#a970ff', sash: '#9b5cf0',
+            form: 'rem',
+            taunt: 'Ready, big brother? Try to keep up this time.', defeatLine: 'Hey! That one doesn’t count!', win: 'Again! Again!',
+            tip: 'Rem runs the family form faster than you. Block the rising cut, then punish his landing.' },
   // ---- placeholder sub-boss and boss rigs ----
   echo_sentinel: { name: 'Echo Sentinel', title: 'Placeholder sub-boss', type: 'sub', ai: 'agile', weapon: 'hollow_crescents', helmet: 'oni', armor: 'cloak', hp: 340, dmg: 1.05, speed: 1.15, build: { scale: 1.04, w: 10 }, eye: '#9b8cff', accent: '#9b8cff',
             taunt: 'This memory is guarded. Prove you belong in it.', defeatLine: 'The memory… lets you pass…', win: 'Forget this place.',
@@ -480,6 +494,46 @@ const ENEMIES = {
             ] }
 };
 for (const id in ENEMIES) ENEMIES[id].id = id;
+
+/* ---------------- The family form ----------------
+   Takashi's sword grammar, shared by Kage, Rem and Takashi (the spec's "shared attack language"): a grounded opening
+   stance, a short dash, a rising cut, an aerial follow-up, a controlled landing, then a finishing horizontal flow.
+   `pattern` is the form once, in order; `act` says how a step is performed:
+     stance  stand in guard for the style's `hold` seconds        dash   a short forward dash
+     move    a grounded weapon move (`move` = a MOVES id)          air    jump (a double jump for later aerials) and the air cut
+     land    wait for the controlled landing
+   `styles` say how each fighter runs it: `gap` seconds between steps, `hold` for the opening stance, `aerials` (how many
+   aerial follow-ups), `flow` (the finishing moves, in order) and `tempo` (a multiplier on each cut's start-up and recovery).
+   Logic.familyForm(style) expands a style into its step list; the AI (AIController.startForm, 40-ai.js) performs it. The
+   player's bokken string (k2 -> k3, air ka) is the same grammar under the player's own hands. Later fights reuse it:
+   Hollow Rem (SAN-43) runs 'rem'; Takashi (SAN-40) adds his own heavier style here. */
+const FAMILY_FORM = {
+  name: 'Tachibana form',
+  pattern: [
+    { step: 'stance', act: 'stance' },
+    { step: 'dash', act: 'dash' },
+    { step: 'rise', act: 'move', move: 'k2' },
+    { step: 'aerial', act: 'air', move: 'ka' },
+    { step: 'landing', act: 'land' },
+    { step: 'flow', act: 'move', move: 'k3' }
+  ],
+  styles: {
+    // Kage: tight and defensive, one aerial, one clean finishing cut, a measured pause between steps
+    kage: { gap: 0.2, hold: 0.45, aerials: 1, flow: ['k3'], tempo: 1 },
+    // Rem: fast and fluid, barely a pause, a second aerial off the double jump, and a longer finishing flow
+    rem:  { gap: 0.04, hold: 0.12, aerials: 2, flow: ['k1', 'k3'], tempo: 0.72 }
+  }
+};
+
+/* ---------------- The spar (Interlude) ----------------
+   interlude.spar is fought in the spar format (Logic.fightFormat): one round on a `timer`, and no KO. When either
+   brother's health drops to `interruptAt` (a fraction) or the clock runs out, Takashi calls them in and the stage
+   completes with no winner (outcome 'interrupted'). `kage` is young Kage: fixed stats and look, none of the player's
+   gear (Logic.youngKage). The arena is Takashi's training yard (env 'yard') under a memory filter. */
+const SPAR = {
+  timer: 45, interruptAt: 0.3,
+  kage: { hp: 260, weapon: 'bokken', helmet: 'headband', armor: 'training', build: { scale: 0.86, w: 8.8, legs: 0.9, head: 1.12 } }
+};
 
 /* ---------------- Campaign map ----------------
    Chapters in story order, each with its stages in play order. Stage ids are stable strings
@@ -581,7 +635,8 @@ const CAMPAIGN = (function buildCampaign() {
         } }] },
     act('act1', 'Act I', 'The Outer Districts', 'Order territory', 'rooftops', 1, SQUADS.act1, 'Raikon', 'the Lightning Ascendant'),
     { id: 'interlude', name: 'Interlude', title: 'Brothers', place: 'A memory of the training yard', env: 'highlands', diff: 1,
-      stages: [{ id: 'interlude.spar', kind: 'spar', name: 'The Spar', foe: 'Rem', foeTitle: 'Young Rem', enemy: 'echo_sentinel' }] },
+      stages: [{ id: 'interlude.spar', kind: 'spar', name: 'The Spar', foe: 'Rem', foeTitle: 'Young Rem', enemy: 'young_rem', env: 'yard',
+        scenes: { before: 'interlude.spar.before', after: 'interlude.spar.after' } }] },
     act('act2', 'Act II', 'The City of Echoes', 'Where the Hollows gather', 'rooftops', 2, SQUADS.act2, 'Akari', 'the Memory Blade'),
     act('act3', 'Act III', 'The Fortress of Silence', 'Seat of the Order', 'wasteland', 3, SQUADS.act3, 'Takashi', 'the Father'),
     { id: 'core', name: 'The Core', title: 'The Echo System', place: 'Corrupted memory', env: 'wasteland', diff: 3,

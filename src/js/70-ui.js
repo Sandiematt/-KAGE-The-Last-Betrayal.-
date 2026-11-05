@@ -590,23 +590,26 @@ const UIManager = {
   },
   renderPrefight() {
     const save = SaveManager.data, cfg = this.pfCfg, d = ENEMIES[cfg.enemyId], el = $('#scr-prefight');
-    const player = makePlayerFighter(save, { x: -205, weapon: this.pfWeapon || save.equipped.weapon });
+    // the Interlude spar: young Kage with a bokken; the player's gear and weapon choice don't apply (Logic.youngKage)
+    const spar = !!(cfg.format && cfg.format.name === 'spar');
+    const player = spar ? makeYoungKage({ x: -205 }) : makePlayerFighter(save, { x: -205, weapon: this.pfWeapon || save.equipped.weapon });
     const enemy = makeFighterFromEnemy(cfg.enemyId, { x: 205 });
     poseFighter(player, null, 40); poseFighter(enemy, 'taunt', 40);
     const env = cfg.env;
     const fitZoom = Math.min(1.55, (H * 0.6) / (Math.max(player.height(), enemy.height()) * 1.18));
-    Game.setTableau(env, { fighters: [player, enemy], zoom: fitZoom, ground: 612, lights: [{ x: 330, y: 470, r: 360, c: 'rgba(201,164,92,0.18)' }, { x: 960, y: 450, r: 400, c: 'rgba(163,48,42,0.32)' }] });
+    Game.setTableau(env, { memory: spar, fighters: [player, enemy], zoom: fitZoom, ground: 612, lights: [{ x: 330, y: 470, r: 360, c: 'rgba(201,164,92,0.18)' }, { x: 960, y: 450, r: 400, c: 'rgba(163,48,42,0.32)' }] });
     const dl = clamp((cfg.mode === 'campaign' ? cfg.diff : 2) + (cfg.ng || 0) + (d.type === 'boss' ? 1 : 0), 0, 4);
     const foeName = cfg.foeName || d.name, foeTitle = cfg.foeTitle || d.title;
-    const tag = cfg.mode === 'survival' ? `Survival · Wave ${ROMAN[cfg.wave - 1] || cfg.wave}` : cfg.stretch ? `Stretch · ${DIFF_LABEL[dl]}` : `${d.type === 'boss' ? 'Boss' : d.type === 'sub' ? 'Sub-boss' : 'Duelist'} · ${DIFF_LABEL[dl]}`;
+    const tag = cfg.mode === 'survival' ? `Survival · Wave ${ROMAN[cfg.wave - 1] || cfg.wave}` : cfg.stretch ? `Stretch · ${DIFF_LABEL[dl]}` : spar ? 'Memory spar · no winner' : `${d.type === 'boss' ? 'Boss' : d.type === 'sub' ? 'Sub-boss' : 'Duelist'} · ${DIFF_LABEL[dl]}`;
     const taunt = cfg.stretch ? `${cfg.stretch.encounters.length} encounter${cfg.stretch.encounters.length === 1 ? '' : 's'} on the road · clues found ${Logic.cluesFound(save, cfg.stageId).length}/${cfg.stretch.clues.length}` : d.taunt;
-    const owned = Object.keys(save.owned.weapons).filter(w => WEAPONS[w] && !WEAPONS[w].enemy);
+    const owned = spar ? [] : Object.keys(save.owned.weapons).filter(w => WEAPONS[w] && !WEAPONS[w].enemy);
     el.innerHTML = `
       <button class="round-btn pf-back" data-a="back" aria-label="Back">${ICON.back}</button>
       <div class="plate left">
-        <div class="eyebrow">Level ${save.level} · ${playerMaxHp(save)} HP</div>
-        <div class="nm disp">Kage</div>
-        <div class="gear-chips"><span class="chip">Helm <b>${esc(HELMETS[save.equipped.helmet].name)}</b></span><span class="chip">Armor <b>${esc(ARMORS[save.equipped.armor].name)}</b></span><span class="chip" data-mode-chip>Mode <b>${esc(Logic.difficulty(save.difficulty).label)}</b></span><button class="chip" data-a="pf-gear" style="color:var(--accent-gold);border-color:var(--accent-gold-dim)">Change gear</button></div>
+        <div class="eyebrow">${spar ? `A memory · ${Logic.youngKage(save).hp} HP` : `Level ${save.level} · ${playerMaxHp(save)} HP`}</div>
+        <div class="nm disp">${spar ? 'Young Kage' : 'Kage'}</div>
+        ${spar ? `<div class="gear-chips"><span class="chip">Training clothes <b>Bokken</b></span><span class="chip" data-mode-chip>Mode <b>${esc(Logic.difficulty(save.difficulty).label)}</b></span></div>` : ''}
+        <div class="gear-chips" ${spar ? 'style="display:none"' : ''}><span class="chip">Helm <b>${esc(HELMETS[save.equipped.helmet].name)}</b></span><span class="chip">Armor <b>${esc(ARMORS[save.equipped.armor].name)}</b></span><span class="chip" data-mode-chip>Mode <b>${esc(Logic.difficulty(save.difficulty).label)}</b></span><button class="chip" data-a="pf-gear" style="color:var(--accent-gold);border-color:var(--accent-gold-dim)">Change gear</button></div>
       </div>
       <div class="plate right">
         <div class="tag"><div class="diff"><div class="pips">${[0, 1, 2].map(k => `<i class="${k < Math.min(3, Math.max(1, dl)) ? 'on' : ''}"></i>`).join('')}</div></div><span class="eyebrow red">${esc(tag)}</span></div>
@@ -616,7 +619,7 @@ const UIManager = {
       <div class="taunt">${esc(taunt)}</div>
       <div class="vs"><i></i><span>vs</span><i></i></div>
       <div class="dock">
-        <div class="choose"><span class="eyebrow">Choose weapon</span>
+        <div class="choose" ${spar ? 'style="display:none"' : ''}><span class="eyebrow">Choose weapon</span>
           <div class="slots">${owned.map(w => `<button class="slot ${w === this.pfWeapon ? 'sel' : ''}" data-a="pf-weapon" data-id="${w}" aria-label="${esc(WEAPONS[w].name)}"><canvas data-w="${w}"></canvas><span class="nm">${esc(WEAPONS[w].name)}</span></button>`).join('')}</div>
         </div>
         <button class="btn-primary" data-a="pf-fight" data-focus>Fight</button>
@@ -636,7 +639,7 @@ const UIManager = {
       <div class="fp left" data-pp>
         <div class="medal"><canvas data-portrait="p"></canvas></div>
         <div class="fp-body">
-          <div class="fp-name"><b>Kage</b><span>Lv ${SaveManager.data.level}</span></div>
+          <div class="fp-name"><b>${s.spar ? 'Young Kage' : 'Kage'}</b><span>${s.spar ? 'Memory' : `Lv ${SaveManager.data.level}`}</span></div>
           <div class="hbar"><div class="hbar-in"><i class="hb-chip"></i><i class="hb-fill"></i><i class="hb-gloss"></i></div><span class="hb-val" data-php></span></div>
           <div class="rbar" data-rage><span class="rb-ic">怒</span><div class="rbar-in"><i class="rb-fill"></i></div><span class="rb-ready">Rage ready</span><span class="kunai" data-kunai></span></div>
         </div>
@@ -785,11 +788,14 @@ const UIManager = {
     const gainPct = r.levelUps ? xpNow / xpNeed * 100 : Math.min(100, r.xp / xpNeed * 100);
     const basePct = r.levelUps ? 0 : Math.max(0, (xpNow - r.xp) / xpNeed * 100);
     const unlockHTML = r.unlocks.filter(u => u.kind !== 'chapter' && u.kind !== 'ng').map(u => `<div class="item"><canvas data-unlock="${u.kind}:${u.id}"></canvas>${esc(gearName(u.kind, u.id))}</div>`).join('');
-    const sealNames = r.mode === 'survival' ? ['5 waves', '10 waves', '15 waves'] : ['Victory', 'Under 60s', 'Flawless'];
+    // the Interlude spar has no winner (outcome 'interrupted'): Takashi called the boys in
+    const sparred = r.outcome === 'interrupted';
+    const sealNames = r.mode === 'survival' ? ['5 waves', '10 waves', '15 waves'] : [sparred ? 'Remembered' : 'Victory', 'Under 60s', 'Flawless'];
     const win = r.mode === 'survival' ? r.waves > 0 : r.win;
-    const title = r.mode === 'survival' ? (r.newBest ? 'New Record' : 'Fallen') : r.win ? 'Victory' : 'Defeated';
+    const title = r.mode === 'survival' ? (r.newBest ? 'New Record' : 'Fallen') : sparred ? 'Interrupted' : r.win ? 'Victory' : 'Defeated';
     const stretch = r.kind === 'stretch';
     const line = r.mode === 'survival' ? (r.newBest ? `Wave ${r.waves}. The pit will remember your name.` : `Wave ${r.waves}. Best: wave ${save.survivalBest}.`)
+      : sparred ? 'Takashi called you in before anyone won. Nobody ever settled it.'
       : stretch ? (r.win ? `The road is walked.${r.clues ? ` Clues found: ${r.clues}.` : ''}` : `The road still bars the way. Rise again.`)
       : r.win ? `${foeName} ${d.type === 'boss' ? 'has fallen. The way opens.' : 'has fallen.'}` : `${foeName} still stands. Rise again.`;
     el.innerHTML = `

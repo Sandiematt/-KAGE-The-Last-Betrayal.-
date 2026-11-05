@@ -117,6 +117,33 @@ const SCENES = {
       { say: 'raikon', text: 'It feels like rain. Go, shadow. Find him.' }
     ]
   },
+  // ---- Interlude: Brothers (stage interlude.spar, Takashi's training yard, a memory) ----
+  // The question "who won?" is never answered here; the Epilogue pays it off ("So... who won?" / "I did." /
+  // "Keep dreaming."), so these scenes must not say those lines.
+  'interlude.spar.before': { memory: true,
+    steps: [
+      { say: 'narrator', text: 'Hoshimura. Takashi’s yard, years before the fire. The light is warmer than Kage remembers it being.' },
+      { say: 'rem', name: 'Young Rem', text: 'Yesterday doesn’t count. You slipped on the wet boards.' },
+      { say: 'kage', name: 'Young Kage', text: 'You slipped. I just happened to be standing where you fell.' },
+      { say: 'rem', name: 'Young Rem', text: 'Then I’ll fall on you again. Faster this time. Father, watch!' },
+      { say: 'takashi', text: 'I am watching. Bokken only. Stance first, then the form, the way I taught you. Both of you.' },
+      { say: 'rem', name: 'Young Rem', text: 'Stance, dash, rise, spin, land, flow. I could do it asleep.' },
+      { say: 'kage', name: 'Young Kage', text: 'You do do it asleep. That’s why you leave your left side open.' },
+      { say: 'takashi', text: 'Enough talking. Begin.' }
+    ]
+  },
+  'interlude.spar.after': { memory: true,
+    steps: [
+      { say: 'takashi', text: 'Rice is getting cold. Swords on the rack. Now.' },
+      { say: 'rem', name: 'Young Rem', text: 'But we’re not finished! One more touch and I had him!' },
+      { say: 'kage', name: 'Young Kage', text: 'One more touch and you’d be face-down in the dirt.' },
+      { say: 'rem', name: 'Young Rem', text: 'Father, tell him. You saw it.' },
+      { say: 'takashi', text: 'I saw two boys who still drop their guard when they get angry. Inside.' },
+      { say: 'rem', name: 'Young Rem', text: 'This isn’t over. We settle it tomorrow.' },
+      { say: 'kage', name: 'Young Kage', text: 'Tomorrow, then.' },
+      { say: 'narrator', text: 'They never did settle it. Somewhere in the ash, the question is still waiting.' }
+    ]
+  },
   // Stub; SAN-44 writes the real Epilogue.
   'epilogue.stub': {
     steps: [
