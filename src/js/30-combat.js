@@ -649,7 +649,7 @@ const Combat = {
       def.guard -= (m.gb || m.dmg * 1.3);
       def.vx = dir * (m.kb || 150) * 0.45;
       def.counterT = 0.45;
-      def.rage = Math.min(100, def.rage + m.dmg * 0.4 * def.rageMul * (def.armor === 'executioner_garb' ? 2 : 1));
+      def.rage = Math.min(100, def.rage + m.dmg * 0.4 * def.rageMul * (1 + (def.blockRage || 0)));
       if (!m.proj) att.vx = -att.facing * 120;
       fx.sparks(ix, iy, -dir, 7, att.hasWeapon && m.kind === 'weapon' ? C.gold : C.bone);
       fx.stop(0.04); fx.shake(0.1);
@@ -663,7 +663,7 @@ const Combat = {
     }
     // ---- clean hit ----
     let dmg = m.dmg * (m.id === 'hk' ? 1 + att.moveCharge * 0.9 : 1);
-    if (!m.proj) dmg *= att.dmgMul * ((m.kind === 'weapon' || m.kind === 'air') && att.hasWeapon ? weaponMul(att.wlvl).dmg : 1);
+    if (!m.proj) dmg *= att.dmgMul * ((m.kind === 'weapon' || m.kind === 'air') && att.hasWeapon ? weaponMul(att.weaponId(), att.wlvl).dmg : 1);
     const comboing = def.state === 'hit' || def.state === 'juggle' || def.state === 'stun';
     if (comboing) dmg *= Math.max(0.45, 1 - 0.07 * att.comboHits); else att.comboHits = 0;
     if (!m.proj) dmg *= Math.max(0.55, Math.pow(0.86, att.repeat));
@@ -813,7 +813,7 @@ const SPECIAL_IMPL = {
     f.startAbility({ dur: 0.62, uninterruptible: true, rate: 30, trail: true,
       pose: (f, t) => (t < 0.22 ? MOVES.k1.w : MOVES.k1.s),
       start(f) { f.invuln = 0.3; world.fx.banner('Crescent Moon', 'Rage art', C.bone); },
-      update(f, w, t) { if (t > 0.22 && !this.done) { this.done = true; WeaponSystem.spawn(w, 'crescent', f, { y: f.y - 120 * f.scale, dmgMul: weaponMul(f.wlvl).dmg }); AudioManager.play('heavyswing'); w.fx.shake(0.3); } } });
+      update(f, w, t) { if (t > 0.22 && !this.done) { this.done = true; WeaponSystem.spawn(w, 'crescent', f, { y: f.y - 120 * f.scale, dmgMul: weaponMul(f.weaponId(), f.wlvl).dmg }); AudioManager.play('heavyswing'); w.fx.shake(0.3); } } });
   },
   mountainSplit(f, world) {
     f.startAbility({ dur: 1.0, uninterruptible: true, rate: 24, trail: true,

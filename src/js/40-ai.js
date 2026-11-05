@@ -32,7 +32,7 @@ class AIController {
   }
   target() { return this.world.player; }
   reachOf(f, kind) {
-    if (kind === 'weapon') { const m = MOVES[f.weapon().moves[0]]; return (m.box[0] + m.box[2]) * f.scale * (f.hasWeapon ? weaponMul(f.wlvl).reach : 1); }
+    if (kind === 'weapon') { const m = MOVES[f.weapon().moves[0]]; return (m.box[0] + m.box[2]) * f.scale * (f.hasWeapon ? weaponMul(f.weaponId(), f.wlvl).reach : 1); }
     if (kind === 'kick') return 128 * f.scale;
     return 100 * f.scale;
   }
@@ -111,7 +111,7 @@ class AIController {
     if (Math.sign(this.f.x - p.x) !== p.facing) return false;
     const m = p.move;
     if (m.kind === 'throw') return dist < 500;
-    const reach = (m.box ? (m.box[0] + m.box[2]) * p.scale * (p.hasWeapon ? weaponMul(p.wlvl).reach : 1) : 120) + (m.lunge ? m.lunge * 0.18 : 0);
+    const reach = (m.box ? (m.box[0] + m.box[2]) * p.scale * (p.hasWeapon ? weaponMul(p.weaponId(), p.wlvl).reach : 1) : 120) + (m.lunge ? m.lunge * 0.18 : 0);
     return dist < reach + 50;
   }
 

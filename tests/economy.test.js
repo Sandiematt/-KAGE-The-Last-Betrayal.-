@@ -11,24 +11,24 @@ test('each level needs 120 more XP than the last, starting at 200', () => {
   assert.equal(Logic.xpForLevel(10), 1280);
 });
 
-test('a new player has 220 health; each level adds 4', () => {
+test('a new player has 232 health (220 plus the starting gear); each level adds 4', () => {
   const s = Logic.defaultSave();
-  assert.equal(Logic.playerMaxHp(s), 220);
+  assert.equal(Logic.playerMaxHp(s), 232);
   s.level = 6;
-  assert.equal(Logic.playerMaxHp(s), 240);
+  assert.equal(Logic.playerMaxHp(s), 252);
 });
 
-test('upgrading a weapon raises its shown stats, capped at 100', () => {
-  assert.deepEqual({ ...Logic.weaponStats('moon_katana', 1) }, { damage: 60, speed: 64, reach: 58 });
-  assert.deepEqual({ ...Logic.weaponStats('moon_katana', 3) }, { damage: 68, speed: 68, reach: 60 });
-  const maxed = Logic.weaponStats('titan_hammer', Logic.GEAR_MAX.weapons);
-  for (const v of Object.values(maxed)) assert.ok(v <= 100);
+test('upgrading a weapon raises its shown stats; no shop weapon reaches 100 speed or reach', () => {
+  assert.deepEqual({ ...Logic.weaponStats('kagetsu', 1) }, { damage: 60, speed: 64, reach: 58 });
+  assert.deepEqual({ ...Logic.weaponStats('kagetsu', 3) }, { damage: 70, speed: 67, reach: 60 });
+  const maxed = Logic.weaponStats('iwakudaki', Logic.GEAR_MAX.weapons);
+  assert.deepEqual({ ...maxed }, { damage: 153, speed: 19, reach: 73 });
 });
 
 test('upgrade costs scale with the item price and level, rounded to 10 coins', () => {
-  // moon_katana has no price: base 500 -> 500 * 0.65 (324.99... in floating point) -> 320
-  assert.equal(Logic.upgradeCost('weapons', 'moon_katana', 1), 320);
-  assert.equal(Logic.upgradeCost('weapons', 'moon_katana', 2), 480);
+  // kagetsu has no price: base 500 -> 500 * 0.65 (324.99... in floating point) -> 320
+  assert.equal(Logic.upgradeCost('weapons', 'kagetsu', 1), 320);
+  assert.equal(Logic.upgradeCost('weapons', 'kagetsu', 2), 480);
 });
 
 test('gear you cannot afford, already own, or that is a boss trophy cannot be bought', () => {
@@ -51,26 +51,26 @@ test('gear you cannot afford, already own, or that is a boss trophy cannot be bo
 
 test('upgrading spends the upgrade cost and stops at the cap', () => {
   const s = Logic.defaultSave(); s.coins = 1e9;
-  assert.equal(Logic.upgradeItem(s, 'weapons', 'moon_katana'), true);
-  assert.equal(s.owned.weapons.moon_katana, 2);
+  assert.equal(Logic.upgradeItem(s, 'weapons', 'kagetsu'), true);
+  assert.equal(s.owned.weapons.kagetsu, 2);
   assert.equal(s.coins, 1e9 - 320);
-  while (Logic.upgradeItem(s, 'weapons', 'moon_katana'));
-  assert.equal(s.owned.weapons.moon_katana, Logic.GEAR_MAX.weapons);
-  assert.equal(Logic.upgradeItem(s, 'weapons', 'titan_hammer'), false, 'gear you do not own cannot be upgraded');
+  while (Logic.upgradeItem(s, 'weapons', 'kagetsu'));
+  assert.equal(s.owned.weapons.kagetsu, Logic.GEAR_MAX.weapons);
+  assert.equal(Logic.upgradeItem(s, 'weapons', 'iwakudaki'), false, 'gear you do not own cannot be upgraded');
 });
 
 test('upgrading needs enough coins', () => {
   const s = Logic.defaultSave(); s.coins = 319;
-  assert.equal(Logic.upgradeItem(s, 'weapons', 'moon_katana'), false);
+  assert.equal(Logic.upgradeItem(s, 'weapons', 'kagetsu'), false);
   assert.equal(s.coins, 319);
-  assert.equal(s.owned.weapons.moon_katana, 1);
+  assert.equal(s.owned.weapons.kagetsu, 1);
 });
 
 test('only owned gear can be equipped, into its own slot', () => {
   const s = Logic.defaultSave();
-  assert.equal(Logic.equipItem(s, 'weapons', 'titan_hammer'), false);
-  assert.equal(s.equipped.weapon, 'moon_katana');
-  s.owned.helmets.ronin_hood = 1;
-  assert.equal(Logic.equipItem(s, 'helmets', 'ronin_hood'), true);
-  assert.equal(s.equipped.helmet, 'ronin_hood');
+  assert.equal(Logic.equipItem(s, 'weapons', 'iwakudaki'), false);
+  assert.equal(s.equipped.weapon, 'kagetsu');
+  s.owned.helmets.kuro_zukin = 1;
+  assert.equal(Logic.equipItem(s, 'helmets', 'kuro_zukin'), true);
+  assert.equal(s.equipped.helmet, 'kuro_zukin');
 });

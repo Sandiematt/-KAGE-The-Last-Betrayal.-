@@ -57,10 +57,23 @@ test('gear marked exclusive is either locked outright or names an enemy that exi
   }
 });
 
-test('trophies from removed bosses cannot be bought', () => {
-  const s = Logic.defaultSave(); s.coins = 1e9; s.gems = 1e9;
-  for (const [kind, id] of [['weapons', 'dragon_spear'], ['helmets', 'hollow_crest'], ['armors', 'colossus_plate']]) {
-    assert.equal(Logic.buyItem(s, kind, id), false, id);
-    assert.equal(s.owned[kind][id], undefined);
+test('every enemy wears a helmet and armour that resolve to gear or to a drawing the fighter knows', () => {
+  const caseKeys = (fn) => { const src = moduleSource('20-fighter.js'), i = src.indexOf(`function ${fn}(`); const body = src.slice(i, src.indexOf('\n}\n', i));
+    return [...body.matchAll(/case '([a-z_]+)'/g)].map(m => m[1]); };
+  const helmLooks = caseKeys('drawHelmet'), armorLooks = caseKeys('drawArmor').concat(['cloak', 'shadow_cloak', 'mist_shroud', 'storm_mantle', 'wraps']);
+  for (const [id, d] of Object.entries(ENEMIES)) {
+    assert.ok(HELMETS[d.helmet] || helmLooks.includes(d.helmet), `${id} helmet ${d.helmet}`);
+    assert.ok(ARMORS[d.armor] || armorLooks.includes(d.armor), `${id} armor ${d.armor}`);
   }
+  for (const [kind, table, looks] of [['helmets', HELMETS, helmLooks], ['armors', ARMORS, armorLooks]])
+    for (const [id, it] of Object.entries(table)) assert.ok(looks.includes(it.look || id), `${kind}.${id} look ${it.look}`);
+});
+
+test('every enemy weapon fights on a move-set that exists', () => {
+  for (const [id, w] of Object.entries(WEAPONS)) if (w.base) assert.ok(WEAPONS[w.base] && !WEAPONS[w.base].base, `${id} base ${w.base}`);
+});
+
+test('gear rewards on campaign stages only name items that exist', () => {
+  for (const st of Logic.stages()) for (const kind of ['weapons', 'helmets', 'armors'])
+    for (const id of (st.reward || {})[kind] || []) assert.ok(Logic.gearTable(kind)[id], `${st.id} rewards missing ${kind}.${id}`);
 });

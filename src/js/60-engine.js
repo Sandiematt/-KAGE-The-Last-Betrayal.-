@@ -28,12 +28,10 @@ class FightSession {
   roundTime() { return this.mode === 'survival' ? 90 : this.isBoss ? 150 : 75; }
 
   makePlayer(save) {
-    const h = HELMETS[save.equipped.helmet], a = ARMORS[save.equipped.armor];
-    const pk = {}; for (const src of [h.perks, a.perks]) for (const k in src) pk[k] = (pk[k] || 0) + src[k];
-    const def = gearDef('helmets', h.id, save.owned.helmets[h.id]) + gearDef('armors', a.id, save.owned.armors[a.id]);
+    const g = Logic.playerCombatStats(save), pk = g.perks;
     const f = makePlayerFighter(save, {
-      x: -300, team: 0, hp: playerMaxHp(save), defense: Math.min(0.5, def), speedMul: 1 + (pk.speed || 0), rageMul: 1 + (pk.rage || 0),
-      stunRes: pk.stunRes || 0, dashBonus: pk.dash || 0, ammo: 5 + (pk.ammo || 0), kunaiMul: 1 + (pk.kunai || 0),
+      x: -300, team: 0, hp: g.hp, defense: g.defense, speedMul: 1 + (pk.speed || 0), rageMul: 1 + (pk.rage || 0),
+      stunRes: pk.stunRes || 0, dashBonus: pk.dash || 0, ammo: 5 + (pk.ammo || 0), kunaiMul: 1 + (pk.kunai || 0), blockRage: pk.blockRage || 0,
       dmgMul: (1 + 0.012 * (save.level - 1)) * (1 + (pk.dmg || 0))
     });
     f.name = 'Kage';
@@ -75,7 +73,7 @@ class FightSession {
   }
   nearestEnemy(f) { return this.opponentOf(f); }
   spawnProjectile(type, f) { return WeaponSystem.spawn(this, type, f, { dmgMul: 1 }); }
-  spawnShock(f, m) { WeaponSystem.spawn(this, 'shock', f, { dmgMul: (f.isPlayer ? weaponMul(f.wlvl).dmg : 1) * (m.dmg > 30 ? 1.3 : 1) }); AudioManager.play('slam'); this.fx.dust(f.x + f.facing * 90, 0, 14); this.fx.shake(0.4); }
+  spawnShock(f, m) { WeaponSystem.spawn(this, 'shock', f, { dmgMul: (f.isPlayer ? weaponMul(f.weaponId(), f.wlvl).dmg : 1) * (m.dmg > 30 ? 1.3 : 1) }); AudioManager.play('slam'); this.fx.dust(f.x + f.facing * 90, 0, 14); this.fx.shake(0.4); }
   dropWeapon(f) { WeaponSystem.drop(this, f); }
   applyThrow(att, v) { Combat.applyThrow(this, att, v); }
   wallBounce(f) {

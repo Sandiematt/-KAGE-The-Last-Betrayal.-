@@ -3,8 +3,9 @@
 const HERO_FACEWRAP = '#efe9dd', HERO_FACEWRAP_SHADE = '#b4ac9f';   // Kage's white face-wrap: flat fill + one cel-shade tone
 const BODY = { torso: 60, neck: 7, head: 18, upper: 36, fore: 34, thigh: 45, shin: 47 };
 const SHAPE = {
-  fists: 'none', twin_blades: 'short', moon_katana: 'katana', mountain_cleaver: 'cleaver', dragon_spear: 'spear',
-  phantom_sickle: 'sickle', titan_hammer: 'hammer', shadow_daggers: 'short', hollow_crescents: 'crescent', mist_fans: 'fan',
+  fists: 'none', tsubame: 'short', kagetsu: 'katana', shizuka: 'katana', onikiri: 'cleaver', mizuchi: 'spear',
+  yamigama: 'sickle', iwakudaki: 'hammer', shinsen: 'katana', raiko_no_tachi: 'cleaver', kagehira_yurei: 'short', mugen_no_ha: 'katana',
+  shadow_daggers: 'short', hollow_crescents: 'crescent', mist_fans: 'fan',
   sentinel_spear: 'spear', sage_staff: 'staff', storm_orbs: 'none', iron_fists: 'none', chain_hook: 'hook',
   tyrant_cleaver: 'tyrant', cutter_blade: 'katana', temple_staff: 'staff', raider_cleaver: 'cleaver'
 };
@@ -123,9 +124,11 @@ class Fighter {
     this.scale = this.build.scale * 1.22;
     this.x = o.x || 0; this.y = 0; this.vx = 0; this.vy = 0; this.facing = o.facing || 1;
     this.baseWeapon = o.weapon || 'fists'; this.wlvl = o.wlvl || 1; this.hasWeapon = this.baseWeapon !== 'fists';
-    this.helmet = o.helmet || 'topknot'; this.armor = o.armor || 'wraps';
+    // helmet / armor hold the drawing keys; helmetId / armorId the gear ids (see gearLook in 15-logic.js)
+    this.helmetId = o.helmet || 'shiro_maki'; this.armorId = o.armor || 'tachibana_yoroi';
+    this.helmet = gearLook('helmets', this.helmetId); this.armor = gearLook('armors', this.armorId);
     this.maxHp = o.hp || 200; this.hp = this.maxHp; this.dmgMul = o.dmgMul || 1; this.defense = o.defense || 0; this.speedMul = o.speedMul || 1;
-    this.rageMul = o.rageMul || 1; this.stunRes = o.stunRes || 0; this.dashBonus = o.dashBonus || 0; this.kunaiMul = o.kunaiMul || 1;
+    this.blockRage = o.blockRage || 0; this.rageMul = o.rageMul || 1; this.stunRes = o.stunRes || 0; this.dashBonus = o.dashBonus || 0; this.kunaiMul = o.kunaiMul || 1;
     this.rage = 0; this.ammo = o.ammo == null ? 5 : o.ammo; this.maxAmmo = this.ammo; this.guard = 100;
     this.eye = o.eye || C.bone; this.accent = o.accent || C.emberBright;
     this.state = 'idle'; this.st = 0; this.alive = true;
@@ -411,7 +414,7 @@ class Fighter {
     this.lastMoveId = m.id; this.lastMoveT = now;
     this.move = m; this.setState('move'); this.mt = 0; this.mphase = 0; this.hitList.length = 0; this.moveHit = false; this.multiN = 0;
     this.moveCharge = opts && opts.charge != null ? opts.charge : 0;
-    const wm = m.kind === 'weapon' || (m.kind === 'air' && WEAPONS[this.weaponId()].air === m.id) ? weaponMul(this.wlvl) : null;
+    const wm = m.kind === 'weapon' || (m.kind === 'air' && WEAPONS[this.weaponId()].air === m.id) ? weaponMul(this.weaponId(), this.wlvl) : null;
     const spd = (wm ? wm.spd : 1) * (this.isPlayer ? 1 : (this.def && this.def.speed ? Math.sqrt(this.def.speed) : 1));
     this.mdur[0] = m.t[0] / spd; this.mdur[1] = m.t[1]; this.mdur[2] = m.t[2] / spd;
     if (this.boostAtk) { this.mdur[0] *= this.boostAtk; this.mdur[2] *= this.boostAtk; }
@@ -510,7 +513,7 @@ class Fighter {
   hitbox(out) {
     if (this.state !== 'move' || this.mphase !== 1 || !this.move || !this.move.box) return null;
     const b = this.move.box, s = this.scale;
-    const reach = (this.move.kind === 'weapon' || this.move.kind === 'air') && this.hasWeapon ? weaponMul(this.wlvl).reach : 1;
+    const reach = (this.move.kind === 'weapon' || this.move.kind === 'air') && this.hasWeapon ? weaponMul(this.weaponId(), this.wlvl).reach : 1;
     const x0 = b[0] * s, w = b[2] * s * reach * (this.move.id === 'hk' ? 1 + this.moveCharge * 0.15 : 1);
     out.x = this.facing > 0 ? this.x + x0 : this.x - x0 - w;
     out.y = this.y + b[1] * s; out.w = w; out.h = b[3] * s;
@@ -926,7 +929,7 @@ class Fighter {
     const ang = Math.atan2(ty - L.bel.y, tx - L.bel.x);
     L.bha.x = L.bel.x + Math.cos(ang) * b; L.bha.y = L.bel.y + Math.sin(ang) * b;
   }
-  weaponLen() { const w = this.weapon(); return (w.len || 0) * this.scale * (this.hasWeapon ? weaponMul(this.wlvl).reach : 1); }
+  weaponLen() { const w = this.weapon(); return (w.len || 0) * this.scale * (this.hasWeapon ? weaponMul(this.weaponId(), this.wlvl).reach : 1); }
 
   updateCloth(dt) {
     for (const cl of this.cloths) {
@@ -1645,6 +1648,17 @@ function drawArmor(ctx, f, ink, opt, Ut) {
   };
   ctx.fillStyle = ink;
   switch (f.armor) {
+    case 'tachibana': {
+      // Kage's starting Tachibana Yoroi: a compact shoulder guard (the forearm guards are the hero wraps)
+      // and the small family crest, half-hidden behind the front arm
+      plate(Ut * 0.42, 'rgba(160,151,133,0.35)');
+      if (!flat) {
+        const px = lerp(hx, nx, 0.72) - fc * Ut * 0.3, py = lerp(hy, ny, 0.72);
+        ctx.fillStyle = 'rgba(201,164,92,0.6)'; ctx.beginPath(); ctx.arc(px, py, 1.6 * s, 0, TAU); ctx.fill();
+        ctx.strokeStyle = 'rgba(201,164,92,0.4)'; ctx.lineWidth = 0.7 * s; ctx.beginPath(); ctx.arc(px, py, 3 * s, 0, TAU); ctx.stroke();
+      }
+      break;
+    }
     case 'jerkin': case 'executioner_garb':
       torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.07);
       if (!flat) bands(2, 'rgba(160,151,133,0.28)', Ut * 0.95, 0.25, 0.75);

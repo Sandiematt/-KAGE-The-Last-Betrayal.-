@@ -11,12 +11,12 @@ The whole game ships as **one self-contained `index.html`**: HTML5, Canvas 2D, v
 - **Opening and home screen:** the splash writes K-A-G-E stroke by stroke under the red moon, then *The Last Betrayal* and its tagline. On the home screen the key art comes alive: the moon breathes, Kage's face-wrap strip blows in the wind, his blade glows, the cracked ground smoulders and embers rise, and the 2.5D parallax layers follow your pointer.
 - **Campaign:** Prologue (1 stretch) → Act I (4 stretches, each followed by a sub-boss, then Raikon) → Interlude (the Rem spar) → Act II (the same shape, ending with Akari) → Act III (ending with Takashi) → The Core (1 stretch, the echoes of Raikon, Akari, Takashi and Rem, then the Witness) → Epilogue, *The Last Choice* (no combat). Stages unlock in story order, and cleared stages can be replayed.
 - **Survival:** endless waves, a sub-boss every 5th wave, coins every wave and a gem every 5 waves.
-- **Armory:** 6 weapons, 10 helmets and 9 armors. Each item can be bought, upgraded and equipped. Boss trophies are exclusive.
+- **Armory:** the gear of Yomi, each item with a one-line lore. Kage starts with **Kagetsu** ("Shadow Moon", his katana), the **White Face-Wrap** and the **Tachibana Yoroi**. The shop sells six more weapons (one per combat style: Shizuka, Tsubame, Onikiri, Mizuchi, Yamigama, Iwakudaki), 10 helmets and 10 armours in Common, Rare and Epic tiers; everything can be bought, upgraded and equipped. Boss weapons (Shinsen, Raikō no Tachi, Kagehira & Yūrei, Mugen no Ha) and boss trophies (Raijin Kabuto, Kasa, Mei-En Garb, Kysmei Robe, Kurokumo Yoroi, and the New Game+ only Shinsei Yoroi) are shown locked until their boss drops them.
 - **Progression:** coins, gems, XP and levels, performance ratings, honor seals, New Game+, and saves in `localStorage` (key `kage.lastbetrayal.save.v2`, schema version 2). Saves from the old game (`kage.save.v1`, `ashbound.save.v1`) are deleted on first launch and nothing is carried over.
 - **Look and feel:** procedural skeletal stickmen, inverted impact frames, stamped onomatopoeia, hit-stop, trauma-based screen shake, slow-motion finishers and ink-wipe screen transitions.
 - **UI:** a dark Japanese identity — brush KAGE logo, brush-stroke menu buttons, crimson and muted gold, a premium combat HUD (portrait medallions, gold-framed health bars with smooth drain, glowing rage meter, cinematic boss bar). Layout tokens started from the Wonder design file *Vole*.
 - **Sword animation:** every technique runs on a timeline (anticipation → wind-up → whipping strike → follow-through → stance) with torso and hip twist, per-weapon weight, and over-extended recovery after a heavy whiff.
-- **Elemental effects:** smears are built from the real blade history. Moon Katana = moon crescents, Dragon Spear = water, Mountain Cleaver = flame (with heat haze), Titan Hammer = earth shockwaves and ground shards, Twin Blades = lightning, Phantom Sickle = blood moon, bare hands = wind.
+- **Elemental effects:** smears are built from the real blade history. each weapon carries an element (`el`): Kagetsu = moon crescents, Mizuchi = water, Onikiri = flame (with heat haze), Iwakudaki = earth shockwaves and ground shards, Tsubame = lightning, Yamigama = blood moon, bare hands = wind.
 - **Cinematic moments:** perfect parry, perfect dodge (slow-motion), critical hits, combo milestones, blade clashes, boss phase transitions and a full-screen finishing slash, each with its own calligraphy mark.
 
 ---
@@ -67,7 +67,15 @@ All progression rules live in `src/js/15-logic.js`, exposed as the global `Logic
 - `SaveManager` (in `00-core.js`) only does storage. On launch it reads `Logic.SAVE_KEY` and every key in `Logic.LEGACY_SAVE_KEYS`, and hands the texts to `Logic.openSave(stored)`. That returns `{ save, error, remove, fresh }`: the save to play with (read from the current key only, defaults filled in, a fresh save when the text is corrupt), the old game's keys to delete, and whether a fresh save should be written. `SaveManager` then removes those keys from `localStorage` and writes the fresh save.
 - The engine (`Game.finishFight`, `nextStage`, `stageUnlocked`, `playScene`, `rate`, `stageConfig`, `startNewGamePlus`, survival wave rewards) and the UI (campaign map, stage card, chapter locks, Armory buy/upgrade/equip) call `Logic` instead of holding the rules. New rules go into `Logic` first, with a test.
 - **The campaign map** is `CAMPAIGN` in `10-data.js`: chapters (`prologue`, `act1`, `interlude`, `act2`, `act3`, `core`, `epilogue`) with their stages in play order. Every stage has a stable string id (`prologue.1`, `act1.stretch1`, `act1.sub1` … `act1.boss`, `interlude.spar`, `core.echo4`, `core.witness`, `epilogue`) and a `kind`: `stretch`, `subboss`, `boss`, `spar`, `echo` or `scene`. Saves record `cleared[stageId]` (this cycle) and `defeated[stageId]` (lifetime). `Logic` answers `chapters()`, `chapter(id)`, `stages()`, `stage(id)`, `chapterOf(id)`, `isStageUnlocked`, `isStageComplete`, `isChapterUnlocked`, `isChapterComplete`, `chapterProgress`, `nextStage`, `isCampaignComplete`, `stageConfig` and `completeStage(save, id)`, which clears the stage and returns the chapter or New Game+ it opened. Finishing the Epilogue unlocks New Game+.
-- The economy formulas (`weaponMul`, `weaponStats`, `gearDef`, `upgradeCost`, `playerMaxHp`, `xpForLevel`, `gearTable`) are also top-level functions in `15-logic.js`, because combat code calls them directly; they are on `Logic` too.
+- The economy formulas (`weaponMul(id, lvl)`, `weaponStats`, `weaponTotal`, `gearDef`, `gearHp`, `gearLook`, `maxLevel`, `upgradeCost`, `playerMaxHp`, `xpForLevel`, `gearTable`) are also top-level functions in `15-logic.js`, because combat code calls them directly; they are on `Logic` too.
+- **Gear and tiers.** Weapons, helmets and armours live in `WEAPONS`, `HELMETS` and `ARMORS` (`10-data.js`). Every item has a `tier` (`GEAR_TIERS`: `starter`, `common`, `rare`, `epic`, `trophy`, `boss`) and a `lore` line. A weapon's `stats` are `[damage, speed, reach]` at level 1; each upgrade adds 8% damage, 2.5% speed and 1.5% reach. In a fight `weaponMul(id, lvl)` gives its damage relative to the weapon whose move-set it uses (`base`), so a boss weapon on the katana forms hits far harder than Kagetsu; speed and reach multipliers are capped at ×1.25 and ×1.2. Helmets and armours give `def` (+1.2 points per level) and `hp` (+10% per level) plus `perks`; `look` names their drawing in `20-fighter.js`. Shop weapons go to level 8 and climb a tier as they are upgraded (`Logic.itemTier`: Kagetsu is Common, Rare from level 4, Epic from level 7); helmets and armours go to level 5; trophies and boss weapons are fixed at level 1 (`Logic.maxLevel`). The tests hold the tier rule: every boss weapon has at least 1.5× the total stats of the best fully upgraded shop weapon, and every trophy beats every fully upgraded shop item of its slot. `Logic.playerCombatStats(save)` is what the equipped gear does in a fight (health, defence capped at 50%, weapon damage, summed perks); boss stats never scale with player level.
+- **Locked gear and stage rewards.** An item marked `exclusive` is never sold; `Logic.isLocked(save, kind, id)` is true until it is owned and `Logic.lockHint(kind, id)` is what the Armory shows (the item's `hint`, such as "Defeat Raikon", else the stage that rewards it). A campaign stage grants gear with a `reward` field:
+
+  ```js
+  { id: 'act1.boss', kind: 'boss', /* ... */, reward: { weapons: ['raiko_no_tachi'], helmets: ['raijin_kabuto'] } }
+  ```
+
+  `Logic.completeStage` (and so `applyFightResult` on a win) calls `Logic.grantStageReward`, which gives each listed item at level 1 exactly once: the first time the stage is cleared while the item is not owned. An item flagged `ngOnly` (Shinsei Yoroi) is only granted when the stage is cleared during New Game+. Granted items come back in the result's `gear` and in `unlocks` as `{ kind: 'weapons' | 'helmets' | 'armors', id }`, which the result screen and toasts show. No stage has a reward yet: the boss and sub-boss updates add them (and the 12 sub-boss trophies).
 - In the browser console it is available as `KAGE.Logic`.
 
 Run the tests (Node 18+, no dependencies, built-in test runner):
@@ -137,10 +145,11 @@ In `src/js/10-data.js`, add an entry to `WEAPONS`:
 
 ```js
 storm_glaive: {
-  name: 'Storm Glaive', cls: 'Polearm', tab: 'polearms', rarity: 'Rare Polearm',
+  name: 'Arashi', cls: 'Glaive', tab: 'polearms', tier: 'rare',
   hands: 2, len: 170, stance: 'spear',            // stance from STANCES
-  stats: [58, 55, 88], price: 1800,                // shown in the Armory (damage, speed, reach)
-  trail: '#7fb8ff', desc: 'Sweeping lightning arcs.',
+  stats: [58, 55, 88], price: 1800,                // damage, speed, reach at level 1
+  trail: '#7fb8ff', el: 'lightning', desc: 'Sweeping lightning arcs.',
+  lore: 'A glaive from a Silent War signal tower, still humming with the storm.',   // one line, shown in the Armory
   moves: ['g1', 'g2'], air: 'sa', special: 'dragonLance', counter: 'g1',
   defs: {
     g1: { kind: 'weapon', w: { fs: 150, wa: 200 }, s: { lean: 20, fs: 70, wa: 30 },
@@ -151,7 +160,7 @@ storm_glaive: {
 }
 ```
 
-Then:
+A weapon that reuses another weapon's move-set names it with `base: 'mizuchi'` and needs only its own name, tier, stats, look and lore (see Shizuka and the boss weapons). Then:
 
 1. Map its drawing in `SHAPE` in `src/js/20-fighter.js`, for example `storm_glaive: 'spear'`, or add a new shape case in `drawWeaponShape`.
 2. Run `node build.mjs`. The weapon appears in the Armory and in the pre-fight weapon dock.
@@ -170,7 +179,7 @@ Add an entry to `ENEMIES` in `src/js/10-data.js`:
 ```js
 ronin_king: {
   name: 'Sorai', title: 'the Ronin King', type: 'boss', ai: 'boss',
-  weapon: 'moon_katana', helmet: 'iron_kabuto', armor: 'cloak', hp: 800, dmg: 1.2,
+  weapon: 'kagetsu', helmet: 'tetsu_kabuto', armor: 'cloak', hp: 800, dmg: 1.2,
   build: { scale: 1.2, w: 12 }, eye: '#c9a45c', accent: '#c9a45c',
   taunt: 'Opening line', defeat: 'Defeat line', win: 'Victory line', tip: 'Defeat-screen hint',
   phases: [

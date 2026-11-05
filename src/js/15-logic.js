@@ -5,23 +5,50 @@
 
 /* ---------------- economy formulas ----------------
    Kept as top-level functions because the fighter, combat and AI modules call them directly
-   in hot paths; they are also exposed on Logic below. */
+   in hot paths; they are also exposed on Logic below.
+   Weapons: `stats` = [damage, speed, reach] at level 1. Each upgrade level adds 8% damage, 2.5% speed and
+   1.5% reach. In a fight a weapon's damage multiplier is its damage over the damage of the weapon whose
+   forms (move-set) it uses, so a shop weapon starts at x1 and a boss weapon on the same forms starts far
+   above any upgraded shop weapon. Speed and reach multipliers are capped (x1.25 / x1.2) to keep the forms
+   readable. Helmets and armour: `def` grows 1.2 points per level, `hp` 10% per level. */
+const WEAPON_GROWTH = { dmg: 0.08, spd: 0.025, reach: 0.015 };
 function gearTable(kind) { return kind === 'weapons' ? WEAPONS : kind === 'helmets' ? HELMETS : ARMORS; }
+// Highest level an item can reach: trophies and boss weapons are fixed at level 1.
+function maxLevel(kind, id) {
+  const it = gearTable(kind)[id];
+  if (it && it.maxLvl) return it.maxLvl;
+  return it && (it.tier === 'trophy' || it.tier === 'boss') ? 1 : GEAR_MAX[kind];
+}
+// The drawing key of a helmet or armour (drawHelmet / drawArmor in 20-fighter.js). Enemies may also name a
+// drawing directly ('veil', 'oni', 'cloak', 'tyrant', 'robe'), which passes through unchanged.
+function gearLook(kind, id) { const it = gearTable(kind)[id]; return (it && it.look) || id; }
 function upgradeCost(kind, id, lvl) {
   const item = gearTable(kind)[id];
   const base = item.price || (item.gems ? item.gems * 60 : 500);
   return Math.round(Math.max(160, base * (0.35 + 0.3 * lvl)) / 10) * 10;
 }
-function weaponStats(id, lvl) {
-  const w = WEAPONS[id], s = w.stats || [40, 50, 40];
-  const l = (lvl || 1) - 1;
-  return { damage: Math.min(100, s[0] + l * 4), speed: Math.min(100, s[1] + l * 2), reach: Math.min(100, s[2] + l * 1) };
+function weaponRaw(id, lvl) {
+  const s = WEAPONS[id].stats || [40, 50, 40], l = Math.max(0, (lvl || 1) - 1);
+  return [s[0] * (1 + WEAPON_GROWTH.dmg * l), s[1] * (1 + WEAPON_GROWTH.spd * l), s[2] * (1 + WEAPON_GROWTH.reach * l)];
 }
-function weaponMul(lvl) { const l = (lvl || 1) - 1; return { dmg: 1 + 0.08 * l, spd: 1 + 0.025 * l, reach: 1 + 0.015 * l }; }
-function gearDef(kind, id, lvl) { const g = gearTable(kind)[id]; return g.def ? g.def + 0.012 * ((lvl || 1) - 1) : 0; }
+// The stats the Armory shows for a weapon at a level (uncapped: boss weapons go past 100).
+function weaponStats(id, lvl) {
+  const r = weaponRaw(id, lvl);
+  return { damage: Math.round(r[0]), speed: Math.round(r[1]), reach: Math.round(r[2]) };
+}
+function weaponTotal(id, lvl) { const s = weaponStats(id, lvl); return s.damage + s.speed + s.reach; }
+// Combat multipliers of a weapon at a level, relative to the weapon whose forms it fights with.
+function weaponMul(id, lvl) {
+  const w = WEAPONS[id] || WEAPONS.fists, ref = (w.base && WEAPONS[w.base] ? WEAPONS[w.base] : w).stats || [40, 50, 40];
+  const r = weaponRaw(w.id || 'fists', lvl);
+  return { dmg: r[0] / ref[0], spd: Math.min(1.25, r[1] / ref[1]), reach: Math.min(1.2, r[2] / ref[2]) };
+}
+function gearDef(kind, id, lvl) { const g = gearTable(kind)[id]; return g && g.def ? g.def + 0.012 * ((lvl || 1) - 1) : 0; }
+function gearHp(kind, id, lvl) { const g = gearTable(kind)[id]; return g && g.hp ? Math.round(g.hp * (1 + 0.1 * ((lvl || 1) - 1))) : 0; }
 function playerMaxHp(save) {
-  const a = ARMORS[save.equipped.armor], h = HELMETS[save.equipped.helmet];
-  return Math.round(220 + (save.level - 1) * 4 + ((a.perks.hp || 0) + (h.perks.hp || 0)));
+  const lv = (kind, id) => save.owned[kind][id] || 1;
+  const a = save.equipped.armor, h = save.equipped.helmet;
+  return Math.round(220 + (save.level - 1) * 4 + gearHp('armors', a, lv('armors', a)) + gearHp('helmets', h, lv('helmets', h)));
 }
 function xpForLevel(lvl) { return 200 + 120 * (lvl - 1); }
 
@@ -53,8 +80,8 @@ const Logic = {
       ng: 0, ngUnlocked: false, ngCompletions: 0,
       cleared: {},            // stageId -> true, current cycle
       defeated: {},           // stageId -> wins (lifetime, kept through New Game+)
-      owned: { weapons: { moon_katana: 1 }, helmets: { topknot: 1 }, armors: { wraps: 1 } },
-      equipped: { weapon: 'moon_katana', helmet: 'topknot', armor: 'wraps' },
+      owned: { weapons: { kagetsu: 1 }, helmets: { shiro_maki: 1 }, armors: { tachibana_yoroi: 1 } },
+      equipped: { weapon: 'kagetsu', helmet: 'shiro_maki', armor: 'tachibana_yoroi' },
       seenRewards: {},
       survivalBest: 0,
       stats: { wins: 0, losses: 0, perfects: 0, bosses: 0, playTime: 0 },
@@ -78,7 +105,15 @@ const Logic = {
     Object.assign(d, s);
     d.owned = Object.assign(this.defaultSave().owned, s.owned || {});
     for (const k of ['weapons', 'helmets', 'armors']) d.owned[k] = Object.assign({}, this.defaultSave().owned[k], (s.owned || {})[k] || {});
-    d.equipped = Object.assign(this.defaultSave().equipped, s.equipped || {});
+    // gear ids the tables no longer know (renamed or removed items, enemy-only arms) are dropped; a slot
+    // left wearing something unowned or unknown goes back to the starting item
+    const start = this.defaultSave().equipped;
+    for (const k of ['weapons', 'helmets', 'armors']) for (const id in d.owned[k]) {
+      const it = gearTable(k)[id];
+      if (!it || it.enemy || id === 'fists' || !(d.owned[k][id] > 0)) delete d.owned[k][id];
+    }
+    d.equipped = Object.assign({}, start, s.equipped || {});
+    for (const k of ['weapons', 'helmets', 'armors']) { const slot = this.equipSlot(k); if (!d.owned[k][d.equipped[slot]]) d.equipped[slot] = start[slot]; }
     d.stats = Object.assign(this.defaultSave().stats, s.stats || {});
     d.settings = Object.assign(this.defaultSave().settings, s.settings || {});
     // clears and defeats are keyed by stage id; keys the map does not know (old saves, removed stages) are dropped
@@ -122,7 +157,8 @@ const Logic = {
   // Lifetime wins on a stage (kept through New Game+).
   defeatedCount(save, id) { return save.defeated[id] || 0; },
   // Marks a stage cleared (a won fight, or a story scene played) and returns what that opened:
-  // { stage, firstClear, next, unlocks: [{ kind: 'chapter', id } | { kind: 'ng' }] }, or null when the stage is locked.
+  // { stage, firstClear, next, gear, unlocks: [{ kind: 'chapter', id } | { kind: 'ng' } | { kind: 'weapons' | 'helmets' | 'armors', id }] },
+  // or null when the stage is locked. `gear` lists the items the stage's reward granted (see grantStageReward).
   completeStage(save, id) {
     const st = this.stage(id);
     if (!st || !this.isStageUnlocked(save, id)) return null;
@@ -139,7 +175,23 @@ const Logic = {
         save.ngCompletions = Math.max(save.ngCompletions || 0, (save.ng || 0) + 1);
       }
     }
-    return { stage: id, firstClear, next, unlocks };
+    const gear = this.grantStageReward(save, id);
+    unlocks.push(...gear);
+    return { stage: id, firstClear, next, gear, unlocks };
+  },
+  // Gear a stage gives when it is cleared: `reward: { weapons: [...], helmets: [...], armors: [...] }` on a CAMPAIGN
+  // stage. Each item is granted exactly once, at level 1, the first time the stage is cleared while the player does
+  // not own it; an item flagged `ngOnly` only drops while clearing the stage in New Game+. Returns [{ kind, id }].
+  grantStageReward(save, id) {
+    const st = this.stage(id), got = [];
+    if (!st || !st.reward) return got;
+    for (const kind of ['weapons', 'helmets', 'armors']) for (const gid of st.reward[kind] || []) {
+      const it = gearTable(kind)[gid];
+      if (!it || save.owned[kind][gid] || (it.ngOnly && !(save.ng > 0))) continue;
+      save.owned[kind][gid] = 1;
+      got.push({ kind, id: gid });
+    }
+    return got;
   },
   // Everything the fight session needs to stage a campaign fight. Until real content lands every combat stage
   // is one arena fight against its placeholder `enemy`, shown under the stage's story foe name.
@@ -156,8 +208,40 @@ const Logic = {
   },
 
   /* ---------------- economy ---------------- */
-  GEAR_MAX, gearTable, upgradeCost, weaponStats, weaponMul, gearDef, playerMaxHp, xpForLevel,
+  GEAR_MAX, GEAR_TIERS, gearTable, gearLook, maxLevel, upgradeCost, weaponStats, weaponTotal, weaponMul, gearDef, gearHp, playerMaxHp, xpForLevel,
   equipSlot(kind) { return kind === 'weapons' ? 'weapon' : kind === 'helmets' ? 'helmet' : 'armor'; },
+  // An item's tier at a level. Shop weapons climb as they are upgraded (Rare from level 4, Epic from 7),
+  // never dropping below the tier they are sold at; everything else keeps its tier.
+  itemTier(kind, id, lvl) {
+    const it = gearTable(kind)[id], base = it.tier || 'common';
+    if (kind !== 'weapons' || !['common', 'rare', 'epic'].includes(base)) return base;
+    const byLvl = (lvl || 1) >= 7 ? 'epic' : (lvl || 1) >= 4 ? 'rare' : 'common';
+    return GEAR_TIERS[byLvl].rank > GEAR_TIERS[base].rank ? byLvl : base;
+  },
+  tierLabel(kind, id, lvl) { return GEAR_TIERS[this.itemTier(kind, id, lvl)].label; },
+  // Everything the equipped gear does for Kage in a fight: health, damage reduction (capped at 50%),
+  // the weapon's damage multiplier and the summed helmet + armour perks.
+  playerCombatStats(save) {
+    const eq = save.equipped, lv = (kind, id) => save.owned[kind][id] || 1;
+    const h = HELMETS[eq.helmet], a = ARMORS[eq.armor];
+    const perks = {}; for (const src of [h.perks, a.perks]) for (const k in src) perks[k] = (perks[k] || 0) + src[k];
+    return {
+      hp: playerMaxHp(save),
+      defense: Math.min(0.5, gearDef('helmets', h.id, lv('helmets', h.id)) + gearDef('armors', a.id, lv('armors', a.id))),
+      weaponDmg: weaponMul(eq.weapon, lv('weapons', eq.weapon)).dmg,
+      perks
+    };
+  },
+  // Locked gear: never sold (`exclusive`) and not owned yet. Boss weapons and trophies stay locked until a
+  // campaign stage's `reward` grants them (see completeStage).
+  isLocked(save, kind, id) { const it = gearTable(kind)[id]; return !!it && !!it.exclusive && !save.owned[kind][id]; },
+  // What the Armory says unlocks a locked item: its own `hint`, else the stage whose reward lists it.
+  lockHint(kind, id) {
+    const it = gearTable(kind)[id];
+    if (it.hint) return it.hint;
+    const st = STAGE_LIST.find(s => s.reward && (s.reward[kind] || []).includes(id));
+    return st ? `Clear ${st.foe || st.name}` : 'Not obtainable yet';
+  },
   // Shop actions: each checks the rule, updates the save in place and returns whether it happened.
   buyItem(save, kind, id) {
     const it = gearTable(kind)[id];
@@ -168,7 +252,7 @@ const Logic = {
   },
   upgradeItem(save, kind, id) {
     const lvl = save.owned[kind][id];
-    if (!lvl || lvl >= GEAR_MAX[kind]) return false;
+    if (!lvl || lvl >= maxLevel(kind, id)) return false;
     const c = upgradeCost(kind, id, lvl); if (save.coins < c) return false;
     save.coins -= c; save.owned[kind][id] = lvl + 1;
     return true;

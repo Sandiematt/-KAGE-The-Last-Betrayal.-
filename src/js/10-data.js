@@ -132,8 +132,9 @@ const WEAPONS = {
     },
     special: 'shadowPalm'
   },
-  twin_blades: { heft: 0.6, el: 'lightning', name: 'Twin Blades', cls: 'Blades', tab: 'blades', rarity: 'Swift Blades', hands: 'dual', len: 64, stance: 'twin', stats: [44, 92, 38], price: 450,
+  tsubame: { heft: 0.6, el: 'lightning', name: 'Tsubame', cls: 'Twin blades', tab: 'blades', tier: 'common', hands: 'dual', len: 64, stance: 'twin', stats: [44, 92, 38], price: 450,
     trail: '#ece5d3', desc: 'Fast attacks and extended combos. Five-cut string ending in a spinning finisher.',
+    lore: 'Courier blades of the Hoshimura runners, light enough to carry past every Order checkpoint unseen.',
     moves: ['tw1', 'tw2', 'tw3', 'tw4', 'tw5'], air: 'twa', special: 'thousandCuts',
     defs: {
       tw1: { kind: 'weapon', w: { fs: 122, fe: 20, wa: 196 }, s: { lean: 16, fs: 72, fe: 0, wa: 28 }, t: [0.05, 0.05, 0.13], dmg: 5, kb: 90, hs: 0.26, box: [16, -200, 120, 130], limb: 'w', snd: 'swing', hsnd: 'slash', imp: 0, next: 'tw2' },
@@ -146,8 +147,9 @@ const WEAPONS = {
     },
     counter: 'twc'
   },
-  moon_katana: { heft: 1, el: 'moon', name: 'Moon Katana', cls: 'Blades', tab: 'blades', rarity: 'Balanced Blade', hands: 2, len: 82, stance: 'katana', stats: [60, 64, 58], price: 0,
+  kagetsu: { heft: 1, el: 'moon', name: 'Kagetsu', cls: 'Katana', tab: 'blades', tier: 'common', hands: 2, len: 82, stance: 'katana', stats: [60, 64, 58], price: 0,
     trail: '#ece5d3', desc: 'Balanced cuts and lightning counter-slashes. Block or parry, then strike to draw the iai counter.',
+    lore: '"Shadow Moon." Takashi forged it in Hoshimura for Kage\'s first oath; it was never registered with the Order.',
     moves: ['k1', 'k2', 'k3'], air: 'ka', special: 'crescentMoon', counter: 'kc',
     defs: {
       k1: { kind: 'weapon', a: { lean: -6, head: 2, fs: 166, fe: 8, wa: 194 }, w: { lean: -8, fs: 178, fe: 26, wa: 214 }, s: { lean: 22, rx: 14, head: 8, fs: 74, fe: 0, wa: 22, fh: 38, fk: -24, bh: -32, bk: -4 }, f: { lean: 28, rx: 12, head: 10, fs: 40, fe: 0, wa: -14, fh: 40, fk: -32, bh: -34, bk: -6 }, t: [0.1, 0.07, 0.19], dmg: 10, kb: 200, hs: 0.32, box: [16, -222, 150, 176], limb: 'w', snd: 'swing', hsnd: 'slash', imp: 1, next: 'k2' },
@@ -157,8 +159,9 @@ const WEAPONS = {
       kc: { kind: 'weapon', counter: 1, w: { lean: 14, head: 10, fs: 6, fe: 20, wa: -46, fh: 36, fk: -40, bh: -34, bk: -20 }, s: { lean: 26, rx: 32, head: 8, fs: 106, fe: 0, wa: 160, fh: 46, fk: -30, bh: -46, bk: 0 }, f: { lean: 16, fs: 168, fe: 10, wa: 178 }, t: [0.04, 0.08, 0.26], dmg: 18, kb: 480, up: -260, hs: 0.55, box: [16, -220, 170, 180], limb: 'w', snd: 'heavyswing', hsnd: 'slash', imp: 3, stamp: 'COUNTER', lunge: 420 }
     }
   },
-  mountain_cleaver: { heft: 1.6, el: 'flame', name: 'Mountain Cleaver', cls: 'Heavy', tab: 'heavy', rarity: 'Heavy Blade', hands: 1, len: 104, stance: 'cleaver', stats: [82, 38, 54], price: 1400,
+  onikiri: { heft: 1.6, el: 'flame', name: 'Onikiri', cls: 'Cleaver', tab: 'heavy', tier: 'rare', hands: 1, len: 104, stance: 'cleaver', stats: [82, 38, 54], price: 1400,
     trail: '#d24a3c', desc: 'Heavy damage that breaks any guard. Slow to start — commit to every swing.',
+    lore: 'A field cleaver salvaged from the Silent War. The soot of a burned barracks never washes out of its fuller.',
     moves: ['c1', 'c2', 'c3'], air: 'ca', special: 'mountainSplit', counter: 'c2',
     defs: {
       c1: { kind: 'weapon', a: { lean: -16, head: -4, fs: 188, fe: 4, wa: 230 }, f: { lean: 32, rx: 12, fs: 40, fe: 0, wa: -22, fh: 42, fk: -34, bh: -36, bk: -8 }, w: { lean: -12, fs: 176, fe: 14, wa: 222 }, s: { lean: 26, rx: 14, fs: 72, fe: 0, wa: 8, fh: 38, fk: -24, bh: -34, bk: -8 }, t: [0.22, 0.08, 0.3], dmg: 18, kb: 260, hs: 0.45, gb: 70, box: [16, -230, 150, 230], limb: 'w', snd: 'heavyswing', hsnd: 'heavy', imp: 2, stamp: 'BREAK', next: 'c2' },
@@ -167,8 +170,9 @@ const WEAPONS = {
       ca: { kind: 'air', w: { lean: -10, fs: 176, fe: 0, wa: 210 }, s: { lean: 30, fs: 50, fe: 0, wa: -10 }, t: [0.12, 0.1, 0.22], dmg: 14, kb: 200, up: 400, hs: 0.45, gb: 60, box: [10, -200, 150, 220], limb: 'w', snd: 'heavyswing', hsnd: 'heavy', imp: 2 }
     }
   },
-  dragon_spear: { heft: 1.2, el: 'water', name: 'Dragon Spear', cls: 'Polearm', tab: 'polearms', rarity: 'Legendary Polearm', hands: 2, len: 196, stance: 'spear', stats: [52, 60, 96], price: 0, exclusive: true,
-    trail: '#c9a45c', desc: 'Longest reach in the Armory. Two pokes and a leg-sweeping arc. A boss trophy, not yet obtainable.',
+  mizuchi: { heft: 1.2, el: 'water', name: 'Mizuchi', cls: 'Spear', tab: 'polearms', tier: 'rare', hands: 2, len: 196, stance: 'spear', stats: [52, 60, 96], price: 1700,
+    trail: '#c9a45c', desc: 'Longest reach in the Armory. Two pokes and a leg-sweeping arc.',
+    lore: 'Pike of the old Hoshimura gate watch, re-hafted in secret after the Order burned the village gate.',
     moves: ['s1', 's2', 's3'], air: 'sa', special: 'dragonLance', counter: 's1',
     defs: {
       s1: { kind: 'weapon', f: { lean: 14, rx: 20, fs: 82, fe: 10, wa: 93 }, w: { lean: 0, rx: -14, fs: 36, fe: 70, wa: 95 }, s: { lean: 18, rx: 26, fs: 88, fe: 0, wa: 92 }, t: [0.09, 0.07, 0.18], dmg: 8, kb: 220, hs: 0.3, box: [30, -170, 236, 44], limb: 'w', snd: 'swing', hsnd: 'slash', imp: 0, next: 's2' },
@@ -177,8 +181,9 @@ const WEAPONS = {
       sa: { kind: 'air', w: { lean: -4, fs: 150, fe: 0, wa: 160 }, s: { lean: 30, fs: 70, fe: 0, wa: 50 }, t: [0.08, 0.1, 0.18], dmg: 9, kb: 200, up: 300, hs: 0.36, box: [10, -170, 200, 170], limb: 'w', snd: 'swing', hsnd: 'slash', imp: 1 }
     }
   },
-  phantom_sickle: { heft: 0.95, el: 'blood', name: 'Phantom Sickle', cls: 'Chain', tab: 'chains', rarity: 'Legendary Chain', hands: 1, len: 70, stance: 'sickle', stats: [56, 66, 74], price: 0, exclusive: true,
-    trail: '#9b8cff', desc: 'A chained sickle. The second strike hurls the blade and drags the enemy to you. A boss trophy, not yet obtainable.',
+  yamigama: { heft: 0.95, el: 'blood', name: 'Yamigama', cls: 'Chain sickle', tab: 'chains', tier: 'epic', hands: 1, len: 70, stance: 'sickle', stats: [56, 66, 74], price: 2600,
+    trail: '#9b8cff', desc: 'A chained sickle. The second strike hurls the blade and drags the enemy to you.',
+    lore: 'A Hollow-hunter\'s chain sickle. Its links are woven with memory ash, so they bite things that should have no body.',
     moves: ['h1', 'h2', 'h3'], air: 'ha', special: 'reapersHarvest', counter: 'h3',
     defs: {
       h1: { kind: 'weapon', w: { lean: -4, fs: 172, fe: 30, wa: 232 }, s: { lean: 18, fs: 72, fe: 0, wa: 20 }, t: [0.09, 0.07, 0.18], dmg: 9, kb: 160, hs: 0.32, box: [16, -214, 128, 160], limb: 'w', snd: 'swing', hsnd: 'slash', imp: 0, next: 'h2' },
@@ -187,8 +192,9 @@ const WEAPONS = {
       ha: { kind: 'air', w: { lean: 0, fs: 172, fe: 10, wa: 220 }, s: { lean: 24, fs: 64, fe: 0, wa: 0 }, t: [0.07, 0.1, 0.16], dmg: 9, kb: 200, up: 220, hs: 0.36, box: [10, -200, 136, 190], limb: 'w', snd: 'swing', hsnd: 'slash', imp: 1 }
     }
   },
-  titan_hammer: { heft: 2.2, el: 'earth', name: 'Titan Hammer', cls: 'Heavy', tab: 'heavy', rarity: 'Mythic Hammer', hands: 2, len: 150, stance: 'hammer', stats: [98, 16, 66], price: 0, exclusive: true,
-    trail: '#d24a3c', desc: 'Extremely slow but devastating. The overhead smash splits the ground. A boss trophy, not yet obtainable.',
+  iwakudaki: { heft: 2.2, el: 'earth', name: 'Iwakudaki', cls: 'Hammer', tab: 'heavy', tier: 'epic', hands: 2, len: 150, stance: 'hammer', stats: [98, 16, 66], price: 3200,
+    trail: '#d24a3c', desc: 'Extremely slow but devastating. The overhead smash splits the ground.',
+    lore: 'The siege maul that cracked the outer wall of the Fortress of Silence in the war. The Order buried it; someone dug it up.',
     moves: ['m1', 'm2'], air: 'ma', special: 'earthshatter', counter: 'm2',
     defs: {
       m1: { kind: 'weapon', a: { lean: -22, head: -6, fs: 196, fe: 0, wa: 196, fh: 22, fk: -30, bh: -24, bk: -22 }, f: { lean: 36, fs: 74, fe: 0, wa: -2, fh: 46, fk: -44, bh: -38, bk: -22 }, w: { lean: -18, fs: 186, fe: 0, wa: 200 }, s: { lean: 34, fs: 76, fe: 0, wa: 2, fh: 44, fk: -40, bh: -36, bk: -20 }, t: [0.42, 0.1, 0.48], dmg: 34, kb: 380, up: -360, hs: 0.7, kd: 1, gb: 160, box: [16, -246, 176, 246], limb: 'w', snd: 'heavyswing', hsnd: 'heavy', imp: 3, stamp: 'SMASH', shock: 1, armor: 1, next: 'm2' },
@@ -197,19 +203,43 @@ const WEAPONS = {
     }
   },
 
+  shizuka: { heft: 1.05, el: 'moon', name: 'Shizuka', cls: 'Katana', tab: 'blades', tier: 'rare', base: 'kagetsu', hands: 2, len: 88, stance: 'katana', stats: [64, 68, 62], price: 1100,
+    trail: '#b9c4c9', desc: 'An Order katana on the Kagetsu forms: slightly longer and quicker to draw.',
+    lore: 'Order-issue steel. The scabbard is lined with felt so that no draw is ever heard in the City of Echoes.' },
+
+  /* ---- boss weapons: defined but locked; boss stages grant them through their `reward` (see CAMPAIGN).
+     Never upgraded and never scaled with player level: their fixed stats are the top tier.
+     `special` is a placeholder rage art until the boss tickets add each weapon's real one (noted per weapon). ---- */
+  shinsen: { heft: 1.5, el: 'moon', name: 'Shinsen', cls: 'Odachi', tab: 'blades', tier: 'boss', base: 'kagetsu', hands: 2, len: 112, stance: 'katana', stats: [150, 120, 132],
+    exclusive: true, hint: 'Defeat Takashi', special: 'crescentMoon', // real rage art: Final Flow
+    trail: '#c9a45c', desc: 'Takashi\'s odachi on the katana forms. Every cut lands like a cleaver.',
+    lore: 'Takashi\'s own odachi, gold along its spine. He forged it the year he built the Echo System and never let the Order touch it.' },
+  raiko_no_tachi: { heft: 1.9, el: 'lightning', name: 'Raikō no Tachi', cls: 'Odachi', tab: 'heavy', tier: 'boss', base: 'onikiri', hands: 1, len: 128, stance: 'cleaver', stats: [190, 92, 120],
+    exclusive: true, hint: 'Defeat Raikon', special: 'mountainSplit', // real rage art: Thunder Swing
+    trail: '#ff4a3c', desc: 'Raikon\'s broad odachi on the cleaver forms. Slow, guard-breaking, thunderous.',
+    lore: 'Raikon\'s broad odachi. The red groove down the blade drinks lightning and spits it back at whoever defies the Order.' },
+  kagehira_yurei: { heft: 0.7, el: 'blood', name: 'Kagehira & Yūrei', cls: 'Twin blades', tab: 'blades', tier: 'boss', base: 'tsubame', hands: 'dual', len: 72, stance: 'twin', stats: [104, 188, 110],
+    exclusive: true, hint: 'Defeat Akari', special: 'thousandCuts', // real rage art: Smoke Step
+    trail: '#d24a3c', desc: 'Akari\'s paired short blades on the twin-blade forms.',
+    lore: 'Akari\'s paired blades. Kagehira cuts the body; Yūrei cuts the memory of the wound, so it never stops hurting.' },
+  mugen_no_ha: { heft: 1.1, el: 'moon', name: 'Mugen no Ha', cls: 'Katana', tab: 'blades', tier: 'boss', base: 'kagetsu', hands: 2, len: 96, stance: 'katana', stats: [162, 124, 128],
+    exclusive: true, hint: 'Defeat the Witness', special: 'crescentMoon', // real rage art: Echo Replication
+    trail: '#9b8cff', desc: 'The Witness\'s blade on the katana forms.',
+    lore: 'A blade of stolen memory shards, pressed together in the Memory Core. It remembers every fighter it has ever cut.' },
+
   /* ---- enemy-only arms ---- */
-  shadow_daggers: { heft: 0.6, el: 'shade', enemy: 1, name: 'Shadow Daggers', base: 'twin_blades', len: 52, trail: '#ece5d3' },
-  hollow_crescents: { heft: 0.8, el: 'moon', enemy: 1, name: 'Hollow Crescents', base: 'twin_blades', len: 74, trail: '#9b8cff', crescent: 1 },
-  mist_fans: { heft: 0.6, el: 'wind', enemy: 1, name: 'Mist Fans', base: 'twin_blades', len: 46, trail: '#b9c4c9', fan: 1 },
-  sentinel_spear: { heft: 1.2, el: 'shade', enemy: 1, name: 'Sentinel Spear', base: 'dragon_spear', hands: 1, stance: 'shield', len: 180, trail: '#c9a45c', shield: 1 },
-  sage_staff: { heft: 1.1, el: 'water', enemy: 1, name: 'Sage Staff', base: 'dragon_spear', len: 200, trail: '#7fd0c8', staff: 1, stance: 'staff' },
+  shadow_daggers: { heft: 0.6, el: 'shade', enemy: 1, name: 'Shadow Daggers', base: 'tsubame', len: 52, trail: '#ece5d3' },
+  hollow_crescents: { heft: 0.8, el: 'moon', enemy: 1, name: 'Hollow Crescents', base: 'tsubame', len: 74, trail: '#9b8cff', crescent: 1 },
+  mist_fans: { heft: 0.6, el: 'wind', enemy: 1, name: 'Mist Fans', base: 'tsubame', len: 46, trail: '#b9c4c9', fan: 1 },
+  sentinel_spear: { heft: 1.2, el: 'shade', enemy: 1, name: 'Sentinel Spear', base: 'mizuchi', hands: 1, stance: 'shield', len: 180, trail: '#c9a45c', shield: 1 },
+  sage_staff: { heft: 1.1, el: 'water', enemy: 1, name: 'Sage Staff', base: 'mizuchi', len: 200, trail: '#7fd0c8', staff: 1, stance: 'staff' },
   storm_orbs: { heft: 0.6, el: 'lightning', enemy: 1, name: 'Storm Orbs', base: 'fists', hands: 0, stance: 'orbs', trail: '#7fb8ff' },
   iron_fists: { heft: 1.5, el: 'earth', enemy: 1, name: 'Iron Fists', base: 'fists', hands: 0, trail: '#d24a3c', gauntlet: 1 },
-  chain_hook: { heft: 1, el: 'flame', enemy: 1, name: 'Chain Hook', base: 'phantom_sickle', len: 64, trail: '#d24a3c', hook: 1 },
-  tyrant_cleaver: { heft: 2, el: 'flame', enemy: 1, name: 'Tyrant Cleaver', base: 'mountain_cleaver', len: 130, trail: '#ff6a3c' },
-  cutter_blade: { heft: 1, el: 'shade', enemy: 1, name: 'Cutter Blade', base: 'moon_katana', len: 92, trail: '#ece5d3' },
-  temple_staff: { heft: 1.1, el: 'shade', enemy: 1, name: 'Temple Staff', base: 'dragon_spear', len: 180, trail: '#ece5d3', staff: 1, stance: 'staff' },
-  raider_cleaver: { heft: 1.4, el: 'shade', enemy: 1, name: 'Raider Cleaver', base: 'mountain_cleaver', len: 86, trail: '#d24a3c' }
+  chain_hook: { heft: 1, el: 'flame', enemy: 1, name: 'Chain Hook', base: 'yamigama', len: 64, trail: '#d24a3c', hook: 1 },
+  tyrant_cleaver: { heft: 2, el: 'flame', enemy: 1, name: 'Tyrant Cleaver', base: 'onikiri', len: 130, trail: '#ff6a3c' },
+  cutter_blade: { heft: 1, el: 'shade', enemy: 1, name: 'Cutter Blade', base: 'kagetsu', len: 92, trail: '#ece5d3' },
+  temple_staff: { heft: 1.1, el: 'shade', enemy: 1, name: 'Temple Staff', base: 'mizuchi', len: 180, trail: '#ece5d3', staff: 1, stance: 'staff' },
+  raider_cleaver: { heft: 1.4, el: 'shade', enemy: 1, name: 'Raider Cleaver', base: 'onikiri', len: 86, trail: '#d24a3c' }
 };
 // resolve enemy weapons onto their base move-sets
 for (const id in WEAPONS) {
@@ -276,32 +306,89 @@ const SPECIALS = {
   earthshatter:  { name: 'Earthshatter', desc: 'The ground itself breaks. Every grounded enemy is stunned.' }
 };
 
-/* ---------------- Helmets & armor ---------------- */
+/* ---------------- Helmets & armor ----------------
+   Every item: name, tier (see GEAR_TIERS), def (damage reduction at level 1), hp (bonus health at level 1),
+   price (coins) or gems, lore (the one line shown in the Armory), perks, and look: the drawing key used by
+   drawHelmet / drawArmor in 20-fighter.js (defaults to the item id).
+   Locked items: exclusive (never sold) + hint (what the Armory says unlocks it). Trophies are granted by a
+   campaign stage's `reward` (see CAMPAIGN); ngOnly trophies only drop during New Game+.
+   Room is left for 12 sub-boss trophies (tier 'trophy', one per Act sub-boss), added by the sub-boss tickets. */
 const HELMETS = {
-  topknot:   { name: 'Crimson Hachimaki', rarity: 'Starting gear', def: 0, price: 0, desc: 'A red headband with long tails. Light, quick, honest.', perks: {} },
-  ronin_hood:{ name: 'Ronin Hood', rarity: 'Common helm', def: 0.04, price: 300, desc: 'Cloth hood. Dash recovers faster.', perks: { dash: 0.12 } },
-  straw_kasa:{ name: 'Straw Kasa', rarity: 'Common helm', def: 0.06, price: 520, desc: 'Wide straw hat. Carry two extra kunai.', perks: { ammo: 2 } },
-  iron_kabuto:{ name: 'Iron Kabuto', rarity: 'Rare helm', def: 0.1, price: 1150, desc: 'Lacquered iron with a gold crest. Shrugs off stuns.', perks: { stunRes: 0.35 } },
-  oni_mask:  { name: 'Oni Mask', rarity: 'Rare helm', def: 0.08, gems: 12, desc: 'Fills the rage meter faster.', perks: { rage: 0.2 } },
-  reaper_cowl:{ name: 'Reaper Cowl', rarity: 'Boss trophy', def: 0.08, exclusive: true, desc: 'A fallen master’s cowl. Dash recovers much faster.', perks: { dash: 0.25 } },
-  hollow_crest:{ name: 'Hollow Moon Crest', rarity: 'Boss trophy', def: 0.12, exclusive: true, desc: 'A hollow halo. Rage gain greatly increased.', perks: { rage: 0.3 } },
-  sentinel_helm:{ name: 'Sentinel Helm', rarity: 'Boss trophy', def: 0.14, exclusive: true, desc: 'Plumed iron from the gate. Heavy defence.', perks: { stunRes: 0.2 } },
-  sage_antlers:{ name: "Sage's Antlers", rarity: 'Boss trophy', def: 0.12, exclusive: true, desc: 'An antlered sage’s crown. +3 kunai.', perks: { ammo: 3 } },
-  ashen_crown:{ name: 'Ashen Crown', rarity: 'Boss trophy', def: 0.16, exclusive: true, desc: 'A burning crown. Everything hits harder.', perks: { dmg: 0.1 } }
+  shiro_maki:   { name: 'White Face-Wrap', tier: 'starter', def: 0.01, hp: 4, price: 0, look: 'topknot', perks: {},
+    lore: 'Rem tore it from his own sleeve the night Hoshimura emptied. Kage has never untied it.' },
+  kuro_zukin:   { name: 'Kuro Zukin', tier: 'common', def: 0.04, hp: 8, price: 300, look: 'ronin_hood', perks: { dash: 0.12 },
+    lore: 'An outer-district smuggler\'s hood, dyed with ash so the Order\'s lanterns slide right off it.' },
+  sugegasa:     { name: 'Sugegasa', tier: 'common', def: 0.05, hp: 8, price: 450, look: 'straw_kasa', perks: { ammo: 2 },
+    lore: 'Woven by Hoshimura rice farmers. A pilgrim\'s hat hides a face, and a few spare kunai.' },
+  hachigane:    { name: 'Hachigane', tier: 'common', def: 0.05, hp: 10, price: 600, look: 'storm_band', perks: { speed: 0.03 },
+    lore: 'A steel brow-plate on a blue cord, worn by Order couriers who outran the storms over the City of Echoes.' },
+  kasumi_men:   { name: 'Kasumi Veil', tier: 'common', def: 0.05, hp: 10, price: 750, look: 'veil', perks: { dash: 0.1 },
+    lore: 'Grey mourning gauze from the outer districts. Hollows lose sight of a face they cannot remember.' },
+  tetsu_kabuto: { name: 'Tetsu Kabuto', tier: 'rare', def: 0.09, hp: 14, price: 1200, look: 'iron_kabuto', perks: { stunRes: 0.3 },
+    lore: 'Lacquered iron of an Order Warden, the gold crest filed off by whoever took it from him.' },
+  oni_menpo:    { name: 'Oni Menpō', tier: 'rare', def: 0.08, hp: 14, gems: 12, look: 'oni_mask', perks: { rage: 0.2 },
+    lore: 'A snarling face-guard from the Silent War. The rage carved into it seeps into whoever wears it.' },
+  hoshi_kabuto: { name: 'Hoshi Kabuto', tier: 'rare', def: 0.1, hp: 16, price: 1600, look: 'sentinel_helm', perks: { stunRes: 0.15 },
+    lore: 'Gate-watch helm of old Hoshimura. Its red plume is re-dyed every year for the dead.' },
+  shika_kabuto: { name: 'Shika Kabuto', tier: 'epic', def: 0.12, hp: 22, price: 2300, look: 'sage_antlers', perks: { ammo: 3 },
+    lore: 'Antlered crown of a Memory Core archivist; the tips glow when old memories pass close.' },
+  utsuro_kabuto:{ name: 'Utsuro Kabuto', tier: 'epic', def: 0.12, hp: 20, gems: 25, look: 'hollow_crest', perks: { rage: 0.3 },
+    lore: 'Forged around a broken Echo ring cut from a Hollow. It hums as rage builds.' },
+  shikko_zukin: { name: 'Shikkō Zukin', tier: 'epic', def: 0.13, hp: 24, price: 2900, look: 'executioner', perks: { dmg: 0.05 },
+    lore: 'Peaked hood of the Order\'s Silencers, who erase a memory first and the man who held it after.' },
+  // ---- trophies (locked) ----
+  raijin_kabuto:{ name: 'Raijin Kabuto', tier: 'trophy', def: 0.18, hp: 36, exclusive: true, hint: 'Defeat Raikon', look: 'colossus', perks: { stunRes: 0.3, dmg: 0.05 },
+    lore: 'Raikon\'s thunder helm. The red slit of its visor burned brightest just before he struck.' },
+  kasa:         { name: 'Kasa', tier: 'trophy', def: 0.2, hp: 40, exclusive: true, hint: 'Defeat Takashi', look: 'straw_kasa', perks: { ammo: 3, rage: 0.15 },
+    lore: 'Takashi\'s battered straw hat. He wore it on the road out of Hoshimura and never told his sons where it led.' }
 };
 const ARMORS = {
-  wraps:     { name: 'Cloth Wraps', rarity: 'Starting gear', def: 0, price: 0, desc: 'Bandaged forearms and a red scarf.', perks: {} },
-  jerkin:    { name: 'Leather Jerkin', rarity: 'Common armor', def: 0.06, price: 360, desc: 'Boiled leather over the chest.', perks: { hp: 15 } },
-  shadow_cloak:{ name: 'Shadow Cloak', rarity: 'Rare armor', def: 0.07, gems: 15, desc: 'A long black cloak. Move and dash faster.', perks: { speed: 0.08 } },
-  lamellar:  { name: 'Lamellar Coat', rarity: 'Rare armor', def: 0.12, price: 1250, desc: 'Laced iron scales. Slightly slower.', perks: { hp: 30, speed: -0.03 } },
-  pauldrons: { name: 'Iron Pauldrons', rarity: 'Epic armor', def: 0.16, price: 2300, desc: 'Massive shoulder plates. Slower, much tougher.', perks: { hp: 45, speed: -0.05, stunRes: 0.15 } },
-  mist_shroud:{ name: 'Mist Shroud', rarity: 'Boss trophy', def: 0.08, exclusive: true, desc: 'A grey veil. Dash invulnerability lasts longer.', perks: { dash: 0.2, speed: 0.04 } },
-  storm_mantle:{ name: 'Storm Mantle', rarity: 'Boss trophy', def: 0.1, exclusive: true, desc: 'Charged ribbons. Kunai strike harder.', perks: { kunai: 0.6, speed: 0.04 } },
-  colossus_plate:{ name: 'Colossus Plate', rarity: 'Boss trophy', def: 0.2, exclusive: true, desc: 'Pit-forged plate. Very slow, nearly unbreakable.', perks: { hp: 60, speed: -0.08, stunRes: 0.3 } },
-  executioner_garb:{ name: 'Executioner Garb', rarity: 'Boss trophy', def: 0.12, exclusive: true, desc: 'Chain-wrapped leather. Rage builds from blocking.', perks: { rage: 0.15, hp: 25 } }
+  tachibana_yoroi: { name: 'Tachibana Yoroi', tier: 'starter', def: 0.02, hp: 8, price: 0, look: 'tachibana', perks: {},
+    lore: 'Compact shoulder and forearm guards of the Tachibana house, its family crest lacquered small and half-hidden.' },
+  kawa_do:      { name: 'Kawa-dō', tier: 'common', def: 0.05, hp: 15, price: 350, look: 'jerkin', perks: {},
+    lore: 'A boiled-leather cuirass from the Hoshimura tannery, stitched by the last family that stayed.' },
+  hai_haori:    { name: 'Hai Haori', tier: 'common', def: 0.04, hp: 12, price: 650, look: 'shadow_cloak', perks: { speed: 0.06 },
+    lore: 'A coat woven from the memory ash left after Hollow fights. It moves like smoke.' },
+  kasumi_shroud:{ name: 'Kasumi Shroud', tier: 'common', def: 0.05, hp: 14, price: 800, look: 'mist_shroud', perks: { dash: 0.15 },
+    lore: 'Travelling shroud of the outer-district ferrymen, who carry the dead past the Order\'s checkpoints.' },
+  soryo_e:      { name: 'Sōryo-e', tier: 'common', def: 0.05, hp: 18, price: 950, look: 'robe', perks: { rage: 0.1 },
+    lore: 'Robe of the mountain temples that hid memory scrolls from the Order through the Silent War.' },
+  kozane_do:    { name: 'Kozane-dō', tier: 'rare', def: 0.1, hp: 28, price: 1300, look: 'lamellar', perks: { speed: -0.03 },
+    lore: 'Laced iron scales of an Order Warden, re-laced in Hoshimura colours.' },
+  raiun_mantle: { name: 'Raiun Mantle', tier: 'rare', def: 0.08, hp: 22, gems: 15, look: 'storm_mantle', perks: { kunai: 0.6, speed: 0.03 },
+    lore: 'Storm-silk ribbons salvaged from a Silent War signal tower. Kunai thrown from it crackle.' },
+  shikko_garb:  { name: 'Shikkō Garb', tier: 'rare', def: 0.1, hp: 30, price: 1750, look: 'executioner_garb', perks: { blockRage: 1 },
+    lore: 'Chain-wrapped leathers of the Order\'s Silencers. Every blow it turns aside feeds the wearer\'s rage.' },
+  o_sode:       { name: 'Ō-sode Yoroi', tier: 'epic', def: 0.14, hp: 45, price: 2400, look: 'pauldrons', perks: { speed: -0.05, stunRes: 0.15 },
+    lore: 'Great shoulder plates of a Silent War general, dragged out of the moat of the Fortress of Silence.' },
+  kurogane_do:  { name: 'Kurogane-dō', tier: 'epic', def: 0.16, hp: 55, price: 3100, look: 'colossus_plate', perks: { speed: -0.08, stunRes: 0.25 },
+    lore: 'Black-iron plate from the Fortress foundries, made for the guards at the doors of the Memory Core.' },
+  goka_yoroi:   { name: 'Gōka Yoroi', tier: 'epic', def: 0.14, hp: 40, gems: 30, look: 'tyrant', perks: { dmg: 0.06 },
+    lore: 'Ember-edged plate quenched in burning memory ash. It hits back harder for every scar it carries.' },
+  // ---- trophies (locked) ----
+  mei_en_garb:  { name: 'Mei-En Garb', tier: 'trophy', def: 0.21, hp: 80, exclusive: true, hint: 'Defeat Akari', look: 'cloak', perks: { dash: 0.2, speed: 0.06 },
+    lore: 'Akari\'s smoke-grey fighting garb. Even the Order\'s records cannot agree on what colour it is.' },
+  kysmei_robe:  { name: 'Kysmei Robe', tier: 'trophy', def: 0.22, hp: 85, exclusive: true, hint: 'Defeat the Witness', look: 'robe', perks: { rage: 0.3 },
+    lore: 'The Witness\'s robe, stitched from the threads of every memory the Echo System ever swallowed.' },
+  kurokumo_yoroi:{ name: 'Kurokumo Yoroi', tier: 'trophy', def: 0.23, hp: 85, exclusive: true, hint: 'Defeat Rem', look: 'tyrant', perks: { dmg: 0.06, speed: 0.04 },
+    lore: 'Rem\'s black-cloud armour. Under the ash on its collar, the Tachibana crest has been scratched away.' },
+  shinsei_yoroi:{ name: 'Shinsei Yoroi', tier: 'trophy', def: 0.26, hp: 100, exclusive: true, ngOnly: true, hint: 'Defeat Takashi in New Game+', look: 'pauldrons', perks: { stunRes: 0.3 },
+    lore: 'The armour Takashi wore when he first opened the Echo System. It only answers to one who has walked the road twice.' }
 };
 for (const id in HELMETS) HELMETS[id].id = id;
 for (const id in ARMORS) ARMORS[id].id = id;
+
+// Gear tiers, weakest first. Shop gear is common / rare / epic; trophies (sub-boss and boss) sit above every
+// fully upgraded shop item of their slot, and boss weapons above all. Shop weapons climb a tier as they are
+// upgraded (see Logic.itemTier): Kagetsu starts Common and becomes Epic at full mastery.
+const GEAR_TIERS = {
+  starter: { rank: 0, label: 'Starting gear' },
+  common:  { rank: 1, label: 'Common' },
+  rare:    { rank: 2, label: 'Rare' },
+  epic:    { rank: 3, label: 'Epic' },
+  trophy:  { rank: 4, label: 'Trophy' },
+  boss:    { rank: 5, label: 'Boss weapon' }
+};
 
 const GEAR_MAX = { weapons: 8, helmets: 5, armors: 5 };
 
@@ -312,9 +399,9 @@ const GEAR_MAX = { weapons: 8, helmets: 5, armors: 5 };
    These are TEMPORARY stand-ins: every campaign stage fights one of them in a single arena until the real
    Order soldiers, Hollows, sub-bosses and bosses land. Stages show their own story names (see CAMPAIGN). */
 const ENEMIES = {
-  order_recruit: { name: 'Order Recruit', title: 'Order of Silence', type: 'regular', outfit: 'gi', ai: 'regular', weapon: 'cutter_blade', helmet: 'ronin_hood', armor: 'jerkin', hp: 170, dmg: 0.9, build: { scale: 1, w: 10 }, eye: '#ece5d3',
+  order_recruit: { name: 'Order Recruit', title: 'Order of Silence', type: 'regular', outfit: 'gi', ai: 'regular', weapon: 'cutter_blade', helmet: 'kuro_zukin', armor: 'kawa_do', hp: 170, dmg: 0.9, build: { scale: 1, w: 10 }, eye: '#ece5d3',
             taunt: 'The Order of Silence holds this road. Turn back.', tip: 'Block the first cut, then answer with a three-punch string.' },
-  order_warden: { name: 'Order Warden', title: 'Order of Silence', type: 'regular', outfit: 'gi', ai: 'defensive', weapon: 'temple_staff', helmet: 'iron_kabuto', armor: 'lamellar', hp: 220, dmg: 1, build: { scale: 1.08, w: 12 }, eye: '#c9a45c',
+  order_warden: { name: 'Order Warden', title: 'Order of Silence', type: 'regular', outfit: 'gi', ai: 'defensive', weapon: 'temple_staff', helmet: 'tetsu_kabuto', armor: 'kozane_do', hp: 220, dmg: 1, build: { scale: 1.08, w: 12 }, eye: '#c9a45c',
             taunt: 'Nothing leaves the fortress without the Order’s word.', tip: 'He blocks everything. Grab him (Block + Punch) or charge a heavy kick.' },
   hollow: { name: 'Hollow', title: 'Memory ash', type: 'regular', ai: 'agile', weapon: 'shadow_daggers', helmet: 'veil', armor: 'cloak', hp: 160, dmg: 0.85, speed: 1.15, build: { scale: 0.96, w: 9, legs: 1.06 }, eye: '#9b8cff', accent: '#9b8cff',
             taunt: '…it copies your breathing, then your stance…', tip: 'It darts in and out. Dash in when it lands from a jump.' },
@@ -340,7 +427,10 @@ for (const id in ENEMIES) ENEMIES[id].id = id;
      enemy            the temporary arena foe (ENEMIES id) for combat stages; scene stages have none,
      foe / foeTitle   the story opponent shown instead of the placeholder's name (bosses, sub-bosses, echoes, the spar),
      chapter / pos    filled in below (owning chapter id, index inside it).
-   Later updates add per-stage fields here (env override, encounters, scene hooks, rewards and unlocks);
+     reward           optional gear granted when the stage is cleared: { weapons: [ids], helmets: [ids], armors: [ids] }.
+                      Each item is given once (see Logic.grantStageReward); items flagged ngOnly only drop in New Game+.
+                      The boss and sub-boss updates fill these in.
+   Later updates add per-stage fields here (env override, encounters, scene hooks);
    the logic module reads them, so the rest of the game picks them up. */
 const STAGE_KINDS = ['stretch', 'subboss', 'boss', 'spar', 'echo', 'scene'];
 const CAMPAIGN = (function buildCampaign() {

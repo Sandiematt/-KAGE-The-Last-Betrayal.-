@@ -400,6 +400,7 @@ const UIManager = {
       setTimeout(() => {
         if (u.kind === 'ng') this.toast('Story complete', 'New Game+ unlocked in Settings');
         else if (u.kind === 'chapter') this.toast('New chapter unlocked', `${Logic.chapter(u.id).name} · ${Logic.chapter(u.id).title}`);
+        else this.toast(u.kind === 'weapons' ? 'Boss weapon' : 'Trophy', gearName(u.kind, u.id));
       }, delay);
       delay += 700;
     }
@@ -420,8 +421,10 @@ const UIManager = {
   /* ---------------- armory ---------------- */
   armItems() {
     const save = SaveManager.data;
-    if (this.armTab === 'weapons') return Object.keys(WEAPONS).filter(id => !WEAPONS[id].enemy && id !== 'fists');
-    return Object.keys(gearTable(this.armTab));
+    const t = gearTable(this.armTab), cost = it => it.price || (it.gems ? it.gems * 100 : 0);
+    // shop gear from cheapest to dearest by tier, then trophies and boss weapons
+    return Object.keys(t).filter(id => !t[id].enemy && id !== 'fists')
+      .sort((a, b) => (GEAR_TIERS[t[a].tier || 'common'].rank - GEAR_TIERS[t[b].tier || 'common'].rank) || (cost(t[a]) - cost(t[b])));
   },
   renderArmory(soft) {
     const save = SaveManager.data, el = $('#scr-armory'), kind = this.armTab;
@@ -429,33 +432,34 @@ const UIManager = {
     const items = this.armItems();
     if (!this.armSel || !items.includes(this.armSel)) this.armSel = save.equipped[kind === 'weapons' ? 'weapon' : kind === 'helmets' ? 'helmet' : 'armor'];
     const id = this.armSel, item = gearTable(kind)[id], owned = save.owned[kind][id], lvl = owned || 0;
-    const max = GEAR_MAX[kind], eqKey = kind === 'weapons' ? 'weapon' : kind === 'helmets' ? 'helmet' : 'armor', equipped = save.equipped[eqKey] === id;
+    const max = Logic.maxLevel(kind, id), eqKey = kind === 'weapons' ? 'weapon' : kind === 'helmets' ? 'helmet' : 'armor', equipped = save.equipped[eqKey] === id;
     let statsHTML = '', special = '';
     if (kind === 'weapons') {
       const s = weaponStats(id, Math.max(1, lvl)), n = weaponStats(id, Math.min(max, Math.max(1, lvl) + 1)), canUp = owned && lvl < max;
       statsHTML = [['Damage', 'damage'], ['Speed', 'speed'], ['Reach', 'reach']].map(([k, key]) => {
         const up = canUp ? n[key] - s[key] : 0;
-        return `<div class="stat"><div class="labels"><span>${k}</span><span class="val">${up ? `<em>+${up}</em>` : ''}<b>${s[key]}</b></span></div><div class="track"><i style="width:${s[key]}%"></i><u style="left:${s[key]}%;width:${up}%"></u></div></div>`;
+        return `<div class="stat"><div class="labels"><span>${k}</span><span class="val">${up ? `<em>+${up}</em>` : ''}<b>${s[key]}</b></span></div><div class="track"><i style="width:${Math.min(100, s[key] / 2)}%"></i><u style="left:${Math.min(100, s[key] / 2)}%;width:${up / 2}%"></u></div></div>`;
       }).join('');
       const sp = SPECIALS[item.special];
       special = sp ? `<div class="special-line"><b>Rage art</b>${esc(sp.name)} — ${esc(sp.desc)}</div>` : '';
     } else {
       const dNow = Math.round(gearDef(kind, id, Math.max(1, lvl)) * 100), dNext = Math.round(gearDef(kind, id, Math.min(max, Math.max(1, lvl) + 1)) * 100);
-      const pk = item.perks, perkTxt = Object.keys(pk).map(k => ({ hp: `+${pk[k]} health`, speed: `${pk[k] > 0 ? '+' : ''}${Math.round(pk[k] * 100)}% speed`, rage: `+${Math.round(pk[k] * 100)}% rage gain`, stunRes: `${Math.round(pk[k] * 100)}% stun resist`, dash: `+${Math.round(pk[k] * 100)}% dash`, ammo: `+${pk[k]} kunai`, kunai: `+${Math.round(pk[k] * 100)}% kunai damage`, dmg: `+${Math.round(pk[k] * 100)}% damage` }[k])).join(' · ');
+      const hNow = gearHp(kind, id, Math.max(1, lvl)), hNext = gearHp(kind, id, Math.min(max, Math.max(1, lvl) + 1));
+      const pk = item.perks, perkTxt = Object.keys(pk).map(k => ({ blockRage: 'blocking builds double rage', speed: `${pk[k] > 0 ? '+' : ''}${Math.round(pk[k] * 100)}% speed`, rage: `+${Math.round(pk[k] * 100)}% rage gain`, stunRes: `${Math.round(pk[k] * 100)}% stun resist`, dash: `+${Math.round(pk[k] * 100)}% dash`, ammo: `+${pk[k]} kunai`, kunai: `+${Math.round(pk[k] * 100)}% kunai damage`, dmg: `+${Math.round(pk[k] * 100)}% damage` }[k])).join(' · ');
       const mob = Math.round(100 + (pk.speed || 0) * 100 * 3);
       statsHTML = `<div class="stat"><div class="labels"><span>Defense</span><span class="val">${owned && lvl < max ? `<em>+${dNext - dNow}</em>` : ''}<b>${dNow}%</b></span></div><div class="track"><i style="width:${dNow * 3.5}%"></i><u style="left:${dNow * 3.5}%;width:${owned && lvl < max ? (dNext - dNow) * 3.5 : 0}%"></u></div></div>
+        <div class="stat"><div class="labels"><span>Health</span><span class="val">${owned && lvl < max && hNext > hNow ? `<em>+${hNext - hNow}</em>` : ''}<b>+${hNow}</b></span></div><div class="track"><i style="width:${Math.min(100, hNow)}%"></i><u style="left:${Math.min(100, hNow)}%;width:${owned && lvl < max ? hNext - hNow : 0}%"></u></div></div>
         <div class="stat"><div class="labels"><span>Mobility</span><span class="val"><b>${mob}</b></span></div><div class="track"><i style="width:${clamp(mob - 30, 0, 100)}%"></i></div></div>
         ${perkTxt ? `<div class="special-line"><b>Perks</b>${esc(perkTxt)}</div>` : ''}`;
     }
     let primary;
     if (!owned) {
-      if (item.exclusive) primary = `<button class="btn-primary locked" disabled>Boss trophy</button>`;
+      if (item.exclusive) primary = `<button class="btn-primary locked" disabled>Locked</button>`;
       else if (item.gems) primary = `<button class="btn-primary" data-a="buy" ${save.gems < item.gems ? 'disabled' : ''}>Buy <span style="display:inline-flex;align-items:center;gap:.4rem;letter-spacing:.05em"><i class="gem" style="background:var(--bg-void)"></i>${item.gems}</span></button>`;
       else primary = `<button class="btn-primary" data-a="buy" ${save.coins < item.price ? 'disabled' : ''}>Buy <span style="display:inline-flex;align-items:center;gap:.4rem;letter-spacing:.05em"><i class="coin"></i>${fmt(item.price)}</span></button>`;
     } else if (lvl >= max) primary = `<button class="btn-primary locked" disabled>Mastered</button>`;
     else { const c = upgradeCost(kind, id, lvl); primary = `<button class="btn-primary" data-a="upgrade" ${save.coins < c ? 'disabled' : ''}>Upgrade <span style="display:inline-flex;align-items:center;gap:.4rem;letter-spacing:.05em"><i class="coin"></i>${fmt(c)}</span></button>`; }
-    const trophyOf = ENEMIES[item.exclusive]; // a trophy names its enemy; `true` = locked until the gear rebuild
-    const exclusiveTxt = item.exclusive && !owned ? `<div class="special-line"><b>Locked</b>${trophyOf ? `Defeat ${esc(trophyOf.name)}, ${esc(trophyOf.title)}` : 'A trophy of a fallen foe. Not obtainable yet.'}</div>` : '';
+    const exclusiveTxt = Logic.isLocked(save, kind, id) ? `<div class="special-line"><b>Locked</b>${esc(Logic.lockHint(kind, id))}</div>` : '';
     el.innerHTML = `
       <canvas class="arm-preview" data-prev></canvas>
       <div class="topbar">
@@ -464,7 +468,7 @@ const UIManager = {
         ${currencyHTML()}
       </div>
       <div class="arm-details">
-        <div><div class="eyebrow rarity">${esc(item.rarity || item.cls)}${kind === 'weapons' ? ` · ${esc(item.cls)}` : ''}</div><h3 class="disp">${esc(item.name)}</h3><div class="desc">${esc(item.desc || '')}</div></div>
+        <div><div class="eyebrow rarity tier-${Logic.itemTier(kind, id, Math.max(1, lvl))}">${esc(Logic.tierLabel(kind, id, Math.max(1, lvl)))}${kind === 'weapons' ? ` · ${esc(item.cls)}` : ''}</div><h3 class="disp">${esc(item.name)}</h3><div class="lore">${esc(item.lore || '')}</div>${item.desc ? `<div class="desc">${esc(item.desc)}</div>` : ''}</div>
         <div><div class="lvl-row"><span class="k">Level ${equipped ? '<span class="equipped-tag" style="margin-left:.8rem">Equipped</span>' : ''}</span><span class="v">${owned ? `${lvl} / ${max}` : 'Not owned'}</span></div>
           <div class="lvl-pips">${Array.from({ length: max }, (_, i) => `<i class="${i < lvl ? 'on' : i === lvl && owned ? 'next' : ''}"></i>`).join('')}</div></div>
         <div class="stats-col">${statsHTML}${special}${exclusiveTxt}</div>
@@ -475,7 +479,7 @@ const UIManager = {
         return `<button class="tile ${iid === id ? 'sel' : ''} ${ow ? '' : 'locked'}" data-a="tile" data-id="${iid}" style="animation-delay:${i * 0.03}s" aria-label="${esc(it.name)}">
           ${eq ? '<i class="eq"></i>' : ''}${ow ? '' : `<span class="lock">${ICON.lock}</span>`}
           <canvas data-icon="${iid}" data-kind="${kind}" data-owned="${ow ? 1 : 0}"></canvas>
-          ${ow ? `<span class="nm">${esc(it.name)}</span>` : it.exclusive ? `<span class="price" style="color:var(--accent-ember-bright)">Boss trophy</span>` : `<span class="price">${it.gems ? `<i class="gem" style="width:.5rem;height:.5rem"></i>${it.gems}` : `<i class="coin"></i>${fmt(it.price)}`}</span>`}
+          ${ow ? `<span class="nm">${esc(it.name)}</span>` : it.exclusive ? `<span class="price" style="color:var(--accent-ember-bright)">${esc(Logic.tierLabel(kind, iid, 1))}</span>` : `<span class="price">${it.gems ? `<i class="gem" style="width:.5rem;height:.5rem"></i>${it.gems}` : `<i class="coin"></i>${fmt(it.price)}`}</span>`}
         </button>`;
       }).join('')}</div>`;
     const paint = () => {
@@ -486,13 +490,13 @@ const UIManager = {
   },
   paintIcon(cv, kind, id, owned) {
     if (kind === 'weapons') { drawWeaponIcon(cv, id, owned ? null : C.ash); return; }
-    const f = makePlayerFighter(SaveManager.data, { helmet: kind === 'helmets' ? id : 'topknot', armor: kind === 'armors' ? id : 'wraps', weapon: 'fists', scarf: false });
+    const f = makePlayerFighter(SaveManager.data, { helmet: kind === 'helmets' ? id : 'shiro_maki', armor: kind === 'armors' ? id : 'tachibana_yoroi', weapon: 'fists', scarf: false });
     poseFighter(f, null, 20);
     if (kind === 'helmets') {
       const { g, w, h } = prepCanvas(cv);
       const r = h * 0.2;
       g.save(); g.translate(w / 2, h * 0.62); g.fillStyle = owned ? '#2a2620' : '#1a1814'; g.beginPath(); g.arc(0, 0, r, 0, TAU); g.fill();
-      drawHelmet(g, id, r, owned ? '#2a2620' : '#1a1814', {}, f);
+      drawHelmet(g, gearLook('helmets', id), r, owned ? '#2a2620' : '#1a1814', {}, f);
       g.restore();
     } else drawFighterInto(cv, f, { fit: 1.2, tall: 1.05, color: owned ? null : '#1a1814', rim: owned ? 'rgba(236,229,211,0.25)' : null, ground: 1.15 });
   },
@@ -502,7 +506,7 @@ const UIManager = {
     const kind = this.armTab, id = this.armSel, save = SaveManager.data;
     const f = makePlayerFighter(save, kind === 'weapons' ? { weapon: id } : kind === 'helmets' ? { helmet: id } : { armor: id });
     poseFighter(f, null, 30);
-    const ghost = makePlayerFighter(save, { weapon: 'fists', scarf: false, helmet: 'topknot', armor: 'wraps' }); poseFighter(ghost, 'taunt', 30);
+    const ghost = makePlayerFighter(save, { weapon: 'fists', scarf: false, helmet: 'shiro_maki', armor: 'tachibana_yoroi' }); poseFighter(ghost, 'taunt', 30);
     let t0 = performance.now();
     const loop = (now) => {
       if (this.current !== 'armory' || !cv.isConnected) return;
@@ -773,7 +777,7 @@ const UIManager = {
           AudioManager.play('unlock');
           if (u.kind === 'chapter') this.toast('New chapter unlocked', `${Logic.chapter(u.id).name} · ${Logic.chapter(u.id).title}`);
           else if (u.kind === 'ng') this.toast('Story complete', 'New Game+ unlocked in Settings');
-          else this.toast(u.kind === 'weapons' ? 'Exclusive weapon' : 'Boss trophy', gearName(u.kind, u.id));
+          else this.toast(u.kind === 'weapons' ? 'Boss weapon' : 'Trophy', gearName(u.kind, u.id));
         }, delay);
         delay += 700;
       }

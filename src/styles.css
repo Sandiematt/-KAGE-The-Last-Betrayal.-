@@ -136,6 +136,8 @@ button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--accent
 .arm-details .rarity { color: var(--accent-ember-bright); }
 .arm-details h3 { margin: .3rem 0 0; font-size: 3.1rem; line-height: 1.02; letter-spacing: -0.01em; }
 .arm-details .desc { color: var(--text-muted); font-size: 1rem; line-height: 1.45; letter-spacing: .02em; margin-top: .5rem; }
+.arm-details .lore { color: var(--text-secondary, var(--text-muted)); font-family: 'Cinzel', serif; font-style: italic; font-size: .92rem; line-height: 1.45; margin-top: .45rem; opacity: .92; }
+.eyebrow.rarity.tier-rare { color: #7fb8ff; } .eyebrow.rarity.tier-epic { color: #b48cff; } .eyebrow.rarity.tier-trophy, .eyebrow.rarity.tier-boss { color: var(--accent-ember-bright); }
 .lvl-row { display: flex; justify-content: space-between; align-items: baseline; }
 .lvl-row .k { color: var(--text-muted); font-size: .875rem; letter-spacing: .21em; text-transform: uppercase; }
 .lvl-row .v { font-size: 1.25rem; font-weight: 600; }

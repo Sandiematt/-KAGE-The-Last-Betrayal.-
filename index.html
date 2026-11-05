@@ -153,6 +153,8 @@ button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--accent
 .arm-details .rarity { color: var(--accent-ember-bright); }
 .arm-details h3 { margin: .3rem 0 0; font-size: 3.1rem; line-height: 1.02; letter-spacing: -0.01em; }
 .arm-details .desc { color: var(--text-muted); font-size: 1rem; line-height: 1.45; letter-spacing: .02em; margin-top: .5rem; }
+.arm-details .lore { color: var(--text-secondary, var(--text-muted)); font-family: 'Cinzel', serif; font-style: italic; font-size: .92rem; line-height: 1.45; margin-top: .45rem; opacity: .92; }
+.eyebrow.rarity.tier-rare { color: #7fb8ff; } .eyebrow.rarity.tier-epic { color: #b48cff; } .eyebrow.rarity.tier-trophy, .eyebrow.rarity.tier-boss { color: var(--accent-ember-bright); }
 .lvl-row { display: flex; justify-content: space-between; align-items: baseline; }
 .lvl-row .k { color: var(--text-muted); font-size: .875rem; letter-spacing: .21em; text-transform: uppercase; }
 .lvl-row .v { font-size: 1.25rem; font-weight: 600; }
@@ -1413,8 +1415,9 @@ const WEAPONS = {
     },
     special: 'shadowPalm'
   },
-  twin_blades: { heft: 0.6, el: 'lightning', name: 'Twin Blades', cls: 'Blades', tab: 'blades', rarity: 'Swift Blades', hands: 'dual', len: 64, stance: 'twin', stats: [44, 92, 38], price: 450,
+  tsubame: { heft: 0.6, el: 'lightning', name: 'Tsubame', cls: 'Twin blades', tab: 'blades', tier: 'common', hands: 'dual', len: 64, stance: 'twin', stats: [44, 92, 38], price: 450,
     trail: '#ece5d3', desc: 'Fast attacks and extended combos. Five-cut string ending in a spinning finisher.',
+    lore: 'Courier blades of the Hoshimura runners, light enough to carry past every Order checkpoint unseen.',
     moves: ['tw1', 'tw2', 'tw3', 'tw4', 'tw5'], air: 'twa', special: 'thousandCuts',
     defs: {
       tw1: { kind: 'weapon', w: { fs: 122, fe: 20, wa: 196 }, s: { lean: 16, fs: 72, fe: 0, wa: 28 }, t: [0.05, 0.05, 0.13], dmg: 5, kb: 90, hs: 0.26, box: [16, -200, 120, 130], limb: 'w', snd: 'swing', hsnd: 'slash', imp: 0, next: 'tw2' },
@@ -1427,8 +1430,9 @@ const WEAPONS = {
     },
     counter: 'twc'
   },
-  moon_katana: { heft: 1, el: 'moon', name: 'Moon Katana', cls: 'Blades', tab: 'blades', rarity: 'Balanced Blade', hands: 2, len: 82, stance: 'katana', stats: [60, 64, 58], price: 0,
+  kagetsu: { heft: 1, el: 'moon', name: 'Kagetsu', cls: 'Katana', tab: 'blades', tier: 'common', hands: 2, len: 82, stance: 'katana', stats: [60, 64, 58], price: 0,
     trail: '#ece5d3', desc: 'Balanced cuts and lightning counter-slashes. Block or parry, then strike to draw the iai counter.',
+    lore: '"Shadow Moon." Takashi forged it in Hoshimura for Kage\'s first oath; it was never registered with the Order.',
     moves: ['k1', 'k2', 'k3'], air: 'ka', special: 'crescentMoon', counter: 'kc',
     defs: {
       k1: { kind: 'weapon', a: { lean: -6, head: 2, fs: 166, fe: 8, wa: 194 }, w: { lean: -8, fs: 178, fe: 26, wa: 214 }, s: { lean: 22, rx: 14, head: 8, fs: 74, fe: 0, wa: 22, fh: 38, fk: -24, bh: -32, bk: -4 }, f: { lean: 28, rx: 12, head: 10, fs: 40, fe: 0, wa: -14, fh: 40, fk: -32, bh: -34, bk: -6 }, t: [0.1, 0.07, 0.19], dmg: 10, kb: 200, hs: 0.32, box: [16, -222, 150, 176], limb: 'w', snd: 'swing', hsnd: 'slash', imp: 1, next: 'k2' },
@@ -1438,8 +1442,9 @@ const WEAPONS = {
       kc: { kind: 'weapon', counter: 1, w: { lean: 14, head: 10, fs: 6, fe: 20, wa: -46, fh: 36, fk: -40, bh: -34, bk: -20 }, s: { lean: 26, rx: 32, head: 8, fs: 106, fe: 0, wa: 160, fh: 46, fk: -30, bh: -46, bk: 0 }, f: { lean: 16, fs: 168, fe: 10, wa: 178 }, t: [0.04, 0.08, 0.26], dmg: 18, kb: 480, up: -260, hs: 0.55, box: [16, -220, 170, 180], limb: 'w', snd: 'heavyswing', hsnd: 'slash', imp: 3, stamp: 'COUNTER', lunge: 420 }
     }
   },
-  mountain_cleaver: { heft: 1.6, el: 'flame', name: 'Mountain Cleaver', cls: 'Heavy', tab: 'heavy', rarity: 'Heavy Blade', hands: 1, len: 104, stance: 'cleaver', stats: [82, 38, 54], price: 1400,
+  onikiri: { heft: 1.6, el: 'flame', name: 'Onikiri', cls: 'Cleaver', tab: 'heavy', tier: 'rare', hands: 1, len: 104, stance: 'cleaver', stats: [82, 38, 54], price: 1400,
     trail: '#d24a3c', desc: 'Heavy damage that breaks any guard. Slow to start — commit to every swing.',
+    lore: 'A field cleaver salvaged from the Silent War. The soot of a burned barracks never washes out of its fuller.',
     moves: ['c1', 'c2', 'c3'], air: 'ca', special: 'mountainSplit', counter: 'c2',
     defs: {
       c1: { kind: 'weapon', a: { lean: -16, head: -4, fs: 188, fe: 4, wa: 230 }, f: { lean: 32, rx: 12, fs: 40, fe: 0, wa: -22, fh: 42, fk: -34, bh: -36, bk: -8 }, w: { lean: -12, fs: 176, fe: 14, wa: 222 }, s: { lean: 26, rx: 14, fs: 72, fe: 0, wa: 8, fh: 38, fk: -24, bh: -34, bk: -8 }, t: [0.22, 0.08, 0.3], dmg: 18, kb: 260, hs: 0.45, gb: 70, box: [16, -230, 150, 230], limb: 'w', snd: 'heavyswing', hsnd: 'heavy', imp: 2, stamp: 'BREAK', next: 'c2' },
@@ -1448,8 +1453,9 @@ const WEAPONS = {
       ca: { kind: 'air', w: { lean: -10, fs: 176, fe: 0, wa: 210 }, s: { lean: 30, fs: 50, fe: 0, wa: -10 }, t: [0.12, 0.1, 0.22], dmg: 14, kb: 200, up: 400, hs: 0.45, gb: 60, box: [10, -200, 150, 220], limb: 'w', snd: 'heavyswing', hsnd: 'heavy', imp: 2 }
     }
   },
-  dragon_spear: { heft: 1.2, el: 'water', name: 'Dragon Spear', cls: 'Polearm', tab: 'polearms', rarity: 'Legendary Polearm', hands: 2, len: 196, stance: 'spear', stats: [52, 60, 96], price: 0, exclusive: true,
-    trail: '#c9a45c', desc: 'Longest reach in the Armory. Two pokes and a leg-sweeping arc. A boss trophy, not yet obtainable.',
+  mizuchi: { heft: 1.2, el: 'water', name: 'Mizuchi', cls: 'Spear', tab: 'polearms', tier: 'rare', hands: 2, len: 196, stance: 'spear', stats: [52, 60, 96], price: 1700,
+    trail: '#c9a45c', desc: 'Longest reach in the Armory. Two pokes and a leg-sweeping arc.',
+    lore: 'Pike of the old Hoshimura gate watch, re-hafted in secret after the Order burned the village gate.',
     moves: ['s1', 's2', 's3'], air: 'sa', special: 'dragonLance', counter: 's1',
     defs: {
       s1: { kind: 'weapon', f: { lean: 14, rx: 20, fs: 82, fe: 10, wa: 93 }, w: { lean: 0, rx: -14, fs: 36, fe: 70, wa: 95 }, s: { lean: 18, rx: 26, fs: 88, fe: 0, wa: 92 }, t: [0.09, 0.07, 0.18], dmg: 8, kb: 220, hs: 0.3, box: [30, -170, 236, 44], limb: 'w', snd: 'swing', hsnd: 'slash', imp: 0, next: 's2' },
@@ -1458,8 +1464,9 @@ const WEAPONS = {
       sa: { kind: 'air', w: { lean: -4, fs: 150, fe: 0, wa: 160 }, s: { lean: 30, fs: 70, fe: 0, wa: 50 }, t: [0.08, 0.1, 0.18], dmg: 9, kb: 200, up: 300, hs: 0.36, box: [10, -170, 200, 170], limb: 'w', snd: 'swing', hsnd: 'slash', imp: 1 }
     }
   },
-  phantom_sickle: { heft: 0.95, el: 'blood', name: 'Phantom Sickle', cls: 'Chain', tab: 'chains', rarity: 'Legendary Chain', hands: 1, len: 70, stance: 'sickle', stats: [56, 66, 74], price: 0, exclusive: true,
-    trail: '#9b8cff', desc: 'A chained sickle. The second strike hurls the blade and drags the enemy to you. A boss trophy, not yet obtainable.',
+  yamigama: { heft: 0.95, el: 'blood', name: 'Yamigama', cls: 'Chain sickle', tab: 'chains', tier: 'epic', hands: 1, len: 70, stance: 'sickle', stats: [56, 66, 74], price: 2600,
+    trail: '#9b8cff', desc: 'A chained sickle. The second strike hurls the blade and drags the enemy to you.',
+    lore: 'A Hollow-hunter\'s chain sickle. Its links are woven with memory ash, so they bite things that should have no body.',
     moves: ['h1', 'h2', 'h3'], air: 'ha', special: 'reapersHarvest', counter: 'h3',
     defs: {
       h1: { kind: 'weapon', w: { lean: -4, fs: 172, fe: 30, wa: 232 }, s: { lean: 18, fs: 72, fe: 0, wa: 20 }, t: [0.09, 0.07, 0.18], dmg: 9, kb: 160, hs: 0.32, box: [16, -214, 128, 160], limb: 'w', snd: 'swing', hsnd: 'slash', imp: 0, next: 'h2' },
@@ -1468,8 +1475,9 @@ const WEAPONS = {
       ha: { kind: 'air', w: { lean: 0, fs: 172, fe: 10, wa: 220 }, s: { lean: 24, fs: 64, fe: 0, wa: 0 }, t: [0.07, 0.1, 0.16], dmg: 9, kb: 200, up: 220, hs: 0.36, box: [10, -200, 136, 190], limb: 'w', snd: 'swing', hsnd: 'slash', imp: 1 }
     }
   },
-  titan_hammer: { heft: 2.2, el: 'earth', name: 'Titan Hammer', cls: 'Heavy', tab: 'heavy', rarity: 'Mythic Hammer', hands: 2, len: 150, stance: 'hammer', stats: [98, 16, 66], price: 0, exclusive: true,
-    trail: '#d24a3c', desc: 'Extremely slow but devastating. The overhead smash splits the ground. A boss trophy, not yet obtainable.',
+  iwakudaki: { heft: 2.2, el: 'earth', name: 'Iwakudaki', cls: 'Hammer', tab: 'heavy', tier: 'epic', hands: 2, len: 150, stance: 'hammer', stats: [98, 16, 66], price: 3200,
+    trail: '#d24a3c', desc: 'Extremely slow but devastating. The overhead smash splits the ground.',
+    lore: 'The siege maul that cracked the outer wall of the Fortress of Silence in the war. The Order buried it; someone dug it up.',
     moves: ['m1', 'm2'], air: 'ma', special: 'earthshatter', counter: 'm2',
     defs: {
       m1: { kind: 'weapon', a: { lean: -22, head: -6, fs: 196, fe: 0, wa: 196, fh: 22, fk: -30, bh: -24, bk: -22 }, f: { lean: 36, fs: 74, fe: 0, wa: -2, fh: 46, fk: -44, bh: -38, bk: -22 }, w: { lean: -18, fs: 186, fe: 0, wa: 200 }, s: { lean: 34, fs: 76, fe: 0, wa: 2, fh: 44, fk: -40, bh: -36, bk: -20 }, t: [0.42, 0.1, 0.48], dmg: 34, kb: 380, up: -360, hs: 0.7, kd: 1, gb: 160, box: [16, -246, 176, 246], limb: 'w', snd: 'heavyswing', hsnd: 'heavy', imp: 3, stamp: 'SMASH', shock: 1, armor: 1, next: 'm2' },
@@ -1478,19 +1486,43 @@ const WEAPONS = {
     }
   },
 
+  shizuka: { heft: 1.05, el: 'moon', name: 'Shizuka', cls: 'Katana', tab: 'blades', tier: 'rare', base: 'kagetsu', hands: 2, len: 88, stance: 'katana', stats: [64, 68, 62], price: 1100,
+    trail: '#b9c4c9', desc: 'An Order katana on the Kagetsu forms: slightly longer and quicker to draw.',
+    lore: 'Order-issue steel. The scabbard is lined with felt so that no draw is ever heard in the City of Echoes.' },
+
+  /* ---- boss weapons: defined but locked; boss stages grant them through their `reward` (see CAMPAIGN).
+     Never upgraded and never scaled with player level: their fixed stats are the top tier.
+     `special` is a placeholder rage art until the boss tickets add each weapon's real one (noted per weapon). ---- */
+  shinsen: { heft: 1.5, el: 'moon', name: 'Shinsen', cls: 'Odachi', tab: 'blades', tier: 'boss', base: 'kagetsu', hands: 2, len: 112, stance: 'katana', stats: [150, 120, 132],
+    exclusive: true, hint: 'Defeat Takashi', special: 'crescentMoon', // real rage art: Final Flow
+    trail: '#c9a45c', desc: 'Takashi\'s odachi on the katana forms. Every cut lands like a cleaver.',
+    lore: 'Takashi\'s own odachi, gold along its spine. He forged it the year he built the Echo System and never let the Order touch it.' },
+  raiko_no_tachi: { heft: 1.9, el: 'lightning', name: 'Raikō no Tachi', cls: 'Odachi', tab: 'heavy', tier: 'boss', base: 'onikiri', hands: 1, len: 128, stance: 'cleaver', stats: [190, 92, 120],
+    exclusive: true, hint: 'Defeat Raikon', special: 'mountainSplit', // real rage art: Thunder Swing
+    trail: '#ff4a3c', desc: 'Raikon\'s broad odachi on the cleaver forms. Slow, guard-breaking, thunderous.',
+    lore: 'Raikon\'s broad odachi. The red groove down the blade drinks lightning and spits it back at whoever defies the Order.' },
+  kagehira_yurei: { heft: 0.7, el: 'blood', name: 'Kagehira & Yūrei', cls: 'Twin blades', tab: 'blades', tier: 'boss', base: 'tsubame', hands: 'dual', len: 72, stance: 'twin', stats: [104, 188, 110],
+    exclusive: true, hint: 'Defeat Akari', special: 'thousandCuts', // real rage art: Smoke Step
+    trail: '#d24a3c', desc: 'Akari\'s paired short blades on the twin-blade forms.',
+    lore: 'Akari\'s paired blades. Kagehira cuts the body; Yūrei cuts the memory of the wound, so it never stops hurting.' },
+  mugen_no_ha: { heft: 1.1, el: 'moon', name: 'Mugen no Ha', cls: 'Katana', tab: 'blades', tier: 'boss', base: 'kagetsu', hands: 2, len: 96, stance: 'katana', stats: [162, 124, 128],
+    exclusive: true, hint: 'Defeat the Witness', special: 'crescentMoon', // real rage art: Echo Replication
+    trail: '#9b8cff', desc: 'The Witness\'s blade on the katana forms.',
+    lore: 'A blade of stolen memory shards, pressed together in the Memory Core. It remembers every fighter it has ever cut.' },
+
   /* ---- enemy-only arms ---- */
-  shadow_daggers: { heft: 0.6, el: 'shade', enemy: 1, name: 'Shadow Daggers', base: 'twin_blades', len: 52, trail: '#ece5d3' },
-  hollow_crescents: { heft: 0.8, el: 'moon', enemy: 1, name: 'Hollow Crescents', base: 'twin_blades', len: 74, trail: '#9b8cff', crescent: 1 },
-  mist_fans: { heft: 0.6, el: 'wind', enemy: 1, name: 'Mist Fans', base: 'twin_blades', len: 46, trail: '#b9c4c9', fan: 1 },
-  sentinel_spear: { heft: 1.2, el: 'shade', enemy: 1, name: 'Sentinel Spear', base: 'dragon_spear', hands: 1, stance: 'shield', len: 180, trail: '#c9a45c', shield: 1 },
-  sage_staff: { heft: 1.1, el: 'water', enemy: 1, name: 'Sage Staff', base: 'dragon_spear', len: 200, trail: '#7fd0c8', staff: 1, stance: 'staff' },
+  shadow_daggers: { heft: 0.6, el: 'shade', enemy: 1, name: 'Shadow Daggers', base: 'tsubame', len: 52, trail: '#ece5d3' },
+  hollow_crescents: { heft: 0.8, el: 'moon', enemy: 1, name: 'Hollow Crescents', base: 'tsubame', len: 74, trail: '#9b8cff', crescent: 1 },
+  mist_fans: { heft: 0.6, el: 'wind', enemy: 1, name: 'Mist Fans', base: 'tsubame', len: 46, trail: '#b9c4c9', fan: 1 },
+  sentinel_spear: { heft: 1.2, el: 'shade', enemy: 1, name: 'Sentinel Spear', base: 'mizuchi', hands: 1, stance: 'shield', len: 180, trail: '#c9a45c', shield: 1 },
+  sage_staff: { heft: 1.1, el: 'water', enemy: 1, name: 'Sage Staff', base: 'mizuchi', len: 200, trail: '#7fd0c8', staff: 1, stance: 'staff' },
   storm_orbs: { heft: 0.6, el: 'lightning', enemy: 1, name: 'Storm Orbs', base: 'fists', hands: 0, stance: 'orbs', trail: '#7fb8ff' },
   iron_fists: { heft: 1.5, el: 'earth', enemy: 1, name: 'Iron Fists', base: 'fists', hands: 0, trail: '#d24a3c', gauntlet: 1 },
-  chain_hook: { heft: 1, el: 'flame', enemy: 1, name: 'Chain Hook', base: 'phantom_sickle', len: 64, trail: '#d24a3c', hook: 1 },
-  tyrant_cleaver: { heft: 2, el: 'flame', enemy: 1, name: 'Tyrant Cleaver', base: 'mountain_cleaver', len: 130, trail: '#ff6a3c' },
-  cutter_blade: { heft: 1, el: 'shade', enemy: 1, name: 'Cutter Blade', base: 'moon_katana', len: 92, trail: '#ece5d3' },
-  temple_staff: { heft: 1.1, el: 'shade', enemy: 1, name: 'Temple Staff', base: 'dragon_spear', len: 180, trail: '#ece5d3', staff: 1, stance: 'staff' },
-  raider_cleaver: { heft: 1.4, el: 'shade', enemy: 1, name: 'Raider Cleaver', base: 'mountain_cleaver', len: 86, trail: '#d24a3c' }
+  chain_hook: { heft: 1, el: 'flame', enemy: 1, name: 'Chain Hook', base: 'yamigama', len: 64, trail: '#d24a3c', hook: 1 },
+  tyrant_cleaver: { heft: 2, el: 'flame', enemy: 1, name: 'Tyrant Cleaver', base: 'onikiri', len: 130, trail: '#ff6a3c' },
+  cutter_blade: { heft: 1, el: 'shade', enemy: 1, name: 'Cutter Blade', base: 'kagetsu', len: 92, trail: '#ece5d3' },
+  temple_staff: { heft: 1.1, el: 'shade', enemy: 1, name: 'Temple Staff', base: 'mizuchi', len: 180, trail: '#ece5d3', staff: 1, stance: 'staff' },
+  raider_cleaver: { heft: 1.4, el: 'shade', enemy: 1, name: 'Raider Cleaver', base: 'onikiri', len: 86, trail: '#d24a3c' }
 };
 // resolve enemy weapons onto their base move-sets
 for (const id in WEAPONS) {
@@ -1557,32 +1589,89 @@ const SPECIALS = {
   earthshatter:  { name: 'Earthshatter', desc: 'The ground itself breaks. Every grounded enemy is stunned.' }
 };
 
-/* ---------------- Helmets & armor ---------------- */
+/* ---------------- Helmets & armor ----------------
+   Every item: name, tier (see GEAR_TIERS), def (damage reduction at level 1), hp (bonus health at level 1),
+   price (coins) or gems, lore (the one line shown in the Armory), perks, and look: the drawing key used by
+   drawHelmet / drawArmor in 20-fighter.js (defaults to the item id).
+   Locked items: exclusive (never sold) + hint (what the Armory says unlocks it). Trophies are granted by a
+   campaign stage's `reward` (see CAMPAIGN); ngOnly trophies only drop during New Game+.
+   Room is left for 12 sub-boss trophies (tier 'trophy', one per Act sub-boss), added by the sub-boss tickets. */
 const HELMETS = {
-  topknot:   { name: 'Crimson Hachimaki', rarity: 'Starting gear', def: 0, price: 0, desc: 'A red headband with long tails. Light, quick, honest.', perks: {} },
-  ronin_hood:{ name: 'Ronin Hood', rarity: 'Common helm', def: 0.04, price: 300, desc: 'Cloth hood. Dash recovers faster.', perks: { dash: 0.12 } },
-  straw_kasa:{ name: 'Straw Kasa', rarity: 'Common helm', def: 0.06, price: 520, desc: 'Wide straw hat. Carry two extra kunai.', perks: { ammo: 2 } },
-  iron_kabuto:{ name: 'Iron Kabuto', rarity: 'Rare helm', def: 0.1, price: 1150, desc: 'Lacquered iron with a gold crest. Shrugs off stuns.', perks: { stunRes: 0.35 } },
-  oni_mask:  { name: 'Oni Mask', rarity: 'Rare helm', def: 0.08, gems: 12, desc: 'Fills the rage meter faster.', perks: { rage: 0.2 } },
-  reaper_cowl:{ name: 'Reaper Cowl', rarity: 'Boss trophy', def: 0.08, exclusive: true, desc: 'A fallen master’s cowl. Dash recovers much faster.', perks: { dash: 0.25 } },
-  hollow_crest:{ name: 'Hollow Moon Crest', rarity: 'Boss trophy', def: 0.12, exclusive: true, desc: 'A hollow halo. Rage gain greatly increased.', perks: { rage: 0.3 } },
-  sentinel_helm:{ name: 'Sentinel Helm', rarity: 'Boss trophy', def: 0.14, exclusive: true, desc: 'Plumed iron from the gate. Heavy defence.', perks: { stunRes: 0.2 } },
-  sage_antlers:{ name: "Sage's Antlers", rarity: 'Boss trophy', def: 0.12, exclusive: true, desc: 'An antlered sage’s crown. +3 kunai.', perks: { ammo: 3 } },
-  ashen_crown:{ name: 'Ashen Crown', rarity: 'Boss trophy', def: 0.16, exclusive: true, desc: 'A burning crown. Everything hits harder.', perks: { dmg: 0.1 } }
+  shiro_maki:   { name: 'White Face-Wrap', tier: 'starter', def: 0.01, hp: 4, price: 0, look: 'topknot', perks: {},
+    lore: 'Rem tore it from his own sleeve the night Hoshimura emptied. Kage has never untied it.' },
+  kuro_zukin:   { name: 'Kuro Zukin', tier: 'common', def: 0.04, hp: 8, price: 300, look: 'ronin_hood', perks: { dash: 0.12 },
+    lore: 'An outer-district smuggler\'s hood, dyed with ash so the Order\'s lanterns slide right off it.' },
+  sugegasa:     { name: 'Sugegasa', tier: 'common', def: 0.05, hp: 8, price: 450, look: 'straw_kasa', perks: { ammo: 2 },
+    lore: 'Woven by Hoshimura rice farmers. A pilgrim\'s hat hides a face, and a few spare kunai.' },
+  hachigane:    { name: 'Hachigane', tier: 'common', def: 0.05, hp: 10, price: 600, look: 'storm_band', perks: { speed: 0.03 },
+    lore: 'A steel brow-plate on a blue cord, worn by Order couriers who outran the storms over the City of Echoes.' },
+  kasumi_men:   { name: 'Kasumi Veil', tier: 'common', def: 0.05, hp: 10, price: 750, look: 'veil', perks: { dash: 0.1 },
+    lore: 'Grey mourning gauze from the outer districts. Hollows lose sight of a face they cannot remember.' },
+  tetsu_kabuto: { name: 'Tetsu Kabuto', tier: 'rare', def: 0.09, hp: 14, price: 1200, look: 'iron_kabuto', perks: { stunRes: 0.3 },
+    lore: 'Lacquered iron of an Order Warden, the gold crest filed off by whoever took it from him.' },
+  oni_menpo:    { name: 'Oni Menpō', tier: 'rare', def: 0.08, hp: 14, gems: 12, look: 'oni_mask', perks: { rage: 0.2 },
+    lore: 'A snarling face-guard from the Silent War. The rage carved into it seeps into whoever wears it.' },
+  hoshi_kabuto: { name: 'Hoshi Kabuto', tier: 'rare', def: 0.1, hp: 16, price: 1600, look: 'sentinel_helm', perks: { stunRes: 0.15 },
+    lore: 'Gate-watch helm of old Hoshimura. Its red plume is re-dyed every year for the dead.' },
+  shika_kabuto: { name: 'Shika Kabuto', tier: 'epic', def: 0.12, hp: 22, price: 2300, look: 'sage_antlers', perks: { ammo: 3 },
+    lore: 'Antlered crown of a Memory Core archivist; the tips glow when old memories pass close.' },
+  utsuro_kabuto:{ name: 'Utsuro Kabuto', tier: 'epic', def: 0.12, hp: 20, gems: 25, look: 'hollow_crest', perks: { rage: 0.3 },
+    lore: 'Forged around a broken Echo ring cut from a Hollow. It hums as rage builds.' },
+  shikko_zukin: { name: 'Shikkō Zukin', tier: 'epic', def: 0.13, hp: 24, price: 2900, look: 'executioner', perks: { dmg: 0.05 },
+    lore: 'Peaked hood of the Order\'s Silencers, who erase a memory first and the man who held it after.' },
+  // ---- trophies (locked) ----
+  raijin_kabuto:{ name: 'Raijin Kabuto', tier: 'trophy', def: 0.18, hp: 36, exclusive: true, hint: 'Defeat Raikon', look: 'colossus', perks: { stunRes: 0.3, dmg: 0.05 },
+    lore: 'Raikon\'s thunder helm. The red slit of its visor burned brightest just before he struck.' },
+  kasa:         { name: 'Kasa', tier: 'trophy', def: 0.2, hp: 40, exclusive: true, hint: 'Defeat Takashi', look: 'straw_kasa', perks: { ammo: 3, rage: 0.15 },
+    lore: 'Takashi\'s battered straw hat. He wore it on the road out of Hoshimura and never told his sons where it led.' }
 };
 const ARMORS = {
-  wraps:     { name: 'Cloth Wraps', rarity: 'Starting gear', def: 0, price: 0, desc: 'Bandaged forearms and a red scarf.', perks: {} },
-  jerkin:    { name: 'Leather Jerkin', rarity: 'Common armor', def: 0.06, price: 360, desc: 'Boiled leather over the chest.', perks: { hp: 15 } },
-  shadow_cloak:{ name: 'Shadow Cloak', rarity: 'Rare armor', def: 0.07, gems: 15, desc: 'A long black cloak. Move and dash faster.', perks: { speed: 0.08 } },
-  lamellar:  { name: 'Lamellar Coat', rarity: 'Rare armor', def: 0.12, price: 1250, desc: 'Laced iron scales. Slightly slower.', perks: { hp: 30, speed: -0.03 } },
-  pauldrons: { name: 'Iron Pauldrons', rarity: 'Epic armor', def: 0.16, price: 2300, desc: 'Massive shoulder plates. Slower, much tougher.', perks: { hp: 45, speed: -0.05, stunRes: 0.15 } },
-  mist_shroud:{ name: 'Mist Shroud', rarity: 'Boss trophy', def: 0.08, exclusive: true, desc: 'A grey veil. Dash invulnerability lasts longer.', perks: { dash: 0.2, speed: 0.04 } },
-  storm_mantle:{ name: 'Storm Mantle', rarity: 'Boss trophy', def: 0.1, exclusive: true, desc: 'Charged ribbons. Kunai strike harder.', perks: { kunai: 0.6, speed: 0.04 } },
-  colossus_plate:{ name: 'Colossus Plate', rarity: 'Boss trophy', def: 0.2, exclusive: true, desc: 'Pit-forged plate. Very slow, nearly unbreakable.', perks: { hp: 60, speed: -0.08, stunRes: 0.3 } },
-  executioner_garb:{ name: 'Executioner Garb', rarity: 'Boss trophy', def: 0.12, exclusive: true, desc: 'Chain-wrapped leather. Rage builds from blocking.', perks: { rage: 0.15, hp: 25 } }
+  tachibana_yoroi: { name: 'Tachibana Yoroi', tier: 'starter', def: 0.02, hp: 8, price: 0, look: 'tachibana', perks: {},
+    lore: 'Compact shoulder and forearm guards of the Tachibana house, its family crest lacquered small and half-hidden.' },
+  kawa_do:      { name: 'Kawa-dō', tier: 'common', def: 0.05, hp: 15, price: 350, look: 'jerkin', perks: {},
+    lore: 'A boiled-leather cuirass from the Hoshimura tannery, stitched by the last family that stayed.' },
+  hai_haori:    { name: 'Hai Haori', tier: 'common', def: 0.04, hp: 12, price: 650, look: 'shadow_cloak', perks: { speed: 0.06 },
+    lore: 'A coat woven from the memory ash left after Hollow fights. It moves like smoke.' },
+  kasumi_shroud:{ name: 'Kasumi Shroud', tier: 'common', def: 0.05, hp: 14, price: 800, look: 'mist_shroud', perks: { dash: 0.15 },
+    lore: 'Travelling shroud of the outer-district ferrymen, who carry the dead past the Order\'s checkpoints.' },
+  soryo_e:      { name: 'Sōryo-e', tier: 'common', def: 0.05, hp: 18, price: 950, look: 'robe', perks: { rage: 0.1 },
+    lore: 'Robe of the mountain temples that hid memory scrolls from the Order through the Silent War.' },
+  kozane_do:    { name: 'Kozane-dō', tier: 'rare', def: 0.1, hp: 28, price: 1300, look: 'lamellar', perks: { speed: -0.03 },
+    lore: 'Laced iron scales of an Order Warden, re-laced in Hoshimura colours.' },
+  raiun_mantle: { name: 'Raiun Mantle', tier: 'rare', def: 0.08, hp: 22, gems: 15, look: 'storm_mantle', perks: { kunai: 0.6, speed: 0.03 },
+    lore: 'Storm-silk ribbons salvaged from a Silent War signal tower. Kunai thrown from it crackle.' },
+  shikko_garb:  { name: 'Shikkō Garb', tier: 'rare', def: 0.1, hp: 30, price: 1750, look: 'executioner_garb', perks: { blockRage: 1 },
+    lore: 'Chain-wrapped leathers of the Order\'s Silencers. Every blow it turns aside feeds the wearer\'s rage.' },
+  o_sode:       { name: 'Ō-sode Yoroi', tier: 'epic', def: 0.14, hp: 45, price: 2400, look: 'pauldrons', perks: { speed: -0.05, stunRes: 0.15 },
+    lore: 'Great shoulder plates of a Silent War general, dragged out of the moat of the Fortress of Silence.' },
+  kurogane_do:  { name: 'Kurogane-dō', tier: 'epic', def: 0.16, hp: 55, price: 3100, look: 'colossus_plate', perks: { speed: -0.08, stunRes: 0.25 },
+    lore: 'Black-iron plate from the Fortress foundries, made for the guards at the doors of the Memory Core.' },
+  goka_yoroi:   { name: 'Gōka Yoroi', tier: 'epic', def: 0.14, hp: 40, gems: 30, look: 'tyrant', perks: { dmg: 0.06 },
+    lore: 'Ember-edged plate quenched in burning memory ash. It hits back harder for every scar it carries.' },
+  // ---- trophies (locked) ----
+  mei_en_garb:  { name: 'Mei-En Garb', tier: 'trophy', def: 0.21, hp: 80, exclusive: true, hint: 'Defeat Akari', look: 'cloak', perks: { dash: 0.2, speed: 0.06 },
+    lore: 'Akari\'s smoke-grey fighting garb. Even the Order\'s records cannot agree on what colour it is.' },
+  kysmei_robe:  { name: 'Kysmei Robe', tier: 'trophy', def: 0.22, hp: 85, exclusive: true, hint: 'Defeat the Witness', look: 'robe', perks: { rage: 0.3 },
+    lore: 'The Witness\'s robe, stitched from the threads of every memory the Echo System ever swallowed.' },
+  kurokumo_yoroi:{ name: 'Kurokumo Yoroi', tier: 'trophy', def: 0.23, hp: 85, exclusive: true, hint: 'Defeat Rem', look: 'tyrant', perks: { dmg: 0.06, speed: 0.04 },
+    lore: 'Rem\'s black-cloud armour. Under the ash on its collar, the Tachibana crest has been scratched away.' },
+  shinsei_yoroi:{ name: 'Shinsei Yoroi', tier: 'trophy', def: 0.26, hp: 100, exclusive: true, ngOnly: true, hint: 'Defeat Takashi in New Game+', look: 'pauldrons', perks: { stunRes: 0.3 },
+    lore: 'The armour Takashi wore when he first opened the Echo System. It only answers to one who has walked the road twice.' }
 };
 for (const id in HELMETS) HELMETS[id].id = id;
 for (const id in ARMORS) ARMORS[id].id = id;
+
+// Gear tiers, weakest first. Shop gear is common / rare / epic; trophies (sub-boss and boss) sit above every
+// fully upgraded shop item of their slot, and boss weapons above all. Shop weapons climb a tier as they are
+// upgraded (see Logic.itemTier): Kagetsu starts Common and becomes Epic at full mastery.
+const GEAR_TIERS = {
+  starter: { rank: 0, label: 'Starting gear' },
+  common:  { rank: 1, label: 'Common' },
+  rare:    { rank: 2, label: 'Rare' },
+  epic:    { rank: 3, label: 'Epic' },
+  trophy:  { rank: 4, label: 'Trophy' },
+  boss:    { rank: 5, label: 'Boss weapon' }
+};
 
 const GEAR_MAX = { weapons: 8, helmets: 5, armors: 5 };
 
@@ -1593,9 +1682,9 @@ const GEAR_MAX = { weapons: 8, helmets: 5, armors: 5 };
    These are TEMPORARY stand-ins: every campaign stage fights one of them in a single arena until the real
    Order soldiers, Hollows, sub-bosses and bosses land. Stages show their own story names (see CAMPAIGN). */
 const ENEMIES = {
-  order_recruit: { name: 'Order Recruit', title: 'Order of Silence', type: 'regular', outfit: 'gi', ai: 'regular', weapon: 'cutter_blade', helmet: 'ronin_hood', armor: 'jerkin', hp: 170, dmg: 0.9, build: { scale: 1, w: 10 }, eye: '#ece5d3',
+  order_recruit: { name: 'Order Recruit', title: 'Order of Silence', type: 'regular', outfit: 'gi', ai: 'regular', weapon: 'cutter_blade', helmet: 'kuro_zukin', armor: 'kawa_do', hp: 170, dmg: 0.9, build: { scale: 1, w: 10 }, eye: '#ece5d3',
             taunt: 'The Order of Silence holds this road. Turn back.', tip: 'Block the first cut, then answer with a three-punch string.' },
-  order_warden: { name: 'Order Warden', title: 'Order of Silence', type: 'regular', outfit: 'gi', ai: 'defensive', weapon: 'temple_staff', helmet: 'iron_kabuto', armor: 'lamellar', hp: 220, dmg: 1, build: { scale: 1.08, w: 12 }, eye: '#c9a45c',
+  order_warden: { name: 'Order Warden', title: 'Order of Silence', type: 'regular', outfit: 'gi', ai: 'defensive', weapon: 'temple_staff', helmet: 'tetsu_kabuto', armor: 'kozane_do', hp: 220, dmg: 1, build: { scale: 1.08, w: 12 }, eye: '#c9a45c',
             taunt: 'Nothing leaves the fortress without the Order’s word.', tip: 'He blocks everything. Grab him (Block + Punch) or charge a heavy kick.' },
   hollow: { name: 'Hollow', title: 'Memory ash', type: 'regular', ai: 'agile', weapon: 'shadow_daggers', helmet: 'veil', armor: 'cloak', hp: 160, dmg: 0.85, speed: 1.15, build: { scale: 0.96, w: 9, legs: 1.06 }, eye: '#9b8cff', accent: '#9b8cff',
             taunt: '…it copies your breathing, then your stance…', tip: 'It darts in and out. Dash in when it lands from a jump.' },
@@ -1621,7 +1710,10 @@ for (const id in ENEMIES) ENEMIES[id].id = id;
      enemy            the temporary arena foe (ENEMIES id) for combat stages; scene stages have none,
      foe / foeTitle   the story opponent shown instead of the placeholder's name (bosses, sub-bosses, echoes, the spar),
      chapter / pos    filled in below (owning chapter id, index inside it).
-   Later updates add per-stage fields here (env override, encounters, scene hooks, rewards and unlocks);
+     reward           optional gear granted when the stage is cleared: { weapons: [ids], helmets: [ids], armors: [ids] }.
+                      Each item is given once (see Logic.grantStageReward); items flagged ngOnly only drop in New Game+.
+                      The boss and sub-boss updates fill these in.
+   Later updates add per-stage fields here (env override, encounters, scene hooks);
    the logic module reads them, so the rest of the game picks them up. */
 const STAGE_KINDS = ['stretch', 'subboss', 'boss', 'spar', 'echo', 'scene'];
 const CAMPAIGN = (function buildCampaign() {
@@ -1680,23 +1772,50 @@ const SURVIVAL = {
 
 /* ---------------- economy formulas ----------------
    Kept as top-level functions because the fighter, combat and AI modules call them directly
-   in hot paths; they are also exposed on Logic below. */
+   in hot paths; they are also exposed on Logic below.
+   Weapons: `stats` = [damage, speed, reach] at level 1. Each upgrade level adds 8% damage, 2.5% speed and
+   1.5% reach. In a fight a weapon's damage multiplier is its damage over the damage of the weapon whose
+   forms (move-set) it uses, so a shop weapon starts at x1 and a boss weapon on the same forms starts far
+   above any upgraded shop weapon. Speed and reach multipliers are capped (x1.25 / x1.2) to keep the forms
+   readable. Helmets and armour: `def` grows 1.2 points per level, `hp` 10% per level. */
+const WEAPON_GROWTH = { dmg: 0.08, spd: 0.025, reach: 0.015 };
 function gearTable(kind) { return kind === 'weapons' ? WEAPONS : kind === 'helmets' ? HELMETS : ARMORS; }
+// Highest level an item can reach: trophies and boss weapons are fixed at level 1.
+function maxLevel(kind, id) {
+  const it = gearTable(kind)[id];
+  if (it && it.maxLvl) return it.maxLvl;
+  return it && (it.tier === 'trophy' || it.tier === 'boss') ? 1 : GEAR_MAX[kind];
+}
+// The drawing key of a helmet or armour (drawHelmet / drawArmor in 20-fighter.js). Enemies may also name a
+// drawing directly ('veil', 'oni', 'cloak', 'tyrant', 'robe'), which passes through unchanged.
+function gearLook(kind, id) { const it = gearTable(kind)[id]; return (it && it.look) || id; }
 function upgradeCost(kind, id, lvl) {
   const item = gearTable(kind)[id];
   const base = item.price || (item.gems ? item.gems * 60 : 500);
   return Math.round(Math.max(160, base * (0.35 + 0.3 * lvl)) / 10) * 10;
 }
-function weaponStats(id, lvl) {
-  const w = WEAPONS[id], s = w.stats || [40, 50, 40];
-  const l = (lvl || 1) - 1;
-  return { damage: Math.min(100, s[0] + l * 4), speed: Math.min(100, s[1] + l * 2), reach: Math.min(100, s[2] + l * 1) };
+function weaponRaw(id, lvl) {
+  const s = WEAPONS[id].stats || [40, 50, 40], l = Math.max(0, (lvl || 1) - 1);
+  return [s[0] * (1 + WEAPON_GROWTH.dmg * l), s[1] * (1 + WEAPON_GROWTH.spd * l), s[2] * (1 + WEAPON_GROWTH.reach * l)];
 }
-function weaponMul(lvl) { const l = (lvl || 1) - 1; return { dmg: 1 + 0.08 * l, spd: 1 + 0.025 * l, reach: 1 + 0.015 * l }; }
-function gearDef(kind, id, lvl) { const g = gearTable(kind)[id]; return g.def ? g.def + 0.012 * ((lvl || 1) - 1) : 0; }
+// The stats the Armory shows for a weapon at a level (uncapped: boss weapons go past 100).
+function weaponStats(id, lvl) {
+  const r = weaponRaw(id, lvl);
+  return { damage: Math.round(r[0]), speed: Math.round(r[1]), reach: Math.round(r[2]) };
+}
+function weaponTotal(id, lvl) { const s = weaponStats(id, lvl); return s.damage + s.speed + s.reach; }
+// Combat multipliers of a weapon at a level, relative to the weapon whose forms it fights with.
+function weaponMul(id, lvl) {
+  const w = WEAPONS[id] || WEAPONS.fists, ref = (w.base && WEAPONS[w.base] ? WEAPONS[w.base] : w).stats || [40, 50, 40];
+  const r = weaponRaw(w.id || 'fists', lvl);
+  return { dmg: r[0] / ref[0], spd: Math.min(1.25, r[1] / ref[1]), reach: Math.min(1.2, r[2] / ref[2]) };
+}
+function gearDef(kind, id, lvl) { const g = gearTable(kind)[id]; return g && g.def ? g.def + 0.012 * ((lvl || 1) - 1) : 0; }
+function gearHp(kind, id, lvl) { const g = gearTable(kind)[id]; return g && g.hp ? Math.round(g.hp * (1 + 0.1 * ((lvl || 1) - 1))) : 0; }
 function playerMaxHp(save) {
-  const a = ARMORS[save.equipped.armor], h = HELMETS[save.equipped.helmet];
-  return Math.round(220 + (save.level - 1) * 4 + ((a.perks.hp || 0) + (h.perks.hp || 0)));
+  const lv = (kind, id) => save.owned[kind][id] || 1;
+  const a = save.equipped.armor, h = save.equipped.helmet;
+  return Math.round(220 + (save.level - 1) * 4 + gearHp('armors', a, lv('armors', a)) + gearHp('helmets', h, lv('helmets', h)));
 }
 function xpForLevel(lvl) { return 200 + 120 * (lvl - 1); }
 
@@ -1728,8 +1847,8 @@ const Logic = {
       ng: 0, ngUnlocked: false, ngCompletions: 0,
       cleared: {},            // stageId -> true, current cycle
       defeated: {},           // stageId -> wins (lifetime, kept through New Game+)
-      owned: { weapons: { moon_katana: 1 }, helmets: { topknot: 1 }, armors: { wraps: 1 } },
-      equipped: { weapon: 'moon_katana', helmet: 'topknot', armor: 'wraps' },
+      owned: { weapons: { kagetsu: 1 }, helmets: { shiro_maki: 1 }, armors: { tachibana_yoroi: 1 } },
+      equipped: { weapon: 'kagetsu', helmet: 'shiro_maki', armor: 'tachibana_yoroi' },
       seenRewards: {},
       survivalBest: 0,
       stats: { wins: 0, losses: 0, perfects: 0, bosses: 0, playTime: 0 },
@@ -1753,7 +1872,15 @@ const Logic = {
     Object.assign(d, s);
     d.owned = Object.assign(this.defaultSave().owned, s.owned || {});
     for (const k of ['weapons', 'helmets', 'armors']) d.owned[k] = Object.assign({}, this.defaultSave().owned[k], (s.owned || {})[k] || {});
-    d.equipped = Object.assign(this.defaultSave().equipped, s.equipped || {});
+    // gear ids the tables no longer know (renamed or removed items, enemy-only arms) are dropped; a slot
+    // left wearing something unowned or unknown goes back to the starting item
+    const start = this.defaultSave().equipped;
+    for (const k of ['weapons', 'helmets', 'armors']) for (const id in d.owned[k]) {
+      const it = gearTable(k)[id];
+      if (!it || it.enemy || id === 'fists' || !(d.owned[k][id] > 0)) delete d.owned[k][id];
+    }
+    d.equipped = Object.assign({}, start, s.equipped || {});
+    for (const k of ['weapons', 'helmets', 'armors']) { const slot = this.equipSlot(k); if (!d.owned[k][d.equipped[slot]]) d.equipped[slot] = start[slot]; }
     d.stats = Object.assign(this.defaultSave().stats, s.stats || {});
     d.settings = Object.assign(this.defaultSave().settings, s.settings || {});
     // clears and defeats are keyed by stage id; keys the map does not know (old saves, removed stages) are dropped
@@ -1797,7 +1924,8 @@ const Logic = {
   // Lifetime wins on a stage (kept through New Game+).
   defeatedCount(save, id) { return save.defeated[id] || 0; },
   // Marks a stage cleared (a won fight, or a story scene played) and returns what that opened:
-  // { stage, firstClear, next, unlocks: [{ kind: 'chapter', id } | { kind: 'ng' }] }, or null when the stage is locked.
+  // { stage, firstClear, next, gear, unlocks: [{ kind: 'chapter', id } | { kind: 'ng' } | { kind: 'weapons' | 'helmets' | 'armors', id }] },
+  // or null when the stage is locked. `gear` lists the items the stage's reward granted (see grantStageReward).
   completeStage(save, id) {
     const st = this.stage(id);
     if (!st || !this.isStageUnlocked(save, id)) return null;
@@ -1814,7 +1942,23 @@ const Logic = {
         save.ngCompletions = Math.max(save.ngCompletions || 0, (save.ng || 0) + 1);
       }
     }
-    return { stage: id, firstClear, next, unlocks };
+    const gear = this.grantStageReward(save, id);
+    unlocks.push(...gear);
+    return { stage: id, firstClear, next, gear, unlocks };
+  },
+  // Gear a stage gives when it is cleared: `reward: { weapons: [...], helmets: [...], armors: [...] }` on a CAMPAIGN
+  // stage. Each item is granted exactly once, at level 1, the first time the stage is cleared while the player does
+  // not own it; an item flagged `ngOnly` only drops while clearing the stage in New Game+. Returns [{ kind, id }].
+  grantStageReward(save, id) {
+    const st = this.stage(id), got = [];
+    if (!st || !st.reward) return got;
+    for (const kind of ['weapons', 'helmets', 'armors']) for (const gid of st.reward[kind] || []) {
+      const it = gearTable(kind)[gid];
+      if (!it || save.owned[kind][gid] || (it.ngOnly && !(save.ng > 0))) continue;
+      save.owned[kind][gid] = 1;
+      got.push({ kind, id: gid });
+    }
+    return got;
   },
   // Everything the fight session needs to stage a campaign fight. Until real content lands every combat stage
   // is one arena fight against its placeholder `enemy`, shown under the stage's story foe name.
@@ -1831,8 +1975,40 @@ const Logic = {
   },
 
   /* ---------------- economy ---------------- */
-  GEAR_MAX, gearTable, upgradeCost, weaponStats, weaponMul, gearDef, playerMaxHp, xpForLevel,
+  GEAR_MAX, GEAR_TIERS, gearTable, gearLook, maxLevel, upgradeCost, weaponStats, weaponTotal, weaponMul, gearDef, gearHp, playerMaxHp, xpForLevel,
   equipSlot(kind) { return kind === 'weapons' ? 'weapon' : kind === 'helmets' ? 'helmet' : 'armor'; },
+  // An item's tier at a level. Shop weapons climb as they are upgraded (Rare from level 4, Epic from 7),
+  // never dropping below the tier they are sold at; everything else keeps its tier.
+  itemTier(kind, id, lvl) {
+    const it = gearTable(kind)[id], base = it.tier || 'common';
+    if (kind !== 'weapons' || !['common', 'rare', 'epic'].includes(base)) return base;
+    const byLvl = (lvl || 1) >= 7 ? 'epic' : (lvl || 1) >= 4 ? 'rare' : 'common';
+    return GEAR_TIERS[byLvl].rank > GEAR_TIERS[base].rank ? byLvl : base;
+  },
+  tierLabel(kind, id, lvl) { return GEAR_TIERS[this.itemTier(kind, id, lvl)].label; },
+  // Everything the equipped gear does for Kage in a fight: health, damage reduction (capped at 50%),
+  // the weapon's damage multiplier and the summed helmet + armour perks.
+  playerCombatStats(save) {
+    const eq = save.equipped, lv = (kind, id) => save.owned[kind][id] || 1;
+    const h = HELMETS[eq.helmet], a = ARMORS[eq.armor];
+    const perks = {}; for (const src of [h.perks, a.perks]) for (const k in src) perks[k] = (perks[k] || 0) + src[k];
+    return {
+      hp: playerMaxHp(save),
+      defense: Math.min(0.5, gearDef('helmets', h.id, lv('helmets', h.id)) + gearDef('armors', a.id, lv('armors', a.id))),
+      weaponDmg: weaponMul(eq.weapon, lv('weapons', eq.weapon)).dmg,
+      perks
+    };
+  },
+  // Locked gear: never sold (`exclusive`) and not owned yet. Boss weapons and trophies stay locked until a
+  // campaign stage's `reward` grants them (see completeStage).
+  isLocked(save, kind, id) { const it = gearTable(kind)[id]; return !!it && !!it.exclusive && !save.owned[kind][id]; },
+  // What the Armory says unlocks a locked item: its own `hint`, else the stage whose reward lists it.
+  lockHint(kind, id) {
+    const it = gearTable(kind)[id];
+    if (it.hint) return it.hint;
+    const st = STAGE_LIST.find(s => s.reward && (s.reward[kind] || []).includes(id));
+    return st ? `Clear ${st.foe || st.name}` : 'Not obtainable yet';
+  },
   // Shop actions: each checks the rule, updates the save in place and returns whether it happened.
   buyItem(save, kind, id) {
     const it = gearTable(kind)[id];
@@ -1843,7 +2019,7 @@ const Logic = {
   },
   upgradeItem(save, kind, id) {
     const lvl = save.owned[kind][id];
-    if (!lvl || lvl >= GEAR_MAX[kind]) return false;
+    if (!lvl || lvl >= maxLevel(kind, id)) return false;
     const c = upgradeCost(kind, id, lvl); if (save.coins < c) return false;
     save.coins -= c; save.owned[kind][id] = lvl + 1;
     return true;
@@ -1932,8 +2108,9 @@ const Logic = {
 const HERO_FACEWRAP = '#efe9dd', HERO_FACEWRAP_SHADE = '#b4ac9f';   // Kage's white face-wrap: flat fill + one cel-shade tone
 const BODY = { torso: 60, neck: 7, head: 18, upper: 36, fore: 34, thigh: 45, shin: 47 };
 const SHAPE = {
-  fists: 'none', twin_blades: 'short', moon_katana: 'katana', mountain_cleaver: 'cleaver', dragon_spear: 'spear',
-  phantom_sickle: 'sickle', titan_hammer: 'hammer', shadow_daggers: 'short', hollow_crescents: 'crescent', mist_fans: 'fan',
+  fists: 'none', tsubame: 'short', kagetsu: 'katana', shizuka: 'katana', onikiri: 'cleaver', mizuchi: 'spear',
+  yamigama: 'sickle', iwakudaki: 'hammer', shinsen: 'katana', raiko_no_tachi: 'cleaver', kagehira_yurei: 'short', mugen_no_ha: 'katana',
+  shadow_daggers: 'short', hollow_crescents: 'crescent', mist_fans: 'fan',
   sentinel_spear: 'spear', sage_staff: 'staff', storm_orbs: 'none', iron_fists: 'none', chain_hook: 'hook',
   tyrant_cleaver: 'tyrant', cutter_blade: 'katana', temple_staff: 'staff', raider_cleaver: 'cleaver'
 };
@@ -2052,9 +2229,11 @@ class Fighter {
     this.scale = this.build.scale * 1.22;
     this.x = o.x || 0; this.y = 0; this.vx = 0; this.vy = 0; this.facing = o.facing || 1;
     this.baseWeapon = o.weapon || 'fists'; this.wlvl = o.wlvl || 1; this.hasWeapon = this.baseWeapon !== 'fists';
-    this.helmet = o.helmet || 'topknot'; this.armor = o.armor || 'wraps';
+    // helmet / armor hold the drawing keys; helmetId / armorId the gear ids (see gearLook in 15-logic.js)
+    this.helmetId = o.helmet || 'shiro_maki'; this.armorId = o.armor || 'tachibana_yoroi';
+    this.helmet = gearLook('helmets', this.helmetId); this.armor = gearLook('armors', this.armorId);
     this.maxHp = o.hp || 200; this.hp = this.maxHp; this.dmgMul = o.dmgMul || 1; this.defense = o.defense || 0; this.speedMul = o.speedMul || 1;
-    this.rageMul = o.rageMul || 1; this.stunRes = o.stunRes || 0; this.dashBonus = o.dashBonus || 0; this.kunaiMul = o.kunaiMul || 1;
+    this.blockRage = o.blockRage || 0; this.rageMul = o.rageMul || 1; this.stunRes = o.stunRes || 0; this.dashBonus = o.dashBonus || 0; this.kunaiMul = o.kunaiMul || 1;
     this.rage = 0; this.ammo = o.ammo == null ? 5 : o.ammo; this.maxAmmo = this.ammo; this.guard = 100;
     this.eye = o.eye || C.bone; this.accent = o.accent || C.emberBright;
     this.state = 'idle'; this.st = 0; this.alive = true;
@@ -2340,7 +2519,7 @@ class Fighter {
     this.lastMoveId = m.id; this.lastMoveT = now;
     this.move = m; this.setState('move'); this.mt = 0; this.mphase = 0; this.hitList.length = 0; this.moveHit = false; this.multiN = 0;
     this.moveCharge = opts && opts.charge != null ? opts.charge : 0;
-    const wm = m.kind === 'weapon' || (m.kind === 'air' && WEAPONS[this.weaponId()].air === m.id) ? weaponMul(this.wlvl) : null;
+    const wm = m.kind === 'weapon' || (m.kind === 'air' && WEAPONS[this.weaponId()].air === m.id) ? weaponMul(this.weaponId(), this.wlvl) : null;
     const spd = (wm ? wm.spd : 1) * (this.isPlayer ? 1 : (this.def && this.def.speed ? Math.sqrt(this.def.speed) : 1));
     this.mdur[0] = m.t[0] / spd; this.mdur[1] = m.t[1]; this.mdur[2] = m.t[2] / spd;
     if (this.boostAtk) { this.mdur[0] *= this.boostAtk; this.mdur[2] *= this.boostAtk; }
@@ -2439,7 +2618,7 @@ class Fighter {
   hitbox(out) {
     if (this.state !== 'move' || this.mphase !== 1 || !this.move || !this.move.box) return null;
     const b = this.move.box, s = this.scale;
-    const reach = (this.move.kind === 'weapon' || this.move.kind === 'air') && this.hasWeapon ? weaponMul(this.wlvl).reach : 1;
+    const reach = (this.move.kind === 'weapon' || this.move.kind === 'air') && this.hasWeapon ? weaponMul(this.weaponId(), this.wlvl).reach : 1;
     const x0 = b[0] * s, w = b[2] * s * reach * (this.move.id === 'hk' ? 1 + this.moveCharge * 0.15 : 1);
     out.x = this.facing > 0 ? this.x + x0 : this.x - x0 - w;
     out.y = this.y + b[1] * s; out.w = w; out.h = b[3] * s;
@@ -2855,7 +3034,7 @@ class Fighter {
     const ang = Math.atan2(ty - L.bel.y, tx - L.bel.x);
     L.bha.x = L.bel.x + Math.cos(ang) * b; L.bha.y = L.bel.y + Math.sin(ang) * b;
   }
-  weaponLen() { const w = this.weapon(); return (w.len || 0) * this.scale * (this.hasWeapon ? weaponMul(this.wlvl).reach : 1); }
+  weaponLen() { const w = this.weapon(); return (w.len || 0) * this.scale * (this.hasWeapon ? weaponMul(this.weaponId(), this.wlvl).reach : 1); }
 
   updateCloth(dt) {
     for (const cl of this.cloths) {
@@ -3574,6 +3753,17 @@ function drawArmor(ctx, f, ink, opt, Ut) {
   };
   ctx.fillStyle = ink;
   switch (f.armor) {
+    case 'tachibana': {
+      // Kage's starting Tachibana Yoroi: a compact shoulder guard (the forearm guards are the hero wraps)
+      // and the small family crest, half-hidden behind the front arm
+      plate(Ut * 0.42, 'rgba(160,151,133,0.35)');
+      if (!flat) {
+        const px = lerp(hx, nx, 0.72) - fc * Ut * 0.3, py = lerp(hy, ny, 0.72);
+        ctx.fillStyle = 'rgba(201,164,92,0.6)'; ctx.beginPath(); ctx.arc(px, py, 1.6 * s, 0, TAU); ctx.fill();
+        ctx.strokeStyle = 'rgba(201,164,92,0.4)'; ctx.lineWidth = 0.7 * s; ctx.beginPath(); ctx.arc(px, py, 3 * s, 0, TAU); ctx.stroke();
+      }
+      break;
+    }
     case 'jerkin': case 'executioner_garb':
       torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.07);
       if (!flat) bands(2, 'rgba(160,151,133,0.28)', Ut * 0.95, 0.25, 0.75);
@@ -4276,7 +4466,7 @@ const Combat = {
       def.guard -= (m.gb || m.dmg * 1.3);
       def.vx = dir * (m.kb || 150) * 0.45;
       def.counterT = 0.45;
-      def.rage = Math.min(100, def.rage + m.dmg * 0.4 * def.rageMul * (def.armor === 'executioner_garb' ? 2 : 1));
+      def.rage = Math.min(100, def.rage + m.dmg * 0.4 * def.rageMul * (1 + (def.blockRage || 0)));
       if (!m.proj) att.vx = -att.facing * 120;
       fx.sparks(ix, iy, -dir, 7, att.hasWeapon && m.kind === 'weapon' ? C.gold : C.bone);
       fx.stop(0.04); fx.shake(0.1);
@@ -4290,7 +4480,7 @@ const Combat = {
     }
     // ---- clean hit ----
     let dmg = m.dmg * (m.id === 'hk' ? 1 + att.moveCharge * 0.9 : 1);
-    if (!m.proj) dmg *= att.dmgMul * ((m.kind === 'weapon' || m.kind === 'air') && att.hasWeapon ? weaponMul(att.wlvl).dmg : 1);
+    if (!m.proj) dmg *= att.dmgMul * ((m.kind === 'weapon' || m.kind === 'air') && att.hasWeapon ? weaponMul(att.weaponId(), att.wlvl).dmg : 1);
     const comboing = def.state === 'hit' || def.state === 'juggle' || def.state === 'stun';
     if (comboing) dmg *= Math.max(0.45, 1 - 0.07 * att.comboHits); else att.comboHits = 0;
     if (!m.proj) dmg *= Math.max(0.55, Math.pow(0.86, att.repeat));
@@ -4440,7 +4630,7 @@ const SPECIAL_IMPL = {
     f.startAbility({ dur: 0.62, uninterruptible: true, rate: 30, trail: true,
       pose: (f, t) => (t < 0.22 ? MOVES.k1.w : MOVES.k1.s),
       start(f) { f.invuln = 0.3; world.fx.banner('Crescent Moon', 'Rage art', C.bone); },
-      update(f, w, t) { if (t > 0.22 && !this.done) { this.done = true; WeaponSystem.spawn(w, 'crescent', f, { y: f.y - 120 * f.scale, dmgMul: weaponMul(f.wlvl).dmg }); AudioManager.play('heavyswing'); w.fx.shake(0.3); } } });
+      update(f, w, t) { if (t > 0.22 && !this.done) { this.done = true; WeaponSystem.spawn(w, 'crescent', f, { y: f.y - 120 * f.scale, dmgMul: weaponMul(f.weaponId(), f.wlvl).dmg }); AudioManager.play('heavyswing'); w.fx.shake(0.3); } } });
   },
   mountainSplit(f, world) {
     f.startAbility({ dur: 1.0, uninterruptible: true, rate: 24, trail: true,
@@ -4871,7 +5061,7 @@ class AIController {
   }
   target() { return this.world.player; }
   reachOf(f, kind) {
-    if (kind === 'weapon') { const m = MOVES[f.weapon().moves[0]]; return (m.box[0] + m.box[2]) * f.scale * (f.hasWeapon ? weaponMul(f.wlvl).reach : 1); }
+    if (kind === 'weapon') { const m = MOVES[f.weapon().moves[0]]; return (m.box[0] + m.box[2]) * f.scale * (f.hasWeapon ? weaponMul(f.weaponId(), f.wlvl).reach : 1); }
     if (kind === 'kick') return 128 * f.scale;
     return 100 * f.scale;
   }
@@ -4950,7 +5140,7 @@ class AIController {
     if (Math.sign(this.f.x - p.x) !== p.facing) return false;
     const m = p.move;
     if (m.kind === 'throw') return dist < 500;
-    const reach = (m.box ? (m.box[0] + m.box[2]) * p.scale * (p.hasWeapon ? weaponMul(p.wlvl).reach : 1) : 120) + (m.lunge ? m.lunge * 0.18 : 0);
+    const reach = (m.box ? (m.box[0] + m.box[2]) * p.scale * (p.hasWeapon ? weaponMul(p.weaponId(), p.wlvl).reach : 1) : 120) + (m.lunge ? m.lunge * 0.18 : 0);
     return dist < reach + 50;
   }
 
@@ -6085,12 +6275,10 @@ class FightSession {
   roundTime() { return this.mode === 'survival' ? 90 : this.isBoss ? 150 : 75; }
 
   makePlayer(save) {
-    const h = HELMETS[save.equipped.helmet], a = ARMORS[save.equipped.armor];
-    const pk = {}; for (const src of [h.perks, a.perks]) for (const k in src) pk[k] = (pk[k] || 0) + src[k];
-    const def = gearDef('helmets', h.id, save.owned.helmets[h.id]) + gearDef('armors', a.id, save.owned.armors[a.id]);
+    const g = Logic.playerCombatStats(save), pk = g.perks;
     const f = makePlayerFighter(save, {
-      x: -300, team: 0, hp: playerMaxHp(save), defense: Math.min(0.5, def), speedMul: 1 + (pk.speed || 0), rageMul: 1 + (pk.rage || 0),
-      stunRes: pk.stunRes || 0, dashBonus: pk.dash || 0, ammo: 5 + (pk.ammo || 0), kunaiMul: 1 + (pk.kunai || 0),
+      x: -300, team: 0, hp: g.hp, defense: g.defense, speedMul: 1 + (pk.speed || 0), rageMul: 1 + (pk.rage || 0),
+      stunRes: pk.stunRes || 0, dashBonus: pk.dash || 0, ammo: 5 + (pk.ammo || 0), kunaiMul: 1 + (pk.kunai || 0), blockRage: pk.blockRage || 0,
       dmgMul: (1 + 0.012 * (save.level - 1)) * (1 + (pk.dmg || 0))
     });
     f.name = 'Kage';
@@ -6132,7 +6320,7 @@ class FightSession {
   }
   nearestEnemy(f) { return this.opponentOf(f); }
   spawnProjectile(type, f) { return WeaponSystem.spawn(this, type, f, { dmgMul: 1 }); }
-  spawnShock(f, m) { WeaponSystem.spawn(this, 'shock', f, { dmgMul: (f.isPlayer ? weaponMul(f.wlvl).dmg : 1) * (m.dmg > 30 ? 1.3 : 1) }); AudioManager.play('slam'); this.fx.dust(f.x + f.facing * 90, 0, 14); this.fx.shake(0.4); }
+  spawnShock(f, m) { WeaponSystem.spawn(this, 'shock', f, { dmgMul: (f.isPlayer ? weaponMul(f.weaponId(), f.wlvl).dmg : 1) * (m.dmg > 30 ? 1.3 : 1) }); AudioManager.play('slam'); this.fx.dust(f.x + f.facing * 90, 0, 14); this.fx.shake(0.4); }
   dropWeapon(f) { WeaponSystem.drop(this, f); }
   applyThrow(att, v) { Combat.applyThrow(this, att, v); }
   wallBounce(f) {
@@ -7265,6 +7453,7 @@ const UIManager = {
       setTimeout(() => {
         if (u.kind === 'ng') this.toast('Story complete', 'New Game+ unlocked in Settings');
         else if (u.kind === 'chapter') this.toast('New chapter unlocked', `${Logic.chapter(u.id).name} · ${Logic.chapter(u.id).title}`);
+        else this.toast(u.kind === 'weapons' ? 'Boss weapon' : 'Trophy', gearName(u.kind, u.id));
       }, delay);
       delay += 700;
     }
@@ -7285,8 +7474,10 @@ const UIManager = {
   /* ---------------- armory ---------------- */
   armItems() {
     const save = SaveManager.data;
-    if (this.armTab === 'weapons') return Object.keys(WEAPONS).filter(id => !WEAPONS[id].enemy && id !== 'fists');
-    return Object.keys(gearTable(this.armTab));
+    const t = gearTable(this.armTab), cost = it => it.price || (it.gems ? it.gems * 100 : 0);
+    // shop gear from cheapest to dearest by tier, then trophies and boss weapons
+    return Object.keys(t).filter(id => !t[id].enemy && id !== 'fists')
+      .sort((a, b) => (GEAR_TIERS[t[a].tier || 'common'].rank - GEAR_TIERS[t[b].tier || 'common'].rank) || (cost(t[a]) - cost(t[b])));
   },
   renderArmory(soft) {
     const save = SaveManager.data, el = $('#scr-armory'), kind = this.armTab;
@@ -7294,33 +7485,34 @@ const UIManager = {
     const items = this.armItems();
     if (!this.armSel || !items.includes(this.armSel)) this.armSel = save.equipped[kind === 'weapons' ? 'weapon' : kind === 'helmets' ? 'helmet' : 'armor'];
     const id = this.armSel, item = gearTable(kind)[id], owned = save.owned[kind][id], lvl = owned || 0;
-    const max = GEAR_MAX[kind], eqKey = kind === 'weapons' ? 'weapon' : kind === 'helmets' ? 'helmet' : 'armor', equipped = save.equipped[eqKey] === id;
+    const max = Logic.maxLevel(kind, id), eqKey = kind === 'weapons' ? 'weapon' : kind === 'helmets' ? 'helmet' : 'armor', equipped = save.equipped[eqKey] === id;
     let statsHTML = '', special = '';
     if (kind === 'weapons') {
       const s = weaponStats(id, Math.max(1, lvl)), n = weaponStats(id, Math.min(max, Math.max(1, lvl) + 1)), canUp = owned && lvl < max;
       statsHTML = [['Damage', 'damage'], ['Speed', 'speed'], ['Reach', 'reach']].map(([k, key]) => {
         const up = canUp ? n[key] - s[key] : 0;
-        return `<div class="stat"><div class="labels"><span>${k}</span><span class="val">${up ? `<em>+${up}</em>` : ''}<b>${s[key]}</b></span></div><div class="track"><i style="width:${s[key]}%"></i><u style="left:${s[key]}%;width:${up}%"></u></div></div>`;
+        return `<div class="stat"><div class="labels"><span>${k}</span><span class="val">${up ? `<em>+${up}</em>` : ''}<b>${s[key]}</b></span></div><div class="track"><i style="width:${Math.min(100, s[key] / 2)}%"></i><u style="left:${Math.min(100, s[key] / 2)}%;width:${up / 2}%"></u></div></div>`;
       }).join('');
       const sp = SPECIALS[item.special];
       special = sp ? `<div class="special-line"><b>Rage art</b>${esc(sp.name)} — ${esc(sp.desc)}</div>` : '';
     } else {
       const dNow = Math.round(gearDef(kind, id, Math.max(1, lvl)) * 100), dNext = Math.round(gearDef(kind, id, Math.min(max, Math.max(1, lvl) + 1)) * 100);
-      const pk = item.perks, perkTxt = Object.keys(pk).map(k => ({ hp: `+${pk[k]} health`, speed: `${pk[k] > 0 ? '+' : ''}${Math.round(pk[k] * 100)}% speed`, rage: `+${Math.round(pk[k] * 100)}% rage gain`, stunRes: `${Math.round(pk[k] * 100)}% stun resist`, dash: `+${Math.round(pk[k] * 100)}% dash`, ammo: `+${pk[k]} kunai`, kunai: `+${Math.round(pk[k] * 100)}% kunai damage`, dmg: `+${Math.round(pk[k] * 100)}% damage` }[k])).join(' · ');
+      const hNow = gearHp(kind, id, Math.max(1, lvl)), hNext = gearHp(kind, id, Math.min(max, Math.max(1, lvl) + 1));
+      const pk = item.perks, perkTxt = Object.keys(pk).map(k => ({ blockRage: 'blocking builds double rage', speed: `${pk[k] > 0 ? '+' : ''}${Math.round(pk[k] * 100)}% speed`, rage: `+${Math.round(pk[k] * 100)}% rage gain`, stunRes: `${Math.round(pk[k] * 100)}% stun resist`, dash: `+${Math.round(pk[k] * 100)}% dash`, ammo: `+${pk[k]} kunai`, kunai: `+${Math.round(pk[k] * 100)}% kunai damage`, dmg: `+${Math.round(pk[k] * 100)}% damage` }[k])).join(' · ');
       const mob = Math.round(100 + (pk.speed || 0) * 100 * 3);
       statsHTML = `<div class="stat"><div class="labels"><span>Defense</span><span class="val">${owned && lvl < max ? `<em>+${dNext - dNow}</em>` : ''}<b>${dNow}%</b></span></div><div class="track"><i style="width:${dNow * 3.5}%"></i><u style="left:${dNow * 3.5}%;width:${owned && lvl < max ? (dNext - dNow) * 3.5 : 0}%"></u></div></div>
+        <div class="stat"><div class="labels"><span>Health</span><span class="val">${owned && lvl < max && hNext > hNow ? `<em>+${hNext - hNow}</em>` : ''}<b>+${hNow}</b></span></div><div class="track"><i style="width:${Math.min(100, hNow)}%"></i><u style="left:${Math.min(100, hNow)}%;width:${owned && lvl < max ? hNext - hNow : 0}%"></u></div></div>
         <div class="stat"><div class="labels"><span>Mobility</span><span class="val"><b>${mob}</b></span></div><div class="track"><i style="width:${clamp(mob - 30, 0, 100)}%"></i></div></div>
         ${perkTxt ? `<div class="special-line"><b>Perks</b>${esc(perkTxt)}</div>` : ''}`;
     }
     let primary;
     if (!owned) {
-      if (item.exclusive) primary = `<button class="btn-primary locked" disabled>Boss trophy</button>`;
+      if (item.exclusive) primary = `<button class="btn-primary locked" disabled>Locked</button>`;
       else if (item.gems) primary = `<button class="btn-primary" data-a="buy" ${save.gems < item.gems ? 'disabled' : ''}>Buy <span style="display:inline-flex;align-items:center;gap:.4rem;letter-spacing:.05em"><i class="gem" style="background:var(--bg-void)"></i>${item.gems}</span></button>`;
       else primary = `<button class="btn-primary" data-a="buy" ${save.coins < item.price ? 'disabled' : ''}>Buy <span style="display:inline-flex;align-items:center;gap:.4rem;letter-spacing:.05em"><i class="coin"></i>${fmt(item.price)}</span></button>`;
     } else if (lvl >= max) primary = `<button class="btn-primary locked" disabled>Mastered</button>`;
     else { const c = upgradeCost(kind, id, lvl); primary = `<button class="btn-primary" data-a="upgrade" ${save.coins < c ? 'disabled' : ''}>Upgrade <span style="display:inline-flex;align-items:center;gap:.4rem;letter-spacing:.05em"><i class="coin"></i>${fmt(c)}</span></button>`; }
-    const trophyOf = ENEMIES[item.exclusive]; // a trophy names its enemy; `true` = locked until the gear rebuild
-    const exclusiveTxt = item.exclusive && !owned ? `<div class="special-line"><b>Locked</b>${trophyOf ? `Defeat ${esc(trophyOf.name)}, ${esc(trophyOf.title)}` : 'A trophy of a fallen foe. Not obtainable yet.'}</div>` : '';
+    const exclusiveTxt = Logic.isLocked(save, kind, id) ? `<div class="special-line"><b>Locked</b>${esc(Logic.lockHint(kind, id))}</div>` : '';
     el.innerHTML = `
       <canvas class="arm-preview" data-prev></canvas>
       <div class="topbar">
@@ -7329,7 +7521,7 @@ const UIManager = {
         ${currencyHTML()}
       </div>
       <div class="arm-details">
-        <div><div class="eyebrow rarity">${esc(item.rarity || item.cls)}${kind === 'weapons' ? ` · ${esc(item.cls)}` : ''}</div><h3 class="disp">${esc(item.name)}</h3><div class="desc">${esc(item.desc || '')}</div></div>
+        <div><div class="eyebrow rarity tier-${Logic.itemTier(kind, id, Math.max(1, lvl))}">${esc(Logic.tierLabel(kind, id, Math.max(1, lvl)))}${kind === 'weapons' ? ` · ${esc(item.cls)}` : ''}</div><h3 class="disp">${esc(item.name)}</h3><div class="lore">${esc(item.lore || '')}</div>${item.desc ? `<div class="desc">${esc(item.desc)}</div>` : ''}</div>
         <div><div class="lvl-row"><span class="k">Level ${equipped ? '<span class="equipped-tag" style="margin-left:.8rem">Equipped</span>' : ''}</span><span class="v">${owned ? `${lvl} / ${max}` : 'Not owned'}</span></div>
           <div class="lvl-pips">${Array.from({ length: max }, (_, i) => `<i class="${i < lvl ? 'on' : i === lvl && owned ? 'next' : ''}"></i>`).join('')}</div></div>
         <div class="stats-col">${statsHTML}${special}${exclusiveTxt}</div>
@@ -7340,7 +7532,7 @@ const UIManager = {
         return `<button class="tile ${iid === id ? 'sel' : ''} ${ow ? '' : 'locked'}" data-a="tile" data-id="${iid}" style="animation-delay:${i * 0.03}s" aria-label="${esc(it.name)}">
           ${eq ? '<i class="eq"></i>' : ''}${ow ? '' : `<span class="lock">${ICON.lock}</span>`}
           <canvas data-icon="${iid}" data-kind="${kind}" data-owned="${ow ? 1 : 0}"></canvas>
-          ${ow ? `<span class="nm">${esc(it.name)}</span>` : it.exclusive ? `<span class="price" style="color:var(--accent-ember-bright)">Boss trophy</span>` : `<span class="price">${it.gems ? `<i class="gem" style="width:.5rem;height:.5rem"></i>${it.gems}` : `<i class="coin"></i>${fmt(it.price)}`}</span>`}
+          ${ow ? `<span class="nm">${esc(it.name)}</span>` : it.exclusive ? `<span class="price" style="color:var(--accent-ember-bright)">${esc(Logic.tierLabel(kind, iid, 1))}</span>` : `<span class="price">${it.gems ? `<i class="gem" style="width:.5rem;height:.5rem"></i>${it.gems}` : `<i class="coin"></i>${fmt(it.price)}`}</span>`}
         </button>`;
       }).join('')}</div>`;
     const paint = () => {
@@ -7351,13 +7543,13 @@ const UIManager = {
   },
   paintIcon(cv, kind, id, owned) {
     if (kind === 'weapons') { drawWeaponIcon(cv, id, owned ? null : C.ash); return; }
-    const f = makePlayerFighter(SaveManager.data, { helmet: kind === 'helmets' ? id : 'topknot', armor: kind === 'armors' ? id : 'wraps', weapon: 'fists', scarf: false });
+    const f = makePlayerFighter(SaveManager.data, { helmet: kind === 'helmets' ? id : 'shiro_maki', armor: kind === 'armors' ? id : 'tachibana_yoroi', weapon: 'fists', scarf: false });
     poseFighter(f, null, 20);
     if (kind === 'helmets') {
       const { g, w, h } = prepCanvas(cv);
       const r = h * 0.2;
       g.save(); g.translate(w / 2, h * 0.62); g.fillStyle = owned ? '#2a2620' : '#1a1814'; g.beginPath(); g.arc(0, 0, r, 0, TAU); g.fill();
-      drawHelmet(g, id, r, owned ? '#2a2620' : '#1a1814', {}, f);
+      drawHelmet(g, gearLook('helmets', id), r, owned ? '#2a2620' : '#1a1814', {}, f);
       g.restore();
     } else drawFighterInto(cv, f, { fit: 1.2, tall: 1.05, color: owned ? null : '#1a1814', rim: owned ? 'rgba(236,229,211,0.25)' : null, ground: 1.15 });
   },
@@ -7367,7 +7559,7 @@ const UIManager = {
     const kind = this.armTab, id = this.armSel, save = SaveManager.data;
     const f = makePlayerFighter(save, kind === 'weapons' ? { weapon: id } : kind === 'helmets' ? { helmet: id } : { armor: id });
     poseFighter(f, null, 30);
-    const ghost = makePlayerFighter(save, { weapon: 'fists', scarf: false, helmet: 'topknot', armor: 'wraps' }); poseFighter(ghost, 'taunt', 30);
+    const ghost = makePlayerFighter(save, { weapon: 'fists', scarf: false, helmet: 'shiro_maki', armor: 'tachibana_yoroi' }); poseFighter(ghost, 'taunt', 30);
     let t0 = performance.now();
     const loop = (now) => {
       if (this.current !== 'armory' || !cv.isConnected) return;
@@ -7638,7 +7830,7 @@ const UIManager = {
           AudioManager.play('unlock');
           if (u.kind === 'chapter') this.toast('New chapter unlocked', `${Logic.chapter(u.id).name} · ${Logic.chapter(u.id).title}`);
           else if (u.kind === 'ng') this.toast('Story complete', 'New Game+ unlocked in Settings');
-          else this.toast(u.kind === 'weapons' ? 'Exclusive weapon' : 'Boss trophy', gearName(u.kind, u.id));
+          else this.toast(u.kind === 'weapons' ? 'Boss weapon' : 'Trophy', gearName(u.kind, u.id));
         }, delay);
         delay += 700;
       }
