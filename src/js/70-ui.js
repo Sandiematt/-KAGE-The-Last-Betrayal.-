@@ -630,6 +630,8 @@ const UIManager = {
     // a stretch has no single opponent: no foe portrait, boss bar or round clock; foes carry their own small bars
     // (drawn on the canvas) and the top of the screen shows the road's progress instead
     const el = $('#scr-hud'), e = s.enemy, stretch = !!s.isStretch, bossy = !!e && e.def.type !== 'regular';
+    // story bosses (Logic.fightFormat 'boss'): one round and no clock, so neither the clock nor the round pips show
+    const clockless = stretch || !!(s.format && !s.format.timer);
     el.innerHTML = `
       <div class="fp left" data-pp>
         <div class="medal"><canvas data-portrait="p"></canvas></div>
@@ -651,7 +653,7 @@ const UIManager = {
         <b class="bb-name" data-bname></b>
         <div class="bb-track"><i class="hb-chip"></i><i class="hb-fill"></i><i class="hb-gloss"></i><span data-bdivs></span></div>
       </div>
-      <div class="clock ${stretch ? 'gone' : ''}"><b data-timer>--</b><div class="round-pips" data-pips></div></div>
+      <div class="clock ${clockless ? 'gone' : ''}"><b data-timer>--</b><div class="round-pips" data-pips></div></div>
       <div class="hud-road ${stretch ? '' : 'gone'}" data-road><div class="rd-track"><i class="rd-fill"></i><span data-rdmarks></span><b class="rd-kage"></b></div><div class="rd-info" data-rdinfo></div></div>
       <button class="hud-btn hud-pause" data-a="pause" aria-label="Pause">${ICON.pause}</button>
       <div class="hud-wave" data-wave></div>
@@ -734,7 +736,8 @@ const UIManager = {
       this.set('who', en.uid, () => {
         e.ename.textContent = en.name; e.etitle.textContent = en.title; e.bname.textContent = en.name; e.btitle.textContent = en.title;
         e.ep.classList.toggle('gone', bossy); e.boss.classList.toggle('gone', !bossy);
-        e.bdivs.innerHTML = en.ai && en.ai.phases ? '<i class="bb-div" style="left:33.3%"></i><i class="bb-div" style="left:66.6%"></i>' : '';
+        // one divider on the bar at each phase threshold (Logic.bossPhases)
+        e.bdivs.innerHTML = en.ai && en.ai.phases ? Logic.bossPhases(en.def.id).slice(1).map(p => `<i class="bb-div" style="left:${(p.at * 100).toFixed(1)}%"></i>`).join('') : '';
         this.bars.e = { v: 1, chip: 1, delay: 0, target: clamp(en.hp / en.maxHp, 0, 1) };
         const ec = $('#scr-hud canvas[data-portrait="e"]'); if (ec && ec.clientWidth) drawPortrait(ec, en, true);
       });

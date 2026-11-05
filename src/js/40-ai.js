@@ -204,8 +204,8 @@ class AIController {
   checkPhase() {
     const f = this.f;
     if (!this.phases) return;
-    const k = f.hp / f.maxHp;
-    const target = k > 0.66 ? 0 : k > 0.33 ? 1 : 2;
+    // the phase thresholds are data on the boss (Logic.bossPhases: 1, 0.66, 0.33 unless it says otherwise)
+    const target = Logic.bossPhaseAt(f.def.id, f.hp / f.maxHp);
     if (target > this.phase) {
       this.phase = target;
       this.world.onBossPhase(f, target, this.phases[target]);
@@ -407,6 +407,86 @@ const BOSS_ABILITIES = {
         },
         end(f) { f.superArmor = false; } });
     } },
+  /* ---- Raikon, the Lightning Ascendant (Act I boss). Every wind-up is scaled by the difficulty mode (ai.p.windup:
+     longer on Easy, shorter on Hard / Impossible), holds a readable pose, flashes the eyes white, heats the red groove
+     of Raikō no Tachi and crackles with red lightning, with a red glint just before release. ---- */
+  // Wind-up, then a wide flat arc that sends a lightning wave racing along the ground (WeaponSystem 'thunderwave':
+  // jump it or dash through it). In phase 3 (`secondWave` on the phase) the blade crackles again and a second wave
+  // follows after a delay, punishing a dodge made too early.
+  thunderSwing: { id: 'thunderSwing', cd: 5.2, range: [140, 760], chance: 0.75,
+    run(f, w, ai) {
+      const tell = ai.p.windup, W = 0.66 * tell, delay = ai.phaseData && ai.phaseData.secondWave ? ai.phaseData.secondWave * Math.max(1, tell) : 0;
+      const T2 = W + delay;
+      f.telegraph = W;
+      f.startAbility({ dur: (delay ? T2 : W) + 0.6, rate: 22, trail: true, charge: true,
+        pose: (f, t) => (t < W || (delay && t > W + 0.2 && t < T2) ? RAIKON_POSE.swingBack : RAIKON_POSE.swingThrough),
+        start(f) { f.superArmor = true; f.facing = w.player.x > f.x ? 1 : -1; AudioManager.play('teleport'); w.fx.popText(f, 'THUNDER SWING', '#ff6a52'); },
+        update(f, w, t, dt) {
+          f.vx = damp(f.vx, 0, 10, dt);
+          if (t < W) { this.charge = true; raikonCrackle(f, w, t); if (!this.glint && t > W - 0.2) { this.glint = 1; raikonGlint(f, w); } return; }
+          if (!this.swung) {
+            this.swung = 1; this.charge = false; f.superArmor = false;
+            raikonRelease(f, w);
+            if (delay) { f.telegraph = delay; w.fx.popText(f, 'WAIT FOR IT', '#ff6a52'); }
+          }
+          if (delay && t < T2) {
+            if (t > W + 0.2) { this.charge = true; raikonCrackle(f, w, t); if (!this.glint2 && t > T2 - 0.2) { this.glint2 = 1; raikonGlint(f, w); } }
+            return;
+          }
+          if (delay && !this.swung2) { this.swung2 = 1; this.charge = false; raikonRelease(f, w); }
+          if (!this.tell && t > (delay ? T2 : W) + 0.25) { this.tell = 1; w.fx.popText(f, 'OPENING', C.gold); }
+        },
+        end(f) { f.superArmor = false; } });
+    } },
+  // Wind-up overhead (super armour, crackle, glint), then the blade driven into the ground: a crushing hit up close
+  // and a short ground shockwave forward.
+  stormBreak: { id: 'stormBreak', cd: 4.4, range: [0, 340], chance: 0.65,
+    run(f, w, ai) {
+      const W = 0.58 * ai.p.windup;
+      f.telegraph = W;
+      f.startAbility({ dur: W + 0.75, rate: 20, trail: true, charge: true,
+        pose: (f, t) => (t < W ? RAIKON_POSE.overhead : RAIKON_POSE.slam),
+        start(f) { f.superArmor = true; f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, 'STORM BREAK', '#ff6a52'); AudioManager.play('teleport'); },
+        update(f, w, t, dt) {
+          if (t < W) { this.charge = true; f.vx = damp(f.vx, f.facing * 90, 6, dt); raikonCrackle(f, w, t); if (!this.glint && t > W - 0.18) { this.glint = 1; raikonGlint(f, w); } return; }
+          f.vx = damp(f.vx, 0, 14, dt);
+          if (!this.done) {
+            this.done = 1; this.charge = false; f.superArmor = false;
+            const gx = f.x + f.facing * 120 * f.scale;
+            Combat.area(w, f, fbox(f, 0, -230, 200, 230), { dmg: 19 * f.dmgMul, kb: 380, up: -460, hs: 0.6, kd: 1, imp: 3, hsnd: 'heavy', stamp: 'BREAK', gb: 110 });
+            WeaponSystem.spawn(w, 'shock', f, { x: gx, lifeMul: 0.6, dmgMul: 0.9 });
+            for (let i = 0; i < 3; i++) w.fx.lightning(gx, 0, gx + rand(-90, 90), -rand(60, 150), { w: 2.2, branches: 2, dur: 0.14 });
+            w.fx.groundShards(gx, 7, 1.1); w.fx.dust(gx, 0, 18); w.fx.shake(0.7); AudioManager.play('slam');
+          }
+          if (!this.tell && t > W + 0.3) { this.tell = 1; w.fx.popText(f, 'OPENING', C.gold); }
+        },
+        end(f) { f.superArmor = false; } });
+    } },
+  // A brief guard stance (red ring, crackle). A melee blow from the front during it is turned aside (the counter stance
+  // in Combat.applyHit) and answered with a fast diagonal punish; left alone, he drops the guard.
+  redlineCounter: { id: 'redlineCounter', cd: 6, range: [60, 300], chance: 0.55,
+    run(f, w, ai) {
+      const P2 = 0.1 * ai.p.windup;
+      f.startAbility({ dur: 1.0, rate: 18, charge: true,
+        pose: f => (f.abil && f.abil.cut ? RAIKON_POSE.diagonal : RAIKON_POSE.guard),
+        start(f) { f.counterStance = true; f.redline = true; f.telegraph = 0.3; f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, 'REDLINE', '#ff6a52'); AudioManager.play('block'); },
+        update(f, w, t, dt) {
+          f.vx = damp(f.vx, 0, 12, dt);
+          if (this.punish == null) { raikonCrackle(f, w, t); return; }
+          const k = t - this.punish;
+          if (k < P2) return;
+          if (!this.cut) {
+            this.cut = 1; f.vx = f.facing * 1100; AudioManager.play('heavyswing');
+            w.fx.lightning(f.sk.wt.x, f.sk.wt.y - 60, f.sk.wt.x + f.facing * 160, f.sk.wt.y + 120, { w: 2.4, branches: 3, dur: 0.14 });
+          }
+          if (((t * 60) | 0) % 2 === 0) w.fx.afterimage(f, 'rgba(255,74,60,0.35)');
+          if (!this.hit && k < P2 + 0.2) this.hit = Combat.area(w, f, fbox(f, -10, -230, 190, 230), { dmg: 17 * f.dmgMul, kb: 520, up: -380, hs: 0.55, kd: 1, imp: 3, hsnd: 'slash', stamp: 'REDLINE', unb: 1 });
+          if (k > P2 + 0.2) f.vx = damp(f.vx, 0, 14, dt);
+        },
+        // Combat.applyHit calls this when a blow lands on the guard: switch to the punish
+        onCounter(f) { f.counterStance = false; this.charge = false; this.punish = this.t; this.dur = this.t + P2 + 0.55; f.telegraph = P2; },
+        end(f) { f.counterStance = false; f.redline = false; } });
+    } },
   summon: { id: 'summon', cd: 15, range: [0, 1200], chance: 0.7, cond: (f, w) => w.fighters.filter(x => x.minion && x.alive).length === 0,
     run(f, w) {
       f.startAbility({ dur: 1.0, pose: POSES.castUp, rate: 12, uninterruptible: true,
@@ -414,6 +494,38 @@ const BOSS_ABILITIES = {
         update(f, w, t) { if (t > 0.5 && !this.done) { this.done = 1; w.spawnMinions(f, 2); } } });
     } }
 };
+/* ---- Raikon's poses and shared effects (also used by the player's Thunder Swing rage art, 30-combat.js) ---- */
+const RAIKON_POSE = {
+  // Thunder Swing: the odachi drawn far back at shoulder height, weight on the rear leg, ready to sweep flat
+  swingBack: P({ lean: -18, head: -4, rx: -14, fs: -34, fe: 64, wa: 262, bs: -24, be: 84, fh: 26, fk: -36, bh: -34, bk: -20 }),
+  // ... then the wide horizontal arc, blade level and fully extended
+  swingThrough: P({ lean: 26, rx: 18, head: 8, fs: 64, fe: 0, wa: 92, bs: -40, be: 40, fh: 46, fk: -40, bh: -44, bk: -10 }),
+  // Storm Break: both hands high overhead, the blade pointing back over the shoulders
+  overhead: P({ lean: -16, head: -8, fs: 200, fe: 10, wa: 250, bs: 190, be: 20, fh: 20, fk: -30, bh: -26, bk: -24 }),
+  // ... then the overhead strike driven into the ground
+  slam: P({ lean: 42, head: 12, fs: 40, fe: 0, wa: 4, bs: 30, be: 0, fh: 58, fk: -84, bh: -44, bk: -52 }),
+  // Redline Counter: a low guard, the blade held diagonally across the body, edge out
+  guard: P({ lean: -4, head: 4, fs: 70, fe: 80, wa: 140, bs: 50, be: 100, fh: 30, fk: -30, bh: -30, bk: -14 }),
+  // ... and the fast diagonal punish (kesa-giri, high to low)
+  diagonal: P({ lean: 34, rx: 20, head: 10, fs: 40, fe: 0, wa: 34, bs: -30, be: 30, fh: 54, fk: -60, bh: -50, bk: -8 })
+};
+// red lightning crackling along Raikō no Tachi while a strike gathers
+function raikonCrackle(f, w, t) {
+  if (((t * 60) | 0) % 4 !== 0) return;
+  const sk = f.sk;
+  w.fx.lightning(sk.fha.x, sk.fha.y, sk.wt.x + rand(-10, 10), sk.wt.y + rand(-10, 10), { w: 1.6, branches: 2, dur: 0.1 });
+  w.fx.part({ x: sk.wt.x, y: sk.wt.y, vx: rand(-60, 60), vy: rand(-90, -20), life: 0.25, size: rand(1.5, 3), color: '#ff6a52', type: 'spark', grav: 0, drag: 3, add: true });
+}
+// the red glint on the blade that marks the moment before release
+function raikonGlint(f, w) { w.fx.glint(f.sk.wt.x, f.sk.wt.y, '#ff4a3c'); AudioManager.play('orb', { pitch: 1.7 }); }
+// Thunder Swing's release: the arc's own hit up close, and the lightning wave sent along the ground
+function raikonRelease(f, w) {
+  AudioManager.play('heavyswing'); AudioManager.play('slam');
+  Combat.area(w, f, fbox(f, -10, -210, 210, 200), { dmg: 15 * f.dmgMul, kb: 420, up: -240, hs: 0.5, imp: 2, hsnd: 'slash', stamp: 'THUNDER', gb: 70 });
+  WeaponSystem.spawn(w, 'thunderwave', f, { x: f.x + f.facing * 110 * f.scale });
+  w.fx.lightning(f.sk.wt.x, f.sk.wt.y, f.x + f.facing * 120 * f.scale, 0, { w: 2.6, branches: 4, dur: 0.16 });
+  w.fx.shake(0.45); w.fx.dust(f.x + f.facing * 80, 0, 10);
+}
 function this_charge_pose(f, t) {
   return t < 0.6 ? P({ lean: -14, fs: 186, fe: 0, wa: 210, fh: 30, fk: -40, bh: -30, bk: -30 }) : P({ lean: 40, fs: 80, fe: 0, wa: 60, bs: -60, be: 30, fh: 60, fk: -60, bh: -50, bk: -20 });
 }

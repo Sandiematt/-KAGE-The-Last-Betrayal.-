@@ -4,13 +4,13 @@ const HERO_FACEWRAP = '#efe9dd', HERO_FACEWRAP_SHADE = '#b4ac9f';   // Kage's wh
 const BODY = { torso: 60, neck: 7, head: 18, upper: 36, fore: 34, thigh: 45, shin: 47 };
 const SHAPE = {
   fists: 'none', tsubame: 'short', kagetsu: 'katana', shizuka: 'katana', onikiri: 'cleaver', mizuchi: 'spear',
-  yamigama: 'sickle', iwakudaki: 'hammer', shinsen: 'katana', raiko_no_tachi: 'cleaver', kagehira_yurei: 'short', mugen_no_ha: 'katana',
+  yamigama: 'sickle', iwakudaki: 'hammer', shinsen: 'katana', raiko_no_tachi: 'odachi', raikon_tachi: 'odachi', kagehira_yurei: 'short', mugen_no_ha: 'katana',
   shadow_daggers: 'short', hollow_crescents: 'crescent', mist_fans: 'fan',
   sentinel_spear: 'spear', sage_staff: 'staff', storm_orbs: 'none', iron_fists: 'none', chain_hook: 'hook',
   tyrant_cleaver: 'tyrant', cutter_blade: 'katana', temple_staff: 'staff', raider_cleaver: 'cleaver'
 };
 const IK_OFF = { katana: -0.2, spear: -0.3, hammer: 0.3, staff: -0.32 };
-const CARRY = { katana: 40, short: 30, cleaver: 60, spear: 10, sickle: 70, hammer: 100, staff: 0, crescent: 40, fan: 40, hook: 70, tyrant: 60, none: 0 };
+const CARRY = { katana: 40, short: 30, cleaver: 60, odachi: 56, spear: 10, sickle: 70, hammer: 100, staff: 0, crescent: 40, fan: 40, hook: 70, tyrant: 60, none: 0 };
 
 /* ---------------- Cloth (verlet chain) for scarves, capes, robes ---------------- */
 class Cloth {
@@ -188,6 +188,12 @@ class Fighter {
       this.cloths.push({ kind: 'ribbon', c: new Cloth(10, 8 * this.scale, { ph: 4, wind: 700 }), at: this.helmet === 'storm_band' ? 'head' : 'sh', color: '#7fb8ff', w: 3 * this.scale });
     }
     if (this.helmet === 'veil') this.cloths.push({ kind: 'cape', c: new Cloth(8, 10 * this.scale, { ph: 5, wind: 420, grav: 600 }), at: 'head', color: 'rgba(160,170,176,0.5)', w0: 18 * this.scale, w1: 30 * this.scale });
+    // Raikon: a long dark scarf from the neck, two tails of different length, edged pale so it reads on the dark arena
+    if (this.def && this.def.longScarf) {
+      const sc = this.def.longScarf, rim = 'rgba(236,229,211,0.5)';
+      this.cloths.push({ kind: 'scarf', c: new Cloth(14, 8.6 * this.scale, { ph: 2.5, wind: 640, grav: 620, stiff: 1.6 }), at: 'neck', color: sc, rim, w: 7.2 * this.scale, w1: 2.8 * this.scale, dy: 2 });
+      this.cloths.push({ kind: 'scarf', c: new Cloth(9, 8 * this.scale, { ph: 6.2, wind: 560, grav: 700, stiff: 1.6 }), at: 'neck', color: sc, rim, w: 5.4 * this.scale, w1: 2.2 * this.scale, dy: 6 });
+    }
     if (this.helmet === 'sentinel_helm') this.cloths.push({ kind: 'scarf', c: new Cloth(6, 7 * this.scale, { ph: 6, wind: 600 }), at: 'head', color: C.ember, w: 6 * this.scale, dy: -14 });
   }
 
@@ -1310,6 +1316,7 @@ Fighter.prototype.draw = function (ctx, opt) {
   }
   for (const cl of this.cloths) if (cl.kind === 'scarf' || cl.kind === 'ribbon' || cl.kind === 'belt') {
     const col = opt.color || (flashing ? ink : cl.color);
+    if (cl.rim && !opt.color && cl.w1) cl.c.ribbon(ctx, cl.rim, cl.w + 3 * s, cl.w1 + 3 * s);
     if (cl.w1) cl.c.ribbon(ctx, col, cl.w, cl.w1); else cl.c.strand(ctx, col, cl.w);
   }
   this.silhouette(ctx, ink, ink, flat, opt);
@@ -1487,6 +1494,37 @@ function drawWeaponShape(ctx, sh, L, mode, s, ink, f) {
       ctx.fillStyle = art ? C.void : 'rgba(236,229,211,0.2)'; ctx.beginPath(); ctx.arc(L * 0.8, -3 * s, 3 * s, 0, TAU); ctx.fill();
       break;
     }
+    case 'odachi': {
+      // Raikō no Tachi: a long wrapped grip, a heavy square guard, then a broad, rugged blade with a notched spine,
+      // a clipped point and a red lightning groove down its length. Broad, never comically large.
+      const hl = 0.27, hw = 2.6 * s;
+      line(-L * hl, 0, -2 * s, 0, hw * 2, dark);
+      if (!rim && mode !== 'flat') {
+        ctx.fillStyle = art ? C.gold : '#5a3a34';
+        for (let i = 1; i < 5; i++) { ctx.save(); ctx.translate(-L * hl * (i + 0.1) / 5.2, 0); ctx.rotate(Math.PI / 4); ctx.fillRect(-1.1 * s, -1.1 * s, 2.2 * s, 2.2 * s); ctx.restore(); }
+      }
+      ctx.fillStyle = art ? C.gold : ink; ctx.fillRect(-3.6 * s, -7.5 * s, 4.6 * s, 15 * s);   // square tsuba
+      if (rim) break;
+      const N = 9, sori = L * 0.035, bx = 1.4 * s, yk = 0.9;
+      const cy = u => -sori * u * u, X = u => bx + (L - bx) * u;
+      const wb = u => lerp(4.2, 3.4, u) * s, we = u => lerp(7.6, 6, u) * s;
+      ctx.beginPath(); ctx.moveTo(bx, cy(0) - wb(0));
+      for (let i = 1; i <= N; i++) { const u = yk * i / N; ctx.lineTo(X(u), cy(u) - wb(u) + (i === 3 || i === 6 ? 1.8 * s : 0)); }  // spine, two notches
+      ctx.lineTo(L, cy(1) - wb(1) * 0.3);                                          // clipped point
+      ctx.lineTo(X(0.95), cy(0.95) + we(0.95));
+      for (let i = N; i >= 0; i--) { const u = yk * i / N; ctx.lineTo(X(u), cy(u) + we(u)); } // broad edge
+      ctx.closePath(); ctx.fillStyle = steel; ctx.fill();
+      if (mode !== 'flat') {
+        // the red lightning groove; it flares while the blade gathers a strike
+        const hot = f && (f.telegraph > 0 || (f.state === 'ability' && f.abil && f.abil.charge));
+        ctx.strokeStyle = art ? C.emberBright : hot ? '#ff6a52' : '#c8261e'; ctx.lineWidth = (hot ? 2.2 : 1.5) * s; ctx.lineJoin = 'miter';
+        ctx.beginPath();
+        for (let i = 0; i <= 8; i++) { const u = 0.06 + 0.78 * i / 8; ctx.lineTo(X(u), cy(u) + (i % 2 ? 1.6 : -0.6) * s); }
+        ctx.stroke(); ctx.lineJoin = 'round';
+        ctx.fillStyle = art ? C.gold : '#9a948a'; ctx.fillRect(bx, cy(0) - wb(0), 3.4 * s, wb(0) + we(0));   // habaki
+      }
+      break;
+    }
     case 'spear': {
       line(-L * 0.42, 0, L * 0.84, 0, 4.2 * s, dark);
       ctx.beginPath(); ctx.moveTo(L * 0.82, -5 * s); ctx.quadraticCurveTo(L * 0.92, -9 * s, L, 0); ctx.quadraticCurveTo(L * 0.92, 9 * s, L * 0.82, 5 * s); ctx.closePath();
@@ -1649,6 +1687,22 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
     case 'storm_band':
       ctx.strokeStyle = acc('#7fb8ff'); ctx.lineWidth = 2.6; ctx.beginPath(); ctx.arc(0, 0, r * 1.02, Math.PI * 1.05, Math.PI * 1.95); ctx.stroke();
       break;
+    case 'raijin_kabuto': {
+      // Raikon's Raijin Kabuto: an angular faceted bowl, a peak jutting over the brow, a stepped neck guard swept back,
+      // and a short red lightning crest on the front
+      ctx.beginPath(); ctx.moveTo(-r * 1.15, -r * 0.1); ctx.lineTo(-r * 0.98, -r * 0.92); ctx.lineTo(-r * 0.3, -r * 1.34); ctx.lineTo(r * 0.5, -r * 1.24); ctx.lineTo(r * 1.1, -r * 0.66); ctx.lineTo(r * 1.2, -r * 0.18); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(-r * 0.4, -r * 0.55); ctx.lineTo(-r * 1.7, -r * 0.05); ctx.lineTo(-r * 1.55, r * 0.28); ctx.lineTo(-r * 1.95, r * 0.42); ctx.lineTo(-r * 1.75, r * 0.72); ctx.lineTo(-r * 0.85, r * 0.78); ctx.lineTo(-r * 0.3, r * 0.15); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(r * 0.1, -r * 0.42); ctx.lineTo(r * 1.62, -r * 0.34); ctx.lineTo(r * 1.15, -r * 0.08); ctx.lineTo(r * 0.1, -r * 0.1); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = acc(C.emberBright);
+      ctx.beginPath(); ctx.moveTo(r * 0.12, -r * 1.24); ctx.lineTo(r * 0.5, -r * 1.86); ctx.lineTo(r * 0.36, -r * 1.78); ctx.lineTo(r * 0.82, -r * 2.36); ctx.lineTo(r * 0.62, -r * 1.62); ctx.lineTo(r * 0.8, -r * 1.68); ctx.lineTo(r * 0.56, -r * 1.2); ctx.closePath(); ctx.fill();
+      if (!flat) {
+        ctx.strokeStyle = 'rgba(255,74,60,0.45)'; ctx.lineWidth = Math.max(1, r * 0.08); ctx.lineJoin = 'miter';
+        ctx.beginPath(); ctx.moveTo(-r * 0.98, -r * 0.92); ctx.lineTo(r * 1.1, -r * 0.66); ctx.stroke();               // facet ridge
+        ctx.beginPath(); ctx.moveTo(-r * 1.62, r * 0.3); ctx.lineTo(-r * 0.62, r * 0.28); ctx.stroke();                // neck guard step
+        ctx.lineJoin = 'round';
+      }
+      break;
+    }
     case 'colossus':
       ctx.beginPath(); ctx.roundRect ? ctx.roundRect(-r * 1.25, -r * 1.35, r * 2.5, r * 2.35, r * 0.5) : ctx.rect(-r * 1.25, -r * 1.35, r * 2.5, r * 2.35); ctx.fill();
       if (!flat) { ctx.fillStyle = 'rgba(255,106,60,0.9)'; ctx.fillRect(r * 0.05, -r * 0.2, r * 1.15, r * 0.14); }
@@ -1738,6 +1792,28 @@ function drawArmor(ctx, f, ink, opt, Ut) {
         ctx.fillStyle = ink;
         for (let i = -1; i <= 1; i++) { const a = ang + i * 0.5; ctx.beginPath(); ctx.moveTo(sk.sh.x + Math.cos(a + 1.3) * r, sk.sh.y + Math.sin(a + 1.3) * r); ctx.lineTo(sk.sh.x + Math.cos(a) * r * 2.1, sk.sh.y + Math.sin(a) * r * 2.1); ctx.lineTo(sk.sh.x + Math.cos(a - 0.3) * r, sk.sh.y + Math.sin(a - 0.3) * r); ctx.fill(); }
       }
+      break;
+    }
+    case 'raikon_plate': {
+      // Raikon's armour: a broad cuirass of a few layered plates, two stacked shoulder plates, a skirt of three
+      // plates over the hips and a red cord across the chest; simplified, flat, heavy
+      torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.22);
+      const ox = Math.cos(ang + Math.PI / 2), oy = Math.sin(ang + Math.PI / 2), ux = Math.cos(ang), uy = Math.sin(ang);
+      ctx.fillStyle = ink; ctx.beginPath();
+      for (let i = -1; i <= 1; i++) {
+        const bx = hx + ox * i * Ut * 0.62 + ux * Ut * 0.15, by = hy + oy * i * Ut * 0.62 + uy * Ut * 0.15, L = Ut * (i === 0 ? 0.9 : 1.05);
+        ctx.moveTo(bx - ox * Ut * 0.4, by - oy * Ut * 0.4); ctx.lineTo(bx - ux * L - ox * Ut * 0.46, by - uy * L - oy * Ut * 0.46);
+        ctx.lineTo(bx - ux * L + ox * Ut * 0.46, by - uy * L + oy * Ut * 0.46); ctx.lineTo(bx + ox * Ut * 0.4, by + oy * Ut * 0.4);
+      }
+      ctx.fill();
+      plate(Ut * 0.9, flat ? null : 'rgba(255,74,60,0.45)');
+      ctx.fillStyle = ink; ctx.beginPath();
+      ctx.ellipse(sk.sh.x - fc * Ut * 0.2 - ux * Ut * 0.45, sk.sh.y - uy * Ut * 0.45 + Ut * 0.2, Ut * 0.85, Ut * 0.5, ang + Math.PI / 2, Math.PI * 0.95, Math.PI * 2.05); ctx.closePath(); ctx.fill();
+      if (flat) break;
+      ctx.strokeStyle = 'rgba(236,229,211,0.3)'; ctx.lineWidth = 1.2 * s; ctx.stroke();
+      bands(3, 'rgba(201,164,92,0.3)', Ut * 1.12, 0.22, 0.7);
+      ctx.strokeStyle = '#a3302a'; ctx.lineWidth = 2.2 * s;
+      ctx.beginPath(); ctx.moveTo(lerp(hx, nx, 0.82) - ox * Ut, lerp(hy, ny, 0.82) - oy * Ut); ctx.lineTo(lerp(hx, nx, 0.5) + ox * Ut, lerp(hy, ny, 0.5) + oy * Ut); ctx.stroke();
       break;
     }
     case 'order_garb': case 'order_plate': {

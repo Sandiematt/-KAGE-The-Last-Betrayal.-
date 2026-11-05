@@ -4,7 +4,7 @@
 
 KAGE — The Last Betrayal is a story-driven, side-view 2D stickman action game. You play Kage (影, "shadow"), a black silhouette with a white face-wrap and one red sash, searching for his missing brother Rem through a world rebuilt from fragments of memory. The fights use katanas, spears, hammers and bare hands, with elemental sword arcs, perfect parries, slow-motion finishers and a dark Japanese ink identity.
 
-The game is being rebuilt from the earlier arena duel game into this story campaign. The combat, VFX, HUD and audio carry over; the campaign map and the side-scrolling stretches and the regular enemies (Order of Silence soldiers and Hollows) are in place, while the authored stretch content, story scenes, bosses and gear arrive in later updates. Until then every stretch has placeholder content and every sub-boss and boss stage is a single arena fight against a placeholder rig.
+The game is being rebuilt from the earlier arena duel game into this story campaign. The combat, VFX, HUD and audio carry over; the campaign map and the side-scrolling stretches and the regular enemies (Order of Silence soldiers and Hollows) are in place, while the authored stretch content, story scenes, bosses and gear arrive in later updates. Until then every stretch has placeholder content and every sub-boss stage is an arena fight against a placeholder rig. Act I's boss, **Raikon, the Lightning Ascendant**, is in, with the story boss fight format every later boss uses; Akari, Takashi and the Witness still fight a placeholder rig in that format.
 
 The whole game ships as **one self-contained `index.html`**: HTML5, Canvas 2D, vanilla JavaScript and Web Audio, with no libraries. The fonts and key-art images are inlined by the build, so it runs offline and wraps easily for mobile.
 
@@ -80,7 +80,7 @@ All progression rules live in `src/js/15-logic.js`, exposed as the global `Logic
   { id: 'act1.boss', kind: 'boss', /* ... */, reward: { weapons: ['raiko_no_tachi'], helmets: ['raijin_kabuto'] } }
   ```
 
-  `Logic.completeStage` (and so `applyFightResult` on a win) calls `Logic.grantStageReward`, which gives each listed item at level 1 exactly once: the first time the stage is cleared while the item is not owned. An item flagged `ngOnly` (Shinsei Yoroi) is only granted when the stage is cleared during New Game+. Granted items come back in the result's `gear` and in `unlocks` as `{ kind: 'weapons' | 'helmets' | 'armors', id }`, which the result screen and toasts show. No stage has a reward yet: the boss and sub-boss updates add them (and the 12 sub-boss trophies).
+  `Logic.completeStage` (and so `applyFightResult` on a win) calls `Logic.grantStageReward`, which gives each listed item at level 1 exactly once: the first time the stage is cleared while the item is not owned. An item flagged `ngOnly` (Shinsei Yoroi) is only granted when the stage is cleared during New Game+. Granted items come back in the result's `gear` and in `unlocks` as `{ kind: 'weapons' | 'helmets' | 'armors', id }`, which the result screen and toasts show. Raikon's stage (`act1.boss`) gives Raikō no Tachi and the Raijin Kabuto; the other boss and sub-boss updates add theirs (and the 12 sub-boss trophies).
 - **Stretches.** A `stretch` stage is a side-scrolling level, data on its `CAMPAIGN` entry:
 
   ```js
@@ -103,6 +103,8 @@ All progression rules live in `src/js/15-logic.js`, exposed as the global `Logic
   ```
 
   Scenes attach by id: a `CAMPAIGN` stage takes `scenes: { before, after, defeat }` (`before` as the stage starts, `defeat` the moment the foe is beaten and before the outro, `after` after a won stage and before the result screen; a `scene`-kind stage such as the Epilogue is just its `before` scene), and a stretch clue takes `scene`. `Logic.stageScene(stageId, hook)` and `Logic.clueScene(stageId, clueId)` answer which scene plays; `Logic.markSceneSeen` / `isSceneSeen` keep `save.seenScenes` and `Logic.setStoryFlag` / `storyFlag` keep `save.storyFlags` (a skipped scene still sets its flags). Seen scenes still replay every time. Speakers (`kage`, `rem`, `takashi`, `raikon`, `akari`, `witness`, `narrator`, `recording`) and illustrations (`hoshimura_ruins`, `photograph`, `memory_ash`, `memory`) live in `src/js/52-story-art.js`; add new ones there. `StoryPlayer` freezes gameplay while a scene plays: one press (Enter, Space, J, K, U, a tap, gamepad A/X/Y/RB) finishes the line, the next advances, and Skip (Esc, P, the Skip button, gamepad Start/Back) ends the scene. `tests/story.test.js` holds that exactly one video step exists in all scene data and that every speaker and illustration a scene names exists.
+- **The story boss format.** `Logic.fightFormat(cfg)` (also `stageConfig(...).format`) says how a fight is staged: `{ name, roundsToWin, timer, phases, defeat }`. Story boss stages (kind `boss`, or a stage with `format: 'boss'`, which sub-bosses may use) are `boss`: ONE round, ONE health bar, three phases and `timer: 0`, so no round clock and no time-out loss. Other arena fights are `duel` (best of three, 75 s), survival waves `survival` (90 s), stretches `stretch`. A boss's phases are data on its `ENEMIES` entry: `phases: [{ name, at, abilities, ...flags }]`, where `at` is the health fraction the phase opens at (1, 0.66, 0.33 by default; `Logic.bossPhases(id)`, `Logic.bossPhaseAt(id, hpFraction)`), and the boss bar draws a divider at each. How a beaten boss leaves is `defeat` on the entry (`Logic.BOSS_DEFEATS`, `Logic.bossDefeat(id)`): `'finisher'` (full-screen finishing slash, the `defeat` scene, then a violet-ash dissolve), `'escape'` (he kneels, no killing blow, the `defeat` scene, then he leaves in smoke) or `'reabsorb'` (the Witness; a placeholder until SAN-42: it dissolves and its light streams into Kage). Winning a boss-format stage records the boss's fate in `save.bossFates[stageId]` (`'killed'`, `'escaped'` or `'reabsorbed'`, kept through New Game+; `Logic.bossFate(save, stageId)`, also `completeStage(...).fate`). `FightSession.bossExit` (60-engine.js) plays the exit. The dialogue-panel line a beaten placeholder says is `defeatLine`.
+- **Raikon** (`raikon`, Act I boss, `tests/boss.test.js`): heavy armour (light hits never make him flinch) and no throws, Raikō no Tachi (`raikon_tachi`, the enemy copy of the boss weapon), Raijin Kabuto, layered plates (`raikon_plate`) and a long dark scarf (`longScarf`). His abilities (`BOSS_ABILITIES` in 40-ai.js) all wind up for about `0.6 × Logic.aiTuning(...).windup` seconds with a readable pose, white eyes, a heated red groove, crackling red lightning and a red glint before release: **Thunder Swing** (a wide flat arc and a travelling ground wave, WeaponSystem `thunderwave`: jump it or dash through it; in phase 3 the phase's `secondWave` delay sends a second wave late), **Storm Break** (overhead strike and a short ground shockwave) and **Redline Counter** (from phase 2: a guard stance; a melee hit on it is turned aside and punished with a fast diagonal cut). His scenes are `act1.raikon.before` and `act1.raikon.defeat` (the defeat scene sets the story flag `act1.access_token`). Red lightning is the `redline` element and `Effects.lightning` (hand-drawn branching bolts redrawn every other frame). The player's Raikō no Tachi rage art is **Thunder Swing** (`SPECIAL_IMPL.thunderSwing`).
 - In the browser console it is available as `KAGE.Logic`.
 
 Run the tests (Node 18+, no dependencies, built-in test runner):
@@ -208,18 +210,19 @@ ronin_king: {
   name: 'Sorai', title: 'the Ronin King', type: 'boss', ai: 'boss',
   weapon: 'kagetsu', helmet: 'tetsu_kabuto', armor: 'cloak', hp: 800, dmg: 1.2,
   build: { scale: 1.2, w: 12 }, eye: '#c9a45c', accent: '#c9a45c',
-  taunt: 'Opening line', defeat: 'Defeat line', win: 'Victory line', tip: 'Defeat-screen hint',
+  taunt: 'Opening line', defeatLine: 'Defeat line', win: 'Victory line', tip: 'Defeat-screen hint',
+  defeat: 'finisher',                               // or 'escape' / 'reabsorb' (see the story boss format above)
   phases: [
-    { name: 'Phase one', abilities: ['lunge'] },
-    { name: 'Phase two', abilities: ['teleport', 'orbVolley'] },
-    { name: 'Phase three', abilities: ['moonDash', 'groundSlam'], berserk: 1, unblockable: 1 }
+    { name: 'Phase one', at: 1, abilities: ['lunge'] },
+    { name: 'Phase two', at: 0.66, abilities: ['teleport', 'orbVolley'] },
+    { name: 'Phase three', at: 0.33, abilities: ['moonDash', 'groundSlam'], berserk: 1, unblockable: 1 }
   ]
 }
 ```
 
 Then point a stage of the campaign map (`CAMPAIGN` in the same file) at it with `enemy: 'ronin_king'`.
 
-- **Abilities** come from `BOSS_ABILITIES` in `src/js/40-ai.js`: `lunge`, `teleport`, `smokeBomb`, `moonDash`, `clones`, `shieldBash`, `float`, `orbVolley`, `counterStance`, `barrier`, `timeAura`, `groundSlam`, `hook`, `charge`, `summon`. Write a new one with `f.startAbility({ dur, pose, update(f, world, t, dt) {...} })`.
+- **Abilities** come from `BOSS_ABILITIES` in `src/js/40-ai.js`: `lunge`, `teleport`, `smokeBomb`, `moonDash`, `clones`, `shieldBash`, `float`, `orbVolley`, `counterStance`, `barrier`, `timeAura`, `groundSlam`, `hook`, `charge`, `summon`, and Raikon's `thunderSwing`, `stormBreak`, `redlineCounter`. Write a new one with `f.startAbility({ dur, pose, update(f, world, t, dt) {...} })`.
 - **Phase flags:**
   - `berserk`: faster
   - `poison`: poison trails

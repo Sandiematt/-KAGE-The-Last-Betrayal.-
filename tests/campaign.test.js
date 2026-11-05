@@ -117,7 +117,7 @@ test('a stretch unlocks its own sub-boss next, and the fourth sub-boss unlocks t
 test('beating Raikon opens the Interlude, and the spar opens Act II', () => {
   const s = Logic.defaultSave();
   clearUpTo(s, 'act1.boss');
-  assert.deepEqual(Logic.completeStage(s, 'act1.boss').unlocks.map(u => ({ ...u })), [{ kind: 'chapter', id: 'interlude' }]);
+  assert.deepEqual(Logic.completeStage(s, 'act1.boss').unlocks.filter(u => u.kind === 'chapter').map(u => ({ ...u })), [{ kind: 'chapter', id: 'interlude' }]);
   assert.equal(Logic.nextStage(s), 'interlude.spar');
   Logic.completeStage(s, 'interlude.spar');
   assert.equal(Logic.isChapterUnlocked(s, 'act2'), true);

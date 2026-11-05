@@ -1571,13 +1571,14 @@ const WEAPONS = {
 
   /* ---- boss weapons: defined but locked; boss stages grant them through their `reward` (see CAMPAIGN).
      Never upgraded and never scaled with player level: their fixed stats are the top tier.
-     `special` is a placeholder rage art until the boss tickets add each weapon's real one (noted per weapon). ---- */
+     `special` is a placeholder rage art until the boss tickets add each weapon's real one (noted per weapon);
+     Raikō no Tachi already has its own, Thunder Swing. ---- */
   shinsen: { heft: 1.5, el: 'moon', name: 'Shinsen', cls: 'Odachi', tab: 'blades', tier: 'boss', base: 'kagetsu', hands: 2, len: 112, stance: 'katana', stats: [150, 120, 132],
     exclusive: true, hint: 'Defeat Takashi', special: 'crescentMoon', // real rage art: Final Flow
     trail: '#c9a45c', desc: 'Takashi\'s odachi on the katana forms. Every cut lands like a cleaver.',
     lore: 'Takashi\'s own odachi, gold along its spine. He forged it the year he built the Echo System and never let the Order touch it.' },
-  raiko_no_tachi: { heft: 1.9, el: 'lightning', name: 'Raikō no Tachi', cls: 'Odachi', tab: 'heavy', tier: 'boss', base: 'onikiri', hands: 1, len: 128, stance: 'cleaver', stats: [190, 92, 120],
-    exclusive: true, hint: 'Defeat Raikon', special: 'mountainSplit', // real rage art: Thunder Swing
+  raiko_no_tachi: { heft: 1.9, el: 'redline', name: 'Raikō no Tachi', cls: 'Odachi', tab: 'heavy', tier: 'boss', base: 'onikiri', hands: 1, len: 128, stance: 'cleaver', stats: [190, 92, 120],
+    exclusive: true, hint: 'Defeat Raikon', special: 'thunderSwing',
     trail: '#ff4a3c', desc: 'Raikon\'s broad odachi on the cleaver forms. Slow, guard-breaking, thunderous.',
     lore: 'Raikon\'s broad odachi. The red groove down the blade drinks lightning and spits it back at whoever defies the Order.' },
   kagehira_yurei: { heft: 0.7, el: 'blood', name: 'Kagehira & Yūrei', cls: 'Twin blades', tab: 'blades', tier: 'boss', base: 'tsubame', hands: 'dual', len: 72, stance: 'twin', stats: [104, 188, 110],
@@ -1600,6 +1601,9 @@ const WEAPONS = {
   chain_hook: { heft: 1, el: 'flame', enemy: 1, name: 'Chain Hook', base: 'yamigama', len: 64, trail: '#d24a3c', hook: 1 },
   tyrant_cleaver: { heft: 2, el: 'flame', enemy: 1, name: 'Tyrant Cleaver', base: 'onikiri', len: 130, trail: '#ff6a3c' },
   cutter_blade: { heft: 1, el: 'shade', enemy: 1, name: 'Cutter Blade', base: 'kagetsu', len: 92, trail: '#ece5d3' },
+  // Raikon's own Raikō no Tachi: the same broad odachi and red lightning groove, at enemy strength (the player's boss-tier
+  // copy is raiko_no_tachi, granted when Raikon falls)
+  raikon_tachi: { heft: 1.9, el: 'redline', enemy: 1, name: 'Raikō no Tachi', base: 'onikiri', len: 128, stats: [64, 40, 60], trail: '#ff4a3c' },
   temple_staff: { heft: 1.1, el: 'shade', enemy: 1, name: 'Temple Staff', base: 'mizuchi', len: 180, trail: '#ece5d3', staff: 1, stance: 'staff' },
   raider_cleaver: { heft: 1.4, el: 'shade', enemy: 1, name: 'Raider Cleaver', base: 'onikiri', len: 86, trail: '#d24a3c' }
 };
@@ -1665,7 +1669,8 @@ const SPECIALS = {
   mountainSplit: { name: 'Mountain Split', desc: 'A leaping slam that erupts the ground on both sides. Unblockable.' },
   dragonLance:   { name: 'Dragon Lance', desc: 'A dragon-fire lunge across the arena that launches.' },
   reapersHarvest:{ name: "Reaper's Harvest", desc: 'The chain finds the enemy anywhere, drags and slams them.' },
-  earthshatter:  { name: 'Earthshatter', desc: 'The ground itself breaks. Every grounded enemy is stunned.' }
+  earthshatter:  { name: 'Earthshatter', desc: 'The ground itself breaks. Every grounded enemy is stunned.' },
+  thunderSwing:  { name: 'Thunder Swing', desc: 'A wide arc that sends red lightning racing along the ground. Unblockable.' }
 };
 
 /* ---------------- Helmets & armor ----------------
@@ -1699,7 +1704,7 @@ const HELMETS = {
   shikko_zukin: { name: 'Shikkō Zukin', tier: 'epic', def: 0.13, hp: 24, price: 2900, look: 'executioner', perks: { dmg: 0.05 },
     lore: 'Peaked hood of the Order\'s Silencers, who erase a memory first and the man who held it after.' },
   // ---- trophies (locked) ----
-  raijin_kabuto:{ name: 'Raijin Kabuto', tier: 'trophy', def: 0.18, hp: 36, exclusive: true, hint: 'Defeat Raikon', look: 'colossus', perks: { stunRes: 0.3, dmg: 0.05 },
+  raijin_kabuto:{ name: 'Raijin Kabuto', tier: 'trophy', def: 0.18, hp: 36, exclusive: true, hint: 'Defeat Raikon', look: 'raijin_kabuto', perks: { stunRes: 0.3, dmg: 0.05 },
     lore: 'Raikon\'s thunder helm. The red slit of its visor burned brightest just before he struck.' },
   kasa:         { name: 'Kasa', tier: 'trophy', def: 0.2, hp: 40, exclusive: true, hint: 'Defeat Takashi', look: 'straw_kasa', perks: { ammo: 3, rage: 0.15 },
     lore: 'Takashi\'s battered straw hat. He wore it on the road out of Hoshimura and never told his sons where it led.' }
@@ -1805,12 +1810,30 @@ const ENEMIES = {
   hollow_husk: { name: 'Hollow Husk', title: 'Memory echo', type: 'regular', family: 'hollow', unit: 'heavy', ai: 'heavy',
             weapon: 'iron_fists', helmet: 'hollow_shard', armor: 'hollow_rags', hp: 270, def: 0.1, dmg: 1.15, speed: 0.88, build: { scale: 1.16, w: 14, arms: 1.08 }, eye: '#ece6ff', accent: '#b9a8ff',
             taunt: '…heavy… everything is so heavy…', tip: 'Slow and hard to stagger. Never trade blows; dodge and strike from behind.' },
+  // ---- story bosses ----
+  // A story boss is fought in the boss format (see Logic.fightFormat): one round, one health bar, three phases.
+  //   phases: [{ name, at, abilities, ...flags }]  `at` is the health fraction at which the phase opens (1, 0.66, 0.33
+  //            by default; see Logic.bossPhases). Flags: berserk, aggressive, unblockable, poison, and per-ability
+  //            tuning such as Raikon's secondWave (the delay, in seconds, of Thunder Swing's second wave).
+  //   defeat:  how the beaten boss leaves (Logic.BOSS_DEFEATS): 'finisher' (full-screen finishing slash, the defeat
+  //            scene, then a violet-ash dissolve; recorded as killed), 'escape' (he kneels, the defeat scene, then he
+  //            leaves in smoke; recorded as escaped) or 'reabsorb' (the Witness: its light flows back into Kage).
+  raikon: { name: 'Raikon', title: 'the Lightning Ascendant', type: 'boss', ai: 'boss', weapon: 'raikon_tachi', helmet: 'raijin_kabuto', armor: 'raikon_plate',
+            hp: 640, def: 0.16, dmg: 1.1, speed: 0.9, build: { scale: 1.24, w: 13.5, arms: 1.04 }, eye: '#ff3b2f', accent: '#ff4a3c',
+            flashEyes: 1, heavyArmor: 1, noGrab: 1, longScarf: '#191414', defeat: 'finisher',
+            taunt: 'The man who was supposed to stay buried. The archive will not have you.', win: 'Stay buried this time, shadow.',
+            tip: 'Thunder Swing sends red lightning along the ground: jump or dash through it. In his last phase a second wave follows late, so wait for it before you dodge again.',
+            phases: [
+              { name: 'The Storm Gathers', at: 1, abilities: ['thunderSwing', 'stormBreak'] },
+              { name: 'Redline', at: 0.66, abilities: ['thunderSwing', 'stormBreak', 'redlineCounter'] },
+              { name: 'Lightning Ascendant', at: 0.33, abilities: ['thunderSwing', 'stormBreak', 'redlineCounter'], secondWave: 0.7, aggressive: 1 }
+            ] },
   // ---- placeholder sub-boss and boss rigs ----
   echo_sentinel: { name: 'Echo Sentinel', title: 'Placeholder sub-boss', type: 'sub', ai: 'agile', weapon: 'hollow_crescents', helmet: 'oni', armor: 'cloak', hp: 340, dmg: 1.05, speed: 1.15, build: { scale: 1.04, w: 10 }, eye: '#9b8cff', accent: '#9b8cff',
-            taunt: 'This memory is guarded. Prove you belong in it.', defeat: 'The memory… lets you pass…', win: 'Forget this place.',
+            taunt: 'This memory is guarded. Prove you belong in it.', defeatLine: 'The memory… lets you pass…', win: 'Forget this place.',
             tip: 'Dodge the lunge with Dash, then punish the long recovery.', abilities: ['lunge', 'teleport'] },
   echo_warden: { name: 'Echo Warden', title: 'Placeholder boss', type: 'boss', ai: 'boss', weapon: 'cutter_blade', helmet: 'oni', armor: 'tyrant', hp: 640, dmg: 1.1, speed: 1.1, build: { scale: 1.16, w: 12 }, eye: '#9b8cff', accent: '#9b8cff', flashEyes: 1,
-            taunt: 'You were supposed to stay buried.', defeat: 'The echo… breaks…', win: 'Sleep, shadow. Remember nothing.',
+            taunt: 'You were supposed to stay buried.', defeatLine: 'The echo… breaks…', win: 'Sleep, shadow. Remember nothing.',
             tip: 'Its eyes flash right before it strikes. Block on the flash, punish after.',
             phases: [
               { name: 'First Echo', abilities: ['lunge', 'moonDash'] },
@@ -1830,7 +1853,7 @@ for (const id in ENEMIES) ENEMIES[id].id = id;
      chapter / pos    filled in below (owning chapter id, index inside it).
      reward           optional gear granted when the stage is cleared: { weapons: [ids], helmets: [ids], armors: [ids] }.
                       Each item is given once (see Logic.grantStageReward); items flagged ngOnly only drop in New Game+.
-                      The boss and sub-boss updates fill these in.
+                      Raikon's stage gives Raikō no Tachi and the Raijin Kabuto; the other boss updates fill theirs in.
      stretch          stretch stages only: the side-scrolling level (see Logic.stretch and StretchSession in 60-engine.js):
                       { length,                     level width in world units (x runs 0 .. length; the screen is 1280 wide),
                         env?,                       environment override (defaults to the stage / chapter env),
@@ -1906,6 +1929,10 @@ const CAMPAIGN = (function buildCampaign() {
     { id: 'epilogue', name: 'Epilogue', title: 'The Last Choice', place: 'Dawn', env: 'highlands', diff: 1,
       stages: [{ id: 'epilogue', kind: 'scene', name: 'The Last Choice', scenes: { before: 'epilogue.stub' } }] }
   ];
+  // Act I's boss: Raikon, at the route to the old military archive
+  Object.assign(chapters[1].stages.find(st => st.id === 'act1.boss'), {
+    enemy: 'raikon', reward: { weapons: ['raiko_no_tachi'], helmets: ['raijin_kabuto'] },
+    scenes: { before: 'act1.raikon.before', defeat: 'act1.raikon.defeat' } });
   for (const ch of chapters) ch.stages.forEach((st, i) => { st.chapter = ch.id; st.pos = i; });
   return { chapters };
 })();
@@ -1981,6 +2008,38 @@ const SCENES = {
       { illus: 'memory_ash', caption: 'Violet ash drifts up the road, as if something is waiting for him to follow.' },
       { illus: null },
       { flag: 'prologue.photo_found' }
+    ]
+  },
+  // Act I boss: Raikon blocks the route to the old military archive. He is an Echo copy, bound to guard it against his will.
+  'act1.raikon.before': {
+    steps: [
+      { illus: null },
+      { say: 'narrator', text: 'The route to the old military archive. Rain hisses on a sword that is already drawn.' },
+      { say: 'raikon', text: 'So. The man who was supposed to stay buried.' },
+      { say: 'kage', text: 'You know me.' },
+      { say: 'raikon', text: 'I know what you were. I know what they did to make you forget it.' },
+      { say: 'raikon', text: 'The Echo System woke me up and chained me to this door. "Guard the archive." As if I asked to be remembered.' },
+      { say: 'kage', text: 'Then step aside.' },
+      { say: 'raikon', text: 'I can’t. The binding won’t let me. If you want what’s behind me, you’ll have to cut through what’s left of me.' },
+      { say: 'raikon', text: 'Draw, shadow. And don’t you dare hold back.' }
+    ]
+  },
+  // Raikon’s dying words, after the finishing slash; then he dissolves into violet ash (FightSession, 60-engine.js).
+  'act1.raikon.defeat': {
+    steps: [
+      { say: 'raikon', text: '...Heh. So that’s what you still have in you.' },
+      { say: 'raikon', text: 'Listen, before the echo lets go. Your brother. Rem. He did not die.' },
+      { say: 'kage', text: 'Rem is alive?' },
+      { say: 'raikon', text: 'The last time anyone saw him, he was walking into the Core. Alone. He never came out.' },
+      { say: 'raikon', text: 'And your memories... they weren’t lost in the fire. They were removed. On purpose.' },
+      { say: 'kage', text: 'By who? Why?' },
+      { say: 'raikon', text: 'I don’t know if Rem did it to betray you... or to save you. I never got to ask him.' },
+      { illus: 'access_token', caption: 'Raikon presses something into Kage’s hand: an archive access token, cracked down the middle.' },
+      { say: 'raikon', text: 'Take it. It’s damaged, but the archive door still remembers it.' },
+      { flag: 'act1.access_token' },
+      { illus: null },
+      { say: 'raikon', text: 'Losing to you... it broke the binding. For the first time since they woke me, nobody is holding the chain.' },
+      { say: 'raikon', text: 'It feels like rain. Go, shadow. Find him.' }
     ]
   },
   // Stub; SAN-44 writes the real Epilogue.
@@ -2072,6 +2131,8 @@ const DIFFICULTIES = {
 };
 
 // The campaign map flattened in story order, and indexed by stage id.
+// The fate a story boss is recorded with, by its defeat outcome (see Logic.fightFormat / bossDefeat).
+const BOSS_FATES = { finisher: 'killed', escape: 'escaped', reabsorb: 'reabsorbed' };
 const STAGE_LIST = CAMPAIGN.chapters.reduce((all, ch) => all.concat(ch.stages), []);
 const STAGE_BY_ID = {}; for (const st of STAGE_LIST) STAGE_BY_ID[st.id] = st;
 
@@ -2105,6 +2166,7 @@ const Logic = {
       clues: {},              // stageId -> { clueId: true }, clue pickups found in stretches (kept through New Game+)
       seenScenes: {},          // sceneId -> true, story scenes played at least once (kept through New Game+)
       storyFlags: {},          // flag -> true, set by { flag } scene steps
+      bossFates: {},           // boss stageId -> 'killed' | 'escaped' | 'reabsorbed', how the story boss left (lifetime)
       difficulty: 'normal',    // Easy / Normal / Hard / Impossible (DIFFICULTY_IDS); only the player changes it
       difficultyPicked: false, // false until the new-game mode picker has been answered
       survivalBest: 0,
@@ -2157,6 +2219,9 @@ const Logic = {
     d.seenScenes = {}; d.storyFlags = {};
     for (const k in s.seenScenes || {}) if (SCENES[k] && s.seenScenes[k] === true) d.seenScenes[k] = true;
     for (const k in s.storyFlags || {}) if (s.storyFlags[k] === true) d.storyFlags[k] = true;
+    // boss fates: only story boss stages, only outcomes the game knows
+    d.bossFates = {};
+    for (const k in s.bossFates || {}) if (STAGE_BY_ID[k] && Object.values(BOSS_FATES).includes(s.bossFates[k])) d.bossFates[k] = s.bossFates[k];
     d.difficulty = this.normalizeDifficulty(s.difficulty);
     d.difficultyPicked = !!s.difficultyPicked;
     return d;
@@ -2214,7 +2279,10 @@ const Logic = {
     }
     const gear = this.grantStageReward(save, id);
     unlocks.push(...gear);
-    return { stage: id, firstClear, next, gear, unlocks };
+    // a story boss leaves the story the way its data says: killed, escaped or reabsorbed
+    const fate = this.fightFormat(this.stageConfig(save, id)).name === 'boss' ? BOSS_FATES[this.bossDefeat(st.enemy)] : null;
+    if (fate) save.bossFates[id] = fate;
+    return { stage: id, firstClear, next, gear, unlocks, fate };
   },
   // Gear a stage gives when it is cleared: `reward: { weapons: [...], helmets: [...], armors: [...] }` on a CAMPAIGN
   // stage. Each item is granted exactly once, at level 1, the first time the stage is cleared while the player does
@@ -2238,11 +2306,53 @@ const Logic = {
     // a stretch is a side-scrolling level: the session walks it instead of staging an arena duel
     if (st.kind === 'stretch' && st.stretch) {
       return { mode: 'campaign', stageId: id, kind: st.kind, chapter: ch.id, pos: st.pos, diff: ch.diff, env: st.stretch.env || st.env || ch.env,
-        enemyId: st.enemy, foeName: st.name, foeTitle: ch.place, ng: save.ng, stretch: st.stretch };
+        enemyId: st.enemy, foeName: st.name, foeTitle: ch.place, ng: save.ng, stretch: st.stretch, format: this.fightFormat({ stretch: st.stretch }) };
     }
-    return { mode: 'campaign', stageId: id, kind: st.kind, chapter: ch.id, pos: st.pos, diff: ch.diff, env: st.env || ch.env,
+    const cfg = { mode: 'campaign', stageId: id, kind: st.kind, chapter: ch.id, pos: st.pos, diff: ch.diff, env: st.env || ch.env,
       enemyId: st.enemy, foeName: st.foe || (d && d.name), foeTitle: st.foeTitle || (d && d.title), ng: save.ng };
+    cfg.format = this.fightFormat(cfg);
+    return cfg;
   },
+  /* ---------------- fight formats and story bosses ----------------
+     A fight is staged in one of four formats (`fightFormat(cfg)`, cfg from stageConfig or a survival config):
+       boss      story boss stages (kind 'boss', or a stage with `format: 'boss'`): ONE round, ONE health bar and
+                 three phases, no round clock and so no time-out loss; `defeat` says how the boss leaves;
+       duel      every other arena fight: best of three rounds against a 75 s clock;
+       survival  one round per wave against a 90 s clock;
+       stretch   a side-scrolling level: no rounds, no clock.
+     A boss's phases and defeat outcome are data on its ENEMIES entry (see 10-data.js). */
+  BOSS_DEFEATS: ['finisher', 'escape', 'reabsorb'],
+  fightFormat(cfg) {
+    cfg = cfg || {};
+    if (cfg.mode === 'survival') return { name: 'survival', roundsToWin: 1, timer: 90, phases: 0, defeat: null };
+    if (cfg.stretch) return { name: 'stretch', roundsToWin: 1, timer: 0, phases: 0, defeat: null };
+    const st = this.stage(cfg.stageId), d = ENEMIES[cfg.enemyId];
+    if (st && (st.kind === 'boss' || st.format === 'boss'))
+      return { name: 'boss', roundsToWin: 1, timer: 0, phases: Math.max(3, this.bossPhases(cfg.enemyId).length), defeat: this.bossDefeat(cfg.enemyId) || 'finisher' };
+    return { name: 'duel', roundsToWin: d && d.type === 'boss' ? 1 : 2, timer: 75, phases: 0, defeat: null };
+  },
+  // A boss's phases with the health fraction each one opens at (`at`; 1, 0.66 and 0.33 unless the data says
+  // otherwise). [] for a foe without phases.
+  bossPhases(enemyId) {
+    const d = ENEMIES[enemyId], list = (d && d.phases) || [], def = [1, 0.66, 0.33];
+    return list.map((p, i) => Object.assign({}, p, { at: p.at != null ? p.at : def[i] != null ? def[i] : 0 }));
+  },
+  // Which phase a boss is in at a health fraction (0 for a foe without phases): the last phase whose `at` is reached.
+  bossPhaseAt(enemyId, hpFrac) {
+    const ph = this.bossPhases(enemyId);
+    let idx = 0;
+    ph.forEach((p, i) => { if (i > 0 && hpFrac <= p.at) idx = i; });
+    return idx;
+  },
+  // How a beaten boss leaves: 'finisher' | 'escape' | 'reabsorb' (unknown values fall back to the finisher);
+  // null for a foe that is not a boss.
+  bossDefeat(enemyId) {
+    const d = ENEMIES[enemyId];
+    if (!d || (d.type !== 'boss' && d.type !== 'sub')) return null;
+    return this.BOSS_DEFEATS.includes(d.defeat) ? d.defeat : 'finisher';
+  },
+  // How a story boss stage's boss left the story ('killed' | 'escaped' | 'reabsorbed'), or null before it is won.
+  bossFate(save, stageId) { return (save.bossFates && save.bossFates[stageId]) || null; },
   /* ---------------- story scenes ----------------
      Scenes are SCENES (12-scenes.js), attached by id to a stage (`scenes: { before, after, defeat }`) or to a stretch
      clue (`scene`). These answer which scene plays at a moment; StoryPlayer (68-story.js) plays it. */
@@ -2511,13 +2621,13 @@ const HERO_FACEWRAP = '#efe9dd', HERO_FACEWRAP_SHADE = '#b4ac9f';   // Kage's wh
 const BODY = { torso: 60, neck: 7, head: 18, upper: 36, fore: 34, thigh: 45, shin: 47 };
 const SHAPE = {
   fists: 'none', tsubame: 'short', kagetsu: 'katana', shizuka: 'katana', onikiri: 'cleaver', mizuchi: 'spear',
-  yamigama: 'sickle', iwakudaki: 'hammer', shinsen: 'katana', raiko_no_tachi: 'cleaver', kagehira_yurei: 'short', mugen_no_ha: 'katana',
+  yamigama: 'sickle', iwakudaki: 'hammer', shinsen: 'katana', raiko_no_tachi: 'odachi', raikon_tachi: 'odachi', kagehira_yurei: 'short', mugen_no_ha: 'katana',
   shadow_daggers: 'short', hollow_crescents: 'crescent', mist_fans: 'fan',
   sentinel_spear: 'spear', sage_staff: 'staff', storm_orbs: 'none', iron_fists: 'none', chain_hook: 'hook',
   tyrant_cleaver: 'tyrant', cutter_blade: 'katana', temple_staff: 'staff', raider_cleaver: 'cleaver'
 };
 const IK_OFF = { katana: -0.2, spear: -0.3, hammer: 0.3, staff: -0.32 };
-const CARRY = { katana: 40, short: 30, cleaver: 60, spear: 10, sickle: 70, hammer: 100, staff: 0, crescent: 40, fan: 40, hook: 70, tyrant: 60, none: 0 };
+const CARRY = { katana: 40, short: 30, cleaver: 60, odachi: 56, spear: 10, sickle: 70, hammer: 100, staff: 0, crescent: 40, fan: 40, hook: 70, tyrant: 60, none: 0 };
 
 /* ---------------- Cloth (verlet chain) for scarves, capes, robes ---------------- */
 class Cloth {
@@ -2695,6 +2805,12 @@ class Fighter {
       this.cloths.push({ kind: 'ribbon', c: new Cloth(10, 8 * this.scale, { ph: 4, wind: 700 }), at: this.helmet === 'storm_band' ? 'head' : 'sh', color: '#7fb8ff', w: 3 * this.scale });
     }
     if (this.helmet === 'veil') this.cloths.push({ kind: 'cape', c: new Cloth(8, 10 * this.scale, { ph: 5, wind: 420, grav: 600 }), at: 'head', color: 'rgba(160,170,176,0.5)', w0: 18 * this.scale, w1: 30 * this.scale });
+    // Raikon: a long dark scarf from the neck, two tails of different length, edged pale so it reads on the dark arena
+    if (this.def && this.def.longScarf) {
+      const sc = this.def.longScarf, rim = 'rgba(236,229,211,0.5)';
+      this.cloths.push({ kind: 'scarf', c: new Cloth(14, 8.6 * this.scale, { ph: 2.5, wind: 640, grav: 620, stiff: 1.6 }), at: 'neck', color: sc, rim, w: 7.2 * this.scale, w1: 2.8 * this.scale, dy: 2 });
+      this.cloths.push({ kind: 'scarf', c: new Cloth(9, 8 * this.scale, { ph: 6.2, wind: 560, grav: 700, stiff: 1.6 }), at: 'neck', color: sc, rim, w: 5.4 * this.scale, w1: 2.2 * this.scale, dy: 6 });
+    }
     if (this.helmet === 'sentinel_helm') this.cloths.push({ kind: 'scarf', c: new Cloth(6, 7 * this.scale, { ph: 6, wind: 600 }), at: 'head', color: C.ember, w: 6 * this.scale, dy: -14 });
   }
 
@@ -3817,6 +3933,7 @@ Fighter.prototype.draw = function (ctx, opt) {
   }
   for (const cl of this.cloths) if (cl.kind === 'scarf' || cl.kind === 'ribbon' || cl.kind === 'belt') {
     const col = opt.color || (flashing ? ink : cl.color);
+    if (cl.rim && !opt.color && cl.w1) cl.c.ribbon(ctx, cl.rim, cl.w + 3 * s, cl.w1 + 3 * s);
     if (cl.w1) cl.c.ribbon(ctx, col, cl.w, cl.w1); else cl.c.strand(ctx, col, cl.w);
   }
   this.silhouette(ctx, ink, ink, flat, opt);
@@ -3994,6 +4111,37 @@ function drawWeaponShape(ctx, sh, L, mode, s, ink, f) {
       ctx.fillStyle = art ? C.void : 'rgba(236,229,211,0.2)'; ctx.beginPath(); ctx.arc(L * 0.8, -3 * s, 3 * s, 0, TAU); ctx.fill();
       break;
     }
+    case 'odachi': {
+      // Raikō no Tachi: a long wrapped grip, a heavy square guard, then a broad, rugged blade with a notched spine,
+      // a clipped point and a red lightning groove down its length. Broad, never comically large.
+      const hl = 0.27, hw = 2.6 * s;
+      line(-L * hl, 0, -2 * s, 0, hw * 2, dark);
+      if (!rim && mode !== 'flat') {
+        ctx.fillStyle = art ? C.gold : '#5a3a34';
+        for (let i = 1; i < 5; i++) { ctx.save(); ctx.translate(-L * hl * (i + 0.1) / 5.2, 0); ctx.rotate(Math.PI / 4); ctx.fillRect(-1.1 * s, -1.1 * s, 2.2 * s, 2.2 * s); ctx.restore(); }
+      }
+      ctx.fillStyle = art ? C.gold : ink; ctx.fillRect(-3.6 * s, -7.5 * s, 4.6 * s, 15 * s);   // square tsuba
+      if (rim) break;
+      const N = 9, sori = L * 0.035, bx = 1.4 * s, yk = 0.9;
+      const cy = u => -sori * u * u, X = u => bx + (L - bx) * u;
+      const wb = u => lerp(4.2, 3.4, u) * s, we = u => lerp(7.6, 6, u) * s;
+      ctx.beginPath(); ctx.moveTo(bx, cy(0) - wb(0));
+      for (let i = 1; i <= N; i++) { const u = yk * i / N; ctx.lineTo(X(u), cy(u) - wb(u) + (i === 3 || i === 6 ? 1.8 * s : 0)); }  // spine, two notches
+      ctx.lineTo(L, cy(1) - wb(1) * 0.3);                                          // clipped point
+      ctx.lineTo(X(0.95), cy(0.95) + we(0.95));
+      for (let i = N; i >= 0; i--) { const u = yk * i / N; ctx.lineTo(X(u), cy(u) + we(u)); } // broad edge
+      ctx.closePath(); ctx.fillStyle = steel; ctx.fill();
+      if (mode !== 'flat') {
+        // the red lightning groove; it flares while the blade gathers a strike
+        const hot = f && (f.telegraph > 0 || (f.state === 'ability' && f.abil && f.abil.charge));
+        ctx.strokeStyle = art ? C.emberBright : hot ? '#ff6a52' : '#c8261e'; ctx.lineWidth = (hot ? 2.2 : 1.5) * s; ctx.lineJoin = 'miter';
+        ctx.beginPath();
+        for (let i = 0; i <= 8; i++) { const u = 0.06 + 0.78 * i / 8; ctx.lineTo(X(u), cy(u) + (i % 2 ? 1.6 : -0.6) * s); }
+        ctx.stroke(); ctx.lineJoin = 'round';
+        ctx.fillStyle = art ? C.gold : '#9a948a'; ctx.fillRect(bx, cy(0) - wb(0), 3.4 * s, wb(0) + we(0));   // habaki
+      }
+      break;
+    }
     case 'spear': {
       line(-L * 0.42, 0, L * 0.84, 0, 4.2 * s, dark);
       ctx.beginPath(); ctx.moveTo(L * 0.82, -5 * s); ctx.quadraticCurveTo(L * 0.92, -9 * s, L, 0); ctx.quadraticCurveTo(L * 0.92, 9 * s, L * 0.82, 5 * s); ctx.closePath();
@@ -4156,6 +4304,22 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
     case 'storm_band':
       ctx.strokeStyle = acc('#7fb8ff'); ctx.lineWidth = 2.6; ctx.beginPath(); ctx.arc(0, 0, r * 1.02, Math.PI * 1.05, Math.PI * 1.95); ctx.stroke();
       break;
+    case 'raijin_kabuto': {
+      // Raikon's Raijin Kabuto: an angular faceted bowl, a peak jutting over the brow, a stepped neck guard swept back,
+      // and a short red lightning crest on the front
+      ctx.beginPath(); ctx.moveTo(-r * 1.15, -r * 0.1); ctx.lineTo(-r * 0.98, -r * 0.92); ctx.lineTo(-r * 0.3, -r * 1.34); ctx.lineTo(r * 0.5, -r * 1.24); ctx.lineTo(r * 1.1, -r * 0.66); ctx.lineTo(r * 1.2, -r * 0.18); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(-r * 0.4, -r * 0.55); ctx.lineTo(-r * 1.7, -r * 0.05); ctx.lineTo(-r * 1.55, r * 0.28); ctx.lineTo(-r * 1.95, r * 0.42); ctx.lineTo(-r * 1.75, r * 0.72); ctx.lineTo(-r * 0.85, r * 0.78); ctx.lineTo(-r * 0.3, r * 0.15); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(r * 0.1, -r * 0.42); ctx.lineTo(r * 1.62, -r * 0.34); ctx.lineTo(r * 1.15, -r * 0.08); ctx.lineTo(r * 0.1, -r * 0.1); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = acc(C.emberBright);
+      ctx.beginPath(); ctx.moveTo(r * 0.12, -r * 1.24); ctx.lineTo(r * 0.5, -r * 1.86); ctx.lineTo(r * 0.36, -r * 1.78); ctx.lineTo(r * 0.82, -r * 2.36); ctx.lineTo(r * 0.62, -r * 1.62); ctx.lineTo(r * 0.8, -r * 1.68); ctx.lineTo(r * 0.56, -r * 1.2); ctx.closePath(); ctx.fill();
+      if (!flat) {
+        ctx.strokeStyle = 'rgba(255,74,60,0.45)'; ctx.lineWidth = Math.max(1, r * 0.08); ctx.lineJoin = 'miter';
+        ctx.beginPath(); ctx.moveTo(-r * 0.98, -r * 0.92); ctx.lineTo(r * 1.1, -r * 0.66); ctx.stroke();               // facet ridge
+        ctx.beginPath(); ctx.moveTo(-r * 1.62, r * 0.3); ctx.lineTo(-r * 0.62, r * 0.28); ctx.stroke();                // neck guard step
+        ctx.lineJoin = 'round';
+      }
+      break;
+    }
     case 'colossus':
       ctx.beginPath(); ctx.roundRect ? ctx.roundRect(-r * 1.25, -r * 1.35, r * 2.5, r * 2.35, r * 0.5) : ctx.rect(-r * 1.25, -r * 1.35, r * 2.5, r * 2.35); ctx.fill();
       if (!flat) { ctx.fillStyle = 'rgba(255,106,60,0.9)'; ctx.fillRect(r * 0.05, -r * 0.2, r * 1.15, r * 0.14); }
@@ -4245,6 +4409,28 @@ function drawArmor(ctx, f, ink, opt, Ut) {
         ctx.fillStyle = ink;
         for (let i = -1; i <= 1; i++) { const a = ang + i * 0.5; ctx.beginPath(); ctx.moveTo(sk.sh.x + Math.cos(a + 1.3) * r, sk.sh.y + Math.sin(a + 1.3) * r); ctx.lineTo(sk.sh.x + Math.cos(a) * r * 2.1, sk.sh.y + Math.sin(a) * r * 2.1); ctx.lineTo(sk.sh.x + Math.cos(a - 0.3) * r, sk.sh.y + Math.sin(a - 0.3) * r); ctx.fill(); }
       }
+      break;
+    }
+    case 'raikon_plate': {
+      // Raikon's armour: a broad cuirass of a few layered plates, two stacked shoulder plates, a skirt of three
+      // plates over the hips and a red cord across the chest; simplified, flat, heavy
+      torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.22);
+      const ox = Math.cos(ang + Math.PI / 2), oy = Math.sin(ang + Math.PI / 2), ux = Math.cos(ang), uy = Math.sin(ang);
+      ctx.fillStyle = ink; ctx.beginPath();
+      for (let i = -1; i <= 1; i++) {
+        const bx = hx + ox * i * Ut * 0.62 + ux * Ut * 0.15, by = hy + oy * i * Ut * 0.62 + uy * Ut * 0.15, L = Ut * (i === 0 ? 0.9 : 1.05);
+        ctx.moveTo(bx - ox * Ut * 0.4, by - oy * Ut * 0.4); ctx.lineTo(bx - ux * L - ox * Ut * 0.46, by - uy * L - oy * Ut * 0.46);
+        ctx.lineTo(bx - ux * L + ox * Ut * 0.46, by - uy * L + oy * Ut * 0.46); ctx.lineTo(bx + ox * Ut * 0.4, by + oy * Ut * 0.4);
+      }
+      ctx.fill();
+      plate(Ut * 0.9, flat ? null : 'rgba(255,74,60,0.45)');
+      ctx.fillStyle = ink; ctx.beginPath();
+      ctx.ellipse(sk.sh.x - fc * Ut * 0.2 - ux * Ut * 0.45, sk.sh.y - uy * Ut * 0.45 + Ut * 0.2, Ut * 0.85, Ut * 0.5, ang + Math.PI / 2, Math.PI * 0.95, Math.PI * 2.05); ctx.closePath(); ctx.fill();
+      if (flat) break;
+      ctx.strokeStyle = 'rgba(236,229,211,0.3)'; ctx.lineWidth = 1.2 * s; ctx.stroke();
+      bands(3, 'rgba(201,164,92,0.3)', Ut * 1.12, 0.22, 0.7);
+      ctx.strokeStyle = '#a3302a'; ctx.lineWidth = 2.2 * s;
+      ctx.beginPath(); ctx.moveTo(lerp(hx, nx, 0.82) - ox * Ut, lerp(hy, ny, 0.82) - oy * Ut); ctx.lineTo(lerp(hx, nx, 0.5) + ox * Ut, lerp(hy, ny, 0.5) + oy * Ut); ctx.stroke();
       break;
     }
     case 'order_garb': case 'order_plate': {
@@ -4427,7 +4613,7 @@ class Effects {
   }
   // memory ash: flat violet flakes shed by a dissolving Hollow, scattered from its skeleton and drifting upward
   memoryAsh(f, n, burst) {
-    const sk = f.sk, pts = ASH_POINTS, cols = (f.family && f.family.ash) || ['#9b8cff'];
+    const sk = f.sk, pts = ASH_POINTS, cols = (f.family && f.family.ash) || ENEMY_FAMILIES.hollow.ash;   // bosses: the same violet ash
     for (let i = 0; i < n; i++) {
       const a = sk[pts[(Math.random() * pts.length) | 0]], b = sk[pts[(Math.random() * pts.length) | 0]], k = Math.random();
       const v = burst ? rand(60, 260) : rand(10, 60), ang = rand(-Math.PI, 0);
@@ -4688,6 +4874,8 @@ const PROJ = {
   shock:    { speed: 760, r: 34, dmg: 13, hs: 0.5, kb: 260, up: -420, life: 0.75, grav: 0, imp: 2, hsnd: 'heavy', kd: 1, ground: 1 },
   bigshock: { speed: 900, r: 44, dmg: 22, hs: 0.6, kb: 420, up: -520, life: 0.9, grav: 0, imp: 3, hsnd: 'heavy', kd: 1, ground: 1, unb: 1, stamp: 'BREAK' },
   hook:     { speed: 1150, r: 16, dmg: 8, hs: 0.5, kb: 0, life: 0.8, grav: 0, imp: 1, hsnd: 'slash', pullTo: 1, ret: 1 },
+  // Thunder Swing: red lightning racing along the ground (jump it, or dash through it). Raikon's and the rage art's.
+  thunderwave: { speed: 640, r: 30, dmg: 15, hs: 0.5, kb: 320, up: -380, life: 1.7, grav: 0, imp: 2, hsnd: 'heavy', kd: 1, ground: 1, unb: 1, stamp: 'THUNDER', bolt: 1 },
   smoke:    { speed: 520, r: 14, dmg: 4, hs: 0.2, kb: 60, life: 1.6, grav: 1500, imp: 0, hsnd: 'punch', smoke: 1 }
 };
 
@@ -4696,7 +4884,7 @@ const WeaponSystem = {
     const d = PROJ[type]; o = o || {};
     const f = owner, sk = f.sk, dir = o.dir || f.facing;
     const p = {
-      type, d, owner: f, team: f.team, x: o.x != null ? o.x : (type === 'shock' || type === 'bigshock' ? f.x + dir * 70 * f.scale : sk.fha.x + dir * 10),
+      type, d, owner: f, team: f.team, x: o.x != null ? o.x : (d.ground ? f.x + dir * 70 * f.scale : sk.fha.x + dir * 10),
       y: o.y != null ? o.y : (d.ground ? 0 : sk.fha.y), vx: dir * d.speed * (o.speedMul || 1), vy: o.vy || 0,
       life: d.life * (o.lifeMul || 1), dmg: (o.dmg || d.dmg) * (o.dmgMul || 1) * f.dmgMul, t: 0, dir, hit: [], dead: false, ret: false,
       target: o.target || null, sx: 0, sy: 0
@@ -4733,7 +4921,8 @@ const WeaponSystem = {
         if (p.ret) { const hx = o.sk.fha.x, hy = o.sk.fha.y; const a = Math.atan2(hy - p.y, hx - p.x); p.vx = Math.cos(a) * d.speed * 1.2; p.vy = Math.sin(a) * d.speed * 1.2; if (Math.hypot(hx - p.x, hy - p.y) < 30) p.dead = true; }
       }
       p.vy += d.grav * dt; p.x += p.vx * dt; p.y += p.vy * dt;
-      if (d.ground) { p.y = 0; if (((p.t * 30) | 0) % 2 === 0) { world.fx.dust(p.x, 0, 1); world.fx.part({ x: p.x + rand(-14, 14), y: -rand(0, 30), vx: rand(-40, 40), vy: rand(-420, -200), life: 0.4, size: rand(3, 6), color: '#2a2620', type: 'drop', grav: 1600 }); } }
+      if (d.bolt) { p.y = 0; if (((p.t * 60) | 0) % 3 === 0) world.fx.part({ x: p.x + rand(-20, 20), y: -rand(0, 60), vx: rand(-80, 80), vy: rand(-260, -60), life: 0.25, size: rand(1.5, 3), color: chance(0.5) ? '#ff6a52' : '#ffffff', type: 'spark', grav: 300, drag: 2, add: true }); }
+      else if (d.ground) { p.y = 0; if (((p.t * 30) | 0) % 2 === 0) { world.fx.dust(p.x, 0, 1); world.fx.part({ x: p.x + rand(-14, 14), y: -rand(0, 30), vx: rand(-40, 40), vy: rand(-420, -200), life: 0.4, size: rand(3, 6), color: '#2a2620', type: 'drop', grav: 1600 }); } }
       if (d.smoke && p.y >= 0) { world.smokeCloud(p.x); p.dead = true; }
       if (p.type === 'orb' || p.type === 'bigorb') world.fx.part({ x: p.x, y: p.y, vx: rand(-20, 20), vy: rand(-20, 20), life: 0.3, size: d.r * 0.4, color: 'rgba(127,184,255,0.35)', type: 'dot', grav: 0, add: true });
       if (p.type === 'crescent') world.fx.part({ x: p.x - p.dir * 30, y: p.y + rand(-60, 60), vx: -p.dir * 100, vy: 0, life: 0.3, size: 2, color: C.bone, type: 'spark', grav: 0, add: true });
@@ -4816,6 +5005,32 @@ const WeaponSystem = {
           }
           ctx.strokeStyle = big ? 'rgba(255,106,60,0.8)' : 'rgba(236,229,211,0.45)'; ctx.lineWidth = 2;
           ctx.beginPath(); ctx.moveTo(-130, -2); ctx.lineTo(10, -2); ctx.stroke();
+          break;
+        }
+        case 'thunderwave': {
+          // hand-drawn branching red lightning: a crackling column at the front and bolts skittering along the
+          // ground behind it. The shape is redrawn every other frame (a few held, high-contrast frames).
+          ctx.scale(p.dir, 1);
+          const fade = Math.min(1, p.life / 0.25), R = prng(((p.t * 30) | 0) * 7 + (p.seed || (p.seed = (Math.random() * 999) | 0)));
+          ctx.globalAlpha *= fade; ctx.lineCap = 'round'; ctx.lineJoin = 'miter';
+          const bolt = (pts, w) => {
+            for (const [col, lw] of [['#120404', w * 5.6], ['#ff3b2f', w * 3.6], ['#ffffff', w * 1.4]]) {
+              ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.beginPath(); ctx.moveTo(pts[0], pts[1]);
+              for (let i = 2; i < pts.length; i += 2) ctx.lineTo(pts[i], pts[i + 1]); ctx.stroke();
+            }
+          };
+          // a flat red scorch along the ground under the wave, then the front column: jagged forks rising from the ground
+          ctx.fillStyle = 'rgba(255,59,47,0.35)'; ctx.beginPath(); ctx.ellipse(-50, 0, 110, 9, 0, 0, TAU); ctx.fill();
+          for (let k = 0; k < 4; k++) {
+            const pts = [(R() - 0.5) * 12, 0]; let x = pts[0], y = 0;
+            const top = 100 + R() * 70;
+            while (y > -top) { y -= 14 + R() * 12; x += (R() - 0.5) * 26 - k * 3; pts.push(x, y); }
+            bolt(pts, k === 0 ? 2.2 : 1.4);
+          }
+          // the trail along the ground
+          const pts = [0, -4]; let x = 0;
+          for (let i = 0; i < 7; i++) { x -= 18 + R() * 12; pts.push(x, -2 - R() * 18); }
+          bolt(pts, 1.6);
           break;
         }
         case 'hook': {
@@ -4954,8 +5169,10 @@ const Combat = {
     if (def.counterStance && !m.proj && front && m.kind !== 'grab') {
       def.counterStance = false;
       this.parry(world, att, def, m, ix, iy, dir);
-      fx.stamp('COUNTERED', ix, iy, 2, '#7fd0c8');
-      def.endAbility(world); def.startMove(def.weapon().moves[0], world);
+      fx.stamp('COUNTERED', ix, iy, 2, def.redline ? '#ff4a3c' : '#7fd0c8');
+      // an ability may answer the blow itself (Raikon's Redline Counter); otherwise the first weapon strike
+      if (def.abil && def.abil.onCounter) { def.setState('ability'); def.abil.onCounter(def, world, att); }   // parry() set him idle
+      else { def.endAbility(world); def.startMove(def.weapon().moves[0], world); }
       return;
     }
     // shield bearers: auto-blocks frontal, non-low, non-heavy attacks when not committed
@@ -5194,6 +5411,25 @@ const SPECIAL_IMPL = {
         }
       } });
   },
+  // Raikō no Tachi: the player's Thunder Swing. A short wind-up (crackle, glint), then a wide flat arc that sends a
+  // red lightning wave along the ground; it hits anything in the arc and every grounded foe the wave crosses.
+  thunderSwing(f, world) {
+    f.startAbility({ dur: 0.85, uninterruptible: true, rate: 26, trail: true, charge: true,
+      pose: (f, t) => (t < 0.3 ? RAIKON_POSE.swingBack : RAIKON_POSE.swingThrough),
+      start(f) { f.invuln = 0.5; world.fx.banner('Thunder Swing', 'Rage art', '#ff4a3c'); AudioManager.play('teleport'); },
+      update(f, w, t, dt) {
+        f.vx = damp(f.vx, 0, 10, dt);
+        if (t < 0.3) { raikonCrackle(f, w, t); if (!this.glint && t > 0.16) { this.glint = 1; raikonGlint(f, w); } return; }
+        if (!this.done) {
+          this.done = true; this.charge = false;
+          const mul = weaponMul(f.weaponId(), f.wlvl).dmg;
+          Combat.area(w, f, fbox(f, -10, -210, 220, 200), { dmg: 16 * mul, kb: 460, up: -320, hs: 0.55, kd: 1, imp: 3, hsnd: 'slash', unb: 1, stamp: 'THUNDER' });
+          WeaponSystem.spawn(w, 'thunderwave', f, { x: f.x + f.facing * 110 * f.scale, dmgMul: mul, speedMul: 1.25 });
+          w.fx.lightning(f.sk.wt.x, f.sk.wt.y, f.x + f.facing * 130, 0, { w: 2.6, branches: 4, dur: 0.16 });
+          w.fx.shake(0.55); AudioManager.play('heavyswing'); AudioManager.play('slam');
+        }
+      } });
+  },
   earthshatter(f, world) {
     f.startAbility({ dur: 1.25, uninterruptible: true, rate: 20, trail: true,
       pose: (f, t) => (t < 0.55 ? MOVES.m1.w : MOVES.m1.s),
@@ -5228,6 +5464,8 @@ const ELEMENTS = {
   water:     { smear: [64, 148, 255], alt: [170, 225, 255], edge: 'rgba(236,250,255,1)', glow: [80, 170, 255], alpha: 0.55, water: 1 },
   flame:     { smear: [255, 104, 34], alt: [255, 214, 120], edge: 'rgba(255,244,200,1)', glow: [255, 110, 40], alpha: 0.6, add: 1, fire: 1 },
   lightning: { smear: [120, 205, 255], edge: 'rgba(240,252,255,1)', glow: [120, 200, 255], alpha: 0.36, add: 1, bolts: 1 },
+  // Raikon's red lightning (Raikō no Tachi): a red slash with a white core and a jagged bolt along its edge
+  redline:   { smear: [255, 58, 46], alt: [120, 10, 10], edge: 'rgba(255,240,236,1)', glow: [255, 60, 40], alpha: 0.55, bolts: 1, boltColor: '#ffe9e4' },
   earth:     { smear: [210, 168, 112], edge: 'rgba(255,232,190,0.9)', glow: [255, 150, 70], alpha: 0.48 }
 };
 const _sp = [];
@@ -5284,7 +5522,7 @@ const VFX = {
       }
     }
     if (el.bolts) { // flat zig-zag bolt along the edge
-      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2.2;
+      ctx.strokeStyle = el.boltColor || '#ffffff'; ctx.lineWidth = 2.2;
       ctx.beginPath(); for (let i = i0; i < n; i++) { const p = _sp[i], j = ((i * 7919) % 13 - 6) * f.scale * (1 + ((time * 20) | 0) % 2), r = p.L * 1.04; const x = p.hx + p.ca * r - p.sa * j, y = p.hy + p.sa * r + p.ca * j; i === i0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); } ctx.stroke();
     }
     if (el.streaks) { ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5; for (const fr of [0.45, 0.7]) { ctx.beginPath(); for (let i = i0; i < n; i++) { const p = _sp[i], r = p.L * fr; i === i0 ? ctx.moveTo(p.hx + p.ca * r, p.hy + p.sa * r) : ctx.lineTo(p.hx + p.ca * r, p.hy + p.sa * r); } ctx.stroke(); } }
@@ -5301,6 +5539,7 @@ const VFX = {
     if (el === 'water') for (let i = 0; i < 2; i++) fx.part({ x: tx, y: ty, vx: vx * rand(0.2, 0.5) + rand(-60, 60), vy: vy * rand(0.2, 0.5) - rand(40, 160), life: rand(0.4, 0.7), size: rand(1.6, 3.2), color: i ? '#bfe6ff' : '#4f9dff', type: 'drop', grav: 1300, drag: 0.6, sq: 0.8 });
     else if (el === 'flame') { fx.part({ x: tx, y: ty, vx: rand(-40, 40), vy: rand(-220, -80), life: rand(0.35, 0.7), size: rand(1.4, 2.6), color: '#ffb35a', type: 'spark', grav: -140, drag: 1.2, add: true }); fx.part({ x: tx, y: ty, vx: rand(-30, 30), vy: rand(-120, -40), life: 0.3, size: rand(6, 10), color: 'rgba(255,120,40,0.5)', type: 'flame', grav: -200, drag: 2, add: true, grow: -10 }); }
     else if (el === 'moon' || el === 'blood') fx.part({ x: tx + rand(-6, 6), y: ty + rand(-6, 6), vx: vx * 0.1, vy: vy * 0.1, life: rand(0.3, 0.55), size: rand(2.5, 4.5), color: el === 'moon' ? (chance(0.5) ? '#d9ccff' : '#ff6a82') : (chance(0.6) ? '#ff5470' : '#cdbfff'), type: 'star', grav: 0, drag: 3, add: true });
+    else if (el === 'redline') fx.part({ x: tx, y: ty, vx: rand(-220, 220), vy: rand(-220, 120), life: rand(0.08, 0.18), size: rand(1.2, 2.4), color: chance(0.6) ? '#ff5a46' : '#ffffff', type: 'spark', grav: 0, drag: 4, add: true });
     else if (el === 'lightning') fx.part({ x: tx, y: ty, vx: rand(-200, 200), vy: rand(-200, 200), life: rand(0.08, 0.16), size: rand(1, 2), color: '#cfeeff', type: 'spark', grav: 0, drag: 4, add: true });
     else if (el === 'earth') { if (chance(0.5)) fx.part({ x: tx, y: ty, vx: vx * 0.15 + rand(-60, 60), vy: rand(-200, -60), life: rand(0.4, 0.7), size: rand(2, 4), color: '#2a2018', type: 'drop', grav: 1600, sq: 0.8 }); fx.part({ x: tx, y: ty, vx: rand(-30, 30), vy: rand(-90, -30), life: 0.4, size: rand(1.4, 2.4), color: '#ff9a50', type: 'spark', grav: -60, add: true }); }
     else if (el === 'wind' && chance(0.4)) fx.part({ x: tx, y: ty, vx: vx * 0.25, vy: vy * 0.25, life: 0.2, size: 1.2, color: 'rgba(255,255,255,0.8)', type: 'spark', grav: 0, drag: 3, add: true });
@@ -5310,7 +5549,7 @@ const VFX = {
 /* ---- Effects extensions: elemental impacts, rings, finisher slash, clash flare, heat haze ---- */
 Object.assign(Effects.prototype, {
   vfx() {
-    return this._v || (this._v = { fire: [], ripples: [], bolts: [], cres: [], streaks: [], shards: [], rings: [], flares: [], rise: [], trail: [], lburst: [], finisher: null, tint: null });
+    return this._v || (this._v = { zaps: [], glints: [], fire: [], ripples: [], bolts: [], cres: [], streaks: [], shards: [], rings: [], flares: [], rise: [], trail: [], lburst: [], finisher: null, tint: null });
   },
   elemImpact(el, x, y, dir, tier, crit) {
     const V = this.vfx(), big = crit ? 1.4 : 1, t = clamp(tier, 0, 3);
@@ -5338,6 +5577,13 @@ Object.assign(Effects.prototype, {
       case 'lightning': {
         V.bolts.push({ x, y, t: 0, dur: 0.18 + t * 0.03, n: 4 + t * 2, len: (60 + t * 34) * big, seed: Math.random() * 99 });
         this.sparks(x, y, dir, 8 + t * 4, '#d4f2ff', 1.4);
+        break;
+      }
+      case 'redline': {
+        // red lightning forks thrown off the cut, with a red slash streak through the target
+        for (let i = 0; i < 3 + t; i++) { const a = (dir > 0 ? 0 : Math.PI) + rand(-1.1, 1.1), L = (50 + t * 30) * big; this.lightning(x, y, x + Math.cos(a) * L, y + Math.sin(a) * L, { w: 1.6 + t * 0.3, branches: 1, dur: 0.12 + t * 0.02 }); }
+        V.streaks.push({ x, y, a: dir > 0 ? rand(-0.6, -0.2) : Math.PI + rand(0.2, 0.6), len: 100 + t * 40, t: 0, dur: 0.3 });
+        this.sparks(x, y, dir, 6 + t * 4, '#ffb0a4', 1.3);
         break;
       }
       case 'wind': {
@@ -5379,12 +5625,21 @@ Object.assign(Effects.prototype, {
   landBurst(x, s, p) {
     this.vfx().lburst.push({ x, s, p: clamp(p, 0.3, 1.4), t: 0, dur: 0.3, seed: (Math.random() * 1000) | 0 });
   },
+  // Hand-drawn branching lightning from (x0, y0) to (x1, y1): a jagged main bolt with short forks, drawn dark-red-white
+  // and re-jagged every other frame for a few held, high-contrast frames. o: { w (core width), branches, dur, color }.
+  lightning(x0, y0, x1, y1, o) {
+    o = o || {};
+    this.vfx().zaps.push({ x0, y0, x1, y1, w: o.w || 2, br: o.branches == null ? 2 : o.branches, color: o.color || '#ff3b2f', t: 0, dur: o.dur || 0.14, seed: (Math.random() * 9999) | 0 });
+  },
+  // a four-point glint on a blade edge: the moment before a strike is released
+  glint(x, y, color) { this.vfx().glints.push({ x, y, color: color || '#ffffff', t: 0, dur: 0.3 }); },
   clashFlare(x, y) { this.vfx().flares.push({ x, y, t: 0, dur: 0.32, r: 90 }); },
   finisher(x, y, dir) { this.vfx().finisher = { x, y, dir, t: 0, dur: 1.15, a: dir > 0 ? -0.32 : Math.PI + 0.32 }; },
   screenTint(color, dur) { this.vfx().tint = { color, t: 0, dur }; },
   updateVfx(realDt, dt) {
     const V = this.vfx();
     const tick = (arr, d) => { for (let i = arr.length - 1; i >= 0; i--) { arr[i].t += d; if (arr[i].t >= arr[i].dur) arr.splice(i, 1); } };
+    tick(V.zaps, dt); tick(V.glints, dt);
     tick(V.fire, dt); tick(V.ripples, dt); tick(V.bolts, dt); tick(V.cres, dt); tick(V.streaks, dt); tick(V.shards, dt); tick(V.rings, dt); tick(V.flares, realDt); tick(V.rise, dt); tick(V.trail, dt); tick(V.lburst, dt);
     if (V.finisher) { V.finisher.t += realDt; if (V.finisher.t >= V.finisher.dur) V.finisher = null; }
     if (V.tint) { V.tint.t += realDt; if (V.tint.t >= V.tint.dur) V.tint = null; }
@@ -5458,6 +5713,36 @@ Object.assign(Effects.prototype, {
         for (let s = 1; s <= 5; s++) { x = b.x + Math.cos(a) * b.len * s / 5 + (R() - 0.5) * 22; y = b.y + Math.sin(a) * b.len * s / 5 + (R() - 0.5) * 22; ctx.lineTo(x, y); }
         ctx.stroke();
       }
+    }
+    // hand-drawn branching lightning (Raikon)
+    ctx.lineCap = 'round'; ctx.lineJoin = 'miter';
+    for (const z of V.zaps) {
+      const R = prng(z.seed + ((z.t * 30) | 0) * 13), dx = z.x1 - z.x0, dy = z.y1 - z.y0, L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L;
+      const n = Math.max(4, Math.min(10, (L / 22) | 0)), pts = [z.x0, z.y0];
+      for (let i = 1; i < n; i++) { const k = i / n, j = (R() - 0.5) * Math.min(40, L * 0.22); pts.push(z.x0 + dx * k + nx * j, z.y0 + dy * k + ny * j); }
+      pts.push(z.x1, z.y1);
+      const paths = [pts];
+      for (let b = 0; b < z.br; b++) {
+        const i = 1 + ((R() * (n - 1)) | 0), bx = pts[i * 2], by = pts[i * 2 + 1], side = R() < 0.5 ? -1 : 1, bl = L * (0.2 + R() * 0.25);
+        const fx_ = dx / L * 0.6 + nx * side * 0.8, fy_ = dy / L * 0.6 + ny * side * 0.8, q = [bx, by];
+        for (let s = 1; s <= 3; s++) q.push(bx + fx_ * bl * s / 3 + (R() - 0.5) * 14, by + fy_ * bl * s / 3 + (R() - 0.5) * 14);
+        paths.push(q);
+      }
+      const a = 1 - z.t / z.dur;
+      for (const [col, k] of [['rgba(18,4,4,' + a + ')', 3.4], [z.color, 2.2], ['#ffffff', 0.9]]) {
+        ctx.strokeStyle = col; ctx.globalAlpha = col[0] === '#' ? a : 1;
+        paths.forEach((q, pi) => { ctx.lineWidth = z.w * k * (pi ? 0.6 : 1); ctx.beginPath(); ctx.moveTo(q[0], q[1]); for (let i = 2; i < q.length; i += 2) ctx.lineTo(q[i], q[i + 1]); ctx.stroke(); });
+      }
+      ctx.globalAlpha = 1;
+    }
+    ctx.lineJoin = 'round';
+    // blade glints: a sharp four-point star that flares and shrinks
+    for (const g of V.glints) {
+      const k = g.t / g.dur, R2 = 34 * Math.sin(Math.min(1, k * 1.4) * Math.PI), a = 1 - k * 0.6;
+      ctx.fillStyle = g.color; ctx.globalAlpha = a;
+      for (const [dx, dy, w] of [[1, 0, 0.12], [0, 1, 0.12]]) { ctx.beginPath(); ctx.moveTo(g.x - dx * R2, g.y - dy * R2); ctx.lineTo(g.x - dy * R2 * w, g.y + dx * R2 * w); ctx.lineTo(g.x + dx * R2, g.y + dy * R2); ctx.lineTo(g.x + dy * R2 * w, g.y - dx * R2 * w); ctx.closePath(); ctx.fill(); }
+      ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(g.x, g.y, R2 * 0.14, 0, TAU); ctx.fill();
+      ctx.globalAlpha = 1;
     }
     // crossing moon crescents
     for (const c of V.cres) {
@@ -5747,8 +6032,8 @@ class AIController {
   checkPhase() {
     const f = this.f;
     if (!this.phases) return;
-    const k = f.hp / f.maxHp;
-    const target = k > 0.66 ? 0 : k > 0.33 ? 1 : 2;
+    // the phase thresholds are data on the boss (Logic.bossPhases: 1, 0.66, 0.33 unless it says otherwise)
+    const target = Logic.bossPhaseAt(f.def.id, f.hp / f.maxHp);
     if (target > this.phase) {
       this.phase = target;
       this.world.onBossPhase(f, target, this.phases[target]);
@@ -5950,6 +6235,86 @@ const BOSS_ABILITIES = {
         },
         end(f) { f.superArmor = false; } });
     } },
+  /* ---- Raikon, the Lightning Ascendant (Act I boss). Every wind-up is scaled by the difficulty mode (ai.p.windup:
+     longer on Easy, shorter on Hard / Impossible), holds a readable pose, flashes the eyes white, heats the red groove
+     of Raikō no Tachi and crackles with red lightning, with a red glint just before release. ---- */
+  // Wind-up, then a wide flat arc that sends a lightning wave racing along the ground (WeaponSystem 'thunderwave':
+  // jump it or dash through it). In phase 3 (`secondWave` on the phase) the blade crackles again and a second wave
+  // follows after a delay, punishing a dodge made too early.
+  thunderSwing: { id: 'thunderSwing', cd: 5.2, range: [140, 760], chance: 0.75,
+    run(f, w, ai) {
+      const tell = ai.p.windup, W = 0.66 * tell, delay = ai.phaseData && ai.phaseData.secondWave ? ai.phaseData.secondWave * Math.max(1, tell) : 0;
+      const T2 = W + delay;
+      f.telegraph = W;
+      f.startAbility({ dur: (delay ? T2 : W) + 0.6, rate: 22, trail: true, charge: true,
+        pose: (f, t) => (t < W || (delay && t > W + 0.2 && t < T2) ? RAIKON_POSE.swingBack : RAIKON_POSE.swingThrough),
+        start(f) { f.superArmor = true; f.facing = w.player.x > f.x ? 1 : -1; AudioManager.play('teleport'); w.fx.popText(f, 'THUNDER SWING', '#ff6a52'); },
+        update(f, w, t, dt) {
+          f.vx = damp(f.vx, 0, 10, dt);
+          if (t < W) { this.charge = true; raikonCrackle(f, w, t); if (!this.glint && t > W - 0.2) { this.glint = 1; raikonGlint(f, w); } return; }
+          if (!this.swung) {
+            this.swung = 1; this.charge = false; f.superArmor = false;
+            raikonRelease(f, w);
+            if (delay) { f.telegraph = delay; w.fx.popText(f, 'WAIT FOR IT', '#ff6a52'); }
+          }
+          if (delay && t < T2) {
+            if (t > W + 0.2) { this.charge = true; raikonCrackle(f, w, t); if (!this.glint2 && t > T2 - 0.2) { this.glint2 = 1; raikonGlint(f, w); } }
+            return;
+          }
+          if (delay && !this.swung2) { this.swung2 = 1; this.charge = false; raikonRelease(f, w); }
+          if (!this.tell && t > (delay ? T2 : W) + 0.25) { this.tell = 1; w.fx.popText(f, 'OPENING', C.gold); }
+        },
+        end(f) { f.superArmor = false; } });
+    } },
+  // Wind-up overhead (super armour, crackle, glint), then the blade driven into the ground: a crushing hit up close
+  // and a short ground shockwave forward.
+  stormBreak: { id: 'stormBreak', cd: 4.4, range: [0, 340], chance: 0.65,
+    run(f, w, ai) {
+      const W = 0.58 * ai.p.windup;
+      f.telegraph = W;
+      f.startAbility({ dur: W + 0.75, rate: 20, trail: true, charge: true,
+        pose: (f, t) => (t < W ? RAIKON_POSE.overhead : RAIKON_POSE.slam),
+        start(f) { f.superArmor = true; f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, 'STORM BREAK', '#ff6a52'); AudioManager.play('teleport'); },
+        update(f, w, t, dt) {
+          if (t < W) { this.charge = true; f.vx = damp(f.vx, f.facing * 90, 6, dt); raikonCrackle(f, w, t); if (!this.glint && t > W - 0.18) { this.glint = 1; raikonGlint(f, w); } return; }
+          f.vx = damp(f.vx, 0, 14, dt);
+          if (!this.done) {
+            this.done = 1; this.charge = false; f.superArmor = false;
+            const gx = f.x + f.facing * 120 * f.scale;
+            Combat.area(w, f, fbox(f, 0, -230, 200, 230), { dmg: 19 * f.dmgMul, kb: 380, up: -460, hs: 0.6, kd: 1, imp: 3, hsnd: 'heavy', stamp: 'BREAK', gb: 110 });
+            WeaponSystem.spawn(w, 'shock', f, { x: gx, lifeMul: 0.6, dmgMul: 0.9 });
+            for (let i = 0; i < 3; i++) w.fx.lightning(gx, 0, gx + rand(-90, 90), -rand(60, 150), { w: 2.2, branches: 2, dur: 0.14 });
+            w.fx.groundShards(gx, 7, 1.1); w.fx.dust(gx, 0, 18); w.fx.shake(0.7); AudioManager.play('slam');
+          }
+          if (!this.tell && t > W + 0.3) { this.tell = 1; w.fx.popText(f, 'OPENING', C.gold); }
+        },
+        end(f) { f.superArmor = false; } });
+    } },
+  // A brief guard stance (red ring, crackle). A melee blow from the front during it is turned aside (the counter stance
+  // in Combat.applyHit) and answered with a fast diagonal punish; left alone, he drops the guard.
+  redlineCounter: { id: 'redlineCounter', cd: 6, range: [60, 300], chance: 0.55,
+    run(f, w, ai) {
+      const P2 = 0.1 * ai.p.windup;
+      f.startAbility({ dur: 1.0, rate: 18, charge: true,
+        pose: f => (f.abil && f.abil.cut ? RAIKON_POSE.diagonal : RAIKON_POSE.guard),
+        start(f) { f.counterStance = true; f.redline = true; f.telegraph = 0.3; f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, 'REDLINE', '#ff6a52'); AudioManager.play('block'); },
+        update(f, w, t, dt) {
+          f.vx = damp(f.vx, 0, 12, dt);
+          if (this.punish == null) { raikonCrackle(f, w, t); return; }
+          const k = t - this.punish;
+          if (k < P2) return;
+          if (!this.cut) {
+            this.cut = 1; f.vx = f.facing * 1100; AudioManager.play('heavyswing');
+            w.fx.lightning(f.sk.wt.x, f.sk.wt.y - 60, f.sk.wt.x + f.facing * 160, f.sk.wt.y + 120, { w: 2.4, branches: 3, dur: 0.14 });
+          }
+          if (((t * 60) | 0) % 2 === 0) w.fx.afterimage(f, 'rgba(255,74,60,0.35)');
+          if (!this.hit && k < P2 + 0.2) this.hit = Combat.area(w, f, fbox(f, -10, -230, 190, 230), { dmg: 17 * f.dmgMul, kb: 520, up: -380, hs: 0.55, kd: 1, imp: 3, hsnd: 'slash', stamp: 'REDLINE', unb: 1 });
+          if (k > P2 + 0.2) f.vx = damp(f.vx, 0, 14, dt);
+        },
+        // Combat.applyHit calls this when a blow lands on the guard: switch to the punish
+        onCounter(f) { f.counterStance = false; this.charge = false; this.punish = this.t; this.dur = this.t + P2 + 0.55; f.telegraph = P2; },
+        end(f) { f.counterStance = false; f.redline = false; } });
+    } },
   summon: { id: 'summon', cd: 15, range: [0, 1200], chance: 0.7, cond: (f, w) => w.fighters.filter(x => x.minion && x.alive).length === 0,
     run(f, w) {
       f.startAbility({ dur: 1.0, pose: POSES.castUp, rate: 12, uninterruptible: true,
@@ -5957,6 +6322,38 @@ const BOSS_ABILITIES = {
         update(f, w, t) { if (t > 0.5 && !this.done) { this.done = 1; w.spawnMinions(f, 2); } } });
     } }
 };
+/* ---- Raikon's poses and shared effects (also used by the player's Thunder Swing rage art, 30-combat.js) ---- */
+const RAIKON_POSE = {
+  // Thunder Swing: the odachi drawn far back at shoulder height, weight on the rear leg, ready to sweep flat
+  swingBack: P({ lean: -18, head: -4, rx: -14, fs: -34, fe: 64, wa: 262, bs: -24, be: 84, fh: 26, fk: -36, bh: -34, bk: -20 }),
+  // ... then the wide horizontal arc, blade level and fully extended
+  swingThrough: P({ lean: 26, rx: 18, head: 8, fs: 64, fe: 0, wa: 92, bs: -40, be: 40, fh: 46, fk: -40, bh: -44, bk: -10 }),
+  // Storm Break: both hands high overhead, the blade pointing back over the shoulders
+  overhead: P({ lean: -16, head: -8, fs: 200, fe: 10, wa: 250, bs: 190, be: 20, fh: 20, fk: -30, bh: -26, bk: -24 }),
+  // ... then the overhead strike driven into the ground
+  slam: P({ lean: 42, head: 12, fs: 40, fe: 0, wa: 4, bs: 30, be: 0, fh: 58, fk: -84, bh: -44, bk: -52 }),
+  // Redline Counter: a low guard, the blade held diagonally across the body, edge out
+  guard: P({ lean: -4, head: 4, fs: 70, fe: 80, wa: 140, bs: 50, be: 100, fh: 30, fk: -30, bh: -30, bk: -14 }),
+  // ... and the fast diagonal punish (kesa-giri, high to low)
+  diagonal: P({ lean: 34, rx: 20, head: 10, fs: 40, fe: 0, wa: 34, bs: -30, be: 30, fh: 54, fk: -60, bh: -50, bk: -8 })
+};
+// red lightning crackling along Raikō no Tachi while a strike gathers
+function raikonCrackle(f, w, t) {
+  if (((t * 60) | 0) % 4 !== 0) return;
+  const sk = f.sk;
+  w.fx.lightning(sk.fha.x, sk.fha.y, sk.wt.x + rand(-10, 10), sk.wt.y + rand(-10, 10), { w: 1.6, branches: 2, dur: 0.1 });
+  w.fx.part({ x: sk.wt.x, y: sk.wt.y, vx: rand(-60, 60), vy: rand(-90, -20), life: 0.25, size: rand(1.5, 3), color: '#ff6a52', type: 'spark', grav: 0, drag: 3, add: true });
+}
+// the red glint on the blade that marks the moment before release
+function raikonGlint(f, w) { w.fx.glint(f.sk.wt.x, f.sk.wt.y, '#ff4a3c'); AudioManager.play('orb', { pitch: 1.7 }); }
+// Thunder Swing's release: the arc's own hit up close, and the lightning wave sent along the ground
+function raikonRelease(f, w) {
+  AudioManager.play('heavyswing'); AudioManager.play('slam');
+  Combat.area(w, f, fbox(f, -10, -210, 210, 200), { dmg: 15 * f.dmgMul, kb: 420, up: -240, hs: 0.5, imp: 2, hsnd: 'slash', stamp: 'THUNDER', gb: 70 });
+  WeaponSystem.spawn(w, 'thunderwave', f, { x: f.x + f.facing * 110 * f.scale });
+  w.fx.lightning(f.sk.wt.x, f.sk.wt.y, f.x + f.facing * 120 * f.scale, 0, { w: 2.6, branches: 4, dur: 0.16 });
+  w.fx.shake(0.45); w.fx.dust(f.x + f.facing * 80, 0, 10);
+}
 function this_charge_pose(f, t) {
   return t < 0.6 ? P({ lean: -14, fs: 186, fe: 0, wa: 210, fh: 30, fk: -40, bh: -30, bk: -30 }) : P({ lean: 40, fs: 80, fe: 0, wa: 60, bs: -60, be: 30, fh: 60, fk: -60, bh: -50, bk: -20 });
 }
@@ -6355,7 +6752,7 @@ const Renderer = {
     if ((f.state === 'ability' && (f.isPlayer || (f.def && f.def.type === 'boss'))) || (f.def && f.def.type === 'boss' && f.state === 'pose')) {
       const E = ELEMENTS[f.elementOf(null) || 'ink'] || ELEMENTS.ink, c = E.glow || E.smear, cy = f.y - 100 * f.scale, R = 150 * f.scale * (1 + Math.sin(t * 9) * 0.05);
       ctx.save(); ctx.globalCompositeOperation = 'source-over';
-      const g = ctx.createRadialGradient(f.x, cy, 10, f.x, cy, R);
+      const g = ctx.createRadialGradient(f.x, cy, 10, f.x, cy, R * 0.75);   // fades out inside the ellipse: no hard rim
       g.addColorStop(0, `rgba(${c[0]},${c[1]},${c[2]},0.32)`); g.addColorStop(1, `rgba(${c[0]},${c[1]},${c[2]},0)`);
       ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(f.x, cy, R * 0.75, R, 0, 0, TAU); ctx.fill();
       ctx.restore();
@@ -6376,7 +6773,7 @@ const Renderer = {
       ctx.restore();
     }
     if (f.counterStance) {
-      ctx.save(); ctx.strokeStyle = `rgba(127,208,200,${0.4 + Math.sin(t * 20) * 0.2})`; ctx.lineWidth = 3;
+      ctx.save(); ctx.strokeStyle = f.redline ? `rgba(255,74,60,${0.55 + Math.sin(t * 20) * 0.25})` : `rgba(127,208,200,${0.4 + Math.sin(t * 20) * 0.2})`; ctx.lineWidth = f.redline ? 4 : 3;   // Raikon's Redline guard glows red
       ctx.beginPath(); ctx.arc(f.x, f.y - 110 * f.scale, 90 * f.scale, -Math.PI * 0.8, -Math.PI * 0.2); ctx.stroke(); ctx.restore();
     }
   },
@@ -6543,8 +6940,9 @@ const SPEAKERS = {
     portrait(g) {
       const K = STORY_INK;
       storyBust(g, { bg: '#1c0808', glow: 'rgba(210,74,60,0.32)', rim: 'rgba(255,138,122,0.7)' });
-      // hair swept up in jagged lightning spikes
-      storyPoly(g, [32, 40, 28, 20, 38, 30, 40, 12, 48, 28, 54, 8, 58, 28, 68, 14, 66, 32, 74, 26, 68, 42], K.ink);
+      // the Raijin Kabuto: an angular iron helm with a wide brim and a short red lightning crest
+      storyPoly(g, [26, 40, 32, 22, 50, 14, 68, 22, 76, 40, 84, 44, 18, 44], K.ink);
+      storyPoly(g, [46, 16, 52, 4, 50, 11, 58, 2, 54, 16], K.emberBright);
       storyEyes(g, K.emberBright, 45, -1);
       // a red lightning scar down the cheek
       storyLine(g, [62, 36, 58, 44, 63, 47, 59, 56], K.emberBright, 1.6);
@@ -6742,6 +7140,35 @@ const ILLUSTRATIONS = {
         g.fillRect(x, y, s, s);
       }
       storyKageFigure(g, 470, 575, 1.1);
+    }
+  },
+  // Raikon's gift: the damaged archive access token, cracked down the middle, lying in Kage's open hand in the rain.
+  access_token: {
+    name: 'The damaged access token',
+    paint(g) {
+      const K = STORY_INK;
+      storySky(g, ['#0b0707', '#100909', '#140b0a', '#100909', '#0b0707'], 0, 720);
+      storyAsh(g, 71, 90, [0, 0, 1280, 720], 'rgba(198,162,255,0.4)', 3);       // Raikon's ash already rising
+      const rr = storyRng(80);
+      for (let i = 0; i < 60; i++) { const x = rr() * 1280, y = rr() * 720; storyLine(g, [x, y, x - 10, y + 46], 'rgba(191,181,159,0.16)', 1.4); } // rain
+      // Kage's open hand from below: a flat black palm and fingers, edged pale against the dark
+      const hand = [[380, 720, 430, 520, 520, 470, 760, 470, 860, 500, 900, 560, 940, 720], [860, 520, 960, 450, 990, 470, 900, 560]];
+      for (const [x0, x1] of [[520, 500], [600, 590], [680, 680], [760, 770]]) hand.push([x0 - 30, 480, x1 - 26, 380, x1 + 26, 380, x0 + 30, 480]);
+      for (const pts of hand) storyLine(g, pts.concat(pts.slice(0, 2)), 'rgba(236,229,211,0.45)', 6);
+      for (const pts of hand) storyPoly(g, pts, K.ink);
+      // the token: an iron tag with a notched corner, the archive seal, a red lightning crack through it
+      g.save(); g.translate(650, 440); g.rotate(-0.12);
+      storyPoly(g, [-120, -70, 96, -70, 120, -46, 120, 70, -120, 70], '#3a342b');
+      storyPoly(g, [-108, -58, 90, -58, 108, -40, 108, 58, -108, 58], '#5a5045');
+      g.beginPath(); g.arc(-40, 0, 34, 0, TAU); g.strokeStyle = K.boneDim; g.lineWidth = 5; g.stroke();   // archive seal
+      storyLine(g, [-62, 0, -18, 0], K.boneDim, 5);
+      for (let i = 0; i < 4; i++) storyLine(g, [20, -34 + i * 22, 92, -34 + i * 22], 'rgba(191,181,159,0.5)', 3); // worn code lines
+      storyLine(g, [10, -70, -4, -30, 18, -8, 2, 24, 22, 70], '#0a0908', 9);          // the crack
+      storyLine(g, [10, -70, -4, -30, 18, -8, 2, 24, 22, 70], K.emberBright, 3);
+      g.beginPath(); g.arc(104, -54, 9, 0, TAU); g.fillStyle = '#0a0908'; g.fill();  // lanyard hole
+      g.restore();
+      storyLine(g, [754, 386, 800, 330, 840, 300], '#2a2620', 4);                   // a broken lanyard
+      g.fillStyle = 'rgba(3,3,3,0.45)'; g.fillRect(0, 0, 1280, 70); g.fillRect(0, 650, 1280, 70);
     }
   },
   // A generic memory backdrop: a violet void with a faint ensō and drifting ash. Good behind flashback dialogue.
@@ -7152,6 +7579,8 @@ const TitleScene = {
 /* KAGE — GameEngine: fixed-timestep loop, FightSession (rounds, intros, KO, survival waves) and progression */
 
 const HOLLOW_DISSOLVE = 0.75;   // seconds a beaten Hollow takes to come apart into memory ash
+const BOSS_DISSOLVE = 1.8;      // ... and a story boss after his defeat scene (the 'finisher' outcome)
+const BOSS_ESCAPE = 0.7;        // seconds an escaping boss takes to fade out in his smoke
 
 class FightSession {
   constructor(cfg) {
@@ -7178,12 +7607,16 @@ class FightSession {
     this.fighters = [this.player, this.enemy];
     this.isBoss = this.enemy.def.type === 'boss';
     this.isSub = this.enemy.def.type === 'sub';
-    this.roundsToWin = this.isBoss || this.mode === 'survival' ? 1 : 2;
+    // the fight format (Logic.fightFormat): story bosses are one round, one health bar, three phases and no clock
+    this.format = cfg.format || Logic.fightFormat(cfg);
+    this.bossFormat = this.format.name === 'boss';
+    this.roundsToWin = this.format.roundsToWin;
     this.timer = this.roundTime();
     this.phase = 'intro'; this.phaseT = 0;
     this.setupIntro();
   }
-  roundTime() { return this.mode === 'survival' ? 90 : this.isBoss ? 150 : 75; }
+  // 0 = no round clock (story bosses): the fight can never be lost on time
+  roundTime() { return (this.format && this.format.timer) || 0; }
 
   makePlayer(save) {
     const g = Logic.playerCombatStats(save), pk = g.perks;
@@ -7303,14 +7736,17 @@ class FightSession {
   dissolve(f) {
     if (f.dissolve) return;
     f.dissolve = 0.001; f.vx = f.vy = 0; f.move = null; f.abil = null; f.bodyRotVel = 0;
-    this.fx.memoryAsh(f, 32, true);
+    if (!f.fadeOnly) this.fx.memoryAsh(f, f.dissolveDur ? 60 : 32, true);
     AudioManager.play('smoke');
   }
   stepDissolve(f, dt) {
     f.dissolve += dt; f.time += dt;
-    const k = Math.min(1, f.dissolve / HOLLOW_DISSOLVE);
-    f.alpha = 1 - k * k; f.sqx = 1 + 0.12 * k; f.sqy = 1 - 0.18 * k;
-    if (k < 1) this.fx.memoryAsh(f, 1);
+    const k = Math.min(1, f.dissolve / (f.dissolveDur || HOLLOW_DISSOLVE));
+    f.alpha = 1 - k * k;
+    if (!f.fadeOnly) { f.sqx = 1 + 0.12 * k; f.sqy = 1 - 0.18 * k; }
+    if (k < 1 && !f.fadeOnly) this.fx.memoryAsh(f, f.dissolveDur ? 2 : 1);
+    // the Witness (reabsorb, placeholder until SAN-42): light streams from it into Kage
+    if (k < 1 && f.reabsorb && ((f.dissolve * 60) | 0) % 2 === 0) { const p = this.player; this.fx.part({ x: f.x + rand(-30, 30), y: f.y - rand(20, 180) * f.scale, vx: (p.x - f.x) * 1.4, vy: (p.y - f.y) * 1.4, life: 0.7, size: rand(3, 6), color: '#c9bdff', type: 'spark', grav: 0, drag: 0.2, add: true }); }
     if (k >= 1) { f.visible = false; f.alpha = 0; }
   }
   smokeCloud(x, big) { this.fx.smoke(x, 0, big ? 18 : 12, big); AudioManager.play('smoke'); }
@@ -7325,7 +7761,10 @@ class FightSession {
     if (!main) return;
     fx.slowmo(0.22, 1.15); fx.impactFrame(def.x, def.y - 100 * def.scale, 3); fx.shake(0.9); fx.punch(0.12);
     fx.stamp(def === this.player ? 'FALLEN' : 'FINISH', def.x, def.y - 120, 3, def === this.player ? C.ember : C.emberBright);
-    if (def !== this.player) { fx.finisher(def.x, def.y - 100 * def.scale, att.facing); const el = att.elementOf(null); if (el) fx.elemImpact(el, def.x, def.y - 100 * def.scale, att.facing, 3, true); }
+    // a story boss that escapes ('escape') gets no killing blow: he drops to one knee where he stands
+    const escapes = def === this.enemy && this.bossFormat && this.format.defeat === 'escape';
+    if (escapes) { def.setState('pose'); def.poseName = 'kneel'; def.vx = def.vy = 0; def.bodyRotVel = 0; def.bodyRot = 0; def.y = 0; def.grounded = true; }
+    else if (def !== this.player) { fx.finisher(def.x, def.y - 100 * def.scale, att.facing); const el = att.elementOf(null); if (el) fx.elemImpact(el, def.x, def.y - 100 * def.scale, att.facing, 3, true); }
     AudioManager.play('ko');
     this.koTarget = def; this.phase = 'ko'; this.phaseT = 0;
     for (const f of this.fighters) if ((f.clone || f.minion) && f.alive) { f.alive = false; f.hp = 0; f.setState('juggle'); f.vy = -300; if (f.clone) { f.visible = false; this.smokeCloud(f.x); } else if (f.hollow) this.dissolve(f); }
@@ -7418,15 +7857,15 @@ class FightSession {
       case 'round':
         if (this.phaseT < 0.05 && !this.roundShown) {
           this.roundShown = true; this.rounds.n++;
-          if (this.mode !== 'survival') this.fx.banner(this.roundsToWin > 1 ? `Round ${ROMAN[this.rounds.n - 1]}` : 'Final Duel', this.isBoss ? `Three phases stand between you and the throne · ${Logic.difficulty(SaveManager.data.difficulty).label}` : `${e.name} · ${DIFF_LABEL[clamp((this.cfg.diff || 1) + (this.cfg.ng || 0), 0, 4)]} · ${Logic.difficulty(SaveManager.data.difficulty).label}`, C.gold);
+          if (this.mode !== 'survival') this.fx.banner(this.roundsToWin > 1 ? `Round ${ROMAN[this.rounds.n - 1]}` : 'Final Duel', this.bossFormat ? `One life · three phases · ${Logic.difficulty(SaveManager.data.difficulty).label}` : `${e.name} · ${DIFF_LABEL[clamp((this.cfg.diff || 1) + (this.cfg.ng || 0), 0, 4)]} · ${Logic.difficulty(SaveManager.data.difficulty).label}`, C.gold);
           AudioManager.play('round');
         }
         if (this.phaseT > 1.25 && !this.fightShown) { this.fightShown = true; this.fx.stamp('FIGHT', (p.x + e.x) / 2, -150, 3, C.emberBright); this.fightFlash = 1; }
         if (this.phaseT > 1.6) { this.phase = 'fight'; this.phaseT = 0; this.roundShown = false; this.fightShown = false; }
         break;
       case 'fight':
-        this.timer -= dt; this.fightTime += dt;
-        if (this.timer <= 0) this.timeOut();
+        this.fightTime += dt;
+        if (this.format.timer) { this.timer -= dt; if (this.timer <= 0) this.timeOut(); }
         break;
       case 'ko':
         if (this.phaseT > 2.2) this.afterKO();
@@ -7484,15 +7923,31 @@ class FightSession {
   }
   startOutro(win) {
     this.phase = 'outro'; this.phaseT = 0; this.win = win;
-    // a beaten boss's `defeat` scene plays here, before the outro and the result screen
-    if (win && this.mode === 'campaign') Game.playStory(Logic.stageScene(this.cfg.stageId, 'defeat'));
+    // a beaten boss's `defeat` scene plays here, before the outro and the result screen; then a story boss leaves the
+    // way its data says (bossExit)
+    const defeatScene = win && this.mode === 'campaign' ? Logic.stageScene(this.cfg.stageId, 'defeat') : null;
+    if (win && this.bossFormat) Game.playStory(defeatScene, () => this.bossExit());
+    else if (defeatScene) Game.playStory(defeatScene);
     const w = win ? this.player : this.enemy, l = win ? this.enemy : this.player;
     w.state = 'pose'; w.poseName = 'victory'; w.vx = 0;
     if (!win) w.poseName = 'taunt';
-    const line = win ? (l.def.defeat || null) : (w.def && w.def.win) || null;
+    const line = win ? (defeatScene ? null : l.def.defeatLine || null) : (w.def && w.def.win) || null;
     if (line && this.mode !== 'survival') this.dialogue = { name: win ? l.name : w.name, title: win ? l.title : w.title, text: line, t: 0 };
     AudioManager.play(win ? 'victory' : 'defeat');
     AudioManager.setMusic('none');
+  }
+  // How a beaten story boss leaves, after his defeat scene (Logic.fightFormat: format.defeat):
+  //   finisher  he comes apart into violet memory ash (the same dissolve as a Hollow, slower and fuller);
+  //   escape    he rises from his knee into a burst of smoke and fades out;
+  //   reabsorb  the Witness: a placeholder (it dissolves and its light streams into Kage); SAN-42 finishes it.
+  bossExit() {
+    const e = this.enemy, d = this.format.defeat;
+    if (!e || e.dissolve) return;
+    if (d === 'escape') { e.fadeOnly = true; e.dissolveDur = BOSS_ESCAPE; this.smokeCloud(e.x, true); this.fx.popText(e, 'ESCAPED', C.gold); this.dissolve(e); return; }
+    e.dissolveDur = BOSS_DISSOLVE;
+    if (d === 'reabsorb') { e.reabsorb = true; this.player.flash = 0.3; }
+    this.dissolve(e);
+    this.fx.slowmo(0.6, 0.6);
   }
   buildResult() {
     const p = this.player, e = this.enemy;
@@ -7529,6 +7984,7 @@ class FightSession {
     if (this.phase === 'intro') { tx = e.x - 90; tz = this.isBoss ? 1.32 : 1.25; ty = -30; }
     else if (this.phase === 'ko' && this.koTarget) { tx = this.koTarget.x; tz = this.isBoss ? 1.55 : 1.35; ty = -40; }
     else if (this.cine && this.cine.t > 0) { tx = this.cine.target.x; tz = 1.42; ty = -50; }
+    else if (this.phase === 'outro' && this.win && this.bossFormat) { tx = (p.x + e.x) / 2; tz = 1.2; ty = -30; }  // keep the boss's exit in frame
     else if (this.phase === 'outro') { const w = this.win ? p : e; tx = w.x; tz = 1.3; ty = -30; }
     else {
       const dist = Math.abs(p.x - e.x);
@@ -7565,6 +8021,7 @@ class StretchSession extends FightSession {
     const cfg = this.cfg, L = cfg.stretch, p = this.player, save = SaveManager.data;
     this.stretch = L; this.isStretch = true;
     this.enemy = null; this.isBoss = false; this.isSub = false; this.roundsToWin = 1; this.timer = 0;
+    this.format = this.cfg.format || Logic.fightFormat(this.cfg); this.bossFormat = false;
     this.level = { l: 0, r: L.length };
     this.cleared = 0; this.encounter = null; this.engaged = new Set();
     const found = Logic.cluesFound(save, cfg.stageId);
@@ -9022,6 +9479,8 @@ const UIManager = {
     // a stretch has no single opponent: no foe portrait, boss bar or round clock; foes carry their own small bars
     // (drawn on the canvas) and the top of the screen shows the road's progress instead
     const el = $('#scr-hud'), e = s.enemy, stretch = !!s.isStretch, bossy = !!e && e.def.type !== 'regular';
+    // story bosses (Logic.fightFormat 'boss'): one round and no clock, so neither the clock nor the round pips show
+    const clockless = stretch || !!(s.format && !s.format.timer);
     el.innerHTML = `
       <div class="fp left" data-pp>
         <div class="medal"><canvas data-portrait="p"></canvas></div>
@@ -9043,7 +9502,7 @@ const UIManager = {
         <b class="bb-name" data-bname></b>
         <div class="bb-track"><i class="hb-chip"></i><i class="hb-fill"></i><i class="hb-gloss"></i><span data-bdivs></span></div>
       </div>
-      <div class="clock ${stretch ? 'gone' : ''}"><b data-timer>--</b><div class="round-pips" data-pips></div></div>
+      <div class="clock ${clockless ? 'gone' : ''}"><b data-timer>--</b><div class="round-pips" data-pips></div></div>
       <div class="hud-road ${stretch ? '' : 'gone'}" data-road><div class="rd-track"><i class="rd-fill"></i><span data-rdmarks></span><b class="rd-kage"></b></div><div class="rd-info" data-rdinfo></div></div>
       <button class="hud-btn hud-pause" data-a="pause" aria-label="Pause">${ICON.pause}</button>
       <div class="hud-wave" data-wave></div>
@@ -9126,7 +9585,8 @@ const UIManager = {
       this.set('who', en.uid, () => {
         e.ename.textContent = en.name; e.etitle.textContent = en.title; e.bname.textContent = en.name; e.btitle.textContent = en.title;
         e.ep.classList.toggle('gone', bossy); e.boss.classList.toggle('gone', !bossy);
-        e.bdivs.innerHTML = en.ai && en.ai.phases ? '<i class="bb-div" style="left:33.3%"></i><i class="bb-div" style="left:66.6%"></i>' : '';
+        // one divider on the bar at each phase threshold (Logic.bossPhases)
+        e.bdivs.innerHTML = en.ai && en.ai.phases ? Logic.bossPhases(en.def.id).slice(1).map(p => `<i class="bb-div" style="left:${(p.at * 100).toFixed(1)}%"></i>`).join('') : '';
         this.bars.e = { v: 1, chip: 1, delay: 0, target: clamp(en.hp / en.maxHp, 0, 1) };
         const ec = $('#scr-hud canvas[data-portrait="e"]'); if (ec && ec.clientWidth) drawPortrait(ec, en, true);
       });

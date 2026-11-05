@@ -209,13 +209,14 @@ const WEAPONS = {
 
   /* ---- boss weapons: defined but locked; boss stages grant them through their `reward` (see CAMPAIGN).
      Never upgraded and never scaled with player level: their fixed stats are the top tier.
-     `special` is a placeholder rage art until the boss tickets add each weapon's real one (noted per weapon). ---- */
+     `special` is a placeholder rage art until the boss tickets add each weapon's real one (noted per weapon);
+     Raikō no Tachi already has its own, Thunder Swing. ---- */
   shinsen: { heft: 1.5, el: 'moon', name: 'Shinsen', cls: 'Odachi', tab: 'blades', tier: 'boss', base: 'kagetsu', hands: 2, len: 112, stance: 'katana', stats: [150, 120, 132],
     exclusive: true, hint: 'Defeat Takashi', special: 'crescentMoon', // real rage art: Final Flow
     trail: '#c9a45c', desc: 'Takashi\'s odachi on the katana forms. Every cut lands like a cleaver.',
     lore: 'Takashi\'s own odachi, gold along its spine. He forged it the year he built the Echo System and never let the Order touch it.' },
-  raiko_no_tachi: { heft: 1.9, el: 'lightning', name: 'Raikō no Tachi', cls: 'Odachi', tab: 'heavy', tier: 'boss', base: 'onikiri', hands: 1, len: 128, stance: 'cleaver', stats: [190, 92, 120],
-    exclusive: true, hint: 'Defeat Raikon', special: 'mountainSplit', // real rage art: Thunder Swing
+  raiko_no_tachi: { heft: 1.9, el: 'redline', name: 'Raikō no Tachi', cls: 'Odachi', tab: 'heavy', tier: 'boss', base: 'onikiri', hands: 1, len: 128, stance: 'cleaver', stats: [190, 92, 120],
+    exclusive: true, hint: 'Defeat Raikon', special: 'thunderSwing',
     trail: '#ff4a3c', desc: 'Raikon\'s broad odachi on the cleaver forms. Slow, guard-breaking, thunderous.',
     lore: 'Raikon\'s broad odachi. The red groove down the blade drinks lightning and spits it back at whoever defies the Order.' },
   kagehira_yurei: { heft: 0.7, el: 'blood', name: 'Kagehira & Yūrei', cls: 'Twin blades', tab: 'blades', tier: 'boss', base: 'tsubame', hands: 'dual', len: 72, stance: 'twin', stats: [104, 188, 110],
@@ -238,6 +239,9 @@ const WEAPONS = {
   chain_hook: { heft: 1, el: 'flame', enemy: 1, name: 'Chain Hook', base: 'yamigama', len: 64, trail: '#d24a3c', hook: 1 },
   tyrant_cleaver: { heft: 2, el: 'flame', enemy: 1, name: 'Tyrant Cleaver', base: 'onikiri', len: 130, trail: '#ff6a3c' },
   cutter_blade: { heft: 1, el: 'shade', enemy: 1, name: 'Cutter Blade', base: 'kagetsu', len: 92, trail: '#ece5d3' },
+  // Raikon's own Raikō no Tachi: the same broad odachi and red lightning groove, at enemy strength (the player's boss-tier
+  // copy is raiko_no_tachi, granted when Raikon falls)
+  raikon_tachi: { heft: 1.9, el: 'redline', enemy: 1, name: 'Raikō no Tachi', base: 'onikiri', len: 128, stats: [64, 40, 60], trail: '#ff4a3c' },
   temple_staff: { heft: 1.1, el: 'shade', enemy: 1, name: 'Temple Staff', base: 'mizuchi', len: 180, trail: '#ece5d3', staff: 1, stance: 'staff' },
   raider_cleaver: { heft: 1.4, el: 'shade', enemy: 1, name: 'Raider Cleaver', base: 'onikiri', len: 86, trail: '#d24a3c' }
 };
@@ -303,7 +307,8 @@ const SPECIALS = {
   mountainSplit: { name: 'Mountain Split', desc: 'A leaping slam that erupts the ground on both sides. Unblockable.' },
   dragonLance:   { name: 'Dragon Lance', desc: 'A dragon-fire lunge across the arena that launches.' },
   reapersHarvest:{ name: "Reaper's Harvest", desc: 'The chain finds the enemy anywhere, drags and slams them.' },
-  earthshatter:  { name: 'Earthshatter', desc: 'The ground itself breaks. Every grounded enemy is stunned.' }
+  earthshatter:  { name: 'Earthshatter', desc: 'The ground itself breaks. Every grounded enemy is stunned.' },
+  thunderSwing:  { name: 'Thunder Swing', desc: 'A wide arc that sends red lightning racing along the ground. Unblockable.' }
 };
 
 /* ---------------- Helmets & armor ----------------
@@ -337,7 +342,7 @@ const HELMETS = {
   shikko_zukin: { name: 'Shikkō Zukin', tier: 'epic', def: 0.13, hp: 24, price: 2900, look: 'executioner', perks: { dmg: 0.05 },
     lore: 'Peaked hood of the Order\'s Silencers, who erase a memory first and the man who held it after.' },
   // ---- trophies (locked) ----
-  raijin_kabuto:{ name: 'Raijin Kabuto', tier: 'trophy', def: 0.18, hp: 36, exclusive: true, hint: 'Defeat Raikon', look: 'colossus', perks: { stunRes: 0.3, dmg: 0.05 },
+  raijin_kabuto:{ name: 'Raijin Kabuto', tier: 'trophy', def: 0.18, hp: 36, exclusive: true, hint: 'Defeat Raikon', look: 'raijin_kabuto', perks: { stunRes: 0.3, dmg: 0.05 },
     lore: 'Raikon\'s thunder helm. The red slit of its visor burned brightest just before he struck.' },
   kasa:         { name: 'Kasa', tier: 'trophy', def: 0.2, hp: 40, exclusive: true, hint: 'Defeat Takashi', look: 'straw_kasa', perks: { ammo: 3, rage: 0.15 },
     lore: 'Takashi\'s battered straw hat. He wore it on the road out of Hoshimura and never told his sons where it led.' }
@@ -443,12 +448,30 @@ const ENEMIES = {
   hollow_husk: { name: 'Hollow Husk', title: 'Memory echo', type: 'regular', family: 'hollow', unit: 'heavy', ai: 'heavy',
             weapon: 'iron_fists', helmet: 'hollow_shard', armor: 'hollow_rags', hp: 270, def: 0.1, dmg: 1.15, speed: 0.88, build: { scale: 1.16, w: 14, arms: 1.08 }, eye: '#ece6ff', accent: '#b9a8ff',
             taunt: '…heavy… everything is so heavy…', tip: 'Slow and hard to stagger. Never trade blows; dodge and strike from behind.' },
+  // ---- story bosses ----
+  // A story boss is fought in the boss format (see Logic.fightFormat): one round, one health bar, three phases.
+  //   phases: [{ name, at, abilities, ...flags }]  `at` is the health fraction at which the phase opens (1, 0.66, 0.33
+  //            by default; see Logic.bossPhases). Flags: berserk, aggressive, unblockable, poison, and per-ability
+  //            tuning such as Raikon's secondWave (the delay, in seconds, of Thunder Swing's second wave).
+  //   defeat:  how the beaten boss leaves (Logic.BOSS_DEFEATS): 'finisher' (full-screen finishing slash, the defeat
+  //            scene, then a violet-ash dissolve; recorded as killed), 'escape' (he kneels, the defeat scene, then he
+  //            leaves in smoke; recorded as escaped) or 'reabsorb' (the Witness: its light flows back into Kage).
+  raikon: { name: 'Raikon', title: 'the Lightning Ascendant', type: 'boss', ai: 'boss', weapon: 'raikon_tachi', helmet: 'raijin_kabuto', armor: 'raikon_plate',
+            hp: 640, def: 0.16, dmg: 1.1, speed: 0.9, build: { scale: 1.24, w: 13.5, arms: 1.04 }, eye: '#ff3b2f', accent: '#ff4a3c',
+            flashEyes: 1, heavyArmor: 1, noGrab: 1, longScarf: '#191414', defeat: 'finisher',
+            taunt: 'The man who was supposed to stay buried. The archive will not have you.', win: 'Stay buried this time, shadow.',
+            tip: 'Thunder Swing sends red lightning along the ground: jump or dash through it. In his last phase a second wave follows late, so wait for it before you dodge again.',
+            phases: [
+              { name: 'The Storm Gathers', at: 1, abilities: ['thunderSwing', 'stormBreak'] },
+              { name: 'Redline', at: 0.66, abilities: ['thunderSwing', 'stormBreak', 'redlineCounter'] },
+              { name: 'Lightning Ascendant', at: 0.33, abilities: ['thunderSwing', 'stormBreak', 'redlineCounter'], secondWave: 0.7, aggressive: 1 }
+            ] },
   // ---- placeholder sub-boss and boss rigs ----
   echo_sentinel: { name: 'Echo Sentinel', title: 'Placeholder sub-boss', type: 'sub', ai: 'agile', weapon: 'hollow_crescents', helmet: 'oni', armor: 'cloak', hp: 340, dmg: 1.05, speed: 1.15, build: { scale: 1.04, w: 10 }, eye: '#9b8cff', accent: '#9b8cff',
-            taunt: 'This memory is guarded. Prove you belong in it.', defeat: 'The memory… lets you pass…', win: 'Forget this place.',
+            taunt: 'This memory is guarded. Prove you belong in it.', defeatLine: 'The memory… lets you pass…', win: 'Forget this place.',
             tip: 'Dodge the lunge with Dash, then punish the long recovery.', abilities: ['lunge', 'teleport'] },
   echo_warden: { name: 'Echo Warden', title: 'Placeholder boss', type: 'boss', ai: 'boss', weapon: 'cutter_blade', helmet: 'oni', armor: 'tyrant', hp: 640, dmg: 1.1, speed: 1.1, build: { scale: 1.16, w: 12 }, eye: '#9b8cff', accent: '#9b8cff', flashEyes: 1,
-            taunt: 'You were supposed to stay buried.', defeat: 'The echo… breaks…', win: 'Sleep, shadow. Remember nothing.',
+            taunt: 'You were supposed to stay buried.', defeatLine: 'The echo… breaks…', win: 'Sleep, shadow. Remember nothing.',
             tip: 'Its eyes flash right before it strikes. Block on the flash, punish after.',
             phases: [
               { name: 'First Echo', abilities: ['lunge', 'moonDash'] },
@@ -468,7 +491,7 @@ for (const id in ENEMIES) ENEMIES[id].id = id;
      chapter / pos    filled in below (owning chapter id, index inside it).
      reward           optional gear granted when the stage is cleared: { weapons: [ids], helmets: [ids], armors: [ids] }.
                       Each item is given once (see Logic.grantStageReward); items flagged ngOnly only drop in New Game+.
-                      The boss and sub-boss updates fill these in.
+                      Raikon's stage gives Raikō no Tachi and the Raijin Kabuto; the other boss updates fill theirs in.
      stretch          stretch stages only: the side-scrolling level (see Logic.stretch and StretchSession in 60-engine.js):
                       { length,                     level width in world units (x runs 0 .. length; the screen is 1280 wide),
                         env?,                       environment override (defaults to the stage / chapter env),
@@ -544,6 +567,10 @@ const CAMPAIGN = (function buildCampaign() {
     { id: 'epilogue', name: 'Epilogue', title: 'The Last Choice', place: 'Dawn', env: 'highlands', diff: 1,
       stages: [{ id: 'epilogue', kind: 'scene', name: 'The Last Choice', scenes: { before: 'epilogue.stub' } }] }
   ];
+  // Act I's boss: Raikon, at the route to the old military archive
+  Object.assign(chapters[1].stages.find(st => st.id === 'act1.boss'), {
+    enemy: 'raikon', reward: { weapons: ['raiko_no_tachi'], helmets: ['raijin_kabuto'] },
+    scenes: { before: 'act1.raikon.before', defeat: 'act1.raikon.defeat' } });
   for (const ch of chapters) ch.stages.forEach((st, i) => { st.chapter = ch.id; st.pos = i; });
   return { chapters };
 })();

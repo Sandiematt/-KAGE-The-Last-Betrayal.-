@@ -12,6 +12,8 @@ const ELEMENTS = {
   water:     { smear: [64, 148, 255], alt: [170, 225, 255], edge: 'rgba(236,250,255,1)', glow: [80, 170, 255], alpha: 0.55, water: 1 },
   flame:     { smear: [255, 104, 34], alt: [255, 214, 120], edge: 'rgba(255,244,200,1)', glow: [255, 110, 40], alpha: 0.6, add: 1, fire: 1 },
   lightning: { smear: [120, 205, 255], edge: 'rgba(240,252,255,1)', glow: [120, 200, 255], alpha: 0.36, add: 1, bolts: 1 },
+  // Raikon's red lightning (Raikō no Tachi): a red slash with a white core and a jagged bolt along its edge
+  redline:   { smear: [255, 58, 46], alt: [120, 10, 10], edge: 'rgba(255,240,236,1)', glow: [255, 60, 40], alpha: 0.55, bolts: 1, boltColor: '#ffe9e4' },
   earth:     { smear: [210, 168, 112], edge: 'rgba(255,232,190,0.9)', glow: [255, 150, 70], alpha: 0.48 }
 };
 const _sp = [];
@@ -68,7 +70,7 @@ const VFX = {
       }
     }
     if (el.bolts) { // flat zig-zag bolt along the edge
-      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2.2;
+      ctx.strokeStyle = el.boltColor || '#ffffff'; ctx.lineWidth = 2.2;
       ctx.beginPath(); for (let i = i0; i < n; i++) { const p = _sp[i], j = ((i * 7919) % 13 - 6) * f.scale * (1 + ((time * 20) | 0) % 2), r = p.L * 1.04; const x = p.hx + p.ca * r - p.sa * j, y = p.hy + p.sa * r + p.ca * j; i === i0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); } ctx.stroke();
     }
     if (el.streaks) { ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5; for (const fr of [0.45, 0.7]) { ctx.beginPath(); for (let i = i0; i < n; i++) { const p = _sp[i], r = p.L * fr; i === i0 ? ctx.moveTo(p.hx + p.ca * r, p.hy + p.sa * r) : ctx.lineTo(p.hx + p.ca * r, p.hy + p.sa * r); } ctx.stroke(); } }
@@ -85,6 +87,7 @@ const VFX = {
     if (el === 'water') for (let i = 0; i < 2; i++) fx.part({ x: tx, y: ty, vx: vx * rand(0.2, 0.5) + rand(-60, 60), vy: vy * rand(0.2, 0.5) - rand(40, 160), life: rand(0.4, 0.7), size: rand(1.6, 3.2), color: i ? '#bfe6ff' : '#4f9dff', type: 'drop', grav: 1300, drag: 0.6, sq: 0.8 });
     else if (el === 'flame') { fx.part({ x: tx, y: ty, vx: rand(-40, 40), vy: rand(-220, -80), life: rand(0.35, 0.7), size: rand(1.4, 2.6), color: '#ffb35a', type: 'spark', grav: -140, drag: 1.2, add: true }); fx.part({ x: tx, y: ty, vx: rand(-30, 30), vy: rand(-120, -40), life: 0.3, size: rand(6, 10), color: 'rgba(255,120,40,0.5)', type: 'flame', grav: -200, drag: 2, add: true, grow: -10 }); }
     else if (el === 'moon' || el === 'blood') fx.part({ x: tx + rand(-6, 6), y: ty + rand(-6, 6), vx: vx * 0.1, vy: vy * 0.1, life: rand(0.3, 0.55), size: rand(2.5, 4.5), color: el === 'moon' ? (chance(0.5) ? '#d9ccff' : '#ff6a82') : (chance(0.6) ? '#ff5470' : '#cdbfff'), type: 'star', grav: 0, drag: 3, add: true });
+    else if (el === 'redline') fx.part({ x: tx, y: ty, vx: rand(-220, 220), vy: rand(-220, 120), life: rand(0.08, 0.18), size: rand(1.2, 2.4), color: chance(0.6) ? '#ff5a46' : '#ffffff', type: 'spark', grav: 0, drag: 4, add: true });
     else if (el === 'lightning') fx.part({ x: tx, y: ty, vx: rand(-200, 200), vy: rand(-200, 200), life: rand(0.08, 0.16), size: rand(1, 2), color: '#cfeeff', type: 'spark', grav: 0, drag: 4, add: true });
     else if (el === 'earth') { if (chance(0.5)) fx.part({ x: tx, y: ty, vx: vx * 0.15 + rand(-60, 60), vy: rand(-200, -60), life: rand(0.4, 0.7), size: rand(2, 4), color: '#2a2018', type: 'drop', grav: 1600, sq: 0.8 }); fx.part({ x: tx, y: ty, vx: rand(-30, 30), vy: rand(-90, -30), life: 0.4, size: rand(1.4, 2.4), color: '#ff9a50', type: 'spark', grav: -60, add: true }); }
     else if (el === 'wind' && chance(0.4)) fx.part({ x: tx, y: ty, vx: vx * 0.25, vy: vy * 0.25, life: 0.2, size: 1.2, color: 'rgba(255,255,255,0.8)', type: 'spark', grav: 0, drag: 3, add: true });
@@ -94,7 +97,7 @@ const VFX = {
 /* ---- Effects extensions: elemental impacts, rings, finisher slash, clash flare, heat haze ---- */
 Object.assign(Effects.prototype, {
   vfx() {
-    return this._v || (this._v = { fire: [], ripples: [], bolts: [], cres: [], streaks: [], shards: [], rings: [], flares: [], rise: [], trail: [], lburst: [], finisher: null, tint: null });
+    return this._v || (this._v = { zaps: [], glints: [], fire: [], ripples: [], bolts: [], cres: [], streaks: [], shards: [], rings: [], flares: [], rise: [], trail: [], lburst: [], finisher: null, tint: null });
   },
   elemImpact(el, x, y, dir, tier, crit) {
     const V = this.vfx(), big = crit ? 1.4 : 1, t = clamp(tier, 0, 3);
@@ -122,6 +125,13 @@ Object.assign(Effects.prototype, {
       case 'lightning': {
         V.bolts.push({ x, y, t: 0, dur: 0.18 + t * 0.03, n: 4 + t * 2, len: (60 + t * 34) * big, seed: Math.random() * 99 });
         this.sparks(x, y, dir, 8 + t * 4, '#d4f2ff', 1.4);
+        break;
+      }
+      case 'redline': {
+        // red lightning forks thrown off the cut, with a red slash streak through the target
+        for (let i = 0; i < 3 + t; i++) { const a = (dir > 0 ? 0 : Math.PI) + rand(-1.1, 1.1), L = (50 + t * 30) * big; this.lightning(x, y, x + Math.cos(a) * L, y + Math.sin(a) * L, { w: 1.6 + t * 0.3, branches: 1, dur: 0.12 + t * 0.02 }); }
+        V.streaks.push({ x, y, a: dir > 0 ? rand(-0.6, -0.2) : Math.PI + rand(0.2, 0.6), len: 100 + t * 40, t: 0, dur: 0.3 });
+        this.sparks(x, y, dir, 6 + t * 4, '#ffb0a4', 1.3);
         break;
       }
       case 'wind': {
@@ -163,12 +173,21 @@ Object.assign(Effects.prototype, {
   landBurst(x, s, p) {
     this.vfx().lburst.push({ x, s, p: clamp(p, 0.3, 1.4), t: 0, dur: 0.3, seed: (Math.random() * 1000) | 0 });
   },
+  // Hand-drawn branching lightning from (x0, y0) to (x1, y1): a jagged main bolt with short forks, drawn dark-red-white
+  // and re-jagged every other frame for a few held, high-contrast frames. o: { w (core width), branches, dur, color }.
+  lightning(x0, y0, x1, y1, o) {
+    o = o || {};
+    this.vfx().zaps.push({ x0, y0, x1, y1, w: o.w || 2, br: o.branches == null ? 2 : o.branches, color: o.color || '#ff3b2f', t: 0, dur: o.dur || 0.14, seed: (Math.random() * 9999) | 0 });
+  },
+  // a four-point glint on a blade edge: the moment before a strike is released
+  glint(x, y, color) { this.vfx().glints.push({ x, y, color: color || '#ffffff', t: 0, dur: 0.3 }); },
   clashFlare(x, y) { this.vfx().flares.push({ x, y, t: 0, dur: 0.32, r: 90 }); },
   finisher(x, y, dir) { this.vfx().finisher = { x, y, dir, t: 0, dur: 1.15, a: dir > 0 ? -0.32 : Math.PI + 0.32 }; },
   screenTint(color, dur) { this.vfx().tint = { color, t: 0, dur }; },
   updateVfx(realDt, dt) {
     const V = this.vfx();
     const tick = (arr, d) => { for (let i = arr.length - 1; i >= 0; i--) { arr[i].t += d; if (arr[i].t >= arr[i].dur) arr.splice(i, 1); } };
+    tick(V.zaps, dt); tick(V.glints, dt);
     tick(V.fire, dt); tick(V.ripples, dt); tick(V.bolts, dt); tick(V.cres, dt); tick(V.streaks, dt); tick(V.shards, dt); tick(V.rings, dt); tick(V.flares, realDt); tick(V.rise, dt); tick(V.trail, dt); tick(V.lburst, dt);
     if (V.finisher) { V.finisher.t += realDt; if (V.finisher.t >= V.finisher.dur) V.finisher = null; }
     if (V.tint) { V.tint.t += realDt; if (V.tint.t >= V.tint.dur) V.tint = null; }
@@ -242,6 +261,36 @@ Object.assign(Effects.prototype, {
         for (let s = 1; s <= 5; s++) { x = b.x + Math.cos(a) * b.len * s / 5 + (R() - 0.5) * 22; y = b.y + Math.sin(a) * b.len * s / 5 + (R() - 0.5) * 22; ctx.lineTo(x, y); }
         ctx.stroke();
       }
+    }
+    // hand-drawn branching lightning (Raikon)
+    ctx.lineCap = 'round'; ctx.lineJoin = 'miter';
+    for (const z of V.zaps) {
+      const R = prng(z.seed + ((z.t * 30) | 0) * 13), dx = z.x1 - z.x0, dy = z.y1 - z.y0, L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L;
+      const n = Math.max(4, Math.min(10, (L / 22) | 0)), pts = [z.x0, z.y0];
+      for (let i = 1; i < n; i++) { const k = i / n, j = (R() - 0.5) * Math.min(40, L * 0.22); pts.push(z.x0 + dx * k + nx * j, z.y0 + dy * k + ny * j); }
+      pts.push(z.x1, z.y1);
+      const paths = [pts];
+      for (let b = 0; b < z.br; b++) {
+        const i = 1 + ((R() * (n - 1)) | 0), bx = pts[i * 2], by = pts[i * 2 + 1], side = R() < 0.5 ? -1 : 1, bl = L * (0.2 + R() * 0.25);
+        const fx_ = dx / L * 0.6 + nx * side * 0.8, fy_ = dy / L * 0.6 + ny * side * 0.8, q = [bx, by];
+        for (let s = 1; s <= 3; s++) q.push(bx + fx_ * bl * s / 3 + (R() - 0.5) * 14, by + fy_ * bl * s / 3 + (R() - 0.5) * 14);
+        paths.push(q);
+      }
+      const a = 1 - z.t / z.dur;
+      for (const [col, k] of [['rgba(18,4,4,' + a + ')', 3.4], [z.color, 2.2], ['#ffffff', 0.9]]) {
+        ctx.strokeStyle = col; ctx.globalAlpha = col[0] === '#' ? a : 1;
+        paths.forEach((q, pi) => { ctx.lineWidth = z.w * k * (pi ? 0.6 : 1); ctx.beginPath(); ctx.moveTo(q[0], q[1]); for (let i = 2; i < q.length; i += 2) ctx.lineTo(q[i], q[i + 1]); ctx.stroke(); });
+      }
+      ctx.globalAlpha = 1;
+    }
+    ctx.lineJoin = 'round';
+    // blade glints: a sharp four-point star that flares and shrinks
+    for (const g of V.glints) {
+      const k = g.t / g.dur, R2 = 34 * Math.sin(Math.min(1, k * 1.4) * Math.PI), a = 1 - k * 0.6;
+      ctx.fillStyle = g.color; ctx.globalAlpha = a;
+      for (const [dx, dy, w] of [[1, 0, 0.12], [0, 1, 0.12]]) { ctx.beginPath(); ctx.moveTo(g.x - dx * R2, g.y - dy * R2); ctx.lineTo(g.x - dy * R2 * w, g.y + dx * R2 * w); ctx.lineTo(g.x + dx * R2, g.y + dy * R2); ctx.lineTo(g.x + dy * R2 * w, g.y - dx * R2 * w); ctx.closePath(); ctx.fill(); }
+      ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(g.x, g.y, R2 * 0.14, 0, TAU); ctx.fill();
+      ctx.globalAlpha = 1;
     }
     // crossing moon crescents
     for (const c of V.cres) {

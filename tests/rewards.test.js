@@ -76,16 +76,16 @@ test('a loss pays a quarter of the base coins and 20 XP per act difficulty', () 
 
 test('beating Raikon pays boss rewards and opens the Interlude exactly once', () => {
   const s = Logic.defaultSave(); reach(s, 'act1.boss');
-  const out = Logic.applyFightResult(s, fight({ stageId: 'act1.boss', enemyId: 'echo_warden', ...DOMINANT }));
+  const out = Logic.applyFightResult(s, fight({ stageId: 'act1.boss', enemyId: 'raikon', ...DOMINANT }));
   assert.equal(out.rating, 'S');
   assert.equal(out.coins, 535);
   assert.equal(out.gems, 5);
   assert.equal(out.xp, 300);
-  assert.deepEqual(out.unlocks.map(u => ({ ...u })), [{ kind: 'chapter', id: 'interlude' }]);
+  assert.deepEqual(out.unlocks.filter(u => u.kind === 'chapter').map(u => ({ ...u })), [{ kind: 'chapter', id: 'interlude' }]);
   assert.equal(Logic.isChapterUnlocked(s, 'interlude'), true);
   assert.equal(s.stats.bosses, 1);
 
-  const again = Logic.applyFightResult(s, fight({ stageId: 'act1.boss', enemyId: 'echo_warden', ...DOMINANT }));
+  const again = Logic.applyFightResult(s, fight({ stageId: 'act1.boss', enemyId: 'raikon', ...DOMINANT }));
   assert.deepEqual(again.unlocks, [], 'the chapter opens only once');
   assert.equal(again.gems, 1, 'a boss replay still pays one gem');
 });

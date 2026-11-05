@@ -39,6 +39,38 @@ const SCENES = {
       { flag: 'prologue.photo_found' }
     ]
   },
+  // Act I boss: Raikon blocks the route to the old military archive. He is an Echo copy, bound to guard it against his will.
+  'act1.raikon.before': {
+    steps: [
+      { illus: null },
+      { say: 'narrator', text: 'The route to the old military archive. Rain hisses on a sword that is already drawn.' },
+      { say: 'raikon', text: 'So. The man who was supposed to stay buried.' },
+      { say: 'kage', text: 'You know me.' },
+      { say: 'raikon', text: 'I know what you were. I know what they did to make you forget it.' },
+      { say: 'raikon', text: 'The Echo System woke me up and chained me to this door. "Guard the archive." As if I asked to be remembered.' },
+      { say: 'kage', text: 'Then step aside.' },
+      { say: 'raikon', text: 'I can’t. The binding won’t let me. If you want what’s behind me, you’ll have to cut through what’s left of me.' },
+      { say: 'raikon', text: 'Draw, shadow. And don’t you dare hold back.' }
+    ]
+  },
+  // Raikon’s dying words, after the finishing slash; then he dissolves into violet ash (FightSession, 60-engine.js).
+  'act1.raikon.defeat': {
+    steps: [
+      { say: 'raikon', text: '...Heh. So that’s what you still have in you.' },
+      { say: 'raikon', text: 'Listen, before the echo lets go. Your brother. Rem. He did not die.' },
+      { say: 'kage', text: 'Rem is alive?' },
+      { say: 'raikon', text: 'The last time anyone saw him, he was walking into the Core. Alone. He never came out.' },
+      { say: 'raikon', text: 'And your memories... they weren’t lost in the fire. They were removed. On purpose.' },
+      { say: 'kage', text: 'By who? Why?' },
+      { say: 'raikon', text: 'I don’t know if Rem did it to betray you... or to save you. I never got to ask him.' },
+      { illus: 'access_token', caption: 'Raikon presses something into Kage’s hand: an archive access token, cracked down the middle.' },
+      { say: 'raikon', text: 'Take it. It’s damaged, but the archive door still remembers it.' },
+      { flag: 'act1.access_token' },
+      { illus: null },
+      { say: 'raikon', text: 'Losing to you... it broke the binding. For the first time since they woke me, nobody is holding the chain.' },
+      { say: 'raikon', text: 'It feels like rain. Go, shadow. Find him.' }
+    ]
+  },
   // Stub; SAN-44 writes the real Epilogue.
   'epilogue.stub': {
     steps: [

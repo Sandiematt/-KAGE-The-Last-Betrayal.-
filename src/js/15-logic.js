@@ -75,6 +75,8 @@ const DIFFICULTIES = {
 };
 
 // The campaign map flattened in story order, and indexed by stage id.
+// The fate a story boss is recorded with, by its defeat outcome (see Logic.fightFormat / bossDefeat).
+const BOSS_FATES = { finisher: 'killed', escape: 'escaped', reabsorb: 'reabsorbed' };
 const STAGE_LIST = CAMPAIGN.chapters.reduce((all, ch) => all.concat(ch.stages), []);
 const STAGE_BY_ID = {}; for (const st of STAGE_LIST) STAGE_BY_ID[st.id] = st;
 
@@ -108,6 +110,7 @@ const Logic = {
       clues: {},              // stageId -> { clueId: true }, clue pickups found in stretches (kept through New Game+)
       seenScenes: {},          // sceneId -> true, story scenes played at least once (kept through New Game+)
       storyFlags: {},          // flag -> true, set by { flag } scene steps
+      bossFates: {},           // boss stageId -> 'killed' | 'escaped' | 'reabsorbed', how the story boss left (lifetime)
       difficulty: 'normal',    // Easy / Normal / Hard / Impossible (DIFFICULTY_IDS); only the player changes it
       difficultyPicked: false, // false until the new-game mode picker has been answered
       survivalBest: 0,
@@ -160,6 +163,9 @@ const Logic = {
     d.seenScenes = {}; d.storyFlags = {};
     for (const k in s.seenScenes || {}) if (SCENES[k] && s.seenScenes[k] === true) d.seenScenes[k] = true;
     for (const k in s.storyFlags || {}) if (s.storyFlags[k] === true) d.storyFlags[k] = true;
+    // boss fates: only story boss stages, only outcomes the game knows
+    d.bossFates = {};
+    for (const k in s.bossFates || {}) if (STAGE_BY_ID[k] && Object.values(BOSS_FATES).includes(s.bossFates[k])) d.bossFates[k] = s.bossFates[k];
     d.difficulty = this.normalizeDifficulty(s.difficulty);
     d.difficultyPicked = !!s.difficultyPicked;
     return d;
@@ -217,7 +223,10 @@ const Logic = {
     }
     const gear = this.grantStageReward(save, id);
     unlocks.push(...gear);
-    return { stage: id, firstClear, next, gear, unlocks };
+    // a story boss leaves the story the way its data says: killed, escaped or reabsorbed
+    const fate = this.fightFormat(this.stageConfig(save, id)).name === 'boss' ? BOSS_FATES[this.bossDefeat(st.enemy)] : null;
+    if (fate) save.bossFates[id] = fate;
+    return { stage: id, firstClear, next, gear, unlocks, fate };
   },
   // Gear a stage gives when it is cleared: `reward: { weapons: [...], helmets: [...], armors: [...] }` on a CAMPAIGN
   // stage. Each item is granted exactly once, at level 1, the first time the stage is cleared while the player does
@@ -241,11 +250,53 @@ const Logic = {
     // a stretch is a side-scrolling level: the session walks it instead of staging an arena duel
     if (st.kind === 'stretch' && st.stretch) {
       return { mode: 'campaign', stageId: id, kind: st.kind, chapter: ch.id, pos: st.pos, diff: ch.diff, env: st.stretch.env || st.env || ch.env,
-        enemyId: st.enemy, foeName: st.name, foeTitle: ch.place, ng: save.ng, stretch: st.stretch };
+        enemyId: st.enemy, foeName: st.name, foeTitle: ch.place, ng: save.ng, stretch: st.stretch, format: this.fightFormat({ stretch: st.stretch }) };
     }
-    return { mode: 'campaign', stageId: id, kind: st.kind, chapter: ch.id, pos: st.pos, diff: ch.diff, env: st.env || ch.env,
+    const cfg = { mode: 'campaign', stageId: id, kind: st.kind, chapter: ch.id, pos: st.pos, diff: ch.diff, env: st.env || ch.env,
       enemyId: st.enemy, foeName: st.foe || (d && d.name), foeTitle: st.foeTitle || (d && d.title), ng: save.ng };
+    cfg.format = this.fightFormat(cfg);
+    return cfg;
   },
+  /* ---------------- fight formats and story bosses ----------------
+     A fight is staged in one of four formats (`fightFormat(cfg)`, cfg from stageConfig or a survival config):
+       boss      story boss stages (kind 'boss', or a stage with `format: 'boss'`): ONE round, ONE health bar and
+                 three phases, no round clock and so no time-out loss; `defeat` says how the boss leaves;
+       duel      every other arena fight: best of three rounds against a 75 s clock;
+       survival  one round per wave against a 90 s clock;
+       stretch   a side-scrolling level: no rounds, no clock.
+     A boss's phases and defeat outcome are data on its ENEMIES entry (see 10-data.js). */
+  BOSS_DEFEATS: ['finisher', 'escape', 'reabsorb'],
+  fightFormat(cfg) {
+    cfg = cfg || {};
+    if (cfg.mode === 'survival') return { name: 'survival', roundsToWin: 1, timer: 90, phases: 0, defeat: null };
+    if (cfg.stretch) return { name: 'stretch', roundsToWin: 1, timer: 0, phases: 0, defeat: null };
+    const st = this.stage(cfg.stageId), d = ENEMIES[cfg.enemyId];
+    if (st && (st.kind === 'boss' || st.format === 'boss'))
+      return { name: 'boss', roundsToWin: 1, timer: 0, phases: Math.max(3, this.bossPhases(cfg.enemyId).length), defeat: this.bossDefeat(cfg.enemyId) || 'finisher' };
+    return { name: 'duel', roundsToWin: d && d.type === 'boss' ? 1 : 2, timer: 75, phases: 0, defeat: null };
+  },
+  // A boss's phases with the health fraction each one opens at (`at`; 1, 0.66 and 0.33 unless the data says
+  // otherwise). [] for a foe without phases.
+  bossPhases(enemyId) {
+    const d = ENEMIES[enemyId], list = (d && d.phases) || [], def = [1, 0.66, 0.33];
+    return list.map((p, i) => Object.assign({}, p, { at: p.at != null ? p.at : def[i] != null ? def[i] : 0 }));
+  },
+  // Which phase a boss is in at a health fraction (0 for a foe without phases): the last phase whose `at` is reached.
+  bossPhaseAt(enemyId, hpFrac) {
+    const ph = this.bossPhases(enemyId);
+    let idx = 0;
+    ph.forEach((p, i) => { if (i > 0 && hpFrac <= p.at) idx = i; });
+    return idx;
+  },
+  // How a beaten boss leaves: 'finisher' | 'escape' | 'reabsorb' (unknown values fall back to the finisher);
+  // null for a foe that is not a boss.
+  bossDefeat(enemyId) {
+    const d = ENEMIES[enemyId];
+    if (!d || (d.type !== 'boss' && d.type !== 'sub')) return null;
+    return this.BOSS_DEFEATS.includes(d.defeat) ? d.defeat : 'finisher';
+  },
+  // How a story boss stage's boss left the story ('killed' | 'escaped' | 'reabsorbed'), or null before it is won.
+  bossFate(save, stageId) { return (save.bossFates && save.bossFates[stageId]) || null; },
   /* ---------------- story scenes ----------------
      Scenes are SCENES (12-scenes.js), attached by id to a stage (`scenes: { before, after, defeat }`) or to a stretch
      clue (`scene`). These answer which scene plays at a moment; StoryPlayer (68-story.js) plays it. */

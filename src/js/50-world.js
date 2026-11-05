@@ -390,7 +390,7 @@ const Renderer = {
     if ((f.state === 'ability' && (f.isPlayer || (f.def && f.def.type === 'boss'))) || (f.def && f.def.type === 'boss' && f.state === 'pose')) {
       const E = ELEMENTS[f.elementOf(null) || 'ink'] || ELEMENTS.ink, c = E.glow || E.smear, cy = f.y - 100 * f.scale, R = 150 * f.scale * (1 + Math.sin(t * 9) * 0.05);
       ctx.save(); ctx.globalCompositeOperation = 'source-over';
-      const g = ctx.createRadialGradient(f.x, cy, 10, f.x, cy, R);
+      const g = ctx.createRadialGradient(f.x, cy, 10, f.x, cy, R * 0.75);   // fades out inside the ellipse: no hard rim
       g.addColorStop(0, `rgba(${c[0]},${c[1]},${c[2]},0.32)`); g.addColorStop(1, `rgba(${c[0]},${c[1]},${c[2]},0)`);
       ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(f.x, cy, R * 0.75, R, 0, 0, TAU); ctx.fill();
       ctx.restore();
@@ -411,7 +411,7 @@ const Renderer = {
       ctx.restore();
     }
     if (f.counterStance) {
-      ctx.save(); ctx.strokeStyle = `rgba(127,208,200,${0.4 + Math.sin(t * 20) * 0.2})`; ctx.lineWidth = 3;
+      ctx.save(); ctx.strokeStyle = f.redline ? `rgba(255,74,60,${0.55 + Math.sin(t * 20) * 0.25})` : `rgba(127,208,200,${0.4 + Math.sin(t * 20) * 0.2})`; ctx.lineWidth = f.redline ? 4 : 3;   // Raikon's Redline guard glows red
       ctx.beginPath(); ctx.arc(f.x, f.y - 110 * f.scale, 90 * f.scale, -Math.PI * 0.8, -Math.PI * 0.2); ctx.stroke(); ctx.restore();
     }
   },

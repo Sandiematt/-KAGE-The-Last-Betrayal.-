@@ -102,8 +102,9 @@ const SPEAKERS = {
     portrait(g) {
       const K = STORY_INK;
       storyBust(g, { bg: '#1c0808', glow: 'rgba(210,74,60,0.32)', rim: 'rgba(255,138,122,0.7)' });
-      // hair swept up in jagged lightning spikes
-      storyPoly(g, [32, 40, 28, 20, 38, 30, 40, 12, 48, 28, 54, 8, 58, 28, 68, 14, 66, 32, 74, 26, 68, 42], K.ink);
+      // the Raijin Kabuto: an angular iron helm with a wide brim and a short red lightning crest
+      storyPoly(g, [26, 40, 32, 22, 50, 14, 68, 22, 76, 40, 84, 44, 18, 44], K.ink);
+      storyPoly(g, [46, 16, 52, 4, 50, 11, 58, 2, 54, 16], K.emberBright);
       storyEyes(g, K.emberBright, 45, -1);
       // a red lightning scar down the cheek
       storyLine(g, [62, 36, 58, 44, 63, 47, 59, 56], K.emberBright, 1.6);
@@ -301,6 +302,35 @@ const ILLUSTRATIONS = {
         g.fillRect(x, y, s, s);
       }
       storyKageFigure(g, 470, 575, 1.1);
+    }
+  },
+  // Raikon's gift: the damaged archive access token, cracked down the middle, lying in Kage's open hand in the rain.
+  access_token: {
+    name: 'The damaged access token',
+    paint(g) {
+      const K = STORY_INK;
+      storySky(g, ['#0b0707', '#100909', '#140b0a', '#100909', '#0b0707'], 0, 720);
+      storyAsh(g, 71, 90, [0, 0, 1280, 720], 'rgba(198,162,255,0.4)', 3);       // Raikon's ash already rising
+      const rr = storyRng(80);
+      for (let i = 0; i < 60; i++) { const x = rr() * 1280, y = rr() * 720; storyLine(g, [x, y, x - 10, y + 46], 'rgba(191,181,159,0.16)', 1.4); } // rain
+      // Kage's open hand from below: a flat black palm and fingers, edged pale against the dark
+      const hand = [[380, 720, 430, 520, 520, 470, 760, 470, 860, 500, 900, 560, 940, 720], [860, 520, 960, 450, 990, 470, 900, 560]];
+      for (const [x0, x1] of [[520, 500], [600, 590], [680, 680], [760, 770]]) hand.push([x0 - 30, 480, x1 - 26, 380, x1 + 26, 380, x0 + 30, 480]);
+      for (const pts of hand) storyLine(g, pts.concat(pts.slice(0, 2)), 'rgba(236,229,211,0.45)', 6);
+      for (const pts of hand) storyPoly(g, pts, K.ink);
+      // the token: an iron tag with a notched corner, the archive seal, a red lightning crack through it
+      g.save(); g.translate(650, 440); g.rotate(-0.12);
+      storyPoly(g, [-120, -70, 96, -70, 120, -46, 120, 70, -120, 70], '#3a342b');
+      storyPoly(g, [-108, -58, 90, -58, 108, -40, 108, 58, -108, 58], '#5a5045');
+      g.beginPath(); g.arc(-40, 0, 34, 0, TAU); g.strokeStyle = K.boneDim; g.lineWidth = 5; g.stroke();   // archive seal
+      storyLine(g, [-62, 0, -18, 0], K.boneDim, 5);
+      for (let i = 0; i < 4; i++) storyLine(g, [20, -34 + i * 22, 92, -34 + i * 22], 'rgba(191,181,159,0.5)', 3); // worn code lines
+      storyLine(g, [10, -70, -4, -30, 18, -8, 2, 24, 22, 70], '#0a0908', 9);          // the crack
+      storyLine(g, [10, -70, -4, -30, 18, -8, 2, 24, 22, 70], K.emberBright, 3);
+      g.beginPath(); g.arc(104, -54, 9, 0, TAU); g.fillStyle = '#0a0908'; g.fill();  // lanyard hole
+      g.restore();
+      storyLine(g, [754, 386, 800, 330, 840, 300], '#2a2620', 4);                   // a broken lanyard
+      g.fillStyle = 'rgba(3,3,3,0.45)'; g.fillRect(0, 0, 1280, 70); g.fillRect(0, 650, 1280, 70);
     }
   },
   // A generic memory backdrop: a violet void with a faint ensō and drifting ash. Good behind flashback dialogue.

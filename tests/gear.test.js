@@ -144,8 +144,9 @@ test('boss weapons and trophies are in the Armory but locked, with a hint, and c
 const clearUpTo = (L, save, id) => { for (const st of L.stages()) { if (st.id === id) break; L.completeStage(save, st.id); } };
 const win = (stageId, ng) => ({ mode: 'campaign', stageId, win: true, ng: ng || 0, hpLeft: 0.5, time: 70, maxCombo: 4, parries: 0, flawless: false });
 
-test('no campaign stage grants gear yet: boss tickets add the rewards', () => {
-  for (const st of Logic.stages()) assert.equal(st.reward, undefined, st.id);
+test('only Raikon’s stage grants gear so far: the other boss tickets add theirs', () => {
+  for (const st of Logic.stages()) if (st.id !== 'act1.boss') assert.equal(st.reward, undefined, st.id);
+  assert.deepEqual(Logic.stage('act1.boss').reward, { weapons: ['raiko_no_tachi'], helmets: ['raijin_kabuto'] });
 });
 
 test('clearing a stage with a gear reward grants it once and reports it', () => {

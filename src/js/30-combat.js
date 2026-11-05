@@ -111,7 +111,7 @@ class Effects {
   }
   // memory ash: flat violet flakes shed by a dissolving Hollow, scattered from its skeleton and drifting upward
   memoryAsh(f, n, burst) {
-    const sk = f.sk, pts = ASH_POINTS, cols = (f.family && f.family.ash) || ['#9b8cff'];
+    const sk = f.sk, pts = ASH_POINTS, cols = (f.family && f.family.ash) || ENEMY_FAMILIES.hollow.ash;   // bosses: the same violet ash
     for (let i = 0; i < n; i++) {
       const a = sk[pts[(Math.random() * pts.length) | 0]], b = sk[pts[(Math.random() * pts.length) | 0]], k = Math.random();
       const v = burst ? rand(60, 260) : rand(10, 60), ang = rand(-Math.PI, 0);
@@ -372,6 +372,8 @@ const PROJ = {
   shock:    { speed: 760, r: 34, dmg: 13, hs: 0.5, kb: 260, up: -420, life: 0.75, grav: 0, imp: 2, hsnd: 'heavy', kd: 1, ground: 1 },
   bigshock: { speed: 900, r: 44, dmg: 22, hs: 0.6, kb: 420, up: -520, life: 0.9, grav: 0, imp: 3, hsnd: 'heavy', kd: 1, ground: 1, unb: 1, stamp: 'BREAK' },
   hook:     { speed: 1150, r: 16, dmg: 8, hs: 0.5, kb: 0, life: 0.8, grav: 0, imp: 1, hsnd: 'slash', pullTo: 1, ret: 1 },
+  // Thunder Swing: red lightning racing along the ground (jump it, or dash through it). Raikon's and the rage art's.
+  thunderwave: { speed: 640, r: 30, dmg: 15, hs: 0.5, kb: 320, up: -380, life: 1.7, grav: 0, imp: 2, hsnd: 'heavy', kd: 1, ground: 1, unb: 1, stamp: 'THUNDER', bolt: 1 },
   smoke:    { speed: 520, r: 14, dmg: 4, hs: 0.2, kb: 60, life: 1.6, grav: 1500, imp: 0, hsnd: 'punch', smoke: 1 }
 };
 
@@ -380,7 +382,7 @@ const WeaponSystem = {
     const d = PROJ[type]; o = o || {};
     const f = owner, sk = f.sk, dir = o.dir || f.facing;
     const p = {
-      type, d, owner: f, team: f.team, x: o.x != null ? o.x : (type === 'shock' || type === 'bigshock' ? f.x + dir * 70 * f.scale : sk.fha.x + dir * 10),
+      type, d, owner: f, team: f.team, x: o.x != null ? o.x : (d.ground ? f.x + dir * 70 * f.scale : sk.fha.x + dir * 10),
       y: o.y != null ? o.y : (d.ground ? 0 : sk.fha.y), vx: dir * d.speed * (o.speedMul || 1), vy: o.vy || 0,
       life: d.life * (o.lifeMul || 1), dmg: (o.dmg || d.dmg) * (o.dmgMul || 1) * f.dmgMul, t: 0, dir, hit: [], dead: false, ret: false,
       target: o.target || null, sx: 0, sy: 0
@@ -417,7 +419,8 @@ const WeaponSystem = {
         if (p.ret) { const hx = o.sk.fha.x, hy = o.sk.fha.y; const a = Math.atan2(hy - p.y, hx - p.x); p.vx = Math.cos(a) * d.speed * 1.2; p.vy = Math.sin(a) * d.speed * 1.2; if (Math.hypot(hx - p.x, hy - p.y) < 30) p.dead = true; }
       }
       p.vy += d.grav * dt; p.x += p.vx * dt; p.y += p.vy * dt;
-      if (d.ground) { p.y = 0; if (((p.t * 30) | 0) % 2 === 0) { world.fx.dust(p.x, 0, 1); world.fx.part({ x: p.x + rand(-14, 14), y: -rand(0, 30), vx: rand(-40, 40), vy: rand(-420, -200), life: 0.4, size: rand(3, 6), color: '#2a2620', type: 'drop', grav: 1600 }); } }
+      if (d.bolt) { p.y = 0; if (((p.t * 60) | 0) % 3 === 0) world.fx.part({ x: p.x + rand(-20, 20), y: -rand(0, 60), vx: rand(-80, 80), vy: rand(-260, -60), life: 0.25, size: rand(1.5, 3), color: chance(0.5) ? '#ff6a52' : '#ffffff', type: 'spark', grav: 300, drag: 2, add: true }); }
+      else if (d.ground) { p.y = 0; if (((p.t * 30) | 0) % 2 === 0) { world.fx.dust(p.x, 0, 1); world.fx.part({ x: p.x + rand(-14, 14), y: -rand(0, 30), vx: rand(-40, 40), vy: rand(-420, -200), life: 0.4, size: rand(3, 6), color: '#2a2620', type: 'drop', grav: 1600 }); } }
       if (d.smoke && p.y >= 0) { world.smokeCloud(p.x); p.dead = true; }
       if (p.type === 'orb' || p.type === 'bigorb') world.fx.part({ x: p.x, y: p.y, vx: rand(-20, 20), vy: rand(-20, 20), life: 0.3, size: d.r * 0.4, color: 'rgba(127,184,255,0.35)', type: 'dot', grav: 0, add: true });
       if (p.type === 'crescent') world.fx.part({ x: p.x - p.dir * 30, y: p.y + rand(-60, 60), vx: -p.dir * 100, vy: 0, life: 0.3, size: 2, color: C.bone, type: 'spark', grav: 0, add: true });
@@ -500,6 +503,32 @@ const WeaponSystem = {
           }
           ctx.strokeStyle = big ? 'rgba(255,106,60,0.8)' : 'rgba(236,229,211,0.45)'; ctx.lineWidth = 2;
           ctx.beginPath(); ctx.moveTo(-130, -2); ctx.lineTo(10, -2); ctx.stroke();
+          break;
+        }
+        case 'thunderwave': {
+          // hand-drawn branching red lightning: a crackling column at the front and bolts skittering along the
+          // ground behind it. The shape is redrawn every other frame (a few held, high-contrast frames).
+          ctx.scale(p.dir, 1);
+          const fade = Math.min(1, p.life / 0.25), R = prng(((p.t * 30) | 0) * 7 + (p.seed || (p.seed = (Math.random() * 999) | 0)));
+          ctx.globalAlpha *= fade; ctx.lineCap = 'round'; ctx.lineJoin = 'miter';
+          const bolt = (pts, w) => {
+            for (const [col, lw] of [['#120404', w * 5.6], ['#ff3b2f', w * 3.6], ['#ffffff', w * 1.4]]) {
+              ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.beginPath(); ctx.moveTo(pts[0], pts[1]);
+              for (let i = 2; i < pts.length; i += 2) ctx.lineTo(pts[i], pts[i + 1]); ctx.stroke();
+            }
+          };
+          // a flat red scorch along the ground under the wave, then the front column: jagged forks rising from the ground
+          ctx.fillStyle = 'rgba(255,59,47,0.35)'; ctx.beginPath(); ctx.ellipse(-50, 0, 110, 9, 0, 0, TAU); ctx.fill();
+          for (let k = 0; k < 4; k++) {
+            const pts = [(R() - 0.5) * 12, 0]; let x = pts[0], y = 0;
+            const top = 100 + R() * 70;
+            while (y > -top) { y -= 14 + R() * 12; x += (R() - 0.5) * 26 - k * 3; pts.push(x, y); }
+            bolt(pts, k === 0 ? 2.2 : 1.4);
+          }
+          // the trail along the ground
+          const pts = [0, -4]; let x = 0;
+          for (let i = 0; i < 7; i++) { x -= 18 + R() * 12; pts.push(x, -2 - R() * 18); }
+          bolt(pts, 1.6);
           break;
         }
         case 'hook': {
@@ -638,8 +667,10 @@ const Combat = {
     if (def.counterStance && !m.proj && front && m.kind !== 'grab') {
       def.counterStance = false;
       this.parry(world, att, def, m, ix, iy, dir);
-      fx.stamp('COUNTERED', ix, iy, 2, '#7fd0c8');
-      def.endAbility(world); def.startMove(def.weapon().moves[0], world);
+      fx.stamp('COUNTERED', ix, iy, 2, def.redline ? '#ff4a3c' : '#7fd0c8');
+      // an ability may answer the blow itself (Raikon's Redline Counter); otherwise the first weapon strike
+      if (def.abil && def.abil.onCounter) { def.setState('ability'); def.abil.onCounter(def, world, att); }   // parry() set him idle
+      else { def.endAbility(world); def.startMove(def.weapon().moves[0], world); }
       return;
     }
     // shield bearers: auto-blocks frontal, non-low, non-heavy attacks when not committed
@@ -875,6 +906,25 @@ const SPECIAL_IMPL = {
         if (t > 0.7 && !this.done) {
           this.done = true;
           Combat.applyHit(w, f, tgt, { dmg: 30, kb: 380, up: -820, hs: 0.8, kd: 1, imp: 3, hsnd: 'slash', unb: 1, stamp: 'REAP' }, tgt.x, tgt.y - 110 * tgt.scale, f.facing);
+        }
+      } });
+  },
+  // Raikō no Tachi: the player's Thunder Swing. A short wind-up (crackle, glint), then a wide flat arc that sends a
+  // red lightning wave along the ground; it hits anything in the arc and every grounded foe the wave crosses.
+  thunderSwing(f, world) {
+    f.startAbility({ dur: 0.85, uninterruptible: true, rate: 26, trail: true, charge: true,
+      pose: (f, t) => (t < 0.3 ? RAIKON_POSE.swingBack : RAIKON_POSE.swingThrough),
+      start(f) { f.invuln = 0.5; world.fx.banner('Thunder Swing', 'Rage art', '#ff4a3c'); AudioManager.play('teleport'); },
+      update(f, w, t, dt) {
+        f.vx = damp(f.vx, 0, 10, dt);
+        if (t < 0.3) { raikonCrackle(f, w, t); if (!this.glint && t > 0.16) { this.glint = 1; raikonGlint(f, w); } return; }
+        if (!this.done) {
+          this.done = true; this.charge = false;
+          const mul = weaponMul(f.weaponId(), f.wlvl).dmg;
+          Combat.area(w, f, fbox(f, -10, -210, 220, 200), { dmg: 16 * mul, kb: 460, up: -320, hs: 0.55, kd: 1, imp: 3, hsnd: 'slash', unb: 1, stamp: 'THUNDER' });
+          WeaponSystem.spawn(w, 'thunderwave', f, { x: f.x + f.facing * 110 * f.scale, dmgMul: mul, speedMul: 1.25 });
+          w.fx.lightning(f.sk.wt.x, f.sk.wt.y, f.x + f.facing * 130, 0, { w: 2.6, branches: 4, dur: 0.16 });
+          w.fx.shake(0.55); AudioManager.play('heavyswing'); AudioManager.play('slam');
         }
       } });
   },

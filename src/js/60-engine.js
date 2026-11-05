@@ -1,6 +1,8 @@
 /* KAGE — GameEngine: fixed-timestep loop, FightSession (rounds, intros, KO, survival waves) and progression */
 
 const HOLLOW_DISSOLVE = 0.75;   // seconds a beaten Hollow takes to come apart into memory ash
+const BOSS_DISSOLVE = 1.8;      // ... and a story boss after his defeat scene (the 'finisher' outcome)
+const BOSS_ESCAPE = 0.7;        // seconds an escaping boss takes to fade out in his smoke
 
 class FightSession {
   constructor(cfg) {
@@ -27,12 +29,16 @@ class FightSession {
     this.fighters = [this.player, this.enemy];
     this.isBoss = this.enemy.def.type === 'boss';
     this.isSub = this.enemy.def.type === 'sub';
-    this.roundsToWin = this.isBoss || this.mode === 'survival' ? 1 : 2;
+    // the fight format (Logic.fightFormat): story bosses are one round, one health bar, three phases and no clock
+    this.format = cfg.format || Logic.fightFormat(cfg);
+    this.bossFormat = this.format.name === 'boss';
+    this.roundsToWin = this.format.roundsToWin;
     this.timer = this.roundTime();
     this.phase = 'intro'; this.phaseT = 0;
     this.setupIntro();
   }
-  roundTime() { return this.mode === 'survival' ? 90 : this.isBoss ? 150 : 75; }
+  // 0 = no round clock (story bosses): the fight can never be lost on time
+  roundTime() { return (this.format && this.format.timer) || 0; }
 
   makePlayer(save) {
     const g = Logic.playerCombatStats(save), pk = g.perks;
@@ -152,14 +158,17 @@ class FightSession {
   dissolve(f) {
     if (f.dissolve) return;
     f.dissolve = 0.001; f.vx = f.vy = 0; f.move = null; f.abil = null; f.bodyRotVel = 0;
-    this.fx.memoryAsh(f, 32, true);
+    if (!f.fadeOnly) this.fx.memoryAsh(f, f.dissolveDur ? 60 : 32, true);
     AudioManager.play('smoke');
   }
   stepDissolve(f, dt) {
     f.dissolve += dt; f.time += dt;
-    const k = Math.min(1, f.dissolve / HOLLOW_DISSOLVE);
-    f.alpha = 1 - k * k; f.sqx = 1 + 0.12 * k; f.sqy = 1 - 0.18 * k;
-    if (k < 1) this.fx.memoryAsh(f, 1);
+    const k = Math.min(1, f.dissolve / (f.dissolveDur || HOLLOW_DISSOLVE));
+    f.alpha = 1 - k * k;
+    if (!f.fadeOnly) { f.sqx = 1 + 0.12 * k; f.sqy = 1 - 0.18 * k; }
+    if (k < 1 && !f.fadeOnly) this.fx.memoryAsh(f, f.dissolveDur ? 2 : 1);
+    // the Witness (reabsorb, placeholder until SAN-42): light streams from it into Kage
+    if (k < 1 && f.reabsorb && ((f.dissolve * 60) | 0) % 2 === 0) { const p = this.player; this.fx.part({ x: f.x + rand(-30, 30), y: f.y - rand(20, 180) * f.scale, vx: (p.x - f.x) * 1.4, vy: (p.y - f.y) * 1.4, life: 0.7, size: rand(3, 6), color: '#c9bdff', type: 'spark', grav: 0, drag: 0.2, add: true }); }
     if (k >= 1) { f.visible = false; f.alpha = 0; }
   }
   smokeCloud(x, big) { this.fx.smoke(x, 0, big ? 18 : 12, big); AudioManager.play('smoke'); }
@@ -174,7 +183,10 @@ class FightSession {
     if (!main) return;
     fx.slowmo(0.22, 1.15); fx.impactFrame(def.x, def.y - 100 * def.scale, 3); fx.shake(0.9); fx.punch(0.12);
     fx.stamp(def === this.player ? 'FALLEN' : 'FINISH', def.x, def.y - 120, 3, def === this.player ? C.ember : C.emberBright);
-    if (def !== this.player) { fx.finisher(def.x, def.y - 100 * def.scale, att.facing); const el = att.elementOf(null); if (el) fx.elemImpact(el, def.x, def.y - 100 * def.scale, att.facing, 3, true); }
+    // a story boss that escapes ('escape') gets no killing blow: he drops to one knee where he stands
+    const escapes = def === this.enemy && this.bossFormat && this.format.defeat === 'escape';
+    if (escapes) { def.setState('pose'); def.poseName = 'kneel'; def.vx = def.vy = 0; def.bodyRotVel = 0; def.bodyRot = 0; def.y = 0; def.grounded = true; }
+    else if (def !== this.player) { fx.finisher(def.x, def.y - 100 * def.scale, att.facing); const el = att.elementOf(null); if (el) fx.elemImpact(el, def.x, def.y - 100 * def.scale, att.facing, 3, true); }
     AudioManager.play('ko');
     this.koTarget = def; this.phase = 'ko'; this.phaseT = 0;
     for (const f of this.fighters) if ((f.clone || f.minion) && f.alive) { f.alive = false; f.hp = 0; f.setState('juggle'); f.vy = -300; if (f.clone) { f.visible = false; this.smokeCloud(f.x); } else if (f.hollow) this.dissolve(f); }
@@ -267,15 +279,15 @@ class FightSession {
       case 'round':
         if (this.phaseT < 0.05 && !this.roundShown) {
           this.roundShown = true; this.rounds.n++;
-          if (this.mode !== 'survival') this.fx.banner(this.roundsToWin > 1 ? `Round ${ROMAN[this.rounds.n - 1]}` : 'Final Duel', this.isBoss ? `Three phases stand between you and the throne · ${Logic.difficulty(SaveManager.data.difficulty).label}` : `${e.name} · ${DIFF_LABEL[clamp((this.cfg.diff || 1) + (this.cfg.ng || 0), 0, 4)]} · ${Logic.difficulty(SaveManager.data.difficulty).label}`, C.gold);
+          if (this.mode !== 'survival') this.fx.banner(this.roundsToWin > 1 ? `Round ${ROMAN[this.rounds.n - 1]}` : 'Final Duel', this.bossFormat ? `One life · three phases · ${Logic.difficulty(SaveManager.data.difficulty).label}` : `${e.name} · ${DIFF_LABEL[clamp((this.cfg.diff || 1) + (this.cfg.ng || 0), 0, 4)]} · ${Logic.difficulty(SaveManager.data.difficulty).label}`, C.gold);
           AudioManager.play('round');
         }
         if (this.phaseT > 1.25 && !this.fightShown) { this.fightShown = true; this.fx.stamp('FIGHT', (p.x + e.x) / 2, -150, 3, C.emberBright); this.fightFlash = 1; }
         if (this.phaseT > 1.6) { this.phase = 'fight'; this.phaseT = 0; this.roundShown = false; this.fightShown = false; }
         break;
       case 'fight':
-        this.timer -= dt; this.fightTime += dt;
-        if (this.timer <= 0) this.timeOut();
+        this.fightTime += dt;
+        if (this.format.timer) { this.timer -= dt; if (this.timer <= 0) this.timeOut(); }
         break;
       case 'ko':
         if (this.phaseT > 2.2) this.afterKO();
@@ -333,15 +345,31 @@ class FightSession {
   }
   startOutro(win) {
     this.phase = 'outro'; this.phaseT = 0; this.win = win;
-    // a beaten boss's `defeat` scene plays here, before the outro and the result screen
-    if (win && this.mode === 'campaign') Game.playStory(Logic.stageScene(this.cfg.stageId, 'defeat'));
+    // a beaten boss's `defeat` scene plays here, before the outro and the result screen; then a story boss leaves the
+    // way its data says (bossExit)
+    const defeatScene = win && this.mode === 'campaign' ? Logic.stageScene(this.cfg.stageId, 'defeat') : null;
+    if (win && this.bossFormat) Game.playStory(defeatScene, () => this.bossExit());
+    else if (defeatScene) Game.playStory(defeatScene);
     const w = win ? this.player : this.enemy, l = win ? this.enemy : this.player;
     w.state = 'pose'; w.poseName = 'victory'; w.vx = 0;
     if (!win) w.poseName = 'taunt';
-    const line = win ? (l.def.defeat || null) : (w.def && w.def.win) || null;
+    const line = win ? (defeatScene ? null : l.def.defeatLine || null) : (w.def && w.def.win) || null;
     if (line && this.mode !== 'survival') this.dialogue = { name: win ? l.name : w.name, title: win ? l.title : w.title, text: line, t: 0 };
     AudioManager.play(win ? 'victory' : 'defeat');
     AudioManager.setMusic('none');
+  }
+  // How a beaten story boss leaves, after his defeat scene (Logic.fightFormat: format.defeat):
+  //   finisher  he comes apart into violet memory ash (the same dissolve as a Hollow, slower and fuller);
+  //   escape    he rises from his knee into a burst of smoke and fades out;
+  //   reabsorb  the Witness: a placeholder (it dissolves and its light streams into Kage); SAN-42 finishes it.
+  bossExit() {
+    const e = this.enemy, d = this.format.defeat;
+    if (!e || e.dissolve) return;
+    if (d === 'escape') { e.fadeOnly = true; e.dissolveDur = BOSS_ESCAPE; this.smokeCloud(e.x, true); this.fx.popText(e, 'ESCAPED', C.gold); this.dissolve(e); return; }
+    e.dissolveDur = BOSS_DISSOLVE;
+    if (d === 'reabsorb') { e.reabsorb = true; this.player.flash = 0.3; }
+    this.dissolve(e);
+    this.fx.slowmo(0.6, 0.6);
   }
   buildResult() {
     const p = this.player, e = this.enemy;
@@ -378,6 +406,7 @@ class FightSession {
     if (this.phase === 'intro') { tx = e.x - 90; tz = this.isBoss ? 1.32 : 1.25; ty = -30; }
     else if (this.phase === 'ko' && this.koTarget) { tx = this.koTarget.x; tz = this.isBoss ? 1.55 : 1.35; ty = -40; }
     else if (this.cine && this.cine.t > 0) { tx = this.cine.target.x; tz = 1.42; ty = -50; }
+    else if (this.phase === 'outro' && this.win && this.bossFormat) { tx = (p.x + e.x) / 2; tz = 1.2; ty = -30; }  // keep the boss's exit in frame
     else if (this.phase === 'outro') { const w = this.win ? p : e; tx = w.x; tz = 1.3; ty = -30; }
     else {
       const dist = Math.abs(p.x - e.x);
@@ -414,6 +443,7 @@ class StretchSession extends FightSession {
     const cfg = this.cfg, L = cfg.stretch, p = this.player, save = SaveManager.data;
     this.stretch = L; this.isStretch = true;
     this.enemy = null; this.isBoss = false; this.isSub = false; this.roundsToWin = 1; this.timer = 0;
+    this.format = this.cfg.format || Logic.fightFormat(this.cfg); this.bossFormat = false;
     this.level = { l: 0, r: L.length };
     this.cleared = 0; this.encounter = null; this.engaged = new Set();
     const found = Logic.cluesFound(save, cfg.stageId);
