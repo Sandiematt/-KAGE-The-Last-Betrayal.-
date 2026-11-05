@@ -1,6 +1,6 @@
 /* KAGE — core: constants, math helpers, SaveManager, AudioManager, InputManager */
 
-const W = 1280, H = 720, GROUND = 604;
+const W = 1280, H = 720, GROUND = 604, FLOOR_DEPTH = 34;
 const DEG = Math.PI / 180, TAU = Math.PI * 2;
 const STEP = 1 / 60;
 

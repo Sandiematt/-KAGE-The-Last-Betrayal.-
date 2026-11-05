@@ -770,7 +770,7 @@ body { font-family: var(--font-num); }
 /* ===== 00-core.js ===== */
 /* KAGE — core: constants, math helpers, SaveManager, AudioManager, InputManager */
 
-const W = 1280, H = 720, GROUND = 604;
+const W = 1280, H = 720, GROUND = 604, FLOOR_DEPTH = 34;
 const DEG = Math.PI / 180, TAU = Math.PI * 2;
 const STEP = 1 / 60;
 
@@ -1275,7 +1275,8 @@ const STANCES = {
   // bladed fighting stance: lead hand at chin height, rear fist guarding the jaw, chin tucked, knees soft
   fists:  P({ lean: 8, head: 7, fs: 58, fe: 96, bs: 34, be: 120, fh: 30, fk: -26, bh: -32, bk: -12, tw: -0.3 }),
   // chudan-no-kamae: two-handed grip at the navel, tip aimed at the opponent's throat, rear heel lifted
-  katana: P({ lean: 6, head: 4, fs: 34, fe: 54, bs: 24, be: 74, wa: 110, fh: 32, fk: -26, bh: -34, bk: -6, tw: -0.25, ik: 1 }),
+  // elbows bent and tucked, hands at the navel, tip at throat height; knees soft, hips settled between the feet
+  katana: P({ lean: 5, head: 4, fs: 22, fe: 72, bs: 20, be: 80, wa: 116, fh: 28, fk: -30, bh: -27, bk: -15, tw: -0.25, ik: 1 }),
   twin:   P({ lean: 10, head: 6, fs: 64, fe: 72, bs: 40, be: 90, wa: 104, wb: 128, fh: 28, fk: -24, bh: -28, bk: -12 }),
   cleaver:P({ lean: 6, head: 4, fs: 28, fe: 80, bs: 34, be: 104, wa: 160, fh: 28, fk: -22, bh: -30, bk: -14 }),
   spear:  P({ lean: 6, head: 4, fs: 56, fe: 24, bs: 24, be: 58, wa: 98, fh: 30, fk: -20, bh: -30, bk: -10, ik: 1 }),
@@ -1405,7 +1406,7 @@ const WEAPONS = {
     },
     counter: 'twc'
   },
-  moon_katana: { heft: 1, el: 'moon', name: 'Moon Katana', cls: 'Blades', tab: 'blades', rarity: 'Balanced Blade', hands: 2, len: 112, stance: 'katana', stats: [60, 64, 58], price: 0,
+  moon_katana: { heft: 1, el: 'moon', name: 'Moon Katana', cls: 'Blades', tab: 'blades', rarity: 'Balanced Blade', hands: 2, len: 82, stance: 'katana', stats: [60, 64, 58], price: 0,
     trail: '#ece5d3', desc: 'Balanced cuts and lightning counter-slashes. Block or parry, then strike to draw the iai counter.',
     moves: ['k1', 'k2', 'k3'], air: 'ka', special: 'crescentMoon', counter: 'kc',
     defs: {
@@ -1713,7 +1714,7 @@ const SHAPE = {
   sentinel_spear: 'spear', sage_staff: 'staff', storm_orbs: 'none', iron_fists: 'none', chain_hook: 'hook',
   tyrant_cleaver: 'tyrant', cutter_blade: 'katana', temple_staff: 'staff', raider_cleaver: 'cleaver'
 };
-const IK_OFF = { katana: -0.17, spear: -0.3, hammer: 0.3, staff: -0.32 };
+const IK_OFF = { katana: -0.2, spear: -0.3, hammer: 0.3, staff: -0.32 };
 const CARRY = { katana: 40, short: 30, cleaver: 60, spear: 10, sickle: 70, hammer: 100, staff: 0, crescent: 40, fan: 40, hook: 70, tyrant: 60, none: 0 };
 
 /* ---------------- Cloth (verlet chain) for scarves, capes, robes ---------------- */
@@ -1743,6 +1744,11 @@ class Cloth {
         const d = Math.sqrt(dx * dx + dy * dy) || 0.001, diff = (d - seg) / d;
         px[i] -= dx * diff; py[i] -= dy * diff;
       }
+      // bend resistance for thin fabric: links two apart may not close up, so a tail ripples instead of folding into loops
+      if (this.o.stiff) for (let i = 2; i < n; i++) {
+        const dx = px[i] - px[i - 2], dy = py[i] - py[i - 2], d = Math.sqrt(dx * dx + dy * dy) || 0.001, min = seg * this.o.stiff;
+        if (d < min) { const k = (min - d) / d; px[i] += dx * k; py[i] += dy * k; }
+      }
     }
   }
   draw(ctx, color, w0, w1, edge) {
@@ -1767,6 +1773,26 @@ class Cloth {
       for (let i = 1; i < n; i++) ctx.lineTo(px[i], py[i]);
       ctx.strokeStyle = edge; ctx.lineWidth = 1.2; ctx.stroke();
     }
+  }
+  // fabric tail: smooth centre line, tapering from the knot (w0) to the tip (w1)
+  ribbon(ctx, color, w0, w1) {
+    if (!this.init) return;
+    const n = this.n, px = this.px, py = this.py, L = this._rl || (this._rl = new Float32Array(n * 2)), R = this._rr || (this._rr = new Float32Array(n * 2));
+    for (let i = 0; i < n; i++) {
+      const a = i === 0 ? 0 : i - 1, b = i === n - 1 ? n - 1 : i + 1;
+      let dx = px[b] - px[a], dy = py[b] - py[a]; const d = Math.sqrt(dx * dx + dy * dy) || 1; dx /= d; dy /= d;
+      const u = i / (n - 1), w = (w0 + (w1 - w0) * u * u) * 0.5 * (1 + 0.12 * Math.sin(i * 1.7 + this.o.ph));
+      L[i * 2] = px[i] - dy * w; L[i * 2 + 1] = py[i] + dx * w; R[i * 2] = px[i] + dy * w; R[i * 2 + 1] = py[i] - dx * w;
+    }
+    const side = (A, from, to, step) => {
+      for (let i = from; i !== to; i += step) { const j = i + step; ctx.quadraticCurveTo(A[i * 2], A[i * 2 + 1], (A[i * 2] + A[j * 2]) / 2, (A[i * 2 + 1] + A[j * 2 + 1]) / 2); }
+    };
+    ctx.beginPath(); ctx.moveTo(L[0], L[1]);
+    side(L, 0, n - 1, 1); ctx.lineTo(L[(n - 1) * 2], L[(n - 1) * 2 + 1]);
+    ctx.lineTo(px[n - 1] + (px[n - 1] - px[n - 2]) * 0.35, py[n - 1] + (py[n - 1] - py[n - 2]) * 0.35); // cut, slightly pointed end
+    ctx.lineTo(R[(n - 1) * 2], R[(n - 1) * 2 + 1]);
+    side(R, n - 1, 0, -1); ctx.lineTo(R[0], R[1]);
+    ctx.closePath(); ctx.fillStyle = color; ctx.fill();
   }
   strand(ctx, color, width) {
     if (!this.init) return;
@@ -1832,13 +1858,14 @@ class Fighter {
     this.outfit = o.outfit || (o.isPlayer ? 'gi' : (this.def && this.def.outfit) || (this.armor === 'robe' ? 'robe' : 'plain'));
     this.cloths = [];
     if (this.outfit === 'gi') {
-      const bc = o.isPlayer ? '#7a2219' : '#2a2620';
-      this.cloths.push({ kind: 'belt', c: new Cloth(6, 6 * this.scale, { ph: 7, wind: 260, grav: 1100 }), at: 'hip', color: bc, w: 4.2 * this.scale, dy: -10 });
-      this.cloths.push({ kind: 'belt', c: new Cloth(5, 6 * this.scale, { ph: 8, wind: 220, grav: 1200 }), at: 'hip', color: bc, w: 3.4 * this.scale, dy: -7 });
+      const bc = o.isPlayer ? C.emberBright : '#2a2620', bc2 = o.isPlayer ? '#b8362b' : '#2a2620';
+      this.cloths.push({ kind: 'belt', c: new Cloth(6, 5.6 * this.scale, { ph: 7, wind: 200, grav: 1250, stiff: 1.7 }), at: 'hip', color: bc, w: 4 * this.scale, w1: 2.4 * this.scale, dy: -11, dx: -3 });
+      this.cloths.push({ kind: 'belt', c: new Cloth(5, 5.4 * this.scale, { ph: 8, wind: 170, grav: 1300, stiff: 1.7 }), at: 'hip', color: bc2, w: 3.2 * this.scale, w1: 2 * this.scale, dy: -10, dx: -1 });
     }
     if (this.helmet === 'topknot') {
-      this.cloths.push({ kind: 'scarf', c: new Cloth(10, 8 * this.scale, { ph: 9, wind: 700 }), at: 'head', color: C.emberBright, w: 5 * this.scale, dy: -5, dx: 15 });
-      this.cloths.push({ kind: 'scarf', c: new Cloth(9, 7.5 * this.scale, { ph: 11, wind: 620 }), at: 'head', color: '#b8362b', w: 3.6 * this.scale, dy: -2, dx: 15 });
+      // two thin hachimaki tails of different length, out of phase so they never move as one strip
+      this.cloths.push({ kind: 'scarf', c: new Cloth(10, 7.6 * this.scale, { ph: 9, wind: 860, grav: 680, stiff: 1.75 }), at: 'head', color: C.emberBright, w: 3.4 * this.scale, w1: 1.3 * this.scale, dy: -8, dx: 16 });
+      this.cloths.push({ kind: 'scarf', c: new Cloth(8, 7 * this.scale, { ph: 12.5, wind: 740, grav: 760, stiff: 1.75 }), at: 'head', color: '#b8362b', w: 2.8 * this.scale, w1: 1.1 * this.scale, dy: -6, dx: 16 });
     }
     if (o.scarf && this.helmet !== 'topknot') {
       this.cloths.push({ kind: 'scarf', c: new Cloth(9, 7 * this.scale, { ph: 0, wind: 560 }), at: 'neck', color: C.emberBright, w: 5.5 * this.scale });
@@ -2297,8 +2324,10 @@ class Fighter {
     let rate = 14;
     const copy = src => { for (let i = 0; i < POSE_KEYS.length; i++) t[POSE_KEYS[i]] = src[POSE_KEYS[i]]; t.ik = src.ik || 0; };
     this.extraRot = 0;
+    let plant = null;
     switch (this.state) {
       case 'idle': case 'land': case 'kickcharge': case 'walk': case 'run': {
+        if (this.state === 'idle' || this.state === 'land') plant = stance;
         if (this.state === 'kickcharge' && this.charge > 0.12) { copy(MOVES.hk.w); rate = 16; t.lean += Math.sin(this.time * 40) * 1.5; break; }
         copy(stance);
         // the knee starts to chamber the instant kick is pressed, before we know whether it is a tap or a charge
@@ -2306,7 +2335,7 @@ class Fighter {
         if (this.state === 'land') { blendPose(t, POSES.land, this.landDepth * (1 - 0.6 * clamp(this.st / this.landT, 0, 1))); t.wa = stance.wa; t.wb = stance.wb; t.fs = stance.fs; t.fe = stance.fe; t.ik = stance.ik || 0; rate = 32; break; }
         // fighter's bounce: rhythmic knee flex while the guard breathes
         const bt = this.time * TAU * 1.5, bounce = (1 + Math.sin(bt)) * 0.5, lowHp = this.hp < this.maxHp * 0.25;
-        t.fk -= bounce * 10; t.bk -= bounce * 8; t.fh += bounce * 3;
+        t.fk -= bounce * 8; t.bk -= bounce * 7; t.fh += bounce * 2;
         t.lean += Math.sin(bt) * 1.2 + (lowHp ? 7 : 0); t.head += Math.sin(bt) * 1.2 + (lowHp ? 6 : 0);
         t.fe += Math.sin(bt + 0.6) * 4; t.be -= Math.sin(bt + 1.1) * 3;
         if (this.state === 'walk') {
@@ -2326,7 +2355,7 @@ class Fighter {
         }
         break;
       }
-      case 'block': copy(this.shape() === 'none' || this.shape() === 'fan' ? POSES.blockFists : POSES.blockArmed); rate = 28;
+      case 'block': plant = this.shape() === 'none' || this.shape() === 'fan' ? POSES.blockFists : POSES.blockArmed; copy(plant); rate = 28;
         if (this.weaponId() === 'sentinel_spear') { t.bs = 96; t.be = 10; t.wb = 180; }
         break;
       case 'dash': copy(this.dashDir === this.facing ? POSES.dash : POSES.backstep); rate = 30; break;
@@ -2396,6 +2425,9 @@ class Fighter {
         if (this.poseName === 'victory' || this.poseName === 'taunt') { const br = Math.sin(this.time * 2); t.lean += br; }
         break;
     }
+    // planted feet: while standing, the soles stay where the stance put them and the knees absorb the bounce
+    if (plant && this.grounded) this.plantSrc = plant;
+    this.plantW = damp(this.plantW || 0, plant && this.grounded ? 1 : 0, plant ? 9 : 16, dt);
     // weapon angles: null -> follow forearm
     const sh = this.shape();
     if (t.tw == null) t.tw = 0; if (t.hp == null) t.hp = 0;
@@ -2520,6 +2552,13 @@ class Fighter {
     limb(shB.x, shB.y, p.bs, p.be, upper, fore, 'bel', 'bha');
     limb(hipF.x, hipF.y, p.fh, p.fk, thigh, shin, 'fkn', 'fft');
     limb(hipB.x, hipB.y, p.bh, p.bk, thigh, shin, 'bkn', 'bft');
+    const pw = this.plantW || 0, ps = this.plantSrc;
+    if (pw > 0.01 && ps && this.grounded) {
+      const G = Math.max(L.fft.y, L.bft.y), hp0 = ps.hp || 0;
+      const footX = (hx, h, k) => hx + Math.sin(h * DEG) * thigh + Math.sin((h + k) * DEG) * shin;
+      this.plantLeg(L.hipF, L.fkn, L.fft, footX(-hsep * (hp0 * 0.5 - 0.15), ps.fh, ps.fk), G, thigh, shin, pw);
+      this.plantLeg(L.hipB, L.bkn, L.bft, footX(hsep * (hp0 * 0.8 - 0.15), ps.bh, ps.bk), G, thigh, shin, pw);
+    }
     // weapon direction (local)
     const wl = this.weaponLen();
     const wA = p.wa * DEG, wB = p.wb * DEG;
@@ -2533,10 +2572,11 @@ class Fighter {
     // rotate around hip and find ground contact
     const keys = ['neck', 'sh', 'shF', 'shB', 'hipF', 'hipB', 'head', 'fel', 'fha', 'bel', 'bha', 'fkn', 'fft', 'bkn', 'bft'];
     let maxY = 0;
+    const sole = b.w * s * 0.42 * (b.w >= 13 ? 1.15 : 1) * 0.9;
     for (const k of keys) {
       const o = L[k], x = o.x - hip.x, y = o.y - hip.y;
       o.x = hip.x + x * cr - y * sr; o.y = hip.y + x * sr + y * cr;
-      const yy = k === 'head' ? o.y + hr : o.y;
+      const yy = k === 'head' ? o.y + hr : (k === 'fft' || k === 'bft') ? o.y + sole : o.y;
       if (yy > maxY) maxY = yy;
     }
     for (const k of ['wv', 'w2v']) { const o = L[k], x = o.x, y = o.y; o.x = x * cr - y * sr; o.y = x * sr + y * cr; }
@@ -2561,6 +2601,16 @@ class Fighter {
     const wl2 = this.shape() === 'short' || this.shape() === 'crescent' || this.shape() === 'fan' ? wl : 0;
     sk.w2b.x = sk.bha.x + this.w2Vec.x * wl2 * 0.3; sk.w2b.y = sk.bha.y + this.w2Vec.y * wl2 * 0.3;
     sk.w2t.x = sk.bha.x + this.w2Vec.x * wl2; sk.w2t.y = sk.bha.y + this.w2Vec.y * wl2;
+  }
+  // two-bone leg IK toward a planted foot (knee always bends forward), blended over the FK leg by w
+  plantLeg(hp, kn, ft, tx, ty, a, b, w) {
+    const dx = tx - hp.x, dy = ty - hp.y, d = clamp(Math.sqrt(dx * dx + dy * dy), Math.abs(a - b) + 0.01, a + b - 0.01);
+    const base = Math.atan2(dy, dx), A = Math.acos(clamp((a * a + d * d - b * b) / (2 * a * d), -1, 1));
+    const k1x = hp.x + Math.cos(base + A) * a, k2x = hp.x + Math.cos(base - A) * a;
+    const pick = k1x > k2x ? base + A : base - A;
+    const kx = hp.x + Math.cos(pick) * a, ky = hp.y + Math.sin(pick) * a;
+    const fa = Math.atan2(ty - ky, tx - kx), fx = kx + Math.cos(fa) * b, fy = ky + Math.sin(fa) * b;
+    kn.x += (kx - kn.x) * w; kn.y += (ky - kn.y) * w; ft.x += (fx - ft.x) * w; ft.y += (fy - ft.y) * w;
   }
   solveIK(sh, tx, ty, a, b, L) {
     const dx = tx - sh.x, dy = ty - sh.y;
@@ -2786,23 +2836,47 @@ function fistShape(ctx, p, r) { ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, TAU); c
 const _np = { x: 0, y: 0 };
 
 // flat 2D stickman: uniform round-capped limbs, plain circle head, no shading, no muscle volume
+// Kael (the player) gets the reference-sheet details: small feet, arm/leg wraps and the red sash, layered in draw order
+const HERO_WRAP = '#dcd6ca', HERO_WRAP_BACK = '#8f897f';
+function heroWrap(ctx, a, b, u0, u1, r, col, ink, s) {
+  const ax = lerp(a.x, b.x, u0), ay = lerp(a.y, b.y, u0), bx = lerp(a.x, b.x, u1), by = lerp(a.y, b.y, u1);
+  ctx.strokeStyle = col; ctx.lineWidth = r * 2; ctx.lineCap = 'butt';
+  ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
+  // diagonal binding lines
+  const dx = bx - ax, dy = by - ay, D = Math.hypot(dx, dy) || 1, ux = dx / D, uy = dy / D, nx = -uy, ny = ux, n = Math.max(2, Math.round(D / (4.2 * s)));
+  ctx.strokeStyle = ink; ctx.globalAlpha *= 0.5; ctx.lineWidth = 0.8 * s;
+  ctx.beginPath();
+  for (let i = 1; i < n; i++) { const k = i / n, cx = ax + dx * k, cy = ay + dy * k; ctx.moveTo(cx - nx * r - ux * r * 0.55, cy - ny * r - uy * r * 0.55); ctx.lineTo(cx + nx * r + ux * r * 0.55, cy + ny * r + uy * r * 0.55); }
+  ctx.stroke(); ctx.globalAlpha /= 0.5; ctx.lineCap = 'round';
+}
 Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   const sk = this.sk, s = this.scale, b = this.build, f = this.facing;
   const big = b.w >= 16 ? 1.45 : b.w >= 13 ? 1.2 : 1;
-  const L = b.w * s * 0.42 * (b.w >= 13 ? 1.15 : 1);          // limb half-width, constant along the limb
+  const L = b.w * s * 0.42 * (b.w >= 13 ? 1.15 : 1);          // limb half-width, one value for every arm and leg
   const T = L * 1.25 * big, hr = BODY.head * s * b.head;
+  const hero = this.isPlayer, det = !flat && hero, gi = !flat && this.outfit === 'gi';
   const seg = (a, c, r) => limbShape(ctx, a, c, r, r, 0, 0, f, 0.5);
+  const legW = hero ? L : L * 1.05;
+  const foot = (kn, an) => footShape(ctx, kn, an, f, legW * 2.3, (hero ? 8.5 : 9) * s * big);
   ctx.fillStyle = front;
   seg(sk.shB, sk.bel, L); seg(sk.bel, sk.bha, L);
+  if (det) heroWrap(ctx, sk.bel, sk.bha, 0.42, 0.9, L * 1.02, HERO_WRAP_BACK, front, s);
   this.drawOffhand(ctx, front, flat ? Object.assign({}, opt, { color: front }) : opt);
   ctx.fillStyle = front;
-  seg(sk.hipB, sk.bkn, L * 1.05); seg(sk.bkn, sk.bft, L * 1.05);
-  seg(sk.hip, sk.neck, T);
+  seg(sk.hipB, sk.bkn, legW); seg(sk.bkn, sk.bft, legW); foot(sk.bkn, sk.bft);
+  if (det) heroWrap(ctx, sk.bkn, sk.bft, 0.5, 0.9, legW * 1.04, HERO_WRAP_BACK, front, s);
+  ctx.fillStyle = front;
+  // torso: a touch narrower at the waist than across the chest, so shoulders read without bulk
+  if (hero) { limbShape(ctx, sk.hip, sk.neck, T * 0.9, T * 1.02, 0, 0, f, 0.5); }
+  else seg(sk.hip, sk.neck, T);
   drawArmor(ctx, this, front, flat ? { color: front } : opt, T * 1.25);
   ctx.fillStyle = front;
-  seg(sk.hipF, sk.fkn, L * 1.05); seg(sk.fkn, sk.fft, L * 1.05);
+  seg(sk.hipF, sk.fkn, legW); seg(sk.fkn, sk.fft, legW); foot(sk.fkn, sk.fft);
+  if (det) heroWrap(ctx, sk.fkn, sk.fft, 0.5, 0.9, legW * 1.04, HERO_WRAP, front, s);
+  if (gi) this.drawSash(ctx, T);
+  ctx.fillStyle = front;
   _np.x = lerp(sk.neck.x, sk.head.x, 0.5); _np.y = lerp(sk.neck.y, sk.head.y, 0.5);
-  seg(sk.neck, _np, L * 0.9);
+  seg(sk.neck, _np, hero ? L * 0.72 : L * 0.9);
   ctx.save(); ctx.translate(sk.head.x, sk.head.y); ctx.rotate((this.pose.lean + this.pose.head + this.pose.rot + this.extraRot) * DEG * f); ctx.scale(f, 1);
   ctx.fillStyle = front;
   ctx.beginPath(); ctx.arc(0, 0, hr, 0, TAU); ctx.fill();
@@ -2811,19 +2885,25 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   ctx.restore();
   ctx.fillStyle = front;
   seg(sk.shF, sk.fel, L); seg(sk.fel, sk.fha, L);
+  if (det) heroWrap(ctx, sk.fel, sk.fha, 0.42, 0.9, L * 1.02, HERO_WRAP, front, s);
+  ctx.fillStyle = front;
   if (this.weaponId() === 'iron_fists' || this.weaponId() === 'storm_orbs') this.drawFistGear(ctx, front, flat ? { color: front } : opt);
   this.drawMainWeapon(ctx, front, flat ? Object.assign({}, opt, { color: front }) : opt);
 };
 
-// flat colour accents only (no highlights): Kael's red belt
-Fighter.prototype.drawDetails = function (ctx) {
-  if (this.outfit !== 'gi') return;
-  const sk = this.sk, s = this.scale, L = this.build.w * s * 0.42;
-  const k = 0.14, x = lerp(sk.hip.x, sk.neck.x, k), y = lerp(sk.hip.y, sk.neck.y, k);
-  const dx = sk.neck.x - sk.hip.x, dy = sk.neck.y - sk.hip.y, D = Math.hypot(dx, dy) || 1, w = L * 1.45;
-  ctx.strokeStyle = this.isPlayer ? C.emberBright : '#3a342b'; ctx.lineWidth = 4 * s; ctx.lineCap = 'butt';
-  ctx.beginPath(); ctx.moveTo(x + dy / D * w, y - dx / D * w); ctx.lineTo(x - dy / D * w, y + dx / D * w); ctx.stroke();
+// red obi: a band around the waist with a small knot at the front (its tails are cloth)
+Fighter.prototype.drawSash = function (ctx, T) {
+  const sk = this.sk, s = this.scale, f = this.facing;
+  const k = 0.16, x = lerp(sk.hip.x, sk.neck.x, k), y = lerp(sk.hip.y, sk.neck.y, k);
+  const dx = sk.neck.x - sk.hip.x, dy = sk.neck.y - sk.hip.y, D = Math.hypot(dx, dy) || 1, ux = dx / D, uy = dy / D;
+  let nx = -uy, ny = ux; if (nx * f < 0) { nx = -nx; ny = -ny; }
+  const w = T * 0.98, col = this.isPlayer ? C.emberBright : '#3a342b';
+  ctx.strokeStyle = col; ctx.lineWidth = (this.isPlayer ? 5 : 4) * s; ctx.lineCap = 'butt';
+  ctx.beginPath(); ctx.moveTo(x - nx * w, y - ny * w); ctx.lineTo(x + nx * w, y + ny * w); ctx.stroke();
+  if (this.isPlayer) { ctx.fillStyle = '#b8362b'; ctx.beginPath(); ctx.ellipse(x + nx * w * 0.8, y + ny * w * 0.8 + 1.5 * s, 2.4 * s, 3 * s, 0, 0, TAU); ctx.fill(); }
+  ctx.lineCap = 'round';
 };
+Fighter.prototype.drawDetails = function () {};
 
 function flipCrescent(ctx, R, ry, p0, p1, w, col) {
   const N = 20, pts = [];
@@ -2860,7 +2940,31 @@ Fighter.prototype.drawFlipArcs = function (ctx, front) {
   ctx.restore();
 };
 
-const OUTLINE_DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1], [0.71, 0.71], [-0.71, 0.71], [0.71, -0.71], [-0.71, -0.71]];
+// soft ground shadow under the body plus a darker contact patch under each foot that is on the floor
+Fighter.prototype.drawShadow = function (ctx) {
+  if (!this.visible || this.alpha <= 0.01) return;
+  const sk = this.sk, s = this.scale, h = Math.max(0, -this.y), k = clamp(1 - h / 320, 0.2, 1);
+  const lying = this.state === 'down' || this.state === 'dead';
+  const cx = lying ? (sk.hip.x + sk.neck.x) / 2 : lerp(sk.hip.x, (sk.fft.x + sk.bft.x) / 2, 0.6);
+  const rx = (lying ? 90 : 54 + Math.abs(sk.fft.x - sk.bft.x) * 0.35) * s * (0.6 + 0.4 * k), ry = 9 * s * (0.6 + 0.4 * k);
+  ctx.save(); ctx.globalAlpha *= this.alpha;
+  ctx.translate(cx, 1); ctx.scale(1, ry / rx);
+  const g = ctx.createRadialGradient(0, 0, 0, 0, 0, rx);
+  g.addColorStop(0, `rgba(0,0,0,${0.85 * k})`); g.addColorStop(0.5, `rgba(0,0,0,${0.55 * k})`); g.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, rx, 0, TAU); ctx.fill();
+  ctx.restore();
+  if (lying) return;
+  ctx.save(); ctx.globalAlpha *= this.alpha;
+  for (const ft of [sk.fft, sk.bft]) {
+    const c = clamp(1 - (-ft.y - 6 * s) / (26 * s), 0, 1);   // ankle height above the floor -> contact strength
+    if (c <= 0.02) continue;
+    ctx.fillStyle = `rgba(0,0,0,${0.8 * c})`;
+    ctx.beginPath(); ctx.ellipse(ft.x + this.facing * 3 * s, 1, 13 * s, 3 * s, 0, 0, TAU); ctx.fill();
+  }
+  ctx.restore();
+};
+
+const OUTLINE_DIRS = Array.from({ length: 12 }, (_, i) => [Math.cos(i * Math.PI / 6), Math.sin(i * Math.PI / 6)]);
 Fighter.prototype.draw = function (ctx, opt) {
   opt = opt || {};
   if (!this.visible || this.alpha <= 0.01) return;
@@ -2878,10 +2982,15 @@ Fighter.prototype.draw = function (ctx, opt) {
   for (const cl of this.cloths) if (cl.kind === 'cape' || cl.kind === 'robe') cl.c.draw(ctx, opt.color || cl.color, cl.w0, cl.w1, null);
   // clean, even white outline: the silhouette stamped around itself, then the flat body on top
   if (opt.rim && !opt.color) {
-    const d = 1.7 * s, oc = opt.outline || '#f1ebe0';
-    for (const [dx, dy] of OUTLINE_DIRS) { ctx.save(); ctx.translate(dx * d, dy * d); this.silhouette(ctx, oc, oc, true, opt); ctx.restore(); }
+    const d = 1.6 * s, oc = opt.outline || '#f1ebe0', ro = this._rimOpt || (this._rimOpt = {});
+    for (const k in ro) delete ro[k];
+    Object.assign(ro, opt, { rimPass: true });
+    for (const [dx, dy] of OUTLINE_DIRS) { ctx.save(); ctx.translate(dx * d, dy * d); this.silhouette(ctx, oc, oc, true, ro); ctx.restore(); }
   }
-  for (const cl of this.cloths) if (cl.kind === 'scarf' || cl.kind === 'ribbon' || cl.kind === 'belt') cl.c.strand(ctx, opt.color || (flashing ? ink : cl.color), cl.w);
+  for (const cl of this.cloths) if (cl.kind === 'scarf' || cl.kind === 'ribbon' || cl.kind === 'belt') {
+    const col = opt.color || (flashing ? ink : cl.color);
+    if (cl.w1) cl.c.ribbon(ctx, col, cl.w, cl.w1); else cl.c.strand(ctx, col, cl.w);
+  }
   this.silhouette(ctx, ink, ink, flat, opt);
   if (!flat) this.drawDetails(ctx, opt);
   if (!opt.color) this.drawFlipArcs(ctx, true);
@@ -2905,7 +3014,7 @@ Fighter.prototype.drawMainWeapon = function (ctx, ink, opt) {
     ctx.translate(ex, ey);
   } else ctx.translate(sk.fha.x, sk.fha.y);
   ctx.rotate(this.wAng); if (this.facing < 0) ctx.scale(1, -1);
-  drawWeaponShape(ctx, sh, L, opt.color ? 'flat' : 'ink', this.scale, opt.color || ink, this);
+  drawWeaponShape(ctx, sh, L, opt.rimPass ? 'rim' : opt.color ? 'flat' : 'ink', this.scale, opt.color || ink, this);
   ctx.restore();
   // sickle chain hanging to the back hand
   if ((sh === 'sickle' || sh === 'hook') && this.chainExt <= 1) {
@@ -2965,6 +3074,7 @@ function drawEyes(ctx, f, r, opt) {
 
 /* ---- weapon art: origin at the grip, +x along the blade ---- */
 function drawWeaponShape(ctx, sh, L, mode, s, ink, f) {
+  const rim = mode === 'rim'; if (rim) mode = 'flat';   // outline pass: the steel stays thin, only the hilt gets the white edge
   const art = mode === 'art';
   const steel = art ? C.bone : mode === 'flat' ? ink : '#e6e1d6';
   const edge = art ? C.emberBright : null;
@@ -2972,8 +3082,37 @@ function drawWeaponShape(ctx, sh, L, mode, s, ink, f) {
   ctx.lineCap = 'round'; ctx.lineJoin = 'round';
   const line = (x1, y1, x2, y2, w, col) => { ctx.strokeStyle = col; ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); };
   switch (sh) {
-    case 'katana': case 'short': {
-      const hl = sh === 'katana' ? 0.26 : 0.32;
+    case 'katana': {
+      // tsuka (wrapped grip) long enough for two hands, small oval tsuba, then a slim blade with a gentle sori and an angled kissaki
+      const hl = 0.31, hw = 2.2 * s;
+      line(-L * hl, 0, -1.5 * s, 0, hw * 2, dark);
+      if (!rim && mode !== 'flat') {
+        ctx.fillStyle = art ? C.gold : '#d9d3c6';
+        for (let i = 1; i < 5; i++) { ctx.save(); ctx.translate(-L * hl * (i + 0.1) / 5.2, 0); ctx.rotate(Math.PI / 4); ctx.fillRect(-0.95 * s, -0.95 * s, 1.9 * s, 1.9 * s); ctx.restore(); }
+      }
+      if (art) { ctx.fillStyle = C.gold; ctx.beginPath(); ctx.arc(-L * hl, 0, hw * 1.1, 0, TAU); ctx.fill(); }
+      ctx.fillStyle = art ? C.gold : ink; ctx.beginPath(); ctx.ellipse(-0.6 * s, 0, 1.7 * s, 5 * s, 0, 0, TAU); ctx.fill();
+      if (rim) break;
+      // centre line y(u) = -sori * u^2, half-width tapers from the habaki to the yokote
+      const N = 9, sori = L * 0.045, w0 = 1.75 * s, w1 = 1.2 * s, yk = 0.9, bx = 1.4 * s;
+      const cy = u => -sori * u * u, X = u => bx + (L - bx) * u;
+      ctx.beginPath(); ctx.moveTo(bx, cy(0) - w0);
+      for (let i = 1; i <= N; i++) { const u = yk * i / N; ctx.lineTo(X(u), cy(u) - lerp(w0, w1, u / yk)); }   // mune (back)
+      ctx.lineTo(L, cy(1) - w1 * 0.55);                                                                         // tip
+      ctx.quadraticCurveTo(X(0.97), cy(0.97) + w1 * 0.9, X(yk), cy(yk) + w1);                                  // kissaki edge sweeps back
+      for (let i = N - 1; i >= 0; i--) { const u = yk * i / N; ctx.lineTo(X(u), cy(u) + lerp(w0, w1, u / yk)); } // ha (edge)
+      ctx.closePath(); ctx.fillStyle = steel; ctx.fill();
+      if (mode !== 'flat') {
+        ctx.strokeStyle = art ? C.emberBright : 'rgba(120,114,104,0.55)'; ctx.lineWidth = (art ? 1.2 : 0.7) * s;
+        ctx.beginPath(); ctx.moveTo(bx + 3 * s, cy(0) - w0 * 0.25);
+        for (let i = 1; i <= N; i++) { const u = yk * i / N; ctx.lineTo(X(u), cy(u) - lerp(w0, w1, u / yk) * 0.25); } ctx.stroke();  // shinogi line
+        ctx.fillStyle = art ? C.gold : '#b9b3a6'; ctx.fillRect(bx, cy(0) - w0, 3 * s, w0 * 2);                    // habaki
+      }
+      break;
+    }
+    case 'short': {
+      if (rim) { line(-L * 0.32, 0, 0, 0, 6 * s, dark); break; }
+      const hl = 0.32;
       line(-L * hl, 0, 0, 0, 6 * s, dark);
       if (art) { ctx.fillStyle = C.gold; for (let i = 1; i < 5; i++) { ctx.save(); ctx.translate(-L * hl * i / 5, 0); ctx.rotate(Math.PI / 4); ctx.fillRect(-2 * s, -2 * s, 4 * s, 4 * s); ctx.restore(); } }
       ctx.fillStyle = art ? C.gold : ink; ctx.beginPath(); ctx.ellipse(0, 0, 2.6 * s, 7.5 * s, 0, 0, TAU); ctx.fill();
@@ -3055,6 +3194,18 @@ function drawWeaponShape(ctx, sh, L, mode, s, ink, f) {
   }
 }
 
+/* ---- Kael's hair: a few sharp spikes swept up and back, one fringe spike over the brow ---- */
+const HERO_HAIR = [[0.9, -0.3], [1.1, -0.56], [0.62, -0.8], [0.4, -1.36], [0.06, -0.98], [-0.5, -1.56], [-0.4, -0.94], [-1.26, -1.3], [-0.84, -0.62], [-1.86, -0.74], [-0.98, -0.3], [-1.6, -0.08], [-1.0, -0.02]];
+function drawHeroHair(ctx, r, ink) {
+  ctx.fillStyle = ink; ctx.beginPath(); ctx.moveTo(HERO_HAIR[0][0] * r, HERO_HAIR[0][1] * r);
+  for (let i = 1; i < HERO_HAIR.length; i++) {
+    const p = HERO_HAIR[i], q = HERO_HAIR[i - 1];
+    // spike edges bow slightly backward so the hair reads as swept, not as a crown
+    ctx.quadraticCurveTo((p[0] + q[0]) / 2 * r - 0.14 * r, (p[1] + q[1]) / 2 * r - 0.08 * r, p[0] * r, p[1] * r);
+  }
+  ctx.arc(0, 0, r, Math.PI * 0.99, Math.PI * 1.9, false); ctx.closePath(); ctx.fill();
+}
+
 /* ---- helmets: local head frame, origin = head centre, +x = facing ---- */
 function drawHelmet(ctx, key, r, ink, opt, f) {
   const flat = !!opt.color;
@@ -3063,12 +3214,12 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
   const t = f ? f.time : 0;
   switch (key) {
     case 'topknot': // crimson hachimaki tied at the back of the head
+      if (f && f.isPlayer) drawHeroHair(ctx, r, ink);
       ctx.save(); ctx.beginPath(); ctx.arc(0, 0, r * 1.04, 0, TAU); ctx.clip();
       ctx.fillStyle = flat ? ink : C.emberBright;
-      ctx.beginPath(); ctx.moveTo(-r * 1.1, -r * 0.62); ctx.lineTo(r * 1.1, -r * 0.42); ctx.lineTo(r * 1.1, -r * 0.12); ctx.lineTo(-r * 1.1, -r * 0.3); ctx.closePath(); ctx.fill();
-      if (!flat) { ctx.fillStyle = 'rgba(255,255,255,0.18)'; ctx.fillRect(-r * 1.1, -r * 0.6, r * 2.2, r * 0.06); }
+      ctx.beginPath(); ctx.moveTo(-r * 1.1, -r * 0.5); ctx.lineTo(r * 1.1, -r * 0.4); ctx.lineTo(r * 1.1, -r * 0.2); ctx.lineTo(-r * 1.1, -r * 0.29); ctx.closePath(); ctx.fill();
       ctx.restore();
-      ctx.fillStyle = flat ? ink : '#b8362b'; ctx.beginPath(); ctx.ellipse(-r * 0.98, -r * 0.42, r * 0.22, r * 0.17, 0.4, 0, TAU); ctx.fill();
+      ctx.fillStyle = flat ? ink : '#b8362b'; ctx.beginPath(); ctx.ellipse(-r * 1.0, -r * 0.39, r * 0.15, r * 0.12, 0.4, 0, TAU); ctx.fill();
       break;
     case 'ronin_hood': case 'reaper_cowl':
       ctx.beginPath(); ctx.arc(0, -r * 0.05, r * 1.18, Math.PI * 0.55, Math.PI * 2.15); ctx.lineTo(-r * (key === 'reaper_cowl' ? 2.3 : 1.7), r * 0.8); ctx.closePath(); ctx.fill();
@@ -3204,7 +3355,7 @@ function makeFighterFromEnemy(id, extra) {
   return new Fighter(Object.assign({ def: d, name: d.name, title: d.title, weapon: d.weapon, helmet: d.helmet, armor: d.armor, build: d.build, eye: d.eye, accent: d.accent, hp: d.hp, facing: -1 }, extra || {}));
 }
 function makePlayerFighter(save, extra) {
-  return new Fighter(Object.assign({ name: 'Kael', isPlayer: true, scarf: true, weapon: save.equipped.weapon, wlvl: save.owned.weapons[save.equipped.weapon] || 1, helmet: save.equipped.helmet, armor: save.equipped.armor, build: { scale: 1, w: 10 }, facing: 1 }, extra || {}));
+  return new Fighter(Object.assign({ name: 'Kael', isPlayer: true, scarf: true, weapon: save.equipped.weapon, wlvl: save.owned.weapons[save.equipped.weapon] || 1, helmet: save.equipped.helmet, armor: save.equipped.armor, build: { scale: 1, w: 9.6, legs: 0.9, head: 1.05 }, facing: 1 }, extra || {}));
 }
 function poseFighter(f, poseName, settle) {
   f.state = 'pose'; f.poseName = poseName;
@@ -5110,7 +5261,8 @@ const Renderer = {
   /* ---- static arena with posed fighters (pre-fight, results) ---- */
   drawTableau(env, t, opts) {
     const ctx = this.ctx;
-    env.back(ctx, 0, t); env.floor(ctx, 0, t);
+    const gy0 = opts.ground || GROUND;
+    env.back(ctx, 0, t); this.drawFloor(ctx, env, 0, t, gy0);
     if (opts.tint) { ctx.fillStyle = opts.tint; ctx.fillRect(0, 0, W, H); }
     for (const l of opts.lights || []) {
       const g = ctx.createRadialGradient(l.x, l.y, 0, l.x, l.y, l.r); g.addColorStop(0, l.c); g.addColorStop(1, 'rgba(0,0,0,0)');
@@ -5122,6 +5274,7 @@ const Renderer = {
     }
     const z = opts.zoom || 1.6, gy = opts.ground || GROUND, cz = 1 + Math.min(1, t / 2) * (opts.camEase || 0);
     ctx.save(); ctx.translate(W / 2, gy); ctx.scale(z * cz, z * cz);
+    for (const f of opts.fighters) f.drawShadow(ctx);
     for (const f of opts.fighters) { f.draw(ctx, { rim: opts.rim || env.rim, light: env.light, shadow: true }); }
     ctx.restore();
     env.front(ctx, 0, t);
@@ -5155,10 +5308,11 @@ const Renderer = {
     }
     // background
     env.back(ctx, cam.x, realT);
-    env.floor(ctx, cam.x, realT);
+    this.drawFloor(ctx, env, cam.x, realT, GROUND - cam.y * zoom + fx.shakeY);
     // world
     ctx.save(); this.worldTransform(ctx, s, zoom);
     fx.drawWorldBack(ctx);
+    for (const f of s.fighters) f.drawShadow(ctx);
     for (const f of s.fighters) this.drawAuras(ctx, f, realT);
     const order = s.fighters.slice().sort((a, b) => (a.alive ? 1 : 0) - (b.alive ? 1 : 0) || (a.isPlayer ? 1 : 0) - (b.isPlayer ? 1 : 0));
     for (const f of order) {
@@ -5183,6 +5337,14 @@ const Renderer = {
     // cinematic letterbox
     if (s.letterbox > 0.01) { const h = 70 * s.letterbox; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, h); ctx.fillRect(0, H - h, W, h); }
     fx.drawScreen(ctx, toScreen);
+  },
+  // the floor plane follows the camera, and its far edge sits FLOOR_DEPTH above the line the fighters stand on,
+  // so they read as standing on the floor rather than balanced on its back edge
+  drawFloor(ctx, env, cx, t, groundY) {
+    const top = groundY - FLOOR_DEPTH;
+    ctx.save(); ctx.translate(0, top); ctx.scale(1, Math.max(0.2, (H - top) / (H - GROUND))); ctx.translate(0, -GROUND);
+    env.floor(ctx, cx, t);
+    ctx.restore();
   },
   worldTransform(ctx, s, zoom) {
     const fx = s.fx, cam = s.cam;

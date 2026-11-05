@@ -6,6 +6,13 @@
       "runtimeExecutable": "python",
       "runtimeArgs": ["-m", "http.server", "5317"],
       "port": 5317
+    },
+    {
+      "name": "kage-alt",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "5319"],
+      "port": 5319,
+      "autoPort": false
     }
   ]
 }

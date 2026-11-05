@@ -265,7 +265,8 @@ const Renderer = {
   /* ---- static arena with posed fighters (pre-fight, results) ---- */
   drawTableau(env, t, opts) {
     const ctx = this.ctx;
-    env.back(ctx, 0, t); env.floor(ctx, 0, t);
+    const gy0 = opts.ground || GROUND;
+    env.back(ctx, 0, t); this.drawFloor(ctx, env, 0, t, gy0);
     if (opts.tint) { ctx.fillStyle = opts.tint; ctx.fillRect(0, 0, W, H); }
     for (const l of opts.lights || []) {
       const g = ctx.createRadialGradient(l.x, l.y, 0, l.x, l.y, l.r); g.addColorStop(0, l.c); g.addColorStop(1, 'rgba(0,0,0,0)');
@@ -277,6 +278,7 @@ const Renderer = {
     }
     const z = opts.zoom || 1.6, gy = opts.ground || GROUND, cz = 1 + Math.min(1, t / 2) * (opts.camEase || 0);
     ctx.save(); ctx.translate(W / 2, gy); ctx.scale(z * cz, z * cz);
+    for (const f of opts.fighters) f.drawShadow(ctx);
     for (const f of opts.fighters) { f.draw(ctx, { rim: opts.rim || env.rim, light: env.light, shadow: true }); }
     ctx.restore();
     env.front(ctx, 0, t);
@@ -310,10 +312,11 @@ const Renderer = {
     }
     // background
     env.back(ctx, cam.x, realT);
-    env.floor(ctx, cam.x, realT);
+    this.drawFloor(ctx, env, cam.x, realT, GROUND - cam.y * zoom + fx.shakeY);
     // world
     ctx.save(); this.worldTransform(ctx, s, zoom);
     fx.drawWorldBack(ctx);
+    for (const f of s.fighters) f.drawShadow(ctx);
     for (const f of s.fighters) this.drawAuras(ctx, f, realT);
     const order = s.fighters.slice().sort((a, b) => (a.alive ? 1 : 0) - (b.alive ? 1 : 0) || (a.isPlayer ? 1 : 0) - (b.isPlayer ? 1 : 0));
     for (const f of order) {
@@ -338,6 +341,14 @@ const Renderer = {
     // cinematic letterbox
     if (s.letterbox > 0.01) { const h = 70 * s.letterbox; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, h); ctx.fillRect(0, H - h, W, h); }
     fx.drawScreen(ctx, toScreen);
+  },
+  // the floor plane follows the camera, and its far edge sits FLOOR_DEPTH above the line the fighters stand on,
+  // so they read as standing on the floor rather than balanced on its back edge
+  drawFloor(ctx, env, cx, t, groundY) {
+    const top = groundY - FLOOR_DEPTH;
+    ctx.save(); ctx.translate(0, top); ctx.scale(1, Math.max(0.2, (H - top) / (H - GROUND))); ctx.translate(0, -GROUND);
+    env.floor(ctx, cx, t);
+    ctx.restore();
   },
   worldTransform(ctx, s, zoom) {
     const fx = s.fx, cam = s.cam;

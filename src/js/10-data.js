@@ -15,7 +15,8 @@ const STANCES = {
   // bladed fighting stance: lead hand at chin height, rear fist guarding the jaw, chin tucked, knees soft
   fists:  P({ lean: 8, head: 7, fs: 58, fe: 96, bs: 34, be: 120, fh: 30, fk: -26, bh: -32, bk: -12, tw: -0.3 }),
   // chudan-no-kamae: two-handed grip at the navel, tip aimed at the opponent's throat, rear heel lifted
-  katana: P({ lean: 6, head: 4, fs: 34, fe: 54, bs: 24, be: 74, wa: 110, fh: 32, fk: -26, bh: -34, bk: -6, tw: -0.25, ik: 1 }),
+  // elbows bent and tucked, hands at the navel, tip at throat height; knees soft, hips settled between the feet
+  katana: P({ lean: 5, head: 4, fs: 22, fe: 72, bs: 20, be: 80, wa: 116, fh: 28, fk: -30, bh: -27, bk: -15, tw: -0.25, ik: 1 }),
   twin:   P({ lean: 10, head: 6, fs: 64, fe: 72, bs: 40, be: 90, wa: 104, wb: 128, fh: 28, fk: -24, bh: -28, bk: -12 }),
   cleaver:P({ lean: 6, head: 4, fs: 28, fe: 80, bs: 34, be: 104, wa: 160, fh: 28, fk: -22, bh: -30, bk: -14 }),
   spear:  P({ lean: 6, head: 4, fs: 56, fe: 24, bs: 24, be: 58, wa: 98, fh: 30, fk: -20, bh: -30, bk: -10, ik: 1 }),
@@ -145,7 +146,7 @@ const WEAPONS = {
     },
     counter: 'twc'
   },
-  moon_katana: { heft: 1, el: 'moon', name: 'Moon Katana', cls: 'Blades', tab: 'blades', rarity: 'Balanced Blade', hands: 2, len: 112, stance: 'katana', stats: [60, 64, 58], price: 0,
+  moon_katana: { heft: 1, el: 'moon', name: 'Moon Katana', cls: 'Blades', tab: 'blades', rarity: 'Balanced Blade', hands: 2, len: 82, stance: 'katana', stats: [60, 64, 58], price: 0,
     trail: '#ece5d3', desc: 'Balanced cuts and lightning counter-slashes. Block or parry, then strike to draw the iai counter.',
     moves: ['k1', 'k2', 'k3'], air: 'ka', special: 'crescentMoon', counter: 'kc',
     defs: {
