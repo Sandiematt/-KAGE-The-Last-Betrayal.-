@@ -178,6 +178,75 @@ const ENVS = {
       ctx.globalCompositeOperation = 'source-over';
     }
   },
+  // Hoshimura, the abandoned village (the Prologue): the highlands' red moon over a burnt-out village. Charred
+  // rooftops and broken beams in two parallax rows, a cold ash haze, grey ash falling and a few embers.
+  hoshimura: {
+    name: 'Hoshimura', rim: 'rgba(214,120,96,0.66)', light: { x: 0.2, y: -1 }, trail: C.bone,
+    build() {
+      const r = seeded(41);
+      this.sky = makeLayer(W, H, (g) => {
+        const gr = g.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, '#0b0a0b'); gr.addColorStop(0.6, '#1a1617'); gr.addColorStop(0.85, '#231b19'); gr.addColorStop(1, '#0b0a0a');
+        g.fillStyle = gr; g.fillRect(0, 0, W, H);
+        for (let i = 0; i < 5; i++) { g.fillStyle = `rgba(40,34,34,${0.25 + r() * 0.2})`; g.beginPath(); g.ellipse(r() * W, 90 + r() * 170, 260 + r() * 260, 18 + r() * 22, 0, 0, TAU); g.fill(); }
+      });
+      // a burnt house silhouette: posts, a sagging roof with gaps, and a beam or two jutting out
+      const house = (g, x, base, w, h, col) => {
+        g.fillStyle = col;
+        const roofY = base - h, sag = 6 + r() * 14;
+        g.fillRect(x + 6, roofY + 10, 7, h); g.fillRect(x + w - 13, roofY + 10, 7, h);
+        if (r() < 0.6) g.fillRect(x + w * 0.45, roofY + 16, 6, h);
+        // a hipped minka roof, its ridge sagging where the fire ate the beams
+        g.beginPath(); g.moveTo(x - 16, roofY + 16); g.lineTo(x + w * 0.22, roofY - 22); g.lineTo(x + w * 0.5, roofY - 22 + sag); g.lineTo(x + w * 0.78, roofY - 22); g.lineTo(x + w + 16, roofY + 16);
+        // a burnt gap bitten out of the roof line
+        const gx = x + w * (0.25 + r() * 0.4);
+        g.lineTo(x + w + 6, roofY + 26); g.lineTo(gx + 26, roofY + 22); g.lineTo(gx + 12, roofY + 6); g.lineTo(gx, roofY + 24); g.lineTo(x - 6, roofY + 26); g.closePath(); g.fill();
+        g.save(); g.translate(x + w * r(), roofY + 4); g.rotate(-0.6 + r() * 1.2); g.fillRect(-2, -40 - r() * 30, 5, 60); g.restore();
+      };
+      this.far = makeLayer(LW, H, (g) => {
+        g.fillStyle = 'rgba(54,46,44,0.5)'; mountainPath(g, LW, 400, 150, 120, r, true); g.fill();
+        g.fillStyle = '#1d1918'; mountainPath(g, LW, 470, 70, 80, r); g.fill();
+        let x = 20; while (x < LW) { house(g, x, 482, 70 + r() * 50, 46 + r() * 26, '#171414'); x += 110 + r() * 120; }
+      });
+      this.mid = makeLayer(LW, H, (g) => {
+        let x = 60; while (x < LW) { house(g, x, 560, 130 + r() * 70, 90 + r() * 40, '#0f0d0d'); x += 260 + r() * 260; }
+        // fences and a lone well
+        g.fillStyle = '#0f0d0d';
+        for (let i = 0; i < 18; i++) { const fx = r() * LW; g.fillRect(fx, 520 + r() * 20, 4, 40); g.fillRect(fx - 20, 532, 44, 3); }
+      });
+      this.ash = []; for (let i = 0; i < 46; i++) this.ash.push({ x: r() * W, y: r() * H, s: 8 + r() * 18, ph: r() * 6, z: 0.5 + r(), ember: r() < 0.12 });
+    },
+    back(ctx, cx, t) {
+      ctx.drawImage(this.sky, 0, 0);
+      const mx = 760 - cx * 0.05, my = 170, br = 1 + Math.sin(t * TAU / 6) * 0.03;
+      const halo = ctx.createRadialGradient(mx, my, 0, mx, my, 160 * br); halo.addColorStop(0, 'rgba(163,48,42,0.4)'); halo.addColorStop(1, 'rgba(163,48,42,0)');
+      ctx.fillStyle = halo; ctx.fillRect(mx - 200, my - 200, 400, 400);
+      ctx.fillStyle = 'rgba(163,48,42,0.72)'; ctx.beginPath(); ctx.arc(mx, my, 54, 0, TAU); ctx.fill();
+      drawTiled(ctx, this.far, -260 - cx * 0.16);
+      // smoke still rising from a few roofs
+      for (let i = 0; i < 3; i++) {
+        const sx = wrapX(300 + i * 520 - cx * 0.16, LW) - 200, sy = 420 - ((t * 16 + i * 40) % 160);
+        ctx.fillStyle = `rgba(70,62,62,${0.12 + 0.05 * Math.sin(t + i)})`; ctx.beginPath(); ctx.ellipse(sx + Math.sin(t * 0.5 + i) * 18, sy, 34, 60, 0, 0, TAU); ctx.fill();
+      }
+      drawTiled(ctx, this.mid, -260 - cx * 0.45);
+      const fog = ctx.createLinearGradient(0, 420, 0, GROUND + 60); fog.addColorStop(0, 'rgba(36,30,30,0)'); fog.addColorStop(0.6, 'rgba(36,30,30,0.55)'); fog.addColorStop(1, 'rgba(36,30,30,0)');
+      ctx.fillStyle = fog; ctx.fillRect(0, 420, W, 280);
+    },
+    floor(ctx, cx) {
+      const gr = ctx.createLinearGradient(0, GROUND, 0, H); gr.addColorStop(0, '#181415'); gr.addColorStop(1, '#0a0909');
+      ctx.fillStyle = gr; ctx.fillRect(0, GROUND, W, H - GROUND);
+      // ash drifts and cart ruts on the road
+      ctx.fillStyle = 'rgba(120,110,108,0.08)';
+      for (let i = 0; i < 7; i++) { const x = wrapX(i * 230 - cx, W + 300) - 150; ctx.beginPath(); ctx.ellipse(x, GROUND + 22 + (i % 3) * 14, 90, 6, 0, 0, TAU); ctx.fill(); }
+      ctx.fillStyle = '#3d3434'; ctx.fillRect(0, GROUND, W, 1);
+    },
+    front(ctx, cx, t) {
+      for (const a of this.ash) {
+        const x = ((a.x + Math.sin(t * 0.7 + a.ph) * 26 - cx * a.z * 0.6 - t * 10 * a.z) % W + W) % W, y = (a.y + t * a.s) % H;
+        ctx.fillStyle = a.ember ? `rgba(230,110,70,${0.4 + 0.3 * Math.sin(t * 3 + a.ph)})` : 'rgba(150,140,138,0.4)';
+        ctx.fillRect(x, y, 2 * a.z, 2 * a.z);
+      }
+    }
+  },
   wasteland: {
     name: 'The Crimson Wasteland', rim: 'rgba(255,146,90,0.8)', light: { x: 0.7, y: -0.7 }, trail: '#ffb38a',
     build() {
@@ -337,6 +406,7 @@ const Renderer = {
     for (const f of order) this.drawTrails(ctx, f, realT);
     WeaponSystem.draw(ctx, s);
     fx.drawWorld(ctx);
+    if (s.isStretch && !StoryPlayer.active) this.drawTutorial(ctx, s, realT);
     ctx.restore();
     fx.applyHaze(ctx, toScreen);
     env.front(ctx, cam.x, realT);
@@ -424,6 +494,19 @@ const Renderer = {
   // Stretch set dressing in world space: clue pickups, the encounter walls (left edge and gate) and the road's end.
   drawStretchProps(ctx, s, t) {
     const L = s.stretch, cam = s.cam, half = W / 2 / cam.zoom + 200, vl = cam.x - half, vr = cam.x + half;
+    // set dressing (stretch `props`): burnt houses, a roadside shrine, fallen beams
+    for (const pr of L.props || []) if (pr.x > vl - 300 && pr.x < vr + 300) this.drawProp(ctx, pr, t);
+    // the memory-ash trail (stretch `ashTrail`): a faint violet smear on the road once the way is clear
+    const A = L.ashTrail;
+    if (A && s.cleared >= L.encounters.length && A.to > vl && A.from < vr) {
+      const g = ctx.createLinearGradient(A.from, 0, A.to, 0);
+      g.addColorStop(0, 'rgba(155,140,255,0)'); g.addColorStop(0.15, 'rgba(155,140,255,0.22)'); g.addColorStop(1, 'rgba(155,140,255,0.08)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse((A.from + A.to) / 2, 2, (A.to - A.from) / 2, 7, 0, 0, TAU); ctx.fill();
+      for (let x = A.from + 30; x < A.to; x += 70) {
+        if (x < vl || x > vr) continue;
+        ctx.fillStyle = `rgba(201,189,255,${0.25 + 0.2 * Math.sin(t * 3 + x * 0.05)})`; ctx.fillRect(x + Math.sin(x) * 14, -2, 4, 3);
+      }
+    }
     // clues: a paper talisman bobbing over a faint gold glow; found ones fade away
     for (const c of s.clues) {
       if (c.x < vl || c.x > vr) continue;
@@ -463,6 +546,77 @@ const Renderer = {
       ctx.fillRect(ex - 110, -260, 16, 260); ctx.fillRect(ex + 94, -260, 16, 260); ctx.fillRect(ex - 120, -215, 240, 12);
       ctx.beginPath(); ctx.moveTo(ex - 150, -262); ctx.quadraticCurveTo(ex, -240, ex + 150, -262); ctx.lineTo(ex + 140, -280); ctx.quadraticCurveTo(ex, -262, ex - 140, -280); ctx.fill();
       ctx.fillStyle = C.ember; ctx.fillRect(ex - 120, -262, 240, 4);
+    }
+  },
+  // One stretch prop, standing on the road at pr.x (world units, y = 0 is the ground).
+  drawProp(ctx, pr, t) {
+    const x = pr.x, ink = '#0c0a0a';
+    ctx.save(); ctx.fillStyle = ink; ctx.strokeStyle = 'rgba(214,120,96,0.22)'; ctx.lineWidth = 2;
+    if (pr.type === 'house') {
+      // a burnt-out house: four charred posts, a broken lintel, a roof with a hole burnt through it
+      for (const px of [-150, -60, 60, 150]) ctx.fillRect(x + px - 7, -230 + Math.abs(px) * 0.08, 14, 230);
+      ctx.fillRect(x - 160, -200, 210, 10); ctx.fillRect(x + 80, -192, 80, 9);
+      ctx.beginPath(); ctx.moveTo(x - 200, -222); ctx.quadraticCurveTo(x - 20, -300, x + 200, -226);
+      ctx.lineTo(x + 182, -206); ctx.lineTo(x + 70, -228); ctx.lineTo(x + 40, -262); ctx.lineTo(x + 6, -232); ctx.lineTo(x - 182, -204); ctx.closePath(); ctx.fill(); ctx.stroke();
+      // a lone frame still hanging inside, and scorched paper screens
+      ctx.fillStyle = 'rgba(236,229,211,0.07)'; ctx.fillRect(x - 52, -180, 100, 150);
+      ctx.fillStyle = 'rgba(201,164,92,0.35)'; ctx.fillRect(x - 12, -150, 24, 18);
+    } else if (pr.type === 'shrine') {
+      // a small roadside hokora on a post; a recorder's red light blinks inside
+      ctx.fillRect(x - 5, -90, 10, 90);
+      ctx.fillRect(x - 30, -140, 60, 50);
+      ctx.beginPath(); ctx.moveTo(x - 44, -136); ctx.quadraticCurveTo(x, -170, x + 44, -136); ctx.lineTo(x + 38, -128); ctx.lineTo(x - 38, -128); ctx.closePath(); ctx.fill(); ctx.stroke();
+      const on = Math.sin(t * 5) > 0;
+      ctx.fillStyle = on ? 'rgba(255,74,60,0.95)' : 'rgba(120,30,26,0.8)'; ctx.fillRect(x - 3, -118, 6, 6);
+      if (on) { const g = ctx.createRadialGradient(x, -115, 0, x, -115, 26); g.addColorStop(0, 'rgba(255,74,60,0.35)'); g.addColorStop(1, 'rgba(255,74,60,0)'); ctx.fillStyle = g; ctx.fillRect(x - 26, -141, 52, 52); }
+    } else if (pr.type === 'collapsed') {
+      // a fallen house: beams in a heap across the road's edge
+      ctx.save(); ctx.translate(x - 60, -8); ctx.rotate(-0.22); ctx.fillRect(-90, -9, 200, 16); ctx.restore();
+      ctx.save(); ctx.translate(x + 30, -20); ctx.rotate(0.35); ctx.fillRect(-70, -7, 150, 13); ctx.restore();
+      ctx.beginPath(); ctx.moveTo(x - 140, 0); ctx.lineTo(x - 90, -46); ctx.lineTo(x - 30, -30); ctx.lineTo(x + 40, -64); ctx.lineTo(x + 120, -20); ctx.lineTo(x + 150, 0); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = `rgba(230,110,70,${0.35 + 0.25 * Math.sin(t * 4 + x)})`; ctx.fillRect(x - 20, -26, 4, 3); ctx.fillRect(x + 60, -18, 3, 3);
+    }
+    ctx.restore();
+  },
+  // Tutorial prompts (StretchSession.updateTutorial): a paper slip drifting above Kage with the verb and the keys of
+  // the input device in use; a cleared prompt flashes gold, crosses out and floats away.
+  drawTutorial(ctx, s, t) {
+    const T = s.tut;
+    if (!T || T.x == null) return;
+    const dev = s.inputDevice(), list = [];
+    if (T.cur) list.push({ step: T.cur.step, a: clamp(T.showT * 3, 0, 1), done: 0, rise: 0 });
+    if (T.cleared) list.push({ step: T.cleared.step, a: 1 - clamp((T.cleared.t - 0.45) / 0.7, 0, 1), done: 1, rise: T.cleared.t * 50 });
+    const baseY = s.player.y - s.player.height() - 120;
+    for (const it of list) {
+      const lab = Logic.tutorialLabel(it.step, dev);
+      if (!lab || it.a <= 0) continue;
+      ctx.save(); ctx.globalAlpha = it.a;
+      ctx.font = `30px ${FB}`; const vw = ctx.measureText(lab.verb).width;
+      ctx.font = `600 22px ${FU}`;
+      const caps = lab.keys.map(k => ({ k, w: Math.max(34, ctx.measureText(k).width + 18) }));
+      const capsW = caps.reduce((n, c) => n + c.w, 0) + (caps.length - 1) * 22;
+      ctx.font = `500 16px ${FU}`; const hw = ctx.measureText(lab.hint).width;
+      const w = Math.max(vw + 24 + capsW, hw) + 40, h = 74, y = baseY - it.rise - h;
+      const half = W / 2 / s.cam.zoom, x = clamp(T.x - w / 2, s.cam.x - half + 24, s.cam.x + half - w - 24);   // stays on screen
+      // the paper slip, a red seal and a thin ink border
+      ctx.fillStyle = it.done ? 'rgba(201,164,92,0.94)' : 'rgba(236,229,211,0.93)';
+      ctx.beginPath(); ctx.moveTo(x, y + 4); ctx.lineTo(x + w, y); ctx.lineTo(x + w - 3, y + h); ctx.lineTo(x + 2, y + h - 3); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = C.ember; ctx.fillRect(x - 6, y + 10, 6, h - 22);
+      ctx.fillStyle = C.ink; ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
+      ctx.font = `30px ${FB}`; ctx.fillText(lab.verb, x + 20, y + 28);
+      let cx = x + 20 + vw + 24;
+      for (let i = 0; i < caps.length; i++) {
+        const c = caps[i];
+        ctx.fillStyle = C.ink;
+        if (dev === 'keyboard') ctx.fillRect(cx, y + 12, c.w, 32);
+        else { ctx.beginPath(); ctx.ellipse(cx + c.w / 2, y + 28, c.w / 2, 16, 0, 0, TAU); ctx.fill(); }
+        ctx.fillStyle = C.bone; ctx.font = `600 22px ${FU}`; ctx.textAlign = 'center'; ctx.fillText(c.k, cx + c.w / 2, y + 29);
+        ctx.textAlign = 'left'; cx += c.w;
+        if (i < caps.length - 1) { ctx.fillStyle = C.ink; ctx.fillText('/', cx + 6, y + 29); cx += 22; }
+      }
+      ctx.fillStyle = 'rgba(3,3,3,0.7)'; ctx.font = `500 16px ${FU}`; ctx.fillText(lab.hint, x + 20, y + 58);
+      if (it.done) { ctx.strokeStyle = C.ember; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(x + 14, y + 30); ctx.lineTo(x + 20 + vw + 8, y + 26); ctx.stroke(); }
+      ctx.restore();
     }
   },
   drawMiniBar(ctx, f) {

@@ -45,6 +45,7 @@ class AIController {
     if (this.kickHold > 0) { this.kickHold -= dt; if (this.kickHold <= 0) c.kickR = true; }
     for (const k in this.cds) this.cds[k] -= dt;
     if (!f.alive || !p || w.phase !== 'fight' || f.state === 'grabbed') return;
+    if (f.mimic && this.updateMimic(dt, p)) return;
     const dx = p.x - f.x, dist = Math.abs(dx), toward = Math.sign(dx) || 1;
     this.checkPhase();
     // disarmed: go get the weapon back
@@ -98,6 +99,22 @@ class AIController {
     else if (this.plan === 'strafe') { c.dir = this.strafeDir; }
     else if (this.plan === 'ring') { c.dir = toward; if (dist < this.ring) this.plan = 'hold'; }
     if (p.state === 'down' || p.state === 'getup') { if (dist < 140) c.dir = -toward; }
+  }
+
+  /* Mimic intro (an encounter's `mimicIntro`, see StretchSession.spawnWave): for a moment the foe does nothing but
+     stand in Kage's own idle stance, breathing with him, facing as his mirror image would (Fighter.update /
+     updatePose read f.mimic). It ends when the time runs out, Kage closes in, or the foe is struck; then it attacks.
+     Returns true while the foe is still mimicking. */
+  startMimic(src, dur) { this.f.mimic = { src, t: dur }; }
+  updateMimic(dt, p) {
+    const f = this.f, m = f.mimic;
+    m.t -= dt;
+    const struck = f.state !== 'idle' && f.state !== 'walk' && f.state !== 'pose';
+    if (m.t > 0 && Math.abs(p.x - f.x) > 110 && !struck) return true;
+    f.mimic = null;
+    this.t = 0.05; this.plan = 'approach';
+    if (this.world.onMimicEnd) this.world.onMimicEnd(f);
+    return false;
   }
 
   threatened(p, dist) {

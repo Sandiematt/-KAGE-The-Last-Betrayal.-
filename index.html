@@ -1290,6 +1290,8 @@ const InputManager = {
   enabled: true,
   lastDevice: 'keyboard',
   init() {
+    // until a key, button or pad says otherwise, a touch screen is played by touch (tutorial prompts read this)
+    if (isTouchDevice()) this.lastDevice = 'touch';
     for (const [a, codes] of Object.entries(this.map)) for (const c of codes) (this.codeToActions[c] = this.codeToActions[c] || []).push(a);
     window.addEventListener('keydown', e => {
       const acts = this.codeToActions[e.code];
@@ -1861,12 +1863,28 @@ for (const id in ENEMIES) ENEMIES[id].id = id;
                         encounters: [{ x, gate, waves }],  crossing x starts the encounter; an invisible gate at `gate`
                                                     blocks the way on until every wave is beaten; waves are 1-3 lists of
                                                     ENEMIES ids, all active at once, each wave starting when the last falls,
-                        clues: [{ id, x, label }] } pickups that record a clue flag (Logic.collectClue).
+                        clues: [{ id, x, label, scene? }],  pickups that record a clue flag (Logic.collectClue) and
+                                                    may play a scene (Logic.clueScene),
+                        tutorial?: [{ step, at }],  in-world prompts taught in order (TUTORIAL_STEPS; Logic.tutorialPrompt),
+                        props?: [{ type, x }],      set dressing drawn in the world: 'house' (a burnt-out house frame),
+                                                    'shrine' (a small roadside shrine), 'collapsed' (a fallen house),
+                        ashTrail?: { from, to } }   violet memory ash drifting along the ground between two x.
+                      An encounter may add `mimicIntro: seconds`: its first wave's foes stand mirroring Kage's idle
+                      stance and facing for that long before they attack (AIController.mimic, 40-ai.js).
                       The stretch is complete when Kage reaches `length` with every encounter cleared.
                       Until the story updates author them, every stretch gets placeholder content (stretchDefaults).
    scenes?          story scenes by hook: { before, after, defeat } (scene ids from SCENES, 12-scenes.js; see Logic.stageScene).
    Later updates add per-stage fields here (env override);
    the logic module reads them, so the rest of the game picks them up. */
+/* Tutorial prompts (a stretch's `tutorial`; see Logic.tutorialPrompt / tutorialLabel). keys: what to press on each
+   input device, matching InputManager's bindings and the touch buttons' captions. */
+const TUTORIAL_STEPS = {
+  move:  { verb: 'Move',  hint: 'Walk down the road',      keys: { keyboard: ['A', 'D'],     touch: ['Stick'],  pad: ['Left stick'] } },
+  jump:  { verb: 'Jump',  hint: 'Leap the fallen beam',    keys: { keyboard: ['W', 'Space'], touch: ['Jump'],   pad: ['A'] } },
+  slash: { verb: 'Slash', hint: 'Your hands remember the sword', keys: { keyboard: ['U'],    touch: ['Strike'], pad: ['RB'] } },
+  block: { verb: 'Block', hint: 'Guard — press just before a hit to parry', keys: { keyboard: ['S'], touch: ['Guard'], pad: ['LT'] } },
+  dodge: { verb: 'Dodge', hint: 'Dash through danger',     keys: { keyboard: ['L', 'Shift'], touch: ['Dash'],   pad: ['B'] } }
+};
 const STAGE_KINDS = ['stretch', 'subboss', 'boss', 'spar', 'echo', 'scene'];
 const CAMPAIGN = (function buildCampaign() {
   const R = ['I', 'II', 'III', 'IV'];
@@ -1911,7 +1929,20 @@ const CAMPAIGN = (function buildCampaign() {
   };
   const chapters = [
     { id: 'prologue', name: 'Prologue', title: 'Hoshimura', place: 'The abandoned village', env: 'highlands', diff: 1,
-      stages: [{ id: 'prologue.1', kind: 'stretch', name: 'The Empty Village', enemy: 'hollow_shade', stretch: stretchDefaults(['hollow_shade', 'hollow_flicker', 'hollow_shade', 'hollow_flicker']), scenes: { before: 'prologue.open' } }] },
+      stages: [{ id: 'prologue.1', kind: 'stretch', name: 'The Empty Village', enemy: 'hollow_shade', scenes: { before: 'prologue.open', after: 'prologue.close' },
+        // Hoshimura: a short, gentle walk that teaches the basics, three clues Rem left behind, one Hollow, then the ash.
+        stretch: {
+          length: 4200, start: 160, env: 'hoshimura',
+          tutorial: [{ step: 'move', at: 0 }, { step: 'jump', at: 520 }, { step: 'slash', at: 1000 }, { step: 'block', at: 1420 }, { step: 'dodge', at: 1780 }],
+          encounters: [{ x: 2600, gate: 3200, waves: [['hollow_shade']], mimicIntro: 2.2 }],
+          clues: [
+            { id: 'recording', x: 820, label: 'A broken recording', scene: 'prologue.clue.recording' },
+            { id: 'photograph', x: 2160, label: 'A scratched photograph', scene: 'prologue.clue.photograph' },
+            { id: 'message', x: 3640, label: 'A second message', scene: 'prologue.clue.message' }
+          ],
+          props: [{ type: 'collapsed', x: 660 }, { type: 'shrine', x: 860 }, { type: 'collapsed', x: 1320 }, { type: 'house', x: 2160 }, { type: 'collapsed', x: 2950 }, { type: 'house', x: 3700 }],
+          ashTrail: { from: 3250, to: 4160 }
+        } }] },
     act('act1', 'Act I', 'The Outer Districts', 'Order territory', 'rooftops', 1, SQUADS.act1, 'Raikon', 'the Lightning Ascendant'),
     { id: 'interlude', name: 'Interlude', title: 'Brothers', place: 'A memory of the training yard', env: 'highlands', diff: 1,
       stages: [{ id: 'interlude.spar', kind: 'spar', name: 'The Spar', foe: 'Rem', foeTitle: 'Young Rem', enemy: 'echo_sentinel' }] },
@@ -1995,19 +2026,65 @@ const AI_PROFILES = {
      - to a stretch clue: `clues: [{ id, x, label, scene }]` plays when the clue is picked up.
    Logic.stageScene(stageId, hook) and Logic.clueScene(stageId, clueId) answer which scene plays. */
 const SCENES = {
-  // Prologue opening (SAN-31 writes the full Prologue around it).
+  // ---- Prologue: The Man With No Past (stage prologue.1, Hoshimura) ----
+  // Canon kept off-screen here: Rem planted the clues from inside the Core, and "he" in the second message is Takashi.
+  // The Prologue never says either; it stays a mystery.
   'prologue.open': {
     steps: [
       { video: 'Kage wakes in the ashes of Hoshimura under a red moon, alone, with no memory of the fire.' },
       { illus: 'hoshimura_ruins', caption: 'Hoshimura. What the fire left of it.' },
       { say: 'kage', text: '...Ash. Still warm.' },
-      { say: 'kage', text: 'This was our house. I know these beams. I don\'t know how I got here.' },
-      { illus: 'photograph', caption: 'A photograph in the ash. Three faces. Two of them scratched away.' },
-      { say: 'kage', text: 'Rem. Only your face is left.' },
-      { say: 'kage', text: 'Where are you, brother?' },
-      { illus: 'memory_ash', caption: 'Violet ash drifts up the road, as if something is waiting for him to follow.' },
+      { say: 'kage', text: 'I know these beams. These roofs. I don’t know how I know them.' },
+      { say: 'kage', text: 'My name... Kage. That much stayed. The rest is smoke.' },
       { illus: null },
+      { say: 'kage', text: 'A sword at my hip. My hands know its weight. They don’t know why.' },
+      { say: 'narrator', text: 'The road runs east through the empty village. Something on it is waiting to be found.' }
+    ]
+  },
+  // Clue 1: a broken recorder in a roadside shrine, looping one phrase.
+  'prologue.clue.recording': {
+    steps: [
+      { say: 'narrator', text: 'A cracked recorder sits in the shrine, its light still blinking. It was left here on purpose.' },
+      { say: 'recording', text: '...ssss... find the... kssh... Find the Witness.' },
+      { say: 'recording', text: 'Find the Witness. Find the... Find the Witness.' },
+      { say: 'kage', text: 'Whose voice is that? It knows me. I can hear it knowing me.' },
+      { say: 'kage', text: 'The Witness. Witness to what?' },
+      { flag: 'prologue.recording_heard' }
+    ]
+  },
+  // Clue 2: inside a burnt-out house, a photograph with every face scratched away except Rem's.
+  'prologue.clue.photograph': {
+    steps: [
+      { say: 'narrator', text: 'Inside the house, one frame hangs straight on a wall that is barely standing.' },
+      { illus: 'photograph', caption: 'Three figures: a tall man, and two boys beside him. Every face is scratched out but one.' },
+      { say: 'kage', text: 'That boy... Rem. His name is Rem. I know it the way I know the sword.' },
+      { say: 'kage', text: 'And the other boy is me. Someone took a blade to my face. And to his.' },
+      { say: 'kage', text: 'Only Rem was left untouched. As if someone wanted me to remember him first.' },
+      { illus: null },
+      { say: 'kage', text: 'Rem. Brother. Where are you?' },
       { flag: 'prologue.photo_found' }
+    ]
+  },
+  // Clue 3: a second message, scratched into a door beside the road's end.
+  'prologue.clue.message': {
+    steps: [
+      { say: 'narrator', text: 'Words cut into a charred door, fresh as the ash. The same careful hand.' },
+      { say: 'narrator', text: '"If you remember everything, he will find you."' },
+      { say: 'kage', text: 'He. Who is he?' },
+      { say: 'kage', text: 'Someone took my past and left me a trail instead. A warning, and a way forward.' },
+      { flag: 'prologue.warning_read' }
+    ]
+  },
+  // The road out: Kage follows a trail of violet memory ash. Closes the Prologue; Act I opens after it.
+  'prologue.close': {
+    steps: [
+      { say: 'kage', text: 'That thing wore my stance. It breathed when I breathed.' },
+      { say: 'kage', text: 'And when it broke, it turned to this.' },
+      { illus: 'memory_ash', caption: 'Violet ash lifts from the road and drifts east, as if something is waiting for him to follow.' },
+      { say: 'kage', text: 'Find the Witness. Find Rem. Remember... but not everything.' },
+      { say: 'narrator', text: 'Kage left Hoshimura with no past, following the ash.' },
+      { illus: null },
+      { flag: 'prologue.complete' }
     ]
   },
   // Act I boss: Raikon blocks the route to the old military archive. He is an Echo copy, bound to guard it against his will.
@@ -2413,6 +2490,27 @@ const Logic = {
   cluesFound(save, stageId) {
     const s = this.stretch(stageId), got = (save.clues || {})[stageId] || {};
     return s ? s.clues.filter(c => got[c.id]).map(c => c.id) : [];
+  },
+  /* Tutorial prompts. A stretch may carry `tutorial: [{ step, at }]` (steps from TUTORIAL_STEPS, 10-data.js):
+     in-world prompts shown one at a time, in order. `done` is how many are cleared. A prompt shows once every
+     earlier one is cleared and Kage has reached its `at`; it clears when he performs its action while it shows. */
+  // The prompt showing for Kage at x ({ step, at }), or null.
+  tutorialPrompt(stretch, done, x) {
+    const t = stretch && stretch.tutorial, p = t && t[done];
+    return p && x >= p.at ? p : null;
+  },
+  // The cleared count after this tick's actions (a list of step ids Kage performed). One prompt per tick at most.
+  advanceTutorial(stretch, done, x, actions) {
+    const p = this.tutorialPrompt(stretch, done, x);
+    return p && actions.includes(p.step) ? done + 1 : done;
+  },
+  // What a prompt says on an input device ('keyboard' | 'touch' | 'pad'; anything else reads as keyboard):
+  // { verb, hint, keys }, or null for an unknown step.
+  tutorialLabel(step, device) {
+    const d = TUTORIAL_STEPS[step];
+    if (!d) return null;
+    const dev = d.keys[device] ? device : 'keyboard';
+    return { step, verb: d.verb, hint: d.hint, device: dev, keys: d.keys[dev].slice() };
   },
   // Starts the next New Game+ cycle: campaign progress resets, everything else (including lifetime defeats) is kept.
   startNewGamePlus(save) {
@@ -2896,7 +2994,9 @@ class Fighter {
       case 'dead': this.friction(dt, 6); break;
     }
     this.physics(dt, world);
-    if (opp && (this.isNeutral() || this.state === 'block' || this.state === 'land' || this.state === 'kickcharge' || this.state === 'pose')) this.faceToward(opp, dt);
+    // a mimicking foe (AIController.startMimic) faces the way Kage's mirror image would and breathes with him
+    if (this.mimic) { this.facing = -this.mimic.src.facing; this.time = this.mimic.src.time; }
+    else if (opp && (this.isNeutral() || this.state === 'block' || this.state === 'land' || this.state === 'kickcharge' || this.state === 'pose')) this.faceToward(opp, dt);
     this.sqx = damp(this.sqx, 1, 14, dt); this.sqy = damp(this.sqy, 1, 14, dt);
     this.updateFlip(dt, world);
     this.updateTumble(dt, world);
@@ -3255,7 +3355,8 @@ class Fighter {
 
   /* ---- pose target selection + blending ---- */
   updatePose(dt) {
-    const t = this.tgt, wp = this.weapon(), stance = STANCES[wp.stance] || STANCES.fists;
+    // a mimicking foe stands in the stance of the fighter it copies (Kage's), not its own
+    const t = this.tgt, wp = this.mimic ? this.mimic.src.weapon() : this.weapon(), stance = STANCES[wp.stance] || STANCES.fists;
     let rate = 14;
     const copy = src => { for (let i = 0; i < POSE_KEYS.length; i++) t[POSE_KEYS[i]] = src[POSE_KEYS[i]]; t.ik = src.ik || 0; };
     this.extraRot = 0;
@@ -5873,6 +5974,7 @@ class AIController {
     if (this.kickHold > 0) { this.kickHold -= dt; if (this.kickHold <= 0) c.kickR = true; }
     for (const k in this.cds) this.cds[k] -= dt;
     if (!f.alive || !p || w.phase !== 'fight' || f.state === 'grabbed') return;
+    if (f.mimic && this.updateMimic(dt, p)) return;
     const dx = p.x - f.x, dist = Math.abs(dx), toward = Math.sign(dx) || 1;
     this.checkPhase();
     // disarmed: go get the weapon back
@@ -5926,6 +6028,22 @@ class AIController {
     else if (this.plan === 'strafe') { c.dir = this.strafeDir; }
     else if (this.plan === 'ring') { c.dir = toward; if (dist < this.ring) this.plan = 'hold'; }
     if (p.state === 'down' || p.state === 'getup') { if (dist < 140) c.dir = -toward; }
+  }
+
+  /* Mimic intro (an encounter's `mimicIntro`, see StretchSession.spawnWave): for a moment the foe does nothing but
+     stand in Kage's own idle stance, breathing with him, facing as his mirror image would (Fighter.update /
+     updatePose read f.mimic). It ends when the time runs out, Kage closes in, or the foe is struck; then it attacks.
+     Returns true while the foe is still mimicking. */
+  startMimic(src, dur) { this.f.mimic = { src, t: dur }; }
+  updateMimic(dt, p) {
+    const f = this.f, m = f.mimic;
+    m.t -= dt;
+    const struck = f.state !== 'idle' && f.state !== 'walk' && f.state !== 'pose';
+    if (m.t > 0 && Math.abs(p.x - f.x) > 110 && !struck) return true;
+    f.mimic = null;
+    this.t = 0.05; this.plan = 'approach';
+    if (this.world.onMimicEnd) this.world.onMimicEnd(f);
+    return false;
   }
 
   threatened(p, dist) {
@@ -6540,6 +6658,75 @@ const ENVS = {
       ctx.globalCompositeOperation = 'source-over';
     }
   },
+  // Hoshimura, the abandoned village (the Prologue): the highlands' red moon over a burnt-out village. Charred
+  // rooftops and broken beams in two parallax rows, a cold ash haze, grey ash falling and a few embers.
+  hoshimura: {
+    name: 'Hoshimura', rim: 'rgba(214,120,96,0.66)', light: { x: 0.2, y: -1 }, trail: C.bone,
+    build() {
+      const r = seeded(41);
+      this.sky = makeLayer(W, H, (g) => {
+        const gr = g.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, '#0b0a0b'); gr.addColorStop(0.6, '#1a1617'); gr.addColorStop(0.85, '#231b19'); gr.addColorStop(1, '#0b0a0a');
+        g.fillStyle = gr; g.fillRect(0, 0, W, H);
+        for (let i = 0; i < 5; i++) { g.fillStyle = `rgba(40,34,34,${0.25 + r() * 0.2})`; g.beginPath(); g.ellipse(r() * W, 90 + r() * 170, 260 + r() * 260, 18 + r() * 22, 0, 0, TAU); g.fill(); }
+      });
+      // a burnt house silhouette: posts, a sagging roof with gaps, and a beam or two jutting out
+      const house = (g, x, base, w, h, col) => {
+        g.fillStyle = col;
+        const roofY = base - h, sag = 6 + r() * 14;
+        g.fillRect(x + 6, roofY + 10, 7, h); g.fillRect(x + w - 13, roofY + 10, 7, h);
+        if (r() < 0.6) g.fillRect(x + w * 0.45, roofY + 16, 6, h);
+        // a hipped minka roof, its ridge sagging where the fire ate the beams
+        g.beginPath(); g.moveTo(x - 16, roofY + 16); g.lineTo(x + w * 0.22, roofY - 22); g.lineTo(x + w * 0.5, roofY - 22 + sag); g.lineTo(x + w * 0.78, roofY - 22); g.lineTo(x + w + 16, roofY + 16);
+        // a burnt gap bitten out of the roof line
+        const gx = x + w * (0.25 + r() * 0.4);
+        g.lineTo(x + w + 6, roofY + 26); g.lineTo(gx + 26, roofY + 22); g.lineTo(gx + 12, roofY + 6); g.lineTo(gx, roofY + 24); g.lineTo(x - 6, roofY + 26); g.closePath(); g.fill();
+        g.save(); g.translate(x + w * r(), roofY + 4); g.rotate(-0.6 + r() * 1.2); g.fillRect(-2, -40 - r() * 30, 5, 60); g.restore();
+      };
+      this.far = makeLayer(LW, H, (g) => {
+        g.fillStyle = 'rgba(54,46,44,0.5)'; mountainPath(g, LW, 400, 150, 120, r, true); g.fill();
+        g.fillStyle = '#1d1918'; mountainPath(g, LW, 470, 70, 80, r); g.fill();
+        let x = 20; while (x < LW) { house(g, x, 482, 70 + r() * 50, 46 + r() * 26, '#171414'); x += 110 + r() * 120; }
+      });
+      this.mid = makeLayer(LW, H, (g) => {
+        let x = 60; while (x < LW) { house(g, x, 560, 130 + r() * 70, 90 + r() * 40, '#0f0d0d'); x += 260 + r() * 260; }
+        // fences and a lone well
+        g.fillStyle = '#0f0d0d';
+        for (let i = 0; i < 18; i++) { const fx = r() * LW; g.fillRect(fx, 520 + r() * 20, 4, 40); g.fillRect(fx - 20, 532, 44, 3); }
+      });
+      this.ash = []; for (let i = 0; i < 46; i++) this.ash.push({ x: r() * W, y: r() * H, s: 8 + r() * 18, ph: r() * 6, z: 0.5 + r(), ember: r() < 0.12 });
+    },
+    back(ctx, cx, t) {
+      ctx.drawImage(this.sky, 0, 0);
+      const mx = 760 - cx * 0.05, my = 170, br = 1 + Math.sin(t * TAU / 6) * 0.03;
+      const halo = ctx.createRadialGradient(mx, my, 0, mx, my, 160 * br); halo.addColorStop(0, 'rgba(163,48,42,0.4)'); halo.addColorStop(1, 'rgba(163,48,42,0)');
+      ctx.fillStyle = halo; ctx.fillRect(mx - 200, my - 200, 400, 400);
+      ctx.fillStyle = 'rgba(163,48,42,0.72)'; ctx.beginPath(); ctx.arc(mx, my, 54, 0, TAU); ctx.fill();
+      drawTiled(ctx, this.far, -260 - cx * 0.16);
+      // smoke still rising from a few roofs
+      for (let i = 0; i < 3; i++) {
+        const sx = wrapX(300 + i * 520 - cx * 0.16, LW) - 200, sy = 420 - ((t * 16 + i * 40) % 160);
+        ctx.fillStyle = `rgba(70,62,62,${0.12 + 0.05 * Math.sin(t + i)})`; ctx.beginPath(); ctx.ellipse(sx + Math.sin(t * 0.5 + i) * 18, sy, 34, 60, 0, 0, TAU); ctx.fill();
+      }
+      drawTiled(ctx, this.mid, -260 - cx * 0.45);
+      const fog = ctx.createLinearGradient(0, 420, 0, GROUND + 60); fog.addColorStop(0, 'rgba(36,30,30,0)'); fog.addColorStop(0.6, 'rgba(36,30,30,0.55)'); fog.addColorStop(1, 'rgba(36,30,30,0)');
+      ctx.fillStyle = fog; ctx.fillRect(0, 420, W, 280);
+    },
+    floor(ctx, cx) {
+      const gr = ctx.createLinearGradient(0, GROUND, 0, H); gr.addColorStop(0, '#181415'); gr.addColorStop(1, '#0a0909');
+      ctx.fillStyle = gr; ctx.fillRect(0, GROUND, W, H - GROUND);
+      // ash drifts and cart ruts on the road
+      ctx.fillStyle = 'rgba(120,110,108,0.08)';
+      for (let i = 0; i < 7; i++) { const x = wrapX(i * 230 - cx, W + 300) - 150; ctx.beginPath(); ctx.ellipse(x, GROUND + 22 + (i % 3) * 14, 90, 6, 0, 0, TAU); ctx.fill(); }
+      ctx.fillStyle = '#3d3434'; ctx.fillRect(0, GROUND, W, 1);
+    },
+    front(ctx, cx, t) {
+      for (const a of this.ash) {
+        const x = ((a.x + Math.sin(t * 0.7 + a.ph) * 26 - cx * a.z * 0.6 - t * 10 * a.z) % W + W) % W, y = (a.y + t * a.s) % H;
+        ctx.fillStyle = a.ember ? `rgba(230,110,70,${0.4 + 0.3 * Math.sin(t * 3 + a.ph)})` : 'rgba(150,140,138,0.4)';
+        ctx.fillRect(x, y, 2 * a.z, 2 * a.z);
+      }
+    }
+  },
   wasteland: {
     name: 'The Crimson Wasteland', rim: 'rgba(255,146,90,0.8)', light: { x: 0.7, y: -0.7 }, trail: '#ffb38a',
     build() {
@@ -6699,6 +6886,7 @@ const Renderer = {
     for (const f of order) this.drawTrails(ctx, f, realT);
     WeaponSystem.draw(ctx, s);
     fx.drawWorld(ctx);
+    if (s.isStretch && !StoryPlayer.active) this.drawTutorial(ctx, s, realT);
     ctx.restore();
     fx.applyHaze(ctx, toScreen);
     env.front(ctx, cam.x, realT);
@@ -6786,6 +6974,19 @@ const Renderer = {
   // Stretch set dressing in world space: clue pickups, the encounter walls (left edge and gate) and the road's end.
   drawStretchProps(ctx, s, t) {
     const L = s.stretch, cam = s.cam, half = W / 2 / cam.zoom + 200, vl = cam.x - half, vr = cam.x + half;
+    // set dressing (stretch `props`): burnt houses, a roadside shrine, fallen beams
+    for (const pr of L.props || []) if (pr.x > vl - 300 && pr.x < vr + 300) this.drawProp(ctx, pr, t);
+    // the memory-ash trail (stretch `ashTrail`): a faint violet smear on the road once the way is clear
+    const A = L.ashTrail;
+    if (A && s.cleared >= L.encounters.length && A.to > vl && A.from < vr) {
+      const g = ctx.createLinearGradient(A.from, 0, A.to, 0);
+      g.addColorStop(0, 'rgba(155,140,255,0)'); g.addColorStop(0.15, 'rgba(155,140,255,0.22)'); g.addColorStop(1, 'rgba(155,140,255,0.08)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse((A.from + A.to) / 2, 2, (A.to - A.from) / 2, 7, 0, 0, TAU); ctx.fill();
+      for (let x = A.from + 30; x < A.to; x += 70) {
+        if (x < vl || x > vr) continue;
+        ctx.fillStyle = `rgba(201,189,255,${0.25 + 0.2 * Math.sin(t * 3 + x * 0.05)})`; ctx.fillRect(x + Math.sin(x) * 14, -2, 4, 3);
+      }
+    }
     // clues: a paper talisman bobbing over a faint gold glow; found ones fade away
     for (const c of s.clues) {
       if (c.x < vl || c.x > vr) continue;
@@ -6825,6 +7026,77 @@ const Renderer = {
       ctx.fillRect(ex - 110, -260, 16, 260); ctx.fillRect(ex + 94, -260, 16, 260); ctx.fillRect(ex - 120, -215, 240, 12);
       ctx.beginPath(); ctx.moveTo(ex - 150, -262); ctx.quadraticCurveTo(ex, -240, ex + 150, -262); ctx.lineTo(ex + 140, -280); ctx.quadraticCurveTo(ex, -262, ex - 140, -280); ctx.fill();
       ctx.fillStyle = C.ember; ctx.fillRect(ex - 120, -262, 240, 4);
+    }
+  },
+  // One stretch prop, standing on the road at pr.x (world units, y = 0 is the ground).
+  drawProp(ctx, pr, t) {
+    const x = pr.x, ink = '#0c0a0a';
+    ctx.save(); ctx.fillStyle = ink; ctx.strokeStyle = 'rgba(214,120,96,0.22)'; ctx.lineWidth = 2;
+    if (pr.type === 'house') {
+      // a burnt-out house: four charred posts, a broken lintel, a roof with a hole burnt through it
+      for (const px of [-150, -60, 60, 150]) ctx.fillRect(x + px - 7, -230 + Math.abs(px) * 0.08, 14, 230);
+      ctx.fillRect(x - 160, -200, 210, 10); ctx.fillRect(x + 80, -192, 80, 9);
+      ctx.beginPath(); ctx.moveTo(x - 200, -222); ctx.quadraticCurveTo(x - 20, -300, x + 200, -226);
+      ctx.lineTo(x + 182, -206); ctx.lineTo(x + 70, -228); ctx.lineTo(x + 40, -262); ctx.lineTo(x + 6, -232); ctx.lineTo(x - 182, -204); ctx.closePath(); ctx.fill(); ctx.stroke();
+      // a lone frame still hanging inside, and scorched paper screens
+      ctx.fillStyle = 'rgba(236,229,211,0.07)'; ctx.fillRect(x - 52, -180, 100, 150);
+      ctx.fillStyle = 'rgba(201,164,92,0.35)'; ctx.fillRect(x - 12, -150, 24, 18);
+    } else if (pr.type === 'shrine') {
+      // a small roadside hokora on a post; a recorder's red light blinks inside
+      ctx.fillRect(x - 5, -90, 10, 90);
+      ctx.fillRect(x - 30, -140, 60, 50);
+      ctx.beginPath(); ctx.moveTo(x - 44, -136); ctx.quadraticCurveTo(x, -170, x + 44, -136); ctx.lineTo(x + 38, -128); ctx.lineTo(x - 38, -128); ctx.closePath(); ctx.fill(); ctx.stroke();
+      const on = Math.sin(t * 5) > 0;
+      ctx.fillStyle = on ? 'rgba(255,74,60,0.95)' : 'rgba(120,30,26,0.8)'; ctx.fillRect(x - 3, -118, 6, 6);
+      if (on) { const g = ctx.createRadialGradient(x, -115, 0, x, -115, 26); g.addColorStop(0, 'rgba(255,74,60,0.35)'); g.addColorStop(1, 'rgba(255,74,60,0)'); ctx.fillStyle = g; ctx.fillRect(x - 26, -141, 52, 52); }
+    } else if (pr.type === 'collapsed') {
+      // a fallen house: beams in a heap across the road's edge
+      ctx.save(); ctx.translate(x - 60, -8); ctx.rotate(-0.22); ctx.fillRect(-90, -9, 200, 16); ctx.restore();
+      ctx.save(); ctx.translate(x + 30, -20); ctx.rotate(0.35); ctx.fillRect(-70, -7, 150, 13); ctx.restore();
+      ctx.beginPath(); ctx.moveTo(x - 140, 0); ctx.lineTo(x - 90, -46); ctx.lineTo(x - 30, -30); ctx.lineTo(x + 40, -64); ctx.lineTo(x + 120, -20); ctx.lineTo(x + 150, 0); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = `rgba(230,110,70,${0.35 + 0.25 * Math.sin(t * 4 + x)})`; ctx.fillRect(x - 20, -26, 4, 3); ctx.fillRect(x + 60, -18, 3, 3);
+    }
+    ctx.restore();
+  },
+  // Tutorial prompts (StretchSession.updateTutorial): a paper slip drifting above Kage with the verb and the keys of
+  // the input device in use; a cleared prompt flashes gold, crosses out and floats away.
+  drawTutorial(ctx, s, t) {
+    const T = s.tut;
+    if (!T || T.x == null) return;
+    const dev = s.inputDevice(), list = [];
+    if (T.cur) list.push({ step: T.cur.step, a: clamp(T.showT * 3, 0, 1), done: 0, rise: 0 });
+    if (T.cleared) list.push({ step: T.cleared.step, a: 1 - clamp((T.cleared.t - 0.45) / 0.7, 0, 1), done: 1, rise: T.cleared.t * 50 });
+    const baseY = s.player.y - s.player.height() - 120;
+    for (const it of list) {
+      const lab = Logic.tutorialLabel(it.step, dev);
+      if (!lab || it.a <= 0) continue;
+      ctx.save(); ctx.globalAlpha = it.a;
+      ctx.font = `30px ${FB}`; const vw = ctx.measureText(lab.verb).width;
+      ctx.font = `600 22px ${FU}`;
+      const caps = lab.keys.map(k => ({ k, w: Math.max(34, ctx.measureText(k).width + 18) }));
+      const capsW = caps.reduce((n, c) => n + c.w, 0) + (caps.length - 1) * 22;
+      ctx.font = `500 16px ${FU}`; const hw = ctx.measureText(lab.hint).width;
+      const w = Math.max(vw + 24 + capsW, hw) + 40, h = 74, y = baseY - it.rise - h;
+      const half = W / 2 / s.cam.zoom, x = clamp(T.x - w / 2, s.cam.x - half + 24, s.cam.x + half - w - 24);   // stays on screen
+      // the paper slip, a red seal and a thin ink border
+      ctx.fillStyle = it.done ? 'rgba(201,164,92,0.94)' : 'rgba(236,229,211,0.93)';
+      ctx.beginPath(); ctx.moveTo(x, y + 4); ctx.lineTo(x + w, y); ctx.lineTo(x + w - 3, y + h); ctx.lineTo(x + 2, y + h - 3); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = C.ember; ctx.fillRect(x - 6, y + 10, 6, h - 22);
+      ctx.fillStyle = C.ink; ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
+      ctx.font = `30px ${FB}`; ctx.fillText(lab.verb, x + 20, y + 28);
+      let cx = x + 20 + vw + 24;
+      for (let i = 0; i < caps.length; i++) {
+        const c = caps[i];
+        ctx.fillStyle = C.ink;
+        if (dev === 'keyboard') ctx.fillRect(cx, y + 12, c.w, 32);
+        else { ctx.beginPath(); ctx.ellipse(cx + c.w / 2, y + 28, c.w / 2, 16, 0, 0, TAU); ctx.fill(); }
+        ctx.fillStyle = C.bone; ctx.font = `600 22px ${FU}`; ctx.textAlign = 'center'; ctx.fillText(c.k, cx + c.w / 2, y + 29);
+        ctx.textAlign = 'left'; cx += c.w;
+        if (i < caps.length - 1) { ctx.fillStyle = C.ink; ctx.fillText('/', cx + 6, y + 29); cx += 22; }
+      }
+      ctx.fillStyle = 'rgba(3,3,3,0.7)'; ctx.font = `500 16px ${FU}`; ctx.fillText(lab.hint, x + 20, y + 58);
+      if (it.done) { ctx.strokeStyle = C.ember; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(x + 14, y + 30); ctx.lineTo(x + 20 + vw + 8, y + 26); ctx.stroke(); }
+      ctx.restore();
     }
   },
   drawMiniBar(ctx, f) {
@@ -8014,7 +8286,8 @@ const STRETCH = {
   deadzone: 70,      // camera deadzone half-width (world units)
   lookAhead: 230,    // camera look-ahead in the facing direction (the follow lag eats about 80 of it at a run)
   zoom: 1.0, fightZoom: 0.94,
-  clueReach: 46
+  clueReach: 46,
+  tutorialWalk: 140  // how far Kage must walk to clear the "move" prompt
 };
 class StretchSession extends FightSession {
   setup() {
@@ -8025,7 +8298,7 @@ class StretchSession extends FightSession {
     this.level = { l: 0, r: L.length };
     this.cleared = 0; this.encounter = null; this.engaged = new Set();
     const found = Logic.cluesFound(save, cfg.stageId);
-    this.clues = L.clues.map(c => ({ id: c.id, x: c.x, label: c.label, found: found.includes(c.id), ph: rand(0, TAU), got: 0 }));
+    this.clues = L.clues.map(c => ({ id: c.id, x: c.x, label: c.label, found: found.includes(c.id), ph: rand(0, TAU), got: found.includes(c.id) ? 9 : 0 }));   // clues found on an earlier run stay gone
     p.x = L.start || 160; p.facing = 1; p.state = 'pose'; p.poseName = null;
     this.fighters = [p];
     this.bounds = { l: this.level.l, r: Logic.stretchLimit(L, 0) };
@@ -8033,7 +8306,10 @@ class StretchSession extends FightSession {
     this.cam.zoom = STRETCH.zoom; this.cam.x = this.clampCam(p.x + this.look, STRETCH.zoom); this.cam.y = 0;
     this.letterbox = 1;
     this.phase = 'intro'; this.phaseT = 0;
-    this.fx.banner(cfg.foeName || 'Stretch', cfg.foeTitle || '', C.gold);
+    // tutorial prompts (stretch `tutorial`): done = prompts cleared; cleared = the last cleared prompt, fading out
+    this.tut = { done: 0, cur: null, walked: 0, showT: 0, cleared: null };
+    // the title banner waits for the first simulated tick, so it never hangs frozen behind the opening scene
+    this.bannerDue = true;
   }
   roundTime() { return 0; }
   // the player targets the nearest live foe; with none around, nothing (he faces where he walks)
@@ -8060,6 +8336,7 @@ class StretchSession extends FightSession {
     const L = this.stretch;
     switch (this.phase) {
       case 'intro': {
+        if (this.bannerDue) { this.bannerDue = false; this.fx.banner(this.cfg.foeName || 'Stretch', this.cfg.foeTitle || '', C.gold); }
         const skip = this.phaseT > 0.5 && (InputManager.pressed('punch') || InputManager.pressed('jump') || UIManager.skipRequested());
         if (this.phaseT > 1.6 || skip) { this.phase = 'fight'; this.phaseT = 0; p.state = 'idle'; }
         break;
@@ -8087,6 +8364,8 @@ class StretchSession extends FightSession {
     // with no foe to square up to, Kage turns to where he walks (so he can break into a run)
     if (this.phase === 'fight' && !this.opponentOf(p) && p.isNeutral() && c.dir) p.facing = c.dir;
     super.simulate(dt, p, e);
+    if (this.phase === 'fight') this.updateTutorial(dt);
+    this.updateAshTrail(dt);
     // fallen foes fade out once they have hit the floor, so a long stretch never piles up bodies
     for (const f of this.fighters) {
       if (f === p || f.alive || !f.visible || f.dissolve) continue;
@@ -8100,9 +8379,10 @@ class StretchSession extends FightSession {
     const enc = this.stretch.encounters[i];
     this.encounter = { i, wave: -1, gate: enc.gate, l: Math.max(this.level.l, enc.gate - STRETCH.arena), next: 0.35 };
     this.bounds = { l: this.encounter.l, r: enc.gate };
-    this.fx.stamp('FIGHT', this.player.x + 120, -170, 3, C.emberBright); this.fightFlash = 1;
-    AudioManager.play('round');
+    // a mimic encounter opens in silence; its FIGHT mark lands when the copy breaks (onMimicEnd)
+    if (!enc.mimicIntro) this.fightMark();
   }
+  fightMark() { this.fx.stamp('FIGHT', this.player.x + 120, -170, 3, C.emberBright); this.fightFlash = 1; AudioManager.play('round'); }
   spawnWave(k) {
     const enc = this.encounter, ids = this.stretch.encounters[enc.i].waves[k], p = this.player;
     enc.wave = k;
@@ -8110,9 +8390,13 @@ class StretchSession extends FightSession {
       // alternate ahead (near the gate) and behind (the arena's left edge), so foes close in from both sides
       const ahead = j % 2 === 0, row = (j / 2) | 0;
       let x = ahead ? enc.gate - 50 - row * 90 : enc.l + 50 + row * 90;
+      const mimic = k === 0 && this.stretch.encounters[enc.i].mimicIntro;
+      if (mimic) x = clamp(p.x + (ahead ? 1 : -1) * 400, enc.l + 30, enc.gate - 30);   // a mirror stands in plain view
       if (Math.abs(x - p.x) < 260) x = clamp(p.x + (ahead ? 1 : -1) * 320, enc.l + 30, enc.gate - 30);
       const f = this.makeEnemy(id, x);
       f.facing = p.x > x ? 1 : -1;
+      // an encounter's mimicIntro: the first wave stands mirroring Kage's idle stance before it attacks
+      if (mimic) { f.ai.startMimic(p, mimic); this.fx.popText(f, '. . .', '#b9a8ff'); }
       this.fighters.push(f); this.smokeCloud(x);
     });
     if (k > 0) this.fx.banner(`Wave ${k + 1}`, `${ids.length} foes`, C.emberBright);
@@ -8129,6 +8413,53 @@ class StretchSession extends FightSession {
     this.fx.banner('The way opens', this.cleared < this.stretch.encounters.length ? 'Press on' : 'Reach the end of the road', C.gold);
     AudioManager.play('unlock');
   }
+
+  // a mimicking foe drops the copy and comes for him
+  onMimicEnd(f) {
+    if (!f.alive) return;
+    this.fx.memoryAsh(f, 16, false); AudioManager.play('whoosh');
+    if (this.encounter && !this.fighters.some(o => o !== f && o.mimic)) this.fightMark();
+  }
+
+  /* ---- tutorial prompts: shown one at a time in the world (Renderer.drawTutorial), cleared by doing the action ---- */
+  updateTutorial(dt) {
+    const L = this.stretch, T = this.tut, p = this.player, c = p.ctrl;
+    T.x = T.x == null ? p.x : damp(T.x, p.x, 5, dt);   // the prompt drifts after Kage
+    if (T.cleared) { T.cleared.t += dt; if (T.cleared.t > 1.2) T.cleared = null; }
+    if (!L.tutorial || T.done >= L.tutorial.length) return;
+    const cur = Logic.tutorialPrompt(L, T.done, p.x);
+    if (cur !== T.cur) { T.cur = cur; T.walked = 0; T.showT = 0; }
+    if (!cur) return;
+    T.showT += dt;
+    if (c.dir && p.grounded) T.walked += Math.abs(p.vx) * dt;
+    const did = [];
+    if (T.walked > STRETCH.tutorialWalk) did.push('move');
+    if (c.jumpP) did.push('jump');
+    if (c.weaponP) did.push('slash');
+    if (c.blockP || c.blockHeld) did.push('block');
+    if (c.dashP) did.push('dodge');
+    const n = Logic.advanceTutorial(L, T.done, p.x, did);
+    if (n === T.done) return;
+    T.done = n; T.cleared = { step: cur.step, t: 0 };
+    T.cur = null;
+    AudioManager.play('coin', { pitch: 1.2 });
+  }
+  // stretch `ashTrail`: once every encounter is cleared, violet memory ash drifts up off the road ahead (Effects 'ash')
+  updateAshTrail(dt) {
+    const A = this.stretch.ashTrail;
+    if (!A || this.cleared < this.stretch.encounters.length) return;
+    const half = W / 2 / this.cam.zoom, l = Math.max(A.from, this.cam.x - half), r = Math.min(A.to, this.cam.x + half);
+    if (r <= l) return;
+    this.ashAcc = (this.ashAcc || 0) + dt * 26 * (r - l) / (2 * half);
+    const cols = ENEMY_FAMILIES.hollow.ash;
+    while (this.ashAcc >= 1) {
+      this.ashAcc -= 1;
+      this.fx.part({ x: rand(l, r), y: rand(-6, 2), vx: rand(20, 70), vy: rand(-60, -20), life: rand(1.2, 2.2), size: rand(3, 6),
+        color: cols[(Math.random() * cols.length) | 0], type: 'ash', grav: -18, drag: 0.6, rot: rand(0, TAU), vr: rand(-4, 4) });
+    }
+  }
+  // Which input device the prompts name: the last one used (InputManager), else touch when the touch controls show.
+  inputDevice() { return InputManager.lastDevice === 'pad' ? 'pad' : InputManager.lastDevice === 'touch' ? 'touch' : 'keyboard'; }
 
   /* ---- clues: walk over one to pick it up ---- */
   updateClues(dt) {
@@ -8149,6 +8480,7 @@ class StretchSession extends FightSession {
   onKO(def, att) {
     if (def.clone || def.minion) return super.onKO(def, att);
     const fx = this.fx;
+    def.mimic = null;
     if (def.hollow) this.dissolve(def);
     if (def !== this.player) {
       fx.impactFrame(def.x, def.y - 100 * def.scale, 2); fx.shake(0.5);
@@ -9448,7 +9780,7 @@ const UIManager = {
     const dl = clamp((cfg.mode === 'campaign' ? cfg.diff : 2) + (cfg.ng || 0) + (d.type === 'boss' ? 1 : 0), 0, 4);
     const foeName = cfg.foeName || d.name, foeTitle = cfg.foeTitle || d.title;
     const tag = cfg.mode === 'survival' ? `Survival · Wave ${ROMAN[cfg.wave - 1] || cfg.wave}` : cfg.stretch ? `Stretch · ${DIFF_LABEL[dl]}` : `${d.type === 'boss' ? 'Boss' : d.type === 'sub' ? 'Sub-boss' : 'Duelist'} · ${DIFF_LABEL[dl]}`;
-    const taunt = cfg.stretch ? `${cfg.stretch.encounters.length} encounters on the road · clues found ${Logic.cluesFound(save, cfg.stageId).length}/${cfg.stretch.clues.length}` : d.taunt;
+    const taunt = cfg.stretch ? `${cfg.stretch.encounters.length} encounter${cfg.stretch.encounters.length === 1 ? '' : 's'} on the road · clues found ${Logic.cluesFound(save, cfg.stageId).length}/${cfg.stretch.clues.length}` : d.taunt;
     const owned = Object.keys(save.owned.weapons).filter(w => WEAPONS[w] && !WEAPONS[w].enemy);
     el.innerHTML = `
       <button class="round-btn pf-back" data-a="back" aria-label="Back">${ICON.back}</button>

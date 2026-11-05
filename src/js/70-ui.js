@@ -599,7 +599,7 @@ const UIManager = {
     const dl = clamp((cfg.mode === 'campaign' ? cfg.diff : 2) + (cfg.ng || 0) + (d.type === 'boss' ? 1 : 0), 0, 4);
     const foeName = cfg.foeName || d.name, foeTitle = cfg.foeTitle || d.title;
     const tag = cfg.mode === 'survival' ? `Survival · Wave ${ROMAN[cfg.wave - 1] || cfg.wave}` : cfg.stretch ? `Stretch · ${DIFF_LABEL[dl]}` : `${d.type === 'boss' ? 'Boss' : d.type === 'sub' ? 'Sub-boss' : 'Duelist'} · ${DIFF_LABEL[dl]}`;
-    const taunt = cfg.stretch ? `${cfg.stretch.encounters.length} encounters on the road · clues found ${Logic.cluesFound(save, cfg.stageId).length}/${cfg.stretch.clues.length}` : d.taunt;
+    const taunt = cfg.stretch ? `${cfg.stretch.encounters.length} encounter${cfg.stretch.encounters.length === 1 ? '' : 's'} on the road · clues found ${Logic.cluesFound(save, cfg.stageId).length}/${cfg.stretch.clues.length}` : d.taunt;
     const owned = Object.keys(save.owned.weapons).filter(w => WEAPONS[w] && !WEAPONS[w].enemy);
     el.innerHTML = `
       <button class="round-btn pf-back" data-a="back" aria-label="Back">${ICON.back}</button>

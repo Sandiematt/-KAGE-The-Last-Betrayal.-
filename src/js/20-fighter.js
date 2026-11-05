@@ -279,7 +279,9 @@ class Fighter {
       case 'dead': this.friction(dt, 6); break;
     }
     this.physics(dt, world);
-    if (opp && (this.isNeutral() || this.state === 'block' || this.state === 'land' || this.state === 'kickcharge' || this.state === 'pose')) this.faceToward(opp, dt);
+    // a mimicking foe (AIController.startMimic) faces the way Kage's mirror image would and breathes with him
+    if (this.mimic) { this.facing = -this.mimic.src.facing; this.time = this.mimic.src.time; }
+    else if (opp && (this.isNeutral() || this.state === 'block' || this.state === 'land' || this.state === 'kickcharge' || this.state === 'pose')) this.faceToward(opp, dt);
     this.sqx = damp(this.sqx, 1, 14, dt); this.sqy = damp(this.sqy, 1, 14, dt);
     this.updateFlip(dt, world);
     this.updateTumble(dt, world);
@@ -638,7 +640,8 @@ class Fighter {
 
   /* ---- pose target selection + blending ---- */
   updatePose(dt) {
-    const t = this.tgt, wp = this.weapon(), stance = STANCES[wp.stance] || STANCES.fists;
+    // a mimicking foe stands in the stance of the fighter it copies (Kage's), not its own
+    const t = this.tgt, wp = this.mimic ? this.mimic.src.weapon() : this.weapon(), stance = STANCES[wp.stance] || STANCES.fists;
     let rate = 14;
     const copy = src => { for (let i = 0; i < POSE_KEYS.length; i++) t[POSE_KEYS[i]] = src[POSE_KEYS[i]]; t.ik = src.ik || 0; };
     this.extraRot = 0;

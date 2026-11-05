@@ -358,6 +358,27 @@ const Logic = {
     const s = this.stretch(stageId), got = (save.clues || {})[stageId] || {};
     return s ? s.clues.filter(c => got[c.id]).map(c => c.id) : [];
   },
+  /* Tutorial prompts. A stretch may carry `tutorial: [{ step, at }]` (steps from TUTORIAL_STEPS, 10-data.js):
+     in-world prompts shown one at a time, in order. `done` is how many are cleared. A prompt shows once every
+     earlier one is cleared and Kage has reached its `at`; it clears when he performs its action while it shows. */
+  // The prompt showing for Kage at x ({ step, at }), or null.
+  tutorialPrompt(stretch, done, x) {
+    const t = stretch && stretch.tutorial, p = t && t[done];
+    return p && x >= p.at ? p : null;
+  },
+  // The cleared count after this tick's actions (a list of step ids Kage performed). One prompt per tick at most.
+  advanceTutorial(stretch, done, x, actions) {
+    const p = this.tutorialPrompt(stretch, done, x);
+    return p && actions.includes(p.step) ? done + 1 : done;
+  },
+  // What a prompt says on an input device ('keyboard' | 'touch' | 'pad'; anything else reads as keyboard):
+  // { verb, hint, keys }, or null for an unknown step.
+  tutorialLabel(step, device) {
+    const d = TUTORIAL_STEPS[step];
+    if (!d) return null;
+    const dev = d.keys[device] ? device : 'keyboard';
+    return { step, verb: d.verb, hint: d.hint, device: dev, keys: d.keys[dev].slice() };
+  },
   // Starts the next New Game+ cycle: campaign progress resets, everything else (including lifetime defeats) is kept.
   startNewGamePlus(save) {
     if (!save.ngUnlocked) return false;

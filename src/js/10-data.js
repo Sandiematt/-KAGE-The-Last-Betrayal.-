@@ -499,12 +499,28 @@ for (const id in ENEMIES) ENEMIES[id].id = id;
                         encounters: [{ x, gate, waves }],  crossing x starts the encounter; an invisible gate at `gate`
                                                     blocks the way on until every wave is beaten; waves are 1-3 lists of
                                                     ENEMIES ids, all active at once, each wave starting when the last falls,
-                        clues: [{ id, x, label }] } pickups that record a clue flag (Logic.collectClue).
+                        clues: [{ id, x, label, scene? }],  pickups that record a clue flag (Logic.collectClue) and
+                                                    may play a scene (Logic.clueScene),
+                        tutorial?: [{ step, at }],  in-world prompts taught in order (TUTORIAL_STEPS; Logic.tutorialPrompt),
+                        props?: [{ type, x }],      set dressing drawn in the world: 'house' (a burnt-out house frame),
+                                                    'shrine' (a small roadside shrine), 'collapsed' (a fallen house),
+                        ashTrail?: { from, to } }   violet memory ash drifting along the ground between two x.
+                      An encounter may add `mimicIntro: seconds`: its first wave's foes stand mirroring Kage's idle
+                      stance and facing for that long before they attack (AIController.mimic, 40-ai.js).
                       The stretch is complete when Kage reaches `length` with every encounter cleared.
                       Until the story updates author them, every stretch gets placeholder content (stretchDefaults).
    scenes?          story scenes by hook: { before, after, defeat } (scene ids from SCENES, 12-scenes.js; see Logic.stageScene).
    Later updates add per-stage fields here (env override);
    the logic module reads them, so the rest of the game picks them up. */
+/* Tutorial prompts (a stretch's `tutorial`; see Logic.tutorialPrompt / tutorialLabel). keys: what to press on each
+   input device, matching InputManager's bindings and the touch buttons' captions. */
+const TUTORIAL_STEPS = {
+  move:  { verb: 'Move',  hint: 'Walk down the road',      keys: { keyboard: ['A', 'D'],     touch: ['Stick'],  pad: ['Left stick'] } },
+  jump:  { verb: 'Jump',  hint: 'Leap the fallen beam',    keys: { keyboard: ['W', 'Space'], touch: ['Jump'],   pad: ['A'] } },
+  slash: { verb: 'Slash', hint: 'Your hands remember the sword', keys: { keyboard: ['U'],    touch: ['Strike'], pad: ['RB'] } },
+  block: { verb: 'Block', hint: 'Guard — press just before a hit to parry', keys: { keyboard: ['S'], touch: ['Guard'], pad: ['LT'] } },
+  dodge: { verb: 'Dodge', hint: 'Dash through danger',     keys: { keyboard: ['L', 'Shift'], touch: ['Dash'],   pad: ['B'] } }
+};
 const STAGE_KINDS = ['stretch', 'subboss', 'boss', 'spar', 'echo', 'scene'];
 const CAMPAIGN = (function buildCampaign() {
   const R = ['I', 'II', 'III', 'IV'];
@@ -549,7 +565,20 @@ const CAMPAIGN = (function buildCampaign() {
   };
   const chapters = [
     { id: 'prologue', name: 'Prologue', title: 'Hoshimura', place: 'The abandoned village', env: 'highlands', diff: 1,
-      stages: [{ id: 'prologue.1', kind: 'stretch', name: 'The Empty Village', enemy: 'hollow_shade', stretch: stretchDefaults(['hollow_shade', 'hollow_flicker', 'hollow_shade', 'hollow_flicker']), scenes: { before: 'prologue.open' } }] },
+      stages: [{ id: 'prologue.1', kind: 'stretch', name: 'The Empty Village', enemy: 'hollow_shade', scenes: { before: 'prologue.open', after: 'prologue.close' },
+        // Hoshimura: a short, gentle walk that teaches the basics, three clues Rem left behind, one Hollow, then the ash.
+        stretch: {
+          length: 4200, start: 160, env: 'hoshimura',
+          tutorial: [{ step: 'move', at: 0 }, { step: 'jump', at: 520 }, { step: 'slash', at: 1000 }, { step: 'block', at: 1420 }, { step: 'dodge', at: 1780 }],
+          encounters: [{ x: 2600, gate: 3200, waves: [['hollow_shade']], mimicIntro: 2.2 }],
+          clues: [
+            { id: 'recording', x: 820, label: 'A broken recording', scene: 'prologue.clue.recording' },
+            { id: 'photograph', x: 2160, label: 'A scratched photograph', scene: 'prologue.clue.photograph' },
+            { id: 'message', x: 3640, label: 'A second message', scene: 'prologue.clue.message' }
+          ],
+          props: [{ type: 'collapsed', x: 660 }, { type: 'shrine', x: 860 }, { type: 'collapsed', x: 1320 }, { type: 'house', x: 2160 }, { type: 'collapsed', x: 2950 }, { type: 'house', x: 3700 }],
+          ashTrail: { from: 3250, to: 4160 }
+        } }] },
     act('act1', 'Act I', 'The Outer Districts', 'Order territory', 'rooftops', 1, SQUADS.act1, 'Raikon', 'the Lightning Ascendant'),
     { id: 'interlude', name: 'Interlude', title: 'Brothers', place: 'A memory of the training yard', env: 'highlands', diff: 1,
       stages: [{ id: 'interlude.spar', kind: 'spar', name: 'The Spar', foe: 'Rem', foeTitle: 'Young Rem', enemy: 'echo_sentinel' }] },

@@ -397,6 +397,8 @@ const InputManager = {
   enabled: true,
   lastDevice: 'keyboard',
   init() {
+    // until a key, button or pad says otherwise, a touch screen is played by touch (tutorial prompts read this)
+    if (isTouchDevice()) this.lastDevice = 'touch';
     for (const [a, codes] of Object.entries(this.map)) for (const c of codes) (this.codeToActions[c] = this.codeToActions[c] || []).push(a);
     window.addEventListener('keydown', e => {
       const acts = this.codeToActions[e.code];

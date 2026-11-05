@@ -24,19 +24,65 @@
      - to a stretch clue: `clues: [{ id, x, label, scene }]` plays when the clue is picked up.
    Logic.stageScene(stageId, hook) and Logic.clueScene(stageId, clueId) answer which scene plays. */
 const SCENES = {
-  // Prologue opening (SAN-31 writes the full Prologue around it).
+  // ---- Prologue: The Man With No Past (stage prologue.1, Hoshimura) ----
+  // Canon kept off-screen here: Rem planted the clues from inside the Core, and "he" in the second message is Takashi.
+  // The Prologue never says either; it stays a mystery.
   'prologue.open': {
     steps: [
       { video: 'Kage wakes in the ashes of Hoshimura under a red moon, alone, with no memory of the fire.' },
       { illus: 'hoshimura_ruins', caption: 'Hoshimura. What the fire left of it.' },
       { say: 'kage', text: '...Ash. Still warm.' },
-      { say: 'kage', text: 'This was our house. I know these beams. I don\'t know how I got here.' },
-      { illus: 'photograph', caption: 'A photograph in the ash. Three faces. Two of them scratched away.' },
-      { say: 'kage', text: 'Rem. Only your face is left.' },
-      { say: 'kage', text: 'Where are you, brother?' },
-      { illus: 'memory_ash', caption: 'Violet ash drifts up the road, as if something is waiting for him to follow.' },
+      { say: 'kage', text: 'I know these beams. These roofs. I don’t know how I know them.' },
+      { say: 'kage', text: 'My name... Kage. That much stayed. The rest is smoke.' },
       { illus: null },
+      { say: 'kage', text: 'A sword at my hip. My hands know its weight. They don’t know why.' },
+      { say: 'narrator', text: 'The road runs east through the empty village. Something on it is waiting to be found.' }
+    ]
+  },
+  // Clue 1: a broken recorder in a roadside shrine, looping one phrase.
+  'prologue.clue.recording': {
+    steps: [
+      { say: 'narrator', text: 'A cracked recorder sits in the shrine, its light still blinking. It was left here on purpose.' },
+      { say: 'recording', text: '...ssss... find the... kssh... Find the Witness.' },
+      { say: 'recording', text: 'Find the Witness. Find the... Find the Witness.' },
+      { say: 'kage', text: 'Whose voice is that? It knows me. I can hear it knowing me.' },
+      { say: 'kage', text: 'The Witness. Witness to what?' },
+      { flag: 'prologue.recording_heard' }
+    ]
+  },
+  // Clue 2: inside a burnt-out house, a photograph with every face scratched away except Rem's.
+  'prologue.clue.photograph': {
+    steps: [
+      { say: 'narrator', text: 'Inside the house, one frame hangs straight on a wall that is barely standing.' },
+      { illus: 'photograph', caption: 'Three figures: a tall man, and two boys beside him. Every face is scratched out but one.' },
+      { say: 'kage', text: 'That boy... Rem. His name is Rem. I know it the way I know the sword.' },
+      { say: 'kage', text: 'And the other boy is me. Someone took a blade to my face. And to his.' },
+      { say: 'kage', text: 'Only Rem was left untouched. As if someone wanted me to remember him first.' },
+      { illus: null },
+      { say: 'kage', text: 'Rem. Brother. Where are you?' },
       { flag: 'prologue.photo_found' }
+    ]
+  },
+  // Clue 3: a second message, scratched into a door beside the road's end.
+  'prologue.clue.message': {
+    steps: [
+      { say: 'narrator', text: 'Words cut into a charred door, fresh as the ash. The same careful hand.' },
+      { say: 'narrator', text: '"If you remember everything, he will find you."' },
+      { say: 'kage', text: 'He. Who is he?' },
+      { say: 'kage', text: 'Someone took my past and left me a trail instead. A warning, and a way forward.' },
+      { flag: 'prologue.warning_read' }
+    ]
+  },
+  // The road out: Kage follows a trail of violet memory ash. Closes the Prologue; Act I opens after it.
+  'prologue.close': {
+    steps: [
+      { say: 'kage', text: 'That thing wore my stance. It breathed when I breathed.' },
+      { say: 'kage', text: 'And when it broke, it turned to this.' },
+      { illus: 'memory_ash', caption: 'Violet ash lifts from the road and drifts east, as if something is waiting for him to follow.' },
+      { say: 'kage', text: 'Find the Witness. Find Rem. Remember... but not everything.' },
+      { say: 'narrator', text: 'Kage left Hoshimura with no past, following the ash.' },
+      { illus: null },
+      { flag: 'prologue.complete' }
     ]
   },
   // Act I boss: Raikon blocks the route to the old military archive. He is an Echo copy, bound to guard it against his will.

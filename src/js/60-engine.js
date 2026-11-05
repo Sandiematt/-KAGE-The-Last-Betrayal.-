@@ -436,7 +436,8 @@ const STRETCH = {
   deadzone: 70,      // camera deadzone half-width (world units)
   lookAhead: 230,    // camera look-ahead in the facing direction (the follow lag eats about 80 of it at a run)
   zoom: 1.0, fightZoom: 0.94,
-  clueReach: 46
+  clueReach: 46,
+  tutorialWalk: 140  // how far Kage must walk to clear the "move" prompt
 };
 class StretchSession extends FightSession {
   setup() {
@@ -447,7 +448,7 @@ class StretchSession extends FightSession {
     this.level = { l: 0, r: L.length };
     this.cleared = 0; this.encounter = null; this.engaged = new Set();
     const found = Logic.cluesFound(save, cfg.stageId);
-    this.clues = L.clues.map(c => ({ id: c.id, x: c.x, label: c.label, found: found.includes(c.id), ph: rand(0, TAU), got: 0 }));
+    this.clues = L.clues.map(c => ({ id: c.id, x: c.x, label: c.label, found: found.includes(c.id), ph: rand(0, TAU), got: found.includes(c.id) ? 9 : 0 }));   // clues found on an earlier run stay gone
     p.x = L.start || 160; p.facing = 1; p.state = 'pose'; p.poseName = null;
     this.fighters = [p];
     this.bounds = { l: this.level.l, r: Logic.stretchLimit(L, 0) };
@@ -455,7 +456,10 @@ class StretchSession extends FightSession {
     this.cam.zoom = STRETCH.zoom; this.cam.x = this.clampCam(p.x + this.look, STRETCH.zoom); this.cam.y = 0;
     this.letterbox = 1;
     this.phase = 'intro'; this.phaseT = 0;
-    this.fx.banner(cfg.foeName || 'Stretch', cfg.foeTitle || '', C.gold);
+    // tutorial prompts (stretch `tutorial`): done = prompts cleared; cleared = the last cleared prompt, fading out
+    this.tut = { done: 0, cur: null, walked: 0, showT: 0, cleared: null };
+    // the title banner waits for the first simulated tick, so it never hangs frozen behind the opening scene
+    this.bannerDue = true;
   }
   roundTime() { return 0; }
   // the player targets the nearest live foe; with none around, nothing (he faces where he walks)
@@ -482,6 +486,7 @@ class StretchSession extends FightSession {
     const L = this.stretch;
     switch (this.phase) {
       case 'intro': {
+        if (this.bannerDue) { this.bannerDue = false; this.fx.banner(this.cfg.foeName || 'Stretch', this.cfg.foeTitle || '', C.gold); }
         const skip = this.phaseT > 0.5 && (InputManager.pressed('punch') || InputManager.pressed('jump') || UIManager.skipRequested());
         if (this.phaseT > 1.6 || skip) { this.phase = 'fight'; this.phaseT = 0; p.state = 'idle'; }
         break;
@@ -509,6 +514,8 @@ class StretchSession extends FightSession {
     // with no foe to square up to, Kage turns to where he walks (so he can break into a run)
     if (this.phase === 'fight' && !this.opponentOf(p) && p.isNeutral() && c.dir) p.facing = c.dir;
     super.simulate(dt, p, e);
+    if (this.phase === 'fight') this.updateTutorial(dt);
+    this.updateAshTrail(dt);
     // fallen foes fade out once they have hit the floor, so a long stretch never piles up bodies
     for (const f of this.fighters) {
       if (f === p || f.alive || !f.visible || f.dissolve) continue;
@@ -522,9 +529,10 @@ class StretchSession extends FightSession {
     const enc = this.stretch.encounters[i];
     this.encounter = { i, wave: -1, gate: enc.gate, l: Math.max(this.level.l, enc.gate - STRETCH.arena), next: 0.35 };
     this.bounds = { l: this.encounter.l, r: enc.gate };
-    this.fx.stamp('FIGHT', this.player.x + 120, -170, 3, C.emberBright); this.fightFlash = 1;
-    AudioManager.play('round');
+    // a mimic encounter opens in silence; its FIGHT mark lands when the copy breaks (onMimicEnd)
+    if (!enc.mimicIntro) this.fightMark();
   }
+  fightMark() { this.fx.stamp('FIGHT', this.player.x + 120, -170, 3, C.emberBright); this.fightFlash = 1; AudioManager.play('round'); }
   spawnWave(k) {
     const enc = this.encounter, ids = this.stretch.encounters[enc.i].waves[k], p = this.player;
     enc.wave = k;
@@ -532,9 +540,13 @@ class StretchSession extends FightSession {
       // alternate ahead (near the gate) and behind (the arena's left edge), so foes close in from both sides
       const ahead = j % 2 === 0, row = (j / 2) | 0;
       let x = ahead ? enc.gate - 50 - row * 90 : enc.l + 50 + row * 90;
+      const mimic = k === 0 && this.stretch.encounters[enc.i].mimicIntro;
+      if (mimic) x = clamp(p.x + (ahead ? 1 : -1) * 400, enc.l + 30, enc.gate - 30);   // a mirror stands in plain view
       if (Math.abs(x - p.x) < 260) x = clamp(p.x + (ahead ? 1 : -1) * 320, enc.l + 30, enc.gate - 30);
       const f = this.makeEnemy(id, x);
       f.facing = p.x > x ? 1 : -1;
+      // an encounter's mimicIntro: the first wave stands mirroring Kage's idle stance before it attacks
+      if (mimic) { f.ai.startMimic(p, mimic); this.fx.popText(f, '. . .', '#b9a8ff'); }
       this.fighters.push(f); this.smokeCloud(x);
     });
     if (k > 0) this.fx.banner(`Wave ${k + 1}`, `${ids.length} foes`, C.emberBright);
@@ -551,6 +563,53 @@ class StretchSession extends FightSession {
     this.fx.banner('The way opens', this.cleared < this.stretch.encounters.length ? 'Press on' : 'Reach the end of the road', C.gold);
     AudioManager.play('unlock');
   }
+
+  // a mimicking foe drops the copy and comes for him
+  onMimicEnd(f) {
+    if (!f.alive) return;
+    this.fx.memoryAsh(f, 16, false); AudioManager.play('whoosh');
+    if (this.encounter && !this.fighters.some(o => o !== f && o.mimic)) this.fightMark();
+  }
+
+  /* ---- tutorial prompts: shown one at a time in the world (Renderer.drawTutorial), cleared by doing the action ---- */
+  updateTutorial(dt) {
+    const L = this.stretch, T = this.tut, p = this.player, c = p.ctrl;
+    T.x = T.x == null ? p.x : damp(T.x, p.x, 5, dt);   // the prompt drifts after Kage
+    if (T.cleared) { T.cleared.t += dt; if (T.cleared.t > 1.2) T.cleared = null; }
+    if (!L.tutorial || T.done >= L.tutorial.length) return;
+    const cur = Logic.tutorialPrompt(L, T.done, p.x);
+    if (cur !== T.cur) { T.cur = cur; T.walked = 0; T.showT = 0; }
+    if (!cur) return;
+    T.showT += dt;
+    if (c.dir && p.grounded) T.walked += Math.abs(p.vx) * dt;
+    const did = [];
+    if (T.walked > STRETCH.tutorialWalk) did.push('move');
+    if (c.jumpP) did.push('jump');
+    if (c.weaponP) did.push('slash');
+    if (c.blockP || c.blockHeld) did.push('block');
+    if (c.dashP) did.push('dodge');
+    const n = Logic.advanceTutorial(L, T.done, p.x, did);
+    if (n === T.done) return;
+    T.done = n; T.cleared = { step: cur.step, t: 0 };
+    T.cur = null;
+    AudioManager.play('coin', { pitch: 1.2 });
+  }
+  // stretch `ashTrail`: once every encounter is cleared, violet memory ash drifts up off the road ahead (Effects 'ash')
+  updateAshTrail(dt) {
+    const A = this.stretch.ashTrail;
+    if (!A || this.cleared < this.stretch.encounters.length) return;
+    const half = W / 2 / this.cam.zoom, l = Math.max(A.from, this.cam.x - half), r = Math.min(A.to, this.cam.x + half);
+    if (r <= l) return;
+    this.ashAcc = (this.ashAcc || 0) + dt * 26 * (r - l) / (2 * half);
+    const cols = ENEMY_FAMILIES.hollow.ash;
+    while (this.ashAcc >= 1) {
+      this.ashAcc -= 1;
+      this.fx.part({ x: rand(l, r), y: rand(-6, 2), vx: rand(20, 70), vy: rand(-60, -20), life: rand(1.2, 2.2), size: rand(3, 6),
+        color: cols[(Math.random() * cols.length) | 0], type: 'ash', grav: -18, drag: 0.6, rot: rand(0, TAU), vr: rand(-4, 4) });
+    }
+  }
+  // Which input device the prompts name: the last one used (InputManager), else touch when the touch controls show.
+  inputDevice() { return InputManager.lastDevice === 'pad' ? 'pad' : InputManager.lastDevice === 'touch' ? 'touch' : 'keyboard'; }
 
   /* ---- clues: walk over one to pick it up ---- */
   updateClues(dt) {
@@ -571,6 +630,7 @@ class StretchSession extends FightSession {
   onKO(def, att) {
     if (def.clone || def.minion) return super.onKO(def, att);
     const fx = this.fx;
+    def.mimic = null;
     if (def.hollow) this.dissolve(def);
     if (def !== this.player) {
       fx.impactFrame(def.x, def.y - 100 * def.scale, 2); fx.shake(0.5);

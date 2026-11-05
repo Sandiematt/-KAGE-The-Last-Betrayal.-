@@ -7,19 +7,20 @@ const { Logic, ENEMIES } = loadLogic();
 
 /* ---------------- stretch data ---------------- */
 
-test('every stretch stage is a wide level with two encounters of Order soldiers and Hollows and a clue', () => {
+test('every stretch stage is a wide level with encounters of Order soldiers and Hollows; placeholders have two and a clue', () => {
   const stretches = Logic.stages().filter(s => s.kind === 'stretch');
   assert.equal(stretches.length, 14);
   for (const st of stretches) {
     const s = Logic.stretch(st.id);
     assert.ok(s.length >= 3 * 1280 && s.length <= 5 * 1280, `${st.id} length ${s.length}`);
-    assert.equal(s.encounters.length, 2);
+    const authored = st.id === 'prologue.1';   // the story updates replace the placeholders one by one
+    assert.equal(s.encounters.length, authored ? 1 : 2);
     for (const e of s.encounters) {
       assert.ok(e.waves.length >= 1 && e.waves.length <= 3);
       for (const wave of e.waves) for (const id of wave) assert.ok(['order', 'hollow'].includes(ENEMIES[id].family), id);
       assert.ok(e.x > 0 && e.gate > e.x && e.gate < s.length);
     }
-    assert.equal(s.clues.length, 1);
+    assert.equal(s.clues.length, authored ? 3 : 1);
   }
 });
 
@@ -52,7 +53,8 @@ test('a stretch stage hands its level to the fight session; arena stages do not 
   const s = Logic.defaultSave();
   const cfg = Logic.stageConfig(s, 'prologue.1');
   assert.equal(cfg.kind, 'stretch');
-  assert.equal(cfg.stretch.encounters.length, 2);
+  assert.equal(cfg.stretch.encounters.length, 1);
+  assert.equal(cfg.env, 'hoshimura');
   assert.equal(cfg.foeName, 'The Empty Village');
   assert.equal(Logic.stageConfig(s, 'act1.sub1').stretch, undefined);
   assert.equal(Logic.stretch('act1.sub1'), null);
@@ -73,27 +75,27 @@ test('winning a stretch completes it and unlocks the next stage', () => {
 test('a clue is recorded once, and only clues the stage has', () => {
   const s = Logic.defaultSave();
   assert.deepEqual(Logic.cluesFound(s, 'prologue.1'), []);
-  assert.equal(Logic.collectClue(s, 'prologue.1', 'clue1'), true);
-  assert.equal(Logic.collectClue(s, 'prologue.1', 'clue1'), false);
+  assert.equal(Logic.collectClue(s, 'prologue.1', 'recording'), true);
+  assert.equal(Logic.collectClue(s, 'prologue.1', 'recording'), false);
   assert.equal(Logic.collectClue(s, 'prologue.1', 'nope'), false);
   assert.equal(Logic.collectClue(s, 'act1.sub1', 'clue1'), false);
-  assert.deepEqual(Logic.cluesFound(s, 'prologue.1'), ['clue1']);
+  assert.deepEqual(Logic.cluesFound(s, 'prologue.1'), ['recording']);
   assert.deepEqual(Logic.cluesFound(s, 'act1.stretch1'), []);
 });
 
 test('found clues survive saving and loading, and through New Game+', () => {
   const s = Logic.defaultSave();
-  Logic.collectClue(s, 'prologue.1', 'clue1');
+  Logic.collectClue(s, 'prologue.1', 'recording');
   const back = Logic.loadSave(JSON.stringify(s)).save;
-  assert.deepEqual(Logic.cluesFound(back, 'prologue.1'), ['clue1']);
+  assert.deepEqual(Logic.cluesFound(back, 'prologue.1'), ['recording']);
   back.ngUnlocked = true; Logic.startNewGamePlus(back);
-  assert.deepEqual(Logic.cluesFound(back, 'prologue.1'), ['clue1']);
+  assert.deepEqual(Logic.cluesFound(back, 'prologue.1'), ['recording']);
 });
 
 test('clues for unknown stages or clues are dropped when a save loads', () => {
-  const raw = JSON.stringify(Object.assign(Logic.defaultSave(), { clues: { 'prologue.1': { clue1: true, ghost: true }, 'old.stage': { clue1: true } } }));
+  const raw = JSON.stringify(Object.assign(Logic.defaultSave(), { clues: { 'prologue.1': { recording: true, ghost: true }, 'old.stage': { clue1: true } } }));
   const s = Logic.loadSave(raw).save;
-  assert.deepEqual(s.clues, { 'prologue.1': { clue1: true } });
+  assert.deepEqual(s.clues, { 'prologue.1': { recording: true } });
 });
 
 test('a new save has found no clues', () => {

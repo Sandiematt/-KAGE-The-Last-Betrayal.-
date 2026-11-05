@@ -19,7 +19,7 @@ test('exactly one video placeholder exists in all scene data: the start of the P
 
 test('a stage plays the scene attached to a hook, and nothing for a hook it has no scene on', () => {
   assert.equal(Logic.stageScene('prologue.1', 'before'), 'prologue.open');
-  assert.equal(Logic.stageScene('prologue.1', 'after'), null);
+  assert.equal(Logic.stageScene('prologue.1', 'after'), 'prologue.close');
   assert.equal(Logic.stageScene('prologue.1', 'defeat'), null);
   assert.equal(Logic.stageScene('prologue.1', 'sometime'), null);
   assert.equal(Logic.stageScene('act1.stretch1', 'before'), null);
@@ -124,8 +124,10 @@ test('every scene names only speakers and illustrations that exist', () => {
   }
 });
 
-test('the Prologue opening shows the photograph and Kage speaks after the video card', () => {
+test('the Prologue opening shows the ruins and Kage speaks after the video card; the photograph waits as a clue', () => {
   const steps = Logic.scene('prologue.open').steps;
-  assert.ok(steps.some(s => s.illus === 'photograph'));
+  assert.ok(steps.some(s => s.illus === 'hoshimura_ruins'));
   assert.ok(steps.slice(1).some(s => s.say === 'kage'));
+  assert.ok(!steps.some(s => s.illus === 'photograph'));
+  assert.ok(Logic.scene(Logic.clueScene('prologue.1', 'photograph')).steps.some(s => s.illus === 'photograph'));
 });
