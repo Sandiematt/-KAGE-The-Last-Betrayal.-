@@ -3,11 +3,11 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { loadLogic } = require('./helpers/load-logic');
 
-const { Logic } = loadLogic();
+const { Logic, ENEMIES } = loadLogic();
 
 /* ---------------- stretch data ---------------- */
 
-test('every stretch stage is a wide level with two encounters of placeholder foes and a clue', () => {
+test('every stretch stage is a wide level with two encounters of Order soldiers and Hollows and a clue', () => {
   const stretches = Logic.stages().filter(s => s.kind === 'stretch');
   assert.equal(stretches.length, 14);
   for (const st of stretches) {
@@ -16,7 +16,7 @@ test('every stretch stage is a wide level with two encounters of placeholder foe
     assert.equal(s.encounters.length, 2);
     for (const e of s.encounters) {
       assert.ok(e.waves.length >= 1 && e.waves.length <= 3);
-      for (const wave of e.waves) for (const id of wave) assert.ok(['order_recruit', 'order_warden', 'hollow'].includes(id), id);
+      for (const wave of e.waves) for (const id of wave) assert.ok(['order', 'hollow'].includes(ENEMIES[id].family), id);
       assert.ok(e.x > 0 && e.gate > e.x && e.gate < s.length);
     }
     assert.equal(s.clues.length, 1);
@@ -25,7 +25,7 @@ test('every stretch stage is a wide level with two encounters of placeholder foe
 
 /* ---------------- encounters, the gate and the end ---------------- */
 
-const LEVEL = { length: 4000, encounters: [{ x: 1000, gate: 1600, waves: [['hollow']] }, { x: 2500, gate: 3100, waves: [['hollow']] }], clues: [] };
+const LEVEL = { length: 4000, encounters: [{ x: 1000, gate: 1600, waves: [['hollow_shade']] }, { x: 2500, gate: 3100, waves: [['hollow_shade']] }], clues: [] };
 
 test('crossing a trigger starts the next uncleared encounter, and only that one', () => {
   assert.equal(Logic.encounterAt(LEVEL, 0, 999), -1);

@@ -6,7 +6,7 @@ const { loadLogic } = require('./helpers/load-logic');
 const { Logic } = loadLogic();
 
 // A campaign fight result as the fight session reports it. Defaults: a scrappy win rated C.
-const fight = (o) => Object.assign({ mode: 'campaign', stageId: 'prologue.1', enemyId: 'hollow', ng: 0, win: true,
+const fight = (o) => Object.assign({ mode: 'campaign', stageId: 'prologue.1', enemyId: 'hollow_shade', ng: 0, win: true,
   hpLeft: 0.2, time: 90, maxCombo: 1, parries: 0, flawless: false }, o);
 const SCRAPPY = { hpLeft: 0.2, time: 90, maxCombo: 1, parries: 0, flawless: false };   // 8+0+2 = 10 -> C
 const DOMINANT = { hpLeft: 1, time: 30, maxCombo: 10, parries: 1, flawless: false };    // 40+20+20+5 = 85 -> S

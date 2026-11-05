@@ -1,5 +1,7 @@
 /* KAGE — GameEngine: fixed-timestep loop, FightSession (rounds, intros, KO, survival waves) and progression */
 
+const HOLLOW_DISSOLVE = 0.75;   // seconds a beaten Hollow takes to come apart into memory ash
+
 class FightSession {
   constructor(cfg) {
     const save = SaveManager.data;
@@ -140,17 +142,33 @@ class FightSession {
   spawnMinions(owner, n) {
     for (let i = 0; i < n; i++) {
       const x = i % 2 ? this.bounds.r - 30 : this.bounds.l + 30;
-      const m = this.makeEnemy('order_recruit', x, { build: { scale: 0.88, w: 10 } }, 'minion');
+      const m = this.makeEnemy(Logic.minionId(this.cfg), x, { build: { scale: 0.88, w: 10 } }, 'minion');
       m.minion = true;
       this.fighters.push(m); this.fx.embers(x, -60, 20);
     }
+  }
+  // A beaten Hollow never ragdolls: it freezes on its last frame, glitches, and comes apart into violet memory ash
+  // (a flat particle burst, then a trickle while it fades). stepDissolve runs it; the fighter is dropped when gone.
+  dissolve(f) {
+    if (f.dissolve) return;
+    f.dissolve = 0.001; f.vx = f.vy = 0; f.move = null; f.abil = null; f.bodyRotVel = 0;
+    this.fx.memoryAsh(f, 32, true);
+    AudioManager.play('smoke');
+  }
+  stepDissolve(f, dt) {
+    f.dissolve += dt; f.time += dt;
+    const k = Math.min(1, f.dissolve / HOLLOW_DISSOLVE);
+    f.alpha = 1 - k * k; f.sqx = 1 + 0.12 * k; f.sqy = 1 - 0.18 * k;
+    if (k < 1) this.fx.memoryAsh(f, 1);
+    if (k >= 1) { f.visible = false; f.alpha = 0; }
   }
   smokeCloud(x, big) { this.fx.smoke(x, 0, big ? 18 : 12, big); AudioManager.play('smoke'); }
 
   onKO(def, att) {
     const fx = this.fx;
+    if (def.hollow) this.dissolve(def);
     if (def.clone) { def.visible = false; this.smokeCloud(def.x); this.fighters.splice(this.fighters.indexOf(def), 1); return; }
-    if (def.minion) { fx.embers(def.x, -60, 16); return; }
+    if (def.minion) { if (!def.hollow) fx.embers(def.x, -60, 16); return; }
     if (this.phase !== 'fight') return;
     const main = def === this.player || def === this.enemy;
     if (!main) return;
@@ -159,7 +177,7 @@ class FightSession {
     if (def !== this.player) { fx.finisher(def.x, def.y - 100 * def.scale, att.facing); const el = att.elementOf(null); if (el) fx.elemImpact(el, def.x, def.y - 100 * def.scale, att.facing, 3, true); }
     AudioManager.play('ko');
     this.koTarget = def; this.phase = 'ko'; this.phaseT = 0;
-    for (const f of this.fighters) if ((f.clone || f.minion) && f.alive) { f.alive = false; f.hp = 0; f.setState('juggle'); f.vy = -300; if (f.clone) { f.visible = false; this.smokeCloud(f.x); } }
+    for (const f of this.fighters) if ((f.clone || f.minion) && f.alive) { f.alive = false; f.hp = 0; f.setState('juggle'); f.vy = -300; if (f.clone) { f.visible = false; this.smokeCloud(f.x); } else if (f.hollow) this.dissolve(f); }
     if (def === this.player) this.rounds.e++; else { this.rounds.p++; if (this.mode === 'survival') this.waveCleared(); }
   }
   waveCleared() {
@@ -177,6 +195,7 @@ class FightSession {
     for (const f of this.fighters) {
       f.alive = true; f.hp = f.maxHp; f.rage = f === p ? f.rage * 0.5 : 0; f.hasWeapon = f.baseWeapon !== 'fists'; f.move = null; f.abil = null;
       f.vx = f.vy = 0; f.y = 0; f.grounded = true; f.invuln = 0; f.poison = 0; f.barrier = 0; f.aura = 0; f.alpha = 1; f.visible = true; f.ammo = f.maxAmmo;
+      f.dissolve = 0; f.sqx = f.sqy = 1;
       f.setState('idle'); f.comboHits = 0;
     }
     p.x = -300; this.enemy.x = 300; p.facing = 1; this.enemy.facing = -1;
@@ -285,7 +304,7 @@ class FightSession {
       if (f.clone && f.alive) { f.life -= dt; if (f.life <= 0) { f.alive = false; f.visible = false; this.smokeCloud(f.x); } }
     }
     // simulate
-    for (const f of this.fighters) { f.update(dt, this); VFX.emit(f, this.fx); }
+    for (const f of this.fighters) { if (f.dissolve) { this.stepDissolve(f, dt); continue; } f.update(dt, this); VFX.emit(f, this.fx); }
     if (this.phase === 'fight' || this.phase === 'ko') Combat.resolve(this);
     WeaponSystem.update(this, dt);
     WeaponSystem.updatePickups(this, dt);
@@ -462,7 +481,7 @@ class StretchSession extends FightSession {
     super.simulate(dt, p, e);
     // fallen foes fade out once they have hit the floor, so a long stretch never piles up bodies
     for (const f of this.fighters) {
-      if (f === p || f.alive || !f.visible) continue;
+      if (f === p || f.alive || !f.visible || f.dissolve) continue;
       f.deadT = (f.deadT || 0) + dt;
       if (f.deadT > 2.2) { f.alpha = Math.max(0, 1 - (f.deadT - 2.2) / 0.8); if (f.alpha <= 0) f.visible = false; }
     }
@@ -522,6 +541,7 @@ class StretchSession extends FightSession {
   onKO(def, att) {
     if (def.clone || def.minion) return super.onKO(def, att);
     const fx = this.fx;
+    if (def.hollow) this.dissolve(def);
     if (def !== this.player) {
       fx.impactFrame(def.x, def.y - 100 * def.scale, 2); fx.shake(0.5);
       fx.stamp('FINISH', def.x, def.y - 120, 2, C.emberBright);

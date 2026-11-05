@@ -63,6 +63,7 @@ function ensoStroke(ctx, x, y, r, color, prog, start, width) {
   }
 }
 
+const ASH_POINTS = ['head', 'neck', 'hip', 'fel', 'fha', 'bel', 'bha', 'fkn', 'bkn', 'fft', 'bft'];
 class Effects {
   constructor() {
     this.P = []; for (let i = 0; i < 700; i++) this.P.push({ on: false });
@@ -107,6 +108,16 @@ class Effects {
   }
   embers(x, y, n, color) {
     for (let i = 0; i < n; i++) this.part({ x: x + rand(-20, 20), y: y + rand(-20, 20), vx: rand(-80, 80), vy: rand(-260, -60), life: rand(0.5, 1.1), size: rand(1.5, 3), color: color || '#ff8a4c', type: 'spark', grav: -60, drag: 1, add: true });
+  }
+  // memory ash: flat violet flakes shed by a dissolving Hollow, scattered from its skeleton and drifting upward
+  memoryAsh(f, n, burst) {
+    const sk = f.sk, pts = ASH_POINTS, cols = (f.family && f.family.ash) || ['#9b8cff'];
+    for (let i = 0; i < n; i++) {
+      const a = sk[pts[(Math.random() * pts.length) | 0]], b = sk[pts[(Math.random() * pts.length) | 0]], k = Math.random();
+      const v = burst ? rand(60, 260) : rand(10, 60), ang = rand(-Math.PI, 0);
+      this.part({ x: lerp(a.x, b.x, k), y: lerp(a.y, b.y, k), vx: Math.cos(ang) * v + (f.vx || 0) * 0.05, vy: Math.sin(ang) * v - rand(20, 90),
+        life: rand(0.6, 1.2), size: rand(3.5, 7) * f.scale, color: cols[i % cols.length], type: 'ash', grav: -70, drag: 1.6, rot: rand(0, TAU), vr: rand(-8, 8) });
+    }
   }
   poisonPuff(f) {
     this.part({ x: f.x + rand(-14, 14), y: f.y - rand(60, 150) * f.scale, vx: rand(-20, 20), vy: -40, life: 0.7, size: rand(4, 8), color: 'rgba(120,230,110,0.5)', type: 'puff', grav: -40, drag: 1, grow: 10, add: true });
@@ -216,6 +227,10 @@ class Effects {
         const r = p.size; ctx.beginPath(); ctx.moveTo(p.x - r, p.y); ctx.lineTo(p.x - r * 0.18, p.y - r * 0.18); ctx.lineTo(p.x, p.y - r); ctx.lineTo(p.x + r * 0.18, p.y - r * 0.18); ctx.lineTo(p.x + r, p.y); ctx.lineTo(p.x + r * 0.18, p.y + r * 0.18); ctx.lineTo(p.x, p.y + r); ctx.lineTo(p.x - r * 0.18, p.y + r * 0.18); ctx.closePath(); ctx.fill();
       } else if (p.type === 'flame') {
         const r = Math.max(1, p.size); ctx.beginPath(); ctx.moveTo(p.x - r * 0.6, p.y); ctx.quadraticCurveTo(p.x, p.y - r * 2.6, p.x + r * 0.6, p.y); ctx.arc(p.x, p.y, r * 0.6, 0, Math.PI); ctx.fill();
+      } else if (p.type === 'ash') {
+        // a flat flake: a small diamond that tumbles (rot) and shrinks as it fades
+        const r = p.size * (0.5 + 0.5 * k), c = Math.cos(p.rot) * r, sn = Math.sin(p.rot) * r * 0.55;
+        ctx.beginPath(); ctx.moveTo(p.x + c, p.y + sn); ctx.lineTo(p.x - sn, p.y + c * 0.55); ctx.lineTo(p.x - c, p.y - sn); ctx.lineTo(p.x + sn, p.y - c * 0.55); ctx.closePath(); ctx.fill();
       } else if (p.type === 'drop') {
         ctx.beginPath(); ctx.ellipse(p.x, p.y, p.size, p.size * p.sq, Math.atan2(p.vy, p.vx), 0, TAU); ctx.fill();
       } else {

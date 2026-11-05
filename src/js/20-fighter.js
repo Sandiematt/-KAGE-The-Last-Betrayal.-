@@ -154,10 +154,14 @@ class Fighter {
     this.wAng = 0; this.w2Ang = 0; this.wVec = { x: 1, y: 0 }; this.w2Vec = { x: 1, y: 0 };
     this.time = Math.random() * 10; this.poseName = null; this.stats = { dealt: 0, taken: 0, maxCombo: 0, parries: 0 };
     this.turnX = 1; this.sqx = 1; this.sqy = 1;
+    // regular foes wear their family's palette (ENEMY_FAMILIES): Order slate with a pale sash, flickering Hollow violet
+    this.family = (!o.isPlayer && this.def && ENEMY_FAMILIES[this.def.family]) || null;
+    this.hollow = !!(this.def && this.def.family === 'hollow');
+    this.rank = (this.def && this.def.rank) || 0;
     this.outfit = o.outfit || (o.isPlayer ? 'gi' : (this.def && this.def.outfit) || (this.armor === 'robe' ? 'robe' : 'plain'));
     this.cloths = [];
     if (this.outfit === 'gi') {
-      const bc = o.isPlayer ? C.emberBright : '#2a2620', bc2 = o.isPlayer ? '#b8362b' : '#2a2620';
+      const fam = this.family, bc = o.isPlayer ? C.emberBright : fam ? fam.trim : '#2a2620', bc2 = o.isPlayer ? '#b8362b' : fam ? '#9298a0' : '#2a2620';
       this.cloths.push({ kind: 'belt', c: new Cloth(6, 5.6 * this.scale, { ph: 7, wind: 200, grav: 1250, stiff: 1.7 }), at: 'hip', color: bc, w: 4 * this.scale, w1: 2.4 * this.scale, dy: -11, dx: -3 });
       this.cloths.push({ kind: 'belt', c: new Cloth(5, 5.4 * this.scale, { ph: 8, wind: 170, grav: 1300, stiff: 1.7 }), at: 'hip', color: bc2, w: 3.2 * this.scale, w1: 2 * this.scale, dy: -10, dx: -1 });
     }
@@ -1206,8 +1210,8 @@ Fighter.prototype.drawSash = function (ctx, T) {
   const k = 0.16, x = lerp(sk.hip.x, sk.neck.x, k), y = lerp(sk.hip.y, sk.neck.y, k);
   const dx = sk.neck.x - sk.hip.x, dy = sk.neck.y - sk.hip.y, D = Math.hypot(dx, dy) || 1, ux = dx / D, uy = dy / D;
   let nx = -uy, ny = ux; if (nx * f < 0) { nx = -nx; ny = -ny; }
-  const w = T * 0.98, col = this.isPlayer ? C.emberBright : '#3a342b';
-  ctx.strokeStyle = col; ctx.lineWidth = (this.isPlayer ? 7 : 4) * s; ctx.lineCap = 'butt';
+  const w = T * 0.98, col = this.isPlayer ? C.emberBright : this.family ? this.family.trim : '#3a342b';
+  ctx.strokeStyle = col; ctx.lineWidth = (this.isPlayer ? 7 : this.family ? 5 : 4) * s; ctx.lineCap = 'butt';
   ctx.beginPath(); ctx.moveTo(x - nx * w, y - ny * w); ctx.lineTo(x + nx * w, y + ny * w); ctx.stroke();
   if (this.isPlayer) { ctx.fillStyle = '#b8362b'; ctx.beginPath(); ctx.ellipse(x + nx * w * 0.8, y + ny * w * 0.8 + 1.5 * s, 3 * s, 3.6 * s, 0, 0, TAU); ctx.fill(); }
   ctx.lineCap = 'round';
@@ -1280,9 +1284,17 @@ Fighter.prototype.draw = function (ctx, opt) {
   const sk = this.sk, s = this.scale;
   const flashing = this.flash > 0 && !opt.noFlash && !opt.color;
   const flat = !!opt.color || flashing;
-  const ink = opt.color || (flashing ? (opt.flashColor || C.bone) : C.ink);
+  const ink = opt.color || (flashing ? (opt.flashColor || C.bone) : this.bodyColor());
+  // Hollows: now and then a frame "glitches": the body skips sideways, the outline doubles and jitters
+  const glitch = this.hollow && !opt.color ? this.glitchAmount() : 0;
   ctx.save();
   ctx.globalAlpha *= this.alpha;
+  if (glitch) {
+    ctx.save(); ctx.globalAlpha *= 0.42; ctx.translate(glitch * 26 * s, -Math.abs(glitch) * 4 * s);
+    this.silhouette(ctx, this.family.trim, this.family.trim, true, { color: this.family.trim, noEyes: true });
+    ctx.restore();
+    ctx.translate(-glitch * 7 * s, 0);
+  }
   ctx.lineCap = 'round'; ctx.lineJoin = 'round';
   // squash & stretch around the feet, then the spin turn
   if (this.sqx !== 1 || this.sqy !== 1) { ctx.translate(this.x, this.y); ctx.scale(this.sqx, this.sqy); ctx.translate(-this.x, -this.y); }
@@ -1291,7 +1303,7 @@ Fighter.prototype.draw = function (ctx, opt) {
   for (const cl of this.cloths) if (cl.kind === 'cape' || cl.kind === 'robe') cl.c.draw(ctx, opt.color || cl.color, cl.w0, cl.w1, null);
   // clean, even white outline: the silhouette stamped around itself, then the flat body on top
   if (opt.rim && !opt.color) {
-    const d = 1.6 * s, oc = opt.outline || '#f1ebe0', ro = this._rimOpt || (this._rimOpt = {});
+    const d = 1.6 * s * (glitch ? 1 + Math.abs(glitch) * 3 : 1), oc = (this.hollow && this.family.outline) || opt.outline || '#f1ebe0', ro = this._rimOpt || (this._rimOpt = {});
     for (const k in ro) delete ro[k];
     Object.assign(ro, opt, { rimPass: true });
     for (const [dx, dy] of OUTLINE_DIRS) { ctx.save(); ctx.translate(dx * d, dy * d); this.silhouette(ctx, oc, oc, true, ro); ctx.restore(); }
@@ -1309,6 +1321,22 @@ Fighter.prototype.draw = function (ctx, opt) {
     ctx.fillStyle = '#ffd36a'; ctx.beginPath(); ctx.arc(sk.fft.x, sk.fft.y, r * 0.55, 0, TAU); ctx.fill();
   }
   ctx.restore();
+};
+
+// flat body fill: Kage and the bosses are ink, the Order slate, Hollows a violet that flickers between close tones
+const _hash = (n) => { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+Fighter.prototype.bodyColor = function () {
+  const fam = this.family; if (!fam) return C.ink;
+  if (!fam.flicker) return fam.body;
+  return fam.flicker[(_hash(Math.floor(this.time * 11) + this.seed()) * fam.flicker.length) | 0];
+};
+Fighter.prototype.seed = function () { return this._seed || (this._seed = 1 + Math.random() * 97); };
+// 0 most frames; on roughly one 1/7 s slice in six a signed jolt in [-0.5, 0.5] (always on while dissolving)
+Fighter.prototype.glitchAmount = function () {
+  const k = Math.floor(this.time * 7) + this.seed() * 3, h = _hash(k);
+  if (h > (this.dissolve ? 0.75 : 0.16)) return 0;
+  const g = _hash(k * 1.73 + 5) - 0.5;
+  return Math.abs(g) < 0.12 ? 0.12 * Math.sign(g || 1) : g;
 };
 
 Fighter.prototype.drawMainWeapon = function (ctx, ink, opt) {
@@ -1626,6 +1654,33 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
       if (!flat) { ctx.fillStyle = 'rgba(255,106,60,0.9)'; ctx.fillRect(r * 0.05, -r * 0.2, r * 1.15, r * 0.14); }
       ctx.strokeStyle = acc('rgba(255,106,60,0.35)'); ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(-r * 1.25, -r * 0.6); ctx.lineTo(r * 1.25, -r * 0.6); ctx.stroke();
       break;
+    case 'order_hood': case 'order_kabuto': {
+      // Order of Silence: a close cloth hood (ranks 2+ wear a flat iron helm over it) and a dark cloth mask over the mouth
+      ctx.beginPath(); ctx.arc(0, -r * 0.06, r * 1.13, Math.PI * 0.62, Math.PI * 2.08); ctx.lineTo(-r * 1.25, r * 0.95); ctx.closePath(); ctx.fill();
+      if (key === 'order_kabuto') {
+        ctx.beginPath(); ctx.arc(0, -r * 0.3, r * 1.08, Math.PI, TAU); ctx.lineTo(r * 1.5, -r * 0.18); ctx.lineTo(-r * 1.55, -r * 0.18); ctx.closePath(); ctx.fill();
+        if (!flat) { ctx.strokeStyle = (f && f.family && f.family.trim) || C.bone; ctx.globalAlpha *= 0.85; ctx.lineWidth = Math.max(1, r * 0.1); ctx.beginPath(); ctx.moveTo(-r * 1.5, -r * 0.2); ctx.lineTo(r * 1.45, -r * 0.2); ctx.stroke(); ctx.globalAlpha /= 0.85; }
+      }
+      if (!flat) {
+        ctx.save(); ctx.beginPath(); ctx.arc(0, 0, r * 1.05, 0, TAU); ctx.clip();
+        ctx.fillStyle = '#23272d';
+        ctx.beginPath(); ctx.moveTo(r * 1.2, r * 0.26); ctx.lineTo(-r * 0.2, r * 0.3); ctx.lineTo(-r * 0.75, r * 1.2); ctx.lineTo(r * 1.2, r * 1.2); ctx.closePath(); ctx.fill();
+        ctx.strokeStyle = 'rgba(196,200,204,0.45)'; ctx.lineWidth = Math.max(1, r * 0.06);
+        ctx.beginPath(); ctx.moveTo(r * 1.2, r * 0.27); ctx.lineTo(-r * 0.2, r * 0.31); ctx.stroke();
+        ctx.restore();
+      }
+      break;
+    }
+    case 'hollow_shard': {
+      // Hollow: the head breaks into a few jagged shards, with a pale crack across the face
+      ctx.beginPath(); ctx.moveTo(-r * 0.95, -r * 0.35); ctx.lineTo(-r * 1.3, -r * 1.25); ctx.lineTo(-r * 0.45, -r * 0.85); ctx.lineTo(-r * 0.2, -r * 1.75);
+      ctx.lineTo(r * 0.25, -r * 0.9); ctx.lineTo(r * 0.85, -r * 1.3); ctx.lineTo(r * 0.8, -r * 0.45); ctx.closePath(); ctx.fill();
+      if (!flat) {
+        ctx.strokeStyle = (f && f.family && f.family.trim) || '#b9a8ff'; ctx.lineWidth = Math.max(1, r * 0.08); ctx.lineJoin = 'miter';
+        ctx.beginPath(); ctx.moveTo(-r * 0.2, -r * 0.95); ctx.lineTo(r * 0.1, -r * 0.35); ctx.lineTo(-r * 0.1, r * 0.1); ctx.lineTo(r * 0.3, r * 0.75); ctx.stroke(); ctx.lineJoin = 'round';
+      }
+      break;
+    }
     case 'executioner':
       ctx.beginPath(); ctx.moveTo(-r * 1.15, r * 0.9); ctx.lineTo(-r * 1.1, -r * 0.6); ctx.lineTo(-r * 0.2, -r * 2.9); ctx.lineTo(r * 1.15, -r * 0.5); ctx.lineTo(r * 1.15, r * 0.9); ctx.closePath(); ctx.fill();
       break;
@@ -1683,6 +1738,44 @@ function drawArmor(ctx, f, ink, opt, Ut) {
         ctx.fillStyle = ink;
         for (let i = -1; i <= 1; i++) { const a = ang + i * 0.5; ctx.beginPath(); ctx.moveTo(sk.sh.x + Math.cos(a + 1.3) * r, sk.sh.y + Math.sin(a + 1.3) * r); ctx.lineTo(sk.sh.x + Math.cos(a) * r * 2.1, sk.sh.y + Math.sin(a) * r * 2.1); ctx.lineTo(sk.sh.x + Math.cos(a - 0.3) * r, sk.sh.y + Math.sin(a - 0.3) * r); ctx.fill(); }
       }
+      break;
+    }
+    case 'order_garb': case 'order_plate': {
+      // Order uniform: a plain slate tunic with the Order mark (a closed circle barred like a sealed mouth) on the chest;
+      // rank shows as small pale bars on the shoulder; the heavy wear a dark shoulder plate
+      const plateArmor = f.armor === 'order_plate', trim = (f.family && f.family.trim) || C.bone;
+      torsoShape(ctx, sk.hip, sk.neck, fc, Ut * (plateArmor ? 1.14 : 1.04));
+      if (plateArmor) plate(Ut * 0.66, flat ? null : 'rgba(196,200,204,0.5)');
+      if (flat) break;
+      const ox = Math.cos(ang + Math.PI / 2), oy = Math.sin(ang + Math.PI / 2), side = ox * fc >= 0 ? 1 : -1;
+      const mx = lerp(hx, nx, 0.6) + ox * side * Ut * 0.3, my = lerp(hy, ny, 0.6) + oy * side * Ut * 0.3, mr = 3.4 * s;
+      ctx.strokeStyle = trim; ctx.lineWidth = 1.5 * s;
+      ctx.beginPath(); ctx.arc(mx, my, mr, 0, TAU); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(mx - mr * 0.6, my); ctx.lineTo(mx + mr * 0.6, my); ctx.stroke();
+      ctx.lineWidth = 1.6 * s; ctx.lineCap = 'butt';
+      for (let i = 0; i < f.rank - 1; i++) {
+        const k = 0.86 - i * 0.07, px = lerp(hx, nx, k) - ox * side * Ut * 0.55, py = lerp(hy, ny, k) - oy * side * Ut * 0.55;
+        ctx.beginPath(); ctx.moveTo(px - ox * side * 3.2 * s, py - oy * side * 3.2 * s); ctx.lineTo(px + ox * side * 3.2 * s, py + oy * side * 3.2 * s); ctx.stroke();
+      }
+      ctx.lineCap = 'round';
+      break;
+    }
+    case 'hollow_rags': {
+      // Hollow: the torso frays into torn strips at the waist, with a pale crack across the chest
+      torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.02);
+      const ox = Math.cos(ang + Math.PI / 2), oy = Math.sin(ang + Math.PI / 2), ux = Math.cos(ang), uy = Math.sin(ang);
+      ctx.beginPath();
+      for (let i = -2; i <= 2; i++) {
+        const bx = hx + ox * i * Ut * 0.42 + ux * Ut * 0.2, by = hy + oy * i * Ut * 0.42 + uy * Ut * 0.2, L = Ut * (0.9 + ((i + 2) % 3) * 0.35);
+        ctx.moveTo(bx - ox * Ut * 0.22, by - oy * Ut * 0.22); ctx.lineTo(bx - ux * L + ox * Ut * 0.05, by - uy * L + oy * Ut * 0.05); ctx.lineTo(bx + ox * Ut * 0.22, by + oy * Ut * 0.22);
+      }
+      ctx.fill();
+      if (flat) break;
+      ctx.strokeStyle = (f.family && f.family.trim) || '#b9a8ff'; ctx.lineWidth = 1.3 * s; ctx.lineJoin = 'miter';
+      const cx = lerp(hx, nx, 0.7), cy = lerp(hy, ny, 0.7);
+      ctx.beginPath(); ctx.moveTo(cx - ox * Ut * 0.6, cy - oy * Ut * 0.6); ctx.lineTo(cx - ox * Ut * 0.1 - ux * Ut * 0.3, cy - oy * Ut * 0.1 - uy * Ut * 0.3);
+      ctx.lineTo(cx + ox * Ut * 0.2 + ux * Ut * 0.1, cy + oy * Ut * 0.2 + uy * Ut * 0.1); ctx.lineTo(cx + ox * Ut * 0.65 - ux * Ut * 0.35, cy + oy * Ut * 0.65 - uy * Ut * 0.35); ctx.stroke();
+      ctx.lineJoin = 'round';
       break;
     }
     case 'robe':

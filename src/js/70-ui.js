@@ -225,7 +225,7 @@ const UIManager = {
       case 'reset': this.confirm('Erase all progress?', 'Coins, gear, levels and campaign progress will be lost. This cannot be undone.', () => { SaveManager.reset(); Game.buildWarrior(); this.toast('Progress erased', 'A fresh start', true); this.renderSettings(); }); break;
       case 'confirm-yes': { const f = this._confirm; this.closeOverlay(); f && f(); break; }
       case 'sv-start': {
-        const cfg = { mode: 'survival', wave: 1, enemyId: pick(SURVIVAL.pool.slice(0, 4)), env: 'rooftops', ng: save.ng };
+        const cfg = { mode: 'survival', wave: 1, enemyId: pick(SURVIVAL.opening), env: 'rooftops', ng: save.ng };
         this.go('prefight', () => this.preparePrefight(cfg));
         break;
       }

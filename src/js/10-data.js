@@ -396,15 +396,54 @@ const GEAR_MAX = { weapons: 8, helmets: 5, armors: 5 };
 /* ---------------- Enemies & bosses ----------------
    type: regular | sub | boss.  ai: regular | agile | defensive | ranged | heavy | boss
    build: scale (overall size), w (limb thickness), head, legs, arms (length multipliers)
-   These are TEMPORARY stand-ins: every campaign stage fights one of them in a single arena until the real
-   Order soldiers, Hollows, sub-bosses and bosses land. Stages show their own story names (see CAMPAIGN). */
+   Regular foes come in two families (ENEMY_FAMILIES), each with one unit of every UNIT_TYPES type. A unit has
+   `family`, `unit` (which is also its AI profile) and, for the Order, a `rank` (1-3, drawn as small pale marks).
+   def: damage reduction for foes whose helmet / armour are drawings rather than gear (see Logic.enemyStats).
+   Units are troops, not people: no personal names. The family's palette (body fill, trim, outline) is drawn by
+   20-fighter.js; Hollows flicker and dissolve into memory ash on defeat (60-engine.js).
+   echo_sentinel and echo_warden are TEMPORARY sub-boss and boss rigs, fought under each stage's story name
+   (see CAMPAIGN) until the boss updates land. */
+const UNIT_TYPES = ['regular', 'agile', 'defensive', 'ranged', 'heavy'];
+const ENEMY_FAMILIES = {
+  // human troops in one slate uniform: a pale grey sash and the Order mark, a cloth mask or a helm
+  order:  { name: 'Order of Silence', title: 'Order of Silence', body: '#3b4149', trim: '#c4c8cc', outline: 'rgba(214,218,222,0.8)' },
+  // unstable memory echoes: flat violet silhouettes that flicker, double and glitch
+  hollow: { name: 'Hollows', title: 'Memory echo', body: '#4a3b86', trim: '#b9a8ff', outline: 'rgba(196,182,255,0.85)', flicker: ['#4a3b86', '#54449c', '#41347a'], ash: ['#9b8cff', '#6f5fc8', '#c9bdff'] }
+};
 const ENEMIES = {
-  order_recruit: { name: 'Order Recruit', title: 'Order of Silence', type: 'regular', outfit: 'gi', ai: 'regular', weapon: 'cutter_blade', helmet: 'kuro_zukin', armor: 'kawa_do', hp: 170, dmg: 0.9, build: { scale: 1, w: 10 }, eye: '#ece5d3',
+  // ---- Order of Silence ----
+  order_footman: { name: 'Order Footman', title: 'Order of Silence', type: 'regular', family: 'order', unit: 'regular', rank: 1, outfit: 'gi', ai: 'regular',
+            weapon: 'cutter_blade', helmet: 'order_hood', armor: 'order_garb', hp: 170, def: 0.054, dmg: 0.9, build: { scale: 1, w: 10 }, eye: '#c4c8cc', accent: '#c4c8cc',
             taunt: 'The Order of Silence holds this road. Turn back.', tip: 'Block the first cut, then answer with a three-punch string.' },
-  order_warden: { name: 'Order Warden', title: 'Order of Silence', type: 'regular', outfit: 'gi', ai: 'defensive', weapon: 'temple_staff', helmet: 'tetsu_kabuto', armor: 'kozane_do', hp: 220, dmg: 1, build: { scale: 1.08, w: 12 }, eye: '#c9a45c',
-            taunt: 'Nothing leaves the fortress without the Order’s word.', tip: 'He blocks everything. Grab him (Block + Punch) or charge a heavy kick.' },
-  hollow: { name: 'Hollow', title: 'Memory ash', type: 'regular', ai: 'agile', weapon: 'shadow_daggers', helmet: 'veil', armor: 'cloak', hp: 160, dmg: 0.85, speed: 1.15, build: { scale: 0.96, w: 9, legs: 1.06 }, eye: '#9b8cff', accent: '#9b8cff',
-            taunt: '…it copies your breathing, then your stance…', tip: 'It darts in and out. Dash in when it lands from a jump.' },
+  order_runner: { name: 'Order Runner', title: 'Order of Silence', type: 'regular', family: 'order', unit: 'agile', rank: 1, outfit: 'gi', ai: 'agile',
+            weapon: 'shadow_daggers', helmet: 'order_hood', armor: 'order_garb', hp: 150, def: 0.03, dmg: 0.85, speed: 1.12, build: { scale: 0.97, w: 9, legs: 1.05 }, eye: '#c4c8cc', accent: '#c4c8cc',
+            taunt: 'You will not outrun a message of the Order.', tip: 'Runners dart in and out. Hold your ground and punish the landing.' },
+  order_shieldbearer: { name: 'Order Shieldbearer', title: 'Order of Silence', type: 'regular', family: 'order', unit: 'defensive', rank: 2, outfit: 'gi', ai: 'defensive',
+            weapon: 'sentinel_spear', helmet: 'order_kabuto', armor: 'order_garb', hp: 220, def: 0.12, dmg: 1, build: { scale: 1.06, w: 11 }, eye: '#c4c8cc', accent: '#c4c8cc',
+            taunt: 'Nothing passes the wall of the Order.', tip: 'The shield turns every cut. Grab him (Block + Punch) or charge a heavy kick.' },
+  order_chainthrower: { name: 'Order Chainthrower', title: 'Order of Silence', type: 'regular', family: 'order', unit: 'ranged', rank: 1, outfit: 'gi', ai: 'ranged',
+            weapon: 'chain_hook', helmet: 'order_hood', armor: 'order_garb', hp: 150, def: 0.04, dmg: 0.85, build: { scale: 0.98, w: 9.5 }, eye: '#c4c8cc', accent: '#c4c8cc',
+            taunt: 'Stay where you are. The chain will come to you.', tip: 'He keeps his distance and throws. Dash through the kunai and stay close.' },
+  order_ironclad: { name: 'Order Ironclad', title: 'Order of Silence', type: 'regular', family: 'order', unit: 'heavy', rank: 3, outfit: 'gi', ai: 'heavy',
+            weapon: 'raider_cleaver', helmet: 'order_kabuto', armor: 'order_plate', hp: 280, def: 0.14, dmg: 1.15, speed: 0.9, build: { scale: 1.14, w: 13 }, eye: '#c4c8cc', accent: '#c4c8cc',
+            taunt: 'Kneel. The Order does not ask twice.', tip: 'Every swing is slow and heavy. Dodge it, then strike the long recovery.' },
+  // ---- Hollows ----
+  hollow_shade: { name: 'Hollow Shade', title: 'Memory echo', type: 'regular', family: 'hollow', unit: 'regular', ai: 'regular',
+            weapon: 'cutter_blade', helmet: 'hollow_shard', armor: 'hollow_rags', hp: 160, def: 0.03, dmg: 0.85, build: { scale: 0.98, w: 9.5 }, eye: '#ece6ff', accent: '#b9a8ff',
+            taunt: '…it copies your breathing, then your stance…', tip: 'A Shade fights like the man it remembers. Block, then counter.' },
+  hollow_flicker: { name: 'Hollow Flicker', title: 'Memory echo', type: 'regular', family: 'hollow', unit: 'agile', ai: 'agile',
+            weapon: 'shadow_daggers', helmet: 'hollow_shard', armor: 'hollow_rags', hp: 140, def: 0.02, dmg: 0.8, speed: 1.18, build: { scale: 0.94, w: 8.5, legs: 1.06 }, eye: '#ece6ff', accent: '#b9a8ff',
+            taunt: '…here… no, here…', tip: 'It darts in and out. Dash in when it lands from a jump.' },
+  hollow_ward: { name: 'Hollow Ward', title: 'Memory echo', type: 'regular', family: 'hollow', unit: 'defensive', ai: 'defensive',
+            weapon: 'temple_staff', helmet: 'hollow_shard', armor: 'hollow_rags', hp: 210, def: 0.08, dmg: 0.95, build: { scale: 1.04, w: 11 }, eye: '#ece6ff', accent: '#b9a8ff',
+            taunt: '…this door stays shut… it always stayed shut…', tip: 'It remembers how to guard. Throw it, or break the guard with a charged kick.' },
+  hollow_mimic: { name: 'Hollow Mimic', title: 'Memory echo', type: 'regular', family: 'hollow', unit: 'ranged', ai: 'ranged',
+            weapon: 'hollow_crescents', helmet: 'hollow_shard', armor: 'hollow_rags', hp: 140, def: 0.02, dmg: 0.85, build: { scale: 0.96, w: 9 }, eye: '#ece6ff', accent: '#b9a8ff',
+            taunt: '…throw… like you threw… then…', tip: 'It throws your own kunai back at you. Close the gap fast.' },
+  hollow_husk: { name: 'Hollow Husk', title: 'Memory echo', type: 'regular', family: 'hollow', unit: 'heavy', ai: 'heavy',
+            weapon: 'iron_fists', helmet: 'hollow_shard', armor: 'hollow_rags', hp: 270, def: 0.1, dmg: 1.15, speed: 0.88, build: { scale: 1.16, w: 14, arms: 1.08 }, eye: '#ece6ff', accent: '#b9a8ff',
+            taunt: '…heavy… everything is so heavy…', tip: 'Slow and hard to stagger. Never trade blows; dodge and strike from behind.' },
+  // ---- placeholder sub-boss and boss rigs ----
   echo_sentinel: { name: 'Echo Sentinel', title: 'Placeholder sub-boss', type: 'sub', ai: 'agile', weapon: 'hollow_crescents', helmet: 'oni', armor: 'cloak', hp: 340, dmg: 1.05, speed: 1.15, build: { scale: 1.04, w: 10 }, eye: '#9b8cff', accent: '#9b8cff',
             taunt: 'This memory is guarded. Prove you belong in it.', defeat: 'The memory… lets you pass…', win: 'Forget this place.',
             tip: 'Dodge the lunge with Dash, then punish the long recovery.', abilities: ['lunge', 'teleport'] },
@@ -446,40 +485,56 @@ for (const id in ENEMIES) ENEMIES[id].id = id;
 const STAGE_KINDS = ['stretch', 'subboss', 'boss', 'spar', 'echo', 'scene'];
 const CAMPAIGN = (function buildCampaign() {
   const R = ['I', 'II', 'III', 'IV'];
-  // Placeholder stretch content: two encounters of the chapter's grunts (the second ends on four foes at once) and
-  // one sample clue. The Prologue, Act and Core updates replace these with authored levels.
-  const stretchDefaults = (grunt) => {
-    const alt = grunt === 'hollow' ? 'order_recruit' : 'hollow';
+  // Placeholder stretch content: two encounters drawn from a squad of four units [a, b, c, d] (a fights most, d once;
+  // the last wave is four foes at once) and one sample clue. The Prologue, Act and Core updates replace these with
+  // authored levels.
+  const stretchDefaults = ([a, b, c, d]) => {
     return {
       length: 4600, start: 160,
       encounters: [
-        { x: 1250, gate: 1950, waves: [[grunt, grunt], [grunt, alt]] },
-        { x: 3050, gate: 3750, waves: [[grunt, alt], [grunt, grunt, alt, grunt]] }
+        { x: 1250, gate: 1950, waves: [[a, a], [a, b]] },
+        { x: 3050, gate: 3750, waves: [[b, c], [a, c, b, d]] }
       ],
       clues: [{ id: 'clue1', x: 2450, label: 'A torn page' }]
     };
   };
   // An act: four stretches, each followed by its sub-boss arena, then the main boss arena.
-  const act = (id, name, title, place, env, diff, grunt, foe, foeTitle) => {
+  const act = (id, name, title, place, env, diff, squads, foe, foeTitle) => {
     const stages = [];
     for (let i = 1; i <= 4; i++) {
-      stages.push({ id: `${id}.stretch${i}`, kind: 'stretch', name: `Stretch ${R[i - 1]}`, enemy: grunt, stretch: stretchDefaults(grunt) });
+      stages.push({ id: `${id}.stretch${i}`, kind: 'stretch', name: `Stretch ${R[i - 1]}`, enemy: squads[i - 1][0], stretch: stretchDefaults(squads[i - 1]) });
       stages.push({ id: `${id}.sub${i}`, kind: 'subboss', name: `Sub-boss ${R[i - 1]}`, foe: `${name} · Sub-boss ${i}`, enemy: 'echo_sentinel' });
     }
     stages.push({ id: `${id}.boss`, kind: 'boss', name: foe, foe, foeTitle, enemy: 'echo_warden' });
     return { id, name, title, place, env, diff, stages };
   };
+  // Each act's four stretch squads. The Order holds Act I; the Hollows gather in Act II; in Act III the Order's elite
+  // guard the Fortress while Hollows rise from below, and the Core is Hollows only.
+  const SQUADS = {
+    act1: [['order_footman', 'order_runner', 'order_footman', 'hollow_shade'],
+           ['order_footman', 'order_chainthrower', 'order_runner', 'order_footman'],
+           ['order_runner', 'order_shieldbearer', 'order_footman', 'hollow_flicker'],
+           ['order_footman', 'order_shieldbearer', 'order_chainthrower', 'order_ironclad']],
+    act2: [['hollow_shade', 'hollow_flicker', 'hollow_shade', 'order_footman'],
+           ['hollow_shade', 'hollow_mimic', 'hollow_flicker', 'hollow_ward'],
+           ['hollow_flicker', 'hollow_ward', 'hollow_mimic', 'order_runner'],
+           ['hollow_shade', 'hollow_mimic', 'hollow_ward', 'hollow_husk']],
+    act3: [['order_footman', 'order_shieldbearer', 'order_chainthrower', 'order_ironclad'],
+           ['order_shieldbearer', 'order_runner', 'order_ironclad', 'hollow_shade'],
+           ['hollow_shade', 'order_footman', 'hollow_ward', 'order_ironclad'],
+           ['hollow_flicker', 'order_shieldbearer', 'hollow_husk', 'hollow_mimic']]
+  };
   const chapters = [
     { id: 'prologue', name: 'Prologue', title: 'Hoshimura', place: 'The abandoned village', env: 'highlands', diff: 1,
-      stages: [{ id: 'prologue.1', kind: 'stretch', name: 'The Empty Village', enemy: 'hollow', stretch: stretchDefaults('hollow'), scenes: { before: 'prologue.open' } }] },
-    act('act1', 'Act I', 'The Outer Districts', 'Order territory', 'rooftops', 1, 'order_recruit', 'Raikon', 'the Lightning Ascendant'),
+      stages: [{ id: 'prologue.1', kind: 'stretch', name: 'The Empty Village', enemy: 'hollow_shade', stretch: stretchDefaults(['hollow_shade', 'hollow_flicker', 'hollow_shade', 'hollow_flicker']), scenes: { before: 'prologue.open' } }] },
+    act('act1', 'Act I', 'The Outer Districts', 'Order territory', 'rooftops', 1, SQUADS.act1, 'Raikon', 'the Lightning Ascendant'),
     { id: 'interlude', name: 'Interlude', title: 'Brothers', place: 'A memory of the training yard', env: 'highlands', diff: 1,
       stages: [{ id: 'interlude.spar', kind: 'spar', name: 'The Spar', foe: 'Rem', foeTitle: 'Young Rem', enemy: 'echo_sentinel' }] },
-    act('act2', 'Act II', 'The City of Echoes', 'Where the Hollows gather', 'rooftops', 2, 'hollow', 'Akari', 'the Memory Blade'),
-    act('act3', 'Act III', 'The Fortress of Silence', 'Seat of the Order', 'wasteland', 3, 'order_warden', 'Takashi', 'the Father'),
+    act('act2', 'Act II', 'The City of Echoes', 'Where the Hollows gather', 'rooftops', 2, SQUADS.act2, 'Akari', 'the Memory Blade'),
+    act('act3', 'Act III', 'The Fortress of Silence', 'Seat of the Order', 'wasteland', 3, SQUADS.act3, 'Takashi', 'the Father'),
     { id: 'core', name: 'The Core', title: 'The Echo System', place: 'Corrupted memory', env: 'wasteland', diff: 3,
       stages: [
-        { id: 'core.stretch1', kind: 'stretch', name: 'Into the Core', enemy: 'hollow', stretch: stretchDefaults('hollow') },
+        { id: 'core.stretch1', kind: 'stretch', name: 'Into the Core', enemy: 'hollow_flicker', stretch: stretchDefaults(['hollow_flicker', 'hollow_mimic', 'hollow_husk', 'hollow_ward']) },
         { id: 'core.echo1', kind: 'echo', name: 'Echo I', foe: 'Hollow Raikon', foeTitle: 'Corrupted echo', enemy: 'echo_sentinel' },
         { id: 'core.echo2', kind: 'echo', name: 'Echo II', foe: 'Hollow Akari', foeTitle: 'Corrupted echo', enemy: 'echo_sentinel' },
         { id: 'core.echo3', kind: 'echo', name: 'Echo III', foe: 'Hollow Takashi', foeTitle: 'Corrupted echo', enemy: 'echo_sentinel' },
@@ -496,9 +551,15 @@ const CAMPAIGN = (function buildCampaign() {
 // (Easy / Normal / Hard / Impossible, see Logic.difficulty), hence different words.
 const DIFF_LABEL = ['Calm', 'Tense', 'Fierce', 'Brutal', 'Mythic'];
 
+/* Who answers a boss's summon (BOSS_ABILITIES.summon): the chapter's foot soldiers, else the default.
+   See Logic.minionId. Clones copy their owner. */
+const BOSS_MINIONS = { default: 'order_footman', act2: 'hollow_shade', core: 'hollow_shade' };
+
 /* ---------------- Survival ---------------- */
 const SURVIVAL = {
-  pool: ['order_recruit', 'hollow', 'order_warden'],
+  pool: ['order_footman', 'order_runner', 'order_shieldbearer', 'order_chainthrower', 'order_ironclad',
+         'hollow_shade', 'hollow_flicker', 'hollow_ward', 'hollow_mimic', 'hollow_husk'],
+  opening: ['order_footman', 'order_runner', 'hollow_shade', 'hollow_flicker'],   // wave 1 is one of these lighter units
   bosses: ['echo_sentinel'],
   envs: ['rooftops', 'highlands', 'wasteland'],
   heal: 0.35,

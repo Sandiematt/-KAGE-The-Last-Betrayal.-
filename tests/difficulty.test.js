@@ -137,7 +137,7 @@ test('New Game+ still sharpens foes as the authored curve', () => {
 
 test('boss minions and shadow clones follow the mode too', () => {
   const cfg = s => Logic.stageConfig(s, 'act1.boss');
-  const minion = mode => { const s = saveOn(mode); return Logic.enemyStats(s, cfg(s), 'order_recruit', { role: 'minion' }); };
+  const minion = mode => { const s = saveOn(mode); return Logic.enemyStats(s, cfg(s), Logic.minionId(cfg(s)), { role: 'minion' }); };
   assert.deepEqual([minion('easy').hp, minion('normal').hp, minion('impossible').hp], [49, 70, 112]);
   close(minion('normal').dmgMul, 0.54, 'normal minion dmg');
   close(minion('impossible').dmgMul, 0.81, 'impossible minion dmg');

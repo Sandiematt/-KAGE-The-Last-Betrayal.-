@@ -327,6 +327,8 @@ const Logic = {
     const tier = (cfg.diff || 1) - 1, st = cfg.pos || 0;
     return 1 + tier * 1.6 + st * 0.22 + (d.type === 'sub' ? 0.4 : d.type === 'boss' ? 0.8 : 0);
   },
+  // The foe a boss summons in this fight (cfg from stageConfig; survival has no chapter): see BOSS_MINIONS.
+  minionId(cfg) { return BOSS_MINIONS[(cfg && cfg.chapter) || 'default'] || BOSS_MINIONS.default; },
   // A foe's fight stats: { hp, dmgMul, wlvl, defense, speedMul, level, ng, difficulty }. They depend only on the
   // chosen mode (save.difficulty), the authored curve (stage / chapter tier, survival wave, New Game+ cycle) and the
   // foe's role: 'minion' (a boss's summoned recruit, 70 base health, 60% damage) or 'clone' (1 health, half damage).
@@ -346,7 +348,7 @@ const Logic = {
     const raw = Math.round(1 + ((cfg.diff || 1) - 1) * 2.2 + (cfg.pos || 0) * 0.3 + ng * 2 + (survival ? wave * 0.3 : 0));
     return {
       hp, dmgMul, wlvl: Math.min(8, Math.max(1, raw)),
-      defense: ((HELMETS[d.helmet] || {}).def || 0) * 0.6 + ((ARMORS[d.armor] || {}).def || 0) * 0.6,
+      defense: d.def != null ? d.def : ((HELMETS[d.helmet] || {}).def || 0) * 0.6 + ((ARMORS[d.armor] || {}).def || 0) * 0.6,
       speedMul: d.speed || 1, level: this.stageLevel(cfg, enemyId, wave), ng, difficulty: mode.id
     };
   },
