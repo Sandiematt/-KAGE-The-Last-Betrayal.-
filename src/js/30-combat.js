@@ -17,7 +17,7 @@ const INK_GLYPH = {
 };
 const BANNER_GLYPH = {
   'Round I': '壱', 'Round II': '弐', 'Round III': '参', 'Final Duel': '決', 'Phase II': '弐', 'Phase III': '参',
-  Noctis: '月', Eryndor: '賢', Malgrath: '灰', Kairo: '刃', Veyra: '霧', Rokan: '鉄', Zephar: '嵐', Brakk: '巨', Drazek: '鎖',
+  Raikon: '雷', Akari: '霧', Takashi: '父', Rem: '弟', 'The Witness': '鏡', 'Hollow Raikon': '雷', 'Hollow Akari': '霧', 'Hollow Takashi': '父', 'Hollow Rem': '弟',
   'Shadow Palm': '影', 'Thousand Cuts': '千', 'Crescent Moon': '月', 'Mountain Split': '山', 'Dragon Lance': '龍', "Reaper's Harvest": '刈',
   Earthshatter: '震', 'Hollow Illusions': '幻', 'Stilled Time': '時', 'Ashen Wrath': '怒'
 };
@@ -619,7 +619,7 @@ const Combat = {
     const fx = world.fx;
     const front = Math.sign(att.x - def.x || dir * -1) === def.facing || (m.proj && Math.sign(-dir) === def.facing);
     if (att.unblockable && !m.proj && m.kind) m = Object.assign({}, m, { unb: 1 });
-    // Eryndor's counter stance: any melee blow from the front is turned aside and answered
+    // counter stance: any melee blow from the front is turned aside and answered
     if (def.counterStance && !m.proj && front && m.kind !== 'grab') {
       def.counterStance = false;
       this.parry(world, att, def, m, ix, iy, dir);
@@ -627,7 +627,7 @@ const Combat = {
       def.endAbility(world); def.startMove(def.weapon().moves[0], world);
       return;
     }
-    // Rokan-style shield: auto-blocks frontal, non-low, non-heavy attacks when not committed
+    // shield bearers: auto-blocks frontal, non-low, non-heavy attacks when not committed
     const shield = def.def && def.def.shield && def.hasWeapon && front && !m.low && def.grounded && !m.unb && (def.isNeutral() || def.state === 'block' || def.state === 'land' || (def.state === 'move' && def.mphase === 0));
     if (shield) {
       if ((m.gb || 0) >= 60 || (m.imp || 0) >= 3) {

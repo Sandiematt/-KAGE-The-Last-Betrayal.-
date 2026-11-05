@@ -60,7 +60,6 @@ function drawPortrait(cv, f, enemy) {
   g.restore();
 }
 function gearName(kind, id) { return gearTable(kind)[id].name; }
-function stageLabel(a, s) { return `Act ${ROMAN[a]} · Stage ${ROMAN[s]}`; }
 
 const MENU_IC = {
   swords: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" x2="19" y1="19" y2="13"/><line x1="16" x2="20" y1="16" y2="20"/><line x1="19" x2="21" y1="21" y2="19"/><polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5"/><line x1="5" x2="9" y1="14" y2="18"/><line x1="7" x2="4" y1="17" y2="20"/><line x1="3" x2="5" y1="19" y2="21"/></svg>',
@@ -78,7 +77,7 @@ const TOUCH_IC = {
   dash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6l6 6-6 6"/><path d="M13 6l6 6-6 6"/></svg>'
 };
 const UIManager = {
-  current: null, view: 'world', selAct: 0, selStage: 0, armTab: 'weapons', armSel: null, returnTo: 'title',
+  current: null, selStage: null, armTab: 'weapons', armSel: null, returnTo: 'title',
   pfCfg: null, pfWeapon: null, skip: false, overlay: null, armRAF: 0,
   init() {
     this.ui = document.getElementById('ui');
@@ -143,11 +142,12 @@ const UIManager = {
     switch (a) {
       case 'play': {
         const n = Game.nextStage();
-        if (n) { this.selAct = n.act; this.selStage = n.stage; this.go('prefight', () => this.preparePrefight(Game.stageConfig(n.act, n.stage))); }
-        else { this.view = 'world'; this.go('campaign', () => this.renderCampaign()); this.toast('Campaign complete', save.ngUnlocked ? 'New Game+ awaits in Settings' : 'Replay any stage'); }
+        if (n && Logic.isCombatStage(n)) { this.selStage = n; this.go('prefight', () => this.preparePrefight(Game.stageConfig(n))); }
+        else if (n) { this.selStage = n; this.go('campaign', () => this.renderCampaign()); }
+        else { this.go('campaign', () => this.renderCampaign()); this.toast('Story complete', save.ngUnlocked ? 'New Game+ awaits in Settings' : 'Replay any stage'); }
         break;
       }
-      case 'campaign': this.view = 'world'; this.go('campaign', () => this.renderCampaign()); break;
+      case 'campaign': this.selStage = Game.nextStage() || this.selStage; this.go('campaign', () => this.renderCampaign()); break;
       case 'survival': this.go('survival', () => this.renderSurvival()); break;
       case 'armory': this.returnTo = this.current; this.go('armory', () => this.renderArmory()); break;
       case 'settings': this.returnTo = this.current === 'settings' ? 'title' : this.current; this.go('settings', () => this.renderSettings()); break;
@@ -161,21 +161,28 @@ const UIManager = {
       case 'earn': this.toast('Earn coins & gems', 'Win duels, topple bosses and climb Survival waves'); this.go('survival', () => this.renderSurvival()); break;
       case 'help': this.openHelp(); break;
       case 'close-ov': this.closeOverlay(); break;
-      case 'act': {
-        const i = +d.i;
-        if (!Logic.isActUnlocked(save, i)) { this.toast('Act locked', `Defeat ${ENEMIES[ACTS[i - 1].boss].name} to open the way`, true); AudioManager.play('block'); return; }
-        this.selAct = i; this.view = 'act';
+      case 'chapter': {
+        const ch = Logic.chapter(d.id);
+        if (!Logic.isChapterUnlocked(save, ch.id)) {
+          const prev = Logic.chapters()[Logic.chapters().indexOf(ch) - 1];
+          this.toast('Chapter locked', `Finish ${prev ? prev.name : 'the story so far'} to open the way`, true); AudioManager.play('block'); return;
+        }
         const nx = Game.nextStage();
-        this.selStage = nx && nx.act === i ? nx.stage : (Logic.isActCleared(save, i) ? 6 : 0);
-        this.go('campaign', () => this.renderCampaign());
+        this.selStage = nx && Logic.stage(nx).chapter === ch.id ? nx : ch.stages[ch.stages.length - 1].id;
+        this.renderCampaign(true);
         break;
       }
       case 'stage': {
-        const s = +d.i;
-        if (!Game.stageUnlocked(this.selAct, s)) { AudioManager.play('block'); this.toast('Stage locked', 'Defeat the previous foe first', true); return; }
-        this.selStage = s; this.renderCampaign(true); break;
+        if (!Game.stageUnlocked(d.id)) { AudioManager.play('block'); this.toast('Stage locked', 'Clear the stage before it first', true); return; }
+        this.selStage = d.id; this.renderCampaign(true); break;
       }
-      case 'fight-stage': this.go('prefight', () => this.preparePrefight(Game.stageConfig(this.selAct, this.selStage))); break;
+      case 'fight-stage': {
+        const id = this.selStage;
+        if (!Game.stageUnlocked(id)) return;
+        if (Logic.isCombatStage(id)) this.go('prefight', () => this.preparePrefight(Game.stageConfig(id)));
+        else this.playScene(id);
+        break;
+      }
       case 'pf-weapon': this.pfWeapon = d.id; this.renderPrefight(); break;
       case 'pf-fight': {
         if (this.pfWeapon && save.owned.weapons[this.pfWeapon]) { save.equipped.weapon = this.pfWeapon; SaveManager.save(); }
@@ -206,24 +213,23 @@ const UIManager = {
       case 'pause': this.openPause(); break;
       case 'resume': this.closeOverlay(); break;
       case 'restart': this.closeOverlay(); Game.paused = false; { const cfg = Object.assign({}, Game.session.cfg); if (cfg.mode === 'survival') cfg.wave = 1; Game.quitFight(); this.go('hud', () => Game.startFight(cfg)); } break;
-      case 'quit': this.closeOverlay(); { const mode = Game.session && Game.session.mode; Game.quitFight(); if (mode === 'survival') this.go('survival', () => this.renderSurvival()); else { this.view = 'act'; this.go('campaign', () => this.renderCampaign()); } } break;
+      case 'quit': this.closeOverlay(); { const mode = Game.session && Game.session.mode; Game.quitFight(); if (mode === 'survival') this.go('survival', () => this.renderSurvival()); else this.go('campaign', () => this.renderCampaign()); } break;
       case 'res-continue': {
         const r = Game.lastResult;
         if (r.mode === 'survival') { this.go('survival', () => this.renderSurvival()); break; }
-        if (r.win) { const nx = Game.nextStage(); if (nx) { this.selAct = nx.act; this.selStage = nx.stage; this.view = nx.act !== r.act ? 'world' : 'act'; } else this.view = 'world'; }
-        else this.view = 'act';
+        this.selStage = r.win && r.next ? r.next : r.stageId;
         this.go('campaign', () => this.renderCampaign());
         break;
       }
       case 'res-retry': Game.retry(); break;
       case 'res-armory': this.returnTo = 'result'; this.go('armory', () => this.renderArmory()); break;
-      case 'res-map': this.view = 'act'; this.go('campaign', () => this.renderCampaign()); break;
+      case 'res-map': this.selStage = Game.lastResult.stageId; this.go('campaign', () => this.renderCampaign()); break;
     }
   },
   back() {
     if (this.overlay) return this.closeOverlay();
     switch (this.current) {
-      case 'campaign': if (this.view === 'act') { this.view = 'world'; this.go('campaign', () => this.renderCampaign()); } else this.go('title', () => this.renderTitle()); break;
+      case 'campaign': this.go('title', () => this.renderTitle()); break;
       case 'armory': case 'settings': {
         const r = this.returnTo;
         if (r === 'prefight' && this.pfCfg) this.go('prefight', () => this.preparePrefight(this.pfCfg));
@@ -233,7 +239,7 @@ const UIManager = {
         break;
       }
       case 'survival': this.go('title', () => this.renderTitle()); break;
-      case 'prefight': if (this.pfCfg.mode === 'survival') this.go('survival', () => this.renderSurvival()); else { this.view = 'act'; this.selAct = this.pfCfg.act; this.selStage = this.pfCfg.stage; this.go('campaign', () => this.renderCampaign()); } break;
+      case 'prefight': if (this.pfCfg.mode === 'survival') this.go('survival', () => this.renderSurvival()); else { this.selStage = this.pfCfg.stageId; this.go('campaign', () => this.renderCampaign()); } break;
       case 'result': this.action('res-continue', document.body); break;
     }
   },
@@ -255,7 +261,7 @@ const UIManager = {
     }
   },
   onPad(a) { if (a === 'pause' && this.current === 'hud') { if (this.overlay) this.closeOverlay(); else this.openPause(); } },
-  onResize() { if (this.current === 'campaign') this.paintCampaignCanvases(); if (this.current === 'armory') this.renderArmory(true); },
+  onResize() { if (this.current === 'armory') this.renderArmory(true); },
 
   /* ---------------- title ---------------- */
   renderTitle() {
@@ -264,7 +270,7 @@ const UIManager = {
     if (this.current !== 'title') TitleScene.restart(); // entering the title resets its camera and cloth; re-renders keep it running
     Game.buildWarrior();
     const n = Game.nextStage();
-    const ctx = n ? `${ACTS[n.act].name.replace('The ', '')} · Stage ${ROMAN[n.stage]}` : (save.ngUnlocked ? 'Campaign complete' : '');
+    const ctx = n ? `${Logic.chapterOf(n).name} · ${Logic.stage(n).name}` : (save.ngUnlocked ? 'Story complete' : '');
     const item = (a, ic, label, extra, primary) => `<button class="tm ${primary ? 'primary' : ''}" data-a="${a}" ${primary ? 'data-focus' : ''}><span class="tm-ic">${ic}</span><span class="tm-lb">${label}</span>${extra || ''}</button>`;
     el.innerHTML = `
       <div class="tl-art" aria-hidden="true"></div>
@@ -293,12 +299,12 @@ const UIManager = {
   },
   openTrophies() {
     const s = SaveManager.data;
-    const rows = Object.keys(ENEMIES).filter(id => ENEMIES[id].type !== 'regular').map(id => {
-      const d = ENEMIES[id], got = !!s.defeated[id];
-      const loot = [d.reward && d.reward.weapon && WEAPONS[d.reward.weapon].name, d.reward && d.reward.item && gearName(d.reward.item[0], d.reward.item[1])].filter(Boolean).join(' · ');
-      return `<div class="tro ${got ? 'got' : ''}"><span class="tro-k">${BANNER_GLYPH[d.name] || '影'}</span><div><b>${esc(d.name)}</b><span>${esc(d.title)}</span><em>${got ? esc(loot) : 'Not yet defeated'}</em></div></div>`;
+    // every boss-type stage of the story; the old trophy loot returns with the rebuilt gear
+    const rows = Logic.stages().filter(st => Logic.isBossStage(st.id)).map(st => {
+      const got = Logic.defeatedCount(s, st.id) > 0, ch = Logic.chapterOf(st.id);
+      return `<div class="tro ${got ? 'got' : ''}"><span class="tro-k">${BANNER_GLYPH[st.foe] || '影'}</span><div><b>${esc(st.foe)}</b><span>${esc(ch.name)} · ${esc(st.foeTitle || '')}</span><em>${got ? 'Defeated' : 'Not yet defeated'}</em></div></div>`;
     }).join('');
-    this.openOverlay('profile', `<div class="ov-card wide"><div class="eyebrow">Trophies</div><h3 class="disp">Fallen Masters</h3><div class="tro-grid">${rows}</div><div class="stack"><button class="btn-primary" data-a="close-ov" data-focus>Close</button></div></div>`);
+    this.openOverlay('profile', `<div class="ov-card wide"><div class="eyebrow">Trophies</div><h3 class="disp">Fallen Foes</h3><div class="tro-grid">${rows}</div><div class="stack"><button class="btn-primary" data-a="close-ov" data-focus>Close</button></div></div>`);
   },
   openLoadout() {
     const s = SaveManager.data, eq = s.equipped;
@@ -315,87 +321,90 @@ const UIManager = {
     setTimeout(() => { const cv = $('#ov-profile canvas[data-lo]'); if (cv) { const f = makePlayerFighter(s); poseFighter(f, WEAPONS[eq.weapon].hands === 2 && SHAPE[eq.weapon] === 'katana' ? 'hasso' : null, 40); drawFighterInto(cv, f, { glow: 'rgba(163,48,42,0.55)', rim: 'rgba(255,190,150,0.9)', fit: 0.95, tall: 1.3 }); } }, 30);
   },
 
-  /* ---------------- campaign ---------------- */
-  renderCampaign(soft) {
+  /* ---------------- campaign ----------------
+     One screen: the chapter rail (story order), the selected chapter's stages, and the stage card.
+     Everything it shows comes from the campaign map in Logic; stages are selected by their string id. */
+  renderCampaign() {
     const save = SaveManager.data, el = $('#scr-campaign');
     Game.setScene('menu'); AudioManager.setMusic('menu');
-    if (this.view === 'world') {
-      const pos = [[22, 62], [50, 40], [78, 60]];
-      el.innerHTML = `
-        ${this.mapSVG(true)}
-        <div class="topbar">
-          <div class="head"><button class="round-btn" data-a="back" aria-label="Back">${ICON.back}</button>
-            <div><div class="eyebrow">Campaign${save.ng ? ` · <span class="ng-badge">New Game+ ${save.ng}</span>` : ''}</div><h2 class="disp">The Shadow Road</h2></div></div>
-          <div class="diamond-pips">${ACTS.map((a, i) => `<i class="${Logic.isActCleared(save, i) ? 'on' : Logic.isActUnlocked(save, i) ? 'cur' : ''}"></i>`).join('')}<span class="muted" style="margin-left:.6rem;letter-spacing:.12em">${ACTS.filter((a, i) => Logic.isActCleared(save, i)).length} / ${ACTS.length}</span></div>
-          ${currencyHTML()}
-        </div>
-        <div class="world-acts">
-          ${ACTS.map((a, i) => {
-            const done = a.stages.filter((s, j) => Logic.isStageCleared(save, i, j)).length, locked = !Logic.isActUnlocked(save, i), cleared = Logic.isActCleared(save, i);
-            const dl = clamp(a.diff + save.ng, 0, 4);
-            return `<button class="act-node ${locked ? 'locked' : ''} ${cleared ? 'cleared' : ''}" style="left:${pos[i][0]}%;top:${pos[i][1]}%;animation-delay:${i * 0.08}s" data-a="act" data-i="${i}" ${i === this.selAct ? 'data-focus' : ''}>
-              <canvas data-boss="${a.boss}" data-locked="${locked ? 1 : 0}"></canvas>
-              <div class="row"><span class="eyebrow">Act ${ROMAN[i]}</span>${locked ? `<span class="lock-ic">${ICON.lock}</span>` : `<span class="status">${cleared ? 'Cleared' : done ? 'In progress' : 'Unlocked'}</span>`}</div>
-              <div class="act-name">${esc(a.name)}</div>
-              <div class="place">${esc(a.place)} · Boss ${esc(ENEMIES[a.boss].name)}</div>
-              <div class="row"><div class="bar" style="flex:1;margin-right:.8rem"><i style="width:${done / 7 * 100}%"></i></div><span class="muted">${done} / 7</span></div>
-              <div class="row"><div class="diff"><div class="pips">${[0, 1, 2].map(k => `<i class="${k < Math.min(3, dl) ? 'on' : ''}"></i>`).join('')}</div>${DIFF_LABEL[dl]}</div>${locked ? '<span class="status">Locked</span>' : ''}</div>
-            </button>`;
-          }).join('')}
-        </div>
-        <div class="vignette"></div>`;
-      this.afterShow = () => this.paintCampaignCanvases();
-      if (soft) this.paintCampaignCanvases();
-      return;
-    }
-    // ---- act map (Wonder "Campaign Map") ----
-    const a = ACTS[this.selAct], ai = this.selAct;
-    const NODES = [[140, 700], [330, 590], [510, 660], [690, 520], [860, 578], [1020, 438], [1230, 380]];
-    const pct = p => `left:${p[0] / 1440 * 100}%;top:${p[1] / 900 * 100}%`;
-    const done = a.stages.filter((s, j) => Logic.isStageCleared(save, ai, j)).length;
-    const nx = Game.nextStage();
-    const cur = nx && nx.act === ai ? nx.stage : -1;
-    const sel = this.selStage, st = a.stages[sel], foe = ENEMIES[st.enemy];
-    const dl = clamp(a.diff + save.ng + (foe.type === 'boss' ? 1 : foe.type === 'sub' ? 0.5 : 0), 0, 4) | 0;
-    const reward = Logic.stageRewardPreview(save, ai, sel), selCleared = Logic.isStageCleared(save, ai, sel);
-    const unlocked = Logic.stageUnlocked(save, ai, sel);
-    const pathD = 'M140 700 C220 620 280 590 330 590 C400 590 440 660 510 660 C580 660 640 560 690 520';
+    const chapters = Logic.chapters(), next = Game.nextStage();
+    if (!Logic.stage(this.selStage) || !Logic.isStageUnlocked(save, this.selStage)) this.selStage = next || Logic.stages()[Logic.stages().length - 1].id;
+    const sel = Logic.stage(this.selStage), ch = Logic.chapter(sel.chapter);
+    const chState = c => Logic.isChapterComplete(save, c.id) ? 'cleared' : Logic.isChapterUnlocked(save, c.id) ? 'open' : 'locked';
+    const stState = st => Logic.isStageComplete(save, st.id) ? 'cleared' : Logic.isStageUnlocked(save, st.id) ? 'open' : 'locked';
+    const KIND = { stretch: 'Stretch', subboss: 'Sub-boss', boss: 'Main boss', spar: 'Memory spar', echo: 'Echo fight', scene: 'Story scene' };
+    const glyph = st => {
+      if (st.kind === 'boss') return ICON.swords;
+      if (st.kind === 'scene') return '<span class="kj">終</span>';
+      if (st.kind === 'spar') return '<span class="kj">弟</span>';
+      const n = +((st.id.match(/(\d+)$/) || [0, 1])[1]);
+      return `<span>${ROMAN[n - 1] || n}</span>`;
+    };
+    const combat = Logic.isCombatStage(sel.id), cfg = combat ? Game.stageConfig(sel.id) : null;
+    const selDone = Logic.isStageComplete(save, sel.id), unlocked = Logic.isStageUnlocked(save, sel.id);
+    const reward = Logic.stageRewardPreview(save, sel.id);
+    const foe = combat ? ENEMIES[cfg.enemyId] : null;
+    const dl = combat ? clamp(ch.diff + save.ng + (foe.type === 'boss' ? 1 : foe.type === 'sub' ? 0.5 : 0), 0, 4) | 0 : 0;
+    const prog = Logic.chapterProgress(save, ch.id);
+    const action = !unlocked ? 'Locked' : combat ? (selDone ? 'Replay' : 'Fight') : (selDone ? 'Replay scene' : 'Play scene');
     el.innerHTML = `
-      ${this.mapSVG(false)}
-      <svg class="map-bg" viewBox="0 0 1440 900" preserveAspectRatio="none" style="pointer-events:none">
-        <path d="M140 700 C220 620 280 590 330 590 C400 590 440 660 510 660 C580 660 640 560 690 520 C760 470 800 590 860 578 C920 566 960 470 1020 438 C1100 400 1150 380 1230 380" stroke="#3a342b" stroke-width="2" stroke-dasharray="4 8" fill="none"/>
-        ${done ? `<path d="${this.pathTo(Math.max(0, Math.min(6, (cur < 0 ? 6 : cur))))}" stroke="#a3302a" stroke-width="3" fill="none"/>` : ''}
-      </svg>
-      <div class="boss-sil" style="left:78%;top:2%;width:22%;height:40%"><canvas data-bosssil="${a.boss}" style="width:100%;height:100%"></canvas></div>
-      ${a.stages.map((s, j) => {
-        const e = ENEMIES[s.enemy], clr = Logic.isStageCleared(save, ai, j), lk = !Logic.stageUnlocked(save, ai, j);
-        const cls = ['stage-node', clr ? 'cleared' : '', j === cur ? 'current' : '', j === sel ? 'selected' : '', lk ? 'locked' : '', e.type === 'sub' ? 'sub' : '', e.type === 'boss' ? 'boss' : ''].join(' ');
-        return `<button class="${cls}" style="${pct(NODES[j])}" data-a="stage" data-i="${j}" aria-label="Stage ${ROMAN[j]} ${esc(s.name)}" ${j === sel ? 'data-focus' : ''}>${e.type === 'boss' ? ICON.swords : `<span>${ROMAN[j]}</span>`}</button>`;
-      }).join('')}
-      <div class="boss-plate" style="left:${1230 / 14.4}%;top:${430 / 9}%"><b>${esc(ENEMIES[a.boss].name)}</b><span>Boss</span></div>
-      <div class="player-marker" style="${pct([NODES[Math.max(0, cur < 0 ? 6 : cur)][0], NODES[Math.max(0, cur < 0 ? 6 : cur)][1] - 38])}"><canvas data-marker style="width:2.6rem;height:3.8rem"></canvas></div>
-      <div class="vignette"></div>
+      ${this.mapSVG('plain')}
       <div class="topbar">
         <div class="head"><button class="round-btn" data-a="back" aria-label="Back">${ICON.back}</button>
-          <div><div class="eyebrow">Act ${ROMAN[ai]} · ${esc(a.place)}</div><h2 class="disp">${esc(a.name)}</h2></div></div>
-        <div class="diamond-pips">${a.stages.map((s, j) => `<i class="${Logic.isStageCleared(save, ai, j) ? 'on' : j === cur ? 'cur' : ENEMIES[s.enemy].type === 'boss' ? 'boss' : ''}"></i>`).join('')}<span class="muted" style="margin-left:.6rem;letter-spacing:.12em">${done} / 7</span></div>
+          <div><div class="eyebrow">Campaign${save.ng ? ` · <span class="ng-badge">New Game+ ${save.ng}</span>` : ''}</div><h2 class="disp">The Last Betrayal</h2></div></div>
+        <div class="diamond-pips">${chapters.map(c => `<i class="${chState(c) === 'cleared' ? 'on' : c.id === ch.id ? 'cur' : ''}"></i>`).join('')}<span class="muted" style="margin-left:.6rem;letter-spacing:.12em">${chapters.filter(c => chState(c) === 'cleared').length} / ${chapters.length}</span></div>
         ${currencyHTML()}
       </div>
-      <div class="stage-card" key="${sel}">
-        <div><div class="eyebrow">Stage ${ROMAN[sel]} · ${foe.type === 'boss' ? 'Main boss' : foe.type === 'sub' ? 'Sub-boss' : 'Duel'}</div>
-          <div class="name disp">${esc(st.name)}</div>
-          <div class="foe">${esc(foe.name)}, ${esc(foe.title)}</div></div>
-        <div class="meta"><div class="diff"><div class="pips">${[0, 1, 2].map(k => `<i class="${k < Math.min(3, Math.max(1, dl)) ? 'on' : ''}"></i>`).join('')}</div>${DIFF_LABEL[dl]}${save.ng ? ' · NG+' + save.ng : ''}</div>
-          <div class="reward"><i class="coin" style="width:.875rem;height:.875rem"></i>+${reward.coins}${reward.gems ? ` <i class="gem" style="margin-left:.4rem"></i>+${reward.gems}` : ''}</div></div>
-        ${foe.reward && !selCleared ? `<div class="muted" style="font-size:.9rem;letter-spacing:.06em">Trophy: ${[foe.reward.weapon && WEAPONS[foe.reward.weapon].name, foe.reward.item && gearName(foe.reward.item[0], foe.reward.item[1])].filter(Boolean).map(esc).join(' · ')}</div>` : ''}
-        <button class="btn-primary ${unlocked ? '' : 'locked'}" data-a="fight-stage" ${unlocked ? '' : 'disabled'}>${unlocked ? (selCleared ? 'Replay' : 'Fight') : 'Locked'}</button>
-      </div>`;
-    this.afterShow = () => this.paintCampaignCanvases();
-    if (soft) this.paintCampaignCanvases();
+      <div class="camp">
+        <nav class="chap-rail" aria-label="Chapters">
+          ${chapters.map((c, i) => {
+            const st = chState(c), p = Logic.chapterProgress(save, c.id);
+            return `<button class="chap ${st} ${c.id === ch.id ? 'sel' : ''}" style="animation-delay:${i * 0.04}s" data-a="chapter" data-id="${c.id}" aria-label="${esc(c.name)}, ${esc(c.title)}${st === 'locked' ? ', locked' : ''}">
+              <span class="chap-k">${esc(c.name)}</span><b>${esc(c.title)}</b>
+              <span class="chap-st">${st === 'locked' ? `<span class="lock-ic">${ICON.lock}</span>` : st === 'cleared' ? 'Cleared' : `${p.done} / ${p.total}`}</span>
+            </button>`;
+          }).join('')}
+        </nav>
+        <section class="chap-main">
+          <div class="chap-head"><div class="eyebrow">${esc(ch.name)} · ${esc(ch.place)}</div><h3 class="disp">${esc(ch.title)}</h3>
+            <div class="row"><div class="bar"><i style="width:${prog.done / prog.total * 100}%"></i></div><span class="muted">${prog.done} / ${prog.total}</span></div></div>
+          <div class="stg-path">
+            ${ch.stages.map(st => {
+              const state = stState(st);
+              const cls = ['stg', state, `k-${st.kind}`, st.id === next ? 'current' : '', st.id === sel.id ? 'selected' : ''].join(' ');
+              return `<button class="${cls}" data-a="stage" data-id="${st.id}" aria-label="${esc(st.name)}, ${KIND[st.kind]}, ${state === 'open' ? 'unlocked' : state}" ${st.id === sel.id ? 'data-focus' : ''}>
+                <i class="stg-d">${glyph(st)}</i><span class="stg-n">${esc(st.name)}</span><span class="stg-k">${KIND[st.kind]}</span></button>`;
+            }).join('')}
+          </div>
+        </section>
+        <div class="stage-card" key="${sel.id}">
+          <div><div class="eyebrow">${esc(ch.name)} · ${KIND[sel.kind]}</div>
+            <div class="name disp">${esc(sel.name)}</div>
+            <div class="foe">${combat ? `${esc(cfg.foeName)}${cfg.foeTitle ? `, ${esc(cfg.foeTitle)}` : ''}` : 'No combat · the story continues'}</div></div>
+          ${combat ? `<div class="meta"><div class="diff"><div class="pips">${[0, 1, 2].map(k => `<i class="${k < Math.min(3, Math.max(1, dl)) ? 'on' : ''}"></i>`).join('')}</div>${DIFF_LABEL[dl]}${save.ng ? ' · NG+' + save.ng : ''}</div>
+            <div class="reward"><i class="coin" style="width:.875rem;height:.875rem"></i>+${reward.coins}${reward.gems ? ` <i class="gem" style="margin-left:.4rem"></i>+${reward.gems}` : ''}</div></div>` : ''}
+          ${selDone ? '<div class="muted stg-cleared">Cleared · replay any time</div>' : ''}
+          <button class="btn-primary ${unlocked ? '' : 'locked'}" data-a="fight-stage" ${unlocked ? '' : 'disabled'}>${action}</button>
+        </div>
+      </div>
+      <div class="vignette"></div>`;
   },
-  pathTo(i) {
-    const segs = ['M140 700', 'C220 620 280 590 330 590', 'C400 590 440 660 510 660', 'C580 660 640 560 690 520', 'C760 470 800 590 860 578', 'C920 566 960 470 1020 438', 'C1100 400 1150 380 1230 380'];
-    return segs.slice(0, i + 1).join(' ');
+  // Story scenes have no fight yet: playing one completes it and moves the story on.
+  playScene(id) {
+    const out = Game.playScene(id), st = Logic.stage(id);
+    if (!out) return;
+    AudioManager.play('unlock');
+    this.toast(Logic.chapterOf(id).name, `${st.name} · scene coming in a later update`);
+    let delay = 700;
+    for (const u of out.unlocks) {
+      setTimeout(() => {
+        if (u.kind === 'ng') this.toast('Story complete', 'New Game+ unlocked in Settings');
+        else if (u.kind === 'chapter') this.toast('New chapter unlocked', `${Logic.chapter(u.id).name} · ${Logic.chapter(u.id).title}`);
+      }, delay);
+      delay += 700;
+    }
+    if (out.next) this.selStage = out.next;
+    this.renderCampaign(true);
   },
   mapSVG(world) {
     const m = (x, y, w, h, o) => `<path d="M${x} ${y} L${x + w * 0.3} ${y - h * 0.7} L${x + w * 0.42} ${y - h * 0.45} L${x + w * 0.6} ${y - h} L${x + w} ${y} Z" fill="#1d1a16" opacity="${o}"/>`;
@@ -405,23 +414,9 @@ const UIManager = {
       <rect width="1440" height="900" fill="url(#bg1)"/>
       <path d="M0 820 C200 780 400 830 600 760 C800 690 1000 640 1200 670 C1300 690 1380 700 1440 690" stroke="#1d1a16" stroke-width="70" fill="none" opacity=".9"/>
       ${m(40, 470, 180, 130, 0.8)}${m(380, 420, 160, 100, 0.8)}${m(560, 300, 160, 90, 0.7)}${m(760, 380, 170, 100, 0.7)}${m(900, 300, 190, 120, 0.8)}${m(1080, 600, 160, 100, 0.6)}${m(640, 860, 180, 110, 0.7)}${m(220, 860, 160, 100, 0.5)}
-      ${world ? '<path d="M317 558 C470 470 560 380 720 360 C860 340 980 470 1123 540" stroke="#a3302a" stroke-width="2.5" stroke-dasharray="6 8" fill="none" opacity=".7"/>' : '<path d="M1060 460 C1150 400 1260 340 1440 360 L1440 460 Z" fill="#050404"/>'}
+      ${world === 'plain' ? '' : world ? '<path d="M317 558 C470 470 560 380 720 360 C860 340 980 470 1123 540" stroke="#a3302a" stroke-width="2.5" stroke-dasharray="6 8" fill="none" opacity=".7"/>' : '<path d="M1060 460 C1150 400 1260 340 1440 360 L1440 460 Z" fill="#050404"/>'}
     </svg>`;
   },
-  paintCampaignCanvases() {
-    const save = SaveManager.data;
-    for (const cv of $$('#scr-campaign canvas[data-boss]')) {
-      const f = makeFighterFromEnemy(cv.dataset.boss, { facing: -1 }); poseFighter(f, 'taunt', 40);
-      drawFighterInto(cv, f, { glow: cv.dataset.locked === '1' ? 'rgba(58,52,43,0.35)' : 'rgba(163,48,42,0.55)', rim: cv.dataset.locked === '1' ? null : 'rgba(222,96,72,0.85)', fit: 0.95, tall: 1.35 });
-    }
-    for (const cv of $$('#scr-campaign canvas[data-bosssil]')) {
-      const f = makeFighterFromEnemy(cv.dataset.bosssil, { facing: -1 }); poseFighter(f, 'taunt', 40);
-      drawFighterInto(cv, f, { glow: 'rgba(163,48,42,0.55)', rim: 'rgba(222,96,72,0.85)', fit: 0.92, tall: 1.2, ground: 0.94 });
-    }
-    const mk = $('#scr-campaign canvas[data-marker]');
-    if (mk) { const f = makePlayerFighter(save); poseFighter(f, 'victory', 30); drawFighterInto(mk, f, { color: C.bone, fit: 1, tall: 1.35 }); }
-  },
-
   /* ---------------- armory ---------------- */
   armItems() {
     const save = SaveManager.data;
@@ -459,7 +454,8 @@ const UIManager = {
       else primary = `<button class="btn-primary" data-a="buy" ${save.coins < item.price ? 'disabled' : ''}>Buy <span style="display:inline-flex;align-items:center;gap:.4rem;letter-spacing:.05em"><i class="coin"></i>${fmt(item.price)}</span></button>`;
     } else if (lvl >= max) primary = `<button class="btn-primary locked" disabled>Mastered</button>`;
     else { const c = upgradeCost(kind, id, lvl); primary = `<button class="btn-primary" data-a="upgrade" ${save.coins < c ? 'disabled' : ''}>Upgrade <span style="display:inline-flex;align-items:center;gap:.4rem;letter-spacing:.05em"><i class="coin"></i>${fmt(c)}</span></button>`; }
-    const exclusiveTxt = item.exclusive && !owned ? `<div class="special-line"><b>Locked</b>Defeat ${esc(ENEMIES[item.exclusive].name)}, ${esc(ENEMIES[item.exclusive].title)}</div>` : '';
+    const trophyOf = ENEMIES[item.exclusive]; // a trophy names its enemy; `true` = locked until the gear rebuild
+    const exclusiveTxt = item.exclusive && !owned ? `<div class="special-line"><b>Locked</b>${trophyOf ? `Defeat ${esc(trophyOf.name)}, ${esc(trophyOf.title)}` : 'A trophy of a fallen foe. Not obtainable yet.'}</div>` : '';
     el.innerHTML = `
       <canvas class="arm-preview" data-prev></canvas>
       <div class="topbar">
@@ -572,8 +568,8 @@ const UIManager = {
     const env = cfg.env;
     const fitZoom = Math.min(1.55, (H * 0.6) / (Math.max(player.height(), enemy.height()) * 1.18));
     Game.setTableau(env, { fighters: [player, enemy], zoom: fitZoom, ground: 612, lights: [{ x: 330, y: 470, r: 360, c: 'rgba(201,164,92,0.18)' }, { x: 960, y: 450, r: 400, c: 'rgba(163,48,42,0.32)' }] });
-    const act = cfg.mode === 'campaign' ? ACTS[cfg.act] : null;
-    const dl = clamp((act ? act.diff : 2) + (cfg.ng || 0) + (d.type === 'boss' ? 1 : 0), 0, 4);
+    const dl = clamp((cfg.mode === 'campaign' ? cfg.diff : 2) + (cfg.ng || 0) + (d.type === 'boss' ? 1 : 0), 0, 4);
+    const foeName = cfg.foeName || d.name, foeTitle = cfg.foeTitle || d.title;
     const tag = cfg.mode === 'survival' ? `Survival · Wave ${ROMAN[cfg.wave - 1] || cfg.wave}` : `${d.type === 'boss' ? 'Boss' : d.type === 'sub' ? 'Sub-boss' : 'Duelist'} · ${DIFF_LABEL[dl]}`;
     const owned = Object.keys(save.owned.weapons).filter(w => WEAPONS[w] && !WEAPONS[w].enemy);
     el.innerHTML = `
@@ -585,8 +581,8 @@ const UIManager = {
       </div>
       <div class="plate right">
         <div class="tag"><div class="diff"><div class="pips">${[0, 1, 2].map(k => `<i class="${k < Math.min(3, Math.max(1, dl)) ? 'on' : ''}"></i>`).join('')}</div></div><span class="eyebrow red">${esc(tag)}</span></div>
-        <div class="nm disp">${esc(d.name)}</div>
-        <div class="ttl">${esc(d.title)}${cfg.mode === 'campaign' ? ` · ${esc(ACTS[cfg.act].stages[cfg.stage].name)}` : ''}</div>
+        <div class="nm disp">${esc(foeName)}</div>
+        <div class="ttl">${esc(foeTitle)}${cfg.mode === 'campaign' ? ` · ${esc(Logic.chapter(cfg.chapter).name)} · ${esc(Logic.stage(cfg.stageId).name)}` : ''}</div>
       </div>
       <div class="taunt">${esc(d.taunt)}</div>
       <div class="vs"><i></i><span>vs</span><i></i></div>
@@ -729,15 +725,16 @@ const UIManager = {
       foe.x = -120; foe.facing = -1; foe.scale *= 1.3; poseFighter(foe, 'taunt', 50);
       Game.setTableau(env, { fighters: [foe, player], zoom: 1.15, ground: 610, camEase: 0.04, tint: 'rgba(30,6,4,0.45)', lights: [{ x: 520, y: 330, r: 520, c: 'rgba(163,48,42,0.35)' }] });
     }
-    const eyebrow = r.mode === 'survival' ? `Survival · ${r.waves} waves cleared` : `${stageLabel(r.act, r.stage)} · ${ACTS[r.act].stages[r.stage].name}`;
+    const eyebrow = r.mode === 'survival' ? `Survival · ${r.waves} waves cleared` : `${Logic.chapterOf(r.stageId).name} · ${Logic.stage(r.stageId).name}`;
+    const foeName = r.foeName || d.name;
     const xpNeed = xpForLevel(save.level), xpNow = save.xp;
     const gainPct = r.levelUps ? xpNow / xpNeed * 100 : Math.min(100, r.xp / xpNeed * 100);
     const basePct = r.levelUps ? 0 : Math.max(0, (xpNow - r.xp) / xpNeed * 100);
-    const unlockHTML = r.unlocks.filter(u => u.kind !== 'act' && u.kind !== 'ng').map(u => `<div class="item"><canvas data-unlock="${u.kind}:${u.id}"></canvas>${esc(gearName(u.kind, u.id))}</div>`).join('');
+    const unlockHTML = r.unlocks.filter(u => u.kind !== 'chapter' && u.kind !== 'ng').map(u => `<div class="item"><canvas data-unlock="${u.kind}:${u.id}"></canvas>${esc(gearName(u.kind, u.id))}</div>`).join('');
     const sealNames = r.mode === 'survival' ? ['5 waves', '10 waves', '15 waves'] : ['Victory', 'Under 60s', 'Flawless'];
     const win = r.mode === 'survival' ? r.waves > 0 : r.win;
     const title = r.mode === 'survival' ? (r.newBest ? 'New Record' : 'Fallen') : r.win ? 'Victory' : 'Defeated';
-    const line = r.mode === 'survival' ? (r.newBest ? `Wave ${r.waves}. The pit will remember your name.` : `Wave ${r.waves}. Best: wave ${save.survivalBest}.`) : r.win ? `${d.name} ${d.type === 'boss' ? 'has fallen. The act is yours.' : 'has fallen.'}` : `${d.name} still stands. Rise again.`;
+    const line = r.mode === 'survival' ? (r.newBest ? `Wave ${r.waves}. The pit will remember your name.` : `Wave ${r.waves}. Best: wave ${save.survivalBest}.`) : r.win ? `${foeName} ${d.type === 'boss' ? 'has fallen. The way opens.' : 'has fallen.'}` : `${foeName} still stands. Rise again.`;
     el.innerHTML = `
       <div class="res-col">
         <div><div class="eyebrow muted" style="color:var(--text-muted)">${esc(eyebrow)}</div>
@@ -774,8 +771,8 @@ const UIManager = {
       for (const u of r.unlocks) {
         setTimeout(() => {
           AudioManager.play('unlock');
-          if (u.kind === 'act') this.toast('New act unlocked', `Act ${ROMAN[u.id]} · ${ACTS[u.id].name}`);
-          else if (u.kind === 'ng') this.toast('Campaign complete', 'New Game+ unlocked in Settings');
+          if (u.kind === 'chapter') this.toast('New chapter unlocked', `${Logic.chapter(u.id).name} · ${Logic.chapter(u.id).title}`);
+          else if (u.kind === 'ng') this.toast('Story complete', 'New Game+ unlocked in Settings');
           else this.toast(u.kind === 'weapons' ? 'Exclusive weapon' : 'Boss trophy', gearName(u.kind, u.id));
         }, delay);
         delay += 700;
@@ -807,7 +804,7 @@ const UIManager = {
         <div class="panel"><div class="eyebrow">Feel &amp; sound</div>${this.settingsRows()}</div>
         <div style="display:flex;flex-direction:column;gap:1.6rem">
           <div class="panel" style="animation-delay:.08s"><div class="eyebrow">New Game+</div><h3 class="disp">${save.ng ? `Cycle ${save.ng}` : 'The road again'}</h3>
-            <div class="big-line">${save.ngUnlocked ? 'Enemies gain health, damage and aggression. Rewards grow by 60% per cycle.' : 'Defeat Malgrath, the Ashen Tyrant, to unlock New Game+.'}</div>
+            <div class="big-line">${save.ngUnlocked ? 'Enemies gain health, damage and aggression. Rewards grow by 60% per cycle.' : 'Finish the story, through the Epilogue, to unlock New Game+.'}</div>
             <button class="btn-primary ${save.ngUnlocked ? '' : 'locked'}" data-a="ng" ${save.ngUnlocked ? '' : 'disabled'}>${save.ngUnlocked ? `Begin NG+ ${save.ng + 1}` : 'Locked'}</button></div>
           <div class="panel" style="animation-delay:.16s"><div class="eyebrow">Help &amp; data</div>
             <button class="btn-ghost" data-a="help">${ICON.help} Controls guide</button>
@@ -834,7 +831,7 @@ const UIManager = {
       </div>`;
     this.afterShow = () => {
       const cv = $('#scr-survival canvas[data-sv]'); if (!cv) return;
-      const f = makeFighterFromEnemy('brakk', { facing: -1 }); poseFighter(f, 'taunt', 40);
+      const f = makeFighterFromEnemy('echo_sentinel', { facing: -1 }); poseFighter(f, 'taunt', 40);
       drawFighterInto(cv, f, { glow: 'rgba(163,48,42,0.5)', rim: 'rgba(255,130,80,0.85)', fit: 0.8, tall: 1.15, ground: 0.92 });
     };
   },
@@ -877,11 +874,11 @@ const UIManager = {
   },
   openProfile() {
     const s = SaveManager.data;
-    const bosses = Object.keys(ENEMIES).filter(id => ENEMIES[id].type !== 'regular' && s.defeated[id]).length;
+    const bossStages = Logic.stages().filter(st => Logic.isBossStage(st.id)), bosses = bossStages.filter(st => Logic.defeatedCount(s, st.id) > 0).length;
     this.openOverlay('profile', `<div class="ov-card"><div class="eyebrow">Records</div><h3 class="disp">Kael · Level ${s.level}</h3>
       <div class="records">
         <div><b>${s.stats.wins}</b><span>Duels won</span></div><div><b>${s.stats.losses}</b><span>Defeats</span></div>
-        <div><b>${bosses} / 9</b><span>Bosses broken</span></div><div><b>${s.survivalBest}</b><span>Best survival wave</span></div>
+        <div><b>${bosses} / ${bossStages.length}</b><span>Bosses broken</span></div><div><b>${s.survivalBest}</b><span>Best survival wave</span></div>
         <div><b>${s.stats.perfects}</b><span>Flawless wins</span></div><div><b>${s.ng ? 'NG+' + s.ng : '—'}</b><span>Current cycle</span></div>
       </div>
       <div class="xp"><div class="labels"><b>Experience</b><span>${fmt(s.xp)} / ${fmt(xpForLevel(s.level))}</span></div><div class="track"><i style="width:${s.xp / xpForLevel(s.level) * 100}%"></i></div></div>

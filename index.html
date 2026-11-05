@@ -128,41 +128,9 @@ button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--accent
 /* ---------- campaign ---------- */
 #scr-campaign { background: var(--bg-charcoal); }
 .map-bg { position: absolute; inset: 0; width: 100%; height: 100%; }
-.world-acts { position: absolute; inset: 0; }
-.act-node { position: absolute; width: 19rem; transform: translate(-50%, -50%); display: flex; flex-direction: column; gap: .55rem; padding: 1.25rem 1.4rem 1.3rem; background: rgba(20,18,15,.92); border-top: 2px solid var(--accent-gold); box-shadow: 0 1.5rem 3.75rem rgba(0,0,0,.55); text-align: left; transition: transform .2s var(--ease), box-shadow .2s; animation: cardIn .55s var(--pop) both; }
-.act-node:hover { transform: translate(-50%, calc(-50% - .4rem)); box-shadow: 0 1.5rem 4rem rgba(201,164,92,.18); }
-.act-node.locked { border-top-color: var(--line-ash); cursor: not-allowed; }
-.act-node.locked:hover { transform: translate(-50%, -50%); }
-.act-node canvas { width: 100%; height: 9.5rem; display: block; margin: -.3rem 0 .2rem; }
-.act-node .act-name { font-family: var(--font-display); font-size: 1.75rem; font-weight: 600; line-height: 1.05; }
-.act-node .place { color: var(--text-muted); font-size: .9rem; letter-spacing: .14em; text-transform: uppercase; }
-.act-node .row { display: flex; justify-content: space-between; align-items: center; }
-.act-node .status { font-size: .8rem; letter-spacing: .22em; text-transform: uppercase; color: var(--accent-gold); }
-.act-node.locked .status { color: var(--text-muted); }
-.act-node.cleared .status { color: var(--accent-ember-bright); }
 .bar { height: .25rem; background: var(--line-ash); position: relative; overflow: hidden; }
 .bar i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent-gold); transition: width .6s var(--ease); }
 .lock-ic { width: .9rem; height: .9rem; color: var(--text-muted); }
-@keyframes cardIn { from { opacity: 0; transform: translate(-50%, -40%) scale(.92); } to { opacity: 1; transform: translate(-50%, -50%); } }
-.stage-node { position: absolute; transform: translate(-50%, -50%) rotate(45deg); width: 2.25rem; height: 2.25rem; display: grid; place-items: center; border: 2px solid var(--line-ash); background: var(--bg-void); transition: transform .16s var(--ease), box-shadow .2s; }
-.stage-node span { transform: rotate(-45deg); font-family: var(--font-display); font-weight: 700; font-size: .95rem; color: var(--text-muted); }
-.stage-node.cleared { background: var(--accent-ember); border-color: var(--accent-ember-bright); }
-.stage-node.cleared span { color: var(--text-bone); }
-.stage-node.sub { width: 2.6rem; height: 2.6rem; }
-.stage-node.sub::after { content: ""; position: absolute; inset: -.4rem; border: 1px solid var(--accent-ember); opacity: .7; }
-.stage-node.current { width: 3rem; height: 3rem; border: 3px solid var(--accent-gold); box-shadow: 0 0 1.75rem rgba(201,164,92,.45); }
-.stage-node.current span { color: var(--accent-gold); font-size: 1.15rem; }
-.stage-node.selected { box-shadow: 0 0 0 .35rem rgba(201,164,92,.25), 0 0 1.75rem rgba(201,164,92,.45); }
-.stage-node.locked { cursor: not-allowed; opacity: .75; }
-.stage-node:not(.locked):hover { transform: translate(-50%, -50%) rotate(45deg) scale(1.12); }
-.stage-node.boss { width: 3.4rem; height: 3.4rem; border-color: var(--accent-ember); }
-.stage-node.boss svg { transform: rotate(-45deg); width: 1.4rem; height: 1.4rem; color: var(--accent-ember-bright); }
-.stage-node.boss.cleared svg { color: var(--text-bone); }
-.boss-plate { position: absolute; transform: translateX(-50%); text-align: center; }
-.boss-plate b { display: block; font-family: var(--font-display); font-size: 1.35rem; font-weight: 600; }
-.boss-plate span { color: var(--accent-ember-bright); font-size: .8rem; letter-spacing: .24em; text-transform: uppercase; }
-.boss-sil { position: absolute; pointer-events: none; }
-.player-marker { position: absolute; transform: translate(-50%, -100%); pointer-events: none; transition: left .5s var(--ease), top .5s var(--ease); }
 .stage-card { position: absolute; right: 3.5rem; bottom: 3.5rem; width: 22rem; display: flex; flex-direction: column; gap: 1.1rem; padding: 1.6rem 1.75rem; background: var(--bg-charcoal); border-top: 2px solid var(--accent-gold); box-shadow: 0 1.5rem 3.75rem rgba(0,0,0,.55); animation: cardIn2 .5s var(--pop) both; }
 @keyframes cardIn2 { from { opacity: 0; transform: translateY(1.5rem) scale(.95); } to { opacity: 1; transform: none; } }
 .stage-card .name { font-family: var(--font-display); font-size: 2rem; font-weight: 600; line-height: 1.1; }
@@ -432,9 +400,6 @@ button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--accent
   .menu-item.primary .lbl { font-size: 1.45rem; }
   .menu-item .lbl { font-size: 1.1rem; }
   #scr-title .ver { display: none; }
-  .act-node { width: 15.5rem; padding: .9rem 1rem; gap: .35rem; }
-  .act-node canvas { height: 5.5rem; }
-  .act-node .act-name { font-size: 1.35rem; }
   .stage-card { right: 1.5rem; bottom: 1.2rem; width: 18rem; padding: 1rem 1.2rem; gap: .7rem; }
   .stage-card .name { font-size: 1.55rem; }
   .stage-card .btn-primary { height: 2.9rem; }
@@ -658,7 +623,7 @@ body { font-family: var(--font-num); }
 .plate .ttl { font-family: var(--font-ui); font-style: normal; letter-spacing: .14em; text-transform: uppercase; font-size: 1.1rem; }
 .vs span { font-family: var(--font-brush); font-style: normal; color: #e8443a; text-shadow: 0 3px 0 #000; }
 .rating b { font-family: var(--font-brush); font-style: normal; }
-.stage-card .name, .act-node .act-name, .arm-details h3, .survival-hero h2 { font-family: var(--font-display); font-weight: 800; }
+.stage-card .name, .arm-details h3, .survival-hero h2 { font-family: var(--font-display); font-weight: 800; }
 .chip, .slot .nm, .tile .nm, .stat .labels span:first-child, .set-row .k, .lvl-row .k { font-family: var(--font-ui); font-size: 1.02em; }
 #scr-campaign { background: #1a0807; }
 
@@ -735,6 +700,82 @@ body { font-family: var(--font-num); }
 .logo-sub { margin-top: .2rem; letter-spacing: .38em; }
 .logo-tag { margin: .55rem 0 0 4.6rem; font-family: var(--font-display); font-style: italic; font-weight: 600; font-size: 1.05rem; letter-spacing: .06em; color: #c9a45c; text-shadow: 0 2px 6px #000; }
 @media (max-height: 560px) { .logo-mark { width: 17rem; } .logo-sub { margin-top: 0; } .logo-tag { margin: .2rem 0 0 4.6rem; font-size: .9rem; } }
+
+/* ---------- campaign map: chapter rail, stage path, stage card ---------- */
+.camp { position: absolute; z-index: 2; top: 6rem; bottom: 2.5rem; left: 3rem; right: 3rem; display: grid; grid-template-columns: 15rem minmax(0, 1fr) 22rem; gap: 2rem; align-items: stretch; }
+.chap-rail { display: flex; flex-direction: column; gap: .45rem; overflow-y: auto; scrollbar-width: none; padding: .2rem .3rem .2rem 0; }
+.chap-rail::-webkit-scrollbar { display: none; }
+.chap { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto; column-gap: .6rem; align-items: center; padding: .55rem .9rem .6rem 1.1rem; text-align: left; background: rgba(20,18,15,.82); border-left: 2px solid var(--line-ash); clip-path: polygon(0 0, 100% 0, calc(100% - .6rem) 100%, 0 100%); transition: background .16s, border-color .16s, transform .14s var(--ease); animation: rise .45s var(--ease) both; }
+.chap .chap-k { grid-column: 1; font-family: var(--font-ui); font-size: .8rem; letter-spacing: .24em; text-transform: uppercase; color: var(--accent-gold); }
+.chap b { grid-column: 1; font-family: var(--font-display); font-weight: 700; font-size: 1.12rem; line-height: 1.15; color: var(--text-bone); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chap .chap-st { grid-column: 2; grid-row: 1 / span 2; font-family: var(--font-num); font-size: .9rem; letter-spacing: .08em; color: var(--text-muted); }
+.chap .chap-st .lock-ic { display: inline-block; width: .9rem; height: .9rem; }
+.chap:hover { background: rgba(201,164,92,.08); transform: translateX(.2rem); }
+.chap.sel { border-left-color: var(--accent-gold); background: linear-gradient(90deg, rgba(201,164,92,.16), rgba(20,18,15,.9) 70%); }
+.chap.cleared { border-left-color: var(--accent-ember-bright); }
+.chap.cleared .chap-st { color: var(--accent-ember-bright); text-transform: uppercase; font-family: var(--font-ui); letter-spacing: .2em; font-size: .78rem; }
+.chap.sel.cleared { border-left-color: var(--accent-gold); }
+.chap.locked { cursor: not-allowed; }
+.chap.locked .chap-k, .chap.locked b { color: var(--text-muted); opacity: .7; }
+.chap.locked:hover { transform: none; background: rgba(20,18,15,.82); }
+.chap-main { position: relative; display: flex; flex-direction: column; gap: 1.6rem; min-width: 0; padding-top: .4rem; }
+.chap-head { position: relative; display: flex; flex-direction: column; gap: .35rem; max-width: 26rem; }
+.chap-head h3 { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: 2.4rem; line-height: 1.05; }
+.chap-head .row { display: flex; align-items: center; gap: .8rem; }
+.chap-head .bar { flex: 1; }
+.stg-path { position: relative; display: flex; flex-wrap: wrap; gap: 1.4rem .4rem; align-content: flex-start; }
+.stg { position: relative; width: 6.2rem; display: flex; flex-direction: column; align-items: center; gap: .55rem; padding: .3rem 0; text-align: center; }
+.stg + .stg::before { content: ""; position: absolute; top: 1.85rem; right: calc(50% + 1.9rem); width: calc(100% - 3.4rem); border-top: 2px dashed var(--line-ash); }
+.stg.cleared + .stg::before { border-top: 2px solid var(--accent-ember); }
+.stg-d { width: 2.6rem; height: 2.6rem; margin: .45rem 0 .2rem; display: grid; place-items: center; transform: rotate(45deg); border: 2px solid var(--line-ash); background: var(--bg-void); transition: transform .16s var(--ease), box-shadow .2s, border-color .16s; }
+.stg-d > * { transform: rotate(-45deg); }
+.stg-d span { font-family: var(--font-display); font-weight: 700; font-size: .95rem; color: var(--text-muted); font-style: normal; }
+.stg-d .kj { font-family: var(--font-kanji); font-weight: 400; font-size: 1.15rem; }
+.stg-d svg { width: 1.3rem; height: 1.3rem; color: var(--accent-ember-bright); }
+.stg-n { font-family: var(--font-ui); font-size: 1rem; letter-spacing: .08em; line-height: 1.1; color: var(--text-bone); }
+.stg-k { font-family: var(--font-ui); font-size: .72rem; letter-spacing: .2em; text-transform: uppercase; color: var(--text-muted); margin-top: -.35rem; }
+.stg.k-subboss .stg-d, .stg.k-echo .stg-d, .stg.k-spar .stg-d { box-shadow: 0 0 0 .3rem var(--bg-charcoal), 0 0 0 calc(.3rem + 1px) var(--accent-ember); }
+.stg.k-boss .stg-d { width: 3.1rem; height: 3.1rem; margin: .2rem 0 0; border-color: var(--accent-ember); }
+.stg.cleared .stg-d { background: var(--accent-ember); border-color: var(--accent-ember-bright); }
+.stg.cleared .stg-d span, .stg.cleared .stg-d svg { color: var(--text-bone); }
+.stg.current .stg-d { border: 3px solid var(--accent-gold); box-shadow: 0 0 1.5rem rgba(201,164,92,.45); }
+.stg.current .stg-d span { color: var(--accent-gold); }
+.stg.selected .stg-d { transform: rotate(45deg) scale(1.12); box-shadow: 0 0 0 .3rem rgba(201,164,92,.28), 0 0 1.6rem rgba(201,164,92,.45); }
+.stg.selected .stg-n { color: var(--accent-gold); }
+.stg.locked { cursor: not-allowed; }
+.stg.locked .stg-d { opacity: .55; }
+.stg.locked .stg-n, .stg.locked .stg-k { opacity: .5; }
+.stg:not(.locked):hover .stg-d { transform: rotate(45deg) scale(1.12); }
+.stg:focus-visible { outline: none; }
+.stg:focus-visible .stg-d { border-color: var(--accent-gold); }
+.camp .stage-card { position: relative; right: auto; bottom: auto; width: auto; align-self: end; }
+.stg-cleared { font-size: .85rem; letter-spacing: .14em; text-transform: uppercase; color: var(--accent-ember-bright); }
+
+@media (max-height: 560px) {
+  .camp { top: 4.4rem; bottom: .9rem; left: 1.2rem; right: 1.2rem; grid-template-columns: 10.5rem minmax(0, 1fr) 15.5rem; gap: 1rem; }
+  .chap-rail { gap: .3rem; }
+  .chap { padding: .3rem .6rem .35rem .8rem; }
+  .chap .chap-k { font-size: .66rem; }
+  .chap b { font-size: .9rem; }
+  .chap .chap-st { font-size: .75rem; }
+  .chap.cleared .chap-st { font-size: 0; }
+  .chap.cleared .chap-st::before { content: ""; display: inline-block; width: .5rem; height: .5rem; background: var(--accent-ember-bright); transform: rotate(45deg); }
+  .chap-main { gap: .8rem; padding-top: 0; }
+  .chap-head h3 { font-size: 1.5rem; }
+  .chap-head .eyebrow { font-size: .72rem; }
+  .stg-path { gap: .5rem .1rem; }
+  .stg { width: 4.4rem; gap: .35rem; }
+  .stg + .stg::before { top: 1.35rem; right: calc(50% + 1.4rem); width: calc(100% - 2.4rem); }
+  .stg-d { width: 1.9rem; height: 1.9rem; margin: .3rem 0 .1rem; }
+  .stg.k-boss .stg-d { width: 2.3rem; height: 2.3rem; }
+  .stg-d span { font-size: .8rem; }
+  .stg-n { font-size: .78rem; }
+  .stg-k { display: none; }
+  .camp .stage-card { padding: .8rem 1rem; gap: .55rem; }
+  .camp .stage-card .name { font-size: 1.3rem; }
+  .camp .stage-card .foe { font-size: .85rem; }
+  .camp .stage-card .btn-primary { height: 2.7rem; font-size: 1rem; }
+}
 </style>
 </head>
 <body>
@@ -1407,8 +1448,8 @@ const WEAPONS = {
       ca: { kind: 'air', w: { lean: -10, fs: 176, fe: 0, wa: 210 }, s: { lean: 30, fs: 50, fe: 0, wa: -10 }, t: [0.12, 0.1, 0.22], dmg: 14, kb: 200, up: 400, hs: 0.45, gb: 60, box: [10, -200, 150, 220], limb: 'w', snd: 'heavyswing', hsnd: 'heavy', imp: 2 }
     }
   },
-  dragon_spear: { heft: 1.2, el: 'water', name: 'Dragon Spear', cls: 'Polearm', tab: 'polearms', rarity: 'Legendary Polearm', hands: 2, len: 196, stance: 'spear', stats: [52, 60, 96], price: 0, exclusive: 'eryndor',
-    trail: '#c9a45c', desc: 'Longest reach in the Armory. Two pokes and a leg-sweeping arc. Exclusive reward of the Eternal Sage.',
+  dragon_spear: { heft: 1.2, el: 'water', name: 'Dragon Spear', cls: 'Polearm', tab: 'polearms', rarity: 'Legendary Polearm', hands: 2, len: 196, stance: 'spear', stats: [52, 60, 96], price: 0, exclusive: true,
+    trail: '#c9a45c', desc: 'Longest reach in the Armory. Two pokes and a leg-sweeping arc. A boss trophy, not yet obtainable.',
     moves: ['s1', 's2', 's3'], air: 'sa', special: 'dragonLance', counter: 's1',
     defs: {
       s1: { kind: 'weapon', f: { lean: 14, rx: 20, fs: 82, fe: 10, wa: 93 }, w: { lean: 0, rx: -14, fs: 36, fe: 70, wa: 95 }, s: { lean: 18, rx: 26, fs: 88, fe: 0, wa: 92 }, t: [0.09, 0.07, 0.18], dmg: 8, kb: 220, hs: 0.3, box: [30, -170, 236, 44], limb: 'w', snd: 'swing', hsnd: 'slash', imp: 0, next: 's2' },
@@ -1417,8 +1458,8 @@ const WEAPONS = {
       sa: { kind: 'air', w: { lean: -4, fs: 150, fe: 0, wa: 160 }, s: { lean: 30, fs: 70, fe: 0, wa: 50 }, t: [0.08, 0.1, 0.18], dmg: 9, kb: 200, up: 300, hs: 0.36, box: [10, -170, 200, 170], limb: 'w', snd: 'swing', hsnd: 'slash', imp: 1 }
     }
   },
-  phantom_sickle: { heft: 0.95, el: 'blood', name: 'Phantom Sickle', cls: 'Chain', tab: 'chains', rarity: 'Legendary Chain', hands: 1, len: 70, stance: 'sickle', stats: [56, 66, 74], price: 0, exclusive: 'noctis',
-    trail: '#9b8cff', desc: 'A chained sickle. The second strike hurls the blade and drags the enemy to you. Exclusive reward of the Hollow Moon.',
+  phantom_sickle: { heft: 0.95, el: 'blood', name: 'Phantom Sickle', cls: 'Chain', tab: 'chains', rarity: 'Legendary Chain', hands: 1, len: 70, stance: 'sickle', stats: [56, 66, 74], price: 0, exclusive: true,
+    trail: '#9b8cff', desc: 'A chained sickle. The second strike hurls the blade and drags the enemy to you. A boss trophy, not yet obtainable.',
     moves: ['h1', 'h2', 'h3'], air: 'ha', special: 'reapersHarvest', counter: 'h3',
     defs: {
       h1: { kind: 'weapon', w: { lean: -4, fs: 172, fe: 30, wa: 232 }, s: { lean: 18, fs: 72, fe: 0, wa: 20 }, t: [0.09, 0.07, 0.18], dmg: 9, kb: 160, hs: 0.32, box: [16, -214, 128, 160], limb: 'w', snd: 'swing', hsnd: 'slash', imp: 0, next: 'h2' },
@@ -1427,8 +1468,8 @@ const WEAPONS = {
       ha: { kind: 'air', w: { lean: 0, fs: 172, fe: 10, wa: 220 }, s: { lean: 24, fs: 64, fe: 0, wa: 0 }, t: [0.07, 0.1, 0.16], dmg: 9, kb: 200, up: 220, hs: 0.36, box: [10, -200, 136, 190], limb: 'w', snd: 'swing', hsnd: 'slash', imp: 1 }
     }
   },
-  titan_hammer: { heft: 2.2, el: 'earth', name: 'Titan Hammer', cls: 'Heavy', tab: 'heavy', rarity: 'Mythic Hammer', hands: 2, len: 150, stance: 'hammer', stats: [98, 16, 66], price: 0, exclusive: 'malgrath',
-    trail: '#d24a3c', desc: 'Extremely slow but devastating. The overhead smash splits the ground. Exclusive reward of the Ashen Tyrant.',
+  titan_hammer: { heft: 2.2, el: 'earth', name: 'Titan Hammer', cls: 'Heavy', tab: 'heavy', rarity: 'Mythic Hammer', hands: 2, len: 150, stance: 'hammer', stats: [98, 16, 66], price: 0, exclusive: true,
+    trail: '#d24a3c', desc: 'Extremely slow but devastating. The overhead smash splits the ground. A boss trophy, not yet obtainable.',
     moves: ['m1', 'm2'], air: 'ma', special: 'earthshatter', counter: 'm2',
     defs: {
       m1: { kind: 'weapon', a: { lean: -22, head: -6, fs: 196, fe: 0, wa: 196, fh: 22, fk: -30, bh: -24, bk: -22 }, f: { lean: 36, fs: 74, fe: 0, wa: -2, fh: 46, fk: -44, bh: -38, bk: -22 }, w: { lean: -18, fs: 186, fe: 0, wa: 200 }, s: { lean: 34, fs: 76, fe: 0, wa: 2, fh: 44, fk: -40, bh: -36, bk: -20 }, t: [0.42, 0.1, 0.48], dmg: 34, kb: 380, up: -360, hs: 0.7, kd: 1, gb: 160, box: [16, -246, 176, 246], limb: 'w', snd: 'heavyswing', hsnd: 'heavy', imp: 3, stamp: 'SMASH', shock: 1, armor: 1, next: 'm2' },
@@ -1523,11 +1564,11 @@ const HELMETS = {
   straw_kasa:{ name: 'Straw Kasa', rarity: 'Common helm', def: 0.06, price: 520, desc: 'Wide straw hat. Carry two extra kunai.', perks: { ammo: 2 } },
   iron_kabuto:{ name: 'Iron Kabuto', rarity: 'Rare helm', def: 0.1, price: 1150, desc: 'Lacquered iron with a gold crest. Shrugs off stuns.', perks: { stunRes: 0.35 } },
   oni_mask:  { name: 'Oni Mask', rarity: 'Rare helm', def: 0.08, gems: 12, desc: 'Fills the rage meter faster.', perks: { rage: 0.2 } },
-  reaper_cowl:{ name: 'Reaper Cowl', rarity: 'Boss trophy', def: 0.08, exclusive: 'kairo', desc: 'Taken from Kairo. Dash recovers much faster.', perks: { dash: 0.25 } },
-  hollow_crest:{ name: 'Hollow Moon Crest', rarity: 'Boss trophy', def: 0.12, exclusive: 'noctis', desc: 'The Hollow Moon halo. Rage gain greatly increased.', perks: { rage: 0.3 } },
-  sentinel_helm:{ name: 'Sentinel Helm', rarity: 'Boss trophy', def: 0.14, exclusive: 'rokan', desc: 'Plumed iron from the gate. Heavy defence.', perks: { stunRes: 0.2 } },
-  sage_antlers:{ name: "Sage's Antlers", rarity: 'Boss trophy', def: 0.12, exclusive: 'eryndor', desc: 'Antlered crown of the Eternal Sage. +3 kunai.', perks: { ammo: 3 } },
-  ashen_crown:{ name: 'Ashen Crown', rarity: 'Boss trophy', def: 0.16, exclusive: 'malgrath', desc: 'The Tyrant’s burning crown. Everything hits harder.', perks: { dmg: 0.1 } }
+  reaper_cowl:{ name: 'Reaper Cowl', rarity: 'Boss trophy', def: 0.08, exclusive: true, desc: 'A fallen master’s cowl. Dash recovers much faster.', perks: { dash: 0.25 } },
+  hollow_crest:{ name: 'Hollow Moon Crest', rarity: 'Boss trophy', def: 0.12, exclusive: true, desc: 'A hollow halo. Rage gain greatly increased.', perks: { rage: 0.3 } },
+  sentinel_helm:{ name: 'Sentinel Helm', rarity: 'Boss trophy', def: 0.14, exclusive: true, desc: 'Plumed iron from the gate. Heavy defence.', perks: { stunRes: 0.2 } },
+  sage_antlers:{ name: "Sage's Antlers", rarity: 'Boss trophy', def: 0.12, exclusive: true, desc: 'An antlered sage’s crown. +3 kunai.', perks: { ammo: 3 } },
+  ashen_crown:{ name: 'Ashen Crown', rarity: 'Boss trophy', def: 0.16, exclusive: true, desc: 'A burning crown. Everything hits harder.', perks: { dmg: 0.1 } }
 };
 const ARMORS = {
   wraps:     { name: 'Cloth Wraps', rarity: 'Starting gear', def: 0, price: 0, desc: 'Bandaged forearms and a red scarf.', perks: {} },
@@ -1535,128 +1576,95 @@ const ARMORS = {
   shadow_cloak:{ name: 'Shadow Cloak', rarity: 'Rare armor', def: 0.07, gems: 15, desc: 'A long black cloak. Move and dash faster.', perks: { speed: 0.08 } },
   lamellar:  { name: 'Lamellar Coat', rarity: 'Rare armor', def: 0.12, price: 1250, desc: 'Laced iron scales. Slightly slower.', perks: { hp: 30, speed: -0.03 } },
   pauldrons: { name: 'Iron Pauldrons', rarity: 'Epic armor', def: 0.16, price: 2300, desc: 'Massive shoulder plates. Slower, much tougher.', perks: { hp: 45, speed: -0.05, stunRes: 0.15 } },
-  mist_shroud:{ name: 'Mist Shroud', rarity: 'Boss trophy', def: 0.08, exclusive: 'veyra', desc: 'Veyra’s grey veil. Dash invulnerability lasts longer.', perks: { dash: 0.2, speed: 0.04 } },
-  storm_mantle:{ name: 'Storm Mantle', rarity: 'Boss trophy', def: 0.1, exclusive: 'zephar', desc: 'Charged ribbons. Kunai strike harder.', perks: { kunai: 0.6, speed: 0.04 } },
-  colossus_plate:{ name: 'Colossus Plate', rarity: 'Boss trophy', def: 0.2, exclusive: 'brakk', desc: 'Pit-forged plate. Very slow, nearly unbreakable.', perks: { hp: 60, speed: -0.08, stunRes: 0.3 } },
-  executioner_garb:{ name: 'Executioner Garb', rarity: 'Boss trophy', def: 0.12, exclusive: 'drazek', desc: 'Chain-wrapped leather. Rage builds from blocking.', perks: { rage: 0.15, hp: 25 } }
+  mist_shroud:{ name: 'Mist Shroud', rarity: 'Boss trophy', def: 0.08, exclusive: true, desc: 'A grey veil. Dash invulnerability lasts longer.', perks: { dash: 0.2, speed: 0.04 } },
+  storm_mantle:{ name: 'Storm Mantle', rarity: 'Boss trophy', def: 0.1, exclusive: true, desc: 'Charged ribbons. Kunai strike harder.', perks: { kunai: 0.6, speed: 0.04 } },
+  colossus_plate:{ name: 'Colossus Plate', rarity: 'Boss trophy', def: 0.2, exclusive: true, desc: 'Pit-forged plate. Very slow, nearly unbreakable.', perks: { hp: 60, speed: -0.08, stunRes: 0.3 } },
+  executioner_garb:{ name: 'Executioner Garb', rarity: 'Boss trophy', def: 0.12, exclusive: true, desc: 'Chain-wrapped leather. Rage builds from blocking.', perks: { rage: 0.15, hp: 25 } }
 };
 for (const id in HELMETS) HELMETS[id].id = id;
 for (const id in ARMORS) ARMORS[id].id = id;
 
 const GEAR_MAX = { weapons: 8, helmets: 5, armors: 5 };
 
+
 /* ---------------- Enemies & bosses ----------------
    type: regular | sub | boss.  ai: regular | agile | defensive | ranged | heavy | boss
-   build: scale (overall size), w (limb thickness), head, legs, arms (length multipliers) */
+   build: scale (overall size), w (limb thickness), head, legs, arms (length multipliers)
+   These are TEMPORARY stand-ins: every campaign stage fights one of them in a single arena until the real
+   Order soldiers, Hollows, sub-bosses and bosses land. Stages show their own story names (see CAMPAIGN). */
 const ENEMIES = {
-  // ---- Act I regulars
-  shiro:  { name: 'Shiro', title: 'Alley Cutter', type: 'regular', outfit: 'gi', ai: 'regular', weapon: 'cutter_blade', helmet: 'ronin_hood', armor: 'wraps', hp: 170, dmg: 0.9, build: { scale: 1, w: 10 }, eye: '#ece5d3',
-            taunt: 'Rooftops belong to the Veil. You are trespassing.', tip: 'Block his first cut, then answer with a three-punch string.' },
-  mako:   { name: 'Mako', title: 'Lantern Thief', type: 'regular', ai: 'agile', weapon: 'shadow_daggers', helmet: 'topknot', armor: 'jerkin', hp: 160, dmg: 0.85, speed: 1.15, build: { scale: 0.94, w: 9, legs: 1.06 }, eye: '#c9a45c',
-            taunt: 'Catch me and the lantern is yours. You won’t.', tip: 'He darts in and out. Dash in when he lands from a jump.' },
-  gorran: { name: 'Gorran', title: 'Bell Warden', type: 'regular', outfit: 'gi', ai: 'defensive', weapon: 'fists', helmet: 'iron_kabuto', armor: 'lamellar', hp: 220, dmg: 1, build: { scale: 1.1, w: 13 }, eye: '#ece5d3',
-            taunt: 'The bell tolls once for every fool who climbs this far.', tip: 'He blocks everything. Grab him (Block + Punch) or charge a heavy kick.' },
-  sable:  { name: 'Sable', title: 'Eave Archer', type: 'regular', ai: 'ranged', weapon: 'cutter_blade', helmet: 'straw_kasa', armor: 'wraps', hp: 160, dmg: 0.9, build: { scale: 0.98, w: 9 }, eye: '#d24a3c',
-            taunt: 'I never miss twice.', tip: 'Close the distance with dashes — kunai cannot hit you mid-dash.' },
-  // ---- Act I bosses
-  kairo:  { name: 'Kairo', title: 'the Rooftop Reaper', type: 'sub', ai: 'agile', weapon: 'shadow_daggers', helmet: 'reaper_cowl', armor: 'jerkin', hp: 320, dmg: 1.05, speed: 1.3, build: { scale: 1.02, w: 9, legs: 1.08 }, eye: '#ece5d3', accent: '#ece5d3',
-            taunt: 'You blink, you bleed. Let us see how often you blink.', defeat: 'Faster… than me…', win: 'Too slow. The roofs remember the slow ones.',
-            tip: 'Dodge his lunge with Dash, then punish the long recovery.', reward: { item: ['helmets', 'reaper_cowl'] },
-            abilities: ['lunge'] },
-  veyra:  { name: 'Veyra', title: 'the Mist Phantom', type: 'sub', ai: 'agile', weapon: 'mist_fans', helmet: 'veil', armor: 'mist_shroud', hp: 340, dmg: 1, speed: 1.1, build: { scale: 0.98, w: 8, head: 0.92 }, eye: '#b9c4c9', accent: '#b9c4c9',
-            taunt: 'Strike the mist if you like. It has never bled.', defeat: 'The fog… lifts…', win: 'You fought a shadow. You lost to one.',
-            tip: 'A puff of smoke marks where she reappears. Turn and block.', reward: { item: ['armors', 'mist_shroud'] },
-            abilities: ['teleport', 'smokeBomb'] },
-  noctis: { name: 'Noctis', title: 'Lord of the Hollow Moon', type: 'boss', ai: 'boss', weapon: 'hollow_crescents', helmet: 'hollow_crest', armor: 'cloak', hp: 640, dmg: 1.1, speed: 1.2, build: { scale: 1.16, w: 11 }, eye: '#9b8cff', accent: '#9b8cff',
-            taunt: 'The moon is hollow because I carved it out. You are smaller than the moon.', defeat: 'The moon… goes dark…', win: 'Kneel in the moonlight. It is the last you will see.',
-            tip: 'His eyes flash right before he strikes. Block on the flash, punish after.', reward: { weapon: 'phantom_sickle', item: ['helmets', 'hollow_crest'] }, flashEyes: 1,
+  order_recruit: { name: 'Order Recruit', title: 'Order of Silence', type: 'regular', outfit: 'gi', ai: 'regular', weapon: 'cutter_blade', helmet: 'ronin_hood', armor: 'jerkin', hp: 170, dmg: 0.9, build: { scale: 1, w: 10 }, eye: '#ece5d3',
+            taunt: 'The Order of Silence holds this road. Turn back.', tip: 'Block the first cut, then answer with a three-punch string.' },
+  order_warden: { name: 'Order Warden', title: 'Order of Silence', type: 'regular', outfit: 'gi', ai: 'defensive', weapon: 'temple_staff', helmet: 'iron_kabuto', armor: 'lamellar', hp: 220, dmg: 1, build: { scale: 1.08, w: 12 }, eye: '#c9a45c',
+            taunt: 'Nothing leaves the fortress without the Order’s word.', tip: 'He blocks everything. Grab him (Block + Punch) or charge a heavy kick.' },
+  hollow: { name: 'Hollow', title: 'Memory ash', type: 'regular', ai: 'agile', weapon: 'shadow_daggers', helmet: 'veil', armor: 'cloak', hp: 160, dmg: 0.85, speed: 1.15, build: { scale: 0.96, w: 9, legs: 1.06 }, eye: '#9b8cff', accent: '#9b8cff',
+            taunt: '…it copies your breathing, then your stance…', tip: 'It darts in and out. Dash in when it lands from a jump.' },
+  echo_sentinel: { name: 'Echo Sentinel', title: 'Placeholder sub-boss', type: 'sub', ai: 'agile', weapon: 'hollow_crescents', helmet: 'oni', armor: 'cloak', hp: 340, dmg: 1.05, speed: 1.15, build: { scale: 1.04, w: 10 }, eye: '#9b8cff', accent: '#9b8cff',
+            taunt: 'This memory is guarded. Prove you belong in it.', defeat: 'The memory… lets you pass…', win: 'Forget this place.',
+            tip: 'Dodge the lunge with Dash, then punish the long recovery.', abilities: ['lunge', 'teleport'] },
+  echo_warden: { name: 'Echo Warden', title: 'Placeholder boss', type: 'boss', ai: 'boss', weapon: 'cutter_blade', helmet: 'oni', armor: 'tyrant', hp: 640, dmg: 1.1, speed: 1.1, build: { scale: 1.16, w: 12 }, eye: '#9b8cff', accent: '#9b8cff', flashEyes: 1,
+            taunt: 'You were supposed to stay buried.', defeat: 'The echo… breaks…', win: 'Sleep, shadow. Remember nothing.',
+            tip: 'Its eyes flash right before it strikes. Block on the flash, punish after.',
             phases: [
-              { name: 'Swift Moon', abilities: ['moonDash', 'lunge'] },
-              { name: 'Hollow Illusions', abilities: ['clones', 'moonDash', 'teleport'] },
-              { name: 'Berserk Eclipse', abilities: ['moonDash', 'lunge', 'teleport'], berserk: 1, poison: 1 }
-            ] },
-  // ---- Act II regulars
-  bao:    { name: 'Bao', title: 'Step Keeper', type: 'regular', outfit: 'gi', ai: 'regular', weapon: 'temple_staff', helmet: 'topknot', armor: 'robe', hp: 230, dmg: 1, build: { scale: 1.02, w: 10 }, eye: '#ece5d3',
-            taunt: 'A thousand steps. You have climbed nine hundred and ninety-nine.', tip: 'His staff reaches far. Step in under it after a whiff.' },
-  lio:    { name: 'Lio', title: 'Wind Dancer', type: 'regular', outfit: 'gi', ai: 'agile', weapon: 'twin_blades', helmet: 'ronin_hood', armor: 'robe', hp: 220, dmg: 1, speed: 1.2, build: { scale: 0.96, w: 9 }, eye: '#7fd0c8',
-            taunt: 'The bamboo bends. So will you.', tip: 'Air attacks catch him mid-jump.' },
-  tessaro:{ name: 'Tessaro', title: 'Stone Fist', type: 'regular', outfit: 'gi', ai: 'defensive', weapon: 'iron_fists', helmet: 'topknot', armor: 'robe', hp: 280, dmg: 1.1, build: { scale: 1.12, w: 14 }, eye: '#c9a45c',
-            taunt: 'Strike me. I have been struck by waterfalls.', tip: 'He counters straight attacks. Mix punches, kicks and grabs.' },
-  ishe:   { name: 'Ishe', title: 'Bead Slinger', type: 'regular', ai: 'ranged', weapon: 'storm_orbs', helmet: 'straw_kasa', armor: 'robe', hp: 220, dmg: 1, build: { scale: 0.96, w: 8 }, eye: '#7fb8ff',
-            taunt: 'Each bead is a prayer. Each prayer is a bruise.', tip: 'Jump the orbs and stay close.' },
-  // ---- Act II bosses
-  rokan:  { name: 'Rokan', title: 'the Iron Sentinel', type: 'sub', ai: 'defensive', weapon: 'sentinel_spear', helmet: 'sentinel_helm', armor: 'pauldrons', hp: 440, dmg: 1.1, speed: 0.9, build: { scale: 1.08, w: 14 }, eye: '#c9a45c', accent: '#c9a45c', shield: 1,
-            taunt: 'Nothing passes the gate. Nothing ever has.', defeat: 'The gate… is open…', win: 'Return to the valley. The gate stays shut.',
-            tip: 'His shield stops frontal hits. Jump over him, sweep low (Dash + Kick) or break it with heavies.', reward: { item: ['helmets', 'sentinel_helm'] },
-            abilities: ['shieldBash'] },
-  zephar: { name: 'Zephar', title: 'the Storm Disciple', type: 'sub', ai: 'ranged', weapon: 'storm_orbs', helmet: 'storm_band', armor: 'storm_mantle', hp: 400, dmg: 1.05, speed: 1.1, build: { scale: 0.98, w: 8 }, eye: '#7fb8ff', accent: '#7fb8ff',
-            taunt: 'The storm does not walk. Neither do I.', defeat: 'The wind… falls still…', win: 'Grounded. Like all of you.',
-            tip: 'He floats out of reach. Double jump and strike in the air; jump over his orbs.', reward: { item: ['armors', 'storm_mantle'] },
-            abilities: ['float', 'orbVolley'] },
-  eryndor:{ name: 'Eryndor', title: 'the Eternal Sage', type: 'boss', ai: 'boss', weapon: 'sage_staff', helmet: 'sage_antlers', armor: 'robe', hp: 720, dmg: 1.15, build: { scale: 1.12, w: 9 }, eye: '#7fd0c8', accent: '#7fd0c8',
-            taunt: 'I have watched a thousand students repeat a single lesson. Show me yours.', defeat: 'At last… a new lesson…', win: 'Predictable. Go, and learn to surprise.',
-            tip: 'He adapts to repetition. Never use the same attack three times in a row.', reward: { weapon: 'dragon_spear', item: ['helmets', 'sage_antlers'] }, adapts: 1,
-            phases: [
-              { name: 'Staff Discipline', abilities: ['counterStance'] },
-              { name: 'Elemental Orbs', abilities: ['orbVolley', 'barrier', 'counterStance'] },
-              { name: 'Stilled Time', abilities: ['timeAura', 'orbVolley', 'counterStance'], aggressive: 1 }
-            ] },
-  // ---- Act III regulars
-  vosk:   { name: 'Vosk', title: 'Ash Raider', type: 'regular', ai: 'regular', weapon: 'raider_cleaver', helmet: 'oni', armor: 'jerkin', hp: 280, dmg: 1.1, build: { scale: 1.04, w: 11 }, eye: '#d24a3c',
-            taunt: 'Ash and coin. You carry one of them.', tip: 'His cleaver is slow. Dash back, then counter.' },
-  grull:  { name: 'Grull', title: 'Cinder Brute', type: 'regular', ai: 'heavy', weapon: 'iron_fists', helmet: 'colossus', armor: 'pauldrons', hp: 360, dmg: 1.25, speed: 0.8, build: { scale: 1.28, w: 17, head: 0.85 }, eye: '#ff6a3c',
-            taunt: 'Grull smash small man.', tip: 'He does not flinch mid-swing. Wait for the whiff.' },
-  kessa:  { name: 'Kessa', title: 'Ember Archer', type: 'regular', ai: 'ranged', weapon: 'cutter_blade', helmet: 'ronin_hood', armor: 'cloak', hp: 260, dmg: 1.1, build: { scale: 0.98, w: 9 }, eye: '#ff6a3c',
-            taunt: 'Every ember I throw used to be a house.', tip: 'Block the kunai while advancing.' },
-  rhaz:   { name: 'Rhaz', title: 'Pit Hound', type: 'regular', ai: 'agile', weapon: 'shadow_daggers', helmet: 'oni', armor: 'jerkin', hp: 270, dmg: 1.1, speed: 1.2, build: { scale: 0.92, w: 10 }, eye: '#d24a3c',
-            taunt: 'They let me off the chain for you.', tip: 'Parry his rush, then counter.' },
-  // ---- Act III bosses
-  brakk:  { name: 'Brakk', title: 'the Pit Colossus', type: 'sub', ai: 'heavy', weapon: 'iron_fists', helmet: 'colossus', armor: 'colossus_plate', hp: 560, dmg: 1.3, speed: 0.78, build: { scale: 1.38, w: 20, head: 0.8 }, eye: '#ff6a3c', accent: '#ff6a3c', noGrab: 1, heavyArmor: 1,
-            taunt: 'The pit was dug for things like me. You will fit in a corner of it.', defeat: 'The pit… takes… me…', win: 'Small. Soft. Next.',
-            tip: 'Jump his ground slams, then hit him during his long recovery.', reward: { item: ['armors', 'colossus_plate'] },
-            abilities: ['groundSlam'] },
-  drazek: { name: 'Drazek', title: 'the Chain Executioner', type: 'sub', ai: 'regular', weapon: 'chain_hook', helmet: 'executioner', armor: 'executioner_garb', hp: 520, dmg: 1.2, build: { scale: 1.18, w: 13 }, eye: '#d24a3c', accent: '#d24a3c',
-            taunt: 'Come closer. Or I will bring you closer.', defeat: 'The chain… breaks…', win: 'Chained, judged, done.',
-            tip: 'The hook can be dashed through. Jump his shockwaves.', reward: { item: ['armors', 'executioner_garb'] },
-            abilities: ['hook', 'groundSlam'] },
-  malgrath:{ name: 'Malgrath', title: 'the Ashen Tyrant', type: 'boss', ai: 'boss', weapon: 'tyrant_cleaver', helmet: 'ashen_crown', armor: 'tyrant', hp: 900, dmg: 1.3, speed: 0.92, build: { scale: 1.42, w: 18, head: 0.86 }, eye: '#ff6a3c', accent: '#ff6a3c', heavyArmor: 1, noGrab: 1,
-            taunt: 'Every king before me burned. I am what the fire kept.', defeat: 'The throne… is ash…', win: 'Another crown of bone for the throne.',
-            tip: 'Do not trade blows. Dodge the big swings and strike the openings.', reward: { weapon: 'titan_hammer', item: ['helmets', 'ashen_crown'] },
-            phases: [
-              { name: 'Tyrant’s Cleaver', abilities: ['groundSlam'] },
-              { name: 'Burning Charge', abilities: ['charge', 'groundSlam'] },
-              { name: 'Ashen Wrath', abilities: ['charge', 'summon', 'groundSlam'], unblockable: 1, aggressive: 1 }
+              { name: 'First Echo', abilities: ['lunge', 'moonDash'] },
+              { name: 'Fractured Echo', abilities: ['teleport', 'clones', 'moonDash'] },
+              { name: 'Last Echo', abilities: ['moonDash', 'groundSlam', 'lunge'], berserk: 1 }
             ] }
 };
 for (const id in ENEMIES) ENEMIES[id].id = id;
 
-/* ---------------- Acts ---------------- */
-const ACTS = [
-  { id: 1, name: 'The Veil of Night', place: 'The Forgotten Rooftops', env: 'rooftops', theme: 'Moonlit rooftops and deadly assassins.', diff: 1, boss: 'noctis',
-    stages: [
-      { name: 'Lantern Row', enemy: 'shiro' }, { name: 'Crow’s Gutter', enemy: 'mako' }, { name: 'Bell Tower Ledge', enemy: 'kairo' },
-      { name: 'Tiled Causeway', enemy: 'gorran' }, { name: 'Moonlit Eaves', enemy: 'sable' }, { name: 'The Fog Bridge', enemy: 'veyra' },
-      { name: 'Hollow Moon Spire', enemy: 'noctis' }
-    ] },
-  { id: 2, name: 'The Forgotten Temple', place: 'The Sacred Highlands', env: 'highlands', theme: 'Ancient mountain temples and mystical martial arts.', diff: 2, boss: 'eryndor',
-    stages: [
-      { name: 'Thousand Steps', enemy: 'bao' }, { name: 'Bamboo Crossing', enemy: 'lio' }, { name: 'Sentinel Gate', enemy: 'rokan' },
-      { name: 'Falling Water Shrine', enemy: 'tessaro' }, { name: 'Cloud Terrace', enemy: 'ishe' }, { name: 'Storm Altar', enemy: 'zephar' },
-      { name: 'Hall of the Eternal', enemy: 'eryndor' }
-    ] },
-  { id: 3, name: 'The Ashen Throne', place: 'The Crimson Wasteland', env: 'wasteland', theme: 'A destroyed fortress surrounded by fire and ash.', diff: 3, boss: 'malgrath',
-    stages: [
-      { name: 'Cinder Road', enemy: 'vosk' }, { name: 'Burning Barracks', enemy: 'grull' }, { name: 'The Pit', enemy: 'brakk' },
-      { name: 'Smoke Ramparts', enemy: 'kessa' }, { name: 'Gallows Yard', enemy: 'rhaz' }, { name: 'Chain Bridge', enemy: 'drazek' },
-      { name: 'The Ashen Throne', enemy: 'malgrath' }
-    ] }
-];
+/* ---------------- Campaign map ----------------
+   Chapters in story order, each with its stages in play order. Stage ids are stable strings
+   ("act1.sub2", "core.witness") and saves record clears by id, so stages can be added, renamed or
+   reordered later without breaking saves. Every stage has:
+     id, kind (stretch | subboss | boss | spar | echo | scene), name (what the map shows),
+     enemy            the temporary arena foe (ENEMIES id) for combat stages; scene stages have none,
+     foe / foeTitle   the story opponent shown instead of the placeholder's name (bosses, sub-bosses, echoes, the spar),
+     chapter / pos    filled in below (owning chapter id, index inside it).
+   Later updates add per-stage fields here (env override, encounters, scene hooks, rewards and unlocks);
+   the logic module reads them, so the rest of the game picks them up. */
+const STAGE_KINDS = ['stretch', 'subboss', 'boss', 'spar', 'echo', 'scene'];
+const CAMPAIGN = (function buildCampaign() {
+  const R = ['I', 'II', 'III', 'IV'];
+  // An act: four stretches, each followed by its sub-boss arena, then the main boss arena.
+  const act = (id, name, title, place, env, diff, grunt, foe, foeTitle) => {
+    const stages = [];
+    for (let i = 1; i <= 4; i++) {
+      stages.push({ id: `${id}.stretch${i}`, kind: 'stretch', name: `Stretch ${R[i - 1]}`, enemy: grunt });
+      stages.push({ id: `${id}.sub${i}`, kind: 'subboss', name: `Sub-boss ${R[i - 1]}`, foe: `${name} · Sub-boss ${i}`, enemy: 'echo_sentinel' });
+    }
+    stages.push({ id: `${id}.boss`, kind: 'boss', name: foe, foe, foeTitle, enemy: 'echo_warden' });
+    return { id, name, title, place, env, diff, stages };
+  };
+  const chapters = [
+    { id: 'prologue', name: 'Prologue', title: 'Hoshimura', place: 'The abandoned village', env: 'highlands', diff: 1,
+      stages: [{ id: 'prologue.1', kind: 'stretch', name: 'The Empty Village', enemy: 'hollow' }] },
+    act('act1', 'Act I', 'The Outer Districts', 'Order territory', 'rooftops', 1, 'order_recruit', 'Raikon', 'the Lightning Ascendant'),
+    { id: 'interlude', name: 'Interlude', title: 'Brothers', place: 'A memory of the training yard', env: 'highlands', diff: 1,
+      stages: [{ id: 'interlude.spar', kind: 'spar', name: 'The Spar', foe: 'Rem', foeTitle: 'Young Rem', enemy: 'echo_sentinel' }] },
+    act('act2', 'Act II', 'The City of Echoes', 'Where the Hollows gather', 'rooftops', 2, 'hollow', 'Akari', 'the Memory Blade'),
+    act('act3', 'Act III', 'The Fortress of Silence', 'Seat of the Order', 'wasteland', 3, 'order_warden', 'Takashi', 'the Father'),
+    { id: 'core', name: 'The Core', title: 'The Echo System', place: 'Corrupted memory', env: 'wasteland', diff: 3,
+      stages: [
+        { id: 'core.stretch1', kind: 'stretch', name: 'Into the Core', enemy: 'hollow' },
+        { id: 'core.echo1', kind: 'echo', name: 'Echo I', foe: 'Hollow Raikon', foeTitle: 'Corrupted echo', enemy: 'echo_sentinel' },
+        { id: 'core.echo2', kind: 'echo', name: 'Echo II', foe: 'Hollow Akari', foeTitle: 'Corrupted echo', enemy: 'echo_sentinel' },
+        { id: 'core.echo3', kind: 'echo', name: 'Echo III', foe: 'Hollow Takashi', foeTitle: 'Corrupted echo', enemy: 'echo_sentinel' },
+        { id: 'core.echo4', kind: 'echo', name: 'Echo IV', foe: 'Hollow Rem', foeTitle: 'Corrupted echo', enemy: 'echo_sentinel' },
+        { id: 'core.witness', kind: 'boss', name: 'The Witness', foe: 'The Witness', foeTitle: 'Heart of the Echo System', enemy: 'echo_warden' }
+      ] },
+    { id: 'epilogue', name: 'Epilogue', title: 'The Last Choice', place: 'Dawn', env: 'highlands', diff: 1,
+      stages: [{ id: 'epilogue', kind: 'scene', name: 'The Last Choice' }] }
+  ];
+  for (const ch of chapters) ch.stages.forEach((st, i) => { st.chapter = ch.id; st.pos = i; });
+  return { chapters };
+})();
 const DIFF_LABEL = ['Easy', 'Normal', 'Hard', 'Brutal', 'Mythic'];
 
 /* ---------------- Survival ---------------- */
 const SURVIVAL = {
-  pool: ['shiro', 'mako', 'gorran', 'sable', 'bao', 'lio', 'tessaro', 'ishe', 'vosk', 'grull', 'kessa', 'rhaz'],
-  bosses: ['kairo', 'veyra', 'rokan', 'zephar', 'brakk', 'drazek'],
+  pool: ['order_recruit', 'hollow', 'order_warden'],
+  bosses: ['echo_sentinel'],
   envs: ['rooftops', 'highlands', 'wasteland'],
   heal: 0.35,
   coins: w => 25 + w * 12,
@@ -1692,6 +1700,10 @@ function playerMaxHp(save) {
 }
 function xpForLevel(lvl) { return 200 + 120 * (lvl - 1); }
 
+// The campaign map flattened in story order, and indexed by stage id.
+const STAGE_LIST = CAMPAIGN.chapters.reduce((all, ch) => all.concat(ch.stages), []);
+const STAGE_BY_ID = {}; for (const st of STAGE_LIST) STAGE_BY_ID[st.id] = st;
+
 const Logic = {
   /* ---------------- save schema ---------------- */
   // The Last Betrayal starts over: its saves live under a new key and schema version.
@@ -1714,9 +1726,8 @@ const Logic = {
       v: Logic.SAVE_VERSION,  // schema version
       coins: 250, gems: 5, xp: 0, level: 1,
       ng: 0, ngUnlocked: false, ngCompletions: 0,
-      cleared: {},            // "act-stage" -> true, current cycle
-      unlockedActs: 1,
-      defeated: {},           // enemyId -> count (lifetime)
+      cleared: {},            // stageId -> true, current cycle
+      defeated: {},           // stageId -> wins (lifetime, kept through New Game+)
       owned: { weapons: { moon_katana: 1 }, helmets: { topknot: 1 }, armors: { wraps: 1 } },
       equipped: { weapon: 'moon_katana', helmet: 'topknot', armor: 'wraps' },
       seenRewards: {},
@@ -1745,38 +1756,77 @@ const Logic = {
     d.equipped = Object.assign(this.defaultSave().equipped, s.equipped || {});
     d.stats = Object.assign(this.defaultSave().stats, s.stats || {});
     d.settings = Object.assign(this.defaultSave().settings, s.settings || {});
-    d.cleared = s.cleared || {};
-    d.defeated = s.defeated || {};
+    // clears and defeats are keyed by stage id; keys the map does not know (old saves, removed stages) are dropped
+    d.cleared = {}; d.defeated = {};
+    for (const k in s.cleared || {}) if (STAGE_BY_ID[k] && s.cleared[k]) d.cleared[k] = true;
+    for (const k in s.defeated || {}) if (STAGE_BY_ID[k] && s.defeated[k] > 0) d.defeated[k] = s.defeated[k];
+    delete d.unlockedActs;
     d.seenRewards = s.seenRewards || {};
     return d;
   },
-  /* ---------------- campaign ---------------- */
-  stageKey(act, stage) { return `${act}-${stage}`; },
-  isStageCleared(save, act, stage) { return !!save.cleared[this.stageKey(act, stage)]; },
-  isActUnlocked(save, act) { return act < save.unlockedActs; },
-  // The last stage of every act is its boss; beating it clears the act.
-  isActCleared(save, act) { return this.isStageCleared(save, act, ACTS[act].stages.length - 1); },
-  stageUnlocked(save, act, stage) {
-    if (!this.isActUnlocked(save, act)) return false;
-    if (stage === 0) return true;
-    return this.isStageCleared(save, act, stage - 1) || this.isStageCleared(save, act, stage);
+  /* ---------------- campaign map ----------------
+     The map is CAMPAIGN (10-data.js): chapters in story order, stages in play order, every stage with a
+     stable string id. Progress is `save.cleared[stageId]` for the current cycle; stages unlock strictly in
+     story order (a stage opens once the stage before it is cleared) and cleared stages stay open for replay. */
+  CAMPAIGN, STAGE_KINDS,
+  chapters() { return CAMPAIGN.chapters; },
+  chapter(id) { return CAMPAIGN.chapters.find(c => c.id === id) || null; },
+  // Every stage in story order, across all chapters.
+  stages() { return STAGE_LIST; },
+  stage(id) { return STAGE_BY_ID[id] || null; },
+  chapterOf(stageId) { const st = this.stage(stageId); return st ? this.chapter(st.chapter) : null; },
+  // Everything but story scenes is fought.
+  isCombatStage(id) { const st = this.stage(id); return !!st && st.kind !== 'scene'; },
+  // Stages that count as a boss fight (trophies list, records, a future Boss Rush).
+  isBossStage(id) { const st = this.stage(id); return !!st && (st.kind === 'subboss' || st.kind === 'boss' || st.kind === 'echo'); },
+  isStageComplete(save, id) { return !!save.cleared[id]; },
+  isStageUnlocked(save, id) {
+    const i = STAGE_LIST.findIndex(s => s.id === id);
+    if (i < 0) return false;
+    return i === 0 || this.isStageComplete(save, id) || this.isStageComplete(save, STAGE_LIST[i - 1].id);
   },
-  // First uncleared stage of the unlocked acts, or null when nothing is left to clear.
-  nextStage(save) {
-    for (let a = 0; a < ACTS.length; a++) {
-      if (!this.isActUnlocked(save, a)) break;
-      for (let s = 0; s < ACTS[a].stages.length; s++) if (!this.isStageCleared(save, a, s)) return { act: a, stage: s };
+  isChapterUnlocked(save, id) { const c = this.chapter(id); return !!c && this.isStageUnlocked(save, c.stages[0].id); },
+  isChapterComplete(save, id) { const c = this.chapter(id); return !!c && c.stages.every(s => this.isStageComplete(save, s.id)); },
+  chapterProgress(save, id) {
+    const c = this.chapter(id);
+    return { done: c.stages.filter(s => this.isStageComplete(save, s.id)).length, total: c.stages.length };
+  },
+  isCampaignComplete(save) { return STAGE_LIST.every(s => this.isStageComplete(save, s.id)); },
+  // The story frontier: the id of the first uncleared stage, or null when the story is finished.
+  nextStage(save) { const st = STAGE_LIST.find(s => !this.isStageComplete(save, s.id)); return st ? st.id : null; },
+  // Lifetime wins on a stage (kept through New Game+).
+  defeatedCount(save, id) { return save.defeated[id] || 0; },
+  // Marks a stage cleared (a won fight, or a story scene played) and returns what that opened:
+  // { stage, firstClear, next, unlocks: [{ kind: 'chapter', id } | { kind: 'ng' }] }, or null when the stage is locked.
+  completeStage(save, id) {
+    const st = this.stage(id);
+    if (!st || !this.isStageUnlocked(save, id)) return null;
+    const firstClear = !this.isStageComplete(save, id), unlocks = [];
+    save.cleared[id] = true;
+    save.defeated[id] = (save.defeated[id] || 0) + 1;
+    const next = this.nextStage(save);
+    if (firstClear) {
+      const ch = this.chapter(st.chapter), i = CAMPAIGN.chapters.indexOf(ch), nextCh = CAMPAIGN.chapters[i + 1];
+      if (nextCh && this.isChapterComplete(save, ch.id)) unlocks.push({ kind: 'chapter', id: nextCh.id });
+      if (this.isCampaignComplete(save)) {
+        if (!save.ngUnlocked) unlocks.push({ kind: 'ng' });
+        save.ngUnlocked = true;
+        save.ngCompletions = Math.max(save.ngCompletions || 0, (save.ng || 0) + 1);
+      }
     }
-    return null;
+    return { stage: id, firstClear, next, unlocks };
   },
-  stageConfig(save, act, stage) {
-    const A = ACTS[act], st = A.stages[stage];
-    return { mode: 'campaign', act, stage, enemyId: st.enemy, env: A.env, ng: save.ng };
+  // Everything the fight session needs to stage a campaign fight. Until real content lands every combat stage
+  // is one arena fight against its placeholder `enemy`, shown under the stage's story foe name.
+  stageConfig(save, id) {
+    const st = this.stage(id), ch = this.chapter(st.chapter), d = ENEMIES[st.enemy];
+    return { mode: 'campaign', stageId: id, kind: st.kind, chapter: ch.id, pos: st.pos, diff: ch.diff, env: st.env || ch.env,
+      enemyId: st.enemy, foeName: st.foe || (d && d.name), foeTitle: st.foeTitle || (d && d.title), ng: save.ng };
   },
-  // Starts the next New Game+ cycle: campaign progress resets, everything else is kept.
+  // Starts the next New Game+ cycle: campaign progress resets, everything else (including lifetime defeats) is kept.
   startNewGamePlus(save) {
     if (!save.ngUnlocked) return false;
-    save.ng = (save.ng || 0) + 1; save.cleared = {}; save.unlockedActs = 1;
+    save.ng = (save.ng || 0) + 1; save.cleared = {};
     return true;
   },
 
@@ -1807,7 +1857,11 @@ const Logic = {
   /* ---------------- rewards ---------------- */
   rewardTypeMul(type) { return type === 'boss' ? 3.4 : type === 'sub' ? 2.2 : 1; },
   ngRewardMul(ng) { return 1 + 0.6 * (ng || 0); },
-  stageBaseCoins(act, type) { return (60 + 45 * ACTS[act].diff) * this.rewardTypeMul(type); },
+  // Reward tier of a stage: stretches pay like regular fights; sub-bosses, the spar and the Core echoes like
+  // sub-bosses; the act bosses and the Witness like bosses. Story scenes pay nothing.
+  stageRewardType(id) { const k = (this.stage(id) || {}).kind; return k === 'boss' ? 'boss' : k === 'subboss' || k === 'spar' || k === 'echo' ? 'sub' : 'regular'; },
+  stageBaseCoins(id) { return (60 + 45 * this.chapterOf(id).diff) * this.rewardTypeMul(this.stageRewardType(id)); },
+  firstClearGems(type) { return type === 'boss' ? 5 : type === 'sub' ? 2 : 0; },
   // Performance rating of a campaign fight: S, A, B or C.
   rateFight(r) {
     if (!r.win) return 'C';
@@ -1815,48 +1869,39 @@ const Logic = {
     return s >= 85 ? 'S' : s >= 62 ? 'A' : s >= 42 ? 'B' : 'C';
   },
   // What the stage card promises before the fight (a C-rated win, without the flawless gem).
-  stageRewardPreview(save, act, stage) {
-    const foe = ENEMIES[ACTS[act].stages[stage].enemy], cleared = this.isStageCleared(save, act, stage);
-    const coins = Math.round(this.stageBaseCoins(act, foe.type) * this.ngRewardMul(save.ng) * (cleared ? 0.5 : 1) / 5) * 5;
-    const gems = cleared ? 0 : foe.type === 'boss' ? 5 : foe.type === 'sub' ? 2 : 0;
-    return { coins, gems };
+  stageRewardPreview(save, id) {
+    if (!this.isCombatStage(id)) return { coins: 0, gems: 0 };
+    const cleared = this.isStageComplete(save, id);
+    const coins = Math.round(this.stageBaseCoins(id) * this.ngRewardMul(save.ng) * (cleared ? 0.5 : 1) / 5) * 5;
+    return { coins, gems: cleared ? 0 : this.firstClearGems(this.stageRewardType(id)) };
   },
   survivalWaveReward(wave) {
     return { coins: SURVIVAL.coins(wave), gems: wave % SURVIVAL.gemsEvery === 0 ? 1 : 0 };
   },
   // Applies a finished fight (campaign or survival) to the save and returns what it earned:
-  // { coins, gems, xp, rating, seals, unlocks, firstClear, levelUps, levelBefore, xpBefore, newBest? }
+  // { coins, gems, xp, rating, seals, unlocks, firstClear, next?, levelUps, levelBefore, xpBefore, newBest? }
+  // A campaign result names its stage by `stageId`; a win completes that stage (see completeStage).
   // plus every field of the fight result. The save is updated in place; persisting it is the caller's job.
   applyFightResult(save, r) {
     const out = Object.assign({}, r, { coins: 0, gems: 0, xp: 0, unlocks: [], levelUps: 0, firstClear: false });
     const ngMul = this.ngRewardMul(r.ng);
     if (r.mode === 'campaign') {
-      const act = ACTS[r.act], d = ENEMIES[r.enemyId], key = this.stageKey(r.act, r.stage);
-      const base = this.stageBaseCoins(r.act, d.type);
+      const id = r.stageId, type = this.stageRewardType(id), diff = this.chapterOf(id).diff;
+      const base = this.stageBaseCoins(id);
       out.rating = this.rateFight(r);
       out.seals = [r.win, r.win && r.time < 60, r.win && r.flawless];
       if (r.win) {
-        out.firstClear = !save.cleared[key];
+        const done = this.completeStage(save, id) || { firstClear: false, unlocks: [] };
+        out.firstClear = done.firstClear;
         out.coins = Math.round(base * ngMul * ({ S: 1.5, A: 1.25, B: 1.1, C: 1 }[out.rating]) * (out.firstClear ? 1 : 0.5) / 5) * 5;
-        out.gems = (out.firstClear ? (d.type === 'boss' ? 5 : d.type === 'sub' ? 2 : 0) : (d.type === 'boss' ? 1 : 0)) + (r.flawless ? 1 : 0);
-        out.xp = Math.round((d.type === 'boss' ? 300 : d.type === 'sub' ? 150 : 80) * act.diff * ngMul);
-        save.cleared[key] = true;
-        save.defeated[d.id] = (save.defeated[d.id] || 0) + 1;
+        out.gems = (out.firstClear ? this.firstClearGems(type) : (type === 'boss' ? 1 : 0)) + (r.flawless ? 1 : 0);
+        out.xp = Math.round((type === 'boss' ? 300 : type === 'sub' ? 150 : 80) * diff * ngMul);
         save.stats.wins++; if (r.flawless) save.stats.perfects++;
-        if (d.reward) {
-          if (d.reward.weapon && !save.owned.weapons[d.reward.weapon]) { save.owned.weapons[d.reward.weapon] = 1; out.unlocks.push({ kind: 'weapons', id: d.reward.weapon }); }
-          if (d.reward.item && !save.owned[d.reward.item[0]][d.reward.item[1]]) { save.owned[d.reward.item[0]][d.reward.item[1]] = 1; out.unlocks.push({ kind: d.reward.item[0], id: d.reward.item[1] }); }
-        }
-        if (d.type === 'boss') {
-          save.stats.bosses++;
-          if (r.act + 2 > save.unlockedActs && r.act + 1 < ACTS.length) { save.unlockedActs = r.act + 2; out.unlocks.push({ kind: 'act', id: r.act + 1 }); }
-          if (r.act === ACTS.length - 1) {
-            if (!save.ngUnlocked) out.unlocks.push({ kind: 'ng' });
-            save.ngUnlocked = true; if (out.firstClear) save.ngCompletions = Math.max(save.ngCompletions, (r.ng || 0) + 1);
-          }
-        }
+        if (type === 'boss') save.stats.bosses++;
+        out.unlocks.push(...done.unlocks);
+        out.next = done.next;
       } else {
-        out.coins = Math.round(base * 0.25 / 5) * 5; out.xp = 20 * act.diff; save.stats.losses++;
+        out.coins = Math.round(base * 0.25 / 5) * 5; out.xp = 20 * diff; save.stats.losses++;
       }
     } else {
       out.coins = r.survivalCoins; out.gems = r.survivalGems; out.xp = 40 * r.waves;
@@ -3599,7 +3644,7 @@ const INK_GLYPH = {
 };
 const BANNER_GLYPH = {
   'Round I': '壱', 'Round II': '弐', 'Round III': '参', 'Final Duel': '決', 'Phase II': '弐', 'Phase III': '参',
-  Noctis: '月', Eryndor: '賢', Malgrath: '灰', Kairo: '刃', Veyra: '霧', Rokan: '鉄', Zephar: '嵐', Brakk: '巨', Drazek: '鎖',
+  Raikon: '雷', Akari: '霧', Takashi: '父', Rem: '弟', 'The Witness': '鏡', 'Hollow Raikon': '雷', 'Hollow Akari': '霧', 'Hollow Takashi': '父', 'Hollow Rem': '弟',
   'Shadow Palm': '影', 'Thousand Cuts': '千', 'Crescent Moon': '月', 'Mountain Split': '山', 'Dragon Lance': '龍', "Reaper's Harvest": '刈',
   Earthshatter: '震', 'Hollow Illusions': '幻', 'Stilled Time': '時', 'Ashen Wrath': '怒'
 };
@@ -4201,7 +4246,7 @@ const Combat = {
     const fx = world.fx;
     const front = Math.sign(att.x - def.x || dir * -1) === def.facing || (m.proj && Math.sign(-dir) === def.facing);
     if (att.unblockable && !m.proj && m.kind) m = Object.assign({}, m, { unb: 1 });
-    // Eryndor's counter stance: any melee blow from the front is turned aside and answered
+    // counter stance: any melee blow from the front is turned aside and answered
     if (def.counterStance && !m.proj && front && m.kind !== 'grab') {
       def.counterStance = false;
       this.parry(world, att, def, m, ix, iy, dir);
@@ -4209,7 +4254,7 @@ const Combat = {
       def.endAbility(world); def.startMove(def.weapon().moves[0], world);
       return;
     }
-    // Rokan-style shield: auto-blocks frontal, non-low, non-heavy attacks when not committed
+    // shield bearers: auto-blocks frontal, non-low, non-heavy attacks when not committed
     const shield = def.def && def.def.shield && def.hasWeapon && front && !m.low && def.grounded && !m.unb && (def.isNeutral() || def.state === 'block' || def.state === 'land' || (def.state === 'move' && def.mphase === 0));
     if (shield) {
       if ((m.gb || 0) >= 60 || (m.imp || 0) >= 3) {
@@ -5085,7 +5130,7 @@ const BOSS_ABILITIES = {
   clones: { id: 'clones', cd: 13, range: [0, 900], chance: 0.8, cond: (f, w) => w.fighters.filter(x => x.clone && x.alive).length === 0,
     run(f, w) {
       f.startAbility({ dur: 0.9, pose: POSES.castUp, rate: 14, uninterruptible: true,
-        start(f) { f.invuln = 0.9; w.fx.banner('Hollow Illusions', 'Only the true Noctis has eyes', '#9b8cff'); },
+        start(f) { f.invuln = 0.9; w.fx.banner('Hollow Illusions', 'Only the true one has eyes', '#9b8cff'); },
         update(f, w, t) { if (t > 0.5 && !this.done) { this.done = 1; w.spawnClones(f, 2); } } });
     } },
   shieldBash: { id: 'shieldBash', cd: 3, range: [0, 150], chance: 0.6,
@@ -6026,6 +6071,9 @@ class FightSession {
     this.dialogue = null; this.combo = 0; this.comboT = 0; this.damageTaken = 0; this.fightTime = 0;
     this.player = this.makePlayer(save);
     this.enemy = this.makeEnemy(cfg.enemyId, 300);
+    // campaign stages fight a placeholder rig under the stage's story name (Raikon, Hollow Rem, ...)
+    if (cfg.foeName) this.enemy.name = cfg.foeName;
+    if (cfg.foeTitle) this.enemy.title = cfg.foeTitle;
     this.fighters = [this.player, this.enemy];
     this.isBoss = this.enemy.def.type === 'boss';
     this.isSub = this.enemy.def.type === 'sub';
@@ -6050,15 +6098,15 @@ class FightSession {
   }
   difficultyLevel(d) {
     if (this.mode === 'survival') return 1 + this.wave * 0.35;
-    const act = this.cfg.act || 0, st = this.cfg.stage || 0;
-    return 1 + act * 1.6 + st * 0.22 + (d.type === 'sub' ? 0.4 : d.type === 'boss' ? 0.8 : 0);
+    const tier = (this.cfg.diff || 1) - 1, st = this.cfg.pos || 0;
+    return 1 + tier * 1.6 + st * 0.22 + (d.type === 'sub' ? 0.4 : d.type === 'boss' ? 0.8 : 0);
   }
   makeEnemy(id, x, extra) {
     const d = ENEMIES[id], ng = this.cfg.ng || 0;
     let hpMul = 1 + 0.35 * ng, dmgMul = (d.dmg || 1) * (1 + 0.25 * ng);
     if (this.mode === 'survival') { hpMul *= 0.85 + this.wave * 0.07; dmgMul *= 0.9 + this.wave * 0.04; }
     const lvl = this.difficultyLevel(d);
-    const wl = clamp(Math.round(1 + (this.cfg.act || 0) * 2.2 + (this.cfg.stage || 0) * 0.3 + ng * 2 + (this.mode === 'survival' ? this.wave * 0.3 : 0)), 1, 8);
+    const wl = clamp(Math.round(1 + ((this.cfg.diff || 1) - 1) * 2.2 + (this.cfg.pos || 0) * 0.3 + ng * 2 + (this.mode === 'survival' ? this.wave * 0.3 : 0)), 1, 8);
     const gearDefE = ((HELMETS[d.helmet] || {}).def || 0) * 0.6 + ((ARMORS[d.armor] || {}).def || 0) * 0.6;
     const f = makeFighterFromEnemy(id, Object.assign({ x, team: 1, hp: Math.round(d.hp * hpMul), dmgMul, wlvl: wl, defense: gearDefE, speedMul: d.speed || 1 }, extra || {}));
     f.baseSpeed = f.speedMul;
@@ -6137,7 +6185,7 @@ class FightSession {
   spawnMinions(owner, n) {
     for (let i = 0; i < n; i++) {
       const x = i % 2 ? this.bounds.r - 30 : this.bounds.l + 30;
-      const m = this.makeEnemy('vosk', x, { hp: 70, build: { scale: 0.88, w: 10 } });
+      const m = this.makeEnemy('order_recruit', x, { hp: 70, build: { scale: 0.88, w: 10 } });
       m.minion = true; m.maxHp = 70; m.hp = 70; m.dmgMul *= 0.6; m.ai.p.aggr = 0.6;
       this.fighters.push(m); this.fx.embers(x, -60, 20);
     }
@@ -6240,7 +6288,7 @@ class FightSession {
       case 'round':
         if (this.phaseT < 0.05 && !this.roundShown) {
           this.roundShown = true; this.rounds.n++;
-          if (this.mode !== 'survival') this.fx.banner(this.roundsToWin > 1 ? `Round ${ROMAN[this.rounds.n - 1]}` : 'Final Duel', this.isBoss ? 'Three phases stand between you and the throne' : `${e.name} · ${DIFF_LABEL[clamp((ACTS[this.cfg.act] || { diff: 1 }).diff + (this.cfg.ng || 0), 0, 4)]}`, C.gold);
+          if (this.mode !== 'survival') this.fx.banner(this.roundsToWin > 1 ? `Round ${ROMAN[this.rounds.n - 1]}` : 'Final Duel', this.isBoss ? 'Three phases stand between you and the throne' : `${e.name} · ${DIFF_LABEL[clamp((this.cfg.diff || 1) + (this.cfg.ng || 0), 0, 4)]}`, C.gold);
           AudioManager.play('round');
         }
         if (this.phaseT > 1.25 && !this.fightShown) { this.fightShown = true; this.fx.stamp('FIGHT', (p.x + e.x) / 2, -150, 3, C.emberBright); this.fightFlash = 1; }
@@ -6314,7 +6362,7 @@ class FightSession {
   buildResult() {
     const p = this.player, e = this.enemy;
     return {
-      mode: this.mode, win: !!this.win, enemyId: e.def.id, act: this.cfg.act, stage: this.cfg.stage, ng: this.cfg.ng || 0,
+      mode: this.mode, win: !!this.win, enemyId: e.def.id, stageId: this.cfg.stageId, foeName: e.name, ng: this.cfg.ng || 0,
       time: this.fightTime, hpLeft: p.hp / p.maxHp, flawless: this.damageTaken < 1, maxCombo: p.stats.maxCombo, parries: p.stats.parries,
       enemyDamage: 1 - Math.max(0, e.hp) / e.maxHp, waves: this.wavesCleared, survivalCoins: this.survivalCoins, survivalGems: this.survivalGems,
       env: this.cfg.env
@@ -6440,7 +6488,7 @@ const Game = {
   },
 
   /* ---- flow ---- */
-  stageConfig(actIdx, stageIdx) { return Logic.stageConfig(SaveManager.data, actIdx, stageIdx); },
+  stageConfig(stageId) { return Logic.stageConfig(SaveManager.data, stageId); },
   startFight(cfg) {
     this.session = new FightSession(cfg);
     this.scene = 'fight'; this.paused = false; this.acc = 0; this.tableau = null;
@@ -6463,7 +6511,13 @@ const Game = {
   // progression queries are answered by Logic (15-logic.js); these keep the engine's old entry points
   rate(r) { return Logic.rateFight(r); },
   nextStage() { return Logic.nextStage(SaveManager.data); },
-  stageUnlocked(a, s) { return Logic.stageUnlocked(SaveManager.data, a, s); },
+  stageUnlocked(id) { return Logic.isStageUnlocked(SaveManager.data, id); },
+  // Story scenes have no fight: selecting one completes it (until the scene player lands) and saves.
+  playScene(id) {
+    const out = Logic.completeStage(SaveManager.data, id);
+    if (out) SaveManager.save();
+    return out;
+  },
   startNewGamePlus() {
     if (!Logic.startNewGamePlus(SaveManager.data)) return false;
     SaveManager.save();
@@ -6871,7 +6925,6 @@ function drawPortrait(cv, f, enemy) {
   g.restore();
 }
 function gearName(kind, id) { return gearTable(kind)[id].name; }
-function stageLabel(a, s) { return `Act ${ROMAN[a]} · Stage ${ROMAN[s]}`; }
 
 const MENU_IC = {
   swords: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" x2="19" y1="19" y2="13"/><line x1="16" x2="20" y1="16" y2="20"/><line x1="19" x2="21" y1="21" y2="19"/><polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5"/><line x1="5" x2="9" y1="14" y2="18"/><line x1="7" x2="4" y1="17" y2="20"/><line x1="3" x2="5" y1="19" y2="21"/></svg>',
@@ -6889,7 +6942,7 @@ const TOUCH_IC = {
   dash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6l6 6-6 6"/><path d="M13 6l6 6-6 6"/></svg>'
 };
 const UIManager = {
-  current: null, view: 'world', selAct: 0, selStage: 0, armTab: 'weapons', armSel: null, returnTo: 'title',
+  current: null, selStage: null, armTab: 'weapons', armSel: null, returnTo: 'title',
   pfCfg: null, pfWeapon: null, skip: false, overlay: null, armRAF: 0,
   init() {
     this.ui = document.getElementById('ui');
@@ -6954,11 +7007,12 @@ const UIManager = {
     switch (a) {
       case 'play': {
         const n = Game.nextStage();
-        if (n) { this.selAct = n.act; this.selStage = n.stage; this.go('prefight', () => this.preparePrefight(Game.stageConfig(n.act, n.stage))); }
-        else { this.view = 'world'; this.go('campaign', () => this.renderCampaign()); this.toast('Campaign complete', save.ngUnlocked ? 'New Game+ awaits in Settings' : 'Replay any stage'); }
+        if (n && Logic.isCombatStage(n)) { this.selStage = n; this.go('prefight', () => this.preparePrefight(Game.stageConfig(n))); }
+        else if (n) { this.selStage = n; this.go('campaign', () => this.renderCampaign()); }
+        else { this.go('campaign', () => this.renderCampaign()); this.toast('Story complete', save.ngUnlocked ? 'New Game+ awaits in Settings' : 'Replay any stage'); }
         break;
       }
-      case 'campaign': this.view = 'world'; this.go('campaign', () => this.renderCampaign()); break;
+      case 'campaign': this.selStage = Game.nextStage() || this.selStage; this.go('campaign', () => this.renderCampaign()); break;
       case 'survival': this.go('survival', () => this.renderSurvival()); break;
       case 'armory': this.returnTo = this.current; this.go('armory', () => this.renderArmory()); break;
       case 'settings': this.returnTo = this.current === 'settings' ? 'title' : this.current; this.go('settings', () => this.renderSettings()); break;
@@ -6972,21 +7026,28 @@ const UIManager = {
       case 'earn': this.toast('Earn coins & gems', 'Win duels, topple bosses and climb Survival waves'); this.go('survival', () => this.renderSurvival()); break;
       case 'help': this.openHelp(); break;
       case 'close-ov': this.closeOverlay(); break;
-      case 'act': {
-        const i = +d.i;
-        if (!Logic.isActUnlocked(save, i)) { this.toast('Act locked', `Defeat ${ENEMIES[ACTS[i - 1].boss].name} to open the way`, true); AudioManager.play('block'); return; }
-        this.selAct = i; this.view = 'act';
+      case 'chapter': {
+        const ch = Logic.chapter(d.id);
+        if (!Logic.isChapterUnlocked(save, ch.id)) {
+          const prev = Logic.chapters()[Logic.chapters().indexOf(ch) - 1];
+          this.toast('Chapter locked', `Finish ${prev ? prev.name : 'the story so far'} to open the way`, true); AudioManager.play('block'); return;
+        }
         const nx = Game.nextStage();
-        this.selStage = nx && nx.act === i ? nx.stage : (Logic.isActCleared(save, i) ? 6 : 0);
-        this.go('campaign', () => this.renderCampaign());
+        this.selStage = nx && Logic.stage(nx).chapter === ch.id ? nx : ch.stages[ch.stages.length - 1].id;
+        this.renderCampaign(true);
         break;
       }
       case 'stage': {
-        const s = +d.i;
-        if (!Game.stageUnlocked(this.selAct, s)) { AudioManager.play('block'); this.toast('Stage locked', 'Defeat the previous foe first', true); return; }
-        this.selStage = s; this.renderCampaign(true); break;
+        if (!Game.stageUnlocked(d.id)) { AudioManager.play('block'); this.toast('Stage locked', 'Clear the stage before it first', true); return; }
+        this.selStage = d.id; this.renderCampaign(true); break;
       }
-      case 'fight-stage': this.go('prefight', () => this.preparePrefight(Game.stageConfig(this.selAct, this.selStage))); break;
+      case 'fight-stage': {
+        const id = this.selStage;
+        if (!Game.stageUnlocked(id)) return;
+        if (Logic.isCombatStage(id)) this.go('prefight', () => this.preparePrefight(Game.stageConfig(id)));
+        else this.playScene(id);
+        break;
+      }
       case 'pf-weapon': this.pfWeapon = d.id; this.renderPrefight(); break;
       case 'pf-fight': {
         if (this.pfWeapon && save.owned.weapons[this.pfWeapon]) { save.equipped.weapon = this.pfWeapon; SaveManager.save(); }
@@ -7017,24 +7078,23 @@ const UIManager = {
       case 'pause': this.openPause(); break;
       case 'resume': this.closeOverlay(); break;
       case 'restart': this.closeOverlay(); Game.paused = false; { const cfg = Object.assign({}, Game.session.cfg); if (cfg.mode === 'survival') cfg.wave = 1; Game.quitFight(); this.go('hud', () => Game.startFight(cfg)); } break;
-      case 'quit': this.closeOverlay(); { const mode = Game.session && Game.session.mode; Game.quitFight(); if (mode === 'survival') this.go('survival', () => this.renderSurvival()); else { this.view = 'act'; this.go('campaign', () => this.renderCampaign()); } } break;
+      case 'quit': this.closeOverlay(); { const mode = Game.session && Game.session.mode; Game.quitFight(); if (mode === 'survival') this.go('survival', () => this.renderSurvival()); else this.go('campaign', () => this.renderCampaign()); } break;
       case 'res-continue': {
         const r = Game.lastResult;
         if (r.mode === 'survival') { this.go('survival', () => this.renderSurvival()); break; }
-        if (r.win) { const nx = Game.nextStage(); if (nx) { this.selAct = nx.act; this.selStage = nx.stage; this.view = nx.act !== r.act ? 'world' : 'act'; } else this.view = 'world'; }
-        else this.view = 'act';
+        this.selStage = r.win && r.next ? r.next : r.stageId;
         this.go('campaign', () => this.renderCampaign());
         break;
       }
       case 'res-retry': Game.retry(); break;
       case 'res-armory': this.returnTo = 'result'; this.go('armory', () => this.renderArmory()); break;
-      case 'res-map': this.view = 'act'; this.go('campaign', () => this.renderCampaign()); break;
+      case 'res-map': this.selStage = Game.lastResult.stageId; this.go('campaign', () => this.renderCampaign()); break;
     }
   },
   back() {
     if (this.overlay) return this.closeOverlay();
     switch (this.current) {
-      case 'campaign': if (this.view === 'act') { this.view = 'world'; this.go('campaign', () => this.renderCampaign()); } else this.go('title', () => this.renderTitle()); break;
+      case 'campaign': this.go('title', () => this.renderTitle()); break;
       case 'armory': case 'settings': {
         const r = this.returnTo;
         if (r === 'prefight' && this.pfCfg) this.go('prefight', () => this.preparePrefight(this.pfCfg));
@@ -7044,7 +7104,7 @@ const UIManager = {
         break;
       }
       case 'survival': this.go('title', () => this.renderTitle()); break;
-      case 'prefight': if (this.pfCfg.mode === 'survival') this.go('survival', () => this.renderSurvival()); else { this.view = 'act'; this.selAct = this.pfCfg.act; this.selStage = this.pfCfg.stage; this.go('campaign', () => this.renderCampaign()); } break;
+      case 'prefight': if (this.pfCfg.mode === 'survival') this.go('survival', () => this.renderSurvival()); else { this.selStage = this.pfCfg.stageId; this.go('campaign', () => this.renderCampaign()); } break;
       case 'result': this.action('res-continue', document.body); break;
     }
   },
@@ -7066,7 +7126,7 @@ const UIManager = {
     }
   },
   onPad(a) { if (a === 'pause' && this.current === 'hud') { if (this.overlay) this.closeOverlay(); else this.openPause(); } },
-  onResize() { if (this.current === 'campaign') this.paintCampaignCanvases(); if (this.current === 'armory') this.renderArmory(true); },
+  onResize() { if (this.current === 'armory') this.renderArmory(true); },
 
   /* ---------------- title ---------------- */
   renderTitle() {
@@ -7075,7 +7135,7 @@ const UIManager = {
     if (this.current !== 'title') TitleScene.restart(); // entering the title resets its camera and cloth; re-renders keep it running
     Game.buildWarrior();
     const n = Game.nextStage();
-    const ctx = n ? `${ACTS[n.act].name.replace('The ', '')} · Stage ${ROMAN[n.stage]}` : (save.ngUnlocked ? 'Campaign complete' : '');
+    const ctx = n ? `${Logic.chapterOf(n).name} · ${Logic.stage(n).name}` : (save.ngUnlocked ? 'Story complete' : '');
     const item = (a, ic, label, extra, primary) => `<button class="tm ${primary ? 'primary' : ''}" data-a="${a}" ${primary ? 'data-focus' : ''}><span class="tm-ic">${ic}</span><span class="tm-lb">${label}</span>${extra || ''}</button>`;
     el.innerHTML = `
       <div class="tl-art" aria-hidden="true"></div>
@@ -7104,12 +7164,12 @@ const UIManager = {
   },
   openTrophies() {
     const s = SaveManager.data;
-    const rows = Object.keys(ENEMIES).filter(id => ENEMIES[id].type !== 'regular').map(id => {
-      const d = ENEMIES[id], got = !!s.defeated[id];
-      const loot = [d.reward && d.reward.weapon && WEAPONS[d.reward.weapon].name, d.reward && d.reward.item && gearName(d.reward.item[0], d.reward.item[1])].filter(Boolean).join(' · ');
-      return `<div class="tro ${got ? 'got' : ''}"><span class="tro-k">${BANNER_GLYPH[d.name] || '影'}</span><div><b>${esc(d.name)}</b><span>${esc(d.title)}</span><em>${got ? esc(loot) : 'Not yet defeated'}</em></div></div>`;
+    // every boss-type stage of the story; the old trophy loot returns with the rebuilt gear
+    const rows = Logic.stages().filter(st => Logic.isBossStage(st.id)).map(st => {
+      const got = Logic.defeatedCount(s, st.id) > 0, ch = Logic.chapterOf(st.id);
+      return `<div class="tro ${got ? 'got' : ''}"><span class="tro-k">${BANNER_GLYPH[st.foe] || '影'}</span><div><b>${esc(st.foe)}</b><span>${esc(ch.name)} · ${esc(st.foeTitle || '')}</span><em>${got ? 'Defeated' : 'Not yet defeated'}</em></div></div>`;
     }).join('');
-    this.openOverlay('profile', `<div class="ov-card wide"><div class="eyebrow">Trophies</div><h3 class="disp">Fallen Masters</h3><div class="tro-grid">${rows}</div><div class="stack"><button class="btn-primary" data-a="close-ov" data-focus>Close</button></div></div>`);
+    this.openOverlay('profile', `<div class="ov-card wide"><div class="eyebrow">Trophies</div><h3 class="disp">Fallen Foes</h3><div class="tro-grid">${rows}</div><div class="stack"><button class="btn-primary" data-a="close-ov" data-focus>Close</button></div></div>`);
   },
   openLoadout() {
     const s = SaveManager.data, eq = s.equipped;
@@ -7126,87 +7186,90 @@ const UIManager = {
     setTimeout(() => { const cv = $('#ov-profile canvas[data-lo]'); if (cv) { const f = makePlayerFighter(s); poseFighter(f, WEAPONS[eq.weapon].hands === 2 && SHAPE[eq.weapon] === 'katana' ? 'hasso' : null, 40); drawFighterInto(cv, f, { glow: 'rgba(163,48,42,0.55)', rim: 'rgba(255,190,150,0.9)', fit: 0.95, tall: 1.3 }); } }, 30);
   },
 
-  /* ---------------- campaign ---------------- */
-  renderCampaign(soft) {
+  /* ---------------- campaign ----------------
+     One screen: the chapter rail (story order), the selected chapter's stages, and the stage card.
+     Everything it shows comes from the campaign map in Logic; stages are selected by their string id. */
+  renderCampaign() {
     const save = SaveManager.data, el = $('#scr-campaign');
     Game.setScene('menu'); AudioManager.setMusic('menu');
-    if (this.view === 'world') {
-      const pos = [[22, 62], [50, 40], [78, 60]];
-      el.innerHTML = `
-        ${this.mapSVG(true)}
-        <div class="topbar">
-          <div class="head"><button class="round-btn" data-a="back" aria-label="Back">${ICON.back}</button>
-            <div><div class="eyebrow">Campaign${save.ng ? ` · <span class="ng-badge">New Game+ ${save.ng}</span>` : ''}</div><h2 class="disp">The Shadow Road</h2></div></div>
-          <div class="diamond-pips">${ACTS.map((a, i) => `<i class="${Logic.isActCleared(save, i) ? 'on' : Logic.isActUnlocked(save, i) ? 'cur' : ''}"></i>`).join('')}<span class="muted" style="margin-left:.6rem;letter-spacing:.12em">${ACTS.filter((a, i) => Logic.isActCleared(save, i)).length} / ${ACTS.length}</span></div>
-          ${currencyHTML()}
-        </div>
-        <div class="world-acts">
-          ${ACTS.map((a, i) => {
-            const done = a.stages.filter((s, j) => Logic.isStageCleared(save, i, j)).length, locked = !Logic.isActUnlocked(save, i), cleared = Logic.isActCleared(save, i);
-            const dl = clamp(a.diff + save.ng, 0, 4);
-            return `<button class="act-node ${locked ? 'locked' : ''} ${cleared ? 'cleared' : ''}" style="left:${pos[i][0]}%;top:${pos[i][1]}%;animation-delay:${i * 0.08}s" data-a="act" data-i="${i}" ${i === this.selAct ? 'data-focus' : ''}>
-              <canvas data-boss="${a.boss}" data-locked="${locked ? 1 : 0}"></canvas>
-              <div class="row"><span class="eyebrow">Act ${ROMAN[i]}</span>${locked ? `<span class="lock-ic">${ICON.lock}</span>` : `<span class="status">${cleared ? 'Cleared' : done ? 'In progress' : 'Unlocked'}</span>`}</div>
-              <div class="act-name">${esc(a.name)}</div>
-              <div class="place">${esc(a.place)} · Boss ${esc(ENEMIES[a.boss].name)}</div>
-              <div class="row"><div class="bar" style="flex:1;margin-right:.8rem"><i style="width:${done / 7 * 100}%"></i></div><span class="muted">${done} / 7</span></div>
-              <div class="row"><div class="diff"><div class="pips">${[0, 1, 2].map(k => `<i class="${k < Math.min(3, dl) ? 'on' : ''}"></i>`).join('')}</div>${DIFF_LABEL[dl]}</div>${locked ? '<span class="status">Locked</span>' : ''}</div>
-            </button>`;
-          }).join('')}
-        </div>
-        <div class="vignette"></div>`;
-      this.afterShow = () => this.paintCampaignCanvases();
-      if (soft) this.paintCampaignCanvases();
-      return;
-    }
-    // ---- act map (Wonder "Campaign Map") ----
-    const a = ACTS[this.selAct], ai = this.selAct;
-    const NODES = [[140, 700], [330, 590], [510, 660], [690, 520], [860, 578], [1020, 438], [1230, 380]];
-    const pct = p => `left:${p[0] / 1440 * 100}%;top:${p[1] / 900 * 100}%`;
-    const done = a.stages.filter((s, j) => Logic.isStageCleared(save, ai, j)).length;
-    const nx = Game.nextStage();
-    const cur = nx && nx.act === ai ? nx.stage : -1;
-    const sel = this.selStage, st = a.stages[sel], foe = ENEMIES[st.enemy];
-    const dl = clamp(a.diff + save.ng + (foe.type === 'boss' ? 1 : foe.type === 'sub' ? 0.5 : 0), 0, 4) | 0;
-    const reward = Logic.stageRewardPreview(save, ai, sel), selCleared = Logic.isStageCleared(save, ai, sel);
-    const unlocked = Logic.stageUnlocked(save, ai, sel);
-    const pathD = 'M140 700 C220 620 280 590 330 590 C400 590 440 660 510 660 C580 660 640 560 690 520';
+    const chapters = Logic.chapters(), next = Game.nextStage();
+    if (!Logic.stage(this.selStage) || !Logic.isStageUnlocked(save, this.selStage)) this.selStage = next || Logic.stages()[Logic.stages().length - 1].id;
+    const sel = Logic.stage(this.selStage), ch = Logic.chapter(sel.chapter);
+    const chState = c => Logic.isChapterComplete(save, c.id) ? 'cleared' : Logic.isChapterUnlocked(save, c.id) ? 'open' : 'locked';
+    const stState = st => Logic.isStageComplete(save, st.id) ? 'cleared' : Logic.isStageUnlocked(save, st.id) ? 'open' : 'locked';
+    const KIND = { stretch: 'Stretch', subboss: 'Sub-boss', boss: 'Main boss', spar: 'Memory spar', echo: 'Echo fight', scene: 'Story scene' };
+    const glyph = st => {
+      if (st.kind === 'boss') return ICON.swords;
+      if (st.kind === 'scene') return '<span class="kj">終</span>';
+      if (st.kind === 'spar') return '<span class="kj">弟</span>';
+      const n = +((st.id.match(/(\d+)$/) || [0, 1])[1]);
+      return `<span>${ROMAN[n - 1] || n}</span>`;
+    };
+    const combat = Logic.isCombatStage(sel.id), cfg = combat ? Game.stageConfig(sel.id) : null;
+    const selDone = Logic.isStageComplete(save, sel.id), unlocked = Logic.isStageUnlocked(save, sel.id);
+    const reward = Logic.stageRewardPreview(save, sel.id);
+    const foe = combat ? ENEMIES[cfg.enemyId] : null;
+    const dl = combat ? clamp(ch.diff + save.ng + (foe.type === 'boss' ? 1 : foe.type === 'sub' ? 0.5 : 0), 0, 4) | 0 : 0;
+    const prog = Logic.chapterProgress(save, ch.id);
+    const action = !unlocked ? 'Locked' : combat ? (selDone ? 'Replay' : 'Fight') : (selDone ? 'Replay scene' : 'Play scene');
     el.innerHTML = `
-      ${this.mapSVG(false)}
-      <svg class="map-bg" viewBox="0 0 1440 900" preserveAspectRatio="none" style="pointer-events:none">
-        <path d="M140 700 C220 620 280 590 330 590 C400 590 440 660 510 660 C580 660 640 560 690 520 C760 470 800 590 860 578 C920 566 960 470 1020 438 C1100 400 1150 380 1230 380" stroke="#3a342b" stroke-width="2" stroke-dasharray="4 8" fill="none"/>
-        ${done ? `<path d="${this.pathTo(Math.max(0, Math.min(6, (cur < 0 ? 6 : cur))))}" stroke="#a3302a" stroke-width="3" fill="none"/>` : ''}
-      </svg>
-      <div class="boss-sil" style="left:78%;top:2%;width:22%;height:40%"><canvas data-bosssil="${a.boss}" style="width:100%;height:100%"></canvas></div>
-      ${a.stages.map((s, j) => {
-        const e = ENEMIES[s.enemy], clr = Logic.isStageCleared(save, ai, j), lk = !Logic.stageUnlocked(save, ai, j);
-        const cls = ['stage-node', clr ? 'cleared' : '', j === cur ? 'current' : '', j === sel ? 'selected' : '', lk ? 'locked' : '', e.type === 'sub' ? 'sub' : '', e.type === 'boss' ? 'boss' : ''].join(' ');
-        return `<button class="${cls}" style="${pct(NODES[j])}" data-a="stage" data-i="${j}" aria-label="Stage ${ROMAN[j]} ${esc(s.name)}" ${j === sel ? 'data-focus' : ''}>${e.type === 'boss' ? ICON.swords : `<span>${ROMAN[j]}</span>`}</button>`;
-      }).join('')}
-      <div class="boss-plate" style="left:${1230 / 14.4}%;top:${430 / 9}%"><b>${esc(ENEMIES[a.boss].name)}</b><span>Boss</span></div>
-      <div class="player-marker" style="${pct([NODES[Math.max(0, cur < 0 ? 6 : cur)][0], NODES[Math.max(0, cur < 0 ? 6 : cur)][1] - 38])}"><canvas data-marker style="width:2.6rem;height:3.8rem"></canvas></div>
-      <div class="vignette"></div>
+      ${this.mapSVG('plain')}
       <div class="topbar">
         <div class="head"><button class="round-btn" data-a="back" aria-label="Back">${ICON.back}</button>
-          <div><div class="eyebrow">Act ${ROMAN[ai]} · ${esc(a.place)}</div><h2 class="disp">${esc(a.name)}</h2></div></div>
-        <div class="diamond-pips">${a.stages.map((s, j) => `<i class="${Logic.isStageCleared(save, ai, j) ? 'on' : j === cur ? 'cur' : ENEMIES[s.enemy].type === 'boss' ? 'boss' : ''}"></i>`).join('')}<span class="muted" style="margin-left:.6rem;letter-spacing:.12em">${done} / 7</span></div>
+          <div><div class="eyebrow">Campaign${save.ng ? ` · <span class="ng-badge">New Game+ ${save.ng}</span>` : ''}</div><h2 class="disp">The Last Betrayal</h2></div></div>
+        <div class="diamond-pips">${chapters.map(c => `<i class="${chState(c) === 'cleared' ? 'on' : c.id === ch.id ? 'cur' : ''}"></i>`).join('')}<span class="muted" style="margin-left:.6rem;letter-spacing:.12em">${chapters.filter(c => chState(c) === 'cleared').length} / ${chapters.length}</span></div>
         ${currencyHTML()}
       </div>
-      <div class="stage-card" key="${sel}">
-        <div><div class="eyebrow">Stage ${ROMAN[sel]} · ${foe.type === 'boss' ? 'Main boss' : foe.type === 'sub' ? 'Sub-boss' : 'Duel'}</div>
-          <div class="name disp">${esc(st.name)}</div>
-          <div class="foe">${esc(foe.name)}, ${esc(foe.title)}</div></div>
-        <div class="meta"><div class="diff"><div class="pips">${[0, 1, 2].map(k => `<i class="${k < Math.min(3, Math.max(1, dl)) ? 'on' : ''}"></i>`).join('')}</div>${DIFF_LABEL[dl]}${save.ng ? ' · NG+' + save.ng : ''}</div>
-          <div class="reward"><i class="coin" style="width:.875rem;height:.875rem"></i>+${reward.coins}${reward.gems ? ` <i class="gem" style="margin-left:.4rem"></i>+${reward.gems}` : ''}</div></div>
-        ${foe.reward && !selCleared ? `<div class="muted" style="font-size:.9rem;letter-spacing:.06em">Trophy: ${[foe.reward.weapon && WEAPONS[foe.reward.weapon].name, foe.reward.item && gearName(foe.reward.item[0], foe.reward.item[1])].filter(Boolean).map(esc).join(' · ')}</div>` : ''}
-        <button class="btn-primary ${unlocked ? '' : 'locked'}" data-a="fight-stage" ${unlocked ? '' : 'disabled'}>${unlocked ? (selCleared ? 'Replay' : 'Fight') : 'Locked'}</button>
-      </div>`;
-    this.afterShow = () => this.paintCampaignCanvases();
-    if (soft) this.paintCampaignCanvases();
+      <div class="camp">
+        <nav class="chap-rail" aria-label="Chapters">
+          ${chapters.map((c, i) => {
+            const st = chState(c), p = Logic.chapterProgress(save, c.id);
+            return `<button class="chap ${st} ${c.id === ch.id ? 'sel' : ''}" style="animation-delay:${i * 0.04}s" data-a="chapter" data-id="${c.id}" aria-label="${esc(c.name)}, ${esc(c.title)}${st === 'locked' ? ', locked' : ''}">
+              <span class="chap-k">${esc(c.name)}</span><b>${esc(c.title)}</b>
+              <span class="chap-st">${st === 'locked' ? `<span class="lock-ic">${ICON.lock}</span>` : st === 'cleared' ? 'Cleared' : `${p.done} / ${p.total}`}</span>
+            </button>`;
+          }).join('')}
+        </nav>
+        <section class="chap-main">
+          <div class="chap-head"><div class="eyebrow">${esc(ch.name)} · ${esc(ch.place)}</div><h3 class="disp">${esc(ch.title)}</h3>
+            <div class="row"><div class="bar"><i style="width:${prog.done / prog.total * 100}%"></i></div><span class="muted">${prog.done} / ${prog.total}</span></div></div>
+          <div class="stg-path">
+            ${ch.stages.map(st => {
+              const state = stState(st);
+              const cls = ['stg', state, `k-${st.kind}`, st.id === next ? 'current' : '', st.id === sel.id ? 'selected' : ''].join(' ');
+              return `<button class="${cls}" data-a="stage" data-id="${st.id}" aria-label="${esc(st.name)}, ${KIND[st.kind]}, ${state === 'open' ? 'unlocked' : state}" ${st.id === sel.id ? 'data-focus' : ''}>
+                <i class="stg-d">${glyph(st)}</i><span class="stg-n">${esc(st.name)}</span><span class="stg-k">${KIND[st.kind]}</span></button>`;
+            }).join('')}
+          </div>
+        </section>
+        <div class="stage-card" key="${sel.id}">
+          <div><div class="eyebrow">${esc(ch.name)} · ${KIND[sel.kind]}</div>
+            <div class="name disp">${esc(sel.name)}</div>
+            <div class="foe">${combat ? `${esc(cfg.foeName)}${cfg.foeTitle ? `, ${esc(cfg.foeTitle)}` : ''}` : 'No combat · the story continues'}</div></div>
+          ${combat ? `<div class="meta"><div class="diff"><div class="pips">${[0, 1, 2].map(k => `<i class="${k < Math.min(3, Math.max(1, dl)) ? 'on' : ''}"></i>`).join('')}</div>${DIFF_LABEL[dl]}${save.ng ? ' · NG+' + save.ng : ''}</div>
+            <div class="reward"><i class="coin" style="width:.875rem;height:.875rem"></i>+${reward.coins}${reward.gems ? ` <i class="gem" style="margin-left:.4rem"></i>+${reward.gems}` : ''}</div></div>` : ''}
+          ${selDone ? '<div class="muted stg-cleared">Cleared · replay any time</div>' : ''}
+          <button class="btn-primary ${unlocked ? '' : 'locked'}" data-a="fight-stage" ${unlocked ? '' : 'disabled'}>${action}</button>
+        </div>
+      </div>
+      <div class="vignette"></div>`;
   },
-  pathTo(i) {
-    const segs = ['M140 700', 'C220 620 280 590 330 590', 'C400 590 440 660 510 660', 'C580 660 640 560 690 520', 'C760 470 800 590 860 578', 'C920 566 960 470 1020 438', 'C1100 400 1150 380 1230 380'];
-    return segs.slice(0, i + 1).join(' ');
+  // Story scenes have no fight yet: playing one completes it and moves the story on.
+  playScene(id) {
+    const out = Game.playScene(id), st = Logic.stage(id);
+    if (!out) return;
+    AudioManager.play('unlock');
+    this.toast(Logic.chapterOf(id).name, `${st.name} · scene coming in a later update`);
+    let delay = 700;
+    for (const u of out.unlocks) {
+      setTimeout(() => {
+        if (u.kind === 'ng') this.toast('Story complete', 'New Game+ unlocked in Settings');
+        else if (u.kind === 'chapter') this.toast('New chapter unlocked', `${Logic.chapter(u.id).name} · ${Logic.chapter(u.id).title}`);
+      }, delay);
+      delay += 700;
+    }
+    if (out.next) this.selStage = out.next;
+    this.renderCampaign(true);
   },
   mapSVG(world) {
     const m = (x, y, w, h, o) => `<path d="M${x} ${y} L${x + w * 0.3} ${y - h * 0.7} L${x + w * 0.42} ${y - h * 0.45} L${x + w * 0.6} ${y - h} L${x + w} ${y} Z" fill="#1d1a16" opacity="${o}"/>`;
@@ -7216,23 +7279,9 @@ const UIManager = {
       <rect width="1440" height="900" fill="url(#bg1)"/>
       <path d="M0 820 C200 780 400 830 600 760 C800 690 1000 640 1200 670 C1300 690 1380 700 1440 690" stroke="#1d1a16" stroke-width="70" fill="none" opacity=".9"/>
       ${m(40, 470, 180, 130, 0.8)}${m(380, 420, 160, 100, 0.8)}${m(560, 300, 160, 90, 0.7)}${m(760, 380, 170, 100, 0.7)}${m(900, 300, 190, 120, 0.8)}${m(1080, 600, 160, 100, 0.6)}${m(640, 860, 180, 110, 0.7)}${m(220, 860, 160, 100, 0.5)}
-      ${world ? '<path d="M317 558 C470 470 560 380 720 360 C860 340 980 470 1123 540" stroke="#a3302a" stroke-width="2.5" stroke-dasharray="6 8" fill="none" opacity=".7"/>' : '<path d="M1060 460 C1150 400 1260 340 1440 360 L1440 460 Z" fill="#050404"/>'}
+      ${world === 'plain' ? '' : world ? '<path d="M317 558 C470 470 560 380 720 360 C860 340 980 470 1123 540" stroke="#a3302a" stroke-width="2.5" stroke-dasharray="6 8" fill="none" opacity=".7"/>' : '<path d="M1060 460 C1150 400 1260 340 1440 360 L1440 460 Z" fill="#050404"/>'}
     </svg>`;
   },
-  paintCampaignCanvases() {
-    const save = SaveManager.data;
-    for (const cv of $$('#scr-campaign canvas[data-boss]')) {
-      const f = makeFighterFromEnemy(cv.dataset.boss, { facing: -1 }); poseFighter(f, 'taunt', 40);
-      drawFighterInto(cv, f, { glow: cv.dataset.locked === '1' ? 'rgba(58,52,43,0.35)' : 'rgba(163,48,42,0.55)', rim: cv.dataset.locked === '1' ? null : 'rgba(222,96,72,0.85)', fit: 0.95, tall: 1.35 });
-    }
-    for (const cv of $$('#scr-campaign canvas[data-bosssil]')) {
-      const f = makeFighterFromEnemy(cv.dataset.bosssil, { facing: -1 }); poseFighter(f, 'taunt', 40);
-      drawFighterInto(cv, f, { glow: 'rgba(163,48,42,0.55)', rim: 'rgba(222,96,72,0.85)', fit: 0.92, tall: 1.2, ground: 0.94 });
-    }
-    const mk = $('#scr-campaign canvas[data-marker]');
-    if (mk) { const f = makePlayerFighter(save); poseFighter(f, 'victory', 30); drawFighterInto(mk, f, { color: C.bone, fit: 1, tall: 1.35 }); }
-  },
-
   /* ---------------- armory ---------------- */
   armItems() {
     const save = SaveManager.data;
@@ -7270,7 +7319,8 @@ const UIManager = {
       else primary = `<button class="btn-primary" data-a="buy" ${save.coins < item.price ? 'disabled' : ''}>Buy <span style="display:inline-flex;align-items:center;gap:.4rem;letter-spacing:.05em"><i class="coin"></i>${fmt(item.price)}</span></button>`;
     } else if (lvl >= max) primary = `<button class="btn-primary locked" disabled>Mastered</button>`;
     else { const c = upgradeCost(kind, id, lvl); primary = `<button class="btn-primary" data-a="upgrade" ${save.coins < c ? 'disabled' : ''}>Upgrade <span style="display:inline-flex;align-items:center;gap:.4rem;letter-spacing:.05em"><i class="coin"></i>${fmt(c)}</span></button>`; }
-    const exclusiveTxt = item.exclusive && !owned ? `<div class="special-line"><b>Locked</b>Defeat ${esc(ENEMIES[item.exclusive].name)}, ${esc(ENEMIES[item.exclusive].title)}</div>` : '';
+    const trophyOf = ENEMIES[item.exclusive]; // a trophy names its enemy; `true` = locked until the gear rebuild
+    const exclusiveTxt = item.exclusive && !owned ? `<div class="special-line"><b>Locked</b>${trophyOf ? `Defeat ${esc(trophyOf.name)}, ${esc(trophyOf.title)}` : 'A trophy of a fallen foe. Not obtainable yet.'}</div>` : '';
     el.innerHTML = `
       <canvas class="arm-preview" data-prev></canvas>
       <div class="topbar">
@@ -7383,8 +7433,8 @@ const UIManager = {
     const env = cfg.env;
     const fitZoom = Math.min(1.55, (H * 0.6) / (Math.max(player.height(), enemy.height()) * 1.18));
     Game.setTableau(env, { fighters: [player, enemy], zoom: fitZoom, ground: 612, lights: [{ x: 330, y: 470, r: 360, c: 'rgba(201,164,92,0.18)' }, { x: 960, y: 450, r: 400, c: 'rgba(163,48,42,0.32)' }] });
-    const act = cfg.mode === 'campaign' ? ACTS[cfg.act] : null;
-    const dl = clamp((act ? act.diff : 2) + (cfg.ng || 0) + (d.type === 'boss' ? 1 : 0), 0, 4);
+    const dl = clamp((cfg.mode === 'campaign' ? cfg.diff : 2) + (cfg.ng || 0) + (d.type === 'boss' ? 1 : 0), 0, 4);
+    const foeName = cfg.foeName || d.name, foeTitle = cfg.foeTitle || d.title;
     const tag = cfg.mode === 'survival' ? `Survival · Wave ${ROMAN[cfg.wave - 1] || cfg.wave}` : `${d.type === 'boss' ? 'Boss' : d.type === 'sub' ? 'Sub-boss' : 'Duelist'} · ${DIFF_LABEL[dl]}`;
     const owned = Object.keys(save.owned.weapons).filter(w => WEAPONS[w] && !WEAPONS[w].enemy);
     el.innerHTML = `
@@ -7396,8 +7446,8 @@ const UIManager = {
       </div>
       <div class="plate right">
         <div class="tag"><div class="diff"><div class="pips">${[0, 1, 2].map(k => `<i class="${k < Math.min(3, Math.max(1, dl)) ? 'on' : ''}"></i>`).join('')}</div></div><span class="eyebrow red">${esc(tag)}</span></div>
-        <div class="nm disp">${esc(d.name)}</div>
-        <div class="ttl">${esc(d.title)}${cfg.mode === 'campaign' ? ` · ${esc(ACTS[cfg.act].stages[cfg.stage].name)}` : ''}</div>
+        <div class="nm disp">${esc(foeName)}</div>
+        <div class="ttl">${esc(foeTitle)}${cfg.mode === 'campaign' ? ` · ${esc(Logic.chapter(cfg.chapter).name)} · ${esc(Logic.stage(cfg.stageId).name)}` : ''}</div>
       </div>
       <div class="taunt">${esc(d.taunt)}</div>
       <div class="vs"><i></i><span>vs</span><i></i></div>
@@ -7540,15 +7590,16 @@ const UIManager = {
       foe.x = -120; foe.facing = -1; foe.scale *= 1.3; poseFighter(foe, 'taunt', 50);
       Game.setTableau(env, { fighters: [foe, player], zoom: 1.15, ground: 610, camEase: 0.04, tint: 'rgba(30,6,4,0.45)', lights: [{ x: 520, y: 330, r: 520, c: 'rgba(163,48,42,0.35)' }] });
     }
-    const eyebrow = r.mode === 'survival' ? `Survival · ${r.waves} waves cleared` : `${stageLabel(r.act, r.stage)} · ${ACTS[r.act].stages[r.stage].name}`;
+    const eyebrow = r.mode === 'survival' ? `Survival · ${r.waves} waves cleared` : `${Logic.chapterOf(r.stageId).name} · ${Logic.stage(r.stageId).name}`;
+    const foeName = r.foeName || d.name;
     const xpNeed = xpForLevel(save.level), xpNow = save.xp;
     const gainPct = r.levelUps ? xpNow / xpNeed * 100 : Math.min(100, r.xp / xpNeed * 100);
     const basePct = r.levelUps ? 0 : Math.max(0, (xpNow - r.xp) / xpNeed * 100);
-    const unlockHTML = r.unlocks.filter(u => u.kind !== 'act' && u.kind !== 'ng').map(u => `<div class="item"><canvas data-unlock="${u.kind}:${u.id}"></canvas>${esc(gearName(u.kind, u.id))}</div>`).join('');
+    const unlockHTML = r.unlocks.filter(u => u.kind !== 'chapter' && u.kind !== 'ng').map(u => `<div class="item"><canvas data-unlock="${u.kind}:${u.id}"></canvas>${esc(gearName(u.kind, u.id))}</div>`).join('');
     const sealNames = r.mode === 'survival' ? ['5 waves', '10 waves', '15 waves'] : ['Victory', 'Under 60s', 'Flawless'];
     const win = r.mode === 'survival' ? r.waves > 0 : r.win;
     const title = r.mode === 'survival' ? (r.newBest ? 'New Record' : 'Fallen') : r.win ? 'Victory' : 'Defeated';
-    const line = r.mode === 'survival' ? (r.newBest ? `Wave ${r.waves}. The pit will remember your name.` : `Wave ${r.waves}. Best: wave ${save.survivalBest}.`) : r.win ? `${d.name} ${d.type === 'boss' ? 'has fallen. The act is yours.' : 'has fallen.'}` : `${d.name} still stands. Rise again.`;
+    const line = r.mode === 'survival' ? (r.newBest ? `Wave ${r.waves}. The pit will remember your name.` : `Wave ${r.waves}. Best: wave ${save.survivalBest}.`) : r.win ? `${foeName} ${d.type === 'boss' ? 'has fallen. The way opens.' : 'has fallen.'}` : `${foeName} still stands. Rise again.`;
     el.innerHTML = `
       <div class="res-col">
         <div><div class="eyebrow muted" style="color:var(--text-muted)">${esc(eyebrow)}</div>
@@ -7585,8 +7636,8 @@ const UIManager = {
       for (const u of r.unlocks) {
         setTimeout(() => {
           AudioManager.play('unlock');
-          if (u.kind === 'act') this.toast('New act unlocked', `Act ${ROMAN[u.id]} · ${ACTS[u.id].name}`);
-          else if (u.kind === 'ng') this.toast('Campaign complete', 'New Game+ unlocked in Settings');
+          if (u.kind === 'chapter') this.toast('New chapter unlocked', `${Logic.chapter(u.id).name} · ${Logic.chapter(u.id).title}`);
+          else if (u.kind === 'ng') this.toast('Story complete', 'New Game+ unlocked in Settings');
           else this.toast(u.kind === 'weapons' ? 'Exclusive weapon' : 'Boss trophy', gearName(u.kind, u.id));
         }, delay);
         delay += 700;
@@ -7618,7 +7669,7 @@ const UIManager = {
         <div class="panel"><div class="eyebrow">Feel &amp; sound</div>${this.settingsRows()}</div>
         <div style="display:flex;flex-direction:column;gap:1.6rem">
           <div class="panel" style="animation-delay:.08s"><div class="eyebrow">New Game+</div><h3 class="disp">${save.ng ? `Cycle ${save.ng}` : 'The road again'}</h3>
-            <div class="big-line">${save.ngUnlocked ? 'Enemies gain health, damage and aggression. Rewards grow by 60% per cycle.' : 'Defeat Malgrath, the Ashen Tyrant, to unlock New Game+.'}</div>
+            <div class="big-line">${save.ngUnlocked ? 'Enemies gain health, damage and aggression. Rewards grow by 60% per cycle.' : 'Finish the story, through the Epilogue, to unlock New Game+.'}</div>
             <button class="btn-primary ${save.ngUnlocked ? '' : 'locked'}" data-a="ng" ${save.ngUnlocked ? '' : 'disabled'}>${save.ngUnlocked ? `Begin NG+ ${save.ng + 1}` : 'Locked'}</button></div>
           <div class="panel" style="animation-delay:.16s"><div class="eyebrow">Help &amp; data</div>
             <button class="btn-ghost" data-a="help">${ICON.help} Controls guide</button>
@@ -7645,7 +7696,7 @@ const UIManager = {
       </div>`;
     this.afterShow = () => {
       const cv = $('#scr-survival canvas[data-sv]'); if (!cv) return;
-      const f = makeFighterFromEnemy('brakk', { facing: -1 }); poseFighter(f, 'taunt', 40);
+      const f = makeFighterFromEnemy('echo_sentinel', { facing: -1 }); poseFighter(f, 'taunt', 40);
       drawFighterInto(cv, f, { glow: 'rgba(163,48,42,0.5)', rim: 'rgba(255,130,80,0.85)', fit: 0.8, tall: 1.15, ground: 0.92 });
     };
   },
@@ -7688,11 +7739,11 @@ const UIManager = {
   },
   openProfile() {
     const s = SaveManager.data;
-    const bosses = Object.keys(ENEMIES).filter(id => ENEMIES[id].type !== 'regular' && s.defeated[id]).length;
+    const bossStages = Logic.stages().filter(st => Logic.isBossStage(st.id)), bosses = bossStages.filter(st => Logic.defeatedCount(s, st.id) > 0).length;
     this.openOverlay('profile', `<div class="ov-card"><div class="eyebrow">Records</div><h3 class="disp">Kael · Level ${s.level}</h3>
       <div class="records">
         <div><b>${s.stats.wins}</b><span>Duels won</span></div><div><b>${s.stats.losses}</b><span>Defeats</span></div>
-        <div><b>${bosses} / 9</b><span>Bosses broken</span></div><div><b>${s.survivalBest}</b><span>Best survival wave</span></div>
+        <div><b>${bosses} / ${bossStages.length}</b><span>Bosses broken</span></div><div><b>${s.survivalBest}</b><span>Best survival wave</span></div>
         <div><b>${s.stats.perfects}</b><span>Flawless wins</span></div><div><b>${s.ng ? 'NG+' + s.ng : '—'}</b><span>Current cycle</span></div>
       </div>
       <div class="xp"><div class="labels"><b>Experience</b><span>${fmt(s.xp)} / ${fmt(xpForLevel(s.level))}</span></div><div class="track"><i style="width:${s.xp / xpForLevel(s.level) * 100}%"></i></div></div>
@@ -7771,7 +7822,7 @@ const UIManager = {
   Splash.start();
   Game.init();
   // expose a tiny debug handle for testing in the console
-  window.KAGE = { Game, SaveManager, Logic, UIManager, ENEMIES, WEAPONS, ACTS, FightSession, AIController, Renderer, AudioManager, BOSS_ABILITIES, Combat, InputManager, TitleScene };
+  window.KAGE = { Game, SaveManager, Logic, UIManager, ENEMIES, WEAPONS, CAMPAIGN, FightSession, AIController, Renderer, AudioManager, BOSS_ABILITIES, Combat, InputManager, TitleScene };
 })();
 
 })();</script>

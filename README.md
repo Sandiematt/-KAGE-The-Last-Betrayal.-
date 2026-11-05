@@ -4,12 +4,12 @@
 
 KAGE — The Last Betrayal is a story-driven, side-view 2D stickman action game. You play Kage (影, "shadow"), a black silhouette with a white face-wrap and one red sash, searching for his missing brother Rem through a world rebuilt from fragments of memory. The fights use katanas, spears, hammers and bare hands, with elemental sword arcs, perfect parries, slow-motion finishers and a dark Japanese ink identity.
 
-The game is being rebuilt from the earlier arena duel game into this story campaign. The combat, VFX, HUD and audio carry over; the story campaign, enemies and gear arrive in later updates, so the current build still plays the old duel campaign and roster.
+The game is being rebuilt from the earlier arena duel game into this story campaign. The combat, VFX, HUD and audio carry over; the campaign map is in place, while its stretches, story scenes, enemies, bosses and gear arrive in later updates. Until then every combat stage is a single arena fight against a placeholder foe.
 
 The whole game ships as **one self-contained `index.html`**: HTML5, Canvas 2D, vanilla JavaScript and Web Audio, with no libraries. The fonts and key-art images are inlined by the build, so it runs offline and wraps easily for mobile.
 
 - **Opening and home screen:** the splash writes K-A-G-E stroke by stroke under the red moon, then *The Last Betrayal* and its tagline. On the home screen the key art comes alive: the moon breathes, Kage's face-wrap strip blows in the wind, his blade glows, the cracked ground smoulders and embers rise, and the 2.5D parallax layers follow your pointer.
-- **Campaign:** 3 acts, each with 4 duelists, 2 sub-bosses and 1 three-phase main boss (21 fights).
+- **Campaign:** Prologue (1 stretch) → Act I (4 stretches, each followed by a sub-boss, then Raikon) → Interlude (the Rem spar) → Act II (the same shape, ending with Akari) → Act III (ending with Takashi) → The Core (1 stretch, the echoes of Raikon, Akari, Takashi and Rem, then the Witness) → Epilogue, *The Last Choice* (no combat). Stages unlock in story order, and cleared stages can be replayed.
 - **Survival:** endless waves, a sub-boss every 5th wave, coins every wave and a gem every 5 waves.
 - **Armory:** 6 weapons, 10 helmets and 9 armors. Each item can be bought, upgraded and equipped. Boss trophies are exclusive.
 - **Progression:** coins, gems, XP and levels, performance ratings, honor seals, New Game+, and saves in `localStorage` (key `kage.lastbetrayal.save.v2`, schema version 2). Saves from the old game (`kage.save.v1`, `ashbound.save.v1`) are deleted on first launch and nothing is carried over.
@@ -41,7 +41,7 @@ The shipped file is built from readable modules in `src/`:
 |---|---|
 | `src/js/00-core.js` | constants, **SaveManager**, **AudioManager** (procedural SFX + generative music), **InputManager** (keyboard / touch / gamepad) |
 | `src/js/10-data.js` | pure data: poses, move tables, **weapons**, helmets, armor, **enemies & bosses**, acts, survival |
-| `src/js/15-logic.js` | **Logic**: the pure rules — campaign unlocks and next stage, fight rewards and ratings, economy formulas and shop actions, save key and schema, deleting the old game's saves, save defaults / loading / corrupt-save fallback. No DOM, canvas, storage, audio or input; tested under Node |
+| `src/js/15-logic.js` | **Logic**: the pure rules — the campaign map (chapters, stages, unlocks, next stage, completing a stage), fight rewards and ratings, economy formulas and shop actions, save key and schema, deleting the old game's saves, save defaults / loading / corrupt-save fallback. No DOM, canvas, storage, audio or input; tested under Node |
 | `src/js/20-fighter.js` | **Player / Enemy** `Fighter`: skeleton, pose blending, state machine, cloth physics, gear & weapon art |
 | `src/js/30-combat.js` | **CombatSystem**, **WeaponSystem** (projectiles, shockwaves, dropped weapons, rage arts), **ParticleSystem** + effects |
 | `src/js/40-ai.js` | enemy **AI** profiles and **BossAI** abilities / phases |
@@ -65,7 +65,8 @@ All progression rules live in `src/js/15-logic.js`, exposed as the global `Logic
 - It may only use the data tables from `src/js/10-data.js` (also pure). It must never touch `document`, `window`, `localStorage`, canvas, `AudioManager`, `InputManager`, `SaveManager`, `Game` or `UIManager`; `tests/purity.test.js` fails if it does.
 - It works on plain save objects. Functions that change progression (`applyFightResult`, `startNewGamePlus`, `buyItem`, `upgradeItem`, `equipItem`) update the save in place and return what happened; the caller persists it with `SaveManager.save()`.
 - `SaveManager` (in `00-core.js`) only does storage. On launch it reads `Logic.SAVE_KEY` and every key in `Logic.LEGACY_SAVE_KEYS`, and hands the texts to `Logic.openSave(stored)`. That returns `{ save, error, remove, fresh }`: the save to play with (read from the current key only, defaults filled in, a fresh save when the text is corrupt), the old game's keys to delete, and whether a fresh save should be written. `SaveManager` then removes those keys from `localStorage` and writes the fresh save.
-- The engine (`Game.finishFight`, `nextStage`, `stageUnlocked`, `rate`, `stageConfig`, `startNewGamePlus`, survival wave rewards) and the UI (stage cards, act locks, Armory buy/upgrade/equip) call `Logic` instead of holding the rules. New rules go into `Logic` first, with a test.
+- The engine (`Game.finishFight`, `nextStage`, `stageUnlocked`, `playScene`, `rate`, `stageConfig`, `startNewGamePlus`, survival wave rewards) and the UI (campaign map, stage card, chapter locks, Armory buy/upgrade/equip) call `Logic` instead of holding the rules. New rules go into `Logic` first, with a test.
+- **The campaign map** is `CAMPAIGN` in `10-data.js`: chapters (`prologue`, `act1`, `interlude`, `act2`, `act3`, `core`, `epilogue`) with their stages in play order. Every stage has a stable string id (`prologue.1`, `act1.stretch1`, `act1.sub1` … `act1.boss`, `interlude.spar`, `core.echo4`, `core.witness`, `epilogue`) and a `kind`: `stretch`, `subboss`, `boss`, `spar`, `echo` or `scene`. Saves record `cleared[stageId]` (this cycle) and `defeated[stageId]` (lifetime). `Logic` answers `chapters()`, `chapter(id)`, `stages()`, `stage(id)`, `chapterOf(id)`, `isStageUnlocked`, `isStageComplete`, `isChapterUnlocked`, `isChapterComplete`, `chapterProgress`, `nextStage`, `isCampaignComplete`, `stageConfig` and `completeStage(save, id)`, which clears the stage and returns the chapter or New Game+ it opened. Finishing the Epilogue unlocks New Game+.
 - The economy formulas (`weaponMul`, `weaponStats`, `gearDef`, `upgradeCost`, `playerMaxHp`, `xpForLevel`, `gearTable`) are also top-level functions in `15-logic.js`, because combat code calls them directly; they are on `Logic` too.
 - In the browser console it is available as `KAGE.Logic`.
 
@@ -75,7 +76,7 @@ Run the tests (Node 18+, no dependencies, built-in test runner):
 node --test tests/
 ```
 
-How the tests load the code: `tests/helpers/load-logic.js` reads `10-data.js` and `15-logic.js`, joins them in build order and runs them as one strict-mode function, exactly as the build's IIFE would, then returns `{ Logic, ACTS, ENEMIES, WEAPONS, HELMETS, ARMORS, GEAR_MAX, SURVIVAL }`. Every call gives fresh copies. If the logic module ever needs another pure module, add it to `PURE_MODULES` in that helper. Test files are `tests/*.test.js`; `tests/index.js` loads them all so `node --test tests/` works on every Node version (plain `node --test` also finds them). Tests drive `Logic` through its public functions only and check what a player would notice (coins earned, stages unlocked), with expected values written out by hand rather than recomputed.
+How the tests load the code: `tests/helpers/load-logic.js` reads `10-data.js` and `15-logic.js`, joins them in build order and runs them as one strict-mode function, exactly as the build's IIFE would, then returns `{ Logic, CAMPAIGN, ENEMIES, WEAPONS, HELMETS, ARMORS, GEAR_MAX, SURVIVAL }`. Every call gives fresh copies. If the logic module ever needs another pure module, add it to `PURE_MODULES` in that helper. Test files are `tests/*.test.js`; `tests/index.js` loads them all so `node --test tests/` works on every Node version (plain `node --test` also finds them). Tests drive `Logic` through its public functions only and check what a player would notice (coins earned, stages unlocked), with expected values written out by hand rather than recomputed.
 
 ---
 
@@ -105,7 +106,7 @@ Menus can be navigated with the arrow keys, `Enter` and `Esc`.
 - **Martial technique:** every attack runs anticipation → wind-up → strike → follow-through, then returns to stance. Unarmed fighters keep a bladed guard with shuffle footwork. The katana works from chudan-no-kamae and cuts kesa-giri (diagonal), kiri-age (rising), tsuki (lunging thrust) and the nukitsuke draw counter.
 
 - **Parry:** a well-timed block stuns the attacker and opens the weapon's counter-slash. Holding block for too long cracks your guard, which leads to a guard break.
-- **Repetition:** repeating the same move loses damage, and Eryndor actively reads it and counters. After a hit, any attack button cancels into another string.
+- **Repetition:** repeating the same move loses damage, and bosses that adapt actively read it and counter. After a hit, any attack button cancels into another string.
 - **Knockback and juggles:** launchers juggle, heavy blows bounce enemies off walls, and some strikes **disarm**. Walk over a dropped weapon to recover it.
 
 ### Touch (phones in landscape)
@@ -172,7 +173,6 @@ ronin_king: {
   weapon: 'moon_katana', helmet: 'iron_kabuto', armor: 'cloak', hp: 800, dmg: 1.2,
   build: { scale: 1.2, w: 12 }, eye: '#c9a45c', accent: '#c9a45c',
   taunt: 'Opening line', defeat: 'Defeat line', win: 'Victory line', tip: 'Defeat-screen hint',
-  reward: { weapon: 'storm_glaive', item: ['helmets', 'iron_kabuto'] },
   phases: [
     { name: 'Phase one', abilities: ['lunge'] },
     { name: 'Phase two', abilities: ['teleport', 'orbVolley'] },
@@ -181,7 +181,7 @@ ronin_king: {
 }
 ```
 
-Then place it in a stage of an act in `ACTS`.
+Then point a stage of the campaign map (`CAMPAIGN` in the same file) at it with `enemy: 'ronin_king'`.
 
 - **Abilities** come from `BOSS_ABILITIES` in `src/js/40-ai.js`: `lunge`, `teleport`, `smokeBomb`, `moonDash`, `clones`, `shieldBash`, `float`, `orbVolley`, `counterStance`, `barrier`, `timeAura`, `groundSlam`, `hook`, `charge`, `summon`. Write a new one with `f.startAbility({ dur, pose, update(f, world, t, dt) {...} })`.
 - **Phase flags:**

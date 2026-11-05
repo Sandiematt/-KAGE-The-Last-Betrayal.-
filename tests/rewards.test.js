@@ -6,10 +6,12 @@ const { loadLogic } = require('./helpers/load-logic');
 const { Logic } = loadLogic();
 
 // A campaign fight result as the fight session reports it. Defaults: a scrappy win rated C.
-const fight = (o) => Object.assign({ mode: 'campaign', act: 0, stage: 0, enemyId: 'shiro', ng: 0, win: true,
+const fight = (o) => Object.assign({ mode: 'campaign', stageId: 'prologue.1', enemyId: 'hollow', ng: 0, win: true,
   hpLeft: 0.2, time: 90, maxCombo: 1, parries: 0, flawless: false }, o);
 const SCRAPPY = { hpLeft: 0.2, time: 90, maxCombo: 1, parries: 0, flawless: false };   // 8+0+2 = 10 -> C
 const DOMINANT = { hpLeft: 1, time: 30, maxCombo: 10, parries: 1, flawless: false };    // 40+20+20+5 = 85 -> S
+// Clears every stage before `id` in story order, so `id` is the open frontier.
+const reach = (s, id) => { for (const st of Logic.stages()) { if (st.id === id) break; Logic.completeStage(s, st.id); } };
 
 test('fight ratings: a loss is always C; S needs a dominant win', () => {
   assert.equal(Logic.rateFight({ ...DOMINANT, win: false }), 'C');
@@ -25,7 +27,7 @@ test('rating thresholds: 62 is A, 42 is B', () => {
   assert.equal(Logic.rateFight({ win: true, hpLeft: 0.5, time: 60, maxCombo: 6, parries: 0, flawless: false }), 'B');
 });
 
-test('first win over an Act I duelist pays 105 coins and 80 XP and clears the stage', () => {
+test('first win on the Prologue stretch pays 105 coins and 80 XP and clears the stage', () => {
   const s = Logic.defaultSave();
   const out = Logic.applyFightResult(s, fight());
   assert.equal(out.rating, 'C');
@@ -36,8 +38,10 @@ test('first win over an Act I duelist pays 105 coins and 80 XP and clears the st
   assert.deepEqual(out.seals, [true, false, false]);
   assert.equal(s.coins, 250 + 105);
   assert.equal(s.xp, 80);
-  assert.equal(Logic.isStageCleared(s, 0, 0), true);
-  assert.equal(s.defeated.shiro, 1);
+  assert.equal(Logic.isStageComplete(s, 'prologue.1'), true);
+  assert.equal(Logic.defeatedCount(s, 'prologue.1'), 1);
+  assert.equal(out.next, 'act1.stretch1');
+  assert.deepEqual(out.unlocks.map(u => ({ ...u })), [{ kind: 'chapter', id: 'act1' }]);
   assert.equal(s.stats.wins, 1);
 });
 
@@ -47,7 +51,8 @@ test('replaying a cleared stage pays half coins and is not a first clear', () =>
   const out = Logic.applyFightResult(s, fight());
   assert.equal(out.firstClear, false);
   assert.equal(out.coins, 55);
-  assert.equal(s.defeated.shiro, 2);
+  assert.equal(Logic.defeatedCount(s, 'prologue.1'), 2);
+  assert.deepEqual(out.unlocks, []);
 });
 
 test('a flawless win earns a bonus gem and the flawless seal', () => {
@@ -64,45 +69,55 @@ test('a loss pays a quarter of the base coins and 20 XP per act difficulty', () 
   assert.equal(out.rating, 'C');
   assert.equal(out.coins, 25);
   assert.equal(out.xp, 20);
-  assert.equal(Logic.isStageCleared(s, 0, 0), false);
+  assert.equal(Logic.isStageComplete(s, 'prologue.1'), false);
+  assert.equal(Logic.nextStage(s), 'prologue.1');
   assert.equal(s.stats.losses, 1);
 });
 
-test('beating the Act I boss pays boss rewards, grants the trophy and opens Act II exactly once', () => {
-  const s = Logic.defaultSave();
-  const out = Logic.applyFightResult(s, fight({ stage: 6, enemyId: 'noctis', ...DOMINANT }));
+test('beating Raikon pays boss rewards and opens the Interlude exactly once', () => {
+  const s = Logic.defaultSave(); reach(s, 'act1.boss');
+  const out = Logic.applyFightResult(s, fight({ stageId: 'act1.boss', enemyId: 'echo_warden', ...DOMINANT }));
   assert.equal(out.rating, 'S');
   assert.equal(out.coins, 535);
   assert.equal(out.gems, 5);
   assert.equal(out.xp, 300);
-  assert.deepEqual(out.unlocks.map(u => ({ ...u })), [
-    { kind: 'weapons', id: 'phantom_sickle' }, { kind: 'helmets', id: 'hollow_crest' }, { kind: 'act', id: 1 }]);
-  assert.equal(s.owned.weapons.phantom_sickle, 1);
-  assert.equal(s.owned.helmets.hollow_crest, 1);
-  assert.equal(Logic.isActUnlocked(s, 1), true);
+  assert.deepEqual(out.unlocks.map(u => ({ ...u })), [{ kind: 'chapter', id: 'interlude' }]);
+  assert.equal(Logic.isChapterUnlocked(s, 'interlude'), true);
   assert.equal(s.stats.bosses, 1);
 
-  const again = Logic.applyFightResult(s, fight({ stage: 6, enemyId: 'noctis', ...DOMINANT }));
-  assert.deepEqual(again.unlocks, [], 'trophies and the act are granted only once');
+  const again = Logic.applyFightResult(s, fight({ stageId: 'act1.boss', enemyId: 'echo_warden', ...DOMINANT }));
+  assert.deepEqual(again.unlocks, [], 'the chapter opens only once');
   assert.equal(again.gems, 1, 'a boss replay still pays one gem');
 });
 
-test('a trophy already owned is not granted again', () => {
-  const s = Logic.defaultSave();
-  s.owned.weapons.phantom_sickle = 4;
-  const out = Logic.applyFightResult(s, fight({ stage: 6, enemyId: 'noctis' }));
-  assert.equal(s.owned.weapons.phantom_sickle, 4);
-  assert.ok(!out.unlocks.some(u => u.id === 'phantom_sickle'));
+test('sub-bosses, the spar and the Core echoes pay sub-boss rewards scaled by their chapter', () => {
+  const s = Logic.defaultSave(); reach(s, 'act1.sub1');
+  const sub = Logic.applyFightResult(s, fight({ stageId: 'act1.sub1', enemyId: 'echo_sentinel' }));
+  assert.equal(sub.coins, 230);
+  assert.equal(sub.gems, 2);
+  assert.equal(sub.xp, 150);
+  const t = Logic.defaultSave(); reach(t, 'core.echo1');
+  const echo = Logic.applyFightResult(t, fight({ stageId: 'core.echo1', enemyId: 'echo_sentinel' }));
+  assert.equal(echo.coins, 430);
+  assert.equal(echo.gems, 2);
+  assert.equal(echo.xp, 450);
 });
 
-test('beating the final boss unlocks New Game+ and records the completed cycle', () => {
-  const s = Logic.defaultSave(); s.unlockedActs = 3;
-  const out = Logic.applyFightResult(s, fight({ act: 2, stage: 6, enemyId: 'malgrath' }));
-  assert.ok(out.unlocks.some(u => u.kind === 'ng'));
-  assert.ok(!out.unlocks.some(u => u.kind === 'act'), 'there is no Act IV');
+test('winning a stage that is still locked earns replay rewards and clears nothing', () => {
+  const s = Logic.defaultSave();
+  const out = Logic.applyFightResult(s, fight({ stageId: 'act2.boss', enemyId: 'echo_warden' }));
+  assert.equal(out.firstClear, false);
+  assert.equal(Logic.isStageComplete(s, 'act2.boss'), false);
+});
+
+test('beating the Witness opens the Epilogue but New Game+ waits for the story to end', () => {
+  const s = Logic.defaultSave(); reach(s, 'core.witness');
+  const out = Logic.applyFightResult(s, fight({ stageId: 'core.witness', enemyId: 'echo_warden' }));
+  assert.deepEqual(out.unlocks.map(u => ({ ...u })), [{ kind: 'chapter', id: 'epilogue' }]);
+  assert.equal(out.xp, 900);
+  assert.equal(s.ngUnlocked, false);
+  assert.ok(Logic.completeStage(s, 'epilogue').unlocks.some(u => u.kind === 'ng'));
   assert.equal(s.ngUnlocked, true);
-  assert.equal(s.ngCompletions, 1);
-  assert.equal(s.owned.weapons.titan_hammer, 1);
 });
 
 test('New Game+ raises rewards by 60% per cycle', () => {
@@ -124,11 +139,13 @@ test('enough XP levels the player up and carries the remainder over', () => {
 
 test('the stage card previews the first-clear reward and the replay reward', () => {
   const s = Logic.defaultSave();
-  assert.deepEqual({ ...Logic.stageRewardPreview(s, 0, 0) }, { coins: 105, gems: 0 });
-  assert.deepEqual({ ...Logic.stageRewardPreview(s, 0, 6) }, { coins: 355, gems: 5 });
-  assert.deepEqual({ ...Logic.stageRewardPreview(s, 0, 2) }, { coins: 230, gems: 2 });
-  s.cleared['0-6'] = true;
-  assert.deepEqual({ ...Logic.stageRewardPreview(s, 0, 6) }, { coins: 180, gems: 0 });
+  assert.deepEqual({ ...Logic.stageRewardPreview(s, 'prologue.1') }, { coins: 105, gems: 0 });
+  assert.deepEqual({ ...Logic.stageRewardPreview(s, 'act1.boss') }, { coins: 355, gems: 5 });
+  assert.deepEqual({ ...Logic.stageRewardPreview(s, 'act1.sub1') }, { coins: 230, gems: 2 });
+  assert.deepEqual({ ...Logic.stageRewardPreview(s, 'interlude.spar') }, { coins: 230, gems: 2 });
+  assert.deepEqual({ ...Logic.stageRewardPreview(s, 'epilogue') }, { coins: 0, gems: 0 }, 'story scenes pay nothing');
+  reach(s, 'act1.boss'); Logic.completeStage(s, 'act1.boss');
+  assert.deepEqual({ ...Logic.stageRewardPreview(s, 'act1.boss') }, { coins: 180, gems: 0 });
 });
 
 test('survival waves pay rising coins and a gem every 5th wave', () => {

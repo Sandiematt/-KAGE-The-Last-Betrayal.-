@@ -167,8 +167,8 @@ const WEAPONS = {
       ca: { kind: 'air', w: { lean: -10, fs: 176, fe: 0, wa: 210 }, s: { lean: 30, fs: 50, fe: 0, wa: -10 }, t: [0.12, 0.1, 0.22], dmg: 14, kb: 200, up: 400, hs: 0.45, gb: 60, box: [10, -200, 150, 220], limb: 'w', snd: 'heavyswing', hsnd: 'heavy', imp: 2 }
     }
   },
-  dragon_spear: { heft: 1.2, el: 'water', name: 'Dragon Spear', cls: 'Polearm', tab: 'polearms', rarity: 'Legendary Polearm', hands: 2, len: 196, stance: 'spear', stats: [52, 60, 96], price: 0, exclusive: 'eryndor',
-    trail: '#c9a45c', desc: 'Longest reach in the Armory. Two pokes and a leg-sweeping arc. Exclusive reward of the Eternal Sage.',
+  dragon_spear: { heft: 1.2, el: 'water', name: 'Dragon Spear', cls: 'Polearm', tab: 'polearms', rarity: 'Legendary Polearm', hands: 2, len: 196, stance: 'spear', stats: [52, 60, 96], price: 0, exclusive: true,
+    trail: '#c9a45c', desc: 'Longest reach in the Armory. Two pokes and a leg-sweeping arc. A boss trophy, not yet obtainable.',
     moves: ['s1', 's2', 's3'], air: 'sa', special: 'dragonLance', counter: 's1',
     defs: {
       s1: { kind: 'weapon', f: { lean: 14, rx: 20, fs: 82, fe: 10, wa: 93 }, w: { lean: 0, rx: -14, fs: 36, fe: 70, wa: 95 }, s: { lean: 18, rx: 26, fs: 88, fe: 0, wa: 92 }, t: [0.09, 0.07, 0.18], dmg: 8, kb: 220, hs: 0.3, box: [30, -170, 236, 44], limb: 'w', snd: 'swing', hsnd: 'slash', imp: 0, next: 's2' },
@@ -177,8 +177,8 @@ const WEAPONS = {
       sa: { kind: 'air', w: { lean: -4, fs: 150, fe: 0, wa: 160 }, s: { lean: 30, fs: 70, fe: 0, wa: 50 }, t: [0.08, 0.1, 0.18], dmg: 9, kb: 200, up: 300, hs: 0.36, box: [10, -170, 200, 170], limb: 'w', snd: 'swing', hsnd: 'slash', imp: 1 }
     }
   },
-  phantom_sickle: { heft: 0.95, el: 'blood', name: 'Phantom Sickle', cls: 'Chain', tab: 'chains', rarity: 'Legendary Chain', hands: 1, len: 70, stance: 'sickle', stats: [56, 66, 74], price: 0, exclusive: 'noctis',
-    trail: '#9b8cff', desc: 'A chained sickle. The second strike hurls the blade and drags the enemy to you. Exclusive reward of the Hollow Moon.',
+  phantom_sickle: { heft: 0.95, el: 'blood', name: 'Phantom Sickle', cls: 'Chain', tab: 'chains', rarity: 'Legendary Chain', hands: 1, len: 70, stance: 'sickle', stats: [56, 66, 74], price: 0, exclusive: true,
+    trail: '#9b8cff', desc: 'A chained sickle. The second strike hurls the blade and drags the enemy to you. A boss trophy, not yet obtainable.',
     moves: ['h1', 'h2', 'h3'], air: 'ha', special: 'reapersHarvest', counter: 'h3',
     defs: {
       h1: { kind: 'weapon', w: { lean: -4, fs: 172, fe: 30, wa: 232 }, s: { lean: 18, fs: 72, fe: 0, wa: 20 }, t: [0.09, 0.07, 0.18], dmg: 9, kb: 160, hs: 0.32, box: [16, -214, 128, 160], limb: 'w', snd: 'swing', hsnd: 'slash', imp: 0, next: 'h2' },
@@ -187,8 +187,8 @@ const WEAPONS = {
       ha: { kind: 'air', w: { lean: 0, fs: 172, fe: 10, wa: 220 }, s: { lean: 24, fs: 64, fe: 0, wa: 0 }, t: [0.07, 0.1, 0.16], dmg: 9, kb: 200, up: 220, hs: 0.36, box: [10, -200, 136, 190], limb: 'w', snd: 'swing', hsnd: 'slash', imp: 1 }
     }
   },
-  titan_hammer: { heft: 2.2, el: 'earth', name: 'Titan Hammer', cls: 'Heavy', tab: 'heavy', rarity: 'Mythic Hammer', hands: 2, len: 150, stance: 'hammer', stats: [98, 16, 66], price: 0, exclusive: 'malgrath',
-    trail: '#d24a3c', desc: 'Extremely slow but devastating. The overhead smash splits the ground. Exclusive reward of the Ashen Tyrant.',
+  titan_hammer: { heft: 2.2, el: 'earth', name: 'Titan Hammer', cls: 'Heavy', tab: 'heavy', rarity: 'Mythic Hammer', hands: 2, len: 150, stance: 'hammer', stats: [98, 16, 66], price: 0, exclusive: true,
+    trail: '#d24a3c', desc: 'Extremely slow but devastating. The overhead smash splits the ground. A boss trophy, not yet obtainable.',
     moves: ['m1', 'm2'], air: 'ma', special: 'earthshatter', counter: 'm2',
     defs: {
       m1: { kind: 'weapon', a: { lean: -22, head: -6, fs: 196, fe: 0, wa: 196, fh: 22, fk: -30, bh: -24, bk: -22 }, f: { lean: 36, fs: 74, fe: 0, wa: -2, fh: 46, fk: -44, bh: -38, bk: -22 }, w: { lean: -18, fs: 186, fe: 0, wa: 200 }, s: { lean: 34, fs: 76, fe: 0, wa: 2, fh: 44, fk: -40, bh: -36, bk: -20 }, t: [0.42, 0.1, 0.48], dmg: 34, kb: 380, up: -360, hs: 0.7, kd: 1, gb: 160, box: [16, -246, 176, 246], limb: 'w', snd: 'heavyswing', hsnd: 'heavy', imp: 3, stamp: 'SMASH', shock: 1, armor: 1, next: 'm2' },
@@ -283,11 +283,11 @@ const HELMETS = {
   straw_kasa:{ name: 'Straw Kasa', rarity: 'Common helm', def: 0.06, price: 520, desc: 'Wide straw hat. Carry two extra kunai.', perks: { ammo: 2 } },
   iron_kabuto:{ name: 'Iron Kabuto', rarity: 'Rare helm', def: 0.1, price: 1150, desc: 'Lacquered iron with a gold crest. Shrugs off stuns.', perks: { stunRes: 0.35 } },
   oni_mask:  { name: 'Oni Mask', rarity: 'Rare helm', def: 0.08, gems: 12, desc: 'Fills the rage meter faster.', perks: { rage: 0.2 } },
-  reaper_cowl:{ name: 'Reaper Cowl', rarity: 'Boss trophy', def: 0.08, exclusive: 'kairo', desc: 'Taken from Kairo. Dash recovers much faster.', perks: { dash: 0.25 } },
-  hollow_crest:{ name: 'Hollow Moon Crest', rarity: 'Boss trophy', def: 0.12, exclusive: 'noctis', desc: 'The Hollow Moon halo. Rage gain greatly increased.', perks: { rage: 0.3 } },
-  sentinel_helm:{ name: 'Sentinel Helm', rarity: 'Boss trophy', def: 0.14, exclusive: 'rokan', desc: 'Plumed iron from the gate. Heavy defence.', perks: { stunRes: 0.2 } },
-  sage_antlers:{ name: "Sage's Antlers", rarity: 'Boss trophy', def: 0.12, exclusive: 'eryndor', desc: 'Antlered crown of the Eternal Sage. +3 kunai.', perks: { ammo: 3 } },
-  ashen_crown:{ name: 'Ashen Crown', rarity: 'Boss trophy', def: 0.16, exclusive: 'malgrath', desc: 'The Tyrant’s burning crown. Everything hits harder.', perks: { dmg: 0.1 } }
+  reaper_cowl:{ name: 'Reaper Cowl', rarity: 'Boss trophy', def: 0.08, exclusive: true, desc: 'A fallen master’s cowl. Dash recovers much faster.', perks: { dash: 0.25 } },
+  hollow_crest:{ name: 'Hollow Moon Crest', rarity: 'Boss trophy', def: 0.12, exclusive: true, desc: 'A hollow halo. Rage gain greatly increased.', perks: { rage: 0.3 } },
+  sentinel_helm:{ name: 'Sentinel Helm', rarity: 'Boss trophy', def: 0.14, exclusive: true, desc: 'Plumed iron from the gate. Heavy defence.', perks: { stunRes: 0.2 } },
+  sage_antlers:{ name: "Sage's Antlers", rarity: 'Boss trophy', def: 0.12, exclusive: true, desc: 'An antlered sage’s crown. +3 kunai.', perks: { ammo: 3 } },
+  ashen_crown:{ name: 'Ashen Crown', rarity: 'Boss trophy', def: 0.16, exclusive: true, desc: 'A burning crown. Everything hits harder.', perks: { dmg: 0.1 } }
 };
 const ARMORS = {
   wraps:     { name: 'Cloth Wraps', rarity: 'Starting gear', def: 0, price: 0, desc: 'Bandaged forearms and a red scarf.', perks: {} },
@@ -295,128 +295,95 @@ const ARMORS = {
   shadow_cloak:{ name: 'Shadow Cloak', rarity: 'Rare armor', def: 0.07, gems: 15, desc: 'A long black cloak. Move and dash faster.', perks: { speed: 0.08 } },
   lamellar:  { name: 'Lamellar Coat', rarity: 'Rare armor', def: 0.12, price: 1250, desc: 'Laced iron scales. Slightly slower.', perks: { hp: 30, speed: -0.03 } },
   pauldrons: { name: 'Iron Pauldrons', rarity: 'Epic armor', def: 0.16, price: 2300, desc: 'Massive shoulder plates. Slower, much tougher.', perks: { hp: 45, speed: -0.05, stunRes: 0.15 } },
-  mist_shroud:{ name: 'Mist Shroud', rarity: 'Boss trophy', def: 0.08, exclusive: 'veyra', desc: 'Veyra’s grey veil. Dash invulnerability lasts longer.', perks: { dash: 0.2, speed: 0.04 } },
-  storm_mantle:{ name: 'Storm Mantle', rarity: 'Boss trophy', def: 0.1, exclusive: 'zephar', desc: 'Charged ribbons. Kunai strike harder.', perks: { kunai: 0.6, speed: 0.04 } },
-  colossus_plate:{ name: 'Colossus Plate', rarity: 'Boss trophy', def: 0.2, exclusive: 'brakk', desc: 'Pit-forged plate. Very slow, nearly unbreakable.', perks: { hp: 60, speed: -0.08, stunRes: 0.3 } },
-  executioner_garb:{ name: 'Executioner Garb', rarity: 'Boss trophy', def: 0.12, exclusive: 'drazek', desc: 'Chain-wrapped leather. Rage builds from blocking.', perks: { rage: 0.15, hp: 25 } }
+  mist_shroud:{ name: 'Mist Shroud', rarity: 'Boss trophy', def: 0.08, exclusive: true, desc: 'A grey veil. Dash invulnerability lasts longer.', perks: { dash: 0.2, speed: 0.04 } },
+  storm_mantle:{ name: 'Storm Mantle', rarity: 'Boss trophy', def: 0.1, exclusive: true, desc: 'Charged ribbons. Kunai strike harder.', perks: { kunai: 0.6, speed: 0.04 } },
+  colossus_plate:{ name: 'Colossus Plate', rarity: 'Boss trophy', def: 0.2, exclusive: true, desc: 'Pit-forged plate. Very slow, nearly unbreakable.', perks: { hp: 60, speed: -0.08, stunRes: 0.3 } },
+  executioner_garb:{ name: 'Executioner Garb', rarity: 'Boss trophy', def: 0.12, exclusive: true, desc: 'Chain-wrapped leather. Rage builds from blocking.', perks: { rage: 0.15, hp: 25 } }
 };
 for (const id in HELMETS) HELMETS[id].id = id;
 for (const id in ARMORS) ARMORS[id].id = id;
 
 const GEAR_MAX = { weapons: 8, helmets: 5, armors: 5 };
 
+
 /* ---------------- Enemies & bosses ----------------
    type: regular | sub | boss.  ai: regular | agile | defensive | ranged | heavy | boss
-   build: scale (overall size), w (limb thickness), head, legs, arms (length multipliers) */
+   build: scale (overall size), w (limb thickness), head, legs, arms (length multipliers)
+   These are TEMPORARY stand-ins: every campaign stage fights one of them in a single arena until the real
+   Order soldiers, Hollows, sub-bosses and bosses land. Stages show their own story names (see CAMPAIGN). */
 const ENEMIES = {
-  // ---- Act I regulars
-  shiro:  { name: 'Shiro', title: 'Alley Cutter', type: 'regular', outfit: 'gi', ai: 'regular', weapon: 'cutter_blade', helmet: 'ronin_hood', armor: 'wraps', hp: 170, dmg: 0.9, build: { scale: 1, w: 10 }, eye: '#ece5d3',
-            taunt: 'Rooftops belong to the Veil. You are trespassing.', tip: 'Block his first cut, then answer with a three-punch string.' },
-  mako:   { name: 'Mako', title: 'Lantern Thief', type: 'regular', ai: 'agile', weapon: 'shadow_daggers', helmet: 'topknot', armor: 'jerkin', hp: 160, dmg: 0.85, speed: 1.15, build: { scale: 0.94, w: 9, legs: 1.06 }, eye: '#c9a45c',
-            taunt: 'Catch me and the lantern is yours. You won’t.', tip: 'He darts in and out. Dash in when he lands from a jump.' },
-  gorran: { name: 'Gorran', title: 'Bell Warden', type: 'regular', outfit: 'gi', ai: 'defensive', weapon: 'fists', helmet: 'iron_kabuto', armor: 'lamellar', hp: 220, dmg: 1, build: { scale: 1.1, w: 13 }, eye: '#ece5d3',
-            taunt: 'The bell tolls once for every fool who climbs this far.', tip: 'He blocks everything. Grab him (Block + Punch) or charge a heavy kick.' },
-  sable:  { name: 'Sable', title: 'Eave Archer', type: 'regular', ai: 'ranged', weapon: 'cutter_blade', helmet: 'straw_kasa', armor: 'wraps', hp: 160, dmg: 0.9, build: { scale: 0.98, w: 9 }, eye: '#d24a3c',
-            taunt: 'I never miss twice.', tip: 'Close the distance with dashes — kunai cannot hit you mid-dash.' },
-  // ---- Act I bosses
-  kairo:  { name: 'Kairo', title: 'the Rooftop Reaper', type: 'sub', ai: 'agile', weapon: 'shadow_daggers', helmet: 'reaper_cowl', armor: 'jerkin', hp: 320, dmg: 1.05, speed: 1.3, build: { scale: 1.02, w: 9, legs: 1.08 }, eye: '#ece5d3', accent: '#ece5d3',
-            taunt: 'You blink, you bleed. Let us see how often you blink.', defeat: 'Faster… than me…', win: 'Too slow. The roofs remember the slow ones.',
-            tip: 'Dodge his lunge with Dash, then punish the long recovery.', reward: { item: ['helmets', 'reaper_cowl'] },
-            abilities: ['lunge'] },
-  veyra:  { name: 'Veyra', title: 'the Mist Phantom', type: 'sub', ai: 'agile', weapon: 'mist_fans', helmet: 'veil', armor: 'mist_shroud', hp: 340, dmg: 1, speed: 1.1, build: { scale: 0.98, w: 8, head: 0.92 }, eye: '#b9c4c9', accent: '#b9c4c9',
-            taunt: 'Strike the mist if you like. It has never bled.', defeat: 'The fog… lifts…', win: 'You fought a shadow. You lost to one.',
-            tip: 'A puff of smoke marks where she reappears. Turn and block.', reward: { item: ['armors', 'mist_shroud'] },
-            abilities: ['teleport', 'smokeBomb'] },
-  noctis: { name: 'Noctis', title: 'Lord of the Hollow Moon', type: 'boss', ai: 'boss', weapon: 'hollow_crescents', helmet: 'hollow_crest', armor: 'cloak', hp: 640, dmg: 1.1, speed: 1.2, build: { scale: 1.16, w: 11 }, eye: '#9b8cff', accent: '#9b8cff',
-            taunt: 'The moon is hollow because I carved it out. You are smaller than the moon.', defeat: 'The moon… goes dark…', win: 'Kneel in the moonlight. It is the last you will see.',
-            tip: 'His eyes flash right before he strikes. Block on the flash, punish after.', reward: { weapon: 'phantom_sickle', item: ['helmets', 'hollow_crest'] }, flashEyes: 1,
+  order_recruit: { name: 'Order Recruit', title: 'Order of Silence', type: 'regular', outfit: 'gi', ai: 'regular', weapon: 'cutter_blade', helmet: 'ronin_hood', armor: 'jerkin', hp: 170, dmg: 0.9, build: { scale: 1, w: 10 }, eye: '#ece5d3',
+            taunt: 'The Order of Silence holds this road. Turn back.', tip: 'Block the first cut, then answer with a three-punch string.' },
+  order_warden: { name: 'Order Warden', title: 'Order of Silence', type: 'regular', outfit: 'gi', ai: 'defensive', weapon: 'temple_staff', helmet: 'iron_kabuto', armor: 'lamellar', hp: 220, dmg: 1, build: { scale: 1.08, w: 12 }, eye: '#c9a45c',
+            taunt: 'Nothing leaves the fortress without the Order’s word.', tip: 'He blocks everything. Grab him (Block + Punch) or charge a heavy kick.' },
+  hollow: { name: 'Hollow', title: 'Memory ash', type: 'regular', ai: 'agile', weapon: 'shadow_daggers', helmet: 'veil', armor: 'cloak', hp: 160, dmg: 0.85, speed: 1.15, build: { scale: 0.96, w: 9, legs: 1.06 }, eye: '#9b8cff', accent: '#9b8cff',
+            taunt: '…it copies your breathing, then your stance…', tip: 'It darts in and out. Dash in when it lands from a jump.' },
+  echo_sentinel: { name: 'Echo Sentinel', title: 'Placeholder sub-boss', type: 'sub', ai: 'agile', weapon: 'hollow_crescents', helmet: 'oni', armor: 'cloak', hp: 340, dmg: 1.05, speed: 1.15, build: { scale: 1.04, w: 10 }, eye: '#9b8cff', accent: '#9b8cff',
+            taunt: 'This memory is guarded. Prove you belong in it.', defeat: 'The memory… lets you pass…', win: 'Forget this place.',
+            tip: 'Dodge the lunge with Dash, then punish the long recovery.', abilities: ['lunge', 'teleport'] },
+  echo_warden: { name: 'Echo Warden', title: 'Placeholder boss', type: 'boss', ai: 'boss', weapon: 'cutter_blade', helmet: 'oni', armor: 'tyrant', hp: 640, dmg: 1.1, speed: 1.1, build: { scale: 1.16, w: 12 }, eye: '#9b8cff', accent: '#9b8cff', flashEyes: 1,
+            taunt: 'You were supposed to stay buried.', defeat: 'The echo… breaks…', win: 'Sleep, shadow. Remember nothing.',
+            tip: 'Its eyes flash right before it strikes. Block on the flash, punish after.',
             phases: [
-              { name: 'Swift Moon', abilities: ['moonDash', 'lunge'] },
-              { name: 'Hollow Illusions', abilities: ['clones', 'moonDash', 'teleport'] },
-              { name: 'Berserk Eclipse', abilities: ['moonDash', 'lunge', 'teleport'], berserk: 1, poison: 1 }
-            ] },
-  // ---- Act II regulars
-  bao:    { name: 'Bao', title: 'Step Keeper', type: 'regular', outfit: 'gi', ai: 'regular', weapon: 'temple_staff', helmet: 'topknot', armor: 'robe', hp: 230, dmg: 1, build: { scale: 1.02, w: 10 }, eye: '#ece5d3',
-            taunt: 'A thousand steps. You have climbed nine hundred and ninety-nine.', tip: 'His staff reaches far. Step in under it after a whiff.' },
-  lio:    { name: 'Lio', title: 'Wind Dancer', type: 'regular', outfit: 'gi', ai: 'agile', weapon: 'twin_blades', helmet: 'ronin_hood', armor: 'robe', hp: 220, dmg: 1, speed: 1.2, build: { scale: 0.96, w: 9 }, eye: '#7fd0c8',
-            taunt: 'The bamboo bends. So will you.', tip: 'Air attacks catch him mid-jump.' },
-  tessaro:{ name: 'Tessaro', title: 'Stone Fist', type: 'regular', outfit: 'gi', ai: 'defensive', weapon: 'iron_fists', helmet: 'topknot', armor: 'robe', hp: 280, dmg: 1.1, build: { scale: 1.12, w: 14 }, eye: '#c9a45c',
-            taunt: 'Strike me. I have been struck by waterfalls.', tip: 'He counters straight attacks. Mix punches, kicks and grabs.' },
-  ishe:   { name: 'Ishe', title: 'Bead Slinger', type: 'regular', ai: 'ranged', weapon: 'storm_orbs', helmet: 'straw_kasa', armor: 'robe', hp: 220, dmg: 1, build: { scale: 0.96, w: 8 }, eye: '#7fb8ff',
-            taunt: 'Each bead is a prayer. Each prayer is a bruise.', tip: 'Jump the orbs and stay close.' },
-  // ---- Act II bosses
-  rokan:  { name: 'Rokan', title: 'the Iron Sentinel', type: 'sub', ai: 'defensive', weapon: 'sentinel_spear', helmet: 'sentinel_helm', armor: 'pauldrons', hp: 440, dmg: 1.1, speed: 0.9, build: { scale: 1.08, w: 14 }, eye: '#c9a45c', accent: '#c9a45c', shield: 1,
-            taunt: 'Nothing passes the gate. Nothing ever has.', defeat: 'The gate… is open…', win: 'Return to the valley. The gate stays shut.',
-            tip: 'His shield stops frontal hits. Jump over him, sweep low (Dash + Kick) or break it with heavies.', reward: { item: ['helmets', 'sentinel_helm'] },
-            abilities: ['shieldBash'] },
-  zephar: { name: 'Zephar', title: 'the Storm Disciple', type: 'sub', ai: 'ranged', weapon: 'storm_orbs', helmet: 'storm_band', armor: 'storm_mantle', hp: 400, dmg: 1.05, speed: 1.1, build: { scale: 0.98, w: 8 }, eye: '#7fb8ff', accent: '#7fb8ff',
-            taunt: 'The storm does not walk. Neither do I.', defeat: 'The wind… falls still…', win: 'Grounded. Like all of you.',
-            tip: 'He floats out of reach. Double jump and strike in the air; jump over his orbs.', reward: { item: ['armors', 'storm_mantle'] },
-            abilities: ['float', 'orbVolley'] },
-  eryndor:{ name: 'Eryndor', title: 'the Eternal Sage', type: 'boss', ai: 'boss', weapon: 'sage_staff', helmet: 'sage_antlers', armor: 'robe', hp: 720, dmg: 1.15, build: { scale: 1.12, w: 9 }, eye: '#7fd0c8', accent: '#7fd0c8',
-            taunt: 'I have watched a thousand students repeat a single lesson. Show me yours.', defeat: 'At last… a new lesson…', win: 'Predictable. Go, and learn to surprise.',
-            tip: 'He adapts to repetition. Never use the same attack three times in a row.', reward: { weapon: 'dragon_spear', item: ['helmets', 'sage_antlers'] }, adapts: 1,
-            phases: [
-              { name: 'Staff Discipline', abilities: ['counterStance'] },
-              { name: 'Elemental Orbs', abilities: ['orbVolley', 'barrier', 'counterStance'] },
-              { name: 'Stilled Time', abilities: ['timeAura', 'orbVolley', 'counterStance'], aggressive: 1 }
-            ] },
-  // ---- Act III regulars
-  vosk:   { name: 'Vosk', title: 'Ash Raider', type: 'regular', ai: 'regular', weapon: 'raider_cleaver', helmet: 'oni', armor: 'jerkin', hp: 280, dmg: 1.1, build: { scale: 1.04, w: 11 }, eye: '#d24a3c',
-            taunt: 'Ash and coin. You carry one of them.', tip: 'His cleaver is slow. Dash back, then counter.' },
-  grull:  { name: 'Grull', title: 'Cinder Brute', type: 'regular', ai: 'heavy', weapon: 'iron_fists', helmet: 'colossus', armor: 'pauldrons', hp: 360, dmg: 1.25, speed: 0.8, build: { scale: 1.28, w: 17, head: 0.85 }, eye: '#ff6a3c',
-            taunt: 'Grull smash small man.', tip: 'He does not flinch mid-swing. Wait for the whiff.' },
-  kessa:  { name: 'Kessa', title: 'Ember Archer', type: 'regular', ai: 'ranged', weapon: 'cutter_blade', helmet: 'ronin_hood', armor: 'cloak', hp: 260, dmg: 1.1, build: { scale: 0.98, w: 9 }, eye: '#ff6a3c',
-            taunt: 'Every ember I throw used to be a house.', tip: 'Block the kunai while advancing.' },
-  rhaz:   { name: 'Rhaz', title: 'Pit Hound', type: 'regular', ai: 'agile', weapon: 'shadow_daggers', helmet: 'oni', armor: 'jerkin', hp: 270, dmg: 1.1, speed: 1.2, build: { scale: 0.92, w: 10 }, eye: '#d24a3c',
-            taunt: 'They let me off the chain for you.', tip: 'Parry his rush, then counter.' },
-  // ---- Act III bosses
-  brakk:  { name: 'Brakk', title: 'the Pit Colossus', type: 'sub', ai: 'heavy', weapon: 'iron_fists', helmet: 'colossus', armor: 'colossus_plate', hp: 560, dmg: 1.3, speed: 0.78, build: { scale: 1.38, w: 20, head: 0.8 }, eye: '#ff6a3c', accent: '#ff6a3c', noGrab: 1, heavyArmor: 1,
-            taunt: 'The pit was dug for things like me. You will fit in a corner of it.', defeat: 'The pit… takes… me…', win: 'Small. Soft. Next.',
-            tip: 'Jump his ground slams, then hit him during his long recovery.', reward: { item: ['armors', 'colossus_plate'] },
-            abilities: ['groundSlam'] },
-  drazek: { name: 'Drazek', title: 'the Chain Executioner', type: 'sub', ai: 'regular', weapon: 'chain_hook', helmet: 'executioner', armor: 'executioner_garb', hp: 520, dmg: 1.2, build: { scale: 1.18, w: 13 }, eye: '#d24a3c', accent: '#d24a3c',
-            taunt: 'Come closer. Or I will bring you closer.', defeat: 'The chain… breaks…', win: 'Chained, judged, done.',
-            tip: 'The hook can be dashed through. Jump his shockwaves.', reward: { item: ['armors', 'executioner_garb'] },
-            abilities: ['hook', 'groundSlam'] },
-  malgrath:{ name: 'Malgrath', title: 'the Ashen Tyrant', type: 'boss', ai: 'boss', weapon: 'tyrant_cleaver', helmet: 'ashen_crown', armor: 'tyrant', hp: 900, dmg: 1.3, speed: 0.92, build: { scale: 1.42, w: 18, head: 0.86 }, eye: '#ff6a3c', accent: '#ff6a3c', heavyArmor: 1, noGrab: 1,
-            taunt: 'Every king before me burned. I am what the fire kept.', defeat: 'The throne… is ash…', win: 'Another crown of bone for the throne.',
-            tip: 'Do not trade blows. Dodge the big swings and strike the openings.', reward: { weapon: 'titan_hammer', item: ['helmets', 'ashen_crown'] },
-            phases: [
-              { name: 'Tyrant’s Cleaver', abilities: ['groundSlam'] },
-              { name: 'Burning Charge', abilities: ['charge', 'groundSlam'] },
-              { name: 'Ashen Wrath', abilities: ['charge', 'summon', 'groundSlam'], unblockable: 1, aggressive: 1 }
+              { name: 'First Echo', abilities: ['lunge', 'moonDash'] },
+              { name: 'Fractured Echo', abilities: ['teleport', 'clones', 'moonDash'] },
+              { name: 'Last Echo', abilities: ['moonDash', 'groundSlam', 'lunge'], berserk: 1 }
             ] }
 };
 for (const id in ENEMIES) ENEMIES[id].id = id;
 
-/* ---------------- Acts ---------------- */
-const ACTS = [
-  { id: 1, name: 'The Veil of Night', place: 'The Forgotten Rooftops', env: 'rooftops', theme: 'Moonlit rooftops and deadly assassins.', diff: 1, boss: 'noctis',
-    stages: [
-      { name: 'Lantern Row', enemy: 'shiro' }, { name: 'Crow’s Gutter', enemy: 'mako' }, { name: 'Bell Tower Ledge', enemy: 'kairo' },
-      { name: 'Tiled Causeway', enemy: 'gorran' }, { name: 'Moonlit Eaves', enemy: 'sable' }, { name: 'The Fog Bridge', enemy: 'veyra' },
-      { name: 'Hollow Moon Spire', enemy: 'noctis' }
-    ] },
-  { id: 2, name: 'The Forgotten Temple', place: 'The Sacred Highlands', env: 'highlands', theme: 'Ancient mountain temples and mystical martial arts.', diff: 2, boss: 'eryndor',
-    stages: [
-      { name: 'Thousand Steps', enemy: 'bao' }, { name: 'Bamboo Crossing', enemy: 'lio' }, { name: 'Sentinel Gate', enemy: 'rokan' },
-      { name: 'Falling Water Shrine', enemy: 'tessaro' }, { name: 'Cloud Terrace', enemy: 'ishe' }, { name: 'Storm Altar', enemy: 'zephar' },
-      { name: 'Hall of the Eternal', enemy: 'eryndor' }
-    ] },
-  { id: 3, name: 'The Ashen Throne', place: 'The Crimson Wasteland', env: 'wasteland', theme: 'A destroyed fortress surrounded by fire and ash.', diff: 3, boss: 'malgrath',
-    stages: [
-      { name: 'Cinder Road', enemy: 'vosk' }, { name: 'Burning Barracks', enemy: 'grull' }, { name: 'The Pit', enemy: 'brakk' },
-      { name: 'Smoke Ramparts', enemy: 'kessa' }, { name: 'Gallows Yard', enemy: 'rhaz' }, { name: 'Chain Bridge', enemy: 'drazek' },
-      { name: 'The Ashen Throne', enemy: 'malgrath' }
-    ] }
-];
+/* ---------------- Campaign map ----------------
+   Chapters in story order, each with its stages in play order. Stage ids are stable strings
+   ("act1.sub2", "core.witness") and saves record clears by id, so stages can be added, renamed or
+   reordered later without breaking saves. Every stage has:
+     id, kind (stretch | subboss | boss | spar | echo | scene), name (what the map shows),
+     enemy            the temporary arena foe (ENEMIES id) for combat stages; scene stages have none,
+     foe / foeTitle   the story opponent shown instead of the placeholder's name (bosses, sub-bosses, echoes, the spar),
+     chapter / pos    filled in below (owning chapter id, index inside it).
+   Later updates add per-stage fields here (env override, encounters, scene hooks, rewards and unlocks);
+   the logic module reads them, so the rest of the game picks them up. */
+const STAGE_KINDS = ['stretch', 'subboss', 'boss', 'spar', 'echo', 'scene'];
+const CAMPAIGN = (function buildCampaign() {
+  const R = ['I', 'II', 'III', 'IV'];
+  // An act: four stretches, each followed by its sub-boss arena, then the main boss arena.
+  const act = (id, name, title, place, env, diff, grunt, foe, foeTitle) => {
+    const stages = [];
+    for (let i = 1; i <= 4; i++) {
+      stages.push({ id: `${id}.stretch${i}`, kind: 'stretch', name: `Stretch ${R[i - 1]}`, enemy: grunt });
+      stages.push({ id: `${id}.sub${i}`, kind: 'subboss', name: `Sub-boss ${R[i - 1]}`, foe: `${name} · Sub-boss ${i}`, enemy: 'echo_sentinel' });
+    }
+    stages.push({ id: `${id}.boss`, kind: 'boss', name: foe, foe, foeTitle, enemy: 'echo_warden' });
+    return { id, name, title, place, env, diff, stages };
+  };
+  const chapters = [
+    { id: 'prologue', name: 'Prologue', title: 'Hoshimura', place: 'The abandoned village', env: 'highlands', diff: 1,
+      stages: [{ id: 'prologue.1', kind: 'stretch', name: 'The Empty Village', enemy: 'hollow' }] },
+    act('act1', 'Act I', 'The Outer Districts', 'Order territory', 'rooftops', 1, 'order_recruit', 'Raikon', 'the Lightning Ascendant'),
+    { id: 'interlude', name: 'Interlude', title: 'Brothers', place: 'A memory of the training yard', env: 'highlands', diff: 1,
+      stages: [{ id: 'interlude.spar', kind: 'spar', name: 'The Spar', foe: 'Rem', foeTitle: 'Young Rem', enemy: 'echo_sentinel' }] },
+    act('act2', 'Act II', 'The City of Echoes', 'Where the Hollows gather', 'rooftops', 2, 'hollow', 'Akari', 'the Memory Blade'),
+    act('act3', 'Act III', 'The Fortress of Silence', 'Seat of the Order', 'wasteland', 3, 'order_warden', 'Takashi', 'the Father'),
+    { id: 'core', name: 'The Core', title: 'The Echo System', place: 'Corrupted memory', env: 'wasteland', diff: 3,
+      stages: [
+        { id: 'core.stretch1', kind: 'stretch', name: 'Into the Core', enemy: 'hollow' },
+        { id: 'core.echo1', kind: 'echo', name: 'Echo I', foe: 'Hollow Raikon', foeTitle: 'Corrupted echo', enemy: 'echo_sentinel' },
+        { id: 'core.echo2', kind: 'echo', name: 'Echo II', foe: 'Hollow Akari', foeTitle: 'Corrupted echo', enemy: 'echo_sentinel' },
+        { id: 'core.echo3', kind: 'echo', name: 'Echo III', foe: 'Hollow Takashi', foeTitle: 'Corrupted echo', enemy: 'echo_sentinel' },
+        { id: 'core.echo4', kind: 'echo', name: 'Echo IV', foe: 'Hollow Rem', foeTitle: 'Corrupted echo', enemy: 'echo_sentinel' },
+        { id: 'core.witness', kind: 'boss', name: 'The Witness', foe: 'The Witness', foeTitle: 'Heart of the Echo System', enemy: 'echo_warden' }
+      ] },
+    { id: 'epilogue', name: 'Epilogue', title: 'The Last Choice', place: 'Dawn', env: 'highlands', diff: 1,
+      stages: [{ id: 'epilogue', kind: 'scene', name: 'The Last Choice' }] }
+  ];
+  for (const ch of chapters) ch.stages.forEach((st, i) => { st.chapter = ch.id; st.pos = i; });
+  return { chapters };
+})();
 const DIFF_LABEL = ['Easy', 'Normal', 'Hard', 'Brutal', 'Mythic'];
 
 /* ---------------- Survival ---------------- */
 const SURVIVAL = {
-  pool: ['shiro', 'mako', 'gorran', 'sable', 'bao', 'lio', 'tessaro', 'ishe', 'vosk', 'grull', 'kessa', 'rhaz'],
-  bosses: ['kairo', 'veyra', 'rokan', 'zephar', 'brakk', 'drazek'],
+  pool: ['order_recruit', 'hollow', 'order_warden'],
+  bosses: ['echo_sentinel'],
   envs: ['rooftops', 'highlands', 'wasteland'],
   heal: 0.35,
   coins: w => 25 + w * 12,

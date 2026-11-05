@@ -14,6 +14,9 @@ class FightSession {
     this.dialogue = null; this.combo = 0; this.comboT = 0; this.damageTaken = 0; this.fightTime = 0;
     this.player = this.makePlayer(save);
     this.enemy = this.makeEnemy(cfg.enemyId, 300);
+    // campaign stages fight a placeholder rig under the stage's story name (Raikon, Hollow Rem, ...)
+    if (cfg.foeName) this.enemy.name = cfg.foeName;
+    if (cfg.foeTitle) this.enemy.title = cfg.foeTitle;
     this.fighters = [this.player, this.enemy];
     this.isBoss = this.enemy.def.type === 'boss';
     this.isSub = this.enemy.def.type === 'sub';
@@ -38,15 +41,15 @@ class FightSession {
   }
   difficultyLevel(d) {
     if (this.mode === 'survival') return 1 + this.wave * 0.35;
-    const act = this.cfg.act || 0, st = this.cfg.stage || 0;
-    return 1 + act * 1.6 + st * 0.22 + (d.type === 'sub' ? 0.4 : d.type === 'boss' ? 0.8 : 0);
+    const tier = (this.cfg.diff || 1) - 1, st = this.cfg.pos || 0;
+    return 1 + tier * 1.6 + st * 0.22 + (d.type === 'sub' ? 0.4 : d.type === 'boss' ? 0.8 : 0);
   }
   makeEnemy(id, x, extra) {
     const d = ENEMIES[id], ng = this.cfg.ng || 0;
     let hpMul = 1 + 0.35 * ng, dmgMul = (d.dmg || 1) * (1 + 0.25 * ng);
     if (this.mode === 'survival') { hpMul *= 0.85 + this.wave * 0.07; dmgMul *= 0.9 + this.wave * 0.04; }
     const lvl = this.difficultyLevel(d);
-    const wl = clamp(Math.round(1 + (this.cfg.act || 0) * 2.2 + (this.cfg.stage || 0) * 0.3 + ng * 2 + (this.mode === 'survival' ? this.wave * 0.3 : 0)), 1, 8);
+    const wl = clamp(Math.round(1 + ((this.cfg.diff || 1) - 1) * 2.2 + (this.cfg.pos || 0) * 0.3 + ng * 2 + (this.mode === 'survival' ? this.wave * 0.3 : 0)), 1, 8);
     const gearDefE = ((HELMETS[d.helmet] || {}).def || 0) * 0.6 + ((ARMORS[d.armor] || {}).def || 0) * 0.6;
     const f = makeFighterFromEnemy(id, Object.assign({ x, team: 1, hp: Math.round(d.hp * hpMul), dmgMul, wlvl: wl, defense: gearDefE, speedMul: d.speed || 1 }, extra || {}));
     f.baseSpeed = f.speedMul;
@@ -125,7 +128,7 @@ class FightSession {
   spawnMinions(owner, n) {
     for (let i = 0; i < n; i++) {
       const x = i % 2 ? this.bounds.r - 30 : this.bounds.l + 30;
-      const m = this.makeEnemy('vosk', x, { hp: 70, build: { scale: 0.88, w: 10 } });
+      const m = this.makeEnemy('order_recruit', x, { hp: 70, build: { scale: 0.88, w: 10 } });
       m.minion = true; m.maxHp = 70; m.hp = 70; m.dmgMul *= 0.6; m.ai.p.aggr = 0.6;
       this.fighters.push(m); this.fx.embers(x, -60, 20);
     }
@@ -228,7 +231,7 @@ class FightSession {
       case 'round':
         if (this.phaseT < 0.05 && !this.roundShown) {
           this.roundShown = true; this.rounds.n++;
-          if (this.mode !== 'survival') this.fx.banner(this.roundsToWin > 1 ? `Round ${ROMAN[this.rounds.n - 1]}` : 'Final Duel', this.isBoss ? 'Three phases stand between you and the throne' : `${e.name} · ${DIFF_LABEL[clamp((ACTS[this.cfg.act] || { diff: 1 }).diff + (this.cfg.ng || 0), 0, 4)]}`, C.gold);
+          if (this.mode !== 'survival') this.fx.banner(this.roundsToWin > 1 ? `Round ${ROMAN[this.rounds.n - 1]}` : 'Final Duel', this.isBoss ? 'Three phases stand between you and the throne' : `${e.name} · ${DIFF_LABEL[clamp((this.cfg.diff || 1) + (this.cfg.ng || 0), 0, 4)]}`, C.gold);
           AudioManager.play('round');
         }
         if (this.phaseT > 1.25 && !this.fightShown) { this.fightShown = true; this.fx.stamp('FIGHT', (p.x + e.x) / 2, -150, 3, C.emberBright); this.fightFlash = 1; }
@@ -302,7 +305,7 @@ class FightSession {
   buildResult() {
     const p = this.player, e = this.enemy;
     return {
-      mode: this.mode, win: !!this.win, enemyId: e.def.id, act: this.cfg.act, stage: this.cfg.stage, ng: this.cfg.ng || 0,
+      mode: this.mode, win: !!this.win, enemyId: e.def.id, stageId: this.cfg.stageId, foeName: e.name, ng: this.cfg.ng || 0,
       time: this.fightTime, hpLeft: p.hp / p.maxHp, flawless: this.damageTaken < 1, maxCombo: p.stats.maxCombo, parries: p.stats.parries,
       enemyDamage: 1 - Math.max(0, e.hp) / e.maxHp, waves: this.wavesCleared, survivalCoins: this.survivalCoins, survivalGems: this.survivalGems,
       env: this.cfg.env
@@ -428,7 +431,7 @@ const Game = {
   },
 
   /* ---- flow ---- */
-  stageConfig(actIdx, stageIdx) { return Logic.stageConfig(SaveManager.data, actIdx, stageIdx); },
+  stageConfig(stageId) { return Logic.stageConfig(SaveManager.data, stageId); },
   startFight(cfg) {
     this.session = new FightSession(cfg);
     this.scene = 'fight'; this.paused = false; this.acc = 0; this.tableau = null;
@@ -451,7 +454,13 @@ const Game = {
   // progression queries are answered by Logic (15-logic.js); these keep the engine's old entry points
   rate(r) { return Logic.rateFight(r); },
   nextStage() { return Logic.nextStage(SaveManager.data); },
-  stageUnlocked(a, s) { return Logic.stageUnlocked(SaveManager.data, a, s); },
+  stageUnlocked(id) { return Logic.isStageUnlocked(SaveManager.data, id); },
+  // Story scenes have no fight: selecting one completes it (until the scene player lands) and saves.
+  playScene(id) {
+    const out = Logic.completeStage(SaveManager.data, id);
+    if (out) SaveManager.save();
+    return out;
+  },
   startNewGamePlus() {
     if (!Logic.startNewGamePlus(SaveManager.data)) return false;
     SaveManager.save();

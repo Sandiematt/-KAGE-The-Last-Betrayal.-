@@ -25,6 +25,10 @@ function playerMaxHp(save) {
 }
 function xpForLevel(lvl) { return 200 + 120 * (lvl - 1); }
 
+// The campaign map flattened in story order, and indexed by stage id.
+const STAGE_LIST = CAMPAIGN.chapters.reduce((all, ch) => all.concat(ch.stages), []);
+const STAGE_BY_ID = {}; for (const st of STAGE_LIST) STAGE_BY_ID[st.id] = st;
+
 const Logic = {
   /* ---------------- save schema ---------------- */
   // The Last Betrayal starts over: its saves live under a new key and schema version.
@@ -47,9 +51,8 @@ const Logic = {
       v: Logic.SAVE_VERSION,  // schema version
       coins: 250, gems: 5, xp: 0, level: 1,
       ng: 0, ngUnlocked: false, ngCompletions: 0,
-      cleared: {},            // "act-stage" -> true, current cycle
-      unlockedActs: 1,
-      defeated: {},           // enemyId -> count (lifetime)
+      cleared: {},            // stageId -> true, current cycle
+      defeated: {},           // stageId -> wins (lifetime, kept through New Game+)
       owned: { weapons: { moon_katana: 1 }, helmets: { topknot: 1 }, armors: { wraps: 1 } },
       equipped: { weapon: 'moon_katana', helmet: 'topknot', armor: 'wraps' },
       seenRewards: {},
@@ -78,38 +81,77 @@ const Logic = {
     d.equipped = Object.assign(this.defaultSave().equipped, s.equipped || {});
     d.stats = Object.assign(this.defaultSave().stats, s.stats || {});
     d.settings = Object.assign(this.defaultSave().settings, s.settings || {});
-    d.cleared = s.cleared || {};
-    d.defeated = s.defeated || {};
+    // clears and defeats are keyed by stage id; keys the map does not know (old saves, removed stages) are dropped
+    d.cleared = {}; d.defeated = {};
+    for (const k in s.cleared || {}) if (STAGE_BY_ID[k] && s.cleared[k]) d.cleared[k] = true;
+    for (const k in s.defeated || {}) if (STAGE_BY_ID[k] && s.defeated[k] > 0) d.defeated[k] = s.defeated[k];
+    delete d.unlockedActs;
     d.seenRewards = s.seenRewards || {};
     return d;
   },
-  /* ---------------- campaign ---------------- */
-  stageKey(act, stage) { return `${act}-${stage}`; },
-  isStageCleared(save, act, stage) { return !!save.cleared[this.stageKey(act, stage)]; },
-  isActUnlocked(save, act) { return act < save.unlockedActs; },
-  // The last stage of every act is its boss; beating it clears the act.
-  isActCleared(save, act) { return this.isStageCleared(save, act, ACTS[act].stages.length - 1); },
-  stageUnlocked(save, act, stage) {
-    if (!this.isActUnlocked(save, act)) return false;
-    if (stage === 0) return true;
-    return this.isStageCleared(save, act, stage - 1) || this.isStageCleared(save, act, stage);
+  /* ---------------- campaign map ----------------
+     The map is CAMPAIGN (10-data.js): chapters in story order, stages in play order, every stage with a
+     stable string id. Progress is `save.cleared[stageId]` for the current cycle; stages unlock strictly in
+     story order (a stage opens once the stage before it is cleared) and cleared stages stay open for replay. */
+  CAMPAIGN, STAGE_KINDS,
+  chapters() { return CAMPAIGN.chapters; },
+  chapter(id) { return CAMPAIGN.chapters.find(c => c.id === id) || null; },
+  // Every stage in story order, across all chapters.
+  stages() { return STAGE_LIST; },
+  stage(id) { return STAGE_BY_ID[id] || null; },
+  chapterOf(stageId) { const st = this.stage(stageId); return st ? this.chapter(st.chapter) : null; },
+  // Everything but story scenes is fought.
+  isCombatStage(id) { const st = this.stage(id); return !!st && st.kind !== 'scene'; },
+  // Stages that count as a boss fight (trophies list, records, a future Boss Rush).
+  isBossStage(id) { const st = this.stage(id); return !!st && (st.kind === 'subboss' || st.kind === 'boss' || st.kind === 'echo'); },
+  isStageComplete(save, id) { return !!save.cleared[id]; },
+  isStageUnlocked(save, id) {
+    const i = STAGE_LIST.findIndex(s => s.id === id);
+    if (i < 0) return false;
+    return i === 0 || this.isStageComplete(save, id) || this.isStageComplete(save, STAGE_LIST[i - 1].id);
   },
-  // First uncleared stage of the unlocked acts, or null when nothing is left to clear.
-  nextStage(save) {
-    for (let a = 0; a < ACTS.length; a++) {
-      if (!this.isActUnlocked(save, a)) break;
-      for (let s = 0; s < ACTS[a].stages.length; s++) if (!this.isStageCleared(save, a, s)) return { act: a, stage: s };
+  isChapterUnlocked(save, id) { const c = this.chapter(id); return !!c && this.isStageUnlocked(save, c.stages[0].id); },
+  isChapterComplete(save, id) { const c = this.chapter(id); return !!c && c.stages.every(s => this.isStageComplete(save, s.id)); },
+  chapterProgress(save, id) {
+    const c = this.chapter(id);
+    return { done: c.stages.filter(s => this.isStageComplete(save, s.id)).length, total: c.stages.length };
+  },
+  isCampaignComplete(save) { return STAGE_LIST.every(s => this.isStageComplete(save, s.id)); },
+  // The story frontier: the id of the first uncleared stage, or null when the story is finished.
+  nextStage(save) { const st = STAGE_LIST.find(s => !this.isStageComplete(save, s.id)); return st ? st.id : null; },
+  // Lifetime wins on a stage (kept through New Game+).
+  defeatedCount(save, id) { return save.defeated[id] || 0; },
+  // Marks a stage cleared (a won fight, or a story scene played) and returns what that opened:
+  // { stage, firstClear, next, unlocks: [{ kind: 'chapter', id } | { kind: 'ng' }] }, or null when the stage is locked.
+  completeStage(save, id) {
+    const st = this.stage(id);
+    if (!st || !this.isStageUnlocked(save, id)) return null;
+    const firstClear = !this.isStageComplete(save, id), unlocks = [];
+    save.cleared[id] = true;
+    save.defeated[id] = (save.defeated[id] || 0) + 1;
+    const next = this.nextStage(save);
+    if (firstClear) {
+      const ch = this.chapter(st.chapter), i = CAMPAIGN.chapters.indexOf(ch), nextCh = CAMPAIGN.chapters[i + 1];
+      if (nextCh && this.isChapterComplete(save, ch.id)) unlocks.push({ kind: 'chapter', id: nextCh.id });
+      if (this.isCampaignComplete(save)) {
+        if (!save.ngUnlocked) unlocks.push({ kind: 'ng' });
+        save.ngUnlocked = true;
+        save.ngCompletions = Math.max(save.ngCompletions || 0, (save.ng || 0) + 1);
+      }
     }
-    return null;
+    return { stage: id, firstClear, next, unlocks };
   },
-  stageConfig(save, act, stage) {
-    const A = ACTS[act], st = A.stages[stage];
-    return { mode: 'campaign', act, stage, enemyId: st.enemy, env: A.env, ng: save.ng };
+  // Everything the fight session needs to stage a campaign fight. Until real content lands every combat stage
+  // is one arena fight against its placeholder `enemy`, shown under the stage's story foe name.
+  stageConfig(save, id) {
+    const st = this.stage(id), ch = this.chapter(st.chapter), d = ENEMIES[st.enemy];
+    return { mode: 'campaign', stageId: id, kind: st.kind, chapter: ch.id, pos: st.pos, diff: ch.diff, env: st.env || ch.env,
+      enemyId: st.enemy, foeName: st.foe || (d && d.name), foeTitle: st.foeTitle || (d && d.title), ng: save.ng };
   },
-  // Starts the next New Game+ cycle: campaign progress resets, everything else is kept.
+  // Starts the next New Game+ cycle: campaign progress resets, everything else (including lifetime defeats) is kept.
   startNewGamePlus(save) {
     if (!save.ngUnlocked) return false;
-    save.ng = (save.ng || 0) + 1; save.cleared = {}; save.unlockedActs = 1;
+    save.ng = (save.ng || 0) + 1; save.cleared = {};
     return true;
   },
 
@@ -140,7 +182,11 @@ const Logic = {
   /* ---------------- rewards ---------------- */
   rewardTypeMul(type) { return type === 'boss' ? 3.4 : type === 'sub' ? 2.2 : 1; },
   ngRewardMul(ng) { return 1 + 0.6 * (ng || 0); },
-  stageBaseCoins(act, type) { return (60 + 45 * ACTS[act].diff) * this.rewardTypeMul(type); },
+  // Reward tier of a stage: stretches pay like regular fights; sub-bosses, the spar and the Core echoes like
+  // sub-bosses; the act bosses and the Witness like bosses. Story scenes pay nothing.
+  stageRewardType(id) { const k = (this.stage(id) || {}).kind; return k === 'boss' ? 'boss' : k === 'subboss' || k === 'spar' || k === 'echo' ? 'sub' : 'regular'; },
+  stageBaseCoins(id) { return (60 + 45 * this.chapterOf(id).diff) * this.rewardTypeMul(this.stageRewardType(id)); },
+  firstClearGems(type) { return type === 'boss' ? 5 : type === 'sub' ? 2 : 0; },
   // Performance rating of a campaign fight: S, A, B or C.
   rateFight(r) {
     if (!r.win) return 'C';
@@ -148,48 +194,39 @@ const Logic = {
     return s >= 85 ? 'S' : s >= 62 ? 'A' : s >= 42 ? 'B' : 'C';
   },
   // What the stage card promises before the fight (a C-rated win, without the flawless gem).
-  stageRewardPreview(save, act, stage) {
-    const foe = ENEMIES[ACTS[act].stages[stage].enemy], cleared = this.isStageCleared(save, act, stage);
-    const coins = Math.round(this.stageBaseCoins(act, foe.type) * this.ngRewardMul(save.ng) * (cleared ? 0.5 : 1) / 5) * 5;
-    const gems = cleared ? 0 : foe.type === 'boss' ? 5 : foe.type === 'sub' ? 2 : 0;
-    return { coins, gems };
+  stageRewardPreview(save, id) {
+    if (!this.isCombatStage(id)) return { coins: 0, gems: 0 };
+    const cleared = this.isStageComplete(save, id);
+    const coins = Math.round(this.stageBaseCoins(id) * this.ngRewardMul(save.ng) * (cleared ? 0.5 : 1) / 5) * 5;
+    return { coins, gems: cleared ? 0 : this.firstClearGems(this.stageRewardType(id)) };
   },
   survivalWaveReward(wave) {
     return { coins: SURVIVAL.coins(wave), gems: wave % SURVIVAL.gemsEvery === 0 ? 1 : 0 };
   },
   // Applies a finished fight (campaign or survival) to the save and returns what it earned:
-  // { coins, gems, xp, rating, seals, unlocks, firstClear, levelUps, levelBefore, xpBefore, newBest? }
+  // { coins, gems, xp, rating, seals, unlocks, firstClear, next?, levelUps, levelBefore, xpBefore, newBest? }
+  // A campaign result names its stage by `stageId`; a win completes that stage (see completeStage).
   // plus every field of the fight result. The save is updated in place; persisting it is the caller's job.
   applyFightResult(save, r) {
     const out = Object.assign({}, r, { coins: 0, gems: 0, xp: 0, unlocks: [], levelUps: 0, firstClear: false });
     const ngMul = this.ngRewardMul(r.ng);
     if (r.mode === 'campaign') {
-      const act = ACTS[r.act], d = ENEMIES[r.enemyId], key = this.stageKey(r.act, r.stage);
-      const base = this.stageBaseCoins(r.act, d.type);
+      const id = r.stageId, type = this.stageRewardType(id), diff = this.chapterOf(id).diff;
+      const base = this.stageBaseCoins(id);
       out.rating = this.rateFight(r);
       out.seals = [r.win, r.win && r.time < 60, r.win && r.flawless];
       if (r.win) {
-        out.firstClear = !save.cleared[key];
+        const done = this.completeStage(save, id) || { firstClear: false, unlocks: [] };
+        out.firstClear = done.firstClear;
         out.coins = Math.round(base * ngMul * ({ S: 1.5, A: 1.25, B: 1.1, C: 1 }[out.rating]) * (out.firstClear ? 1 : 0.5) / 5) * 5;
-        out.gems = (out.firstClear ? (d.type === 'boss' ? 5 : d.type === 'sub' ? 2 : 0) : (d.type === 'boss' ? 1 : 0)) + (r.flawless ? 1 : 0);
-        out.xp = Math.round((d.type === 'boss' ? 300 : d.type === 'sub' ? 150 : 80) * act.diff * ngMul);
-        save.cleared[key] = true;
-        save.defeated[d.id] = (save.defeated[d.id] || 0) + 1;
+        out.gems = (out.firstClear ? this.firstClearGems(type) : (type === 'boss' ? 1 : 0)) + (r.flawless ? 1 : 0);
+        out.xp = Math.round((type === 'boss' ? 300 : type === 'sub' ? 150 : 80) * diff * ngMul);
         save.stats.wins++; if (r.flawless) save.stats.perfects++;
-        if (d.reward) {
-          if (d.reward.weapon && !save.owned.weapons[d.reward.weapon]) { save.owned.weapons[d.reward.weapon] = 1; out.unlocks.push({ kind: 'weapons', id: d.reward.weapon }); }
-          if (d.reward.item && !save.owned[d.reward.item[0]][d.reward.item[1]]) { save.owned[d.reward.item[0]][d.reward.item[1]] = 1; out.unlocks.push({ kind: d.reward.item[0], id: d.reward.item[1] }); }
-        }
-        if (d.type === 'boss') {
-          save.stats.bosses++;
-          if (r.act + 2 > save.unlockedActs && r.act + 1 < ACTS.length) { save.unlockedActs = r.act + 2; out.unlocks.push({ kind: 'act', id: r.act + 1 }); }
-          if (r.act === ACTS.length - 1) {
-            if (!save.ngUnlocked) out.unlocks.push({ kind: 'ng' });
-            save.ngUnlocked = true; if (out.firstClear) save.ngCompletions = Math.max(save.ngCompletions, (r.ng || 0) + 1);
-          }
-        }
+        if (type === 'boss') save.stats.bosses++;
+        out.unlocks.push(...done.unlocks);
+        out.next = done.next;
       } else {
-        out.coins = Math.round(base * 0.25 / 5) * 5; out.xp = 20 * act.diff; save.stats.losses++;
+        out.coins = Math.round(base * 0.25 / 5) * 5; out.xp = 20 * diff; save.stats.losses++;
       }
     } else {
       out.coins = r.survivalCoins; out.gems = r.survivalGems; out.xp = 40 * r.waves;

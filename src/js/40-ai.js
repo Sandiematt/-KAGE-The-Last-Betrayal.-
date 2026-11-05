@@ -291,7 +291,7 @@ const BOSS_ABILITIES = {
   clones: { id: 'clones', cd: 13, range: [0, 900], chance: 0.8, cond: (f, w) => w.fighters.filter(x => x.clone && x.alive).length === 0,
     run(f, w) {
       f.startAbility({ dur: 0.9, pose: POSES.castUp, rate: 14, uninterruptible: true,
-        start(f) { f.invuln = 0.9; w.fx.banner('Hollow Illusions', 'Only the true Noctis has eyes', '#9b8cff'); },
+        start(f) { f.invuln = 0.9; w.fx.banner('Hollow Illusions', 'Only the true one has eyes', '#9b8cff'); },
         update(f, w, t) { if (t > 0.5 && !this.done) { this.done = 1; w.spawnClones(f, 2); } } });
     } },
   shieldBash: { id: 'shieldBash', cd: 3, range: [0, 150], chance: 0.6,
