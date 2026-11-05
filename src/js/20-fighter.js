@@ -1,5 +1,6 @@
 /* KAGE — Fighter: procedural skeleton, pose blending, state machine, gear & weapon art (Player / Enemy share it) */
 
+const HERO_FACEWRAP = '#efe9dd', HERO_FACEWRAP_SHADE = '#b4ac9f';   // Kage's white face-wrap: flat fill + one cel-shade tone
 const BODY = { torso: 60, neck: 7, head: 18, upper: 36, fore: 34, thigh: 45, shin: 47 };
 const SHAPE = {
   fists: 'none', twin_blades: 'short', moon_katana: 'katana', mountain_cleaver: 'cleaver', dragon_spear: 'spear',
@@ -155,14 +156,21 @@ class Fighter {
       this.cloths.push({ kind: 'belt', c: new Cloth(6, 5.6 * this.scale, { ph: 7, wind: 200, grav: 1250, stiff: 1.7 }), at: 'hip', color: bc, w: 4 * this.scale, w1: 2.4 * this.scale, dy: -11, dx: -3 });
       this.cloths.push({ kind: 'belt', c: new Cloth(5, 5.4 * this.scale, { ph: 8, wind: 170, grav: 1300, stiff: 1.7 }), at: 'hip', color: bc2, w: 3.2 * this.scale, w1: 2 * this.scale, dy: -10, dx: -1 });
     }
-    if (this.helmet === 'topknot') {
+    if (this.helmet === 'topknot' && o.isPlayer) {
+      // Kage's bible look: one short trailing strip of the white face-wrap, knotted low at the back of the head,
+      // with a small stub of the other end beside it (out of phase so they never move as one strip)
+      this.cloths.push({ kind: 'scarf', c: new Cloth(6, 6.2 * this.scale, { ph: 9, wind: 1050, grav: 560, stiff: 1.9 }), at: 'head', color: HERO_FACEWRAP, w: 4 * this.scale, w1: 1.6 * this.scale, dy: 6, dx: 17 });
+      this.cloths.push({ kind: 'scarf', c: new Cloth(4, 5 * this.scale, { ph: 12.5, wind: 900, grav: 640, stiff: 1.9 }), at: 'head', color: HERO_FACEWRAP_SHADE, w: 3 * this.scale, w1: 1.3 * this.scale, dy: 8, dx: 16 });
+    } else if (this.helmet === 'topknot') {
       // two thin hachimaki tails of different length, out of phase so they never move as one strip
       this.cloths.push({ kind: 'scarf', c: new Cloth(10, 7.6 * this.scale, { ph: 9, wind: 860, grav: 680, stiff: 1.75 }), at: 'head', color: C.emberBright, w: 3.4 * this.scale, w1: 1.3 * this.scale, dy: -8, dx: 16 });
       this.cloths.push({ kind: 'scarf', c: new Cloth(8, 7 * this.scale, { ph: 12.5, wind: 740, grav: 760, stiff: 1.75 }), at: 'head', color: '#b8362b', w: 2.8 * this.scale, w1: 1.1 * this.scale, dy: -6, dx: 16 });
     }
     if (o.scarf && this.helmet !== 'topknot') {
-      this.cloths.push({ kind: 'scarf', c: new Cloth(9, 7 * this.scale, { ph: 0, wind: 560 }), at: 'neck', color: C.emberBright, w: 5.5 * this.scale });
-      this.cloths.push({ kind: 'scarf', c: new Cloth(8, 6.5 * this.scale, { ph: 2, wind: 480 }), at: 'neck', color: C.emberBright, w: 3.6 * this.scale, dy: 4 });
+      // under another helmet the face-wrap still trails a short white strip from the neck (the sash stays the one red accent)
+      const pc = o.isPlayer, sc = pc ? HERO_FACEWRAP : C.emberBright;
+      this.cloths.push({ kind: 'scarf', c: new Cloth(pc ? 6 : 9, (pc ? 5.6 : 7) * this.scale, { ph: 0, wind: 560 }), at: 'neck', color: sc, w: (pc ? 4.2 : 5.5) * this.scale });
+      if (!pc) this.cloths.push({ kind: 'scarf', c: new Cloth(8, 6.5 * this.scale, { ph: 2, wind: 480 }), at: 'neck', color: C.emberBright, w: 3.6 * this.scale, dy: 4 });
     }
     const cape = { cloak: [C.ink, '#9b8cff'], shadow_cloak: [C.ink, '#3a342b'], mist_shroud: ['rgba(150,160,165,0.55)', null], tyrant: ['#050404', C.emberBright] }[this.armor];
     if (cape) this.cloths.push({ kind: 'cape', c: new Cloth(9, 11 * this.scale, { ph: 1, wind: 380, grav: 900 }), at: 'sh', color: cape[0], edge: cape[1], w0: 14 * this.scale, w1: 30 * this.scale });
@@ -1129,8 +1137,9 @@ function fistShape(ctx, p, r) { ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, TAU); c
 const _np = { x: 0, y: 0 };
 
 // flat 2D stickman: uniform round-capped limbs, plain circle head, no shading, no muscle volume
-// Kael (the player) gets the reference-sheet details: small feet, arm/leg wraps and the red sash, layered in draw order
-const HERO_WRAP = '#dcd6ca', HERO_WRAP_BACK = '#8f897f';
+// Kage (the player) gets the story-bible details: small feet, dark arm/leg wraps, the red sash and (in drawHelmet) the white face-wrap
+// the limb wraps stay dark so the silhouette reads black; white is kept for the face-wrap alone
+const HERO_WRAP = '#3b3631', HERO_WRAP_BACK = '#25211e';
 function heroWrap(ctx, a, b, u0, u1, r, col, ink, s) {
   const ax = lerp(a.x, b.x, u0), ay = lerp(a.y, b.y, u0), bx = lerp(a.x, b.x, u1), by = lerp(a.y, b.y, u1);
   ctx.strokeStyle = col; ctx.lineWidth = r * 2; ctx.lineCap = 'butt';
@@ -1191,9 +1200,9 @@ Fighter.prototype.drawSash = function (ctx, T) {
   const dx = sk.neck.x - sk.hip.x, dy = sk.neck.y - sk.hip.y, D = Math.hypot(dx, dy) || 1, ux = dx / D, uy = dy / D;
   let nx = -uy, ny = ux; if (nx * f < 0) { nx = -nx; ny = -ny; }
   const w = T * 0.98, col = this.isPlayer ? C.emberBright : '#3a342b';
-  ctx.strokeStyle = col; ctx.lineWidth = (this.isPlayer ? 5 : 4) * s; ctx.lineCap = 'butt';
+  ctx.strokeStyle = col; ctx.lineWidth = (this.isPlayer ? 7 : 4) * s; ctx.lineCap = 'butt';
   ctx.beginPath(); ctx.moveTo(x - nx * w, y - ny * w); ctx.lineTo(x + nx * w, y + ny * w); ctx.stroke();
-  if (this.isPlayer) { ctx.fillStyle = '#b8362b'; ctx.beginPath(); ctx.ellipse(x + nx * w * 0.8, y + ny * w * 0.8 + 1.5 * s, 2.4 * s, 3 * s, 0, 0, TAU); ctx.fill(); }
+  if (this.isPlayer) { ctx.fillStyle = '#b8362b'; ctx.beginPath(); ctx.ellipse(x + nx * w * 0.8, y + ny * w * 0.8 + 1.5 * s, 3 * s, 3.6 * s, 0, 0, TAU); ctx.fill(); }
   ctx.lineCap = 'round';
 };
 Fighter.prototype.drawDetails = function () {};
@@ -1499,6 +1508,29 @@ function drawHeroHair(ctx, r, ink) {
   ctx.arc(0, 0, r, Math.PI * 0.99, Math.PI * 1.9, false); ctx.closePath(); ctx.fill();
 }
 
+/* ---- Kage's face-wrap: white cloth over the lower face, wound round to a knot low at the back of the head ---- */
+function drawFaceWrap(ctx, r, ink, flat) {
+  const W = flat ? ink : HERO_FACEWRAP, S = flat ? ink : HERO_FACEWRAP_SHADE;
+  ctx.save();
+  ctx.beginPath(); ctx.arc(0, 0, r * 1.06, 0, TAU); ctx.clip();
+  // the wrap: top edge sits just under the eye slit at the front and climbs toward the knot at the back
+  ctx.fillStyle = W;
+  ctx.beginPath();
+  ctx.moveTo(r * 1.2, r * 0.3); ctx.lineTo(r * 0.55, r * 0.33); ctx.quadraticCurveTo(-r * 0.3, r * 0.3, -r * 1.2, -r * 0.02);
+  ctx.lineTo(-r * 1.2, r * 1.2); ctx.lineTo(r * 1.2, r * 1.2); ctx.closePath(); ctx.fill();
+  if (!flat) {
+    // one cel-shade band under the jaw and two crisp wrap folds
+    ctx.fillStyle = S;
+    ctx.beginPath(); ctx.moveTo(-r * 1.2, r * 0.62); ctx.quadraticCurveTo(r * 0.1, r * 0.86, r * 1.2, r * 0.7); ctx.lineTo(r * 1.2, r * 1.2); ctx.lineTo(-r * 1.2, r * 1.2); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = ink; ctx.lineWidth = Math.max(1, r * 0.07); ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(r * 0.85, r * 0.56); ctx.quadraticCurveTo(-r * 0.1, r * 0.6, -r * 0.8, r * 0.3); ctx.stroke();
+  }
+  ctx.restore();
+  // the knot at the back of the head (its strip is cloth)
+  ctx.fillStyle = W; ctx.beginPath(); ctx.ellipse(-r * 0.98, r * 0.3, r * 0.2, r * 0.16, 0.5, 0, TAU); ctx.fill();
+  if (!flat) { ctx.strokeStyle = ink; ctx.lineWidth = Math.max(1, r * 0.06); ctx.stroke(); }
+}
+
 /* ---- helmets: local head frame, origin = head centre, +x = facing ---- */
 function drawHelmet(ctx, key, r, ink, opt, f) {
   const flat = !!opt.color;
@@ -1506,8 +1538,8 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
   ctx.fillStyle = ink; ctx.strokeStyle = ink;
   const t = f ? f.time : 0;
   switch (key) {
-    case 'topknot': // crimson hachimaki tied at the back of the head
-      if (f && f.isPlayer) drawHeroHair(ctx, r, ink);
+    case 'topknot': // player: Kage's white face-wrap; everyone else: crimson hachimaki tied at the back of the head
+      if (f && f.isPlayer) { drawHeroHair(ctx, r, ink); drawFaceWrap(ctx, r, ink, flat); break; }
       ctx.save(); ctx.beginPath(); ctx.arc(0, 0, r * 1.04, 0, TAU); ctx.clip();
       ctx.fillStyle = flat ? ink : C.emberBright;
       ctx.beginPath(); ctx.moveTo(-r * 1.1, -r * 0.5); ctx.lineTo(r * 1.1, -r * 0.4); ctx.lineTo(r * 1.1, -r * 0.2); ctx.lineTo(-r * 1.1, -r * 0.29); ctx.closePath(); ctx.fill();
