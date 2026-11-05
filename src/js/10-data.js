@@ -259,7 +259,7 @@ const MOVES = {};
         if (wp.hands !== 2) for (const q of [m.w, m.s, m.a, m.f]) if (q) q.ik = 0;
         applyTwist(m);
       }
-      if (UNARMED[k]) console.warn('[KAGE] move id collision:', k);
+      if (UNARMED[k]) throw new Error('[KAGE] move id collision: ' + k);
       MOVES[k] = m;
     }
   }

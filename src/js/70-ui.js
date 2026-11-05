@@ -308,7 +308,7 @@ const UIManager = {
   },
   openLoadout() {
     const s = SaveManager.data, eq = s.equipped;
-    this.openOverlay('profile', `<div class="ov-card"><div class="eyebrow">Profile</div><h3 class="disp">Kael · Level ${s.level}</h3>
+    this.openOverlay('profile', `<div class="ov-card"><div class="eyebrow">Profile</div><h3 class="disp">Kage · Level ${s.level}</h3>
       <canvas class="lo-art" data-lo></canvas>
       <div class="xp"><div class="labels"><b>Experience</b><span>${fmt(s.xp)} / ${fmt(xpForLevel(s.level))}</span></div><div class="track"><i style="width:${s.xp / xpForLevel(s.level) * 100}%"></i></div></div>
       <div class="records">
@@ -576,7 +576,7 @@ const UIManager = {
       <button class="round-btn pf-back" data-a="back" aria-label="Back">${ICON.back}</button>
       <div class="plate left">
         <div class="eyebrow">Level ${save.level} · ${playerMaxHp(save)} HP</div>
-        <div class="nm disp">Kael</div>
+        <div class="nm disp">Kage</div>
         <div class="gear-chips"><span class="chip">Helm <b>${esc(HELMETS[save.equipped.helmet].name)}</b></span><span class="chip">Armor <b>${esc(ARMORS[save.equipped.armor].name)}</b></span><button class="chip" data-a="pf-gear" style="color:var(--accent-gold);border-color:var(--accent-gold-dim)">Change gear</button></div>
       </div>
       <div class="plate right">
@@ -603,7 +603,7 @@ const UIManager = {
       <div class="fp left" data-pp>
         <div class="medal"><canvas data-portrait="p"></canvas></div>
         <div class="fp-body">
-          <div class="fp-name"><b>Kael</b><span>Lv ${SaveManager.data.level}</span></div>
+          <div class="fp-name"><b>Kage</b><span>Lv ${SaveManager.data.level}</span></div>
           <div class="hbar"><div class="hbar-in"><i class="hb-chip"></i><i class="hb-fill"></i><i class="hb-gloss"></i></div><span class="hb-val" data-php></span></div>
           <div class="rbar" data-rage><span class="rb-ic">怒</span><div class="rbar-in"><i class="rb-fill"></i></div><span class="rb-ready">Rage ready</span><span class="kunai" data-kunai></span></div>
         </div>
@@ -777,7 +777,7 @@ const UIManager = {
         }, delay);
         delay += 700;
       }
-      if (r.levelUps) setTimeout(() => this.toast('Level up', `Kael reaches level ${save.level}`), delay);
+      if (r.levelUps) setTimeout(() => this.toast('Level up', `Kage reaches level ${save.level}`), delay);
     };
   },
 
@@ -875,7 +875,7 @@ const UIManager = {
   openProfile() {
     const s = SaveManager.data;
     const bossStages = Logic.stages().filter(st => Logic.isBossStage(st.id)), bosses = bossStages.filter(st => Logic.defeatedCount(s, st.id) > 0).length;
-    this.openOverlay('profile', `<div class="ov-card"><div class="eyebrow">Records</div><h3 class="disp">Kael · Level ${s.level}</h3>
+    this.openOverlay('profile', `<div class="ov-card"><div class="eyebrow">Records</div><h3 class="disp">Kage · Level ${s.level}</h3>
       <div class="records">
         <div><b>${s.stats.wins}</b><span>Duels won</span></div><div><b>${s.stats.losses}</b><span>Defeats</span></div>
         <div><b>${bosses} / ${bossStages.length}</b><span>Bosses broken</span></div><div><b>${s.survivalBest}</b><span>Best survival wave</span></div>

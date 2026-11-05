@@ -1496,7 +1496,7 @@ function drawWeaponShape(ctx, sh, L, mode, s, ink, f) {
   }
 }
 
-/* ---- Kael's hair: a few sharp spikes swept up and back, one fringe spike over the brow ---- */
+/* ---- Kage's hair: a few sharp spikes swept up and back, one fringe spike over the brow ---- */
 const HERO_HAIR = [[0.9, -0.3], [1.1, -0.56], [0.62, -0.8], [0.4, -1.36], [0.06, -0.98], [-0.5, -1.56], [-0.4, -0.94], [-1.26, -1.3], [-0.84, -0.62], [-1.86, -0.74], [-0.98, -0.3], [-1.6, -0.08], [-1.0, -0.02]];
 function drawHeroHair(ctx, r, ink) {
   ctx.fillStyle = ink; ctx.beginPath(); ctx.moveTo(HERO_HAIR[0][0] * r, HERO_HAIR[0][1] * r);
@@ -1680,7 +1680,7 @@ function makeFighterFromEnemy(id, extra) {
   return new Fighter(Object.assign({ def: d, name: d.name, title: d.title, weapon: d.weapon, helmet: d.helmet, armor: d.armor, build: d.build, eye: d.eye, accent: d.accent, hp: d.hp, facing: -1 }, extra || {}));
 }
 function makePlayerFighter(save, extra) {
-  return new Fighter(Object.assign({ name: 'Kael', isPlayer: true, scarf: true, weapon: save.equipped.weapon, wlvl: save.owned.weapons[save.equipped.weapon] || 1, helmet: save.equipped.helmet, armor: save.equipped.armor, build: { scale: 1, w: 9.6, legs: 0.9, head: 1.05 }, facing: 1 }, extra || {}));
+  return new Fighter(Object.assign({ name: 'Kage', isPlayer: true, scarf: true, weapon: save.equipped.weapon, wlvl: save.owned.weapons[save.equipped.weapon] || 1, helmet: save.equipped.helmet, armor: save.equipped.armor, build: { scale: 1, w: 9.6, legs: 0.9, head: 1.05 }, facing: 1 }, extra || {}));
 }
 function poseFighter(f, poseName, settle) {
   f.state = 'pose'; f.poseName = poseName;

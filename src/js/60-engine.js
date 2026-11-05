@@ -36,7 +36,7 @@ class FightSession {
       stunRes: pk.stunRes || 0, dashBonus: pk.dash || 0, ammo: 5 + (pk.ammo || 0), kunaiMul: 1 + (pk.kunai || 0),
       dmgMul: (1 + 0.012 * (save.level - 1)) * (1 + (pk.dmg || 0))
     });
-    f.name = 'Kael';
+    f.name = 'Kage';
     return f;
   }
   difficultyLevel(d) {

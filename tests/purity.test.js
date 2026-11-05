@@ -9,8 +9,8 @@ const FORBIDDEN = ['document', 'window', 'localStorage', 'sessionStorage', 'navi
 
 for (const file of PURE_MODULES) {
   test(`${file} uses no DOM, canvas, storage, audio or input APIs`, () => {
-    const code = moduleSource(file).replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '').replace(/(['"`])(?:\.|(?!\1).)*\1/g, '""');
-    for (const name of FORBIDDEN) assert.ok(!new RegExp(`\b${name}\b`).test(code), `${file} references ${name}`);
+    const code = moduleSource(file).replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '').replace(/(['"`])(?:\\.|(?!\1).)*\1/g, '""');
+    for (const name of FORBIDDEN) assert.ok(!new RegExp(`\\b${name}\\b`).test(code), `${file} references ${name}`);
   });
 }
 
