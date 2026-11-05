@@ -139,10 +139,11 @@ class Effects {
   }
   popText(f, text, color) { this.pops.push({ text, x: f.x, y: f.y - f.height() - 24, t: 0, dur: 1.0, color: color || C.gold }); }
   banner(text, sub, color, glyph) { this.banners.length = 0; this.banners.push({ text, sub, t: 0, dur: 1.55, color: color || C.gold, glyph: glyph || bannerGlyph(text), seed: (Math.random() * 1000) | 0 }); }
-  afterimage(f, color) {
-    const sk = f.sk, pts = [];
-    for (const k of ['hip', 'neck', 'head', 'sh', 'fel', 'fha', 'bel', 'bha', 'fkn', 'fft', 'bkn', 'bft', 'wb', 'wt']) pts.push(sk[k].x, sk[k].y);
-    this.ghosts.push({ pts, lw: f.build.w * f.scale * 1.3, r: BODY.head * f.scale * f.build.head, t: 0, dur: 0.22, color: color || 'rgba(236,229,211,0.2)', wl: f.weaponLen() > 0 });
+  // o (optional): { dur, dx } a longer-lived echo, offset sideways (Akari's afterimage silhouettes, the Smoke Step decoy)
+  afterimage(f, color, o) {
+    const sk = f.sk, pts = [], dx = (o && o.dx) || 0;
+    for (const k of ['hip', 'neck', 'head', 'sh', 'fel', 'fha', 'bel', 'bha', 'fkn', 'fft', 'bkn', 'bft', 'wb', 'wt']) pts.push(sk[k].x + dx, sk[k].y);
+    this.ghosts.push({ pts, lw: f.build.w * f.scale * 1.3, r: BODY.head * f.scale * f.build.head, t: 0, dur: (o && o.dur) || 0.22, color: color || 'rgba(236,229,211,0.2)', wl: f.weaponLen() > 0 });
     if (this.ghosts.length > 14) this.ghosts.shift();
   }
   dashLines(f) {
@@ -663,6 +664,8 @@ const Combat = {
     const fx = world.fx;
     const front = Math.sign(att.x - def.x || dir * -1) === def.facing || (m.proj && Math.sign(-dir) === def.facing);
     if (att.unblockable && !m.proj && m.kind) m = Object.assign({}, m, { unb: 1 });
+    // Akari's False Opening decoy: any blow passes through the afterimage, which vanishes; the real Akari answers
+    if (def.decoy) { world.strikeDecoy && world.strikeDecoy(def, att); return; }
     // counter stance: any melee blow from the front is turned aside and answered
     if (def.counterStance && !m.proj && front && m.kind !== 'grab') {
       def.counterStance = false;
@@ -929,6 +932,45 @@ const SPECIAL_IMPL = {
           w.fx.shake(0.55); AudioManager.play('heavyswing'); AudioManager.play('slam');
         }
       } });
+  },
+  // Kagehira & Yūrei: Smoke Step. Kage drops into a compact smoke puff and leaves an afterimage decoy standing where he
+  // was (two offset pale silhouettes); the foe turns to it, and Kage steps out of a second puff behind them for Kagehira's
+  // opener and Yūrei's punishing cut (narrow violet slashes). Unblockable.
+  smokeStep(f, world) {
+    const tgt = world.nearestEnemy(f), puff = AKARI_MOVES.smokeStep.smoke;
+    f.startAbility({ dur: 0.92, uninterruptible: true, rate: 32, trail: true,
+      pose: (f, t) => (t < 0.12 ? AKARI_POSE.smokeCrouch : t < 0.4 ? AKARI_POSE.fangBack : t < 0.56 ? MOVES.tw1.s : MOVES.tw2.s),
+      start(f) { f.invuln = 0.75; world.fx.banner('Smoke Step', 'Rage art', '#9b6bd6'); AudioManager.play('teleport', { pitch: 1.3 }); },
+      update(f, w, t, dt) {
+        f.vx = damp(f.vx, 0, 12, dt);
+        if (t < 0.12) return;
+        if (!this.gone) {
+          this.gone = 1;
+          w.fx.smokePuff(f.x, 0, puff); AudioManager.play('smoke');
+          w.fx.afterimage(f, 'rgba(236,229,211,0.42)', { dur: 0.9, dx: -10 * f.facing }); w.fx.afterimage(f, 'rgba(180,140,240,0.32)', { dur: 0.9, dx: 12 * f.facing });
+          f.alpha = 0;
+          this.decoyX = f.x;
+        }
+        if (t < 0.3) return;
+        if (!this.out) {
+          this.out = 1;
+          if (tgt && tgt.alive) {
+            // the foe turns to the afterimage, Kage comes out on its other side
+            const toDecoy = Math.sign(this.decoyX - tgt.x) || -f.facing;
+            if (!tgt.superArmor && tgt.state !== 'ability') tgt.facing = toDecoy;
+            f.x = clamp(tgt.x - toDecoy * 105 * tgt.scale, w.bounds.l + 20, w.bounds.r - 20); f.facing = Math.sign(tgt.x - f.x) || 1;
+          }
+          f.alpha = 1; w.fx.smokePuff(f.x, 0, puff); w.fx.glint(f.sk.wt.x, f.sk.wt.y, '#c9a8ff');
+        }
+        const mul = weaponMul(f.weaponId(), f.wlvl).dmg;
+        for (const [i, at] of [[0, 0.4], [1, 0.56]]) {
+          if (t < at || this['c' + i] || !tgt || !tgt.alive) continue;
+          this['c' + i] = 1; AudioManager.play('swing', { pitch: 1.2 + i * 0.1 });
+          Combat.applyHit(w, f, tgt, { dmg: (i ? 16 : 8) * mul, kb: i ? 520 : 60, up: i ? -380 : -60, hs: i ? 0.55 : 0.3, imp: i ? 3 : 1, hsnd: 'slash', unb: 1, kd: i, stamp: i ? 'SLASH' : null }, tgt.x, tgt.y - 110 * tgt.scale, f.facing);
+          if (i) w.fx.petalCross(tgt.x, tgt.y - 110 * tgt.scale, f.facing, 130);
+        }
+      },
+      end(f) { f.alpha = 1; f.invuln = 0.2; } });
   },
   earthshatter(f, world) {
     f.startAbility({ dur: 1.25, uninterruptible: true, rate: 20, trail: true,

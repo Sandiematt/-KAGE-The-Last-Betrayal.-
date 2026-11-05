@@ -144,10 +144,11 @@ test('boss weapons and trophies are in the Armory but locked, with a hint, and c
 const clearUpTo = (L, save, id) => { for (const st of L.stages()) { if (st.id === id) break; L.completeStage(save, st.id); } };
 const win = (stageId, ng) => ({ mode: 'campaign', stageId, win: true, ng: ng || 0, hpLeft: 0.5, time: 70, maxCombo: 4, parries: 0, flawless: false });
 
-test('only Act I grants gear so far (Raikon and its four sub-bosses): the other boss tickets add theirs', () => {
-  const act1 = ['act1.sub1', 'act1.sub2', 'act1.sub3', 'act1.sub4', 'act1.boss'];
-  for (const st of Logic.stages()) if (!act1.includes(st.id)) assert.equal(st.reward, undefined, st.id);
+test('only Act I (Raikon and its four sub-bosses) and Akari grant gear so far: the other boss tickets add theirs', () => {
+  const granting = ['act1.sub1', 'act1.sub2', 'act1.sub3', 'act1.sub4', 'act1.boss', 'act2.boss'];
+  for (const st of Logic.stages()) if (!granting.includes(st.id)) assert.equal(st.reward, undefined, st.id);
   assert.deepEqual(Logic.stage('act1.boss').reward, { weapons: ['raiko_no_tachi'], helmets: ['raijin_kabuto'] });
+  assert.deepEqual(Logic.stage('act2.boss').reward, { weapons: ['kagehira_yurei'], armors: ['mei_en_garb'] });
 });
 
 test('clearing a stage with a gear reward grants it once and reports it', () => {

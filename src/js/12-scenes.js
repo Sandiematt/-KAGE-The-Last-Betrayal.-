@@ -215,6 +215,37 @@ const SCENES = {
       { say: 'narrator', text: 'They never did settle it. Somewhere in the ash, the question is still waiting.' }
     ]
   },
+  // ---- Act II boss: Akari, the Memory Blade (stage act2.boss, the City of Echoes) ----
+  // She steps out of a memory that should not have a door. She knows how to move through the reconstructed world.
+  'act2.akari.before': {
+    steps: [
+      { illus: null },
+      { say: 'narrator', text: 'The City of Echoes. A street that repeats itself, the same lantern swinging on every corner.' },
+      { say: 'akari', text: 'You keep walking into the same street, Kage. It was built that way. To keep you walking.' },
+      { say: 'kage', text: 'You know my name.' },
+      { say: 'akari', text: 'I know every corner of this place. Memories are only rooms, if you know where the seams are.' },
+      { say: 'akari', text: 'Turn back. What waits at the end of this road is not a brother. It is a reason you were made to forget.' },
+      { say: 'kage', text: 'Then I’ll hear it from him.' },
+      { say: 'akari', text: '...Stubborn. He said you would be.' }
+    ]
+  },
+  // Her dying reveal, after the finishing slash; she hands over Shinsen (flag act2.shinsen_received, SAN-38 grants the
+  // weapon) and then dissolves into violet ash (FightSession.bossExit).
+  'act2.akari.defeat': {
+    steps: [
+      { say: 'akari', text: '...Good. You still cut like him.' },
+      { say: 'kage', text: 'Rem. What did he do to me?' },
+      { say: 'akari', text: 'He asked me to erase your memories. Not out of hatred. Never that.' },
+      { say: 'akari', text: 'Takashi meant to bind the whole city to the Echo System, and you to its heart. Its human controller. Forever.' },
+      { say: 'akari', text: 'Rem saw the machine would swallow you whole. So he beat you, cut your true self away, and hid the rest of you here. In a memory.' },
+      { say: 'kage', text: 'He did this to save me.' },
+      { illus: 'shinsen', caption: 'Akari lifts a long blade wrapped in grey cloth: an odachi, gold along its spine.' },
+      { say: 'akari', text: 'Shinsen. He left it with me. A clue, he said, for the day you came looking.' },
+      { flag: 'act2.shinsen_received' },
+      { illus: null },
+      { say: 'akari', text: 'I kept his secret ten years. It is lighter now. Find him, Kage... before Takashi does.' }
+    ]
+  },
   // Stub; SAN-44 writes the real Epilogue.
   'epilogue.stub': {
     steps: [

@@ -546,7 +546,7 @@ const UIManager = {
         const sx = Math.cos(t * 0.7) * 0.25 + 0.75;
         g.save(); g.translate(w * 0.5 - L * 0.42 * Math.cos(ang), h * 0.5 - L * 0.42 * Math.sin(ang) + Math.sin(t * 1.3) * 6); g.rotate(ang); g.scale(1, sx);
         const sh = SHAPE[id];
-        if (sh === 'short') { g.save(); g.translate(0, 18); drawWeaponShape(g, sh, L * 0.82, 'art', 3, C.ink); g.restore(); g.save(); g.translate(30, -30); g.rotate(0.25); drawWeaponShape(g, sh, L * 0.82, 'art', 3, C.ink); g.restore(); }
+        if (sh === 'short') { g.save(); g.translate(0, 18); drawWeaponShape(g, twinShape(WEAPONS[id], sh, 0), L * 0.82, 'art', 3, C.ink); g.restore(); g.save(); g.translate(30, -30); g.rotate(0.25); drawWeaponShape(g, twinShape(WEAPONS[id], sh, 1), L * 0.82, 'art', 3, C.ink); g.restore(); }
         else drawWeaponShape(g, sh, L, 'art', 3, C.ink, f);
         g.restore();
         g.globalCompositeOperation = 'lighter';

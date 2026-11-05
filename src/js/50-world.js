@@ -526,7 +526,7 @@ const Renderer = {
     for (const f of order) {
       if (f.unblockable && f.state === 'move' && !f.isPlayer) this.drawUnblockableGlow(ctx, f, realT);
       f.draw(ctx, { rim: env.rim, light: env.light });
-      if ((f.minion || f.clone || (s.isStretch && !f.isPlayer)) && f.alive && f.visible) this.drawMiniBar(ctx, f);
+      if ((f.minion || (f.clone && !f.decoy) || (s.isStretch && !f.isPlayer)) && f.alive && f.visible) this.drawMiniBar(ctx, f);
     }
     for (const f of order) this.drawTrails(ctx, f, realT);
     WeaponSystem.draw(ctx, s);
@@ -582,6 +582,7 @@ const Renderer = {
     VFX.drawSmear(ctx, f, f.trail2, el || 'shade', t);
   },
   drawAuras(ctx, f, t) {
+    if (!f.visible || f.alpha <= 0.05 || f.decoy) return;   // a hidden fighter (Akari in her smoke) or her afterimage gives nothing away
     // glowing energy around a fighter performing a special art or a boss changing phase
     if ((f.state === 'ability' && (f.isPlayer || (f.def && (f.def.type === 'boss' || f.def.type === 'sub')))) || (f.def && f.def.type === 'boss' && f.state === 'pose')) {
       const E = ELEMENTS[f.elementOf(null) || 'ink'] || ELEMENTS.ink, c = E.glow || E.smear, cy = f.y - 100 * f.scale, R = 150 * f.scale * (1 + Math.sin(t * 9) * 0.05);

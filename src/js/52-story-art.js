@@ -116,11 +116,18 @@ const SPEAKERS = {
     portrait(g) {
       const K = STORY_INK;
       storyBust(g, { bg: '#120b1a', glow: 'rgba(198,162,255,0.26)', rim: 'rgba(198,162,255,0.7)' });
-      // long hair falling past the shoulders on both sides
-      storyPoly(g, [33, 40, 34, 26, 50, 22, 66, 26, 67, 40, 70, 84, 62, 86, 60, 48, 40, 48, 38, 86, 30, 84], K.ink);
-      storyPoly(g, [62, 30, 72, 26, 70, 34], K.violet);                        // violet hair ribbon
-      storyEyes(g, K.violetGlow, 44);
-      storyPoly(g, [40, 72, 60, 72, 56, 78, 44, 78], K.violetDim);             // collar
+      // hair pulled back tight and tied high: a short tail kicking out behind, a violet tie at its root
+      storyPoly(g, [33, 42, 35, 28, 50, 24, 64, 28, 67, 40, 62, 32, 50, 30, 38, 34], K.ink);
+      storyPoly(g, [64, 30, 84, 22, 90, 30, 80, 32, 86, 40, 70, 36], K.ink);
+      storyPoly(g, [63, 28, 68, 26, 70, 34, 65, 35], K.violet);
+      storyEyes(g, K.violetGlow, 43);
+      // the half-mask over nose and mouth: a muted violet-grey plate with a centre seam, cel-shaded on one side
+      storyPoly(g, [34, 47, 66, 47, 63, 58, 50, 62, 37, 58], '#4a4058');
+      storyPoly(g, [50, 47, 66, 47, 63, 58, 50, 62], '#3a3246');
+      storyLine(g, [50, 48, 50, 61], 'rgba(198,162,255,0.45)', 1);
+      // layered collar of the Mei-En Garb: charcoal over violet
+      storyPoly(g, [32, 72, 68, 72, 64, 80, 36, 80], K.violetDim);
+      storyPoly(g, [36, 70, 50, 78, 64, 70, 60, 76, 50, 82, 40, 76], '#1d1a22');
     }
   },
   witness: {
@@ -355,6 +362,36 @@ const ILLUSTRATIONS = {
       g.beginPath(); g.arc(104, -54, 9, 0, TAU); g.fillStyle = '#0a0908'; g.fill();  // lanyard hole
       g.restore();
       storyLine(g, [754, 386, 800, 330, 840, 300], '#2a2620', 4);                   // a broken lanyard
+      g.fillStyle = 'rgba(3,3,3,0.45)'; g.fillRect(0, 0, 1280, 70); g.fillRect(0, 650, 1280, 70);
+    }
+  },
+  // Akari's dying gift (act2.akari.defeat): her gloved hands lift Shinsen, Takashi's odachi, half out of its grey cloth
+  // wrapping, gold along the spine; violet ash already rising off her sleeves.
+  shinsen: {
+    name: 'Shinsen',
+    paint(g) {
+      const K = STORY_INK;
+      storySky(g, ['#0a0810', '#100c16', '#151020', '#100c16', '#0a0810'], 0, 720);
+      storyAsh(g, 91, 110, [0, 0, 1280, 720], 'rgba(198,162,255,0.42)', 3);    // Akari coming apart
+      // two forearms from below, charcoal sleeves with violet cuffs, the hands turned up under the blade
+      for (const [x, dir] of [[400, 1], [880, -1]]) {
+        storyPoly(g, [x - 70 * dir, 720, x - 10 * dir, 470, x + 60 * dir, 470, x + 70 * dir, 720], '#1d1a22');
+        storyPoly(g, [x - 16 * dir, 500, x - 10 * dir, 470, x + 60 * dir, 470, x + 56 * dir, 500], K.violetDim);
+        storyPoly(g, [x - 30 * dir, 470, x - 20 * dir, 420, x + 70 * dir, 410, x + 90 * dir, 450, x + 60 * dir, 476], K.ink);
+      }
+      g.save(); g.translate(640, 405); g.rotate(-0.08);
+      // the scabbard and grip: long, black, a gold collar; the grey cloth wrapping half unwound off the hilt end
+      storyPoly(g, [-520, -14, 300, -20, 330, -8, 300, 6, -520, 10], K.ink);
+      storyLine(g, [-520, -16, 300, -22], K.gold, 3);                              // gold along the spine
+      storyPoly(g, [300, -26, 320, -26, 322, 14, 302, 14], K.gold);              // habaki collar
+      storyPoly(g, [318, -14, 520, -12, 520, 8, 318, 8], '#2e2834');             // the long grip
+      storyLine(g, [-520, 12, 300, 8], 'rgba(236,229,211,0.3)', 2);             // a pale rim under the scabbard
+      for (let i = 0; i < 7; i++) storyLine(g, [334 + i * 26, -12, 346 + i * 26, 8], K.boneDim, 2);
+      g.beginPath(); g.ellipse(316, -6, 8, 28, 0, 0, Math.PI * 2); g.fillStyle = K.goldDim; g.fill();   // tsuba
+      storyPoly(g, [-520, -30, -300, -34, -280, 22, -520, 26], '#4a4550');       // grey cloth wrap
+      storyPoly(g, [-300, -34, -230, -10, -260, 40, -280, 22], '#5d5866');
+      storyLine(g, [-480, -30, -470, 24], '#2c2830', 3); storyLine(g, [-400, -32, -392, 24], '#2c2830', 3);
+      g.restore();
       g.fillStyle = 'rgba(3,3,3,0.45)'; g.fillRect(0, 0, 1280, 70); g.fillRect(0, 650, 1280, 70);
     }
   },

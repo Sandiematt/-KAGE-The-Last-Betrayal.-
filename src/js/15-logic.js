@@ -334,6 +334,12 @@ const Logic = {
     if (!v || !RAIKON_ABILITIES.includes(v.base)) return null;
     return { id, base: v.base, reduced: true, wave: v.base === 'thunderSwing' && v.wave !== false };
   },
+  // One of Akari's moves (AKARI_MOVES in 10-data.js): a copy of its numbers (label, windup tell, cooldown, range,
+  // damage, smoke, afterimages...) with its id; null for any other id. Act II's sub-bosses (SAN-39) build on these.
+  akariMove(id) {
+    if (!AKARI_ABILITIES.includes(id) || !AKARI_MOVES[id]) return null;
+    return JSON.parse(JSON.stringify(Object.assign({ id }, AKARI_MOVES[id])));
+  },
   // How a beaten boss leaves: 'finisher' | 'escape' | 'reabsorb' (unknown values fall back to the finisher);
   // null for a foe that is not a boss.
   bossDefeat(enemyId) {

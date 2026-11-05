@@ -146,6 +146,33 @@ class FightSession {
     this.fx.ring(f.x, f.y - 100, 380, f.accent || C.emberBright, 0.7, 10);
     if (ph.berserk) { f.eye = '#8be07a'; }
   }
+  // Akari's False Opening: an afterimage of her stands where she was, guard down, at reduced opacity (o.opacity) with
+  // o.afterimages offset echoes, for o.hold seconds. It has no AI and no eyes; any blow passes through it (Combat.applyHit
+  // -> strikeDecoy) and it vanishes. `decoy` points at its owner, whose ability hears about the strike (onDecoy).
+  spawnDecoy(owner, o) {
+    const c = this.makeEnemy(owner.def.id, owner.x, { clone: true, facing: owner.facing }, 'clone');
+    c.clone = true; c.decoy = owner; c.ai = null; c.alpha = o.opacity; c.eye = 'rgba(0,0,0,0)'; c.life = o.hold; c.echoes = o.afterimages;
+    c.hp = c.maxHp = 1; c.y = owner.y; c.grounded = owner.grounded;
+    Object.assign(c.pose, owner.pose); c.computeSkeleton();
+    c.startAbility({ dur: o.hold + 10, rate: 10, pose: AKARI_POSE.open,
+      update(c, w, t) { if (((t * 60) | 0) % 7 === 0) for (let i = 0; i < c.echoes; i++) w.fx.afterimage(c, 'rgba(180,140,240,0.28)', { dur: 0.2, dx: (i ? -1 : 1) * (14 + 4 * Math.sin(t * 9)) }); } });
+    this.fighters.push(c);
+    return c;
+  }
+  // The afterimage comes apart: a few violet flakes and two pale echoes scattering (no big smoke)
+  vanishDecoy(c) {
+    if (!c.alive) return;
+    c.alive = false; c.visible = false; c.abil = null;
+    this.fx.memoryAsh(c, 14, true);
+    this.fx.afterimage(c, 'rgba(236,229,211,0.4)', { dur: 0.25, dx: 22 }); this.fx.afterimage(c, 'rgba(180,140,240,0.4)', { dur: 0.25, dx: -22 });
+    AudioManager.play('smoke', { pitch: 1.6 });
+  }
+  strikeDecoy(c, att) {
+    if (!c.alive) return;
+    this.fx.popText(c, 'AFTERIMAGE', '#c9a8ff');
+    this.vanishDecoy(c);
+    const o = c.decoy; if (o && o.abil && o.abil.onDecoy) o.abil.onDecoy(o, this, att);
+  }
   spawnClones(owner, n) {
     for (let i = 0; i < n; i++) {
       const side = i % 2 ? 1 : -1;
@@ -199,6 +226,7 @@ class FightSession {
     else if (def !== this.player) { fx.finisher(def.x, def.y - 100 * def.scale, att.facing); const el = att.elementOf(null); if (el) fx.elemImpact(el, def.x, def.y - 100 * def.scale, att.facing, 3, true); }
     AudioManager.play('ko');
     this.koTarget = def; this.phase = 'ko'; this.phaseT = 0;
+    for (const f of this.fighters) if (f.decoy && f.alive) this.vanishDecoy(f);
     for (const f of this.fighters) if ((f.clone || f.minion) && f.alive) { f.alive = false; f.hp = 0; f.setState('juggle'); f.vy = -300; if (f.clone) { f.visible = false; this.smokeCloud(f.x); } else if (f.hollow) this.dissolve(f); }
     if (def === this.player) this.rounds.e++; else { this.rounds.p++; if (this.mode === 'survival') this.waveCleared(); }
   }
@@ -332,7 +360,7 @@ class FightSession {
     for (const f of this.fighters) {
       if (f.barrier > 0) f.barrier -= dt;
       if (f.aura > 0) { f.aura -= dt; if (Math.abs(p.x - f.x) < 330 && f.alive) p.slow = 0.68; }
-      if (f.clone && f.alive) { f.life -= dt; if (f.life <= 0) { f.alive = false; f.visible = false; this.smokeCloud(f.x); } }
+      if (f.clone && f.alive) { f.life -= dt; if (f.life <= 0) { if (f.decoy) this.vanishDecoy(f); else { f.alive = false; f.visible = false; this.smokeCloud(f.x); } } }
     }
     // simulate
     for (const f of this.fighters) { if (f.dissolve) { this.stepDissolve(f, dt); continue; } f.update(dt, this); VFX.emit(f, this.fx); }

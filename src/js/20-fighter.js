@@ -4,7 +4,7 @@ const HERO_FACEWRAP = '#efe9dd', HERO_FACEWRAP_SHADE = '#b4ac9f';   // Kage's wh
 const BODY = { torso: 60, neck: 7, head: 18, upper: 36, fore: 34, thigh: 45, shin: 47 };
 const SHAPE = {
   fists: 'none', tsubame: 'short', kagetsu: 'katana', shizuka: 'katana', onikiri: 'cleaver', mizuchi: 'spear',
-  yamigama: 'sickle', iwakudaki: 'hammer', shinsen: 'katana', raiko_no_tachi: 'odachi', raikon_tachi: 'odachi', kagehira_yurei: 'short', mugen_no_ha: 'katana',
+  yamigama: 'sickle', iwakudaki: 'hammer', shinsen: 'katana', raiko_no_tachi: 'odachi', raikon_tachi: 'odachi', kagehira_yurei: 'short', akari_blades: 'short', mugen_no_ha: 'katana',
   shadow_daggers: 'short', hollow_crescents: 'crescent', mist_fans: 'fan',
   sentinel_spear: 'spear', vanguard_yari: 'spear', sage_staff: 'staff', storm_orbs: 'none', iron_fists: 'none', chain_hook: 'hook',
   tyrant_cleaver: 'tyrant', cutter_blade: 'katana', temple_staff: 'staff', raider_cleaver: 'cleaver', bokken: 'bokken'
@@ -200,6 +200,16 @@ class Fighter {
       const sc = this.def.longScarf, rim = 'rgba(236,229,211,0.5)';
       this.cloths.push({ kind: 'scarf', c: new Cloth(14, 8.6 * this.scale, { ph: 2.5, wind: 640, grav: 620, stiff: 1.6 }), at: 'neck', color: sc, rim, w: 7.2 * this.scale, w1: 2.8 * this.scale, dy: 2 });
       this.cloths.push({ kind: 'scarf', c: new Cloth(9, 8 * this.scale, { ph: 6.2, wind: 560, grav: 700, stiff: 1.6 }), at: 'neck', color: sc, rim, w: 5.4 * this.scale, w1: 2.2 * this.scale, dy: 6 });
+    }
+    // Akari's tied hair: a short high tail kicking back off the crown, with a violet tie at its root
+    if (this.helmet === 'akari_mask') {
+      this.cloths.push({ kind: 'scarf', c: new Cloth(7, 6.6 * this.scale, { ph: 4.5, wind: 760, grav: 720, stiff: 1.8 }), at: 'head', color: '#141218', rim: 'rgba(236,229,211,0.55)', w: 6 * this.scale, w1: 2 * this.scale, dy: -13, dx: 12 });
+      this.cloths.push({ kind: 'scarf', c: new Cloth(3, 4.4 * this.scale, { ph: 7, wind: 820, grav: 700, stiff: 1.8 }), at: 'head', color: '#8a5cc9', w: 2.2 * this.scale, w1: 1 * this.scale, dy: -12, dx: 13 });
+    }
+    // the Mei-En Garb's split cloth panels: a front and a back panel hanging from the waist, muted violet over charcoal
+    if (this.armor === 'mei_en') {
+      this.cloths.push({ kind: 'belt', c: new Cloth(5, 7.4 * this.scale, { ph: 2, wind: 190, grav: 1300, stiff: 1.7 }), at: 'hip', color: '#2b2733', rim: 'rgba(200,170,250,0.6)', w: 8 * this.scale, w1: 5.4 * this.scale, dy: -4, dx: 7 });
+      this.cloths.push({ kind: 'belt', c: new Cloth(5, 6.8 * this.scale, { ph: 5, wind: 170, grav: 1300, stiff: 1.7 }), at: 'hip', color: '#5c4d78', rim: 'rgba(236,229,211,0.4)', w: 7 * this.scale, w1: 4.6 * this.scale, dy: -4, dx: -6 });
     }
     if (this.helmet === 'rain_hood') this.cloths.push({ kind: 'scarf', c: new Cloth(9, 7.4 * this.scale, { ph: 3.5, wind: 820, grav: 640, stiff: 1.7 }), at: 'head', color: '#7fb8ff', w: 3 * this.scale, w1: 1.2 * this.scale, dy: 2, dx: 15 });
     if (this.helmet === 'sentinel_helm') this.cloths.push({ kind: 'scarf', c: new Cloth(6, 7 * this.scale, { ph: 6, wind: 600 }), at: 'head', color: C.ember, w: 6 * this.scale, dy: -14 });
@@ -1344,7 +1354,7 @@ Fighter.prototype.draw = function (ctx, opt) {
 // flat body fill: Kage and the bosses are ink, the Order slate, Hollows a violet that flickers between close tones
 const _hash = (n) => { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
 Fighter.prototype.bodyColor = function () {
-  const fam = this.family; if (!fam) return C.ink;
+  const fam = this.family; if (!fam) return (this.def && this.def.body) || C.ink;   // `body`: a boss's own flat fill (Akari's charcoal)
   if (!fam.flicker) return fam.body;
   return fam.flicker[(_hash(Math.floor(this.time * 11) + this.seed()) * fam.flicker.length) | 0];
 };
@@ -1369,7 +1379,7 @@ Fighter.prototype.drawMainWeapon = function (ctx, ink, opt) {
     ctx.translate(ex, ey);
   } else ctx.translate(sk.fha.x, sk.fha.y);
   ctx.rotate(this.wAng); if (this.facing < 0) ctx.scale(1, -1);
-  drawWeaponShape(ctx, sh, L, opt.rimPass ? 'rim' : opt.color ? 'flat' : 'ink', this.scale, opt.color || ink, this);
+  drawWeaponShape(ctx, twinShape(this.weapon(), sh, 0), L, opt.rimPass ? 'rim' : opt.color ? 'flat' : 'ink', this.scale, opt.color || ink, this);
   ctx.restore();
   // sickle chain hanging to the back hand
   if ((sh === 'sickle' || sh === 'hook') && this.chainExt <= 1) {
@@ -1382,7 +1392,7 @@ Fighter.prototype.drawOffhand = function (ctx, ink, opt) {
   const sh = this.shape(), sk = this.sk;
   if (sh === 'short' || sh === 'crescent' || sh === 'fan') {
     ctx.save(); ctx.translate(sk.bha.x, sk.bha.y); ctx.rotate(this.w2Ang); if (this.facing < 0) ctx.scale(1, -1);
-    drawWeaponShape(ctx, sh, this.weaponLen(), opt.color ? 'flat' : 'ink', this.scale, opt.color || ink, this);
+    drawWeaponShape(ctx, twinShape(this.weapon(), sh, 1), this.weaponLen(), opt.color ? 'flat' : 'ink', this.scale, opt.color || ink, this);
     ctx.restore();
   }
   if (this.weapon().shield && this.hasWeapon) {
@@ -1427,6 +1437,8 @@ function drawEyes(ctx, f, r, opt) {
   ctx.restore();
 }
 
+// a `twin` weapon (Kagehira & Yūrei) draws a different blade in each hand: Kagehira in the main hand, Yūrei in the off hand
+function twinShape(w, sh, offhand) { return w && w.twin && sh === 'short' ? (offhand ? 'yurei' : 'kagehira') : sh; }
 /* ---- weapon art: origin at the grip, +x along the blade ---- */
 function drawWeaponShape(ctx, sh, L, mode, s, ink, f) {
   const rim = mode === 'rim'; if (rim) mode = 'flat';   // outline pass: the steel stays thin, only the hilt gets the white edge
@@ -1491,6 +1503,27 @@ function drawWeaponShape(ctx, sh, L, mode, s, ink, f) {
       ctx.fillStyle = steel; ctx.fill();
       if (edge) { ctx.strokeStyle = edge; ctx.lineWidth = art ? 1.6 : 1.1; ctx.beginPath(); ctx.moveTo(4, -2.6 * s); ctx.quadraticCurveTo(L * 0.6, -3 * s - L * 0.02, L, -L * 0.08); ctx.stroke(); }
       if (art) line(-L * hl, 0, -L * hl, 0, 9 * s, C.gold);
+      break;
+    }
+    // Akari's Kagehira & Yūrei (twinShape): two short, narrow blades with different guards. Kagehira (main hand) is
+    // straight with a squared bar guard and a chisel tip; Yūrei (off hand) has a ring guard, a slight curve and a violet
+    // edge line.
+    case 'kagehira': case 'yurei': {
+      const yurei = sh === 'yurei', hl = 0.3;
+      line(-L * hl, 0, -1 * s, 0, 5.2 * s, dark);
+      ctx.fillStyle = art ? C.gold : yurei && mode !== 'flat' ? '#5c4d78' : ink;
+      if (yurei) { ctx.beginPath(); ctx.arc(-0.4 * s, 0, 6 * s, 0, TAU); ctx.arc(-0.4 * s, 0, 2.6 * s, 0, TAU, true); ctx.fill('evenodd'); }
+      else { ctx.fillRect(-2 * s, -7 * s, 3.6 * s, 14 * s); ctx.fillRect(-2 * s, -7 * s, 6 * s, 2.2 * s); ctx.fillRect(-2 * s, 4.8 * s, 6 * s, 2.2 * s); }
+      if (rim) break;
+      const w = 1.9 * s, b0 = 3 * s;
+      ctx.beginPath();
+      if (!yurei) { ctx.moveTo(b0, -w); ctx.lineTo(L * 0.9, -w); ctx.lineTo(L, -w * 0.15); ctx.lineTo(L * 0.86, w); ctx.lineTo(b0, w); }
+      else { const sori = L * 0.06; ctx.moveTo(b0, -w); ctx.quadraticCurveTo(L * 0.55, -w - sori, L, -sori * 1.4); ctx.quadraticCurveTo(L * 0.55, w - sori * 0.6, b0, w); }
+      ctx.closePath(); ctx.fillStyle = steel; ctx.fill();
+      if (mode !== 'flat') {
+        ctx.strokeStyle = art ? C.emberBright : yurei ? 'rgba(180,140,240,0.85)' : 'rgba(120,114,104,0.6)'; ctx.lineWidth = (art ? 1.3 : 0.9) * s;
+        ctx.beginPath(); if (yurei) { const sori = L * 0.06; ctx.moveTo(b0 + 2 * s, w * 0.6); ctx.quadraticCurveTo(L * 0.55, w * 0.6 - sori * 0.6, L * 0.96, -sori * 1.3); } else { ctx.moveTo(b0 + 2 * s, 0); ctx.lineTo(L * 0.88, 0); } ctx.stroke();
+      }
       break;
     }
     case 'crescent': {
@@ -1764,6 +1797,23 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
       }
       break;
     }
+    case 'akari_mask': {
+      // Akari: hair pulled back tight (a flat cap over the crown, its tail is cloth) and a half-mask over nose and mouth,
+      // a muted violet-grey plate with a centre seam, cel-shaded on its lower edge; nothing else
+      ctx.beginPath(); ctx.arc(0, -r * 0.04, r * 1.08, Math.PI * 0.82, Math.PI * 1.9); ctx.quadraticCurveTo(r * 0.2, -r * 0.62, -r * 0.6, -r * 0.2); ctx.closePath(); ctx.fillStyle = flat ? ink : '#0c0b10'; ctx.fill();
+      if (!flat) { ctx.strokeStyle = 'rgba(180,140,240,0.5)'; ctx.lineWidth = Math.max(1, r * 0.08); ctx.beginPath(); ctx.arc(0, -r * 0.04, r * 0.9, Math.PI * 1.1, Math.PI * 1.6); ctx.stroke(); ctx.fillStyle = '#8a5cc9'; ctx.beginPath(); ctx.ellipse(-r * 0.78, -r * 0.62, r * 0.2, r * 0.14, 0.6, 0, TAU); ctx.fill(); }
+      ctx.save(); ctx.beginPath(); ctx.arc(0, 0, r * 1.04, 0, TAU); ctx.clip();
+      ctx.fillStyle = flat ? ink : '#6a5a86';
+      ctx.beginPath(); ctx.moveTo(-r * 0.25, r * 0.16); ctx.lineTo(r * 1.1, r * 0.1); ctx.lineTo(r * 1.1, r * 0.62); ctx.quadraticCurveTo(r * 0.6, r * 1.1, -r * 0.1, r * 0.95); ctx.closePath(); ctx.fill();
+      if (!flat) {
+        ctx.fillStyle = '#4f4366'; ctx.beginPath(); ctx.moveTo(-r * 0.1, r * 0.7); ctx.lineTo(r * 1.1, r * 0.48); ctx.lineTo(r * 1.1, r * 0.62); ctx.quadraticCurveTo(r * 0.6, r * 1.1, -r * 0.1, r * 0.95); ctx.closePath(); ctx.fill();
+        ctx.strokeStyle = 'rgba(222,204,255,0.85)'; ctx.lineWidth = Math.max(1, r * 0.07);
+        ctx.beginPath(); ctx.moveTo(-r * 0.25, r * 0.16); ctx.lineTo(r * 1.1, r * 0.1); ctx.stroke();   // the mask's upper edge
+        ctx.beginPath(); ctx.moveTo(r * 0.62, r * 0.14); ctx.lineTo(r * 0.55, r * 0.95); ctx.stroke();   // centre seam
+      }
+      ctx.restore();
+      break;
+    }
     case 'colossus':
       ctx.beginPath(); ctx.roundRect ? ctx.roundRect(-r * 1.25, -r * 1.35, r * 2.5, r * 2.35, r * 0.5) : ctx.rect(-r * 1.25, -r * 1.35, r * 2.5, r * 2.35); ctx.fill();
       if (!flat) { ctx.fillStyle = 'rgba(255,106,60,0.9)'; ctx.fillRect(r * 0.05, -r * 0.2, r * 1.15, r * 0.14); }
@@ -1854,6 +1904,24 @@ function drawArmor(ctx, f, ink, opt, Ut) {
         ctx.fillStyle = ink;
         for (let i = -1; i <= 1; i++) { const a = ang + i * 0.5; ctx.beginPath(); ctx.moveTo(sk.sh.x + Math.cos(a + 1.3) * r, sk.sh.y + Math.sin(a + 1.3) * r); ctx.lineTo(sk.sh.x + Math.cos(a) * r * 2.1, sk.sh.y + Math.sin(a) * r * 2.1); ctx.lineTo(sk.sh.x + Math.cos(a - 0.3) * r, sk.sh.y + Math.sin(a - 0.3) * r); ctx.fill(); }
       }
+      break;
+    }
+    case 'mei_en': {
+      // the Mei-En Garb (Akari): light layered armour on a slim frame: two overlapping chest plates edged in muted violet,
+      // a small shoulder guard and a wrapped waist band; its split cloth panels hang from the hip (cloth)
+      torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.0);
+      const ox = Math.cos(ang + Math.PI / 2), oy = Math.sin(ang + Math.PI / 2);
+      const Q = (u, w) => [lerp(hx, nx, u) + ox * w * Ut, lerp(hy, ny, u) + oy * w * Ut];
+      ctx.fillStyle = flat ? ink : '#3a3148';
+      for (const [u0, u1] of [[0.5, 0.9], [0.32, 0.66]]) {
+        const pts = [Q(u1, -1.05), Q(u1, 1.05), Q(u0 + 0.04, 1.1), Q(u0, 0), Q(u0 + 0.04, -1.1)];
+        ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]); for (const q of pts.slice(1)) ctx.lineTo(q[0], q[1]); ctx.closePath(); ctx.fill();
+        if (!flat) { ctx.strokeStyle = 'rgba(200,170,250,0.8)'; ctx.lineWidth = 1.3 * s; ctx.beginPath(); ctx.moveTo(pts[2][0], pts[2][1]); ctx.lineTo(pts[3][0], pts[3][1]); ctx.lineTo(pts[4][0], pts[4][1]); ctx.stroke(); }
+      }
+      plate(Ut * 0.5, flat ? null : 'rgba(180,140,240,0.5)');
+      if (flat) break;
+      ctx.strokeStyle = '#6a5a86'; ctx.lineWidth = 4 * s; ctx.lineCap = 'butt';
+      const a = Q(0.16, -1.05), b = Q(0.16, 1.05); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); ctx.lineCap = 'round';
       break;
     }
     case 'raikon_plate': {

@@ -210,7 +210,7 @@ const WEAPONS = {
   /* ---- boss weapons: defined but locked; boss stages grant them through their `reward` (see CAMPAIGN).
      Never upgraded and never scaled with player level: their fixed stats are the top tier.
      `special` is a placeholder rage art until the boss tickets add each weapon's real one (noted per weapon);
-     Raikō no Tachi already has its own, Thunder Swing. ---- */
+     Raikō no Tachi and Kagehira & Yūrei already have their own (Thunder Swing, Smoke Step). ---- */
   shinsen: { heft: 1.5, el: 'moon', name: 'Shinsen', cls: 'Odachi', tab: 'blades', tier: 'boss', base: 'kagetsu', hands: 2, len: 112, stance: 'katana', stats: [150, 120, 132],
     exclusive: true, hint: 'Defeat Takashi', special: 'crescentMoon', // real rage art: Final Flow
     trail: '#c9a45c', desc: 'Takashi\'s odachi on the katana forms. Every cut lands like a cleaver.',
@@ -219,9 +219,11 @@ const WEAPONS = {
     exclusive: true, hint: 'Defeat Raikon', special: 'thunderSwing',
     trail: '#ff4a3c', desc: 'Raikon\'s broad odachi on the cleaver forms. Slow, guard-breaking, thunderous.',
     lore: 'Raikon\'s broad odachi. The red groove down the blade drinks lightning and spits it back at whoever defies the Order.' },
-  kagehira_yurei: { heft: 0.7, el: 'blood', name: 'Kagehira & Yūrei', cls: 'Twin blades', tab: 'blades', tier: 'boss', base: 'tsubame', hands: 'dual', len: 72, stance: 'twin', stats: [104, 188, 110],
-    exclusive: true, hint: 'Defeat Akari', special: 'thousandCuts', // real rage art: Smoke Step
-    trail: '#d24a3c', desc: 'Akari\'s paired short blades on the twin-blade forms.',
+  // Akari's twin blades (Act II boss): Kagehira (square guard, straight; it opens the guard) and Yūrei (ring guard, a
+  // slight curve; it punishes the opening). `twin` draws the two different blades (20-fighter.js).
+  kagehira_yurei: { heft: 0.7, el: 'petal', name: 'Kagehira & Yūrei', cls: 'Twin blades', tab: 'blades', tier: 'boss', base: 'tsubame', hands: 'dual', len: 72, stance: 'twin', stats: [104, 188, 110],
+    exclusive: true, hint: 'Defeat Akari', special: 'smokeStep', twin: 1,
+    trail: '#9b6bd6', desc: 'Akari\'s paired short blades on the twin-blade forms. Rage art: Smoke Step.',
     lore: 'Akari\'s paired blades. Kagehira cuts the body; Yūrei cuts the memory of the wound, so it never stops hurting.' },
   mugen_no_ha: { heft: 1.1, el: 'moon', name: 'Mugen no Ha', cls: 'Katana', tab: 'blades', tier: 'boss', base: 'kagetsu', hands: 2, len: 96, stance: 'katana', stats: [162, 124, 128],
     exclusive: true, hint: 'Defeat the Witness', special: 'crescentMoon', // real rage art: Echo Replication
@@ -239,6 +241,8 @@ const WEAPONS = {
   chain_hook: { heft: 1, el: 'flame', enemy: 1, name: 'Chain Hook', base: 'yamigama', len: 64, trail: '#d24a3c', hook: 1 },
   tyrant_cleaver: { heft: 2, el: 'flame', enemy: 1, name: 'Tyrant Cleaver', base: 'onikiri', len: 130, trail: '#ff6a3c' },
   cutter_blade: { heft: 1, el: 'shade', enemy: 1, name: 'Cutter Blade', base: 'kagetsu', len: 92, trail: '#ece5d3' },
+  // Akari's own Kagehira & Yūrei, at enemy strength (the player's boss-tier pair is kagehira_yurei, granted when she falls)
+  akari_blades: { heft: 0.7, el: 'petal', enemy: 1, name: 'Kagehira & Yūrei', base: 'tsubame', len: 70, stats: [50, 70, 54], trail: '#9b6bd6', twin: 1 },
   // Raikon's own Raikō no Tachi: the same broad odachi and red lightning groove, at enemy strength (the player's boss-tier
   // copy is raiko_no_tachi, granted when Raikon falls)
   raikon_tachi: { heft: 1.9, el: 'redline', enemy: 1, name: 'Raikō no Tachi', base: 'onikiri', len: 128, stats: [64, 40, 60], trail: '#ff4a3c' },
@@ -315,7 +319,8 @@ const SPECIALS = {
   dragonLance:   { name: 'Dragon Lance', desc: 'A dragon-fire lunge across the arena that launches.' },
   reapersHarvest:{ name: "Reaper's Harvest", desc: 'The chain finds the enemy anywhere, drags and slams them.' },
   earthshatter:  { name: 'Earthshatter', desc: 'The ground itself breaks. Every grounded enemy is stunned.' },
-  thunderSwing:  { name: 'Thunder Swing', desc: 'A wide arc that sends red lightning racing along the ground. Unblockable.' }
+  thunderSwing:  { name: 'Thunder Swing', desc: 'A wide arc that sends red lightning racing along the ground. Unblockable.' },
+  smokeStep:     { name: 'Smoke Step', desc: 'Vanish in a puff of smoke, leave an afterimage behind, and strike from behind the enemy. Unblockable.' }
 };
 
 /* ---------------- Helmets & armor ----------------
@@ -389,7 +394,7 @@ const ARMORS = {
     lore: 'Half a cuirass from Raikon\'s thunder vanguard. The storm burned the other half off Garan the day he deserted, and he wore what was left like a confession.' },
   shiden_yoroi: { name: 'Shiden Yoroi', tier: 'trophy', def: 0.21, hp: 80, exclusive: true, hint: 'Defeat Shiden, the Last Lieutenant', look: 'vanguard_plate', perks: { dmg: 0.05, stunRes: 0.1 },
     lore: 'A lieutenant\'s plate of the thunder vanguard, laced in violet cord. Its echo still keeps the archive road, waiting for orders that stopped ten years ago.' },
-  mei_en_garb:  { name: 'Mei-En Garb', tier: 'trophy', def: 0.21, hp: 80, exclusive: true, hint: 'Defeat Akari', look: 'cloak', perks: { dash: 0.2, speed: 0.06 },
+  mei_en_garb:  { name: 'Mei-En Garb', tier: 'trophy', def: 0.21, hp: 80, exclusive: true, hint: 'Defeat Akari', look: 'mei_en', perks: { dash: 0.2, speed: 0.06 },
     lore: 'Akari\'s smoke-grey fighting garb. Even the Order\'s records cannot agree on what colour it is.' },
   kysmei_robe:  { name: 'Kysmei Robe', tier: 'trophy', def: 0.22, hp: 85, exclusive: true, hint: 'Defeat the Witness', look: 'robe', perks: { rage: 0.3 },
     lore: 'The Witness\'s robe, stitched from the threads of every memory the Echo System ever swallowed.' },
@@ -484,6 +489,19 @@ const ENEMIES = {
               { name: 'Redline', at: 0.66, abilities: ['thunderSwing', 'stormBreak', 'redlineCounter'] },
               { name: 'Lightning Ascendant', at: 0.33, abilities: ['thunderSwing', 'stormBreak', 'redlineCounter'], secondWave: 0.7, aggressive: 1 }
             ] },
+  // Akari, the Memory Blade (Act II boss, act2.boss): a former intelligence operative, calm and hard to read. A slim,
+  // compact build with a half-mask and tied hair (helmet `akari_mask`), layered light armour with split cloth panels
+  // (her Mei-En Garb), muted violet on charcoal (`body` is her flat fill), and Kagehira & Yūrei. Her moves: AKARI_MOVES.
+  akari: { name: 'Akari', title: 'the Memory Blade', type: 'boss', ai: 'boss', weapon: 'akari_blades', helmet: 'akari_mask', armor: 'mei_en_garb',
+            hp: 600, def: 0.1, dmg: 1.05, speed: 1.12, build: { scale: 1.0, w: 8.8, legs: 1.04, head: 0.98 }, eye: '#c9a8ff', accent: '#9b6bd6', body: '#1d1a22',
+            flashEyes: 1, noGrab: 1, defeat: 'finisher',
+            taunt: 'You walk through these memories like they belong to you.', win: 'Stay lost. It is kinder.',
+            tip: 'A pale copy of her standing open is a False Opening: strike it and the real Akari punishes from behind, so turn as it vanishes. When she crosses her blades before her face, Petal Cross is coming: dash through it or away.',
+            phases: [
+              { name: 'Quiet Blade', at: 1, abilities: ['twinFang', 'smokeStep'] },
+              { name: 'False Opening', at: 0.66, abilities: ['twinFang', 'smokeStep', 'blink', 'falseOpening'] },
+              { name: 'Petal Cross', at: 0.33, abilities: ['twinFang', 'smokeStep', 'blink', 'falseOpening', 'petalCross'], aggressive: 1, chainBlink: 1 }
+            ] },
   // ---- Act I sub-bosses (act1.sub1..4) ----
   // Each is fought in the boss format (one bar, one or two phases; the stage has `format: 'boss'`) and borrows a
   // REDUCED Raikon move (RAIKON_VARIANTS below), never the full Thunder Swing wave. Each wears the trophy it drops.
@@ -572,6 +590,25 @@ const RAIKON_VARIANTS = {
   // Shiden: a lighter Storm Break, and in his second phase a short guard whose punish can be blocked
   vanguardBreak:  { base: 'stormBreak', label: 'VANGUARD BREAK', cd: 5, range: [0, 300], chance: 0.6, windup: 0.68, dmg: 0.8, shock: 0.7, shockLife: 0.5 },
   vanguardGuard:  { base: 'redlineCounter', label: 'HOLD THE LINE', cd: 7.5, range: [60, 280], chance: 0.5, stance: 0.8, dmg: 0.75, unb: 0 }
+};
+
+/* ---------------- Akari's moves ----------------
+   Akari's abilities. BOSS_ABILITIES in 40-ai.js read their numbers from here (and take an optional override object), so
+   Act II's sub-bosses can later run reduced versions, the way Act I's reuse Raikon's. Logic.akariMove(id) answers them.
+     label              the call-out as it winds up        cd, range, chance   cooldown (s), distance band, pick chance
+     windup             the tell, as a fraction of the difficulty mode's windup (Logic.aiTuning); every move has one
+     dmg                damage of the cut (twinFang: [Kagehira's opener, Yūrei's punisher])
+     smoke              smokeStep's puff { life (s), radius }: compact, gone before it can hide anyone
+     dist               how far she repositions (smokeStep, blink; phase flag chainBlink blinks twice)
+     afterimages, opacity, hold   falseOpening: the decoy's offset silhouettes, its opacity, how long it stands
+     dash, reach        forward speed of twinFang / petalCross; petalCross's cut width */
+const AKARI_ABILITIES = ['twinFang', 'smokeStep', 'blink', 'falseOpening', 'petalCross'];
+const AKARI_MOVES = {
+  twinFang:     { label: 'TWIN FANG', cd: 3.2, range: [0, 300], chance: 0.7, windup: 0.42, dmg: [7, 12], dash: 520 },
+  smokeStep:    { label: 'SMOKE STEP', cd: 5.5, range: [120, 700], chance: 0.55, windup: 0.36, dmg: 10, dist: 150, smoke: { life: 0.5, radius: 46 } },
+  blink:        { label: 'BLINK', cd: 4.2, range: [80, 800], chance: 0.55, windup: 0.32, dist: 230 },
+  falseOpening: { label: 'FALSE OPENING', cd: 9, range: [100, 520], chance: 0.6, windup: 0.4, dmg: 15, afterimages: 2, opacity: 0.5, hold: 1.8 },
+  petalCross:   { label: 'PETAL CROSS', cd: 7, range: [120, 520], chance: 0.7, windup: 0.72, dmg: 24, dash: 1100, reach: 190 }
 };
 
 /* ---------------- The family form ----------------
@@ -734,6 +771,11 @@ const CAMPAIGN = (function buildCampaign() {
   Object.assign(chapters[1].stages.find(st => st.id === 'act1.boss'), {
     enemy: 'raikon', reward: { weapons: ['raiko_no_tachi'], helmets: ['raijin_kabuto'] },
     scenes: { before: 'act1.raikon.before', defeat: 'act1.raikon.defeat' } });
+  // Act II's boss: Akari, in the City of Echoes. She drops her Mei-En Garb and Kagehira & Yūrei; her dying words hand
+  // Kage Shinsen (story flag act2.shinsen_received; the weapon grant itself is SAN-38's).
+  Object.assign(chapters[3].stages.find(st => st.id === 'act2.boss'), {
+    enemy: 'akari', reward: { weapons: ['kagehira_yurei'], armors: ['mei_en_garb'] },
+    scenes: { before: 'act2.akari.before', defeat: 'act2.akari.defeat' } });
   // Act I, The Missing Brother: four stretches through Yomi's outer districts, where the Order of Silence has erased
   // the records of the Silent War. Mostly Order soldiers with a few Hollows, more of them each stretch; survivors'
   // story beats; the act's three clues (the torn report, the two sword marks, Takashi's evacuation recording); and a
