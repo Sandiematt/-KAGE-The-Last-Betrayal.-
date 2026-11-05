@@ -96,6 +96,7 @@ class AIController {
     if (this.plan === 'approach') { c.dir = toward; if (dist < this.p.pref) this.plan = 'hold'; }
     else if (this.plan === 'retreat') { c.dir = -toward; if (f.x < w.bounds.l + 60 || f.x > w.bounds.r - 60) { this.plan = 'hold'; if (this.p.dodge > 0.2) { c.jumpP = true; c.dir = toward; } } }
     else if (this.plan === 'strafe') { c.dir = this.strafeDir; }
+    else if (this.plan === 'ring') { c.dir = toward; if (dist < this.ring) this.plan = 'hold'; }
     if (p.state === 'down' || p.state === 'getup') { if (dist < 140) c.dir = -toward; }
   }
 
@@ -139,6 +140,8 @@ class AIController {
     if (hpK < 0.35) aggr += f.def && (f.def.ai === 'defensive' || f.def.ai === 'ranged') ? -0.1 : 0.15;
     if (this.phaseData && this.phaseData.aggressive) aggr += 0.2;
     if (p.state === 'down' || p.state === 'getup') { this.plan = 'hold'; return; }
+    // stretches: only a couple of foes press the attack at once (world.mayEngage); the rest circle at a distance
+    if (w.mayEngage && !w.mayEngage(f)) { this.waitTurn(dist, toward); return; }
     // boss / sub-boss signature abilities
     if (this.tryAbility(p, dist, toward)) return;
     // ranged behaviour
@@ -159,6 +162,15 @@ class AIController {
     const r = Math.random();
     if (r < 0.35) { this.plan = 'strafe'; this.strafeDir = chance(0.5) ? toward : -toward; this.t = rand(0.15, 0.35); }
     else if (r < 0.55 && pr.block > 0.3) { this.block = rand(0.3, 0.7); }
+    else this.plan = 'hold';
+  }
+
+  waitTurn(dist, toward) {
+    const ring = this.world.waitRing || 360;
+    this.ring = ring;
+    if (dist < ring - 70) this.plan = 'retreat';
+    else if (dist > ring + 90) this.plan = 'ring';
+    else if (chance(0.4)) { this.plan = 'strafe'; this.strafeDir = chance(0.5) ? toward : -toward; this.t = rand(0.2, 0.4); }
     else this.plan = 'hold';
   }
 

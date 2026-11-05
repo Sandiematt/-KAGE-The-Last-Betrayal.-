@@ -593,7 +593,8 @@ const UIManager = {
     Game.setTableau(env, { fighters: [player, enemy], zoom: fitZoom, ground: 612, lights: [{ x: 330, y: 470, r: 360, c: 'rgba(201,164,92,0.18)' }, { x: 960, y: 450, r: 400, c: 'rgba(163,48,42,0.32)' }] });
     const dl = clamp((cfg.mode === 'campaign' ? cfg.diff : 2) + (cfg.ng || 0) + (d.type === 'boss' ? 1 : 0), 0, 4);
     const foeName = cfg.foeName || d.name, foeTitle = cfg.foeTitle || d.title;
-    const tag = cfg.mode === 'survival' ? `Survival · Wave ${ROMAN[cfg.wave - 1] || cfg.wave}` : `${d.type === 'boss' ? 'Boss' : d.type === 'sub' ? 'Sub-boss' : 'Duelist'} · ${DIFF_LABEL[dl]}`;
+    const tag = cfg.mode === 'survival' ? `Survival · Wave ${ROMAN[cfg.wave - 1] || cfg.wave}` : cfg.stretch ? `Stretch · ${DIFF_LABEL[dl]}` : `${d.type === 'boss' ? 'Boss' : d.type === 'sub' ? 'Sub-boss' : 'Duelist'} · ${DIFF_LABEL[dl]}`;
+    const taunt = cfg.stretch ? `${cfg.stretch.encounters.length} encounters on the road · clues found ${Logic.cluesFound(save, cfg.stageId).length}/${cfg.stretch.clues.length}` : d.taunt;
     const owned = Object.keys(save.owned.weapons).filter(w => WEAPONS[w] && !WEAPONS[w].enemy);
     el.innerHTML = `
       <button class="round-btn pf-back" data-a="back" aria-label="Back">${ICON.back}</button>
@@ -607,7 +608,7 @@ const UIManager = {
         <div class="nm disp">${esc(foeName)}</div>
         <div class="ttl">${esc(foeTitle)}${cfg.mode === 'campaign' ? ` · ${esc(Logic.chapter(cfg.chapter).name)} · ${esc(Logic.stage(cfg.stageId).name)}` : ''}</div>
       </div>
-      <div class="taunt">${esc(d.taunt)}</div>
+      <div class="taunt">${esc(taunt)}</div>
       <div class="vs"><i></i><span>vs</span><i></i></div>
       <div class="dock">
         <div class="choose"><span class="eyebrow">Choose weapon</span>
@@ -621,7 +622,9 @@ const UIManager = {
 
   /* ---------------- HUD ---------------- */
   showHud(s) {
-    const el = $('#scr-hud'), e = s.enemy, bossy = e.def.type !== 'regular';
+    // a stretch has no single opponent: no foe portrait, boss bar or round clock; foes carry their own small bars
+    // (drawn on the canvas) and the top of the screen shows the road's progress instead
+    const el = $('#scr-hud'), e = s.enemy, stretch = !!s.isStretch, bossy = !!e && e.def.type !== 'regular';
     el.innerHTML = `
       <div class="fp left" data-pp>
         <div class="medal"><canvas data-portrait="p"></canvas></div>
@@ -631,7 +634,7 @@ const UIManager = {
           <div class="rbar" data-rage><span class="rb-ic">怒</span><div class="rbar-in"><i class="rb-fill"></i></div><span class="rb-ready">Rage ready</span><span class="kunai" data-kunai></span></div>
         </div>
       </div>
-      <div class="fp right ${bossy ? 'gone' : ''}" data-ep>
+      <div class="fp right ${bossy || stretch ? 'gone' : ''}" data-ep>
         <div class="medal enemy"><canvas data-portrait="e"></canvas></div>
         <div class="fp-body">
           <div class="fp-name"><b data-ename></b><span data-etitle></span></div>
@@ -643,7 +646,8 @@ const UIManager = {
         <b class="bb-name" data-bname></b>
         <div class="bb-track"><i class="hb-chip"></i><i class="hb-fill"></i><i class="hb-gloss"></i><span data-bdivs></span></div>
       </div>
-      <div class="clock"><b data-timer>--</b><div class="round-pips" data-pips></div></div>
+      <div class="clock ${stretch ? 'gone' : ''}"><b data-timer>--</b><div class="round-pips" data-pips></div></div>
+      <div class="hud-road ${stretch ? '' : 'gone'}" data-road><div class="rd-track"><i class="rd-fill"></i><span data-rdmarks></span><b class="rd-kage"></b></div><div class="rd-info" data-rdinfo></div></div>
       <button class="hud-btn hud-pause" data-a="pause" aria-label="Pause">${ICON.pause}</button>
       <div class="hud-wave" data-wave></div>
       <div class="combo" data-combo><b>0</b><span>Hits</span></div>
@@ -664,6 +668,7 @@ const UIManager = {
         pp: $('[data-pp]', r), ep: $('[data-ep]', r), boss: $('[data-boss]', r),
         php: $('[data-php]', r), ehp: $('[data-ehp]', r), rage: $('[data-rage]', r), rageFill: $('.rb-fill', r), kunai: $('[data-kunai]', r),
         ename: $('[data-ename]', r), etitle: $('[data-etitle]', r), bname: $('[data-bname]', r), btitle: $('[data-btitle]', r), bdivs: $('[data-bdivs]', r),
+        road: $('[data-road]', r), rdFill: $('.rd-fill', r), rdKage: $('.rd-kage', r), rdMarks: $('[data-rdmarks]', r), rdInfo: $('[data-rdinfo]', r),
         phases: $('[data-phases]', r), timer: $('[data-timer]', r), pips: $('[data-pips]', r), combo: $('[data-combo]', r), dlg: $('[data-dlg]', r), skip: $('[data-skip]', r), wave: $('[data-wave]', r),
         pBar: bar($('[data-pp] .hbar-in', r)), eBar: bar($('[data-ep] .hbar-in', r)), bBar: bar($('[data-boss] .bb-track', r))
       };
@@ -673,7 +678,7 @@ const UIManager = {
     portraits(s) {
       const pc = $('#scr-hud canvas[data-portrait="p"]'), ec = $('#scr-hud canvas[data-portrait="e"]');
       if (pc) drawPortrait(pc, s.player, false);
-      if (ec) drawPortrait(ec, s.enemy, true);
+      if (ec && s.enemy) drawPortrait(ec, s.enemy, true);
     },
     // smooth drain: the fill eases to the new value, the bone chip waits, then follows
     animBar(b, ratio, dt, els, side) {
@@ -698,19 +703,11 @@ const UIManager = {
       if (UIManager.current !== 'hud') return;
       const e = this.q(), p = s.player, en = s.enemy;
       const now = performance.now(), dt = Math.min(0.1, (now - this.last) / 1000); this.last = now;
-      const bossy = en.def.type !== 'regular';
-      this.set('who', en.uid, () => {
-        e.ename.textContent = en.name; e.etitle.textContent = en.title; e.bname.textContent = en.name; e.btitle.textContent = en.title;
-        e.ep.classList.toggle('gone', bossy); e.boss.classList.toggle('gone', !bossy);
-        e.bdivs.innerHTML = en.ai && en.ai.phases ? '<i class="bb-div" style="left:33.3%"></i><i class="bb-div" style="left:66.6%"></i>' : '';
-        this.bars.e = { v: 1, chip: 1, delay: 0, target: clamp(en.hp / en.maxHp, 0, 1) };
-        const ec = $('#scr-hud canvas[data-portrait="e"]'); if (ec && ec.clientWidth) drawPortrait(ec, en, true);
-      });
+      if (en) this.updateFoe(s, e, en, dt);
+      else if (s.isStretch) this.updateRoad(s, e);
       this.animBar(this.bars.p, clamp(p.hp / p.maxHp, 0, 1), dt, e.pBar, 'p');
-      this.animBar(this.bars.e, clamp(en.hp / en.maxHp, 0, 1), dt, bossy ? e.bBar : e.eBar, 'e');
       this.set('plow', p.hp < p.maxHp * 0.25, v => e.pp.classList.toggle('low', v));
       this.set('phpv', Math.ceil(Math.max(0, p.hp)), v => e.php.textContent = v);
-      this.set('ehpv', Math.ceil(Math.max(0, en.hp)), v => e.ehp.textContent = v);
       const rage = Math.round(p.rage);
       this.set('rage', rage, v => {
         e.rageFill.style.width = clamp(v, 0, 100) + '%';
@@ -720,16 +717,42 @@ const UIManager = {
         const tb = $('#touch .tb.rage'); if (tb) tb.classList.toggle('ready', full);
       });
       this.set('kunai', p.ammo, v => { e.kunai.innerHTML = `<svg viewBox="0 0 24 24"><path d="M3 21 L14 10 M14 10 L21 3 L18 11 Z" stroke="currentColor" stroke-width="2" fill="currentColor" stroke-linejoin="round"/></svg>${v}`; const k = $('#touch [data-ammo]'); if (k) k.textContent = v; });
-      const ph = en.ai && en.ai.phases ? en.ai.phase : -1;
-      this.set('phase', ph + ':' + en.uid, () => { e.phases.innerHTML = ph < 0 ? '' : [0, 1, 2].map(i => `<i class="${i < ph ? 'done' : i === ph ? 'on' : ''}"></i>`).join('') + `<em>Phase ${ROMAN[ph]}</em>`; });
-      this.set('timer', Math.max(0, Math.ceil(s.timer)), v => { e.timer.textContent = v; e.timer.classList.toggle('urgent', v <= 10); });
-      const n = s.roundsToWin * 2 - 1;
-      this.set('pips', `${s.rounds.p}-${s.rounds.e}-${n}`, () => { const arr = []; for (let i = 0; i < s.rounds.p; i++) arr.push('p'); for (let i = 0; i < s.rounds.e; i++) arr.push('e'); while (arr.length < n) arr.push(''); e.pips.innerHTML = arr.map(c => `<i class="${c}"></i>`).join(''); });
       this.set('wave', s.mode === 'survival' ? `${s.wave}-${s.survivalCoins}` : '', () => { e.wave.innerHTML = s.mode === 'survival' ? `<span>Wave ${s.wave}</span><span class="wv-c"><i class="coin"></i>${s.survivalCoins}</span><span class="muted">Best ${SaveManager.data.survivalBest}</span>` : ''; });
       this.set('combo', s.combo >= 2 ? s.combo : 0, v => { e.combo.classList.toggle('on', v >= 2); if (v >= 2) { e.combo.firstChild.textContent = v; e.combo.classList.remove('bump'); void e.combo.offsetWidth; e.combo.classList.add('bump'); } });
       const dl = s.dialogue;
       this.set('dlg', dl ? dl.text : '', () => { e.dlg.classList.toggle('on', !!dl); if (dl) { e.dlg.children[0].textContent = `${dl.name} · ${dl.title}`; e.dlg.children[1].textContent = dl.text; } });
       this.set('skip', s.phase === 'intro' || s.phase === 'outro', v => e.skip.style.display = v ? 'block' : 'none');
+    },
+    // arena: the opponent's panel or boss bar, its phases, the round clock and pips
+    updateFoe(s, e, en, dt) {
+      const bossy = en.def.type !== 'regular';
+      this.set('who', en.uid, () => {
+        e.ename.textContent = en.name; e.etitle.textContent = en.title; e.bname.textContent = en.name; e.btitle.textContent = en.title;
+        e.ep.classList.toggle('gone', bossy); e.boss.classList.toggle('gone', !bossy);
+        e.bdivs.innerHTML = en.ai && en.ai.phases ? '<i class="bb-div" style="left:33.3%"></i><i class="bb-div" style="left:66.6%"></i>' : '';
+        this.bars.e = { v: 1, chip: 1, delay: 0, target: clamp(en.hp / en.maxHp, 0, 1) };
+        const ec = $('#scr-hud canvas[data-portrait="e"]'); if (ec && ec.clientWidth) drawPortrait(ec, en, true);
+      });
+      this.animBar(this.bars.e, clamp(en.hp / en.maxHp, 0, 1), dt, bossy ? e.bBar : e.eBar, 'e');
+      this.set('ehpv', Math.ceil(Math.max(0, en.hp)), v => e.ehp.textContent = v);
+      const ph = en.ai && en.ai.phases ? en.ai.phase : -1;
+      this.set('phase', ph + ':' + en.uid, () => { e.phases.innerHTML = ph < 0 ? '' : [0, 1, 2].map(i => `<i class="${i < ph ? 'done' : i === ph ? 'on' : ''}"></i>`).join('') + `<em>Phase ${ROMAN[ph]}</em>`; });
+      this.set('timer', Math.max(0, Math.ceil(s.timer)), v => { e.timer.textContent = v; e.timer.classList.toggle('urgent', v <= 10); });
+      const n = s.roundsToWin * 2 - 1;
+      this.set('pips', `${s.rounds.p}-${s.rounds.e}-${n}`, () => { const arr = []; for (let i = 0; i < s.rounds.p; i++) arr.push('p'); for (let i = 0; i < s.rounds.e; i++) arr.push('e'); while (arr.length < n) arr.push(''); e.pips.innerHTML = arr.map(c => `<i class="${c}"></i>`).join(''); });
+    },
+    // stretch: how far along the road Kage is, the encounter and clue marks on it, and the foes left in a fight
+    updateRoad(s, e) {
+      const L = s.stretch, k = clamp(s.player.x / L.length, 0, 1);
+      this.set('road', Math.round(k * 400), () => { e.rdFill.style.width = (k * 100).toFixed(2) + '%'; e.rdKage.style.left = (k * 100).toFixed(2) + '%'; });
+      const found = s.clues.filter(c => c.found).length;
+      this.set('rdmarks', `${s.cleared}:${found}`, () => {
+        e.rdMarks.innerHTML = L.encounters.map((en, i) => `<i class="rd-enc ${i < s.cleared ? 'done' : ''}" style="left:${(en.x / L.length * 100).toFixed(2)}%"></i>`).join('') +
+          s.clues.map(c => `<i class="rd-clue ${c.found ? 'done' : ''}" style="left:${(c.x / L.length * 100).toFixed(2)}%"></i>`).join('');
+      });
+      const enc = s.encounter;
+      const info = enc ? `Foes ${s.liveFoes()} · Wave ${Math.max(1, enc.wave + 1)}/${L.encounters[enc.i].waves.length}` : s.cleared >= L.encounters.length ? 'The road is open' : `Encounters ${s.cleared}/${L.encounters.length}`;
+      this.set('rdinfo', `${info}|${found}`, () => { e.rdInfo.innerHTML = `<span>${esc(info)}</span><span class="rd-c">Clues ${found}/${s.clues.length}</span>`; });
     }
   },
 
@@ -757,7 +780,10 @@ const UIManager = {
     const sealNames = r.mode === 'survival' ? ['5 waves', '10 waves', '15 waves'] : ['Victory', 'Under 60s', 'Flawless'];
     const win = r.mode === 'survival' ? r.waves > 0 : r.win;
     const title = r.mode === 'survival' ? (r.newBest ? 'New Record' : 'Fallen') : r.win ? 'Victory' : 'Defeated';
-    const line = r.mode === 'survival' ? (r.newBest ? `Wave ${r.waves}. The pit will remember your name.` : `Wave ${r.waves}. Best: wave ${save.survivalBest}.`) : r.win ? `${foeName} ${d.type === 'boss' ? 'has fallen. The way opens.' : 'has fallen.'}` : `${foeName} still stands. Rise again.`;
+    const stretch = r.kind === 'stretch';
+    const line = r.mode === 'survival' ? (r.newBest ? `Wave ${r.waves}. The pit will remember your name.` : `Wave ${r.waves}. Best: wave ${save.survivalBest}.`)
+      : stretch ? (r.win ? `The road is walked.${r.clues ? ` Clues found: ${r.clues}.` : ''}` : `The road still bars the way. Rise again.`)
+      : r.win ? `${foeName} ${d.type === 'boss' ? 'has fallen. The way opens.' : 'has fallen.'}` : `${foeName} still stands. Rise again.`;
     el.innerHTML = `
       <div class="res-col">
         <div><div class="eyebrow muted" style="color:var(--text-muted)">${esc(eyebrow)}</div>
@@ -774,7 +800,7 @@ const UIManager = {
             ${unlockHTML}
           </div>` : `
           <div class="recap">
-            <div><b>${Math.round(r.enemyDamage * 100)}%</b><span>${d.type === 'regular' ? 'Enemy' : 'Boss'} health taken</span></div>
+            <div><b>${Math.round(r.enemyDamage * 100)}%</b><span>${stretch ? 'Encounters cleared' : d.type === 'regular' ? 'Enemy' : 'Boss'}${stretch ? '' : ' health taken'}</span></div>
             <div><b><i class="coin" style="width:1.1rem;height:1.1rem;border-width:4px"></i>+${r.coins}</b><span>Kept</span></div>
           </div>
           <div class="tip">${ICON.bulb}<span>${esc(d.tip || 'Block, then punish the recovery.')}</span></div>`}
@@ -886,7 +912,7 @@ const UIManager = {
   openPause() {
     if (!Game.session) return;
     Game.paused = true; this.updateTouch();
-    this.openOverlay('pause', `<div class="ov-card"><div class="eyebrow">Paused · ${esc(Logic.difficulty(SaveManager.data.difficulty).label)}</div><h3 class="disp">${esc(Game.session.enemy.name)}</h3>
+    this.openOverlay('pause', `<div class="ov-card"><div class="eyebrow">Paused · ${esc(Logic.difficulty(SaveManager.data.difficulty).label)}</div><h3 class="disp">${esc(Game.session.enemy ? Game.session.enemy.name : Game.session.cfg.foeName)}</h3>
       <div class="stack"><button class="btn-primary" data-a="resume" data-focus>Resume</button><button class="btn-ghost" data-a="restart">${ICON.retry} Restart fight</button><button class="btn-ghost" data-a="help">${ICON.help} Controls</button><button class="btn-ghost" data-a="quit">Quit to ${Game.session.mode === 'survival' ? 'survival' : 'map'}</button></div>
       <div>${this.difficultyRow()}${this.settingsRows()}</div></div>`);
   },

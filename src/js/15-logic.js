@@ -105,6 +105,7 @@ const Logic = {
       owned: { weapons: { kagetsu: 1 }, helmets: { shiro_maki: 1 }, armors: { tachibana_yoroi: 1 } },
       equipped: { weapon: 'kagetsu', helmet: 'shiro_maki', armor: 'tachibana_yoroi' },
       seenRewards: {},
+      clues: {},              // stageId -> { clueId: true }, clue pickups found in stretches (kept through New Game+)
       difficulty: 'normal',    // Easy / Normal / Hard / Impossible (DIFFICULTY_IDS); only the player changes it
       difficultyPicked: false, // false until the new-game mode picker has been answered
       survivalBest: 0,
@@ -146,6 +147,13 @@ const Logic = {
     for (const k in s.defeated || {}) if (STAGE_BY_ID[k] && s.defeated[k] > 0) d.defeated[k] = s.defeated[k];
     delete d.unlockedActs;
     d.seenRewards = s.seenRewards || {};
+    // found clues: only clues a stretch stage still has
+    d.clues = {};
+    for (const k in s.clues || {}) {
+      const st = this.stretch(k), got = s.clues[k];
+      if (!st || !got || typeof got !== 'object') continue;
+      for (const c of st.clues) if (got[c.id]) (d.clues[k] = d.clues[k] || {})[c.id] = true;
+    }
     d.difficulty = this.normalizeDifficulty(s.difficulty);
     d.difficultyPicked = !!s.difficultyPicked;
     return d;
@@ -219,12 +227,53 @@ const Logic = {
     }
     return got;
   },
-  // Everything the fight session needs to stage a campaign fight. Until real content lands every combat stage
-  // is one arena fight against its placeholder `enemy`, shown under the stage's story foe name.
+  // Everything the fight session needs to stage a campaign fight. A stretch stage carries its level (`stretch`) and
+  // is walked by StretchSession; every other combat stage is one arena fight against its placeholder `enemy`, shown
+  // under the stage's story foe name.
   stageConfig(save, id) {
     const st = this.stage(id), ch = this.chapter(st.chapter), d = ENEMIES[st.enemy];
+    // a stretch is a side-scrolling level: the session walks it instead of staging an arena duel
+    if (st.kind === 'stretch' && st.stretch) {
+      return { mode: 'campaign', stageId: id, kind: st.kind, chapter: ch.id, pos: st.pos, diff: ch.diff, env: st.stretch.env || st.env || ch.env,
+        enemyId: st.enemy, foeName: st.name, foeTitle: ch.place, ng: save.ng, stretch: st.stretch };
+    }
     return { mode: 'campaign', stageId: id, kind: st.kind, chapter: ch.id, pos: st.pos, diff: ch.diff, env: st.env || ch.env,
       enemyId: st.enemy, foeName: st.foe || (d && d.name), foeTitle: st.foeTitle || (d && d.title), ng: save.ng };
+  },
+  /* ---------------- stretches ----------------
+     A stretch stage is a side-scrolling level (CAMPAIGN stage `stretch` field). Encounters are cleared in order;
+     `cleared` below is how many of them are done. */
+  // The stretch level of a stage, or null for any other stage.
+  stretch(id) { const st = this.stage(id); return st && st.kind === 'stretch' && st.stretch ? st.stretch : null; },
+  // Index of the encounter Kage starts by standing at x, or -1 (the next uncleared one, once he crosses its trigger).
+  encounterAt(stretch, cleared, x) {
+    const e = stretch.encounters[cleared];
+    return e && x >= e.x ? cleared : -1;
+  },
+  // The furthest x Kage may walk: the gate of the first uncleared encounter, else the end of the level.
+  stretchLimit(stretch, cleared) {
+    const e = stretch.encounters[cleared];
+    return e ? Math.min(e.gate, stretch.length) : stretch.length;
+  },
+  // The stretch is complete when every encounter is cleared and Kage reaches the end (within `reach` of it).
+  isStretchComplete(stretch, cleared, x, reach) {
+    return cleared >= stretch.encounters.length && x >= stretch.length - (reach == null ? 60 : reach);
+  },
+  // Records a found clue: save.clues[stageId][clueId]. Returns true when it is newly found, false for a clue the
+  // stage does not have or one already found. Clues are kept through New Game+.
+  collectClue(save, stageId, clueId) {
+    const s = this.stretch(stageId);
+    if (!s || !s.clues.some(c => c.id === clueId)) return false;
+    save.clues = save.clues || {};
+    const got = save.clues[stageId] = save.clues[stageId] || {};
+    if (got[clueId]) return false;
+    got[clueId] = true;
+    return true;
+  },
+  // The ids of the clues found on a stage, in the order the stage lists them.
+  cluesFound(save, stageId) {
+    const s = this.stretch(stageId), got = (save.clues || {})[stageId] || {};
+    return s ? s.clues.filter(c => got[c.id]).map(c => c.id) : [];
   },
   // Starts the next New Game+ cycle: campaign progress resets, everything else (including lifetime defeats) is kept.
   startNewGamePlus(save) {

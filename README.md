@@ -4,7 +4,7 @@
 
 KAGE — The Last Betrayal is a story-driven, side-view 2D stickman action game. You play Kage (影, "shadow"), a black silhouette with a white face-wrap and one red sash, searching for his missing brother Rem through a world rebuilt from fragments of memory. The fights use katanas, spears, hammers and bare hands, with elemental sword arcs, perfect parries, slow-motion finishers and a dark Japanese ink identity.
 
-The game is being rebuilt from the earlier arena duel game into this story campaign. The combat, VFX, HUD and audio carry over; the campaign map is in place, while its stretches, story scenes, enemies, bosses and gear arrive in later updates. Until then every combat stage is a single arena fight against a placeholder foe.
+The game is being rebuilt from the earlier arena duel game into this story campaign. The combat, VFX, HUD and audio carry over; the campaign map and the side-scrolling stretches are in place, while the authored stretch content, story scenes, enemies, bosses and gear arrive in later updates. Until then every stretch has placeholder content and every other combat stage is a single arena fight against a placeholder foe.
 
 The whole game ships as **one self-contained `index.html`**: HTML5, Canvas 2D, vanilla JavaScript and Web Audio, with no libraries. The fonts and key-art images are inlined by the build, so it runs offline and wraps easily for mobile.
 
@@ -46,7 +46,7 @@ The shipped file is built from readable modules in `src/`:
 | `src/js/30-combat.js` | **CombatSystem**, **WeaponSystem** (projectiles, shockwaves, dropped weapons, rage arts), **ParticleSystem** + effects |
 | `src/js/40-ai.js` | enemy **AI** profiles and **BossAI** abilities / phases |
 | `src/js/50-world.js` | **Renderer**: three parallax environments, title / pre-fight / result scenes, impact frames |
-| `src/js/60-engine.js` | **GameEngine**: fixed 60 FPS timestep, fight sessions, rounds, survival waves, rewards |
+| `src/js/60-engine.js` | **GameEngine**: fixed 60 FPS timestep, fight sessions (arena **FightSession**: rounds, survival waves; side-scrolling **StretchSession**: follow camera, encounters, clues), rewards |
 | `src/js/70-ui.js` | **UIManager**: every DOM screen, HUD, overlays, touch controls |
 | `src/js/35-vfx.js` | elemental sword smears, impacts, rings, finisher slash, heat haze |
 | `src/styles.css` | identity tokens, brush buttons, HUD and all screen styles |
@@ -77,6 +77,16 @@ All progression rules live in `src/js/15-logic.js`, exposed as the global `Logic
   ```
 
   `Logic.completeStage` (and so `applyFightResult` on a win) calls `Logic.grantStageReward`, which gives each listed item at level 1 exactly once: the first time the stage is cleared while the item is not owned. An item flagged `ngOnly` (Shinsei Yoroi) is only granted when the stage is cleared during New Game+. Granted items come back in the result's `gear` and in `unlocks` as `{ kind: 'weapons' | 'helmets' | 'armors', id }`, which the result screen and toasts show. No stage has a reward yet: the boss and sub-boss updates add them (and the 12 sub-boss trophies).
+- **Stretches.** A `stretch` stage is a side-scrolling level, data on its `CAMPAIGN` entry:
+
+  ```js
+  { id: 'prologue.1', kind: 'stretch', /* ... */, stretch: {
+      length: 4600, start: 160,                       // level width (the screen is 1280) and Kage's start x; env? overrides the chapter's
+      encounters: [{ x: 1250, gate: 1950, waves: [['hollow', 'hollow'], ['hollow', 'order_recruit']] }, /* ... */],
+      clues: [{ id: 'clue1', x: 2450, label: 'A torn page' }] } }
+  ```
+
+  `Logic.stretch(id)` returns it (null for other stages) and `Logic.stageConfig` hands it to the engine, which then runs a `StretchSession` instead of the arena: no rounds and no timer, a follow camera (deadzone, look-ahead, clamped to the level), and parallax layers that repeat across the level. Encounters are cleared in order: `Logic.encounterAt(stretch, cleared, x)` says when Kage's x starts the next one, `Logic.stretchLimit(stretch, cleared)` is how far he may walk (the gate of the first uncleared encounter, else the end), and `Logic.isStretchComplete(stretch, cleared, x)` is reached at the end with every encounter cleared; the win goes through `applyFightResult` like any fight. An encounter locks a 1500-wide arena ending at its gate and spawns its 1–3 waves (each wave's foes all at once, from both sides, built by `Logic.enemyStats` like every foe); only the two nearest foes press the attack while the others circle. Clues are picked up by walking over them: `Logic.collectClue(save, stageId, clueId)` records `save.clues[stageId][clueId]` (kept through New Game+; unknown ids are dropped on load) and `Logic.cluesFound(save, stageId)` lists them. Every stretch currently gets placeholder content (`stretchDefaults` in `10-data.js`: two encounters, the last wave four foes, one clue); the story updates author the real levels.
 - In the browser console it is available as `KAGE.Logic`.
 
 Run the tests (Node 18+, no dependencies, built-in test runner):

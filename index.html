@@ -787,6 +787,19 @@ body { font-family: var(--font-num); }
 .mode-card:hover, .mode-card:focus-visible, .mode-card.on { border-color: var(--accent-gold); background: rgba(201,164,92,.08); }
 .mode-card.impossible b { color: var(--accent-ember-bright); }
 @media (max-width: 640px) { .mode-grid { grid-template-columns: 1fr; } }
+
+/* ---------- stretch HUD: the road's progress instead of the round clock (SAN-28) ---------- */
+.clock.gone, .hud-road.gone { display: none; }
+.hud-road { position: absolute; left: 50%; top: 1.5rem; transform: translateX(-50%); width: min(24rem, 36vw); font-family: var(--font-ui); color: var(--accent-gold); }
+.hud-road .rd-track { position: relative; height: .5rem; border: 1px solid rgba(201,164,92,.55); background: rgba(6,3,3,.7); border-radius: .25rem; }
+.hud-road .rd-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: linear-gradient(90deg, rgba(200,35,47,.55), #c8232f); border-radius: .25rem; }
+.hud-road .rd-kage { position: absolute; top: 50%; width: .9rem; height: .9rem; margin: -.45rem 0 0 -.45rem; border-radius: 50%; background: #f6e6c8; box-shadow: 0 0 .5rem rgba(246,230,200,.7); }
+.hud-road .rd-enc, .hud-road .rd-clue { position: absolute; top: 50%; width: .55rem; height: .55rem; margin: -.275rem 0 0 -.275rem; transform: rotate(45deg); background: #c8232f; border: 1px solid #f6e6c8; }
+.hud-road .rd-clue { background: #c9a45c; border-radius: 50%; transform: none; }
+.hud-road .rd-enc.done, .hud-road .rd-clue.done { opacity: .35; }
+.hud-road .rd-info { display: flex; justify-content: space-between; margin-top: .45rem; font-size: 1rem; letter-spacing: .2em; text-transform: uppercase; text-shadow: 0 2px 6px #000; }
+.hud-road .rd-c { color: #f6e6c8; }
+.hud-road:not(.gone) ~ .hud-pause { left: calc(50% + min(12rem, 18vw) + 1rem); }
 </style>
 </head>
 <body>
@@ -1723,16 +1736,39 @@ for (const id in ENEMIES) ENEMIES[id].id = id;
      reward           optional gear granted when the stage is cleared: { weapons: [ids], helmets: [ids], armors: [ids] }.
                       Each item is given once (see Logic.grantStageReward); items flagged ngOnly only drop in New Game+.
                       The boss and sub-boss updates fill these in.
-   Later updates add per-stage fields here (env override, encounters, scene hooks);
+     stretch          stretch stages only: the side-scrolling level (see Logic.stretch and StretchSession in 60-engine.js):
+                      { length,                     level width in world units (x runs 0 .. length; the screen is 1280 wide),
+                        env?,                       environment override (defaults to the stage / chapter env),
+                        start?,                     Kage's starting x (default 160),
+                        encounters: [{ x, gate, waves }],  crossing x starts the encounter; an invisible gate at `gate`
+                                                    blocks the way on until every wave is beaten; waves are 1-3 lists of
+                                                    ENEMIES ids, all active at once, each wave starting when the last falls,
+                        clues: [{ id, x, label }] } pickups that record a clue flag (Logic.collectClue).
+                      The stretch is complete when Kage reaches `length` with every encounter cleared.
+                      Until the story updates author them, every stretch gets placeholder content (stretchDefaults).
+   Later updates add per-stage fields here (env override, scene hooks);
    the logic module reads them, so the rest of the game picks them up. */
 const STAGE_KINDS = ['stretch', 'subboss', 'boss', 'spar', 'echo', 'scene'];
 const CAMPAIGN = (function buildCampaign() {
   const R = ['I', 'II', 'III', 'IV'];
+  // Placeholder stretch content: two encounters of the chapter's grunts (the second ends on four foes at once) and
+  // one sample clue. The Prologue, Act and Core updates replace these with authored levels.
+  const stretchDefaults = (grunt) => {
+    const alt = grunt === 'hollow' ? 'order_recruit' : 'hollow';
+    return {
+      length: 4600, start: 160,
+      encounters: [
+        { x: 1250, gate: 1950, waves: [[grunt, grunt], [grunt, alt]] },
+        { x: 3050, gate: 3750, waves: [[grunt, alt], [grunt, grunt, alt, grunt]] }
+      ],
+      clues: [{ id: 'clue1', x: 2450, label: 'A torn page' }]
+    };
+  };
   // An act: four stretches, each followed by its sub-boss arena, then the main boss arena.
   const act = (id, name, title, place, env, diff, grunt, foe, foeTitle) => {
     const stages = [];
     for (let i = 1; i <= 4; i++) {
-      stages.push({ id: `${id}.stretch${i}`, kind: 'stretch', name: `Stretch ${R[i - 1]}`, enemy: grunt });
+      stages.push({ id: `${id}.stretch${i}`, kind: 'stretch', name: `Stretch ${R[i - 1]}`, enemy: grunt, stretch: stretchDefaults(grunt) });
       stages.push({ id: `${id}.sub${i}`, kind: 'subboss', name: `Sub-boss ${R[i - 1]}`, foe: `${name} · Sub-boss ${i}`, enemy: 'echo_sentinel' });
     }
     stages.push({ id: `${id}.boss`, kind: 'boss', name: foe, foe, foeTitle, enemy: 'echo_warden' });
@@ -1740,7 +1776,7 @@ const CAMPAIGN = (function buildCampaign() {
   };
   const chapters = [
     { id: 'prologue', name: 'Prologue', title: 'Hoshimura', place: 'The abandoned village', env: 'highlands', diff: 1,
-      stages: [{ id: 'prologue.1', kind: 'stretch', name: 'The Empty Village', enemy: 'hollow' }] },
+      stages: [{ id: 'prologue.1', kind: 'stretch', name: 'The Empty Village', enemy: 'hollow', stretch: stretchDefaults('hollow') }] },
     act('act1', 'Act I', 'The Outer Districts', 'Order territory', 'rooftops', 1, 'order_recruit', 'Raikon', 'the Lightning Ascendant'),
     { id: 'interlude', name: 'Interlude', title: 'Brothers', place: 'A memory of the training yard', env: 'highlands', diff: 1,
       stages: [{ id: 'interlude.spar', kind: 'spar', name: 'The Spar', foe: 'Rem', foeTitle: 'Young Rem', enemy: 'echo_sentinel' }] },
@@ -1748,7 +1784,7 @@ const CAMPAIGN = (function buildCampaign() {
     act('act3', 'Act III', 'The Fortress of Silence', 'Seat of the Order', 'wasteland', 3, 'order_warden', 'Takashi', 'the Father'),
     { id: 'core', name: 'The Core', title: 'The Echo System', place: 'Corrupted memory', env: 'wasteland', diff: 3,
       stages: [
-        { id: 'core.stretch1', kind: 'stretch', name: 'Into the Core', enemy: 'hollow' },
+        { id: 'core.stretch1', kind: 'stretch', name: 'Into the Core', enemy: 'hollow', stretch: stretchDefaults('hollow') },
         { id: 'core.echo1', kind: 'echo', name: 'Echo I', foe: 'Hollow Raikon', foeTitle: 'Corrupted echo', enemy: 'echo_sentinel' },
         { id: 'core.echo2', kind: 'echo', name: 'Echo II', foe: 'Hollow Akari', foeTitle: 'Corrupted echo', enemy: 'echo_sentinel' },
         { id: 'core.echo3', kind: 'echo', name: 'Echo III', foe: 'Hollow Takashi', foeTitle: 'Corrupted echo', enemy: 'echo_sentinel' },
@@ -1895,6 +1931,7 @@ const Logic = {
       owned: { weapons: { kagetsu: 1 }, helmets: { shiro_maki: 1 }, armors: { tachibana_yoroi: 1 } },
       equipped: { weapon: 'kagetsu', helmet: 'shiro_maki', armor: 'tachibana_yoroi' },
       seenRewards: {},
+      clues: {},              // stageId -> { clueId: true }, clue pickups found in stretches (kept through New Game+)
       difficulty: 'normal',    // Easy / Normal / Hard / Impossible (DIFFICULTY_IDS); only the player changes it
       difficultyPicked: false, // false until the new-game mode picker has been answered
       survivalBest: 0,
@@ -1936,6 +1973,13 @@ const Logic = {
     for (const k in s.defeated || {}) if (STAGE_BY_ID[k] && s.defeated[k] > 0) d.defeated[k] = s.defeated[k];
     delete d.unlockedActs;
     d.seenRewards = s.seenRewards || {};
+    // found clues: only clues a stretch stage still has
+    d.clues = {};
+    for (const k in s.clues || {}) {
+      const st = this.stretch(k), got = s.clues[k];
+      if (!st || !got || typeof got !== 'object') continue;
+      for (const c of st.clues) if (got[c.id]) (d.clues[k] = d.clues[k] || {})[c.id] = true;
+    }
     d.difficulty = this.normalizeDifficulty(s.difficulty);
     d.difficultyPicked = !!s.difficultyPicked;
     return d;
@@ -2009,12 +2053,53 @@ const Logic = {
     }
     return got;
   },
-  // Everything the fight session needs to stage a campaign fight. Until real content lands every combat stage
-  // is one arena fight against its placeholder `enemy`, shown under the stage's story foe name.
+  // Everything the fight session needs to stage a campaign fight. A stretch stage carries its level (`stretch`) and
+  // is walked by StretchSession; every other combat stage is one arena fight against its placeholder `enemy`, shown
+  // under the stage's story foe name.
   stageConfig(save, id) {
     const st = this.stage(id), ch = this.chapter(st.chapter), d = ENEMIES[st.enemy];
+    // a stretch is a side-scrolling level: the session walks it instead of staging an arena duel
+    if (st.kind === 'stretch' && st.stretch) {
+      return { mode: 'campaign', stageId: id, kind: st.kind, chapter: ch.id, pos: st.pos, diff: ch.diff, env: st.stretch.env || st.env || ch.env,
+        enemyId: st.enemy, foeName: st.name, foeTitle: ch.place, ng: save.ng, stretch: st.stretch };
+    }
     return { mode: 'campaign', stageId: id, kind: st.kind, chapter: ch.id, pos: st.pos, diff: ch.diff, env: st.env || ch.env,
       enemyId: st.enemy, foeName: st.foe || (d && d.name), foeTitle: st.foeTitle || (d && d.title), ng: save.ng };
+  },
+  /* ---------------- stretches ----------------
+     A stretch stage is a side-scrolling level (CAMPAIGN stage `stretch` field). Encounters are cleared in order;
+     `cleared` below is how many of them are done. */
+  // The stretch level of a stage, or null for any other stage.
+  stretch(id) { const st = this.stage(id); return st && st.kind === 'stretch' && st.stretch ? st.stretch : null; },
+  // Index of the encounter Kage starts by standing at x, or -1 (the next uncleared one, once he crosses its trigger).
+  encounterAt(stretch, cleared, x) {
+    const e = stretch.encounters[cleared];
+    return e && x >= e.x ? cleared : -1;
+  },
+  // The furthest x Kage may walk: the gate of the first uncleared encounter, else the end of the level.
+  stretchLimit(stretch, cleared) {
+    const e = stretch.encounters[cleared];
+    return e ? Math.min(e.gate, stretch.length) : stretch.length;
+  },
+  // The stretch is complete when every encounter is cleared and Kage reaches the end (within `reach` of it).
+  isStretchComplete(stretch, cleared, x, reach) {
+    return cleared >= stretch.encounters.length && x >= stretch.length - (reach == null ? 60 : reach);
+  },
+  // Records a found clue: save.clues[stageId][clueId]. Returns true when it is newly found, false for a clue the
+  // stage does not have or one already found. Clues are kept through New Game+.
+  collectClue(save, stageId, clueId) {
+    const s = this.stretch(stageId);
+    if (!s || !s.clues.some(c => c.id === clueId)) return false;
+    save.clues = save.clues || {};
+    const got = save.clues[stageId] = save.clues[stageId] || {};
+    if (got[clueId]) return false;
+    got[clueId] = true;
+    return true;
+  },
+  // The ids of the clues found on a stage, in the order the stage lists them.
+  cluesFound(save, stageId) {
+    const s = this.stretch(stageId), got = (save.clues || {})[stageId] || {};
+    return s ? s.clues.filter(c => got[c.id]).map(c => c.id) : [];
   },
   // Starts the next New Game+ cycle: campaign progress resets, everything else (including lifetime defeats) is kept.
   startNewGamePlus(save) {
@@ -5241,6 +5326,7 @@ class AIController {
     if (this.plan === 'approach') { c.dir = toward; if (dist < this.p.pref) this.plan = 'hold'; }
     else if (this.plan === 'retreat') { c.dir = -toward; if (f.x < w.bounds.l + 60 || f.x > w.bounds.r - 60) { this.plan = 'hold'; if (this.p.dodge > 0.2) { c.jumpP = true; c.dir = toward; } } }
     else if (this.plan === 'strafe') { c.dir = this.strafeDir; }
+    else if (this.plan === 'ring') { c.dir = toward; if (dist < this.ring) this.plan = 'hold'; }
     if (p.state === 'down' || p.state === 'getup') { if (dist < 140) c.dir = -toward; }
   }
 
@@ -5284,6 +5370,8 @@ class AIController {
     if (hpK < 0.35) aggr += f.def && (f.def.ai === 'defensive' || f.def.ai === 'ranged') ? -0.1 : 0.15;
     if (this.phaseData && this.phaseData.aggressive) aggr += 0.2;
     if (p.state === 'down' || p.state === 'getup') { this.plan = 'hold'; return; }
+    // stretches: only a couple of foes press the attack at once (world.mayEngage); the rest circle at a distance
+    if (w.mayEngage && !w.mayEngage(f)) { this.waitTurn(dist, toward); return; }
     // boss / sub-boss signature abilities
     if (this.tryAbility(p, dist, toward)) return;
     // ranged behaviour
@@ -5304,6 +5392,15 @@ class AIController {
     const r = Math.random();
     if (r < 0.35) { this.plan = 'strafe'; this.strafeDir = chance(0.5) ? toward : -toward; this.t = rand(0.15, 0.35); }
     else if (r < 0.55 && pr.block > 0.3) { this.block = rand(0.3, 0.7); }
+    else this.plan = 'hold';
+  }
+
+  waitTurn(dist, toward) {
+    const ring = this.world.waitRing || 360;
+    this.ring = ring;
+    if (dist < ring - 70) this.plan = 'retreat';
+    else if (dist > ring + 90) this.plan = 'ring';
+    else if (chance(0.4)) { this.plan = 'strafe'; this.strafeDir = chance(0.5) ? toward : -toward; this.t = rand(0.2, 0.4); }
     else this.plan = 'hold';
   }
 
@@ -5569,6 +5666,12 @@ function mountainPath(ctx, w, base, amp, step, rnd, jag) {
 }
 
 const LW = W + 520; // layer width (room for parallax)
+// Parallax layers repeat sideways so a stretch several screens wide never runs out of background. For the
+// arena's camera range (layer offsets between -LW + W and 0) this draws exactly one copy, as before.
+function wrapX(x, period) { return ((x % period) + period) % period; }
+function drawTiled(ctx, img, off) {
+  for (let x = wrapX(off, LW) - LW; x < W; x += LW) if (x + LW > 0) ctx.drawImage(img, x, 0);
+}
 
 const ENVS = {
   rooftops: {
@@ -5618,20 +5721,23 @@ const ENVS = {
         const x = ((c.x + t * c.s) % (W + 600)) - 300;
         ctx.fillStyle = 'rgba(20,19,26,0.75)'; ctx.beginPath(); ctx.ellipse(x, c.y, c.w, 16, 0, 0, TAU); ctx.fill();
       }
-      ctx.drawImage(this.far, -260 - cx * 0.18, 0);
+      drawTiled(ctx, this.far, -260 - cx * 0.18);
       ctx.fillStyle = 'rgba(40,38,48,0.35)'; ctx.fillRect(0, 380, W, 160);
       // swaying lantern strings
-      const ox = -260 - cx * 0.4;
+      const ox = wrapX(-260 - cx * 0.4 + LW, LW) - LW;   // lantern strings repeat with their layer
       ctx.strokeStyle = 'rgba(58,52,43,0.8)'; ctx.lineWidth = 1;
-      ctx.beginPath(); for (let i = 0; i < this.lanterns.length - 1; i++) { const a = this.lanterns[i], b = this.lanterns[i + 1]; ctx.moveTo(a.x + ox, a.y - 30); ctx.quadraticCurveTo((a.x + b.x) / 2 + ox, a.y + 10, b.x + ox, b.y - 30); } ctx.stroke();
+      for (let rep = ox; rep < W; rep += LW) {
+      ctx.beginPath(); for (let i = 0; i < this.lanterns.length - 1; i++) { const a = this.lanterns[i], b = this.lanterns[i + 1]; ctx.moveTo(a.x + rep, a.y - 30); ctx.quadraticCurveTo((a.x + b.x) / 2 + rep, a.y + 10, b.x + rep, b.y - 30); } ctx.stroke();
       for (const l of this.lanterns) {
-        const sw = Math.sin(t * 1.6 + l.ph) * 4, x = l.x + ox + sw, y = l.y;
+        const sw = Math.sin(t * 1.6 + l.ph) * 4, x = l.x + rep + sw, y = l.y;
+        if (x < -40 || x > W + 40) continue;
         const gl = ctx.createRadialGradient(x, y, 0, x, y, 22); gl.addColorStop(0, 'rgba(210,74,60,0.35)'); gl.addColorStop(1, 'rgba(210,74,60,0)');
         ctx.fillStyle = gl; ctx.beginPath(); ctx.arc(x, y, 22, 0, TAU); ctx.fill();
         ctx.fillStyle = '#b8392d'; ctx.beginPath(); ctx.ellipse(x, y, 8, 12, 0, 0, TAU); ctx.fill();
         ctx.fillStyle = '#0d0c10'; ctx.fillRect(x - 5, y - 14, 10, 3); ctx.fillRect(x - 5, y + 11, 10, 3);
       }
-      ctx.drawImage(this.mid, -260 - cx * 0.55, 0);
+      }
+      drawTiled(ctx, this.mid, -260 - cx * 0.55);
     },
     floor(ctx, cx) {
       const gr = ctx.createLinearGradient(0, GROUND, 0, H); gr.addColorStop(0, '#141217'); gr.addColorStop(1, '#060507');
@@ -5678,9 +5784,9 @@ const ENVS = {
       ctx.fillStyle = halo; ctx.fillRect(mx - 200, my - 200, 400, 400);
       ctx.fillStyle = 'rgba(163,48,42,0.78)'; ctx.beginPath(); ctx.arc(mx, my, 60, 0, TAU); ctx.fill();
       const fo = -260 - cx * 0.16;
-      ctx.drawImage(this.far, fo, 0);
+      drawTiled(ctx, this.far, fo);
       for (const f of this.falls) {
-        const x = f.x + fo + 260;
+        const x = wrapX(f.x + fo + 260 + 300, LW) - 300;   // repeats with the far layer
         for (let i = 0; i < 6; i++) {
           const yy = (t * 140 + i * 40) % f.h;
           ctx.fillStyle = `rgba(236,229,211,${0.05 + 0.04 * Math.sin(t * 6 + i)})`;
@@ -5691,7 +5797,7 @@ const ENVS = {
         ctx.fillStyle = mg; ctx.fillRect(x - 90, f.top + f.h - 90, 200, 180);
       }
       // torii gate (Wonder "Temple Gate")
-      const gx = 640 - 300 - cx * 0.45, gy = 236;
+      const gx = wrapX(640 - 300 - cx * 0.45 + 700, 2600) - 700, gy = 236;   // recurs along a stretch
       ctx.fillStyle = '#1d1a16';
       ctx.beginPath(); ctx.moveTo(gx + 10, gy + 60); ctx.quadraticCurveTo(gx + 300, gy + 90, gx + 590, gy + 60); ctx.lineTo(gx + 580, gy + 96); ctx.quadraticCurveTo(gx + 300, gy + 120, gx + 20, gy + 96); ctx.fill();
       ctx.fillRect(gx + 70, gy + 150, 460, 20); ctx.fillRect(gx + 110, gy + 96, 38, 404); ctx.fillRect(gx + 452, gy + 96, 38, 404);
@@ -5703,7 +5809,7 @@ const ENVS = {
         ctx.fillStyle = C.ember; ctx.fillRect(lx - 7, ly - 10, 14, 22);
       }
       // broken pillars
-      const po = -cx * 0.7;
+      const po = wrapX(-cx * 0.7 + 600, 1700) - 600;
       ctx.fillStyle = C.ink;
       ctx.beginPath(); ctx.moveTo(30 + po - 60, GROUND); ctx.lineTo(30 + po - 60, 210); ctx.lineTo(60 + po - 60, 190); ctx.lineTo(74 + po - 60, 218); ctx.lineTo(100 + po - 60, 200); ctx.lineTo(100 + po - 60, GROUND); ctx.fill();
       ctx.beginPath(); ctx.moveTo(1240 + po + 60, GROUND); ctx.lineTo(1240 + po + 60, 270); ctx.lineTo(1262 + po + 60, 290); ctx.lineTo(1290 + po + 60, 258); ctx.lineTo(1310 + po + 60, 284); ctx.lineTo(1310 + po + 60, GROUND); ctx.fill();
@@ -5759,16 +5865,16 @@ const ENVS = {
       ctx.fillStyle = sg; ctx.fillRect(sx - 220, sy - 220, 440, 440);
       ctx.fillStyle = 'rgba(255,140,90,0.75)'; ctx.beginPath(); ctx.arc(sx, sy, 46, 0, TAU); ctx.fill();
       const fo = -260 - cx * 0.18;
-      ctx.drawImage(this.far, fo, 0);
+      drawTiled(ctx, this.far, fo);
       for (const f of this.fires) {
-        const x = f.x + fo, y = f.y, fl = 1 + Math.sin(t * 9 + f.ph) * 0.12 + Math.sin(t * 23 + f.ph) * 0.06;
+        const x = wrapX(f.x + fo + 300, LW) - 300, y = f.y, fl = 1 + Math.sin(t * 9 + f.ph) * 0.12 + Math.sin(t * 23 + f.ph) * 0.06;
         const g = ctx.createRadialGradient(x, y, 0, x, y, 110 * f.s * fl); g.addColorStop(0, 'rgba(255,170,90,0.55)'); g.addColorStop(0.4, 'rgba(210,74,60,0.25)'); g.addColorStop(1, 'rgba(210,74,60,0)');
         ctx.fillStyle = g; ctx.fillRect(x - 120 * f.s, y - 120 * f.s, 240 * f.s, 240 * f.s);
         ctx.fillStyle = 'rgba(255,190,110,0.8)';
         for (let i = 0; i < 4; i++) { const ix = x - 18 * f.s + i * 12 * f.s, h = (26 + Math.sin(t * 12 + i + f.ph) * 10) * f.s; ctx.beginPath(); ctx.moveTo(ix - 6 * f.s, y); ctx.quadraticCurveTo(ix, y - h * 1.3, ix + 6 * f.s, y); ctx.fill(); }
         ctx.fillStyle = 'rgba(30,10,8,0.35)'; ctx.beginPath(); ctx.ellipse(x + Math.sin(t * 0.6 + f.ph) * 20, y - 120 - (t * 20 % 60), 40 * f.s, 70 * f.s, 0, 0, TAU); ctx.fill();
       }
-      ctx.drawImage(this.mid, -260 - cx * 0.5, 0);
+      drawTiled(ctx, this.mid, -260 - cx * 0.5);
     },
     floor(ctx, cx, t) {
       const gr = ctx.createLinearGradient(0, GROUND, 0, H); gr.addColorStop(0, '#1a0907'); gr.addColorStop(1, '#070302');
@@ -5871,13 +5977,14 @@ const Renderer = {
     // world
     ctx.save(); this.worldTransform(ctx, s, zoom);
     fx.drawWorldBack(ctx);
+    if (s.isStretch) this.drawStretchProps(ctx, s, realT);
     for (const f of s.fighters) f.drawShadow(ctx);
     for (const f of s.fighters) this.drawAuras(ctx, f, realT);
     const order = s.fighters.slice().sort((a, b) => (a.alive ? 1 : 0) - (b.alive ? 1 : 0) || (a.isPlayer ? 1 : 0) - (b.isPlayer ? 1 : 0));
     for (const f of order) {
       if (f.unblockable && f.state === 'move' && !f.isPlayer) this.drawUnblockableGlow(ctx, f, realT);
       f.draw(ctx, { rim: env.rim, light: env.light });
-      if ((f.minion || f.clone) && f.alive && f.visible) this.drawMiniBar(ctx, f);
+      if ((f.minion || f.clone || (s.isStretch && !f.isPlayer)) && f.alive && f.visible) this.drawMiniBar(ctx, f);
     }
     for (const f of order) this.drawTrails(ctx, f, realT);
     WeaponSystem.draw(ctx, s);
@@ -5965,6 +6072,50 @@ const Renderer = {
     const g = ctx.createRadialGradient(f.sk.wt.x, f.sk.wt.y, 0, f.sk.wt.x, f.sk.wt.y, 70);
     g.addColorStop(0, `rgba(255,90,40,${0.5 + Math.sin(t * 30) * 0.2})`); g.addColorStop(1, 'rgba(255,90,40,0)');
     ctx.fillStyle = g; ctx.fillRect(f.sk.wt.x - 70, f.sk.wt.y - 70, 140, 140); ctx.restore();
+  },
+  // Stretch set dressing in world space: clue pickups, the encounter walls (left edge and gate) and the road's end.
+  drawStretchProps(ctx, s, t) {
+    const L = s.stretch, cam = s.cam, half = W / 2 / cam.zoom + 200, vl = cam.x - half, vr = cam.x + half;
+    // clues: a paper talisman bobbing over a faint gold glow; found ones fade away
+    for (const c of s.clues) {
+      if (c.x < vl || c.x > vr) continue;
+      const a = c.found ? Math.max(0, 1 - c.got * 1.5) : 1;
+      if (a <= 0) continue;
+      const y = -70 + Math.sin(t * 2.2 + c.ph) * 8 - (c.found ? c.got * 80 : 0);
+      ctx.save(); ctx.globalAlpha = a;
+      const g = ctx.createRadialGradient(c.x, y, 0, c.x, y, 60); g.addColorStop(0, 'rgba(201,164,92,0.45)'); g.addColorStop(1, 'rgba(201,164,92,0)');
+      ctx.fillStyle = g; ctx.fillRect(c.x - 60, y - 60, 120, 120);
+      ctx.translate(c.x, y); ctx.rotate(Math.sin(t * 1.7 + c.ph) * 0.12);
+      ctx.fillStyle = C.bone; ctx.fillRect(-11, -20, 22, 40);
+      ctx.fillStyle = C.ember; ctx.fillRect(-7, -14, 14, 3); ctx.fillRect(-2, -9, 4, 20);
+      ctx.restore();
+      ctx.fillStyle = `rgba(201,164,92,${0.25 * a})`; ctx.beginPath(); ctx.ellipse(c.x, 0, 26, 5, 0, 0, TAU); ctx.fill();
+    }
+    // encounter walls: shimmering ink-and-ember barriers at both edges of a locked arena; the next closed gate ahead
+    const walls = [];
+    if (s.encounter) walls.push({ x: s.encounter.l, on: 1 }, { x: s.encounter.gate, on: 1 });
+    else if (s.bounds.r < s.level.r) walls.push({ x: s.bounds.r, on: 0.35 });
+    for (const w of walls) {
+      if (w.x < vl || w.x > vr || w.x <= s.level.l) continue;
+      ctx.save();
+      const g = ctx.createLinearGradient(w.x - 40, 0, w.x + 40, 0);
+      g.addColorStop(0, 'rgba(210,74,60,0)'); g.addColorStop(0.5, `rgba(210,74,60,${0.28 * w.on})`); g.addColorStop(1, 'rgba(210,74,60,0)');
+      ctx.fillStyle = g; ctx.fillRect(w.x - 40, -420, 80, 420);
+      ctx.strokeStyle = `rgba(255,120,80,${(0.45 + Math.sin(t * 6 + w.x) * 0.15) * w.on})`; ctx.lineWidth = 2;
+      ctx.beginPath(); for (let y = 0; y > -420; y -= 14) ctx.lineTo(w.x + Math.sin(y * 0.05 + t * 5) * 5, y); ctx.stroke();
+      // ofuda seals on a rope
+      ctx.fillStyle = `rgba(236,229,211,${0.85 * Math.max(0.4, w.on)})`;
+      for (let k = 0; k < 3; k++) ctx.fillRect(w.x - 6, -330 + k * 90 + Math.sin(t * 2 + k) * 3, 12, 26);
+      ctx.restore();
+    }
+    // the road's end: a torii gate
+    const ex = L.length - 40;
+    if (ex > vl - 200 && ex < vr + 200) {
+      ctx.fillStyle = C.ink;
+      ctx.fillRect(ex - 110, -260, 16, 260); ctx.fillRect(ex + 94, -260, 16, 260); ctx.fillRect(ex - 120, -215, 240, 12);
+      ctx.beginPath(); ctx.moveTo(ex - 150, -262); ctx.quadraticCurveTo(ex, -240, ex + 150, -262); ctx.lineTo(ex + 140, -280); ctx.quadraticCurveTo(ex, -262, ex - 140, -280); ctx.fill();
+      ctx.fillStyle = C.ember; ctx.fillRect(ex - 120, -262, 240, 4);
+    }
   },
   drawMiniBar(ctx, f) {
     const w = 60, x = f.x - w / 2, y = f.y - f.height() - 18;
@@ -6375,6 +6526,11 @@ class FightSession {
     this.wave = cfg.wave || 1; this.survivalCoins = 0; this.survivalGems = 0; this.wavesCleared = 0;
     this.dialogue = null; this.combo = 0; this.comboT = 0; this.damageTaken = 0; this.fightTime = 0;
     this.player = this.makePlayer(save);
+    this.setup();
+  }
+  // The single-screen arena: one main foe, rounds, a round timer and the intro duel. StretchSession overrides this.
+  setup() {
+    const cfg = this.cfg;
     this.enemy = this.makeEnemy(cfg.enemyId, 300);
     // campaign stages fight a placeholder rig under the stage's story name (Raikon, Hollow Rem, ...)
     if (cfg.foeName) this.enemy.name = cfg.foeName;
@@ -6580,6 +6736,11 @@ class FightSession {
     this.snapPrev();
     this.time += dt; this.phaseT += dt;
     const p = this.player, e = this.enemy;
+    this.stepPhase(dt, p, e);
+    this.simulate(dt, p, e);
+  }
+  // The arena's flow: intro, round banners, the fight with its timer, KO and outro.
+  stepPhase(dt, p, e) {
     switch (this.phase) {
       case 'intro': {
         const dur = this.isBoss ? 3.6 : this.isSub ? 3.0 : 2.4;
@@ -6617,6 +6778,9 @@ class FightSession {
         if (this.phaseT > 3.2 || (this.phaseT > 0.8 && (InputManager.pressed('punch') || InputManager.pressed('jump') || UIManager.skipRequested()))) { this.phase = 'done'; Game.finishFight(this.buildResult()); }
         break;
     }
+  }
+  // Everything both modes share each tick: controls, AI, fighters, hits, projectiles, separation and the camera.
+  simulate(dt, p, e) {
     if (this.cine) { this.cine.t -= dt; if (this.cine.t <= 0) this.cine = null; }
     this.letterbox = damp(this.letterbox, this.phase === 'intro' || this.phase === 'outro' || this.cine ? 1 : 0, 6, dt);
     this.fightFlash = Math.max(0, this.fightFlash - dt * 3);
@@ -6721,6 +6885,206 @@ class FightSession {
 }
 
 /* ======================================================================== */
+/* StretchSession: a side-scrolling stretch stage (CAMPAIGN stage `stretch`)  */
+/* ======================================================================== */
+// A level several screens wide that Kage walks right through. No rounds and no timer: crossing an encounter's
+// trigger locks the arena between its left edge and its gate and spawns its waves (every foe of a wave is active
+// at once); the gate opens when the last wave falls. Clue pickups record a flag through Logic.collectClue.
+// Reaching the end with every encounter cleared wins the stage through the usual Game.finishFight path.
+// The rules (which encounter starts, where the gate is, when the stretch is complete) live in Logic.
+const STRETCH = {
+  arena: 1500,       // width of a locked encounter arena, ending at its gate
+  maxEngaged: 2,     // foes allowed to press the attack at once; the rest circle at a distance
+  waitRing: 360,     // how close a waiting foe stays
+  deadzone: 70,      // camera deadzone half-width (world units)
+  lookAhead: 230,    // camera look-ahead in the facing direction (the follow lag eats about 80 of it at a run)
+  zoom: 1.0, fightZoom: 0.94,
+  clueReach: 46
+};
+class StretchSession extends FightSession {
+  setup() {
+    const cfg = this.cfg, L = cfg.stretch, p = this.player, save = SaveManager.data;
+    this.stretch = L; this.isStretch = true;
+    this.enemy = null; this.isBoss = false; this.isSub = false; this.roundsToWin = 1; this.timer = 0;
+    this.level = { l: 0, r: L.length };
+    this.cleared = 0; this.encounter = null; this.engaged = new Set();
+    const found = Logic.cluesFound(save, cfg.stageId);
+    this.clues = L.clues.map(c => ({ id: c.id, x: c.x, label: c.label, found: found.includes(c.id), ph: rand(0, TAU), got: 0 }));
+    p.x = L.start || 160; p.facing = 1; p.state = 'pose'; p.poseName = null;
+    this.fighters = [p];
+    this.bounds = { l: this.level.l, r: Logic.stretchLimit(L, 0) };
+    this.look = STRETCH.lookAhead * 0.6;
+    this.cam.zoom = STRETCH.zoom; this.cam.x = this.clampCam(p.x + this.look, STRETCH.zoom); this.cam.y = 0;
+    this.letterbox = 1;
+    this.phase = 'intro'; this.phaseT = 0;
+    this.fx.banner(cfg.foeName || 'Stretch', cfg.foeTitle || '', C.gold);
+  }
+  roundTime() { return 0; }
+  // the player targets the nearest live foe; with none around, nothing (he faces where he walks)
+  opponentOf(f) {
+    if (f.team !== 0) return this.player;
+    let best = null, bd = 1e9;
+    for (const o of this.fighters) if (o.team !== 0 && o.alive && o.visible) { const d = Math.abs(o.x - f.x); if (d < bd) { bd = d; best = o; } }
+    return best;
+  }
+  // Only the nearest STRETCH.maxEngaged foes press the attack; AIController keeps the others at a distance.
+  mayEngage(f) { return this.engaged.has(f); }
+  get waitRing() { return STRETCH.waitRing; }
+  updateEngaged() {
+    const p = this.player, live = this._live || (this._live = []);
+    live.length = 0;
+    for (const f of this.fighters) if (f.ai && f.alive && f.visible) live.push(f);
+    live.sort((a, b) => Math.abs(a.x - p.x) - Math.abs(b.x - p.x));
+    this.engaged.clear();
+    for (let i = 0; i < live.length && i < STRETCH.maxEngaged; i++) this.engaged.add(live[i]);
+  }
+  liveFoes() { let n = 0; for (const f of this.fighters) if (f.ai && f.alive) n++; return n; }
+
+  stepPhase(dt, p) {
+    const L = this.stretch;
+    switch (this.phase) {
+      case 'intro': {
+        const skip = this.phaseT > 0.5 && (InputManager.pressed('punch') || InputManager.pressed('jump') || UIManager.skipRequested());
+        if (this.phaseT > 1.6 || skip) { this.phase = 'fight'; this.phaseT = 0; p.state = 'idle'; }
+        break;
+      }
+      case 'fight':
+        this.fightTime += dt;
+        if (!this.encounter) {
+          const i = Logic.encounterAt(L, this.cleared, p.x);
+          if (i >= 0) this.startEncounter(i);
+          else if (Logic.isStretchComplete(L, this.cleared, p.x)) this.finishStretch();
+        } else this.updateEncounter(dt);
+        this.updateClues(dt);
+        break;
+      case 'ko':
+        if (this.phaseT > 2.2) this.startOutro(false);
+        break;
+      case 'outro':
+        if (this.phaseT > 3.2 || (this.phaseT > 0.8 && (InputManager.pressed('punch') || InputManager.pressed('jump') || UIManager.skipRequested()))) { this.phase = 'done'; Game.finishFight(this.buildResult()); }
+        break;
+    }
+  }
+  simulate(dt, p, e) {
+    const c = p.ctrl;
+    this.updateEngaged();
+    // with no foe to square up to, Kage turns to where he walks (so he can break into a run)
+    if (this.phase === 'fight' && !this.opponentOf(p) && p.isNeutral() && c.dir) p.facing = c.dir;
+    super.simulate(dt, p, e);
+    // fallen foes fade out once they have hit the floor, so a long stretch never piles up bodies
+    for (const f of this.fighters) {
+      if (f === p || f.alive || !f.visible) continue;
+      f.deadT = (f.deadT || 0) + dt;
+      if (f.deadT > 2.2) { f.alpha = Math.max(0, 1 - (f.deadT - 2.2) / 0.8); if (f.alpha <= 0) f.visible = false; }
+    }
+  }
+
+  /* ---- encounters ---- */
+  startEncounter(i) {
+    const enc = this.stretch.encounters[i];
+    this.encounter = { i, wave: -1, gate: enc.gate, l: Math.max(this.level.l, enc.gate - STRETCH.arena), next: 0.35 };
+    this.bounds = { l: this.encounter.l, r: enc.gate };
+    this.fx.stamp('FIGHT', this.player.x + 120, -170, 3, C.emberBright); this.fightFlash = 1;
+    AudioManager.play('round');
+  }
+  spawnWave(k) {
+    const enc = this.encounter, ids = this.stretch.encounters[enc.i].waves[k], p = this.player;
+    enc.wave = k;
+    ids.forEach((id, j) => {
+      // alternate ahead (near the gate) and behind (the arena's left edge), so foes close in from both sides
+      const ahead = j % 2 === 0, row = (j / 2) | 0;
+      let x = ahead ? enc.gate - 50 - row * 90 : enc.l + 50 + row * 90;
+      if (Math.abs(x - p.x) < 260) x = clamp(p.x + (ahead ? 1 : -1) * 320, enc.l + 30, enc.gate - 30);
+      const f = this.makeEnemy(id, x);
+      f.facing = p.x > x ? 1 : -1;
+      this.fighters.push(f); this.smokeCloud(x);
+    });
+    if (k > 0) this.fx.banner(`Wave ${k + 1}`, `${ids.length} foes`, C.emberBright);
+  }
+  updateEncounter(dt) {
+    const enc = this.encounter, waves = this.stretch.encounters[enc.i].waves;
+    if (this.liveFoes() > 0) return;
+    enc.next -= dt;
+    if (enc.next > 0) return;
+    if (enc.wave + 1 < waves.length) { this.spawnWave(enc.wave + 1); enc.next = 0.8; return; }
+    // encounter cleared: the gate opens up to the next encounter's gate (or the end of the level)
+    this.cleared++; this.encounter = null;
+    this.bounds = { l: this.level.l, r: Logic.stretchLimit(this.stretch, this.cleared) };
+    this.fx.banner('The way opens', this.cleared < this.stretch.encounters.length ? 'Press on' : 'Reach the end of the road', C.gold);
+    AudioManager.play('unlock');
+  }
+
+  /* ---- clues: walk over one to pick it up ---- */
+  updateClues(dt) {
+    const p = this.player;
+    for (const c of this.clues) {
+      if (c.got > 0) c.got += dt;
+      if (c.found || Math.abs(p.x - c.x) > STRETCH.clueReach || p.y < -60) continue;
+      c.found = true; c.got = 0.001;
+      if (Logic.collectClue(SaveManager.data, this.cfg.stageId, c.id)) SaveManager.save();
+      this.fx.popText(p, 'CLUE FOUND', C.gold); this.fx.embers(c.x, -60, 18, C.gold);
+      AudioManager.play('unlock');
+      UIManager.toast('Clue found', c.label);
+    }
+  }
+
+  /* ---- KO, outro and the result ---- */
+  onKO(def, att) {
+    if (def.clone || def.minion) return super.onKO(def, att);
+    const fx = this.fx;
+    if (def !== this.player) {
+      fx.impactFrame(def.x, def.y - 100 * def.scale, 2); fx.shake(0.5);
+      fx.stamp('FINISH', def.x, def.y - 120, 2, C.emberBright);
+      if (this.liveFoes() === 0) fx.slowmo(0.3, 0.6);
+      return;
+    }
+    if (this.phase !== 'fight') return;
+    fx.slowmo(0.22, 1.15); fx.impactFrame(def.x, def.y - 100 * def.scale, 3); fx.shake(0.9); fx.punch(0.12);
+    fx.stamp('FALLEN', def.x, def.y - 120, 3, C.ember);
+    AudioManager.play('ko');
+    this.koTarget = def; this.phase = 'ko'; this.phaseT = 0;
+  }
+  finishStretch() { this.startOutro(true); this.fx.banner('Stretch cleared', this.cfg.foeName || '', C.gold); }
+  startOutro(win) {
+    this.phase = 'outro'; this.phaseT = 0; this.win = win;
+    const p = this.player;
+    if (win) { p.move = null; p.state = 'pose'; p.poseName = 'victory'; p.vx = 0; }
+    AudioManager.play(win ? 'victory' : 'defeat');
+    AudioManager.setMusic('none');
+  }
+  buildResult() {
+    const p = this.player, n = this.stretch.encounters.length;
+    return {
+      mode: this.mode, kind: 'stretch', win: !!this.win, enemyId: this.cfg.enemyId, stageId: this.cfg.stageId, foeName: this.cfg.foeName, ng: this.cfg.ng || 0,
+      time: this.fightTime, hpLeft: p.hp / p.maxHp, flawless: this.damageTaken < 1, maxCombo: p.stats.maxCombo, parries: p.stats.parries,
+      enemyDamage: n ? this.cleared / n : 1, encounters: this.cleared, clues: this.clues.filter(c => c.found).length, waves: 0, survivalCoins: 0, survivalGems: 0,
+      env: this.cfg.env
+    };
+  }
+
+  /* ---- follow camera: deadzone, look-ahead, clamped to the level (and framed on a locked arena) ---- */
+  clampCam(x, zoom) {
+    const half = W / 2 / zoom;
+    return clamp(x, this.level.l + half, this.level.r - half);
+  }
+  updateCamera(dt) {
+    const p = this.player, cam = this.cam, enc = this.encounter;
+    const moving = Math.abs(p.vx) > 40;
+    this.look = damp(this.look, p.facing * STRETCH.lookAhead * (moving ? 1 : 0.55), 1.6, dt);
+    const want = p.x + this.look;
+    let tx = cam.x;
+    if (want > cam.x + STRETCH.deadzone) tx = want - STRETCH.deadzone;
+    else if (want < cam.x - STRETCH.deadzone) tx = want + STRETCH.deadzone;
+    const tz = this.phase === 'outro' ? 1.2 : this.phase === 'ko' ? 1.3 : enc ? STRETCH.fightZoom : STRETCH.zoom;
+    if (this.phase === 'ko' || this.phase === 'outro') tx = p.x;
+    if (enc) { const half = W / 2 / tz; tx = clamp(tx, enc.l + half, Math.max(enc.l + half, enc.gate - half)); }
+    cam.zoom = damp(cam.zoom, tz, 2.4, dt);
+    cam.x = this.clampCam(damp(cam.x, tx, 5, dt), cam.zoom);
+    cam.y = damp(cam.y, Math.min(0, p.y * 0.35) - (this.phase === 'outro' ? 30 : 0), 3, dt);
+  }
+}
+
+/* ======================================================================== */
 /* GameEngine                                                                 */
 /* ======================================================================== */
 const Game = {
@@ -6802,7 +7166,7 @@ const Game = {
   /* ---- flow ---- */
   stageConfig(stageId) { return Logic.stageConfig(SaveManager.data, stageId); },
   startFight(cfg) {
-    this.session = new FightSession(cfg);
+    this.session = cfg.stretch ? new StretchSession(cfg) : new FightSession(cfg);
     this.scene = 'fight'; this.paused = false; this.acc = 0; this.tableau = null;
     const d = ENEMIES[cfg.enemyId];
     AudioManager.setMusic(cfg.mode === 'survival' ? 'survival' : d.type === 'boss' ? 'boss' : 'fight');
@@ -7770,7 +8134,8 @@ const UIManager = {
     Game.setTableau(env, { fighters: [player, enemy], zoom: fitZoom, ground: 612, lights: [{ x: 330, y: 470, r: 360, c: 'rgba(201,164,92,0.18)' }, { x: 960, y: 450, r: 400, c: 'rgba(163,48,42,0.32)' }] });
     const dl = clamp((cfg.mode === 'campaign' ? cfg.diff : 2) + (cfg.ng || 0) + (d.type === 'boss' ? 1 : 0), 0, 4);
     const foeName = cfg.foeName || d.name, foeTitle = cfg.foeTitle || d.title;
-    const tag = cfg.mode === 'survival' ? `Survival · Wave ${ROMAN[cfg.wave - 1] || cfg.wave}` : `${d.type === 'boss' ? 'Boss' : d.type === 'sub' ? 'Sub-boss' : 'Duelist'} · ${DIFF_LABEL[dl]}`;
+    const tag = cfg.mode === 'survival' ? `Survival · Wave ${ROMAN[cfg.wave - 1] || cfg.wave}` : cfg.stretch ? `Stretch · ${DIFF_LABEL[dl]}` : `${d.type === 'boss' ? 'Boss' : d.type === 'sub' ? 'Sub-boss' : 'Duelist'} · ${DIFF_LABEL[dl]}`;
+    const taunt = cfg.stretch ? `${cfg.stretch.encounters.length} encounters on the road · clues found ${Logic.cluesFound(save, cfg.stageId).length}/${cfg.stretch.clues.length}` : d.taunt;
     const owned = Object.keys(save.owned.weapons).filter(w => WEAPONS[w] && !WEAPONS[w].enemy);
     el.innerHTML = `
       <button class="round-btn pf-back" data-a="back" aria-label="Back">${ICON.back}</button>
@@ -7784,7 +8149,7 @@ const UIManager = {
         <div class="nm disp">${esc(foeName)}</div>
         <div class="ttl">${esc(foeTitle)}${cfg.mode === 'campaign' ? ` · ${esc(Logic.chapter(cfg.chapter).name)} · ${esc(Logic.stage(cfg.stageId).name)}` : ''}</div>
       </div>
-      <div class="taunt">${esc(d.taunt)}</div>
+      <div class="taunt">${esc(taunt)}</div>
       <div class="vs"><i></i><span>vs</span><i></i></div>
       <div class="dock">
         <div class="choose"><span class="eyebrow">Choose weapon</span>
@@ -7798,7 +8163,9 @@ const UIManager = {
 
   /* ---------------- HUD ---------------- */
   showHud(s) {
-    const el = $('#scr-hud'), e = s.enemy, bossy = e.def.type !== 'regular';
+    // a stretch has no single opponent: no foe portrait, boss bar or round clock; foes carry their own small bars
+    // (drawn on the canvas) and the top of the screen shows the road's progress instead
+    const el = $('#scr-hud'), e = s.enemy, stretch = !!s.isStretch, bossy = !!e && e.def.type !== 'regular';
     el.innerHTML = `
       <div class="fp left" data-pp>
         <div class="medal"><canvas data-portrait="p"></canvas></div>
@@ -7808,7 +8175,7 @@ const UIManager = {
           <div class="rbar" data-rage><span class="rb-ic">怒</span><div class="rbar-in"><i class="rb-fill"></i></div><span class="rb-ready">Rage ready</span><span class="kunai" data-kunai></span></div>
         </div>
       </div>
-      <div class="fp right ${bossy ? 'gone' : ''}" data-ep>
+      <div class="fp right ${bossy || stretch ? 'gone' : ''}" data-ep>
         <div class="medal enemy"><canvas data-portrait="e"></canvas></div>
         <div class="fp-body">
           <div class="fp-name"><b data-ename></b><span data-etitle></span></div>
@@ -7820,7 +8187,8 @@ const UIManager = {
         <b class="bb-name" data-bname></b>
         <div class="bb-track"><i class="hb-chip"></i><i class="hb-fill"></i><i class="hb-gloss"></i><span data-bdivs></span></div>
       </div>
-      <div class="clock"><b data-timer>--</b><div class="round-pips" data-pips></div></div>
+      <div class="clock ${stretch ? 'gone' : ''}"><b data-timer>--</b><div class="round-pips" data-pips></div></div>
+      <div class="hud-road ${stretch ? '' : 'gone'}" data-road><div class="rd-track"><i class="rd-fill"></i><span data-rdmarks></span><b class="rd-kage"></b></div><div class="rd-info" data-rdinfo></div></div>
       <button class="hud-btn hud-pause" data-a="pause" aria-label="Pause">${ICON.pause}</button>
       <div class="hud-wave" data-wave></div>
       <div class="combo" data-combo><b>0</b><span>Hits</span></div>
@@ -7841,6 +8209,7 @@ const UIManager = {
         pp: $('[data-pp]', r), ep: $('[data-ep]', r), boss: $('[data-boss]', r),
         php: $('[data-php]', r), ehp: $('[data-ehp]', r), rage: $('[data-rage]', r), rageFill: $('.rb-fill', r), kunai: $('[data-kunai]', r),
         ename: $('[data-ename]', r), etitle: $('[data-etitle]', r), bname: $('[data-bname]', r), btitle: $('[data-btitle]', r), bdivs: $('[data-bdivs]', r),
+        road: $('[data-road]', r), rdFill: $('.rd-fill', r), rdKage: $('.rd-kage', r), rdMarks: $('[data-rdmarks]', r), rdInfo: $('[data-rdinfo]', r),
         phases: $('[data-phases]', r), timer: $('[data-timer]', r), pips: $('[data-pips]', r), combo: $('[data-combo]', r), dlg: $('[data-dlg]', r), skip: $('[data-skip]', r), wave: $('[data-wave]', r),
         pBar: bar($('[data-pp] .hbar-in', r)), eBar: bar($('[data-ep] .hbar-in', r)), bBar: bar($('[data-boss] .bb-track', r))
       };
@@ -7850,7 +8219,7 @@ const UIManager = {
     portraits(s) {
       const pc = $('#scr-hud canvas[data-portrait="p"]'), ec = $('#scr-hud canvas[data-portrait="e"]');
       if (pc) drawPortrait(pc, s.player, false);
-      if (ec) drawPortrait(ec, s.enemy, true);
+      if (ec && s.enemy) drawPortrait(ec, s.enemy, true);
     },
     // smooth drain: the fill eases to the new value, the bone chip waits, then follows
     animBar(b, ratio, dt, els, side) {
@@ -7875,19 +8244,11 @@ const UIManager = {
       if (UIManager.current !== 'hud') return;
       const e = this.q(), p = s.player, en = s.enemy;
       const now = performance.now(), dt = Math.min(0.1, (now - this.last) / 1000); this.last = now;
-      const bossy = en.def.type !== 'regular';
-      this.set('who', en.uid, () => {
-        e.ename.textContent = en.name; e.etitle.textContent = en.title; e.bname.textContent = en.name; e.btitle.textContent = en.title;
-        e.ep.classList.toggle('gone', bossy); e.boss.classList.toggle('gone', !bossy);
-        e.bdivs.innerHTML = en.ai && en.ai.phases ? '<i class="bb-div" style="left:33.3%"></i><i class="bb-div" style="left:66.6%"></i>' : '';
-        this.bars.e = { v: 1, chip: 1, delay: 0, target: clamp(en.hp / en.maxHp, 0, 1) };
-        const ec = $('#scr-hud canvas[data-portrait="e"]'); if (ec && ec.clientWidth) drawPortrait(ec, en, true);
-      });
+      if (en) this.updateFoe(s, e, en, dt);
+      else if (s.isStretch) this.updateRoad(s, e);
       this.animBar(this.bars.p, clamp(p.hp / p.maxHp, 0, 1), dt, e.pBar, 'p');
-      this.animBar(this.bars.e, clamp(en.hp / en.maxHp, 0, 1), dt, bossy ? e.bBar : e.eBar, 'e');
       this.set('plow', p.hp < p.maxHp * 0.25, v => e.pp.classList.toggle('low', v));
       this.set('phpv', Math.ceil(Math.max(0, p.hp)), v => e.php.textContent = v);
-      this.set('ehpv', Math.ceil(Math.max(0, en.hp)), v => e.ehp.textContent = v);
       const rage = Math.round(p.rage);
       this.set('rage', rage, v => {
         e.rageFill.style.width = clamp(v, 0, 100) + '%';
@@ -7897,16 +8258,42 @@ const UIManager = {
         const tb = $('#touch .tb.rage'); if (tb) tb.classList.toggle('ready', full);
       });
       this.set('kunai', p.ammo, v => { e.kunai.innerHTML = `<svg viewBox="0 0 24 24"><path d="M3 21 L14 10 M14 10 L21 3 L18 11 Z" stroke="currentColor" stroke-width="2" fill="currentColor" stroke-linejoin="round"/></svg>${v}`; const k = $('#touch [data-ammo]'); if (k) k.textContent = v; });
-      const ph = en.ai && en.ai.phases ? en.ai.phase : -1;
-      this.set('phase', ph + ':' + en.uid, () => { e.phases.innerHTML = ph < 0 ? '' : [0, 1, 2].map(i => `<i class="${i < ph ? 'done' : i === ph ? 'on' : ''}"></i>`).join('') + `<em>Phase ${ROMAN[ph]}</em>`; });
-      this.set('timer', Math.max(0, Math.ceil(s.timer)), v => { e.timer.textContent = v; e.timer.classList.toggle('urgent', v <= 10); });
-      const n = s.roundsToWin * 2 - 1;
-      this.set('pips', `${s.rounds.p}-${s.rounds.e}-${n}`, () => { const arr = []; for (let i = 0; i < s.rounds.p; i++) arr.push('p'); for (let i = 0; i < s.rounds.e; i++) arr.push('e'); while (arr.length < n) arr.push(''); e.pips.innerHTML = arr.map(c => `<i class="${c}"></i>`).join(''); });
       this.set('wave', s.mode === 'survival' ? `${s.wave}-${s.survivalCoins}` : '', () => { e.wave.innerHTML = s.mode === 'survival' ? `<span>Wave ${s.wave}</span><span class="wv-c"><i class="coin"></i>${s.survivalCoins}</span><span class="muted">Best ${SaveManager.data.survivalBest}</span>` : ''; });
       this.set('combo', s.combo >= 2 ? s.combo : 0, v => { e.combo.classList.toggle('on', v >= 2); if (v >= 2) { e.combo.firstChild.textContent = v; e.combo.classList.remove('bump'); void e.combo.offsetWidth; e.combo.classList.add('bump'); } });
       const dl = s.dialogue;
       this.set('dlg', dl ? dl.text : '', () => { e.dlg.classList.toggle('on', !!dl); if (dl) { e.dlg.children[0].textContent = `${dl.name} · ${dl.title}`; e.dlg.children[1].textContent = dl.text; } });
       this.set('skip', s.phase === 'intro' || s.phase === 'outro', v => e.skip.style.display = v ? 'block' : 'none');
+    },
+    // arena: the opponent's panel or boss bar, its phases, the round clock and pips
+    updateFoe(s, e, en, dt) {
+      const bossy = en.def.type !== 'regular';
+      this.set('who', en.uid, () => {
+        e.ename.textContent = en.name; e.etitle.textContent = en.title; e.bname.textContent = en.name; e.btitle.textContent = en.title;
+        e.ep.classList.toggle('gone', bossy); e.boss.classList.toggle('gone', !bossy);
+        e.bdivs.innerHTML = en.ai && en.ai.phases ? '<i class="bb-div" style="left:33.3%"></i><i class="bb-div" style="left:66.6%"></i>' : '';
+        this.bars.e = { v: 1, chip: 1, delay: 0, target: clamp(en.hp / en.maxHp, 0, 1) };
+        const ec = $('#scr-hud canvas[data-portrait="e"]'); if (ec && ec.clientWidth) drawPortrait(ec, en, true);
+      });
+      this.animBar(this.bars.e, clamp(en.hp / en.maxHp, 0, 1), dt, bossy ? e.bBar : e.eBar, 'e');
+      this.set('ehpv', Math.ceil(Math.max(0, en.hp)), v => e.ehp.textContent = v);
+      const ph = en.ai && en.ai.phases ? en.ai.phase : -1;
+      this.set('phase', ph + ':' + en.uid, () => { e.phases.innerHTML = ph < 0 ? '' : [0, 1, 2].map(i => `<i class="${i < ph ? 'done' : i === ph ? 'on' : ''}"></i>`).join('') + `<em>Phase ${ROMAN[ph]}</em>`; });
+      this.set('timer', Math.max(0, Math.ceil(s.timer)), v => { e.timer.textContent = v; e.timer.classList.toggle('urgent', v <= 10); });
+      const n = s.roundsToWin * 2 - 1;
+      this.set('pips', `${s.rounds.p}-${s.rounds.e}-${n}`, () => { const arr = []; for (let i = 0; i < s.rounds.p; i++) arr.push('p'); for (let i = 0; i < s.rounds.e; i++) arr.push('e'); while (arr.length < n) arr.push(''); e.pips.innerHTML = arr.map(c => `<i class="${c}"></i>`).join(''); });
+    },
+    // stretch: how far along the road Kage is, the encounter and clue marks on it, and the foes left in a fight
+    updateRoad(s, e) {
+      const L = s.stretch, k = clamp(s.player.x / L.length, 0, 1);
+      this.set('road', Math.round(k * 400), () => { e.rdFill.style.width = (k * 100).toFixed(2) + '%'; e.rdKage.style.left = (k * 100).toFixed(2) + '%'; });
+      const found = s.clues.filter(c => c.found).length;
+      this.set('rdmarks', `${s.cleared}:${found}`, () => {
+        e.rdMarks.innerHTML = L.encounters.map((en, i) => `<i class="rd-enc ${i < s.cleared ? 'done' : ''}" style="left:${(en.x / L.length * 100).toFixed(2)}%"></i>`).join('') +
+          s.clues.map(c => `<i class="rd-clue ${c.found ? 'done' : ''}" style="left:${(c.x / L.length * 100).toFixed(2)}%"></i>`).join('');
+      });
+      const enc = s.encounter;
+      const info = enc ? `Foes ${s.liveFoes()} · Wave ${Math.max(1, enc.wave + 1)}/${L.encounters[enc.i].waves.length}` : s.cleared >= L.encounters.length ? 'The road is open' : `Encounters ${s.cleared}/${L.encounters.length}`;
+      this.set('rdinfo', `${info}|${found}`, () => { e.rdInfo.innerHTML = `<span>${esc(info)}</span><span class="rd-c">Clues ${found}/${s.clues.length}</span>`; });
     }
   },
 
@@ -7934,7 +8321,10 @@ const UIManager = {
     const sealNames = r.mode === 'survival' ? ['5 waves', '10 waves', '15 waves'] : ['Victory', 'Under 60s', 'Flawless'];
     const win = r.mode === 'survival' ? r.waves > 0 : r.win;
     const title = r.mode === 'survival' ? (r.newBest ? 'New Record' : 'Fallen') : r.win ? 'Victory' : 'Defeated';
-    const line = r.mode === 'survival' ? (r.newBest ? `Wave ${r.waves}. The pit will remember your name.` : `Wave ${r.waves}. Best: wave ${save.survivalBest}.`) : r.win ? `${foeName} ${d.type === 'boss' ? 'has fallen. The way opens.' : 'has fallen.'}` : `${foeName} still stands. Rise again.`;
+    const stretch = r.kind === 'stretch';
+    const line = r.mode === 'survival' ? (r.newBest ? `Wave ${r.waves}. The pit will remember your name.` : `Wave ${r.waves}. Best: wave ${save.survivalBest}.`)
+      : stretch ? (r.win ? `The road is walked.${r.clues ? ` Clues found: ${r.clues}.` : ''}` : `The road still bars the way. Rise again.`)
+      : r.win ? `${foeName} ${d.type === 'boss' ? 'has fallen. The way opens.' : 'has fallen.'}` : `${foeName} still stands. Rise again.`;
     el.innerHTML = `
       <div class="res-col">
         <div><div class="eyebrow muted" style="color:var(--text-muted)">${esc(eyebrow)}</div>
@@ -7951,7 +8341,7 @@ const UIManager = {
             ${unlockHTML}
           </div>` : `
           <div class="recap">
-            <div><b>${Math.round(r.enemyDamage * 100)}%</b><span>${d.type === 'regular' ? 'Enemy' : 'Boss'} health taken</span></div>
+            <div><b>${Math.round(r.enemyDamage * 100)}%</b><span>${stretch ? 'Encounters cleared' : d.type === 'regular' ? 'Enemy' : 'Boss'}${stretch ? '' : ' health taken'}</span></div>
             <div><b><i class="coin" style="width:1.1rem;height:1.1rem;border-width:4px"></i>+${r.coins}</b><span>Kept</span></div>
           </div>
           <div class="tip">${ICON.bulb}<span>${esc(d.tip || 'Block, then punish the recovery.')}</span></div>`}
@@ -8063,7 +8453,7 @@ const UIManager = {
   openPause() {
     if (!Game.session) return;
     Game.paused = true; this.updateTouch();
-    this.openOverlay('pause', `<div class="ov-card"><div class="eyebrow">Paused · ${esc(Logic.difficulty(SaveManager.data.difficulty).label)}</div><h3 class="disp">${esc(Game.session.enemy.name)}</h3>
+    this.openOverlay('pause', `<div class="ov-card"><div class="eyebrow">Paused · ${esc(Logic.difficulty(SaveManager.data.difficulty).label)}</div><h3 class="disp">${esc(Game.session.enemy ? Game.session.enemy.name : Game.session.cfg.foeName)}</h3>
       <div class="stack"><button class="btn-primary" data-a="resume" data-focus>Resume</button><button class="btn-ghost" data-a="restart">${ICON.retry} Restart fight</button><button class="btn-ghost" data-a="help">${ICON.help} Controls</button><button class="btn-ghost" data-a="quit">Quit to ${Game.session.mode === 'survival' ? 'survival' : 'map'}</button></div>
       <div>${this.difficultyRow()}${this.settingsRows()}</div></div>`);
   },
@@ -8170,7 +8560,7 @@ const UIManager = {
   Splash.start();
   Game.init();
   // expose a tiny debug handle for testing in the console
-  window.KAGE = { Game, SaveManager, Logic, UIManager, ENEMIES, WEAPONS, CAMPAIGN, FightSession, AIController, Renderer, AudioManager, BOSS_ABILITIES, Combat, InputManager, TitleScene };
+  window.KAGE = { Game, SaveManager, Logic, UIManager, ENEMIES, WEAPONS, CAMPAIGN, FightSession, StretchSession, AIController, Renderer, AudioManager, BOSS_ABILITIES, Combat, InputManager, TitleScene };
 })();
 
 })();</script>

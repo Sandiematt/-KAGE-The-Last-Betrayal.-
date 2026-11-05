@@ -430,16 +430,39 @@ for (const id in ENEMIES) ENEMIES[id].id = id;
      reward           optional gear granted when the stage is cleared: { weapons: [ids], helmets: [ids], armors: [ids] }.
                       Each item is given once (see Logic.grantStageReward); items flagged ngOnly only drop in New Game+.
                       The boss and sub-boss updates fill these in.
-   Later updates add per-stage fields here (env override, encounters, scene hooks);
+     stretch          stretch stages only: the side-scrolling level (see Logic.stretch and StretchSession in 60-engine.js):
+                      { length,                     level width in world units (x runs 0 .. length; the screen is 1280 wide),
+                        env?,                       environment override (defaults to the stage / chapter env),
+                        start?,                     Kage's starting x (default 160),
+                        encounters: [{ x, gate, waves }],  crossing x starts the encounter; an invisible gate at `gate`
+                                                    blocks the way on until every wave is beaten; waves are 1-3 lists of
+                                                    ENEMIES ids, all active at once, each wave starting when the last falls,
+                        clues: [{ id, x, label }] } pickups that record a clue flag (Logic.collectClue).
+                      The stretch is complete when Kage reaches `length` with every encounter cleared.
+                      Until the story updates author them, every stretch gets placeholder content (stretchDefaults).
+   Later updates add per-stage fields here (env override, scene hooks);
    the logic module reads them, so the rest of the game picks them up. */
 const STAGE_KINDS = ['stretch', 'subboss', 'boss', 'spar', 'echo', 'scene'];
 const CAMPAIGN = (function buildCampaign() {
   const R = ['I', 'II', 'III', 'IV'];
+  // Placeholder stretch content: two encounters of the chapter's grunts (the second ends on four foes at once) and
+  // one sample clue. The Prologue, Act and Core updates replace these with authored levels.
+  const stretchDefaults = (grunt) => {
+    const alt = grunt === 'hollow' ? 'order_recruit' : 'hollow';
+    return {
+      length: 4600, start: 160,
+      encounters: [
+        { x: 1250, gate: 1950, waves: [[grunt, grunt], [grunt, alt]] },
+        { x: 3050, gate: 3750, waves: [[grunt, alt], [grunt, grunt, alt, grunt]] }
+      ],
+      clues: [{ id: 'clue1', x: 2450, label: 'A torn page' }]
+    };
+  };
   // An act: four stretches, each followed by its sub-boss arena, then the main boss arena.
   const act = (id, name, title, place, env, diff, grunt, foe, foeTitle) => {
     const stages = [];
     for (let i = 1; i <= 4; i++) {
-      stages.push({ id: `${id}.stretch${i}`, kind: 'stretch', name: `Stretch ${R[i - 1]}`, enemy: grunt });
+      stages.push({ id: `${id}.stretch${i}`, kind: 'stretch', name: `Stretch ${R[i - 1]}`, enemy: grunt, stretch: stretchDefaults(grunt) });
       stages.push({ id: `${id}.sub${i}`, kind: 'subboss', name: `Sub-boss ${R[i - 1]}`, foe: `${name} · Sub-boss ${i}`, enemy: 'echo_sentinel' });
     }
     stages.push({ id: `${id}.boss`, kind: 'boss', name: foe, foe, foeTitle, enemy: 'echo_warden' });
@@ -447,7 +470,7 @@ const CAMPAIGN = (function buildCampaign() {
   };
   const chapters = [
     { id: 'prologue', name: 'Prologue', title: 'Hoshimura', place: 'The abandoned village', env: 'highlands', diff: 1,
-      stages: [{ id: 'prologue.1', kind: 'stretch', name: 'The Empty Village', enemy: 'hollow' }] },
+      stages: [{ id: 'prologue.1', kind: 'stretch', name: 'The Empty Village', enemy: 'hollow', stretch: stretchDefaults('hollow') }] },
     act('act1', 'Act I', 'The Outer Districts', 'Order territory', 'rooftops', 1, 'order_recruit', 'Raikon', 'the Lightning Ascendant'),
     { id: 'interlude', name: 'Interlude', title: 'Brothers', place: 'A memory of the training yard', env: 'highlands', diff: 1,
       stages: [{ id: 'interlude.spar', kind: 'spar', name: 'The Spar', foe: 'Rem', foeTitle: 'Young Rem', enemy: 'echo_sentinel' }] },
@@ -455,7 +478,7 @@ const CAMPAIGN = (function buildCampaign() {
     act('act3', 'Act III', 'The Fortress of Silence', 'Seat of the Order', 'wasteland', 3, 'order_warden', 'Takashi', 'the Father'),
     { id: 'core', name: 'The Core', title: 'The Echo System', place: 'Corrupted memory', env: 'wasteland', diff: 3,
       stages: [
-        { id: 'core.stretch1', kind: 'stretch', name: 'Into the Core', enemy: 'hollow' },
+        { id: 'core.stretch1', kind: 'stretch', name: 'Into the Core', enemy: 'hollow', stretch: stretchDefaults('hollow') },
         { id: 'core.echo1', kind: 'echo', name: 'Echo I', foe: 'Hollow Raikon', foeTitle: 'Corrupted echo', enemy: 'echo_sentinel' },
         { id: 'core.echo2', kind: 'echo', name: 'Echo II', foe: 'Hollow Akari', foeTitle: 'Corrupted echo', enemy: 'echo_sentinel' },
         { id: 'core.echo3', kind: 'echo', name: 'Echo III', foe: 'Hollow Takashi', foeTitle: 'Corrupted echo', enemy: 'echo_sentinel' },

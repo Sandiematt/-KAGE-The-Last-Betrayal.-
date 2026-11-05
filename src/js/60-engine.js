@@ -13,6 +13,11 @@ class FightSession {
     this.wave = cfg.wave || 1; this.survivalCoins = 0; this.survivalGems = 0; this.wavesCleared = 0;
     this.dialogue = null; this.combo = 0; this.comboT = 0; this.damageTaken = 0; this.fightTime = 0;
     this.player = this.makePlayer(save);
+    this.setup();
+  }
+  // The single-screen arena: one main foe, rounds, a round timer and the intro duel. StretchSession overrides this.
+  setup() {
+    const cfg = this.cfg;
     this.enemy = this.makeEnemy(cfg.enemyId, 300);
     // campaign stages fight a placeholder rig under the stage's story name (Raikon, Hollow Rem, ...)
     if (cfg.foeName) this.enemy.name = cfg.foeName;
@@ -218,6 +223,11 @@ class FightSession {
     this.snapPrev();
     this.time += dt; this.phaseT += dt;
     const p = this.player, e = this.enemy;
+    this.stepPhase(dt, p, e);
+    this.simulate(dt, p, e);
+  }
+  // The arena's flow: intro, round banners, the fight with its timer, KO and outro.
+  stepPhase(dt, p, e) {
     switch (this.phase) {
       case 'intro': {
         const dur = this.isBoss ? 3.6 : this.isSub ? 3.0 : 2.4;
@@ -255,6 +265,9 @@ class FightSession {
         if (this.phaseT > 3.2 || (this.phaseT > 0.8 && (InputManager.pressed('punch') || InputManager.pressed('jump') || UIManager.skipRequested()))) { this.phase = 'done'; Game.finishFight(this.buildResult()); }
         break;
     }
+  }
+  // Everything both modes share each tick: controls, AI, fighters, hits, projectiles, separation and the camera.
+  simulate(dt, p, e) {
     if (this.cine) { this.cine.t -= dt; if (this.cine.t <= 0) this.cine = null; }
     this.letterbox = damp(this.letterbox, this.phase === 'intro' || this.phase === 'outro' || this.cine ? 1 : 0, 6, dt);
     this.fightFlash = Math.max(0, this.fightFlash - dt * 3);
@@ -359,6 +372,206 @@ class FightSession {
 }
 
 /* ======================================================================== */
+/* StretchSession: a side-scrolling stretch stage (CAMPAIGN stage `stretch`)  */
+/* ======================================================================== */
+// A level several screens wide that Kage walks right through. No rounds and no timer: crossing an encounter's
+// trigger locks the arena between its left edge and its gate and spawns its waves (every foe of a wave is active
+// at once); the gate opens when the last wave falls. Clue pickups record a flag through Logic.collectClue.
+// Reaching the end with every encounter cleared wins the stage through the usual Game.finishFight path.
+// The rules (which encounter starts, where the gate is, when the stretch is complete) live in Logic.
+const STRETCH = {
+  arena: 1500,       // width of a locked encounter arena, ending at its gate
+  maxEngaged: 2,     // foes allowed to press the attack at once; the rest circle at a distance
+  waitRing: 360,     // how close a waiting foe stays
+  deadzone: 70,      // camera deadzone half-width (world units)
+  lookAhead: 230,    // camera look-ahead in the facing direction (the follow lag eats about 80 of it at a run)
+  zoom: 1.0, fightZoom: 0.94,
+  clueReach: 46
+};
+class StretchSession extends FightSession {
+  setup() {
+    const cfg = this.cfg, L = cfg.stretch, p = this.player, save = SaveManager.data;
+    this.stretch = L; this.isStretch = true;
+    this.enemy = null; this.isBoss = false; this.isSub = false; this.roundsToWin = 1; this.timer = 0;
+    this.level = { l: 0, r: L.length };
+    this.cleared = 0; this.encounter = null; this.engaged = new Set();
+    const found = Logic.cluesFound(save, cfg.stageId);
+    this.clues = L.clues.map(c => ({ id: c.id, x: c.x, label: c.label, found: found.includes(c.id), ph: rand(0, TAU), got: 0 }));
+    p.x = L.start || 160; p.facing = 1; p.state = 'pose'; p.poseName = null;
+    this.fighters = [p];
+    this.bounds = { l: this.level.l, r: Logic.stretchLimit(L, 0) };
+    this.look = STRETCH.lookAhead * 0.6;
+    this.cam.zoom = STRETCH.zoom; this.cam.x = this.clampCam(p.x + this.look, STRETCH.zoom); this.cam.y = 0;
+    this.letterbox = 1;
+    this.phase = 'intro'; this.phaseT = 0;
+    this.fx.banner(cfg.foeName || 'Stretch', cfg.foeTitle || '', C.gold);
+  }
+  roundTime() { return 0; }
+  // the player targets the nearest live foe; with none around, nothing (he faces where he walks)
+  opponentOf(f) {
+    if (f.team !== 0) return this.player;
+    let best = null, bd = 1e9;
+    for (const o of this.fighters) if (o.team !== 0 && o.alive && o.visible) { const d = Math.abs(o.x - f.x); if (d < bd) { bd = d; best = o; } }
+    return best;
+  }
+  // Only the nearest STRETCH.maxEngaged foes press the attack; AIController keeps the others at a distance.
+  mayEngage(f) { return this.engaged.has(f); }
+  get waitRing() { return STRETCH.waitRing; }
+  updateEngaged() {
+    const p = this.player, live = this._live || (this._live = []);
+    live.length = 0;
+    for (const f of this.fighters) if (f.ai && f.alive && f.visible) live.push(f);
+    live.sort((a, b) => Math.abs(a.x - p.x) - Math.abs(b.x - p.x));
+    this.engaged.clear();
+    for (let i = 0; i < live.length && i < STRETCH.maxEngaged; i++) this.engaged.add(live[i]);
+  }
+  liveFoes() { let n = 0; for (const f of this.fighters) if (f.ai && f.alive) n++; return n; }
+
+  stepPhase(dt, p) {
+    const L = this.stretch;
+    switch (this.phase) {
+      case 'intro': {
+        const skip = this.phaseT > 0.5 && (InputManager.pressed('punch') || InputManager.pressed('jump') || UIManager.skipRequested());
+        if (this.phaseT > 1.6 || skip) { this.phase = 'fight'; this.phaseT = 0; p.state = 'idle'; }
+        break;
+      }
+      case 'fight':
+        this.fightTime += dt;
+        if (!this.encounter) {
+          const i = Logic.encounterAt(L, this.cleared, p.x);
+          if (i >= 0) this.startEncounter(i);
+          else if (Logic.isStretchComplete(L, this.cleared, p.x)) this.finishStretch();
+        } else this.updateEncounter(dt);
+        this.updateClues(dt);
+        break;
+      case 'ko':
+        if (this.phaseT > 2.2) this.startOutro(false);
+        break;
+      case 'outro':
+        if (this.phaseT > 3.2 || (this.phaseT > 0.8 && (InputManager.pressed('punch') || InputManager.pressed('jump') || UIManager.skipRequested()))) { this.phase = 'done'; Game.finishFight(this.buildResult()); }
+        break;
+    }
+  }
+  simulate(dt, p, e) {
+    const c = p.ctrl;
+    this.updateEngaged();
+    // with no foe to square up to, Kage turns to where he walks (so he can break into a run)
+    if (this.phase === 'fight' && !this.opponentOf(p) && p.isNeutral() && c.dir) p.facing = c.dir;
+    super.simulate(dt, p, e);
+    // fallen foes fade out once they have hit the floor, so a long stretch never piles up bodies
+    for (const f of this.fighters) {
+      if (f === p || f.alive || !f.visible) continue;
+      f.deadT = (f.deadT || 0) + dt;
+      if (f.deadT > 2.2) { f.alpha = Math.max(0, 1 - (f.deadT - 2.2) / 0.8); if (f.alpha <= 0) f.visible = false; }
+    }
+  }
+
+  /* ---- encounters ---- */
+  startEncounter(i) {
+    const enc = this.stretch.encounters[i];
+    this.encounter = { i, wave: -1, gate: enc.gate, l: Math.max(this.level.l, enc.gate - STRETCH.arena), next: 0.35 };
+    this.bounds = { l: this.encounter.l, r: enc.gate };
+    this.fx.stamp('FIGHT', this.player.x + 120, -170, 3, C.emberBright); this.fightFlash = 1;
+    AudioManager.play('round');
+  }
+  spawnWave(k) {
+    const enc = this.encounter, ids = this.stretch.encounters[enc.i].waves[k], p = this.player;
+    enc.wave = k;
+    ids.forEach((id, j) => {
+      // alternate ahead (near the gate) and behind (the arena's left edge), so foes close in from both sides
+      const ahead = j % 2 === 0, row = (j / 2) | 0;
+      let x = ahead ? enc.gate - 50 - row * 90 : enc.l + 50 + row * 90;
+      if (Math.abs(x - p.x) < 260) x = clamp(p.x + (ahead ? 1 : -1) * 320, enc.l + 30, enc.gate - 30);
+      const f = this.makeEnemy(id, x);
+      f.facing = p.x > x ? 1 : -1;
+      this.fighters.push(f); this.smokeCloud(x);
+    });
+    if (k > 0) this.fx.banner(`Wave ${k + 1}`, `${ids.length} foes`, C.emberBright);
+  }
+  updateEncounter(dt) {
+    const enc = this.encounter, waves = this.stretch.encounters[enc.i].waves;
+    if (this.liveFoes() > 0) return;
+    enc.next -= dt;
+    if (enc.next > 0) return;
+    if (enc.wave + 1 < waves.length) { this.spawnWave(enc.wave + 1); enc.next = 0.8; return; }
+    // encounter cleared: the gate opens up to the next encounter's gate (or the end of the level)
+    this.cleared++; this.encounter = null;
+    this.bounds = { l: this.level.l, r: Logic.stretchLimit(this.stretch, this.cleared) };
+    this.fx.banner('The way opens', this.cleared < this.stretch.encounters.length ? 'Press on' : 'Reach the end of the road', C.gold);
+    AudioManager.play('unlock');
+  }
+
+  /* ---- clues: walk over one to pick it up ---- */
+  updateClues(dt) {
+    const p = this.player;
+    for (const c of this.clues) {
+      if (c.got > 0) c.got += dt;
+      if (c.found || Math.abs(p.x - c.x) > STRETCH.clueReach || p.y < -60) continue;
+      c.found = true; c.got = 0.001;
+      if (Logic.collectClue(SaveManager.data, this.cfg.stageId, c.id)) SaveManager.save();
+      this.fx.popText(p, 'CLUE FOUND', C.gold); this.fx.embers(c.x, -60, 18, C.gold);
+      AudioManager.play('unlock');
+      UIManager.toast('Clue found', c.label);
+    }
+  }
+
+  /* ---- KO, outro and the result ---- */
+  onKO(def, att) {
+    if (def.clone || def.minion) return super.onKO(def, att);
+    const fx = this.fx;
+    if (def !== this.player) {
+      fx.impactFrame(def.x, def.y - 100 * def.scale, 2); fx.shake(0.5);
+      fx.stamp('FINISH', def.x, def.y - 120, 2, C.emberBright);
+      if (this.liveFoes() === 0) fx.slowmo(0.3, 0.6);
+      return;
+    }
+    if (this.phase !== 'fight') return;
+    fx.slowmo(0.22, 1.15); fx.impactFrame(def.x, def.y - 100 * def.scale, 3); fx.shake(0.9); fx.punch(0.12);
+    fx.stamp('FALLEN', def.x, def.y - 120, 3, C.ember);
+    AudioManager.play('ko');
+    this.koTarget = def; this.phase = 'ko'; this.phaseT = 0;
+  }
+  finishStretch() { this.startOutro(true); this.fx.banner('Stretch cleared', this.cfg.foeName || '', C.gold); }
+  startOutro(win) {
+    this.phase = 'outro'; this.phaseT = 0; this.win = win;
+    const p = this.player;
+    if (win) { p.move = null; p.state = 'pose'; p.poseName = 'victory'; p.vx = 0; }
+    AudioManager.play(win ? 'victory' : 'defeat');
+    AudioManager.setMusic('none');
+  }
+  buildResult() {
+    const p = this.player, n = this.stretch.encounters.length;
+    return {
+      mode: this.mode, kind: 'stretch', win: !!this.win, enemyId: this.cfg.enemyId, stageId: this.cfg.stageId, foeName: this.cfg.foeName, ng: this.cfg.ng || 0,
+      time: this.fightTime, hpLeft: p.hp / p.maxHp, flawless: this.damageTaken < 1, maxCombo: p.stats.maxCombo, parries: p.stats.parries,
+      enemyDamage: n ? this.cleared / n : 1, encounters: this.cleared, clues: this.clues.filter(c => c.found).length, waves: 0, survivalCoins: 0, survivalGems: 0,
+      env: this.cfg.env
+    };
+  }
+
+  /* ---- follow camera: deadzone, look-ahead, clamped to the level (and framed on a locked arena) ---- */
+  clampCam(x, zoom) {
+    const half = W / 2 / zoom;
+    return clamp(x, this.level.l + half, this.level.r - half);
+  }
+  updateCamera(dt) {
+    const p = this.player, cam = this.cam, enc = this.encounter;
+    const moving = Math.abs(p.vx) > 40;
+    this.look = damp(this.look, p.facing * STRETCH.lookAhead * (moving ? 1 : 0.55), 1.6, dt);
+    const want = p.x + this.look;
+    let tx = cam.x;
+    if (want > cam.x + STRETCH.deadzone) tx = want - STRETCH.deadzone;
+    else if (want < cam.x - STRETCH.deadzone) tx = want + STRETCH.deadzone;
+    const tz = this.phase === 'outro' ? 1.2 : this.phase === 'ko' ? 1.3 : enc ? STRETCH.fightZoom : STRETCH.zoom;
+    if (this.phase === 'ko' || this.phase === 'outro') tx = p.x;
+    if (enc) { const half = W / 2 / tz; tx = clamp(tx, enc.l + half, Math.max(enc.l + half, enc.gate - half)); }
+    cam.zoom = damp(cam.zoom, tz, 2.4, dt);
+    cam.x = this.clampCam(damp(cam.x, tx, 5, dt), cam.zoom);
+    cam.y = damp(cam.y, Math.min(0, p.y * 0.35) - (this.phase === 'outro' ? 30 : 0), 3, dt);
+  }
+}
+
+/* ======================================================================== */
 /* GameEngine                                                                 */
 /* ======================================================================== */
 const Game = {
@@ -440,7 +653,7 @@ const Game = {
   /* ---- flow ---- */
   stageConfig(stageId) { return Logic.stageConfig(SaveManager.data, stageId); },
   startFight(cfg) {
-    this.session = new FightSession(cfg);
+    this.session = cfg.stretch ? new StretchSession(cfg) : new FightSession(cfg);
     this.scene = 'fight'; this.paused = false; this.acc = 0; this.tableau = null;
     const d = ENEMIES[cfg.enemyId];
     AudioManager.setMusic(cfg.mode === 'survival' ? 'survival' : d.type === 'boss' ? 'boss' : 'fight');

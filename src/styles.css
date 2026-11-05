@@ -770,3 +770,16 @@ body { font-family: var(--font-num); }
 .mode-card:hover, .mode-card:focus-visible, .mode-card.on { border-color: var(--accent-gold); background: rgba(201,164,92,.08); }
 .mode-card.impossible b { color: var(--accent-ember-bright); }
 @media (max-width: 640px) { .mode-grid { grid-template-columns: 1fr; } }
+
+/* ---------- stretch HUD: the road's progress instead of the round clock (SAN-28) ---------- */
+.clock.gone, .hud-road.gone { display: none; }
+.hud-road { position: absolute; left: 50%; top: 1.5rem; transform: translateX(-50%); width: min(24rem, 36vw); font-family: var(--font-ui); color: var(--accent-gold); }
+.hud-road .rd-track { position: relative; height: .5rem; border: 1px solid rgba(201,164,92,.55); background: rgba(6,3,3,.7); border-radius: .25rem; }
+.hud-road .rd-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: linear-gradient(90deg, rgba(200,35,47,.55), #c8232f); border-radius: .25rem; }
+.hud-road .rd-kage { position: absolute; top: 50%; width: .9rem; height: .9rem; margin: -.45rem 0 0 -.45rem; border-radius: 50%; background: #f6e6c8; box-shadow: 0 0 .5rem rgba(246,230,200,.7); }
+.hud-road .rd-enc, .hud-road .rd-clue { position: absolute; top: 50%; width: .55rem; height: .55rem; margin: -.275rem 0 0 -.275rem; transform: rotate(45deg); background: #c8232f; border: 1px solid #f6e6c8; }
+.hud-road .rd-clue { background: #c9a45c; border-radius: 50%; transform: none; }
+.hud-road .rd-enc.done, .hud-road .rd-clue.done { opacity: .35; }
+.hud-road .rd-info { display: flex; justify-content: space-between; margin-top: .45rem; font-size: 1rem; letter-spacing: .2em; text-transform: uppercase; text-shadow: 0 2px 6px #000; }
+.hud-road .rd-c { color: #f6e6c8; }
+.hud-road:not(.gone) ~ .hud-pause { left: calc(50% + min(12rem, 18vw) + 1rem); }

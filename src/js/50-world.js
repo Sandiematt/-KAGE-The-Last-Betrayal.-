@@ -14,6 +14,12 @@ function mountainPath(ctx, w, base, amp, step, rnd, jag) {
 }
 
 const LW = W + 520; // layer width (room for parallax)
+// Parallax layers repeat sideways so a stretch several screens wide never runs out of background. For the
+// arena's camera range (layer offsets between -LW + W and 0) this draws exactly one copy, as before.
+function wrapX(x, period) { return ((x % period) + period) % period; }
+function drawTiled(ctx, img, off) {
+  for (let x = wrapX(off, LW) - LW; x < W; x += LW) if (x + LW > 0) ctx.drawImage(img, x, 0);
+}
 
 const ENVS = {
   rooftops: {
@@ -63,20 +69,23 @@ const ENVS = {
         const x = ((c.x + t * c.s) % (W + 600)) - 300;
         ctx.fillStyle = 'rgba(20,19,26,0.75)'; ctx.beginPath(); ctx.ellipse(x, c.y, c.w, 16, 0, 0, TAU); ctx.fill();
       }
-      ctx.drawImage(this.far, -260 - cx * 0.18, 0);
+      drawTiled(ctx, this.far, -260 - cx * 0.18);
       ctx.fillStyle = 'rgba(40,38,48,0.35)'; ctx.fillRect(0, 380, W, 160);
       // swaying lantern strings
-      const ox = -260 - cx * 0.4;
+      const ox = wrapX(-260 - cx * 0.4 + LW, LW) - LW;   // lantern strings repeat with their layer
       ctx.strokeStyle = 'rgba(58,52,43,0.8)'; ctx.lineWidth = 1;
-      ctx.beginPath(); for (let i = 0; i < this.lanterns.length - 1; i++) { const a = this.lanterns[i], b = this.lanterns[i + 1]; ctx.moveTo(a.x + ox, a.y - 30); ctx.quadraticCurveTo((a.x + b.x) / 2 + ox, a.y + 10, b.x + ox, b.y - 30); } ctx.stroke();
+      for (let rep = ox; rep < W; rep += LW) {
+      ctx.beginPath(); for (let i = 0; i < this.lanterns.length - 1; i++) { const a = this.lanterns[i], b = this.lanterns[i + 1]; ctx.moveTo(a.x + rep, a.y - 30); ctx.quadraticCurveTo((a.x + b.x) / 2 + rep, a.y + 10, b.x + rep, b.y - 30); } ctx.stroke();
       for (const l of this.lanterns) {
-        const sw = Math.sin(t * 1.6 + l.ph) * 4, x = l.x + ox + sw, y = l.y;
+        const sw = Math.sin(t * 1.6 + l.ph) * 4, x = l.x + rep + sw, y = l.y;
+        if (x < -40 || x > W + 40) continue;
         const gl = ctx.createRadialGradient(x, y, 0, x, y, 22); gl.addColorStop(0, 'rgba(210,74,60,0.35)'); gl.addColorStop(1, 'rgba(210,74,60,0)');
         ctx.fillStyle = gl; ctx.beginPath(); ctx.arc(x, y, 22, 0, TAU); ctx.fill();
         ctx.fillStyle = '#b8392d'; ctx.beginPath(); ctx.ellipse(x, y, 8, 12, 0, 0, TAU); ctx.fill();
         ctx.fillStyle = '#0d0c10'; ctx.fillRect(x - 5, y - 14, 10, 3); ctx.fillRect(x - 5, y + 11, 10, 3);
       }
-      ctx.drawImage(this.mid, -260 - cx * 0.55, 0);
+      }
+      drawTiled(ctx, this.mid, -260 - cx * 0.55);
     },
     floor(ctx, cx) {
       const gr = ctx.createLinearGradient(0, GROUND, 0, H); gr.addColorStop(0, '#141217'); gr.addColorStop(1, '#060507');
@@ -123,9 +132,9 @@ const ENVS = {
       ctx.fillStyle = halo; ctx.fillRect(mx - 200, my - 200, 400, 400);
       ctx.fillStyle = 'rgba(163,48,42,0.78)'; ctx.beginPath(); ctx.arc(mx, my, 60, 0, TAU); ctx.fill();
       const fo = -260 - cx * 0.16;
-      ctx.drawImage(this.far, fo, 0);
+      drawTiled(ctx, this.far, fo);
       for (const f of this.falls) {
-        const x = f.x + fo + 260;
+        const x = wrapX(f.x + fo + 260 + 300, LW) - 300;   // repeats with the far layer
         for (let i = 0; i < 6; i++) {
           const yy = (t * 140 + i * 40) % f.h;
           ctx.fillStyle = `rgba(236,229,211,${0.05 + 0.04 * Math.sin(t * 6 + i)})`;
@@ -136,7 +145,7 @@ const ENVS = {
         ctx.fillStyle = mg; ctx.fillRect(x - 90, f.top + f.h - 90, 200, 180);
       }
       // torii gate (Wonder "Temple Gate")
-      const gx = 640 - 300 - cx * 0.45, gy = 236;
+      const gx = wrapX(640 - 300 - cx * 0.45 + 700, 2600) - 700, gy = 236;   // recurs along a stretch
       ctx.fillStyle = '#1d1a16';
       ctx.beginPath(); ctx.moveTo(gx + 10, gy + 60); ctx.quadraticCurveTo(gx + 300, gy + 90, gx + 590, gy + 60); ctx.lineTo(gx + 580, gy + 96); ctx.quadraticCurveTo(gx + 300, gy + 120, gx + 20, gy + 96); ctx.fill();
       ctx.fillRect(gx + 70, gy + 150, 460, 20); ctx.fillRect(gx + 110, gy + 96, 38, 404); ctx.fillRect(gx + 452, gy + 96, 38, 404);
@@ -148,7 +157,7 @@ const ENVS = {
         ctx.fillStyle = C.ember; ctx.fillRect(lx - 7, ly - 10, 14, 22);
       }
       // broken pillars
-      const po = -cx * 0.7;
+      const po = wrapX(-cx * 0.7 + 600, 1700) - 600;
       ctx.fillStyle = C.ink;
       ctx.beginPath(); ctx.moveTo(30 + po - 60, GROUND); ctx.lineTo(30 + po - 60, 210); ctx.lineTo(60 + po - 60, 190); ctx.lineTo(74 + po - 60, 218); ctx.lineTo(100 + po - 60, 200); ctx.lineTo(100 + po - 60, GROUND); ctx.fill();
       ctx.beginPath(); ctx.moveTo(1240 + po + 60, GROUND); ctx.lineTo(1240 + po + 60, 270); ctx.lineTo(1262 + po + 60, 290); ctx.lineTo(1290 + po + 60, 258); ctx.lineTo(1310 + po + 60, 284); ctx.lineTo(1310 + po + 60, GROUND); ctx.fill();
@@ -204,16 +213,16 @@ const ENVS = {
       ctx.fillStyle = sg; ctx.fillRect(sx - 220, sy - 220, 440, 440);
       ctx.fillStyle = 'rgba(255,140,90,0.75)'; ctx.beginPath(); ctx.arc(sx, sy, 46, 0, TAU); ctx.fill();
       const fo = -260 - cx * 0.18;
-      ctx.drawImage(this.far, fo, 0);
+      drawTiled(ctx, this.far, fo);
       for (const f of this.fires) {
-        const x = f.x + fo, y = f.y, fl = 1 + Math.sin(t * 9 + f.ph) * 0.12 + Math.sin(t * 23 + f.ph) * 0.06;
+        const x = wrapX(f.x + fo + 300, LW) - 300, y = f.y, fl = 1 + Math.sin(t * 9 + f.ph) * 0.12 + Math.sin(t * 23 + f.ph) * 0.06;
         const g = ctx.createRadialGradient(x, y, 0, x, y, 110 * f.s * fl); g.addColorStop(0, 'rgba(255,170,90,0.55)'); g.addColorStop(0.4, 'rgba(210,74,60,0.25)'); g.addColorStop(1, 'rgba(210,74,60,0)');
         ctx.fillStyle = g; ctx.fillRect(x - 120 * f.s, y - 120 * f.s, 240 * f.s, 240 * f.s);
         ctx.fillStyle = 'rgba(255,190,110,0.8)';
         for (let i = 0; i < 4; i++) { const ix = x - 18 * f.s + i * 12 * f.s, h = (26 + Math.sin(t * 12 + i + f.ph) * 10) * f.s; ctx.beginPath(); ctx.moveTo(ix - 6 * f.s, y); ctx.quadraticCurveTo(ix, y - h * 1.3, ix + 6 * f.s, y); ctx.fill(); }
         ctx.fillStyle = 'rgba(30,10,8,0.35)'; ctx.beginPath(); ctx.ellipse(x + Math.sin(t * 0.6 + f.ph) * 20, y - 120 - (t * 20 % 60), 40 * f.s, 70 * f.s, 0, 0, TAU); ctx.fill();
       }
-      ctx.drawImage(this.mid, -260 - cx * 0.5, 0);
+      drawTiled(ctx, this.mid, -260 - cx * 0.5);
     },
     floor(ctx, cx, t) {
       const gr = ctx.createLinearGradient(0, GROUND, 0, H); gr.addColorStop(0, '#1a0907'); gr.addColorStop(1, '#070302');
@@ -316,13 +325,14 @@ const Renderer = {
     // world
     ctx.save(); this.worldTransform(ctx, s, zoom);
     fx.drawWorldBack(ctx);
+    if (s.isStretch) this.drawStretchProps(ctx, s, realT);
     for (const f of s.fighters) f.drawShadow(ctx);
     for (const f of s.fighters) this.drawAuras(ctx, f, realT);
     const order = s.fighters.slice().sort((a, b) => (a.alive ? 1 : 0) - (b.alive ? 1 : 0) || (a.isPlayer ? 1 : 0) - (b.isPlayer ? 1 : 0));
     for (const f of order) {
       if (f.unblockable && f.state === 'move' && !f.isPlayer) this.drawUnblockableGlow(ctx, f, realT);
       f.draw(ctx, { rim: env.rim, light: env.light });
-      if ((f.minion || f.clone) && f.alive && f.visible) this.drawMiniBar(ctx, f);
+      if ((f.minion || f.clone || (s.isStretch && !f.isPlayer)) && f.alive && f.visible) this.drawMiniBar(ctx, f);
     }
     for (const f of order) this.drawTrails(ctx, f, realT);
     WeaponSystem.draw(ctx, s);
@@ -410,6 +420,50 @@ const Renderer = {
     const g = ctx.createRadialGradient(f.sk.wt.x, f.sk.wt.y, 0, f.sk.wt.x, f.sk.wt.y, 70);
     g.addColorStop(0, `rgba(255,90,40,${0.5 + Math.sin(t * 30) * 0.2})`); g.addColorStop(1, 'rgba(255,90,40,0)');
     ctx.fillStyle = g; ctx.fillRect(f.sk.wt.x - 70, f.sk.wt.y - 70, 140, 140); ctx.restore();
+  },
+  // Stretch set dressing in world space: clue pickups, the encounter walls (left edge and gate) and the road's end.
+  drawStretchProps(ctx, s, t) {
+    const L = s.stretch, cam = s.cam, half = W / 2 / cam.zoom + 200, vl = cam.x - half, vr = cam.x + half;
+    // clues: a paper talisman bobbing over a faint gold glow; found ones fade away
+    for (const c of s.clues) {
+      if (c.x < vl || c.x > vr) continue;
+      const a = c.found ? Math.max(0, 1 - c.got * 1.5) : 1;
+      if (a <= 0) continue;
+      const y = -70 + Math.sin(t * 2.2 + c.ph) * 8 - (c.found ? c.got * 80 : 0);
+      ctx.save(); ctx.globalAlpha = a;
+      const g = ctx.createRadialGradient(c.x, y, 0, c.x, y, 60); g.addColorStop(0, 'rgba(201,164,92,0.45)'); g.addColorStop(1, 'rgba(201,164,92,0)');
+      ctx.fillStyle = g; ctx.fillRect(c.x - 60, y - 60, 120, 120);
+      ctx.translate(c.x, y); ctx.rotate(Math.sin(t * 1.7 + c.ph) * 0.12);
+      ctx.fillStyle = C.bone; ctx.fillRect(-11, -20, 22, 40);
+      ctx.fillStyle = C.ember; ctx.fillRect(-7, -14, 14, 3); ctx.fillRect(-2, -9, 4, 20);
+      ctx.restore();
+      ctx.fillStyle = `rgba(201,164,92,${0.25 * a})`; ctx.beginPath(); ctx.ellipse(c.x, 0, 26, 5, 0, 0, TAU); ctx.fill();
+    }
+    // encounter walls: shimmering ink-and-ember barriers at both edges of a locked arena; the next closed gate ahead
+    const walls = [];
+    if (s.encounter) walls.push({ x: s.encounter.l, on: 1 }, { x: s.encounter.gate, on: 1 });
+    else if (s.bounds.r < s.level.r) walls.push({ x: s.bounds.r, on: 0.35 });
+    for (const w of walls) {
+      if (w.x < vl || w.x > vr || w.x <= s.level.l) continue;
+      ctx.save();
+      const g = ctx.createLinearGradient(w.x - 40, 0, w.x + 40, 0);
+      g.addColorStop(0, 'rgba(210,74,60,0)'); g.addColorStop(0.5, `rgba(210,74,60,${0.28 * w.on})`); g.addColorStop(1, 'rgba(210,74,60,0)');
+      ctx.fillStyle = g; ctx.fillRect(w.x - 40, -420, 80, 420);
+      ctx.strokeStyle = `rgba(255,120,80,${(0.45 + Math.sin(t * 6 + w.x) * 0.15) * w.on})`; ctx.lineWidth = 2;
+      ctx.beginPath(); for (let y = 0; y > -420; y -= 14) ctx.lineTo(w.x + Math.sin(y * 0.05 + t * 5) * 5, y); ctx.stroke();
+      // ofuda seals on a rope
+      ctx.fillStyle = `rgba(236,229,211,${0.85 * Math.max(0.4, w.on)})`;
+      for (let k = 0; k < 3; k++) ctx.fillRect(w.x - 6, -330 + k * 90 + Math.sin(t * 2 + k) * 3, 12, 26);
+      ctx.restore();
+    }
+    // the road's end: a torii gate
+    const ex = L.length - 40;
+    if (ex > vl - 200 && ex < vr + 200) {
+      ctx.fillStyle = C.ink;
+      ctx.fillRect(ex - 110, -260, 16, 260); ctx.fillRect(ex + 94, -260, 16, 260); ctx.fillRect(ex - 120, -215, 240, 12);
+      ctx.beginPath(); ctx.moveTo(ex - 150, -262); ctx.quadraticCurveTo(ex, -240, ex + 150, -262); ctx.lineTo(ex + 140, -280); ctx.quadraticCurveTo(ex, -262, ex - 140, -280); ctx.fill();
+      ctx.fillStyle = C.ember; ctx.fillRect(ex - 120, -262, 240, 4);
+    }
   },
   drawMiniBar(ctx, f) {
     const w = 60, x = f.x - w / 2, y = f.y - f.height() - 18;
