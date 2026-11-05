@@ -817,53 +817,32 @@ const isTouchDevice = () => ('ontouchstart' in window) || navigator.maxTouchPoin
 
 /* ------------------------------------------------------------------ */
 /* SaveManager — localStorage with defensive error handling             */
+/* Storage only: the save schema, defaults and corrupt-save fallback    */
+/* live in Logic (15-logic.js), which gets the raw text from here.      */
 /* ------------------------------------------------------------------ */
 const SaveManager = {
   KEY: 'kage.save.v1',
   LEGACY: ['ashbound.save.v1'], // saves from the previous working title are migrated once
   data: null,
   available: true,
-  defaults() {
-    return {
-      v: 1,
-      coins: 250, gems: 5, xp: 0, level: 1,
-      ng: 0, ngUnlocked: false, ngCompletions: 0,
-      cleared: {},            // "act-stage" -> true, current cycle
-      unlockedActs: 1,
-      defeated: {},           // enemyId -> count (lifetime)
-      owned: { weapons: { moon_katana: 1 }, helmets: { topknot: 1 }, armors: { wraps: 1 } },
-      equipped: { weapon: 'moon_katana', helmet: 'topknot', armor: 'wraps' },
-      seenRewards: {},
-      survivalBest: 0,
-      stats: { wins: 0, losses: 0, perfects: 0, bosses: 0, playTime: 0 },
-      settings: { shake: 'full', reduceFlash: false, sound: true, music: true, touch: 'auto', stick: 'float' }
-    };
-  },
+  defaults() { return Logic.defaultSave(); },
   load() {
-    const d = this.defaults();
+    let raw = null;
     try {
-      let raw = window.localStorage.getItem(this.KEY);
+      raw = window.localStorage.getItem(this.KEY);
       if (!raw) for (const k of this.LEGACY) { const r = window.localStorage.getItem(k); if (r) { raw = r; break; } }
-      if (raw) {
-        const s = JSON.parse(raw);
-        if (s && typeof s === 'object') {
-          Object.assign(d, s);
-          d.owned = Object.assign(this.defaults().owned, s.owned || {});
-          for (const k of ['weapons', 'helmets', 'armors']) d.owned[k] = Object.assign({}, this.defaults().owned[k], (s.owned || {})[k] || {});
-          d.equipped = Object.assign(this.defaults().equipped, s.equipped || {});
-          d.stats = Object.assign(this.defaults().stats, s.stats || {});
-          d.settings = Object.assign(this.defaults().settings, s.settings || {});
-          d.cleared = s.cleared || {};
-          d.defeated = s.defeated || {};
-          d.seenRewards = s.seenRewards || {};
-        }
-      }
     } catch (e) {
       console.warn('[KAGE] Save could not be read, starting fresh.', e);
       this.available = false;
+      raw = null;
     }
-    this.data = d;
-    return d;
+    const { save, error } = Logic.loadSave(raw);
+    if (error) {
+      console.warn('[KAGE] Save could not be read, starting fresh.', error);
+      this.available = false;
+    }
+    this.data = save;
+    return save;
   },
   save() {
     try {
@@ -875,9 +854,7 @@ const SaveManager = {
     }
   },
   reset() {
-    const settings = this.data ? this.data.settings : undefined;
-    this.data = this.defaults();
-    if (settings) this.data.settings = settings;
+    this.data = Logic.resetSave(this.data);
     this.save();
   }
 };
@@ -1683,7 +1660,16 @@ const SURVIVAL = {
   gemsEvery: 5
 };
 
-/* ---------------- Economy helpers ---------------- */
+
+/* ===== 15-logic.js ===== */
+/* KAGE — Logic: the pure rules of progression (campaign unlocks, rewards, economy, save schema).
+   No DOM, canvas, window, storage, audio or input here: it reads the data tables from 10-data.js
+   and works on plain save objects, so it runs unchanged under Node (see tests/ and the README).
+   SaveManager owns storage; the engine and UI ask this module what the rules say. */
+
+/* ---------------- economy formulas ----------------
+   Kept as top-level functions because the fighter, combat and AI modules call them directly
+   in hot paths; they are also exposed on Logic below. */
 function gearTable(kind) { return kind === 'weapons' ? WEAPONS : kind === 'helmets' ? HELMETS : ARMORS; }
 function upgradeCost(kind, id, lvl) {
   const item = gearTable(kind)[id];
@@ -1703,10 +1689,184 @@ function playerMaxHp(save) {
 }
 function xpForLevel(lvl) { return 200 + 120 * (lvl - 1); }
 
+const Logic = {
+  /* ---------------- save schema ---------------- */
+  defaultSave() {
+    return {
+      v: 1,
+      coins: 250, gems: 5, xp: 0, level: 1,
+      ng: 0, ngUnlocked: false, ngCompletions: 0,
+      cleared: {},            // "act-stage" -> true, current cycle
+      unlockedActs: 1,
+      defeated: {},           // enemyId -> count (lifetime)
+      owned: { weapons: { moon_katana: 1 }, helmets: { topknot: 1 }, armors: { wraps: 1 } },
+      equipped: { weapon: 'moon_katana', helmet: 'topknot', armor: 'wraps' },
+      seenRewards: {},
+      survivalBest: 0,
+      stats: { wins: 0, losses: 0, perfects: 0, bosses: 0, playTime: 0 },
+      settings: { shake: 'full', reduceFlash: false, sound: true, music: true, touch: 'auto', stick: 'float' }
+    };
+  },
+  // Turns raw stored text (or null when nothing is stored) into a complete save.
+  // Missing fields are filled from the defaults; unreadable text falls back to a fresh save
+  // and is reported in `error` so the caller can warn and treat storage as unreliable.
+  loadSave(raw) {
+    try {
+      return { save: this.normalizeSave(raw ? JSON.parse(raw) : null), error: null };
+    } catch (e) {
+      return { save: this.defaultSave(), error: e };
+    }
+  },
+  // Fills a parsed save object (any shape, possibly from an older version) up to the current schema.
+  normalizeSave(s) {
+    const d = this.defaultSave();
+    if (!s || typeof s !== 'object') return d;
+    Object.assign(d, s);
+    d.owned = Object.assign(this.defaultSave().owned, s.owned || {});
+    for (const k of ['weapons', 'helmets', 'armors']) d.owned[k] = Object.assign({}, this.defaultSave().owned[k], (s.owned || {})[k] || {});
+    d.equipped = Object.assign(this.defaultSave().equipped, s.equipped || {});
+    d.stats = Object.assign(this.defaultSave().stats, s.stats || {});
+    d.settings = Object.assign(this.defaultSave().settings, s.settings || {});
+    d.cleared = s.cleared || {};
+    d.defeated = s.defeated || {};
+    d.seenRewards = s.seenRewards || {};
+    return d;
+  },
+  /* ---------------- campaign ---------------- */
+  stageKey(act, stage) { return `${act}-${stage}`; },
+  isStageCleared(save, act, stage) { return !!save.cleared[this.stageKey(act, stage)]; },
+  isActUnlocked(save, act) { return act < save.unlockedActs; },
+  // The last stage of every act is its boss; beating it clears the act.
+  isActCleared(save, act) { return this.isStageCleared(save, act, ACTS[act].stages.length - 1); },
+  stageUnlocked(save, act, stage) {
+    if (!this.isActUnlocked(save, act)) return false;
+    if (stage === 0) return true;
+    return this.isStageCleared(save, act, stage - 1) || this.isStageCleared(save, act, stage);
+  },
+  // First uncleared stage of the unlocked acts, or null when nothing is left to clear.
+  nextStage(save) {
+    for (let a = 0; a < ACTS.length; a++) {
+      if (!this.isActUnlocked(save, a)) break;
+      for (let s = 0; s < ACTS[a].stages.length; s++) if (!this.isStageCleared(save, a, s)) return { act: a, stage: s };
+    }
+    return null;
+  },
+  stageConfig(save, act, stage) {
+    const A = ACTS[act], st = A.stages[stage];
+    return { mode: 'campaign', act, stage, enemyId: st.enemy, env: A.env, ng: save.ng };
+  },
+  // Starts the next New Game+ cycle: campaign progress resets, everything else is kept.
+  startNewGamePlus(save) {
+    if (!save.ngUnlocked) return false;
+    save.ng = (save.ng || 0) + 1; save.cleared = {}; save.unlockedActs = 1;
+    return true;
+  },
+
+  /* ---------------- economy ---------------- */
+  GEAR_MAX, gearTable, upgradeCost, weaponStats, weaponMul, gearDef, playerMaxHp, xpForLevel,
+  equipSlot(kind) { return kind === 'weapons' ? 'weapon' : kind === 'helmets' ? 'helmet' : 'armor'; },
+  // Shop actions: each checks the rule, updates the save in place and returns whether it happened.
+  buyItem(save, kind, id) {
+    const it = gearTable(kind)[id];
+    if (save.owned[kind][id] || it.exclusive) return false;
+    if (it.gems) { if (save.gems < it.gems) return false; save.gems -= it.gems; } else { if (save.coins < it.price) return false; save.coins -= it.price; }
+    save.owned[kind][id] = 1;
+    return true;
+  },
+  upgradeItem(save, kind, id) {
+    const lvl = save.owned[kind][id];
+    if (!lvl || lvl >= GEAR_MAX[kind]) return false;
+    const c = upgradeCost(kind, id, lvl); if (save.coins < c) return false;
+    save.coins -= c; save.owned[kind][id] = lvl + 1;
+    return true;
+  },
+  equipItem(save, kind, id) {
+    if (!save.owned[kind][id]) return false;
+    save.equipped[this.equipSlot(kind)] = id;
+    return true;
+  },
+
+  /* ---------------- rewards ---------------- */
+  rewardTypeMul(type) { return type === 'boss' ? 3.4 : type === 'sub' ? 2.2 : 1; },
+  ngRewardMul(ng) { return 1 + 0.6 * (ng || 0); },
+  stageBaseCoins(act, type) { return (60 + 45 * ACTS[act].diff) * this.rewardTypeMul(type); },
+  // Performance rating of a campaign fight: S, A, B or C.
+  rateFight(r) {
+    if (!r.win) return 'C';
+    const s = r.hpLeft * 40 + (r.time < 45 ? 20 : r.time < 80 ? 10 : 0) + Math.min(20, r.maxCombo * 2) + r.parries * 5 + (r.flawless ? 20 : 0);
+    return s >= 85 ? 'S' : s >= 62 ? 'A' : s >= 42 ? 'B' : 'C';
+  },
+  // What the stage card promises before the fight (a C-rated win, without the flawless gem).
+  stageRewardPreview(save, act, stage) {
+    const foe = ENEMIES[ACTS[act].stages[stage].enemy], cleared = this.isStageCleared(save, act, stage);
+    const coins = Math.round(this.stageBaseCoins(act, foe.type) * this.ngRewardMul(save.ng) * (cleared ? 0.5 : 1) / 5) * 5;
+    const gems = cleared ? 0 : foe.type === 'boss' ? 5 : foe.type === 'sub' ? 2 : 0;
+    return { coins, gems };
+  },
+  survivalWaveReward(wave) {
+    return { coins: SURVIVAL.coins(wave), gems: wave % SURVIVAL.gemsEvery === 0 ? 1 : 0 };
+  },
+  // Applies a finished fight (campaign or survival) to the save and returns what it earned:
+  // { coins, gems, xp, rating, seals, unlocks, firstClear, levelUps, levelBefore, xpBefore, newBest? }
+  // plus every field of the fight result. The save is updated in place; persisting it is the caller's job.
+  applyFightResult(save, r) {
+    const out = Object.assign({}, r, { coins: 0, gems: 0, xp: 0, unlocks: [], levelUps: 0, firstClear: false });
+    const ngMul = this.ngRewardMul(r.ng);
+    if (r.mode === 'campaign') {
+      const act = ACTS[r.act], d = ENEMIES[r.enemyId], key = this.stageKey(r.act, r.stage);
+      const base = this.stageBaseCoins(r.act, d.type);
+      out.rating = this.rateFight(r);
+      out.seals = [r.win, r.win && r.time < 60, r.win && r.flawless];
+      if (r.win) {
+        out.firstClear = !save.cleared[key];
+        out.coins = Math.round(base * ngMul * ({ S: 1.5, A: 1.25, B: 1.1, C: 1 }[out.rating]) * (out.firstClear ? 1 : 0.5) / 5) * 5;
+        out.gems = (out.firstClear ? (d.type === 'boss' ? 5 : d.type === 'sub' ? 2 : 0) : (d.type === 'boss' ? 1 : 0)) + (r.flawless ? 1 : 0);
+        out.xp = Math.round((d.type === 'boss' ? 300 : d.type === 'sub' ? 150 : 80) * act.diff * ngMul);
+        save.cleared[key] = true;
+        save.defeated[d.id] = (save.defeated[d.id] || 0) + 1;
+        save.stats.wins++; if (r.flawless) save.stats.perfects++;
+        if (d.reward) {
+          if (d.reward.weapon && !save.owned.weapons[d.reward.weapon]) { save.owned.weapons[d.reward.weapon] = 1; out.unlocks.push({ kind: 'weapons', id: d.reward.weapon }); }
+          if (d.reward.item && !save.owned[d.reward.item[0]][d.reward.item[1]]) { save.owned[d.reward.item[0]][d.reward.item[1]] = 1; out.unlocks.push({ kind: d.reward.item[0], id: d.reward.item[1] }); }
+        }
+        if (d.type === 'boss') {
+          save.stats.bosses++;
+          if (r.act + 2 > save.unlockedActs && r.act + 1 < ACTS.length) { save.unlockedActs = r.act + 2; out.unlocks.push({ kind: 'act', id: r.act + 1 }); }
+          if (r.act === ACTS.length - 1) {
+            if (!save.ngUnlocked) out.unlocks.push({ kind: 'ng' });
+            save.ngUnlocked = true; if (out.firstClear) save.ngCompletions = Math.max(save.ngCompletions, (r.ng || 0) + 1);
+          }
+        }
+      } else {
+        out.coins = Math.round(base * 0.25 / 5) * 5; out.xp = 20 * act.diff; save.stats.losses++;
+      }
+    } else {
+      out.coins = r.survivalCoins; out.gems = r.survivalGems; out.xp = 40 * r.waves;
+      out.rating = r.waves >= 15 ? 'S' : r.waves >= 10 ? 'A' : r.waves >= 5 ? 'B' : 'C';
+      out.newBest = r.waves > save.survivalBest;
+      if (out.newBest) save.survivalBest = r.waves;
+      out.seals = [r.waves >= 5, r.waves >= 10, r.waves >= 15];
+      save.stats.wins += r.waves; save.stats.losses++;
+    }
+    save.coins += out.coins; save.gems += out.gems; save.xp += out.xp;
+    out.levelBefore = save.level; out.xpBefore = save.xp - out.xp;
+    while (save.xp >= xpForLevel(save.level)) { save.xp -= xpForLevel(save.level); save.level++; out.levelUps++; }
+    return out;
+  },
+
+  // "Erase all progress": a fresh save that keeps the player's settings.
+  resetSave(prev) {
+    const d = this.defaultSave();
+    if (prev && prev.settings) d.settings = prev.settings;
+    return d;
+  }
+};
+
 
 /* ===== 20-fighter.js ===== */
 /* KAGE — Fighter: procedural skeleton, pose blending, state machine, gear & weapon art (Player / Enemy share it) */
 
+const HERO_FACEWRAP = '#efe9dd', HERO_FACEWRAP_SHADE = '#b4ac9f';   // Kage's white face-wrap: flat fill + one cel-shade tone
 const BODY = { torso: 60, neck: 7, head: 18, upper: 36, fore: 34, thigh: 45, shin: 47 };
 const SHAPE = {
   fists: 'none', twin_blades: 'short', moon_katana: 'katana', mountain_cleaver: 'cleaver', dragon_spear: 'spear',
@@ -1862,14 +2022,21 @@ class Fighter {
       this.cloths.push({ kind: 'belt', c: new Cloth(6, 5.6 * this.scale, { ph: 7, wind: 200, grav: 1250, stiff: 1.7 }), at: 'hip', color: bc, w: 4 * this.scale, w1: 2.4 * this.scale, dy: -11, dx: -3 });
       this.cloths.push({ kind: 'belt', c: new Cloth(5, 5.4 * this.scale, { ph: 8, wind: 170, grav: 1300, stiff: 1.7 }), at: 'hip', color: bc2, w: 3.2 * this.scale, w1: 2 * this.scale, dy: -10, dx: -1 });
     }
-    if (this.helmet === 'topknot') {
+    if (this.helmet === 'topknot' && o.isPlayer) {
+      // Kage's bible look: one short trailing strip of the white face-wrap, knotted low at the back of the head,
+      // with a small stub of the other end beside it (out of phase so they never move as one strip)
+      this.cloths.push({ kind: 'scarf', c: new Cloth(6, 6.2 * this.scale, { ph: 9, wind: 1050, grav: 560, stiff: 1.9 }), at: 'head', color: HERO_FACEWRAP, w: 4 * this.scale, w1: 1.6 * this.scale, dy: 6, dx: 17 });
+      this.cloths.push({ kind: 'scarf', c: new Cloth(4, 5 * this.scale, { ph: 12.5, wind: 900, grav: 640, stiff: 1.9 }), at: 'head', color: HERO_FACEWRAP_SHADE, w: 3 * this.scale, w1: 1.3 * this.scale, dy: 8, dx: 16 });
+    } else if (this.helmet === 'topknot') {
       // two thin hachimaki tails of different length, out of phase so they never move as one strip
       this.cloths.push({ kind: 'scarf', c: new Cloth(10, 7.6 * this.scale, { ph: 9, wind: 860, grav: 680, stiff: 1.75 }), at: 'head', color: C.emberBright, w: 3.4 * this.scale, w1: 1.3 * this.scale, dy: -8, dx: 16 });
       this.cloths.push({ kind: 'scarf', c: new Cloth(8, 7 * this.scale, { ph: 12.5, wind: 740, grav: 760, stiff: 1.75 }), at: 'head', color: '#b8362b', w: 2.8 * this.scale, w1: 1.1 * this.scale, dy: -6, dx: 16 });
     }
     if (o.scarf && this.helmet !== 'topknot') {
-      this.cloths.push({ kind: 'scarf', c: new Cloth(9, 7 * this.scale, { ph: 0, wind: 560 }), at: 'neck', color: C.emberBright, w: 5.5 * this.scale });
-      this.cloths.push({ kind: 'scarf', c: new Cloth(8, 6.5 * this.scale, { ph: 2, wind: 480 }), at: 'neck', color: C.emberBright, w: 3.6 * this.scale, dy: 4 });
+      // under another helmet the face-wrap still trails a short white strip from the neck (the sash stays the one red accent)
+      const pc = o.isPlayer, sc = pc ? HERO_FACEWRAP : C.emberBright;
+      this.cloths.push({ kind: 'scarf', c: new Cloth(pc ? 6 : 9, (pc ? 5.6 : 7) * this.scale, { ph: 0, wind: 560 }), at: 'neck', color: sc, w: (pc ? 4.2 : 5.5) * this.scale });
+      if (!pc) this.cloths.push({ kind: 'scarf', c: new Cloth(8, 6.5 * this.scale, { ph: 2, wind: 480 }), at: 'neck', color: C.emberBright, w: 3.6 * this.scale, dy: 4 });
     }
     const cape = { cloak: [C.ink, '#9b8cff'], shadow_cloak: [C.ink, '#3a342b'], mist_shroud: ['rgba(150,160,165,0.55)', null], tyrant: ['#050404', C.emberBright] }[this.armor];
     if (cape) this.cloths.push({ kind: 'cape', c: new Cloth(9, 11 * this.scale, { ph: 1, wind: 380, grav: 900 }), at: 'sh', color: cape[0], edge: cape[1], w0: 14 * this.scale, w1: 30 * this.scale });
@@ -2836,8 +3003,9 @@ function fistShape(ctx, p, r) { ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, TAU); c
 const _np = { x: 0, y: 0 };
 
 // flat 2D stickman: uniform round-capped limbs, plain circle head, no shading, no muscle volume
-// Kael (the player) gets the reference-sheet details: small feet, arm/leg wraps and the red sash, layered in draw order
-const HERO_WRAP = '#dcd6ca', HERO_WRAP_BACK = '#8f897f';
+// Kage (the player) gets the story-bible details: small feet, dark arm/leg wraps, the red sash and (in drawHelmet) the white face-wrap
+// the limb wraps stay dark so the silhouette reads black; white is kept for the face-wrap alone
+const HERO_WRAP = '#3b3631', HERO_WRAP_BACK = '#25211e';
 function heroWrap(ctx, a, b, u0, u1, r, col, ink, s) {
   const ax = lerp(a.x, b.x, u0), ay = lerp(a.y, b.y, u0), bx = lerp(a.x, b.x, u1), by = lerp(a.y, b.y, u1);
   ctx.strokeStyle = col; ctx.lineWidth = r * 2; ctx.lineCap = 'butt';
@@ -2898,9 +3066,9 @@ Fighter.prototype.drawSash = function (ctx, T) {
   const dx = sk.neck.x - sk.hip.x, dy = sk.neck.y - sk.hip.y, D = Math.hypot(dx, dy) || 1, ux = dx / D, uy = dy / D;
   let nx = -uy, ny = ux; if (nx * f < 0) { nx = -nx; ny = -ny; }
   const w = T * 0.98, col = this.isPlayer ? C.emberBright : '#3a342b';
-  ctx.strokeStyle = col; ctx.lineWidth = (this.isPlayer ? 5 : 4) * s; ctx.lineCap = 'butt';
+  ctx.strokeStyle = col; ctx.lineWidth = (this.isPlayer ? 7 : 4) * s; ctx.lineCap = 'butt';
   ctx.beginPath(); ctx.moveTo(x - nx * w, y - ny * w); ctx.lineTo(x + nx * w, y + ny * w); ctx.stroke();
-  if (this.isPlayer) { ctx.fillStyle = '#b8362b'; ctx.beginPath(); ctx.ellipse(x + nx * w * 0.8, y + ny * w * 0.8 + 1.5 * s, 2.4 * s, 3 * s, 0, 0, TAU); ctx.fill(); }
+  if (this.isPlayer) { ctx.fillStyle = '#b8362b'; ctx.beginPath(); ctx.ellipse(x + nx * w * 0.8, y + ny * w * 0.8 + 1.5 * s, 3 * s, 3.6 * s, 0, 0, TAU); ctx.fill(); }
   ctx.lineCap = 'round';
 };
 Fighter.prototype.drawDetails = function () {};
@@ -3206,6 +3374,29 @@ function drawHeroHair(ctx, r, ink) {
   ctx.arc(0, 0, r, Math.PI * 0.99, Math.PI * 1.9, false); ctx.closePath(); ctx.fill();
 }
 
+/* ---- Kage's face-wrap: white cloth over the lower face, wound round to a knot low at the back of the head ---- */
+function drawFaceWrap(ctx, r, ink, flat) {
+  const W = flat ? ink : HERO_FACEWRAP, S = flat ? ink : HERO_FACEWRAP_SHADE;
+  ctx.save();
+  ctx.beginPath(); ctx.arc(0, 0, r * 1.06, 0, TAU); ctx.clip();
+  // the wrap: top edge sits just under the eye slit at the front and climbs toward the knot at the back
+  ctx.fillStyle = W;
+  ctx.beginPath();
+  ctx.moveTo(r * 1.2, r * 0.3); ctx.lineTo(r * 0.55, r * 0.33); ctx.quadraticCurveTo(-r * 0.3, r * 0.3, -r * 1.2, -r * 0.02);
+  ctx.lineTo(-r * 1.2, r * 1.2); ctx.lineTo(r * 1.2, r * 1.2); ctx.closePath(); ctx.fill();
+  if (!flat) {
+    // one cel-shade band under the jaw and two crisp wrap folds
+    ctx.fillStyle = S;
+    ctx.beginPath(); ctx.moveTo(-r * 1.2, r * 0.62); ctx.quadraticCurveTo(r * 0.1, r * 0.86, r * 1.2, r * 0.7); ctx.lineTo(r * 1.2, r * 1.2); ctx.lineTo(-r * 1.2, r * 1.2); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = ink; ctx.lineWidth = Math.max(1, r * 0.07); ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(r * 0.85, r * 0.56); ctx.quadraticCurveTo(-r * 0.1, r * 0.6, -r * 0.8, r * 0.3); ctx.stroke();
+  }
+  ctx.restore();
+  // the knot at the back of the head (its strip is cloth)
+  ctx.fillStyle = W; ctx.beginPath(); ctx.ellipse(-r * 0.98, r * 0.3, r * 0.2, r * 0.16, 0.5, 0, TAU); ctx.fill();
+  if (!flat) { ctx.strokeStyle = ink; ctx.lineWidth = Math.max(1, r * 0.06); ctx.stroke(); }
+}
+
 /* ---- helmets: local head frame, origin = head centre, +x = facing ---- */
 function drawHelmet(ctx, key, r, ink, opt, f) {
   const flat = !!opt.color;
@@ -3213,8 +3404,8 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
   ctx.fillStyle = ink; ctx.strokeStyle = ink;
   const t = f ? f.time : 0;
   switch (key) {
-    case 'topknot': // crimson hachimaki tied at the back of the head
-      if (f && f.isPlayer) drawHeroHair(ctx, r, ink);
+    case 'topknot': // player: Kage's white face-wrap; everyone else: crimson hachimaki tied at the back of the head
+      if (f && f.isPlayer) { drawHeroHair(ctx, r, ink); drawFaceWrap(ctx, r, ink, flat); break; }
       ctx.save(); ctx.beginPath(); ctx.arc(0, 0, r * 1.04, 0, TAU); ctx.clip();
       ctx.fillStyle = flat ? ink : C.emberBright;
       ctx.beginPath(); ctx.moveTo(-r * 1.1, -r * 0.5); ctx.lineTo(r * 1.1, -r * 0.4); ctx.lineTo(r * 1.1, -r * 0.2); ctx.lineTo(-r * 1.1, -r * 0.29); ctx.closePath(); ctx.fill();
@@ -5418,16 +5609,54 @@ const Renderer = {
 /* ===== 55-title.js ===== */
 /* KAGE — animated title scene: the key art, alive.
    The painted backdrop (title-plate) and the hero (title-hero) are cut from the key art; on top of them the moon
-   breathes, clouds and petals drift, the hachimaki tails blow in the wind, the blade glows, the cracked ground
-   smoulders and embers rise, and the hero breathes. A 2.5D camera drifts slowly and follows the pointer. */
+   breathes, clouds and petals drift, the face-wrap's trailing strip blows in the wind, the blade glows, the cracked
+   ground smoulders and embers rise, and the hero breathes. A 2.5D camera drifts slowly and follows the pointer.
+   The painted hero still wears the old red hachimaki, so he is recoloured in code (heroRecolour) into Kage's
+   story-bible look: the headband is inked out and a flat white face-wrap is laid over his lower face. */
 // the key art (1254 px square) sits right-aligned at 0.6 scale; landmarks below are in canvas units
 const TA = { x: 528, y: -20, s: 0.6 };
 const TITLE_MOON = { x: 894, y: 209, r: 211 };
 const TITLE_LAND = { x: 936, y: 625 };       // the hero's ground line
 const TITLE_HORIZON = 500;                     // where the ground plane meets the hills
 const TITLE_OVERSCAN = 1.07;                   // layers are drawn slightly enlarged so camera moves never reveal an edge
-// hero sprite: its top-left in art px, plus anchors in sprite px (scarf knot, sword guard) and the blade tip in art px
-const HERO_SPR = { ax: 398, ay: 625, knot: [358, 98], guard: [68, 52], tip: [70, 824] };
+// hero sprite: its top-left in art px, plus anchors in sprite px (face-wrap knot, sword guard) and the blade tip in art px
+const HERO_SPR = { ax: 398, ay: 625, knot: [377, 150], guard: [68, 52], tip: [70, 824] };
+// Kage's face-wrap on the sprite (sprite px): the painted head is a circle; the red headband inside it is inked out
+// and a flat white wrap covers the lower face below the eye slits, knotted at his right where the strip trails
+const HERO_HEAD = { x: 300, y: 112, r: 80 };
+const HERO_WRAP_TOP = [[212, 146], [258, 161], [302, 166], [345, 153], [392, 122]];   // just under the eye slits
+const HERO_WRAP_SHADE = [[392, 150], [340, 176], [290, 181], [212, 168]];             // the cel-shade line under the jaw
+const HERO_INK = [16, 7, 8];                                                         // the painted body's ink
+
+// Kage's look on the painted hero: ink out the red headband, then lay a flat white face-wrap over the lower face,
+// clipped to the painted head so his outline and rim light stay exactly as painted
+function heroRecolour(im) {
+  const w = im.naturalWidth, h = im.naturalHeight, Hd = HERO_HEAD;
+  return makeLayer(w, h, g => {
+    g.drawImage(im, 0, 0);
+    const x0 = Hd.x - Hd.r - 4, y0 = Hd.y - Hd.r - 4, sz = (Hd.r + 4) * 2;
+    const id = g.getImageData(x0, y0, sz, sz), d = id.data;
+    for (let y = 0; y < sz; y++) for (let x = 0; x < sz; x++) {
+      const dx = x0 + x - Hd.x, dy = y0 + y - Hd.y; if (dx * dx + dy * dy > (Hd.r + 3) * (Hd.r + 3)) continue;
+      const i = (y * sz + x) * 4, r = d[i], gg = d[i + 1], b = d[i + 2], red = clamp((r - Math.max(gg, b) - 6) / 50, 0, 1);
+      if (red <= 0) continue;
+      d[i] = lerp(r, HERO_INK[0], red); d[i + 1] = lerp(gg, HERO_INK[1], red); d[i + 2] = lerp(b, HERO_INK[2], red);
+    }
+    g.putImageData(id, x0, y0);
+    const path = pts => pts.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1]));
+    g.save(); g.beginPath(); g.arc(Hd.x, Hd.y, Hd.r - 1, 0, TAU); g.clip();
+    g.fillStyle = '#efe9dd'; g.beginPath(); path(HERO_WRAP_TOP); g.lineTo(400, 220); g.lineTo(200, 220); g.closePath(); g.fill();
+    g.fillStyle = '#b4ac9f'; g.beginPath(); path(HERO_WRAP_SHADE); g.lineTo(200, 220); g.lineTo(400, 220); g.closePath(); g.fill();
+    // crisp ink edges: the top edge under the eyes and one wrap fold
+    g.strokeStyle = 'rgb(16,7,8)'; g.lineWidth = 3; g.lineJoin = 'round'; g.lineCap = 'round';
+    g.beginPath(); path(HERO_WRAP_TOP); g.stroke();
+    g.beginPath(); g.moveTo(384, 146); g.quadraticCurveTo(310, 184, 236, 166); g.stroke();
+    g.restore();
+    // the knot the strip trails from
+    g.fillStyle = '#efe9dd'; g.strokeStyle = 'rgb(16,7,8)'; g.lineWidth = 2.5;
+    g.beginPath(); g.ellipse(HERO_SPR.knot[0], HERO_SPR.knot[1], 9, 7, -0.5, 0, TAU); g.fill(); g.stroke();
+  });
+}
 
 // A smooth radial glow sprite. Canvas gradients are globally stepped for the cel look (see flatGradients in core),
 // so soft light is built from many tiny steps instead: rgb at full alpha in the middle, fading by profile(u).
@@ -5587,7 +5816,7 @@ const TitleScene = {
     return c;
   },
 
-  /* ---------------- hachimaki tails ---------------- */
+  /* ---------------- the face-wrap's trailing strip ---------------- */
   ribbon(n) { return { n, px: new Float32Array(n), py: new Float32Array(n), ox: new Float32Array(n), oy: new Float32Array(n), init: false }; },
   stepRibbon(rb, ax, ay, seg, wx, wy, dt, t, ph) {
     const n = rb.n, px = rb.px, py = rb.py, ox = rb.ox, oy = rb.oy;
@@ -5605,12 +5834,12 @@ const TitleScene = {
       px[i] -= dx * diff; py[i] -= dy * diff;
     }
   },
-  // an easterly breeze lifts the tails up and to the right, like the key art
+  // an easterly breeze lifts the short strip (and the stub of the knot's other end) up and to the right
   stepCloth(dt, t, knot) {
     dt = Math.min(dt, 1 / 30); if (dt <= 0) return;
-    if (!this.scarf) this.scarf = [this.ribbon(13), this.ribbon(11)];
-    this.stepRibbon(this.scarf[0], knot.x, knot.y, 15, 900, -260, dt, t, 0);
-    this.stepRibbon(this.scarf[1], knot.x, knot.y + 4, 13, 810, -140, dt, t, 2);
+    if (!this.scarf) this.scarf = [this.ribbon(8), this.ribbon(5)];
+    this.stepRibbon(this.scarf[0], knot.x, knot.y, 13, 900, -220, dt, t, 0);
+    this.stepRibbon(this.scarf[1], knot.x, knot.y + 4, 11, 800, -100, dt, t, 2);
   },
   drawRibbon(ctx, rb, w0, w1, col) {
     if (!rb || !rb.init) return;
@@ -5640,9 +5869,10 @@ const TitleScene = {
     // a warm glow behind him from the cracked ground
     ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.22 + 0.06 * Math.sin(clock * 2.2);
     ctx.drawImage(T.heroGlow, TITLE_LAND.x - 220, TITLE_LAND.y - 190, 440, 300); ctx.restore();
-    if (this.scarf) { this.drawRibbon(ctx, this.scarf[1], 9, 5, '#9a1418'); this.drawRibbon(ctx, this.scarf[0], 12, 6, '#da1f21'); }
+    if (this.scarf) { this.drawRibbon(ctx, this.scarf[1], 10, 6, '#a39b8e'); this.drawRibbon(ctx, this.scarf[0], 15, 7, '#efe9dd'); }
     ctx.save(); ctx.translate(TITLE_LAND.x, TITLE_LAND.y); ctx.scale(f.sx, f.sy); ctx.translate(-TITLE_LAND.x, -TITLE_LAND.y);
-    if (imgReady(im)) ctx.drawImage(im, TA.x + HERO_SPR.ax * TA.s, TA.y + HERO_SPR.ay * TA.s, im.naturalWidth * TA.s, im.naturalHeight * TA.s);
+    if (imgReady(im) && !T.heroKage) T.heroKage = heroRecolour(im);
+    if (T.heroKage) ctx.drawImage(T.heroKage, TA.x + HERO_SPR.ax * TA.s, TA.y + HERO_SPR.ay * TA.s, im.naturalWidth * TA.s, im.naturalHeight * TA.s);
     ctx.restore();
     const g = this.spritePt(HERO_SPR.guard[0], HERO_SPR.guard[1], clock), gx = g.x, gy = g.y;
     const tip = this.spritePt(HERO_SPR.tip[0] - HERO_SPR.ax, HERO_SPR.tip[1] - HERO_SPR.ay, clock);
@@ -5912,9 +6142,9 @@ class FightSession {
     if (def === this.player) this.rounds.e++; else { this.rounds.p++; if (this.mode === 'survival') this.waveCleared(); }
   }
   waveCleared() {
-    const coins = SURVIVAL.coins(this.wave);
+    const { coins, gems } = Logic.survivalWaveReward(this.wave);
     this.survivalCoins += coins; this.wavesCleared = this.wave;
-    if (this.wave % SURVIVAL.gemsEvery === 0) this.survivalGems += 1;
+    this.survivalGems += gems;
     this.fx.popText(this.player, `+${coins} COINS`, C.gold);
     AudioManager.play('coin');
   }
@@ -6192,10 +6422,7 @@ const Game = {
   },
 
   /* ---- flow ---- */
-  stageConfig(actIdx, stageIdx) {
-    const act = ACTS[actIdx], st = act.stages[stageIdx];
-    return { mode: 'campaign', act: actIdx, stage: stageIdx, enemyId: st.enemy, env: act.env, ng: SaveManager.data.ng };
-  },
+  stageConfig(actIdx, stageIdx) { return Logic.stageConfig(SaveManager.data, actIdx, stageIdx); },
   startFight(cfg) {
     this.session = new FightSession(cfg);
     this.scene = 'fight'; this.paused = false; this.acc = 0; this.tableau = null;
@@ -6208,78 +6435,19 @@ const Game = {
   setTableau(env, opts) { this.tableau = { env: getEnv(env), t: 0, opts }; this.scene = 'tableau'; },
 
   finishFight(r) {
-    const save = SaveManager.data;
     this.lastCfg = this.session ? this.session.cfg : this.lastCfg;
-    const out = Object.assign({}, r, { coins: 0, gems: 0, xp: 0, unlocks: [], levelUps: 0, firstClear: false });
-    const ngMul = 1 + 0.6 * (r.ng || 0);
-    if (r.mode === 'campaign') {
-      const act = ACTS[r.act], d = ENEMIES[r.enemyId], key = `${r.act}-${r.stage}`;
-      const typeMul = d.type === 'boss' ? 3.4 : d.type === 'sub' ? 2.2 : 1;
-      const base = (60 + 45 * act.diff) * typeMul;
-      out.rating = this.rate(r);
-      out.seals = [r.win, r.win && r.time < 60, r.win && r.flawless];
-      if (r.win) {
-        out.firstClear = !save.cleared[key];
-        out.coins = Math.round(base * ngMul * ({ S: 1.5, A: 1.25, B: 1.1, C: 1 }[out.rating]) * (out.firstClear ? 1 : 0.5) / 5) * 5;
-        out.gems = (out.firstClear ? (d.type === 'boss' ? 5 : d.type === 'sub' ? 2 : 0) : (d.type === 'boss' ? 1 : 0)) + (r.flawless ? 1 : 0);
-        out.xp = Math.round((d.type === 'boss' ? 300 : d.type === 'sub' ? 150 : 80) * act.diff * ngMul);
-        save.cleared[key] = true;
-        save.defeated[d.id] = (save.defeated[d.id] || 0) + 1;
-        save.stats.wins++; if (r.flawless) save.stats.perfects++;
-        if (d.reward) {
-          if (d.reward.weapon && !save.owned.weapons[d.reward.weapon]) { save.owned.weapons[d.reward.weapon] = 1; out.unlocks.push({ kind: 'weapons', id: d.reward.weapon }); }
-          if (d.reward.item && !save.owned[d.reward.item[0]][d.reward.item[1]]) { save.owned[d.reward.item[0]][d.reward.item[1]] = 1; out.unlocks.push({ kind: d.reward.item[0], id: d.reward.item[1] }); }
-        }
-        if (d.type === 'boss') {
-          save.stats.bosses++;
-          if (r.act + 2 > save.unlockedActs && r.act + 1 < ACTS.length) { save.unlockedActs = r.act + 2; out.unlocks.push({ kind: 'act', id: r.act + 1 }); }
-          if (r.act === ACTS.length - 1) {
-            if (!save.ngUnlocked) out.unlocks.push({ kind: 'ng' });
-            save.ngUnlocked = true; if (out.firstClear) save.ngCompletions = Math.max(save.ngCompletions, (r.ng || 0) + 1);
-          }
-        }
-      } else {
-        out.coins = Math.round(base * 0.25 / 5) * 5; out.xp = 20 * act.diff; save.stats.losses++;
-      }
-    } else {
-      out.coins = r.survivalCoins; out.gems = r.survivalGems; out.xp = 40 * r.waves;
-      out.rating = r.waves >= 15 ? 'S' : r.waves >= 10 ? 'A' : r.waves >= 5 ? 'B' : 'C';
-      out.newBest = r.waves > save.survivalBest;
-      if (out.newBest) save.survivalBest = r.waves;
-      out.seals = [r.waves >= 5, r.waves >= 10, r.waves >= 15];
-      save.stats.wins += r.waves; save.stats.losses++;
-    }
-    save.coins += out.coins; save.gems += out.gems; save.xp += out.xp;
-    out.levelBefore = save.level; out.xpBefore = save.xp - out.xp;
-    while (save.xp >= xpForLevel(save.level)) { save.xp -= xpForLevel(save.level); save.level++; out.levelUps++; }
+    const out = Logic.applyFightResult(SaveManager.data, r);
     SaveManager.save();
     this.lastResult = out;
     this.session = null;
     UIManager.go('result', () => UIManager.showResult(out));
   },
-  rate(r) {
-    if (!r.win) return 'C';
-    let s = r.hpLeft * 40 + (r.time < 45 ? 20 : r.time < 80 ? 10 : 0) + Math.min(20, r.maxCombo * 2) + r.parries * 5 + (r.flawless ? 20 : 0);
-    return s >= 85 ? 'S' : s >= 62 ? 'A' : s >= 42 ? 'B' : 'C';
-  },
-  nextStage() {
-    const save = SaveManager.data;
-    for (let a = 0; a < ACTS.length; a++) {
-      if (a >= save.unlockedActs) break;
-      for (let s = 0; s < ACTS[a].stages.length; s++) if (!save.cleared[`${a}-${s}`]) return { act: a, stage: s };
-    }
-    return null;
-  },
-  stageUnlocked(a, s) {
-    const save = SaveManager.data;
-    if (a >= save.unlockedActs) return false;
-    if (s === 0) return true;
-    return !!save.cleared[`${a}-${s - 1}`] || !!save.cleared[`${a}-${s}`];
-  },
+  // progression queries are answered by Logic (15-logic.js); these keep the engine's old entry points
+  rate(r) { return Logic.rateFight(r); },
+  nextStage() { return Logic.nextStage(SaveManager.data); },
+  stageUnlocked(a, s) { return Logic.stageUnlocked(SaveManager.data, a, s); },
   startNewGamePlus() {
-    const save = SaveManager.data;
-    if (!save.ngUnlocked) return false;
-    save.ng = (save.ng || 0) + 1; save.cleared = {}; save.unlockedActs = 1;
+    if (!Logic.startNewGamePlus(SaveManager.data)) return false;
     SaveManager.save();
     return true;
   }
@@ -6671,10 +6839,10 @@ const UIManager = {
       case 'close-ov': this.closeOverlay(); break;
       case 'act': {
         const i = +d.i;
-        if (i >= save.unlockedActs) { this.toast('Act locked', `Defeat ${ENEMIES[ACTS[i - 1].boss].name} to open the way`, true); AudioManager.play('block'); return; }
+        if (!Logic.isActUnlocked(save, i)) { this.toast('Act locked', `Defeat ${ENEMIES[ACTS[i - 1].boss].name} to open the way`, true); AudioManager.play('block'); return; }
         this.selAct = i; this.view = 'act';
         const nx = Game.nextStage();
-        this.selStage = nx && nx.act === i ? nx.stage : (save.cleared[`${i}-6`] ? 6 : 0);
+        this.selStage = nx && nx.act === i ? nx.stage : (Logic.isActCleared(save, i) ? 6 : 0);
         this.go('campaign', () => this.renderCampaign());
         break;
       }
@@ -6833,12 +7001,12 @@ const UIManager = {
         <div class="topbar">
           <div class="head"><button class="round-btn" data-a="back" aria-label="Back">${ICON.back}</button>
             <div><div class="eyebrow">Campaign${save.ng ? ` · <span class="ng-badge">New Game+ ${save.ng}</span>` : ''}</div><h2 class="disp">The Shadow Road</h2></div></div>
-          <div class="diamond-pips">${ACTS.map((a, i) => `<i class="${save.cleared[`${i}-6`] ? 'on' : i < save.unlockedActs ? 'cur' : ''}"></i>`).join('')}<span class="muted" style="margin-left:.6rem;letter-spacing:.12em">${ACTS.filter((a, i) => save.cleared[`${i}-6`]).length} / ${ACTS.length}</span></div>
+          <div class="diamond-pips">${ACTS.map((a, i) => `<i class="${Logic.isActCleared(save, i) ? 'on' : Logic.isActUnlocked(save, i) ? 'cur' : ''}"></i>`).join('')}<span class="muted" style="margin-left:.6rem;letter-spacing:.12em">${ACTS.filter((a, i) => Logic.isActCleared(save, i)).length} / ${ACTS.length}</span></div>
           ${currencyHTML()}
         </div>
         <div class="world-acts">
           ${ACTS.map((a, i) => {
-            const done = a.stages.filter((s, j) => save.cleared[`${i}-${j}`]).length, locked = i >= save.unlockedActs, cleared = !!save.cleared[`${i}-6`];
+            const done = a.stages.filter((s, j) => Logic.isStageCleared(save, i, j)).length, locked = !Logic.isActUnlocked(save, i), cleared = Logic.isActCleared(save, i);
             const dl = clamp(a.diff + save.ng, 0, 4);
             return `<button class="act-node ${locked ? 'locked' : ''} ${cleared ? 'cleared' : ''}" style="left:${pos[i][0]}%;top:${pos[i][1]}%;animation-delay:${i * 0.08}s" data-a="act" data-i="${i}" ${i === this.selAct ? 'data-focus' : ''}>
               <canvas data-boss="${a.boss}" data-locked="${locked ? 1 : 0}"></canvas>
@@ -6859,14 +7027,13 @@ const UIManager = {
     const a = ACTS[this.selAct], ai = this.selAct;
     const NODES = [[140, 700], [330, 590], [510, 660], [690, 520], [860, 578], [1020, 438], [1230, 380]];
     const pct = p => `left:${p[0] / 1440 * 100}%;top:${p[1] / 900 * 100}%`;
-    const done = a.stages.filter((s, j) => save.cleared[`${ai}-${j}`]).length;
+    const done = a.stages.filter((s, j) => Logic.isStageCleared(save, ai, j)).length;
     const nx = Game.nextStage();
     const cur = nx && nx.act === ai ? nx.stage : -1;
     const sel = this.selStage, st = a.stages[sel], foe = ENEMIES[st.enemy];
     const dl = clamp(a.diff + save.ng + (foe.type === 'boss' ? 1 : foe.type === 'sub' ? 0.5 : 0), 0, 4) | 0;
-    const typeMul = foe.type === 'boss' ? 3.4 : foe.type === 'sub' ? 2.2 : 1;
-    const reward = Math.round((60 + 45 * a.diff) * typeMul * (1 + 0.6 * save.ng) * (save.cleared[`${ai}-${sel}`] ? 0.5 : 1) / 5) * 5;
-    const unlocked = Game.stageUnlocked(ai, sel);
+    const reward = Logic.stageRewardPreview(save, ai, sel), selCleared = Logic.isStageCleared(save, ai, sel);
+    const unlocked = Logic.stageUnlocked(save, ai, sel);
     const pathD = 'M140 700 C220 620 280 590 330 590 C400 590 440 660 510 660 C580 660 640 560 690 520';
     el.innerHTML = `
       ${this.mapSVG(false)}
@@ -6876,7 +7043,7 @@ const UIManager = {
       </svg>
       <div class="boss-sil" style="left:78%;top:2%;width:22%;height:40%"><canvas data-bosssil="${a.boss}" style="width:100%;height:100%"></canvas></div>
       ${a.stages.map((s, j) => {
-        const e = ENEMIES[s.enemy], clr = !!save.cleared[`${ai}-${j}`], lk = !Game.stageUnlocked(ai, j);
+        const e = ENEMIES[s.enemy], clr = Logic.isStageCleared(save, ai, j), lk = !Logic.stageUnlocked(save, ai, j);
         const cls = ['stage-node', clr ? 'cleared' : '', j === cur ? 'current' : '', j === sel ? 'selected' : '', lk ? 'locked' : '', e.type === 'sub' ? 'sub' : '', e.type === 'boss' ? 'boss' : ''].join(' ');
         return `<button class="${cls}" style="${pct(NODES[j])}" data-a="stage" data-i="${j}" aria-label="Stage ${ROMAN[j]} ${esc(s.name)}" ${j === sel ? 'data-focus' : ''}>${e.type === 'boss' ? ICON.swords : `<span>${ROMAN[j]}</span>`}</button>`;
       }).join('')}
@@ -6886,7 +7053,7 @@ const UIManager = {
       <div class="topbar">
         <div class="head"><button class="round-btn" data-a="back" aria-label="Back">${ICON.back}</button>
           <div><div class="eyebrow">Act ${ROMAN[ai]} · ${esc(a.place)}</div><h2 class="disp">${esc(a.name)}</h2></div></div>
-        <div class="diamond-pips">${a.stages.map((s, j) => `<i class="${save.cleared[`${ai}-${j}`] ? 'on' : j === cur ? 'cur' : ENEMIES[s.enemy].type === 'boss' ? 'boss' : ''}"></i>`).join('')}<span class="muted" style="margin-left:.6rem;letter-spacing:.12em">${done} / 7</span></div>
+        <div class="diamond-pips">${a.stages.map((s, j) => `<i class="${Logic.isStageCleared(save, ai, j) ? 'on' : j === cur ? 'cur' : ENEMIES[s.enemy].type === 'boss' ? 'boss' : ''}"></i>`).join('')}<span class="muted" style="margin-left:.6rem;letter-spacing:.12em">${done} / 7</span></div>
         ${currencyHTML()}
       </div>
       <div class="stage-card" key="${sel}">
@@ -6894,9 +7061,9 @@ const UIManager = {
           <div class="name disp">${esc(st.name)}</div>
           <div class="foe">${esc(foe.name)}, ${esc(foe.title)}</div></div>
         <div class="meta"><div class="diff"><div class="pips">${[0, 1, 2].map(k => `<i class="${k < Math.min(3, Math.max(1, dl)) ? 'on' : ''}"></i>`).join('')}</div>${DIFF_LABEL[dl]}${save.ng ? ' · NG+' + save.ng : ''}</div>
-          <div class="reward"><i class="coin" style="width:.875rem;height:.875rem"></i>+${reward}${foe.type !== 'regular' && !save.cleared[`${ai}-${sel}`] ? ` <i class="gem" style="margin-left:.4rem"></i>+${foe.type === 'boss' ? 5 : 2}` : ''}</div></div>
-        ${foe.reward && !save.cleared[`${ai}-${sel}`] ? `<div class="muted" style="font-size:.9rem;letter-spacing:.06em">Trophy: ${[foe.reward.weapon && WEAPONS[foe.reward.weapon].name, foe.reward.item && gearName(foe.reward.item[0], foe.reward.item[1])].filter(Boolean).map(esc).join(' · ')}</div>` : ''}
-        <button class="btn-primary ${unlocked ? '' : 'locked'}" data-a="fight-stage" ${unlocked ? '' : 'disabled'}>${unlocked ? (save.cleared[`${ai}-${sel}`] ? 'Replay' : 'Fight') : 'Locked'}</button>
+          <div class="reward"><i class="coin" style="width:.875rem;height:.875rem"></i>+${reward.coins}${reward.gems ? ` <i class="gem" style="margin-left:.4rem"></i>+${reward.gems}` : ''}</div></div>
+        ${foe.reward && !selCleared ? `<div class="muted" style="font-size:.9rem;letter-spacing:.06em">Trophy: ${[foe.reward.weapon && WEAPONS[foe.reward.weapon].name, foe.reward.item && gearName(foe.reward.item[0], foe.reward.item[1])].filter(Boolean).map(esc).join(' · ')}</div>` : ''}
+        <button class="btn-primary ${unlocked ? '' : 'locked'}" data-a="fight-stage" ${unlocked ? '' : 'disabled'}>${unlocked ? (selCleared ? 'Replay' : 'Fight') : 'Locked'}</button>
       </div>`;
     this.afterShow = () => this.paintCampaignCanvases();
     if (soft) this.paintCampaignCanvases();
@@ -7048,24 +7215,21 @@ const UIManager = {
     this.armRAF = requestAnimationFrame(loop);
   },
   buy() {
-    const save = SaveManager.data, kind = this.armTab, id = this.armSel, it = gearTable(kind)[id];
-    if (save.owned[kind][id] || it.exclusive) return;
-    if (it.gems) { if (save.gems < it.gems) return; save.gems -= it.gems; } else { if (save.coins < it.price) return; save.coins -= it.price; }
-    save.owned[kind][id] = 1; SaveManager.save();
-    AudioManager.play('unlock'); this.toast('Acquired', it.name); this.renderArmory(true);
+    const kind = this.armTab, id = this.armSel;
+    if (!Logic.buyItem(SaveManager.data, kind, id)) return;
+    SaveManager.save();
+    AudioManager.play('unlock'); this.toast('Acquired', gearTable(kind)[id].name); this.renderArmory(true);
   },
   upgrade() {
-    const save = SaveManager.data, kind = this.armTab, id = this.armSel, lvl = save.owned[kind][id];
-    if (!lvl || lvl >= GEAR_MAX[kind]) return;
-    const c = upgradeCost(kind, id, lvl); if (save.coins < c) return;
-    save.coins -= c; save.owned[kind][id] = lvl + 1; SaveManager.save();
+    const kind = this.armTab, id = this.armSel;
+    if (!Logic.upgradeItem(SaveManager.data, kind, id)) return;
+    SaveManager.save();
     AudioManager.play('coin'); AudioManager.play('clang', { pitch: 1.3 });
-    this.toast(`Level ${lvl + 1}`, `${gearTable(kind)[id].name} tempered`); this.renderArmory(true);
+    this.toast(`Level ${SaveManager.data.owned[kind][id]}`, `${gearTable(kind)[id].name} tempered`); this.renderArmory(true);
   },
   equip() {
-    const save = SaveManager.data, kind = this.armTab, id = this.armSel;
-    if (!save.owned[kind][id]) return;
-    save.equipped[kind === 'weapons' ? 'weapon' : kind === 'helmets' ? 'helmet' : 'armor'] = id; SaveManager.save();
+    if (!Logic.equipItem(SaveManager.data, this.armTab, this.armSel)) return;
+    SaveManager.save();
     AudioManager.play('clang', { pitch: 1.1 }); this.renderArmory(true);
   },
 
@@ -7471,7 +7635,7 @@ const UIManager = {
   Splash.start();
   Game.init();
   // expose a tiny debug handle for testing in the console
-  window.KAGE = { Game, SaveManager, UIManager, ENEMIES, WEAPONS, ACTS, FightSession, AIController, Renderer, AudioManager, BOSS_ABILITIES, Combat, InputManager, TitleScene };
+  window.KAGE = { Game, SaveManager, Logic, UIManager, ENEMIES, WEAPONS, ACTS, FightSession, AIController, Renderer, AudioManager, BOSS_ABILITIES, Combat, InputManager, TitleScene };
 })();
 
 })();</script>

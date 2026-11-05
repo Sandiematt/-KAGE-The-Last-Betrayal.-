@@ -47,53 +47,32 @@ const isTouchDevice = () => ('ontouchstart' in window) || navigator.maxTouchPoin
 
 /* ------------------------------------------------------------------ */
 /* SaveManager — localStorage with defensive error handling             */
+/* Storage only: the save schema, defaults and corrupt-save fallback    */
+/* live in Logic (15-logic.js), which gets the raw text from here.      */
 /* ------------------------------------------------------------------ */
 const SaveManager = {
   KEY: 'kage.save.v1',
   LEGACY: ['ashbound.save.v1'], // saves from the previous working title are migrated once
   data: null,
   available: true,
-  defaults() {
-    return {
-      v: 1,
-      coins: 250, gems: 5, xp: 0, level: 1,
-      ng: 0, ngUnlocked: false, ngCompletions: 0,
-      cleared: {},            // "act-stage" -> true, current cycle
-      unlockedActs: 1,
-      defeated: {},           // enemyId -> count (lifetime)
-      owned: { weapons: { moon_katana: 1 }, helmets: { topknot: 1 }, armors: { wraps: 1 } },
-      equipped: { weapon: 'moon_katana', helmet: 'topknot', armor: 'wraps' },
-      seenRewards: {},
-      survivalBest: 0,
-      stats: { wins: 0, losses: 0, perfects: 0, bosses: 0, playTime: 0 },
-      settings: { shake: 'full', reduceFlash: false, sound: true, music: true, touch: 'auto', stick: 'float' }
-    };
-  },
+  defaults() { return Logic.defaultSave(); },
   load() {
-    const d = this.defaults();
+    let raw = null;
     try {
-      let raw = window.localStorage.getItem(this.KEY);
+      raw = window.localStorage.getItem(this.KEY);
       if (!raw) for (const k of this.LEGACY) { const r = window.localStorage.getItem(k); if (r) { raw = r; break; } }
-      if (raw) {
-        const s = JSON.parse(raw);
-        if (s && typeof s === 'object') {
-          Object.assign(d, s);
-          d.owned = Object.assign(this.defaults().owned, s.owned || {});
-          for (const k of ['weapons', 'helmets', 'armors']) d.owned[k] = Object.assign({}, this.defaults().owned[k], (s.owned || {})[k] || {});
-          d.equipped = Object.assign(this.defaults().equipped, s.equipped || {});
-          d.stats = Object.assign(this.defaults().stats, s.stats || {});
-          d.settings = Object.assign(this.defaults().settings, s.settings || {});
-          d.cleared = s.cleared || {};
-          d.defeated = s.defeated || {};
-          d.seenRewards = s.seenRewards || {};
-        }
-      }
     } catch (e) {
       console.warn('[KAGE] Save could not be read, starting fresh.', e);
       this.available = false;
+      raw = null;
     }
-    this.data = d;
-    return d;
+    const { save, error } = Logic.loadSave(raw);
+    if (error) {
+      console.warn('[KAGE] Save could not be read, starting fresh.', error);
+      this.available = false;
+    }
+    this.data = save;
+    return save;
   },
   save() {
     try {
@@ -105,9 +84,7 @@ const SaveManager = {
     }
   },
   reset() {
-    const settings = this.data ? this.data.settings : undefined;
-    this.data = this.defaults();
-    if (settings) this.data.settings = settings;
+    this.data = Logic.resetSave(this.data);
     this.save();
   }
 };

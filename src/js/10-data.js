@@ -422,23 +422,3 @@ const SURVIVAL = {
   coins: w => 25 + w * 12,
   gemsEvery: 5
 };
-
-/* ---------------- Economy helpers ---------------- */
-function gearTable(kind) { return kind === 'weapons' ? WEAPONS : kind === 'helmets' ? HELMETS : ARMORS; }
-function upgradeCost(kind, id, lvl) {
-  const item = gearTable(kind)[id];
-  const base = item.price || (item.gems ? item.gems * 60 : 500);
-  return Math.round(Math.max(160, base * (0.35 + 0.3 * lvl)) / 10) * 10;
-}
-function weaponStats(id, lvl) {
-  const w = WEAPONS[id], s = w.stats || [40, 50, 40];
-  const l = (lvl || 1) - 1;
-  return { damage: Math.min(100, s[0] + l * 4), speed: Math.min(100, s[1] + l * 2), reach: Math.min(100, s[2] + l * 1) };
-}
-function weaponMul(lvl) { const l = (lvl || 1) - 1; return { dmg: 1 + 0.08 * l, spd: 1 + 0.025 * l, reach: 1 + 0.015 * l }; }
-function gearDef(kind, id, lvl) { const g = gearTable(kind)[id]; return g.def ? g.def + 0.012 * ((lvl || 1) - 1) : 0; }
-function playerMaxHp(save) {
-  const a = ARMORS[save.equipped.armor], h = HELMETS[save.equipped.helmet];
-  return Math.round(220 + (save.level - 1) * 4 + ((a.perks.hp || 0) + (h.perks.hp || 0)));
-}
-function xpForLevel(lvl) { return 200 + 120 * (lvl - 1); }

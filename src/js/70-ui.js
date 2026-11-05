@@ -163,10 +163,10 @@ const UIManager = {
       case 'close-ov': this.closeOverlay(); break;
       case 'act': {
         const i = +d.i;
-        if (i >= save.unlockedActs) { this.toast('Act locked', `Defeat ${ENEMIES[ACTS[i - 1].boss].name} to open the way`, true); AudioManager.play('block'); return; }
+        if (!Logic.isActUnlocked(save, i)) { this.toast('Act locked', `Defeat ${ENEMIES[ACTS[i - 1].boss].name} to open the way`, true); AudioManager.play('block'); return; }
         this.selAct = i; this.view = 'act';
         const nx = Game.nextStage();
-        this.selStage = nx && nx.act === i ? nx.stage : (save.cleared[`${i}-6`] ? 6 : 0);
+        this.selStage = nx && nx.act === i ? nx.stage : (Logic.isActCleared(save, i) ? 6 : 0);
         this.go('campaign', () => this.renderCampaign());
         break;
       }
@@ -325,12 +325,12 @@ const UIManager = {
         <div class="topbar">
           <div class="head"><button class="round-btn" data-a="back" aria-label="Back">${ICON.back}</button>
             <div><div class="eyebrow">Campaign${save.ng ? ` · <span class="ng-badge">New Game+ ${save.ng}</span>` : ''}</div><h2 class="disp">The Shadow Road</h2></div></div>
-          <div class="diamond-pips">${ACTS.map((a, i) => `<i class="${save.cleared[`${i}-6`] ? 'on' : i < save.unlockedActs ? 'cur' : ''}"></i>`).join('')}<span class="muted" style="margin-left:.6rem;letter-spacing:.12em">${ACTS.filter((a, i) => save.cleared[`${i}-6`]).length} / ${ACTS.length}</span></div>
+          <div class="diamond-pips">${ACTS.map((a, i) => `<i class="${Logic.isActCleared(save, i) ? 'on' : Logic.isActUnlocked(save, i) ? 'cur' : ''}"></i>`).join('')}<span class="muted" style="margin-left:.6rem;letter-spacing:.12em">${ACTS.filter((a, i) => Logic.isActCleared(save, i)).length} / ${ACTS.length}</span></div>
           ${currencyHTML()}
         </div>
         <div class="world-acts">
           ${ACTS.map((a, i) => {
-            const done = a.stages.filter((s, j) => save.cleared[`${i}-${j}`]).length, locked = i >= save.unlockedActs, cleared = !!save.cleared[`${i}-6`];
+            const done = a.stages.filter((s, j) => Logic.isStageCleared(save, i, j)).length, locked = !Logic.isActUnlocked(save, i), cleared = Logic.isActCleared(save, i);
             const dl = clamp(a.diff + save.ng, 0, 4);
             return `<button class="act-node ${locked ? 'locked' : ''} ${cleared ? 'cleared' : ''}" style="left:${pos[i][0]}%;top:${pos[i][1]}%;animation-delay:${i * 0.08}s" data-a="act" data-i="${i}" ${i === this.selAct ? 'data-focus' : ''}>
               <canvas data-boss="${a.boss}" data-locked="${locked ? 1 : 0}"></canvas>
@@ -351,14 +351,13 @@ const UIManager = {
     const a = ACTS[this.selAct], ai = this.selAct;
     const NODES = [[140, 700], [330, 590], [510, 660], [690, 520], [860, 578], [1020, 438], [1230, 380]];
     const pct = p => `left:${p[0] / 1440 * 100}%;top:${p[1] / 900 * 100}%`;
-    const done = a.stages.filter((s, j) => save.cleared[`${ai}-${j}`]).length;
+    const done = a.stages.filter((s, j) => Logic.isStageCleared(save, ai, j)).length;
     const nx = Game.nextStage();
     const cur = nx && nx.act === ai ? nx.stage : -1;
     const sel = this.selStage, st = a.stages[sel], foe = ENEMIES[st.enemy];
     const dl = clamp(a.diff + save.ng + (foe.type === 'boss' ? 1 : foe.type === 'sub' ? 0.5 : 0), 0, 4) | 0;
-    const typeMul = foe.type === 'boss' ? 3.4 : foe.type === 'sub' ? 2.2 : 1;
-    const reward = Math.round((60 + 45 * a.diff) * typeMul * (1 + 0.6 * save.ng) * (save.cleared[`${ai}-${sel}`] ? 0.5 : 1) / 5) * 5;
-    const unlocked = Game.stageUnlocked(ai, sel);
+    const reward = Logic.stageRewardPreview(save, ai, sel), selCleared = Logic.isStageCleared(save, ai, sel);
+    const unlocked = Logic.stageUnlocked(save, ai, sel);
     const pathD = 'M140 700 C220 620 280 590 330 590 C400 590 440 660 510 660 C580 660 640 560 690 520';
     el.innerHTML = `
       ${this.mapSVG(false)}
@@ -368,7 +367,7 @@ const UIManager = {
       </svg>
       <div class="boss-sil" style="left:78%;top:2%;width:22%;height:40%"><canvas data-bosssil="${a.boss}" style="width:100%;height:100%"></canvas></div>
       ${a.stages.map((s, j) => {
-        const e = ENEMIES[s.enemy], clr = !!save.cleared[`${ai}-${j}`], lk = !Game.stageUnlocked(ai, j);
+        const e = ENEMIES[s.enemy], clr = Logic.isStageCleared(save, ai, j), lk = !Logic.stageUnlocked(save, ai, j);
         const cls = ['stage-node', clr ? 'cleared' : '', j === cur ? 'current' : '', j === sel ? 'selected' : '', lk ? 'locked' : '', e.type === 'sub' ? 'sub' : '', e.type === 'boss' ? 'boss' : ''].join(' ');
         return `<button class="${cls}" style="${pct(NODES[j])}" data-a="stage" data-i="${j}" aria-label="Stage ${ROMAN[j]} ${esc(s.name)}" ${j === sel ? 'data-focus' : ''}>${e.type === 'boss' ? ICON.swords : `<span>${ROMAN[j]}</span>`}</button>`;
       }).join('')}
@@ -378,7 +377,7 @@ const UIManager = {
       <div class="topbar">
         <div class="head"><button class="round-btn" data-a="back" aria-label="Back">${ICON.back}</button>
           <div><div class="eyebrow">Act ${ROMAN[ai]} · ${esc(a.place)}</div><h2 class="disp">${esc(a.name)}</h2></div></div>
-        <div class="diamond-pips">${a.stages.map((s, j) => `<i class="${save.cleared[`${ai}-${j}`] ? 'on' : j === cur ? 'cur' : ENEMIES[s.enemy].type === 'boss' ? 'boss' : ''}"></i>`).join('')}<span class="muted" style="margin-left:.6rem;letter-spacing:.12em">${done} / 7</span></div>
+        <div class="diamond-pips">${a.stages.map((s, j) => `<i class="${Logic.isStageCleared(save, ai, j) ? 'on' : j === cur ? 'cur' : ENEMIES[s.enemy].type === 'boss' ? 'boss' : ''}"></i>`).join('')}<span class="muted" style="margin-left:.6rem;letter-spacing:.12em">${done} / 7</span></div>
         ${currencyHTML()}
       </div>
       <div class="stage-card" key="${sel}">
@@ -386,9 +385,9 @@ const UIManager = {
           <div class="name disp">${esc(st.name)}</div>
           <div class="foe">${esc(foe.name)}, ${esc(foe.title)}</div></div>
         <div class="meta"><div class="diff"><div class="pips">${[0, 1, 2].map(k => `<i class="${k < Math.min(3, Math.max(1, dl)) ? 'on' : ''}"></i>`).join('')}</div>${DIFF_LABEL[dl]}${save.ng ? ' · NG+' + save.ng : ''}</div>
-          <div class="reward"><i class="coin" style="width:.875rem;height:.875rem"></i>+${reward}${foe.type !== 'regular' && !save.cleared[`${ai}-${sel}`] ? ` <i class="gem" style="margin-left:.4rem"></i>+${foe.type === 'boss' ? 5 : 2}` : ''}</div></div>
-        ${foe.reward && !save.cleared[`${ai}-${sel}`] ? `<div class="muted" style="font-size:.9rem;letter-spacing:.06em">Trophy: ${[foe.reward.weapon && WEAPONS[foe.reward.weapon].name, foe.reward.item && gearName(foe.reward.item[0], foe.reward.item[1])].filter(Boolean).map(esc).join(' · ')}</div>` : ''}
-        <button class="btn-primary ${unlocked ? '' : 'locked'}" data-a="fight-stage" ${unlocked ? '' : 'disabled'}>${unlocked ? (save.cleared[`${ai}-${sel}`] ? 'Replay' : 'Fight') : 'Locked'}</button>
+          <div class="reward"><i class="coin" style="width:.875rem;height:.875rem"></i>+${reward.coins}${reward.gems ? ` <i class="gem" style="margin-left:.4rem"></i>+${reward.gems}` : ''}</div></div>
+        ${foe.reward && !selCleared ? `<div class="muted" style="font-size:.9rem;letter-spacing:.06em">Trophy: ${[foe.reward.weapon && WEAPONS[foe.reward.weapon].name, foe.reward.item && gearName(foe.reward.item[0], foe.reward.item[1])].filter(Boolean).map(esc).join(' · ')}</div>` : ''}
+        <button class="btn-primary ${unlocked ? '' : 'locked'}" data-a="fight-stage" ${unlocked ? '' : 'disabled'}>${unlocked ? (selCleared ? 'Replay' : 'Fight') : 'Locked'}</button>
       </div>`;
     this.afterShow = () => this.paintCampaignCanvases();
     if (soft) this.paintCampaignCanvases();
@@ -540,24 +539,21 @@ const UIManager = {
     this.armRAF = requestAnimationFrame(loop);
   },
   buy() {
-    const save = SaveManager.data, kind = this.armTab, id = this.armSel, it = gearTable(kind)[id];
-    if (save.owned[kind][id] || it.exclusive) return;
-    if (it.gems) { if (save.gems < it.gems) return; save.gems -= it.gems; } else { if (save.coins < it.price) return; save.coins -= it.price; }
-    save.owned[kind][id] = 1; SaveManager.save();
-    AudioManager.play('unlock'); this.toast('Acquired', it.name); this.renderArmory(true);
+    const kind = this.armTab, id = this.armSel;
+    if (!Logic.buyItem(SaveManager.data, kind, id)) return;
+    SaveManager.save();
+    AudioManager.play('unlock'); this.toast('Acquired', gearTable(kind)[id].name); this.renderArmory(true);
   },
   upgrade() {
-    const save = SaveManager.data, kind = this.armTab, id = this.armSel, lvl = save.owned[kind][id];
-    if (!lvl || lvl >= GEAR_MAX[kind]) return;
-    const c = upgradeCost(kind, id, lvl); if (save.coins < c) return;
-    save.coins -= c; save.owned[kind][id] = lvl + 1; SaveManager.save();
+    const kind = this.armTab, id = this.armSel;
+    if (!Logic.upgradeItem(SaveManager.data, kind, id)) return;
+    SaveManager.save();
     AudioManager.play('coin'); AudioManager.play('clang', { pitch: 1.3 });
-    this.toast(`Level ${lvl + 1}`, `${gearTable(kind)[id].name} tempered`); this.renderArmory(true);
+    this.toast(`Level ${SaveManager.data.owned[kind][id]}`, `${gearTable(kind)[id].name} tempered`); this.renderArmory(true);
   },
   equip() {
-    const save = SaveManager.data, kind = this.armTab, id = this.armSel;
-    if (!save.owned[kind][id]) return;
-    save.equipped[kind === 'weapons' ? 'weapon' : kind === 'helmets' ? 'helmet' : 'armor'] = id; SaveManager.save();
+    if (!Logic.equipItem(SaveManager.data, this.armTab, this.armSel)) return;
+    SaveManager.save();
     AudioManager.play('clang', { pitch: 1.1 }); this.renderArmory(true);
   },
 

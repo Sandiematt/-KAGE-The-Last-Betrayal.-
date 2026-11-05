@@ -8,5 +8,5 @@
   Splash.start();
   Game.init();
   // expose a tiny debug handle for testing in the console
-  window.KAGE = { Game, SaveManager, UIManager, ENEMIES, WEAPONS, ACTS, FightSession, AIController, Renderer, AudioManager, BOSS_ABILITIES, Combat, InputManager, TitleScene };
+  window.KAGE = { Game, SaveManager, Logic, UIManager, ENEMIES, WEAPONS, ACTS, FightSession, AIController, Renderer, AudioManager, BOSS_ABILITIES, Combat, InputManager, TitleScene };
 })();

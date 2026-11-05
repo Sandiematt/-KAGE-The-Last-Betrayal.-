@@ -148,9 +148,9 @@ class FightSession {
     if (def === this.player) this.rounds.e++; else { this.rounds.p++; if (this.mode === 'survival') this.waveCleared(); }
   }
   waveCleared() {
-    const coins = SURVIVAL.coins(this.wave);
+    const { coins, gems } = Logic.survivalWaveReward(this.wave);
     this.survivalCoins += coins; this.wavesCleared = this.wave;
-    if (this.wave % SURVIVAL.gemsEvery === 0) this.survivalGems += 1;
+    this.survivalGems += gems;
     this.fx.popText(this.player, `+${coins} COINS`, C.gold);
     AudioManager.play('coin');
   }
@@ -428,10 +428,7 @@ const Game = {
   },
 
   /* ---- flow ---- */
-  stageConfig(actIdx, stageIdx) {
-    const act = ACTS[actIdx], st = act.stages[stageIdx];
-    return { mode: 'campaign', act: actIdx, stage: stageIdx, enemyId: st.enemy, env: act.env, ng: SaveManager.data.ng };
-  },
+  stageConfig(actIdx, stageIdx) { return Logic.stageConfig(SaveManager.data, actIdx, stageIdx); },
   startFight(cfg) {
     this.session = new FightSession(cfg);
     this.scene = 'fight'; this.paused = false; this.acc = 0; this.tableau = null;
@@ -444,78 +441,19 @@ const Game = {
   setTableau(env, opts) { this.tableau = { env: getEnv(env), t: 0, opts }; this.scene = 'tableau'; },
 
   finishFight(r) {
-    const save = SaveManager.data;
     this.lastCfg = this.session ? this.session.cfg : this.lastCfg;
-    const out = Object.assign({}, r, { coins: 0, gems: 0, xp: 0, unlocks: [], levelUps: 0, firstClear: false });
-    const ngMul = 1 + 0.6 * (r.ng || 0);
-    if (r.mode === 'campaign') {
-      const act = ACTS[r.act], d = ENEMIES[r.enemyId], key = `${r.act}-${r.stage}`;
-      const typeMul = d.type === 'boss' ? 3.4 : d.type === 'sub' ? 2.2 : 1;
-      const base = (60 + 45 * act.diff) * typeMul;
-      out.rating = this.rate(r);
-      out.seals = [r.win, r.win && r.time < 60, r.win && r.flawless];
-      if (r.win) {
-        out.firstClear = !save.cleared[key];
-        out.coins = Math.round(base * ngMul * ({ S: 1.5, A: 1.25, B: 1.1, C: 1 }[out.rating]) * (out.firstClear ? 1 : 0.5) / 5) * 5;
-        out.gems = (out.firstClear ? (d.type === 'boss' ? 5 : d.type === 'sub' ? 2 : 0) : (d.type === 'boss' ? 1 : 0)) + (r.flawless ? 1 : 0);
-        out.xp = Math.round((d.type === 'boss' ? 300 : d.type === 'sub' ? 150 : 80) * act.diff * ngMul);
-        save.cleared[key] = true;
-        save.defeated[d.id] = (save.defeated[d.id] || 0) + 1;
-        save.stats.wins++; if (r.flawless) save.stats.perfects++;
-        if (d.reward) {
-          if (d.reward.weapon && !save.owned.weapons[d.reward.weapon]) { save.owned.weapons[d.reward.weapon] = 1; out.unlocks.push({ kind: 'weapons', id: d.reward.weapon }); }
-          if (d.reward.item && !save.owned[d.reward.item[0]][d.reward.item[1]]) { save.owned[d.reward.item[0]][d.reward.item[1]] = 1; out.unlocks.push({ kind: d.reward.item[0], id: d.reward.item[1] }); }
-        }
-        if (d.type === 'boss') {
-          save.stats.bosses++;
-          if (r.act + 2 > save.unlockedActs && r.act + 1 < ACTS.length) { save.unlockedActs = r.act + 2; out.unlocks.push({ kind: 'act', id: r.act + 1 }); }
-          if (r.act === ACTS.length - 1) {
-            if (!save.ngUnlocked) out.unlocks.push({ kind: 'ng' });
-            save.ngUnlocked = true; if (out.firstClear) save.ngCompletions = Math.max(save.ngCompletions, (r.ng || 0) + 1);
-          }
-        }
-      } else {
-        out.coins = Math.round(base * 0.25 / 5) * 5; out.xp = 20 * act.diff; save.stats.losses++;
-      }
-    } else {
-      out.coins = r.survivalCoins; out.gems = r.survivalGems; out.xp = 40 * r.waves;
-      out.rating = r.waves >= 15 ? 'S' : r.waves >= 10 ? 'A' : r.waves >= 5 ? 'B' : 'C';
-      out.newBest = r.waves > save.survivalBest;
-      if (out.newBest) save.survivalBest = r.waves;
-      out.seals = [r.waves >= 5, r.waves >= 10, r.waves >= 15];
-      save.stats.wins += r.waves; save.stats.losses++;
-    }
-    save.coins += out.coins; save.gems += out.gems; save.xp += out.xp;
-    out.levelBefore = save.level; out.xpBefore = save.xp - out.xp;
-    while (save.xp >= xpForLevel(save.level)) { save.xp -= xpForLevel(save.level); save.level++; out.levelUps++; }
+    const out = Logic.applyFightResult(SaveManager.data, r);
     SaveManager.save();
     this.lastResult = out;
     this.session = null;
     UIManager.go('result', () => UIManager.showResult(out));
   },
-  rate(r) {
-    if (!r.win) return 'C';
-    let s = r.hpLeft * 40 + (r.time < 45 ? 20 : r.time < 80 ? 10 : 0) + Math.min(20, r.maxCombo * 2) + r.parries * 5 + (r.flawless ? 20 : 0);
-    return s >= 85 ? 'S' : s >= 62 ? 'A' : s >= 42 ? 'B' : 'C';
-  },
-  nextStage() {
-    const save = SaveManager.data;
-    for (let a = 0; a < ACTS.length; a++) {
-      if (a >= save.unlockedActs) break;
-      for (let s = 0; s < ACTS[a].stages.length; s++) if (!save.cleared[`${a}-${s}`]) return { act: a, stage: s };
-    }
-    return null;
-  },
-  stageUnlocked(a, s) {
-    const save = SaveManager.data;
-    if (a >= save.unlockedActs) return false;
-    if (s === 0) return true;
-    return !!save.cleared[`${a}-${s - 1}`] || !!save.cleared[`${a}-${s}`];
-  },
+  // progression queries are answered by Logic (15-logic.js); these keep the engine's old entry points
+  rate(r) { return Logic.rateFight(r); },
+  nextStage() { return Logic.nextStage(SaveManager.data); },
+  stageUnlocked(a, s) { return Logic.stageUnlocked(SaveManager.data, a, s); },
   startNewGamePlus() {
-    const save = SaveManager.data;
-    if (!save.ngUnlocked) return false;
-    save.ng = (save.ng || 0) + 1; save.cleared = {}; save.unlockedActs = 1;
+    if (!Logic.startNewGamePlus(SaveManager.data)) return false;
     SaveManager.save();
     return true;
   }

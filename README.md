@@ -40,7 +40,8 @@ The shipped file is built from readable modules in `src/`:
 | File | What lives there |
 |---|---|
 | `src/js/00-core.js` | constants, **SaveManager**, **AudioManager** (procedural SFX + generative music), **InputManager** (keyboard / touch / gamepad) |
-| `src/js/10-data.js` | poses, move tables, **weapons**, helmets, armor, **enemies & bosses**, acts, survival, economy formulas |
+| `src/js/10-data.js` | pure data: poses, move tables, **weapons**, helmets, armor, **enemies & bosses**, acts, survival |
+| `src/js/15-logic.js` | **Logic**: the pure rules — campaign unlocks and next stage, fight rewards and ratings, economy formulas and shop actions, save defaults / loading / corrupt-save fallback. No DOM, canvas, storage, audio or input; tested under Node |
 | `src/js/20-fighter.js` | **Player / Enemy** `Fighter`: skeleton, pose blending, state machine, cloth physics, gear & weapon art |
 | `src/js/30-combat.js` | **CombatSystem**, **WeaponSystem** (projectiles, shockwaves, dropped weapons, rage arts), **ParticleSystem** + effects |
 | `src/js/40-ai.js` | enemy **AI** profiles and **BossAI** abilities / phases |
@@ -56,6 +57,25 @@ After editing, rebuild the single file. Node 18+ is required; there are no depen
 ```bash
 node build.mjs
 ```
+
+### Tests and the logic module
+
+All progression rules live in `src/js/15-logic.js`, exposed as the global `Logic` object. It is the single test seam of the game:
+
+- It may only use the data tables from `src/js/10-data.js` (also pure). It must never touch `document`, `window`, `localStorage`, canvas, `AudioManager`, `InputManager`, `SaveManager`, `Game` or `UIManager`; `tests/purity.test.js` fails if it does.
+- It works on plain save objects. Functions that change progression (`applyFightResult`, `startNewGamePlus`, `buyItem`, `upgradeItem`, `equipItem`) update the save in place and return what happened; the caller persists it with `SaveManager.save()`.
+- `SaveManager` (in `00-core.js`) only does storage: it reads the raw text from `localStorage` and hands it to `Logic.loadSave(raw)`, which returns `{ save, error }` (defaults filled in, a fresh save when the text is corrupt).
+- The engine (`Game.finishFight`, `nextStage`, `stageUnlocked`, `rate`, `stageConfig`, `startNewGamePlus`, survival wave rewards) and the UI (stage cards, act locks, Armory buy/upgrade/equip) call `Logic` instead of holding the rules. New rules go into `Logic` first, with a test.
+- The economy formulas (`weaponMul`, `weaponStats`, `gearDef`, `upgradeCost`, `playerMaxHp`, `xpForLevel`, `gearTable`) are also top-level functions in `15-logic.js`, because combat code calls them directly; they are on `Logic` too.
+- In the browser console it is available as `KAGE.Logic`.
+
+Run the tests (Node 18+, no dependencies, built-in test runner):
+
+```bash
+node --test tests/
+```
+
+How the tests load the code: `tests/helpers/load-logic.js` reads `10-data.js` and `15-logic.js`, joins them in build order and runs them as one strict-mode function, exactly as the build's IIFE would, then returns `{ Logic, ACTS, ENEMIES, WEAPONS, HELMETS, ARMORS, GEAR_MAX, SURVIVAL }`. Every call gives fresh copies. If the logic module ever needs another pure module, add it to `PURE_MODULES` in that helper. Test files are `tests/*.test.js`; `tests/index.js` loads them all so `node --test tests/` works on every Node version (plain `node --test` also finds them). Tests drive `Logic` through its public functions only and check what a player would notice (coins earned, stages unlocked), with expected values written out by hand rather than recomputed.
 
 ---
 
