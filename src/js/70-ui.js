@@ -231,7 +231,7 @@ const UIManager = {
       }
       case 'pause': this.openPause(); break;
       case 'resume': this.closeOverlay(); break;
-      case 'restart': this.closeOverlay(); Game.paused = false; { const cfg = Object.assign({}, Game.session.cfg); if (cfg.mode === 'survival') cfg.wave = 1; Game.quitFight(); this.go('hud', () => Game.startFight(cfg)); } break;
+      case 'restart': this.closeOverlay(); Game.paused = false; { const cfg = Object.assign({}, Game.session.cfg); if (cfg.mode === 'survival') cfg.wave = 1; Game.quitFight(); this.go('hud', () => Game.startFight(cfg, { skipBefore: true })); } break;
       case 'quit': this.closeOverlay(); { const mode = Game.session && Game.session.mode; Game.quitFight(); if (mode === 'survival') this.go('survival', () => this.renderSurvival()); else this.go('campaign', () => this.renderCampaign()); } break;
       case 'res-continue': {
         const r = Game.lastResult;
@@ -263,6 +263,7 @@ const UIManager = {
     }
   },
   onKey(e) {
+    if (StoryPlayer.active) return;   // a story scene reads its own keys (68-story.js)
     if (e.code === 'Escape' || (e.code === 'KeyP' && this.current === 'hud')) {
       if (this.current === 'hud' && Game.session) { if (this.overlay === 'pause') this.closeOverlay(); else if (!this.overlay) this.openPause(); else this.closeOverlay(); return; }
       this.back(); return;
@@ -279,7 +280,7 @@ const UIManager = {
       n.focus(); e.preventDefault();
     }
   },
-  onPad(a) { if (a === 'pause' && this.current === 'hud') { if (this.overlay) this.closeOverlay(); else this.openPause(); } },
+  onPad(a) { if (StoryPlayer.active) return; if (a === 'pause' && this.current === 'hud') { if (this.overlay) this.closeOverlay(); else this.openPause(); } },
   onResize() { if (this.current === 'armory') this.renderArmory(true); },
 
   /* ---------------- title ---------------- */
@@ -408,12 +409,16 @@ const UIManager = {
       </div>
       <div class="vignette"></div>`;
   },
-  // Story scenes have no fight yet: playing one completes it and moves the story on.
+  // A scene stage (the Epilogue) plays its scene over the map, then counts as cleared and moves the story on.
   playScene(id) {
-    const out = Game.playScene(id), st = Logic.stage(id);
+    if (!Game.stageUnlocked(id)) return;
+    Game.playStory(Logic.stageScene(id, 'before'), () => this.sceneStageDone(id), { backdrop: true });
+  },
+  sceneStageDone(id) {
+    const out = Game.completeSceneStage(id), st = Logic.stage(id);
     if (!out) return;
     AudioManager.play('unlock');
-    this.toast(Logic.chapterOf(id).name, `${st.name} · scene coming in a later update`);
+    this.toast(Logic.chapterOf(id).name, `${st.name} · complete`);
     let delay = 700;
     for (const u of out.unlocks) {
       setTimeout(() => {
@@ -910,7 +915,7 @@ const UIManager = {
     if (id === 'pause' || (this.current === 'hud' && Game.session)) { Game.paused = false; Game.acc = 0; this.updateTouch(); }
   },
   openPause() {
-    if (!Game.session) return;
+    if (!Game.session || StoryPlayer.active) return;
     Game.paused = true; this.updateTouch();
     this.openOverlay('pause', `<div class="ov-card"><div class="eyebrow">Paused · ${esc(Logic.difficulty(SaveManager.data.difficulty).label)}</div><h3 class="disp">${esc(Game.session.enemy ? Game.session.enemy.name : Game.session.cfg.foeName)}</h3>
       <div class="stack"><button class="btn-primary" data-a="resume" data-focus>Resume</button><button class="btn-ghost" data-a="restart">${ICON.retry} Restart fight</button><button class="btn-ghost" data-a="help">${ICON.help} Controls</button><button class="btn-ghost" data-a="quit">Quit to ${Game.session.mode === 'survival' ? 'survival' : 'map'}</button></div>
@@ -1000,7 +1005,7 @@ const UIManager = {
   },
   updateTouch() {
     const s = SaveManager.data.settings;
-    const want = this.current === 'hud' && !!Game.session && !Game.paused && (s.touch === 'on' || (s.touch === 'auto' && isTouchDevice()));
+    const want = this.current === 'hud' && !!Game.session && !Game.paused && !StoryPlayer.active && (s.touch === 'on' || (s.touch === 'auto' && isTouchDevice()));
     $('#touch').classList.toggle('on', want);
     if (want && this._stickHome) setTimeout(this._stickHome, 20);
     if (!want) for (const a of ['left', 'right', 'jump', 'punch', 'kick', 'weapon', 'block', 'dash', 'special']) InputManager.virtualUp(a);

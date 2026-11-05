@@ -9,6 +9,7 @@ The game is being rebuilt from the earlier arena duel game into this story campa
 The whole game ships as **one self-contained `index.html`**: HTML5, Canvas 2D, vanilla JavaScript and Web Audio, with no libraries. The fonts and key-art images are inlined by the build, so it runs offline and wraps easily for mobile.
 
 - **Opening and home screen:** the splash writes K-A-G-E stroke by stroke under the red moon, then *The Last Betrayal* and its tagline. On the home screen the key art comes alive: the moon breathes, Kage's face-wrap strip blows in the wind, his blade glows, the cracked ground smoulders and embers rise, and the 2.5D parallax layers follow your pointer.
+- **Story scenes:** dialogue panels with portrait medallions and typewriter text, flat 2D illustrations drawn in code, and a single video placeholder card at the start of the Prologue.
 - **Campaign:** Prologue (1 stretch) → Act I (4 stretches, each followed by a sub-boss, then Raikon) → Interlude (the Rem spar) → Act II (the same shape, ending with Akari) → Act III (ending with Takashi) → The Core (1 stretch, the echoes of Raikon, Akari, Takashi and Rem, then the Witness) → Epilogue, *The Last Choice* (no combat). Stages unlock in story order, and cleared stages can be replayed.
 - **Survival:** endless waves, a sub-boss every 5th wave, coins every wave and a gem every 5 waves.
 - **Armory:** the gear of Yomi, each item with a one-line lore. Kage starts with **Kagetsu** ("Shadow Moon", his katana), the **White Face-Wrap** and the **Tachibana Yoroi**. The shop sells six more weapons (one per combat style: Shizuka, Tsubame, Onikiri, Mizuchi, Yamigama, Iwakudaki), 10 helmets and 10 armours in Common, Rare and Epic tiers; everything can be bought, upgraded and equipped. Boss weapons (Shinsen, Raikō no Tachi, Kagehira & Yūrei, Mugen no Ha) and boss trophies (Raijin Kabuto, Kasa, Mei-En Garb, Kysmei Robe, Kurokumo Yoroi, and the New Game+ only Shinsei Yoroi) are shown locked until their boss drops them.
@@ -41,12 +42,15 @@ The shipped file is built from readable modules in `src/`:
 |---|---|
 | `src/js/00-core.js` | constants, **SaveManager**, **AudioManager** (procedural SFX + generative music), **InputManager** (keyboard / touch / gamepad) |
 | `src/js/10-data.js` | pure data: poses, move tables, **weapons**, helmets, armor, **enemies & bosses**, AI profiles, acts, survival |
+| `src/js/12-scenes.js` | pure data: **SCENES**, the story scenes (dialogue lines, illustrations, the one video placeholder card) |
 | `src/js/15-logic.js` | **Logic**: the pure rules — the campaign map (chapters, stages, unlocks, next stage, completing a stage), fight rewards and ratings, economy formulas and shop actions, save key and schema, deleting the old game's saves, save defaults / loading / corrupt-save fallback. No DOM, canvas, storage, audio or input; tested under Node |
 | `src/js/20-fighter.js` | **Player / Enemy** `Fighter`: skeleton, pose blending, state machine, cloth physics, gear & weapon art |
 | `src/js/30-combat.js` | **CombatSystem**, **WeaponSystem** (projectiles, shockwaves, dropped weapons, rage arts), **ParticleSystem** + effects |
 | `src/js/40-ai.js` | enemy **AI** profiles and **BossAI** abilities / phases |
 | `src/js/50-world.js` | **Renderer**: three parallax environments, title / pre-fight / result scenes, impact frames |
+| `src/js/52-story-art.js` | **SPEAKERS** (portrait medallions) and **ILLUSTRATIONS** (static story pictures), drawn in code in flat 2D |
 | `src/js/60-engine.js` | **GameEngine**: fixed 60 FPS timestep, fight sessions (arena **FightSession**: rounds, survival waves; side-scrolling **StretchSession**: follow camera, encounters, clues), rewards |
+| `src/js/68-story.js` | **StoryPlayer**: plays a scene over the game: dialogue panel, typewriter, illustrations, video card |
 | `src/js/70-ui.js` | **UIManager**: every DOM screen, HUD, overlays, touch controls |
 | `src/js/35-vfx.js` | elemental sword smears, impacts, rings, finisher slash, heat haze |
 | `src/styles.css` | identity tokens, brush buttons, HUD and all screen styles |
@@ -62,7 +66,7 @@ node build.mjs
 
 All progression rules live in `src/js/15-logic.js`, exposed as the global `Logic` object. It is the single test seam of the game:
 
-- It may only use the data tables from `src/js/10-data.js` (also pure). It must never touch `document`, `window`, `localStorage`, canvas, `AudioManager`, `InputManager`, `SaveManager`, `Game` or `UIManager`; `tests/purity.test.js` fails if it does.
+- It may only use the data tables from `src/js/10-data.js` and `src/js/12-scenes.js` (also pure). It must never touch `document`, `window`, `localStorage`, canvas, `AudioManager`, `InputManager`, `SaveManager`, `Game` or `UIManager`; `tests/purity.test.js` fails if it does.
 - It works on plain save objects. Functions that change progression (`applyFightResult`, `startNewGamePlus`, `buyItem`, `upgradeItem`, `equipItem`) update the save in place and return what happened; the caller persists it with `SaveManager.save()`.
 - `SaveManager` (in `00-core.js`) only does storage. On launch it reads `Logic.SAVE_KEY` and every key in `Logic.LEGACY_SAVE_KEYS`, and hands the texts to `Logic.openSave(stored)`. That returns `{ save, error, remove, fresh }`: the save to play with (read from the current key only, defaults filled in, a fresh save when the text is corrupt), the old game's keys to delete, and whether a fresh save should be written. `SaveManager` then removes those keys from `localStorage` and writes the fresh save.
 - The engine (`Game.finishFight`, `nextStage`, `stageUnlocked`, `playScene`, `rate`, `stageConfig`, `startNewGamePlus`, survival wave rewards) and the UI (campaign map, stage card, chapter locks, Armory buy/upgrade/equip) call `Logic` instead of holding the rules. New rules go into `Logic` first, with a test.
@@ -87,6 +91,17 @@ All progression rules live in `src/js/15-logic.js`, exposed as the global `Logic
   ```
 
   `Logic.stretch(id)` returns it (null for other stages) and `Logic.stageConfig` hands it to the engine, which then runs a `StretchSession` instead of the arena: no rounds and no timer, a follow camera (deadzone, look-ahead, clamped to the level), and parallax layers that repeat across the level. Encounters are cleared in order: `Logic.encounterAt(stretch, cleared, x)` says when Kage's x starts the next one, `Logic.stretchLimit(stretch, cleared)` is how far he may walk (the gate of the first uncleared encounter, else the end), and `Logic.isStretchComplete(stretch, cleared, x)` is reached at the end with every encounter cleared; the win goes through `applyFightResult` like any fight. An encounter locks a 1500-wide arena ending at its gate and spawns its 1–3 waves (each wave's foes all at once, from both sides, built by `Logic.enemyStats` like every foe); only the two nearest foes press the attack while the others circle. Clues are picked up by walking over them: `Logic.collectClue(save, stageId, clueId)` records `save.clues[stageId][clueId]` (kept through New Game+; unknown ids are dropped on load) and `Logic.cluesFound(save, stageId)` lists them. Every stretch currently gets placeholder content (`stretchDefaults` in `10-data.js`: two encounters, the last wave four foes, one clue); the story updates author the real levels.
+- **Story scenes.** A scene is pure data in `SCENES` (`src/js/12-scenes.js`): an ordered list of steps.
+
+  ```js
+  'prologue.open': { memory: false, steps: [
+    { video: 'Kage wakes in the ashes of Hoshimura ...' },          // the ONE video placeholder card (Prologue only)
+    { illus: 'hoshimura_ruins', caption: 'Hoshimura. What the fire left of it.' },  // full-screen illustration (+ narration)
+    { say: 'kage', text: '...Ash. Still warm.' },                    // dialogue line (optional name, memory)
+    { wait: 0.6 }, { flag: 'prologue.photo_found' }, { illus: null } ] }
+  ```
+
+  Scenes attach by id: a `CAMPAIGN` stage takes `scenes: { before, after, defeat }` (`before` as the stage starts, `defeat` the moment the foe is beaten and before the outro, `after` after a won stage and before the result screen; a `scene`-kind stage such as the Epilogue is just its `before` scene), and a stretch clue takes `scene`. `Logic.stageScene(stageId, hook)` and `Logic.clueScene(stageId, clueId)` answer which scene plays; `Logic.markSceneSeen` / `isSceneSeen` keep `save.seenScenes` and `Logic.setStoryFlag` / `storyFlag` keep `save.storyFlags` (a skipped scene still sets its flags). Seen scenes still replay every time. Speakers (`kage`, `rem`, `takashi`, `raikon`, `akari`, `witness`, `narrator`, `recording`) and illustrations (`hoshimura_ruins`, `photograph`, `memory_ash`, `memory`) live in `src/js/52-story-art.js`; add new ones there. `StoryPlayer` freezes gameplay while a scene plays: one press (Enter, Space, J, K, U, a tap, gamepad A/X/Y/RB) finishes the line, the next advances, and Skip (Esc, P, the Skip button, gamepad Start/Back) ends the scene. `tests/story.test.js` holds that exactly one video step exists in all scene data and that every speaker and illustration a scene names exists.
 - In the browser console it is available as `KAGE.Logic`.
 
 Run the tests (Node 18+, no dependencies, built-in test runner):
@@ -95,7 +110,7 @@ Run the tests (Node 18+, no dependencies, built-in test runner):
 node --test tests/
 ```
 
-How the tests load the code: `tests/helpers/load-logic.js` reads `10-data.js` and `15-logic.js`, joins them in build order and runs them as one strict-mode function, exactly as the build's IIFE would, then returns `{ Logic, CAMPAIGN, ENEMIES, WEAPONS, HELMETS, ARMORS, GEAR_MAX, SURVIVAL }`. Every call gives fresh copies. If the logic module ever needs another pure module, add it to `PURE_MODULES` in that helper. Test files are `tests/*.test.js`; `tests/index.js` loads them all so `node --test tests/` works on every Node version (plain `node --test` also finds them). Tests drive `Logic` through its public functions only and check what a player would notice (coins earned, stages unlocked), with expected values written out by hand rather than recomputed.
+How the tests load the code: `tests/helpers/load-logic.js` reads `10-data.js`, `12-scenes.js` and `15-logic.js`, joins them in build order and runs them as one strict-mode function, exactly as the build's IIFE would, then returns `{ Logic, CAMPAIGN, ENEMIES, WEAPONS, HELMETS, ARMORS, GEAR_MAX, SURVIVAL, AI_PROFILES, SCENES }`. Every call gives fresh copies. If the logic module ever needs another pure module, add it to `PURE_MODULES` in that helper. Test files are `tests/*.test.js`; `tests/index.js` loads them all so `node --test tests/` works on every Node version (plain `node --test` also finds them). Tests drive `Logic` through its public functions only and check what a player would notice (coins earned, stages unlocked), with expected values written out by hand rather than recomputed.
 
 ---
 

@@ -9,8 +9,8 @@ const path = require('node:path');
 
 const JS_DIR = path.join(__dirname, '..', '..', 'src', 'js');
 // The only modules the logic seam may depend on, in build order.
-const PURE_MODULES = ['10-data.js', '15-logic.js'];
-const EXPORTS = ['Logic', 'CAMPAIGN', 'ENEMIES', 'WEAPONS', 'HELMETS', 'ARMORS', 'GEAR_MAX', 'SURVIVAL', 'AI_PROFILES'];
+const PURE_MODULES = ['10-data.js', '12-scenes.js', '15-logic.js'];
+const EXPORTS = ['Logic', 'CAMPAIGN', 'ENEMIES', 'WEAPONS', 'HELMETS', 'ARMORS', 'GEAR_MAX', 'SURVIVAL', 'AI_PROFILES', 'SCENES'];
 
 function moduleSource(file) { return fs.readFileSync(path.join(JS_DIR, file), 'utf8'); }
 

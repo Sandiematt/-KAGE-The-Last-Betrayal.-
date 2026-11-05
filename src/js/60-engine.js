@@ -314,6 +314,8 @@ class FightSession {
   }
   startOutro(win) {
     this.phase = 'outro'; this.phaseT = 0; this.win = win;
+    // a beaten boss's `defeat` scene plays here, before the outro and the result screen
+    if (win && this.mode === 'campaign') Game.playStory(Logic.stageScene(this.cfg.stageId, 'defeat'));
     const w = win ? this.player : this.enemy, l = win ? this.enemy : this.player;
     w.state = 'pose'; w.poseName = 'victory'; w.vx = 0;
     if (!win) w.poseName = 'taunt';
@@ -512,6 +514,7 @@ class StretchSession extends FightSession {
       this.fx.popText(p, 'CLUE FOUND', C.gold); this.fx.embers(c.x, -60, 18, C.gold);
       AudioManager.play('unlock');
       UIManager.toast('Clue found', c.label);
+      Game.playStory(Logic.clueScene(this.cfg.stageId, c.id));   // a clue can carry a short scene
     }
   }
 
@@ -622,14 +625,18 @@ const Game = {
     InputManager.pollGamepad();
     AudioManager.update();
     try {
+      // a story scene freezes gameplay: the fight is not stepped (it stays drawn behind the scene) and the scene
+      // consumes this frame's presses, so the press that ends a scene never reaches the fight
+      const story = !!StoryPlayer.active;
+      if (story) { StoryPlayer.update(real); InputManager.endTick(); }
       if (this.scene === 'fight' && this.session) {
         const s = this.session;
-        if (!this.paused) {
+        if (!this.paused && !story) {
           if (s.fx.hitStop > 0) s.fx.update(real, 0);
           else {
             this.acc += real * s.fx.slowScale;
             let n = 0;
-            while (this.acc >= STEP && n < 5) { s.step(STEP); InputManager.endTick(); this.acc -= STEP; n++; if (this.scene !== 'fight') break; }
+            while (this.acc >= STEP && n < 5) { s.step(STEP); InputManager.endTick(); this.acc -= STEP; n++; if (this.scene !== 'fight' || StoryPlayer.active) break; }
             if (this.acc > STEP) this.acc = STEP; // never try to catch up a backlog after a hitch
             s.fx.update(real, real * s.fx.slowScale);
           }
@@ -652,12 +659,19 @@ const Game = {
 
   /* ---- flow ---- */
   stageConfig(stageId) { return Logic.stageConfig(SaveManager.data, stageId); },
-  startFight(cfg) {
+  // opts.skipBefore: restarting from the pause menu does not replay the stage's opening scene
+  startFight(cfg, opts) {
     this.session = cfg.stretch ? new StretchSession(cfg) : new FightSession(cfg);
     this.scene = 'fight'; this.paused = false; this.acc = 0; this.tableau = null;
     const d = ENEMIES[cfg.enemyId];
     AudioManager.setMusic(cfg.mode === 'survival' ? 'survival' : d.type === 'boss' ? 'boss' : 'fight');
     UIManager.showHud(this.session);
+    if (cfg.mode === 'campaign' && !(opts && opts.skipBefore)) this.playStory(Logic.stageScene(cfg.stageId, 'before'));
+  },
+  // Plays a story scene (see StoryPlayer, 68-story.js); onDone runs when it ends, or at once when id is null.
+  playStory(id, onDone, opts) {
+    if (!id) { if (onDone) onDone(); return false; }
+    return StoryPlayer.play(id, onDone, opts);
   },
   retry() { if (this.lastCfg) { const c = Object.assign({}, this.lastCfg); if (c.mode === 'survival') c.wave = 1; UIManager.go('prefight', () => UIManager.preparePrefight(c)); } },
   quitFight() { this.session = null; this.paused = false; AudioManager.setMusic('menu'); },
@@ -668,15 +682,19 @@ const Game = {
     const out = Logic.applyFightResult(SaveManager.data, r);
     SaveManager.save();
     this.lastResult = out;
-    this.session = null;
-    UIManager.go('result', () => UIManager.showResult(out));
+    // a won campaign stage plays its `after` scene over the last frame of the fight, then the result screen
+    const after = r.win && r.mode === 'campaign' ? Logic.stageScene(r.stageId, 'after') : null;
+    this.playStory(after, () => {
+      this.session = null;
+      UIManager.go('result', () => UIManager.showResult(out));
+    });
   },
   // progression queries are answered by Logic (15-logic.js); these keep the engine's old entry points
   rate(r) { return Logic.rateFight(r); },
   nextStage() { return Logic.nextStage(SaveManager.data); },
   stageUnlocked(id) { return Logic.isStageUnlocked(SaveManager.data, id); },
-  // Story scenes have no fight: selecting one completes it (until the scene player lands) and saves.
-  playScene(id) {
+  // A `scene` stage (the Epilogue) has no fight: once its scene has played, it is complete.
+  completeSceneStage(id) {
     const out = Logic.completeStage(SaveManager.data, id);
     if (out) SaveManager.save();
     return out;

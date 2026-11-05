@@ -440,7 +440,8 @@ for (const id in ENEMIES) ENEMIES[id].id = id;
                         clues: [{ id, x, label }] } pickups that record a clue flag (Logic.collectClue).
                       The stretch is complete when Kage reaches `length` with every encounter cleared.
                       Until the story updates author them, every stretch gets placeholder content (stretchDefaults).
-   Later updates add per-stage fields here (env override, scene hooks);
+   scenes?          story scenes by hook: { before, after, defeat } (scene ids from SCENES, 12-scenes.js; see Logic.stageScene).
+   Later updates add per-stage fields here (env override);
    the logic module reads them, so the rest of the game picks them up. */
 const STAGE_KINDS = ['stretch', 'subboss', 'boss', 'spar', 'echo', 'scene'];
 const CAMPAIGN = (function buildCampaign() {
@@ -470,7 +471,7 @@ const CAMPAIGN = (function buildCampaign() {
   };
   const chapters = [
     { id: 'prologue', name: 'Prologue', title: 'Hoshimura', place: 'The abandoned village', env: 'highlands', diff: 1,
-      stages: [{ id: 'prologue.1', kind: 'stretch', name: 'The Empty Village', enemy: 'hollow', stretch: stretchDefaults('hollow') }] },
+      stages: [{ id: 'prologue.1', kind: 'stretch', name: 'The Empty Village', enemy: 'hollow', stretch: stretchDefaults('hollow'), scenes: { before: 'prologue.open' } }] },
     act('act1', 'Act I', 'The Outer Districts', 'Order territory', 'rooftops', 1, 'order_recruit', 'Raikon', 'the Lightning Ascendant'),
     { id: 'interlude', name: 'Interlude', title: 'Brothers', place: 'A memory of the training yard', env: 'highlands', diff: 1,
       stages: [{ id: 'interlude.spar', kind: 'spar', name: 'The Spar', foe: 'Rem', foeTitle: 'Young Rem', enemy: 'echo_sentinel' }] },
@@ -486,7 +487,7 @@ const CAMPAIGN = (function buildCampaign() {
         { id: 'core.witness', kind: 'boss', name: 'The Witness', foe: 'The Witness', foeTitle: 'Heart of the Echo System', enemy: 'echo_warden' }
       ] },
     { id: 'epilogue', name: 'Epilogue', title: 'The Last Choice', place: 'Dawn', env: 'highlands', diff: 1,
-      stages: [{ id: 'epilogue', kind: 'scene', name: 'The Last Choice' }] }
+      stages: [{ id: 'epilogue', kind: 'scene', name: 'The Last Choice', scenes: { before: 'epilogue.stub' } }] }
   ];
   for (const ch of chapters) ch.stages.forEach((st, i) => { st.chapter = ch.id; st.pos = i; });
   return { chapters };

@@ -400,7 +400,7 @@ const InputManager = {
     for (const [a, codes] of Object.entries(this.map)) for (const c of codes) (this.codeToActions[c] = this.codeToActions[c] || []).push(a);
     window.addEventListener('keydown', e => {
       const acts = this.codeToActions[e.code];
-      if (acts && Game.inFight()) e.preventDefault();
+      if (acts && (Game.inFight() || StoryPlayer.active)) e.preventDefault();
       if (e.repeat) return;
       this.lastDevice = 'keyboard';
       this.down.add(e.code);
@@ -433,7 +433,7 @@ const InputManager = {
     const ax = gp.axes[0] || 0;
     const st = {
       left: ax < -0.4 || b(14), right: ax > 0.4 || b(15), up: (gp.axes[1] || 0) < -0.6 || b(12),
-      jump: b(0), punch: b(2), kick: b(3), dash: b(1) || b(4), weapon: b(5), block: b(6) || b(13), special: b(7), pause: b(9)
+      jump: b(0), punch: b(2), kick: b(3), dash: b(1) || b(4), weapon: b(5), block: b(6) || b(13), special: b(7), pause: b(9), skip: b(8)
     };
     for (const a in st) {
       if (st[a] && !this.padPrev[a]) { this.virtual[a] = true; this.pressedSet.add(a); this.lastDevice = 'pad'; if (a === 'pause' || a === 'jump') UIManager.onPad(a); }

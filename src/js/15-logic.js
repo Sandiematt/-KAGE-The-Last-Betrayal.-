@@ -106,6 +106,8 @@ const Logic = {
       equipped: { weapon: 'kagetsu', helmet: 'shiro_maki', armor: 'tachibana_yoroi' },
       seenRewards: {},
       clues: {},              // stageId -> { clueId: true }, clue pickups found in stretches (kept through New Game+)
+      seenScenes: {},          // sceneId -> true, story scenes played at least once (kept through New Game+)
+      storyFlags: {},          // flag -> true, set by { flag } scene steps
       difficulty: 'normal',    // Easy / Normal / Hard / Impossible (DIFFICULTY_IDS); only the player changes it
       difficultyPicked: false, // false until the new-game mode picker has been answered
       survivalBest: 0,
@@ -154,6 +156,10 @@ const Logic = {
       if (!st || !got || typeof got !== 'object') continue;
       for (const c of st.clues) if (got[c.id]) (d.clues[k] = d.clues[k] || {})[c.id] = true;
     }
+    // seen scenes the game still has; story flags that are set
+    d.seenScenes = {}; d.storyFlags = {};
+    for (const k in s.seenScenes || {}) if (SCENES[k] && s.seenScenes[k] === true) d.seenScenes[k] = true;
+    for (const k in s.storyFlags || {}) if (s.storyFlags[k] === true) d.storyFlags[k] = true;
     d.difficulty = this.normalizeDifficulty(s.difficulty);
     d.difficultyPicked = !!s.difficultyPicked;
     return d;
@@ -240,6 +246,32 @@ const Logic = {
     return { mode: 'campaign', stageId: id, kind: st.kind, chapter: ch.id, pos: st.pos, diff: ch.diff, env: st.env || ch.env,
       enemyId: st.enemy, foeName: st.foe || (d && d.name), foeTitle: st.foeTitle || (d && d.title), ng: save.ng };
   },
+  /* ---------------- story scenes ----------------
+     Scenes are SCENES (12-scenes.js), attached by id to a stage (`scenes: { before, after, defeat }`) or to a stretch
+     clue (`scene`). These answer which scene plays at a moment; StoryPlayer (68-story.js) plays it. */
+  SCENE_HOOKS: ['before', 'after', 'defeat'],
+  scene(id) { return (id && SCENES[id]) || null; },
+  // The id of the scene a stage plays at `hook`, or null (unknown stage, hook or scene).
+  stageScene(stageId, hook) {
+    const st = this.stage(stageId), id = st && st.scenes && this.SCENE_HOOKS.includes(hook) ? st.scenes[hook] : null;
+    return this.scene(id) ? id : null;
+  },
+  // The id of the scene a stretch clue plays when it is picked up, or null.
+  clueScene(stageId, clueId) {
+    const L = this.stretch(stageId), c = L && L.clues.find(k => k.id === clueId);
+    return c && this.scene(c.scene) ? c.scene : null;
+  },
+  // A played scene is remembered (kept through New Game+); scenes still replay every time their moment comes.
+  markSceneSeen(save, id) {
+    if (!this.scene(id)) return false;
+    save.seenScenes[id] = true;
+    return true;
+  },
+  isSceneSeen(save, id) { return !!save.seenScenes[id]; },
+  // Story flags set by `{ flag }` steps, for choices later in the story.
+  setStoryFlag(save, name) { if (typeof name !== 'string' || !name) return false; save.storyFlags[name] = true; return true; },
+  storyFlag(save, name) { return !!save.storyFlags[name]; },
+
   /* ---------------- stretches ----------------
      A stretch stage is a side-scrolling level (CAMPAIGN stage `stretch` field). Encounters are cleared in order;
      `cleared` below is how many of them are done. */
