@@ -276,7 +276,8 @@ const Logic = {
     const st = this.stage(cfg.stageId), d = ENEMIES[cfg.enemyId];
     if (st && st.kind === 'spar') return { name: 'spar', roundsToWin: 1, timer: SPAR.timer, phases: 0, defeat: null, interruptAt: SPAR.interruptAt, preventKO: true };
     if (st && (st.kind === 'boss' || st.format === 'boss'))
-      return { name: 'boss', roundsToWin: 1, timer: 0, phases: Math.max(3, this.bossPhases(cfg.enemyId).length), defeat: this.bossDefeat(cfg.enemyId) || 'finisher' };
+      // story bosses fight in three phases; a sub-boss in the boss format shows the one or two phases it has
+      return { name: 'boss', roundsToWin: 1, timer: 0, phases: st.kind === 'boss' ? Math.max(3, this.bossPhases(cfg.enemyId).length) : Math.max(1, this.bossPhases(cfg.enemyId).length), defeat: this.bossDefeat(cfg.enemyId) || 'finisher' };
     return { name: 'duel', roundsToWin: d && d.type === 'boss' ? 1 : 2, timer: 75, phases: 0, defeat: null };
   },
   /* ---------------- the spar (Interlude) ---------------- */
@@ -318,6 +319,20 @@ const Logic = {
     let idx = 0;
     ph.forEach((p, i) => { if (i > 0 && hpFrac <= p.at) idx = i; });
     return idx;
+  },
+  // Every signature ability a boss or sub-boss can use, across its phases (or its flat `abilities` list), once each.
+  bossAbilities(enemyId) {
+    const d = ENEMIES[enemyId]; if (!d) return [];
+    return [...new Set([...(d.abilities || []), ...(d.phases || []).flatMap(p => p.abilities || [])])];
+  },
+  // Raikon's moves and the reduced versions of them his act's sub-bosses fight with (RAIKON_ABILITIES and
+  // RAIKON_VARIANTS in 10-data.js): { id, base, reduced, wave } where `base` is the Raikon ability whose code runs,
+  // `reduced` is true for a variant and `wave` says whether a Thunder Swing ground wave is sent. null for any other id.
+  raikonMove(id) {
+    if (RAIKON_ABILITIES.includes(id)) return { id, base: id, reduced: false, wave: id === 'thunderSwing' };
+    const v = RAIKON_VARIANTS[id];
+    if (!v || !RAIKON_ABILITIES.includes(v.base)) return null;
+    return { id, base: v.base, reduced: true, wave: v.base === 'thunderSwing' && v.wave !== false };
   },
   // How a beaten boss leaves: 'finisher' | 'escape' | 'reabsorb' (unknown values fall back to the finisher);
   // null for a foe that is not a boss.

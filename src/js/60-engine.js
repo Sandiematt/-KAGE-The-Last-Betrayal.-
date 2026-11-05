@@ -290,7 +290,7 @@ class FightSession {
         if (this.phaseT < 0.05 && !this.roundShown) {
           this.roundShown = true; this.rounds.n++;
           if (this.spar) this.fx.banner('Sparring Match', "A memory · Takashi's yard", C.gold);
-          else if (this.mode !== 'survival') this.fx.banner(this.roundsToWin > 1 ? `Round ${ROMAN[this.rounds.n - 1]}` : 'Final Duel', this.bossFormat ? `One life · three phases · ${Logic.difficulty(SaveManager.data.difficulty).label}` : `${e.name} · ${DIFF_LABEL[clamp((this.cfg.diff || 1) + (this.cfg.ng || 0), 0, 4)]} · ${Logic.difficulty(SaveManager.data.difficulty).label}`, C.gold);
+          else if (this.mode !== 'survival') this.fx.banner(this.roundsToWin > 1 ? `Round ${ROMAN[this.rounds.n - 1]}` : 'Final Duel', this.bossFormat ? `One life · ${['one phase', 'two phases', 'three phases'][this.format.phases - 1] || this.format.phases + ' phases'} · ${Logic.difficulty(SaveManager.data.difficulty).label}` : `${e.name} · ${DIFF_LABEL[clamp((this.cfg.diff || 1) + (this.cfg.ng || 0), 0, 4)]} · ${Logic.difficulty(SaveManager.data.difficulty).label}`, C.gold);
           AudioManager.play('round');
         }
         if (this.phaseT > 1.25 && !this.fightShown) { this.fightShown = true; this.fx.stamp('FIGHT', (p.x + e.x) / 2, -150, 3, C.emberBright); this.fightFlash = 1; }

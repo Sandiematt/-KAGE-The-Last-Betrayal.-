@@ -107,7 +107,7 @@ test('regular foes use the mode health and damage; sub-bosses and bosses use the
   const easyBoss = stageFoe(saveOn('easy'), 'act1.boss'), impBoss = stageFoe(saveOn('impossible'), 'act1.boss');
   assert.equal(easyBoss.hp, 480); close(easyBoss.dmgMul, 0.715, 'easy boss dmg');
   assert.equal(impBoss.hp, 960); close(impBoss.dmgMul, 1.54, 'impossible boss dmg');
-  assert.equal(stageFoe(saveOn('hard'), 'act1.sub1').hp, 425);
+  assert.equal(stageFoe(saveOn('hard'), 'act1.sub1').hp, 450);   // Kuroe: 360 x 1.25
 });
 
 test('enemy and boss stats ignore the player level, experience and gear', () => {

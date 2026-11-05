@@ -3,7 +3,7 @@
    A scene is an ordered list of steps, played one after another:
      { say: speakerId, text }            a dialogue line in the bottom panel: portrait medallion, name, typewriter text.
                                           Speakers are SPEAKERS in 52-story-art.js (kage, rem, takashi, raikon, akari,
-                                          witness, narrator, recording). Optional `name` overrides the shown name
+                                          witness, narrator, recording, survivor, order). Optional `name` overrides the shown name
                                           (for example 'Young Rem'); optional `memory: true` styles just this line.
      { illus: illustrationId, caption? } shows a full-screen illustration (ILLUSTRATIONS in 52-story-art.js); it stays
                                           behind the following lines until another `illus` or `{ illus: null }`.
@@ -83,6 +83,77 @@ const SCENES = {
       { say: 'narrator', text: 'Kage left Hoshimura with no past, following the ash.' },
       { illus: null },
       { flag: 'prologue.complete' }
+    ]
+  },
+  // ---- Act I: The Missing Brother (stages act1.stretch1..4, Yomi's outer districts) ----
+  // Survivors say Rem was declared dead ten years ago; the Order's official story is that he betrayed Kage and helped
+  // erase his memories. Three clues show the story was edited. Nothing here says who edited it, or why.
+  'act1.stretch1.before': {
+    steps: [
+      { say: 'narrator', text: 'Yomi’s outer districts. Shuttered stalls, blank walls, and an Order lantern on every corner.' },
+      { say: 'survivor', text: 'Out of the lantern light, stranger. The Order counts faces after dark.' },
+      { say: 'kage', text: 'I’m looking for someone. Rem. A swordsman, younger than me.' },
+      { say: 'survivor', text: 'Rem? ...Nobody says that name here. He was declared dead ten years ago. The notice went up on every gate.' },
+      { say: 'kage', text: 'Dead.' },
+      { say: 'survivor', text: 'So the notice said. It also said there never was a war. Walk carefully.' }
+    ]
+  },
+  // Clue 1: half a mission report under a desk in a gutted Order post.
+  'act1.clue.report': {
+    steps: [
+      { say: 'narrator', text: 'Under a smashed desk in a gutted Order post: a mission report, torn in half.' },
+      { say: 'narrator', text: '"Silent War, final day. Assigned: Rem. Kage. Objective: the Co—" The rest of the report is gone.' },
+      { say: 'kage', text: 'Both our names. On the same mission.' },
+      { say: 'kage', text: 'Not burned. Torn, by hand, right where it mattered.' },
+      { flag: 'act1.report_found' }
+    ]
+  },
+  'act1.stretch2.before': {
+    steps: [
+      { say: 'narrator', text: 'A checkpoint gate. Fresh notices pasted over old ones, layer on layer.' },
+      { say: 'order', name: 'Order Herald', text: '"By order of Silence: the traitor Rem betrayed his brother and helped erase his memories. Speak neither name."' },
+      { say: 'survivor', text: 'They read it out every morning. Ten years, the same words. As if they’re afraid we’ll forget to forget.' },
+      { say: 'kage', text: 'Rem took my memories?' },
+      { say: 'survivor', text: 'That’s the official story. Nobody here has ever heard another.' }
+    ]
+  },
+  // Clue 2: two sword cuts under the Order's whitewash, where the record allows only one fighter.
+  'act1.clue.marks': {
+    steps: [
+      { say: 'narrator', text: 'A wall where the Order’s whitewash has flaked away. Underneath, old cuts in the plaster.' },
+      { say: 'narrator', text: 'Two sword marks, side by side, from two different blades. The plaque beside them names one man.' },
+      { say: 'kage', text: 'One of these is mine. I know the angle the way I know my own hand.' },
+      { say: 'kage', text: 'The other was cut by someone standing next to me. Somebody scrubbed him out of the story.' },
+      { flag: 'act1.marks_found' }
+    ]
+  },
+  'act1.stretch3.before': {
+    steps: [
+      { say: 'narrator', text: 'The district registry. The Order burned it floor by floor, then posted guards on the ashes.' },
+      { say: 'survivor', text: 'My son’s name was in there. Now he never existed.' },
+      { say: 'kage', text: 'What are they burning?' },
+      { say: 'survivor', text: 'The Silent War. Every page of it. If nobody wrote it down, it never happened. That’s how the Order keeps the silence.' }
+    ]
+  },
+  // Clue 3: a sealed recorder that survived the registry fire. Takashi orders the Core evacuated. Kage knows the
+  // voice but not why; who Takashi is stays for later.
+  'act1.clue.recording': {
+    steps: [
+      { say: 'narrator', text: 'In the registry vault, a sealed recorder survived the fire. Its reel still turns.' },
+      { say: 'recording', name: 'Takashi (recording)', text: '...kssh... This is Takashi. Core command, all units.' },
+      { say: 'recording', name: 'Takashi (recording)', text: 'Evacuate the Core. Now. Every technician, every guard. Leave the machines running.' },
+      { say: 'recording', name: 'Takashi (recording)', text: 'Nobody stays behind. That is an order. Nobody... ssss...' },
+      { say: 'kage', text: 'Takashi. I know that voice. I don’t know how.' },
+      { say: 'kage', text: 'The Order says nothing ever happened in the Core. Then why did he empty it?' },
+      { flag: 'act1.evacuation_heard' }
+    ]
+  },
+  'act1.stretch4.before': {
+    steps: [
+      { say: 'narrator', text: 'The archive road. Rain, and wet Order banners over a road nobody walks.' },
+      { say: 'kage', text: 'A torn report. Two sword marks. A voice ordering everyone out of the Core.' },
+      { say: 'kage', text: 'The Order didn’t lose the story of the Silent War. They cut it apart, and cut Rem out of it.' },
+      { say: 'narrator', text: 'Beyond the last Order line, someone is waiting at the archive door.' }
     ]
   },
   // Act I boss: Raikon blocks the route to the old military archive. He is an Echo copy, bound to guard it against his will.

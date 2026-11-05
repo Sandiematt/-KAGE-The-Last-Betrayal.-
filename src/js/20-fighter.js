@@ -6,7 +6,7 @@ const SHAPE = {
   fists: 'none', tsubame: 'short', kagetsu: 'katana', shizuka: 'katana', onikiri: 'cleaver', mizuchi: 'spear',
   yamigama: 'sickle', iwakudaki: 'hammer', shinsen: 'katana', raiko_no_tachi: 'odachi', raikon_tachi: 'odachi', kagehira_yurei: 'short', mugen_no_ha: 'katana',
   shadow_daggers: 'short', hollow_crescents: 'crescent', mist_fans: 'fan',
-  sentinel_spear: 'spear', sage_staff: 'staff', storm_orbs: 'none', iron_fists: 'none', chain_hook: 'hook',
+  sentinel_spear: 'spear', vanguard_yari: 'spear', sage_staff: 'staff', storm_orbs: 'none', iron_fists: 'none', chain_hook: 'hook',
   tyrant_cleaver: 'tyrant', cutter_blade: 'katana', temple_staff: 'staff', raider_cleaver: 'cleaver', bokken: 'bokken'
 };
 const IK_OFF = { katana: -0.2, spear: -0.3, hammer: 0.3, staff: -0.32 };
@@ -201,6 +201,7 @@ class Fighter {
       this.cloths.push({ kind: 'scarf', c: new Cloth(14, 8.6 * this.scale, { ph: 2.5, wind: 640, grav: 620, stiff: 1.6 }), at: 'neck', color: sc, rim, w: 7.2 * this.scale, w1: 2.8 * this.scale, dy: 2 });
       this.cloths.push({ kind: 'scarf', c: new Cloth(9, 8 * this.scale, { ph: 6.2, wind: 560, grav: 700, stiff: 1.6 }), at: 'neck', color: sc, rim, w: 5.4 * this.scale, w1: 2.2 * this.scale, dy: 6 });
     }
+    if (this.helmet === 'rain_hood') this.cloths.push({ kind: 'scarf', c: new Cloth(9, 7.4 * this.scale, { ph: 3.5, wind: 820, grav: 640, stiff: 1.7 }), at: 'head', color: '#7fb8ff', w: 3 * this.scale, w1: 1.2 * this.scale, dy: 2, dx: 15 });
     if (this.helmet === 'sentinel_helm') this.cloths.push({ kind: 'scarf', c: new Cloth(6, 7 * this.scale, { ph: 6, wind: 600 }), at: 'head', color: C.ember, w: 6 * this.scale, dy: -14 });
   }
 
@@ -1737,6 +1738,32 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
       }
       break;
     }
+    case 'sumi_eboshi': {
+      // Kuroe's Sumi Eboshi: a tall lacquered court cap leaning back off the crown, a pale brush stroke of ink across
+      // it, and a thin cord under the jaw
+      ctx.beginPath(); ctx.moveTo(-r * 1.0, -r * 0.35); ctx.quadraticCurveTo(-r * 1.15, -r * 1.3, -r * 1.05, -r * 2.5);
+      ctx.quadraticCurveTo(-r * 0.6, -r * 3.05, r * 0.05, -r * 2.6); ctx.quadraticCurveTo(r * 0.75, -r * 1.4, r * 1.0, -r * 0.5); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(-r * 0.75, -r * 2.55); ctx.lineTo(-r * 1.6, -r * 2.95); ctx.lineTo(-r * 1.0, -r * 2.25); ctx.closePath(); ctx.fill();   // the folded tip
+      if (!flat) {
+        ctx.strokeStyle = 'rgba(236,229,211,0.75)'; ctx.lineWidth = Math.max(1.2, r * 0.16); ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(-r * 0.8, -r * 1.35); ctx.quadraticCurveTo(-r * 0.2, -r * 1.75, r * 0.45, -r * 1.25); ctx.stroke();
+        ctx.strokeStyle = acc(C.gold); ctx.lineWidth = Math.max(1, r * 0.07);
+        ctx.beginPath(); ctx.moveTo(-r * 0.9, -r * 0.4); ctx.quadraticCurveTo(-r * 0.2, r * 1.2, r * 0.7, r * 0.75); ctx.stroke();
+      }
+      break;
+    }
+    case 'rain_hood': {
+      // Hisame's rain hood: a close oiled hood with a stiff visor jutting over the eyes, a pale storm-glass slit under
+      // it, and the hood's long tail (its cloth) streaming back
+      ctx.beginPath(); ctx.arc(0, -r * 0.08, r * 1.14, Math.PI * 0.7, Math.PI * 2.02); ctx.lineTo(-r * 1.5, r * 0.6); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(-r * 0.2, -r * 0.62); ctx.lineTo(r * 1.85, -r * 0.42); ctx.lineTo(r * 1.7, -r * 0.2); ctx.lineTo(r * 0.3, -r * 0.24); ctx.closePath(); ctx.fill();
+      if (!flat) {
+        ctx.fillStyle = 'rgba(159,212,255,0.85)'; ctx.fillRect(r * 0.2, -r * 0.16, r * 0.95, r * 0.13);
+        ctx.strokeStyle = 'rgba(127,184,255,0.55)'; ctx.lineWidth = Math.max(1, r * 0.07);
+        ctx.beginPath(); ctx.arc(0, -r * 0.08, r * 1.14, Math.PI * 1.15, Math.PI * 1.85); ctx.stroke();
+      }
+      break;
+    }
     case 'colossus':
       ctx.beginPath(); ctx.roundRect ? ctx.roundRect(-r * 1.25, -r * 1.35, r * 2.5, r * 2.35, r * 0.5) : ctx.rect(-r * 1.25, -r * 1.35, r * 2.5, r * 2.35); ctx.fill();
       if (!flat) { ctx.fillStyle = 'rgba(255,106,60,0.9)'; ctx.fillRect(r * 0.05, -r * 0.2, r * 1.15, r * 0.14); }
@@ -1849,6 +1876,42 @@ function drawArmor(ctx, f, ink, opt, Ut) {
       bands(3, 'rgba(201,164,92,0.3)', Ut * 1.12, 0.22, 0.7);
       ctx.strokeStyle = '#a3302a'; ctx.lineWidth = 2.2 * s;
       ctx.beginPath(); ctx.moveTo(lerp(hx, nx, 0.82) - ox * Ut, lerp(hy, ny, 0.82) - oy * Ut); ctx.lineTo(lerp(hx, nx, 0.5) + ox * Ut, lerp(hy, ny, 0.5) + oy * Ut); ctx.stroke();
+      break;
+    }
+    case 'half_do': {
+      // Garan's Ikazuchi-dō: half a vanguard cuirass, plated on the front side only and burnt ragged down the middle, one
+      // heavy shoulder plate, and a red lightning scorch across the bare side
+      const ox = Math.cos(ang + Math.PI / 2), oy = Math.sin(ang + Math.PI / 2), side = ox * fc >= 0 ? 1 : -1;
+      const P = (u, w) => [lerp(hx, nx, u) + ox * side * w * Ut, lerp(hy, ny, u) + oy * side * w * Ut];
+      ctx.beginPath();
+      const pts = [P(0.12, 1.12), P(0.95, 1.12), P(0.92, 0.1), P(0.75, -0.18), P(0.6, 0.12), P(0.44, -0.2), P(0.28, 0.08), P(0.12, -0.12)];
+      ctx.moveTo(pts[0][0], pts[0][1]); for (const q of pts.slice(1)) ctx.lineTo(q[0], q[1]); ctx.closePath(); ctx.fill();
+      plate(Ut * 0.8, flat ? null : 'rgba(255,106,82,0.5)');
+      if (flat) break;
+      bands(2, 'rgba(201,164,92,0.32)', Ut * 1.05, 0.3, 0.75);
+      ctx.strokeStyle = '#ff6a52'; ctx.lineWidth = 1.6 * s; ctx.lineJoin = 'miter';
+      const a = P(0.82, -0.75), b = P(0.62, -0.25), c = P(0.55, -0.85), d = P(0.32, -0.35);
+      ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.lineTo(c[0], c[1]); ctx.lineTo(d[0], d[1]); ctx.stroke(); ctx.lineJoin = 'round';
+      break;
+    }
+    case 'vanguard_plate': {
+      // Shiden's Yoroi: a lieutenant's lamellar of the thunder vanguard, laced in violet cord, two small stacked
+      // shoulder plates and a short tasset skirt; slimmer than his captain's plate, with no red cord
+      torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.1);
+      const ox = Math.cos(ang + Math.PI / 2), oy = Math.sin(ang + Math.PI / 2), ux = Math.cos(ang), uy = Math.sin(ang);
+      ctx.fillStyle = ink; ctx.beginPath();
+      for (let i = -1; i <= 1; i += 2) {
+        const bx = hx + ox * i * Ut * 0.5 + ux * Ut * 0.1, by = hy + oy * i * Ut * 0.5 + uy * Ut * 0.1, L = Ut * 0.8;
+        ctx.moveTo(bx - ox * Ut * 0.45, by - oy * Ut * 0.45); ctx.lineTo(bx - ux * L - ox * Ut * 0.5, by - uy * L - oy * Ut * 0.5);
+        ctx.lineTo(bx - ux * L + ox * Ut * 0.5, by - uy * L + oy * Ut * 0.5); ctx.lineTo(bx + ox * Ut * 0.45, by + oy * Ut * 0.45);
+      }
+      ctx.fill();
+      plate(Ut * 0.62, flat ? null : 'rgba(214,168,255,0.55)');
+      ctx.fillStyle = ink; ctx.beginPath();
+      ctx.ellipse(sk.sh.x - fc * Ut * 0.1 + ux * Ut * 0.32, sk.sh.y + uy * Ut * 0.32 + Ut * 0.1, Ut * 0.55, Ut * 0.34, ang + Math.PI / 2, Math.PI * 0.95, Math.PI * 2.05); ctx.closePath(); ctx.fill();
+      if (flat) break;
+      ctx.strokeStyle = 'rgba(214,168,255,0.5)'; ctx.lineWidth = 1.1 * s; ctx.stroke();
+      bands(5, 'rgba(176,124,255,0.55)', Ut * 1.02, 0.14, 0.86);
       break;
     }
     case 'order_garb': case 'order_plate': {

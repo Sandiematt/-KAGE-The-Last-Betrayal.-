@@ -13,14 +13,15 @@ test('every stretch stage is a wide level with encounters of Order soldiers and 
   for (const st of stretches) {
     const s = Logic.stretch(st.id);
     assert.ok(s.length >= 3 * 1280 && s.length <= 5 * 1280, `${st.id} length ${s.length}`);
-    const authored = st.id === 'prologue.1';   // the story updates replace the placeholders one by one
-    assert.equal(s.encounters.length, authored ? 1 : 2);
+    const authored = st.id === 'prologue.1' || st.chapter === 'act1';   // the story updates replace the placeholders one by one
+    if (!authored) assert.equal(s.encounters.length, 2);
     for (const e of s.encounters) {
       assert.ok(e.waves.length >= 1 && e.waves.length <= 3);
       for (const wave of e.waves) for (const id of wave) assert.ok(['order', 'hollow'].includes(ENEMIES[id].family), id);
       assert.ok(e.x > 0 && e.gate > e.x && e.gate < s.length);
     }
-    assert.equal(s.clues.length, authored ? 3 : 1);
+    if (!authored) assert.equal(s.clues.length, 1);
+    if (st.id === 'prologue.1') { assert.equal(s.encounters.length, 1); assert.equal(s.clues.length, 3); }
   }
 });
 

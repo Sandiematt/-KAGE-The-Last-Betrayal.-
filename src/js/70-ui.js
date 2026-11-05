@@ -747,7 +747,7 @@ const UIManager = {
       this.animBar(this.bars.e, clamp(en.hp / en.maxHp, 0, 1), dt, bossy ? e.bBar : e.eBar, 'e');
       this.set('ehpv', Math.ceil(Math.max(0, en.hp)), v => e.ehp.textContent = v);
       const ph = en.ai && en.ai.phases ? en.ai.phase : -1;
-      this.set('phase', ph + ':' + en.uid, () => { e.phases.innerHTML = ph < 0 ? '' : [0, 1, 2].map(i => `<i class="${i < ph ? 'done' : i === ph ? 'on' : ''}"></i>`).join('') + `<em>Phase ${ROMAN[ph]}</em>`; });
+      this.set('phase', ph + ':' + en.uid, () => { e.phases.innerHTML = ph < 0 ? '' : Logic.bossPhases(en.def.id).map((_, i) => i).map(i => `<i class="${i < ph ? 'done' : i === ph ? 'on' : ''}"></i>`).join('') + `<em>Phase ${ROMAN[ph]}</em>`; });
       this.set('timer', Math.max(0, Math.ceil(s.timer)), v => { e.timer.textContent = v; e.timer.classList.toggle('urgent', v <= 10); });
       const n = s.roundsToWin * 2 - 1;
       this.set('pips', `${s.rounds.p}-${s.rounds.e}-${n}`, () => { const arr = []; for (let i = 0; i < s.rounds.p; i++) arr.push('p'); for (let i = 0; i < s.rounds.e; i++) arr.push('e'); while (arr.length < n) arr.push(''); e.pips.innerHTML = arr.map(c => `<i class="${c}"></i>`).join(''); });

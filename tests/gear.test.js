@@ -144,8 +144,9 @@ test('boss weapons and trophies are in the Armory but locked, with a hint, and c
 const clearUpTo = (L, save, id) => { for (const st of L.stages()) { if (st.id === id) break; L.completeStage(save, st.id); } };
 const win = (stageId, ng) => ({ mode: 'campaign', stageId, win: true, ng: ng || 0, hpLeft: 0.5, time: 70, maxCombo: 4, parries: 0, flawless: false });
 
-test('only Raikon’s stage grants gear so far: the other boss tickets add theirs', () => {
-  for (const st of Logic.stages()) if (st.id !== 'act1.boss') assert.equal(st.reward, undefined, st.id);
+test('only Act I grants gear so far (Raikon and its four sub-bosses): the other boss tickets add theirs', () => {
+  const act1 = ['act1.sub1', 'act1.sub2', 'act1.sub3', 'act1.sub4', 'act1.boss'];
+  for (const st of Logic.stages()) if (!act1.includes(st.id)) assert.equal(st.reward, undefined, st.id);
   assert.deepEqual(Logic.stage('act1.boss').reward, { weapons: ['raiko_no_tachi'], helmets: ['raijin_kabuto'] });
 });
 

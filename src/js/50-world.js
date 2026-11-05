@@ -178,6 +178,40 @@ const ENVS = {
       ctx.globalCompositeOperation = 'source-over';
     }
   },
+  // Yomi's outer districts in the rain (Act I, Checkpoint Row and the archive road): the rooftops' city layers under a
+  // cold slate wash, a pale moon behind the cloud, slanting rain and a wet road that catches the lantern light.
+  districts: {
+    name: 'The Outer Districts', rim: 'rgba(190,206,220,0.72)', light: { x: 0.4, y: -0.9 }, moon: '#9aa6b0', trail: C.bone,
+    build() {
+      ENVS.rooftops.build.call(this);
+      const r = seeded(53);
+      this.rain = []; for (let i = 0; i < 110; i++) this.rain.push({ x: r() * W, y: r() * H, s: 900 + r() * 500, l: 14 + r() * 18, z: 0.5 + r() * 0.7 });
+    },
+    back(ctx, cx, t) {
+      ENVS.rooftops.back.call(this, ctx, cx, t);
+      ctx.fillStyle = 'rgba(52,66,82,0.28)'; ctx.fillRect(0, 0, W, H);
+      const fog = ctx.createLinearGradient(0, 380, 0, GROUND + 40); fog.addColorStop(0, 'rgba(70,84,98,0)'); fog.addColorStop(1, 'rgba(70,84,98,0.32)');
+      ctx.fillStyle = fog; ctx.fillRect(0, 380, W, GROUND - 340);
+    },
+    floor(ctx, cx, t) {
+      ENVS.rooftops.floor.call(this, ctx, cx, t);
+      // puddles on the wet road catching the lantern light
+      for (let i = 0; i < 7; i++) {
+        const x = wrapX(i * 260 - cx, W + 400) - 200, y = GROUND + 18 + (i % 3) * 22;
+        ctx.fillStyle = `rgba(210,74,60,${0.1 + 0.04 * Math.sin(t * 2 + i)})`; ctx.beginPath(); ctx.ellipse(x, y, 70 + (i % 2) * 40, 4, 0, 0, TAU); ctx.fill();
+        ctx.fillStyle = 'rgba(190,206,220,0.08)'; ctx.fillRect(x - 40, y - 1, 80, 1);
+      }
+    },
+    front(ctx, cx, t) {
+      ctx.strokeStyle = 'rgba(190,206,220,0.28)'; ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (const d of this.rain) {
+        const x = wrapX(d.x - cx * d.z * 0.5 - t * d.s * 0.18, W), y = (d.y + t * d.s) % H;
+        ctx.moveTo(x, y); ctx.lineTo(x - d.l * 0.25, y + d.l);
+      }
+      ctx.stroke();
+    }
+  },
   // Takashi's training yard in Hoshimura, as the brothers remember it (the Interlude spar): a low dusk sun, the dojo's
   // roof and veranda behind a wooden fence, a pine, a striking post and a rack of practice swords, packed warm earth.
   // Drawn in the memory filter by the fight renderer (Renderer.drawMemoryFilter).
@@ -549,7 +583,7 @@ const Renderer = {
   },
   drawAuras(ctx, f, t) {
     // glowing energy around a fighter performing a special art or a boss changing phase
-    if ((f.state === 'ability' && (f.isPlayer || (f.def && f.def.type === 'boss'))) || (f.def && f.def.type === 'boss' && f.state === 'pose')) {
+    if ((f.state === 'ability' && (f.isPlayer || (f.def && (f.def.type === 'boss' || f.def.type === 'sub')))) || (f.def && f.def.type === 'boss' && f.state === 'pose')) {
       const E = ELEMENTS[f.elementOf(null) || 'ink'] || ELEMENTS.ink, c = E.glow || E.smear, cy = f.y - 100 * f.scale, R = 150 * f.scale * (1 + Math.sin(t * 9) * 0.05);
       ctx.save(); ctx.globalCompositeOperation = 'source-over';
       const g = ctx.createRadialGradient(f.x, cy, 10, f.x, cy, R * 0.75);   // fades out inside the ellipse: no hard rim
@@ -661,6 +695,28 @@ const Renderer = {
       const on = Math.sin(t * 5) > 0;
       ctx.fillStyle = on ? 'rgba(255,74,60,0.95)' : 'rgba(120,30,26,0.8)'; ctx.fillRect(x - 3, -118, 6, 6);
       if (on) { const g = ctx.createRadialGradient(x, -115, 0, x, -115, 26); g.addColorStop(0, 'rgba(255,74,60,0.35)'); g.addColorStop(1, 'rgba(255,74,60,0)'); ctx.fillStyle = g; ctx.fillRect(x - 26, -141, 52, 52); }
+    } else if (pr.type === 'edict') {
+      // an Order notice board: two posts, a roofed board pasted over with notices, each stamped with the Order mark
+      ctx.fillRect(x - 70, -170, 8, 170); ctx.fillRect(x + 62, -170, 8, 170);
+      ctx.fillRect(x - 80, -175, 160, 100);
+      ctx.beginPath(); ctx.moveTo(x - 96, -172); ctx.quadraticCurveTo(x, -200, x + 96, -172); ctx.lineTo(x + 90, -164); ctx.lineTo(x - 90, -164); ctx.closePath(); ctx.fill(); ctx.stroke();
+      const notes = [[-66, -158, 38, 50], [-20, -162, 34, 44], [20, -156, 40, 52], [-44, -112, 30, 30], [8, -106, 44, 26]];
+      for (const [nx, ny, nw, nh] of notes) {
+        ctx.fillStyle = 'rgba(214,206,186,0.42)'; ctx.fillRect(x + nx, ny, nw, nh);
+        ctx.strokeStyle = 'rgba(30,32,36,0.8)'; ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.arc(x + nx + nw / 2, ny + nh * 0.45, 5, 0, TAU); ctx.moveTo(x + nx + nw / 2 - 3, ny + nh * 0.45); ctx.lineTo(x + nx + nw / 2 + 3, ny + nh * 0.45); ctx.stroke();
+      }
+    } else if (pr.type === 'barricade') {
+      // an Order checkpoint barricade: crossed timbers, a slate banner with the Order mark, a lantern on a pole
+      for (const sgn of [-1, 1]) { ctx.save(); ctx.translate(x + sgn * 40, -40); ctx.rotate(sgn * 0.5); ctx.fillRect(-8, -60, 16, 120); ctx.restore(); }
+      ctx.fillRect(x - 110, -66, 220, 12);
+      ctx.fillStyle = '#2a2f36'; ctx.fillRect(x - 30, -150, 60, 84);
+      ctx.strokeStyle = 'rgba(196,200,204,0.7)'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(x, -118, 11, 0, TAU); ctx.moveTo(x - 7, -118); ctx.lineTo(x + 7, -118); ctx.stroke();
+      ctx.fillStyle = ink; ctx.fillRect(x + 96, -200, 6, 200);
+      const ly = -186 + Math.sin(t * 1.5 + x) * 2, g = ctx.createRadialGradient(x + 99, ly, 0, x + 99, ly, 30);
+      g.addColorStop(0, 'rgba(210,74,60,0.4)'); g.addColorStop(1, 'rgba(210,74,60,0)'); ctx.fillStyle = g; ctx.fillRect(x + 69, ly - 30, 60, 60);
+      ctx.fillStyle = '#b8392d'; ctx.beginPath(); ctx.ellipse(x + 99, ly, 7, 10, 0, 0, TAU); ctx.fill();
     } else if (pr.type === 'collapsed') {
       // a fallen house: beams in a heap across the road's edge
       ctx.save(); ctx.translate(x - 60, -8); ctx.rotate(-0.22); ctx.fillRect(-90, -9, 200, 16); ctx.restore();

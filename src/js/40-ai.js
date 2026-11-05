@@ -477,49 +477,59 @@ const BOSS_ABILITIES = {
   // Wind-up, then a wide flat arc that sends a lightning wave racing along the ground (WeaponSystem 'thunderwave':
   // jump it or dash through it). In phase 3 (`secondWave` on the phase) the blade crackles again and a second wave
   // follows after a delay, punishing a dodge made too early.
+  // `o` (optional) is a reduced variant's parameters (RAIKON_VARIANTS in 10-data.js): label, windup, dmg, reach,
+  // dash, and wave: false for the cut alone (no ground wave and no second wave).
   thunderSwing: { id: 'thunderSwing', cd: 5.2, range: [140, 760], chance: 0.75,
-    run(f, w, ai) {
-      const tell = ai.p.windup, W = 0.66 * tell, delay = ai.phaseData && ai.phaseData.secondWave ? ai.phaseData.secondWave * Math.max(1, tell) : 0;
-      const T2 = W + delay;
+    run(f, w, ai, p, o) {
+      o = o || {};
+      const wave = o.wave !== false, tell = ai.p.windup, W = (o.windup || 0.66) * tell;
+      const delay = wave && ai.phaseData && ai.phaseData.secondWave ? ai.phaseData.secondWave * Math.max(1, tell) : 0;
+      const T2 = W + delay, rel = { dmg: o.dmg || 1, reach: o.reach || 210, wave };
       f.telegraph = W;
       f.startAbility({ dur: (delay ? T2 : W) + 0.6, rate: 22, trail: true, charge: true,
         pose: (f, t) => (t < W || (delay && t > W + 0.2 && t < T2) ? RAIKON_POSE.swingBack : RAIKON_POSE.swingThrough),
-        start(f) { f.superArmor = true; f.facing = w.player.x > f.x ? 1 : -1; AudioManager.play('teleport'); w.fx.popText(f, 'THUNDER SWING', '#ff6a52'); },
+        start(f) { f.superArmor = true; f.facing = w.player.x > f.x ? 1 : -1; AudioManager.play('teleport'); w.fx.popText(f, o.label || 'THUNDER SWING', '#ff6a52'); },
         update(f, w, t, dt) {
-          f.vx = damp(f.vx, 0, 10, dt);
+          // a reduced cut can dash forward through its release (o.dash), then skids to a stop
+          f.vx = o.dash && t >= W && t < W + 0.16 ? f.facing * o.dash : damp(f.vx, 0, 10, dt);
+          if (o.dash && t >= W && t < W + 0.16 && ((t * 60) | 0) % 2 === 0) w.fx.afterimage(f, 'rgba(255,74,60,0.3)');
           if (t < W) { this.charge = true; raikonCrackle(f, w, t); if (!this.glint && t > W - 0.2) { this.glint = 1; raikonGlint(f, w); } return; }
           if (!this.swung) {
             this.swung = 1; this.charge = false; f.superArmor = false;
-            raikonRelease(f, w);
+            if (!o.dash) raikonRelease(f, w, rel);
             if (delay) { f.telegraph = delay; w.fx.popText(f, 'WAIT FOR IT', '#ff6a52'); }
           }
+          // the dashing cut lands mid-dash, once
+          if (o.dash && !this.cut && t > W + 0.06) { this.cut = 1; raikonRelease(f, w, rel); }
           if (delay && t < T2) {
             if (t > W + 0.2) { this.charge = true; raikonCrackle(f, w, t); if (!this.glint2 && t > T2 - 0.2) { this.glint2 = 1; raikonGlint(f, w); } }
             return;
           }
-          if (delay && !this.swung2) { this.swung2 = 1; this.charge = false; raikonRelease(f, w); }
+          if (delay && !this.swung2) { this.swung2 = 1; this.charge = false; raikonRelease(f, w, rel); }
           if (!this.tell && t > (delay ? T2 : W) + 0.25) { this.tell = 1; w.fx.popText(f, 'OPENING', C.gold); }
         },
         end(f) { f.superArmor = false; } });
     } },
   // Wind-up overhead (super armour, crackle, glint), then the blade driven into the ground: a crushing hit up close
   // and a short ground shockwave forward.
+  // `o` (optional): a reduced variant's label, windup, dmg, reach, shock (shockwave damage, 0 = none) and shockLife.
   stormBreak: { id: 'stormBreak', cd: 4.4, range: [0, 340], chance: 0.65,
-    run(f, w, ai) {
-      const W = 0.58 * ai.p.windup;
+    run(f, w, ai, p, o) {
+      o = o || {};
+      const W = (o.windup || 0.58) * ai.p.windup, shock = o.shock != null ? o.shock : 0.9;
       f.telegraph = W;
       f.startAbility({ dur: W + 0.75, rate: 20, trail: true, charge: true,
         pose: (f, t) => (t < W ? RAIKON_POSE.overhead : RAIKON_POSE.slam),
-        start(f) { f.superArmor = true; f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, 'STORM BREAK', '#ff6a52'); AudioManager.play('teleport'); },
+        start(f) { f.superArmor = true; f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, o.label || 'STORM BREAK', '#ff6a52'); AudioManager.play('teleport'); },
         update(f, w, t, dt) {
           if (t < W) { this.charge = true; f.vx = damp(f.vx, f.facing * 90, 6, dt); raikonCrackle(f, w, t); if (!this.glint && t > W - 0.18) { this.glint = 1; raikonGlint(f, w); } return; }
           f.vx = damp(f.vx, 0, 14, dt);
           if (!this.done) {
             this.done = 1; this.charge = false; f.superArmor = false;
             const gx = f.x + f.facing * 120 * f.scale;
-            Combat.area(w, f, fbox(f, 0, -230, 200, 230), { dmg: 19 * f.dmgMul, kb: 380, up: -460, hs: 0.6, kd: 1, imp: 3, hsnd: 'heavy', stamp: 'BREAK', gb: 110 });
-            WeaponSystem.spawn(w, 'shock', f, { x: gx, lifeMul: 0.6, dmgMul: 0.9 });
-            for (let i = 0; i < 3; i++) w.fx.lightning(gx, 0, gx + rand(-90, 90), -rand(60, 150), { w: 2.2, branches: 2, dur: 0.14 });
+            Combat.area(w, f, fbox(f, 0, -230, o.reach || 200, 230), { dmg: 19 * (o.dmg || 1) * f.dmgMul, kb: 380, up: -460, hs: 0.6, kd: 1, imp: 3, hsnd: 'heavy', stamp: 'BREAK', gb: 110 });
+            if (shock > 0) WeaponSystem.spawn(w, 'shock', f, { x: gx, lifeMul: o.shockLife || 0.6, dmgMul: shock });
+            for (let i = 0; i < (o.dmg && o.dmg < 1 ? 2 : 3); i++) w.fx.lightning(gx, 0, gx + rand(-90, 90), -rand(60, 150), { w: 2.2, branches: 2, dur: 0.14 });
             w.fx.groundShards(gx, 7, 1.1); w.fx.dust(gx, 0, 18); w.fx.shake(0.7); AudioManager.play('slam');
           }
           if (!this.tell && t > W + 0.3) { this.tell = 1; w.fx.popText(f, 'OPENING', C.gold); }
@@ -528,12 +538,14 @@ const BOSS_ABILITIES = {
     } },
   // A brief guard stance (red ring, crackle). A melee blow from the front during it is turned aside (the counter stance
   // in Combat.applyHit) and answered with a fast diagonal punish; left alone, he drops the guard.
+  // `o` (optional): a reduced variant's label, stance (how long the guard is held), punish (its delay), dmg and unb.
   redlineCounter: { id: 'redlineCounter', cd: 6, range: [60, 300], chance: 0.55,
-    run(f, w, ai) {
-      const P2 = 0.1 * ai.p.windup;
-      f.startAbility({ dur: 1.0, rate: 18, charge: true,
+    run(f, w, ai, p, o) {
+      o = o || {};
+      const P2 = (o.punish || 0.1) * ai.p.windup, dmg = o.dmg || 1, unb = o.unb != null ? o.unb : 1;
+      f.startAbility({ dur: o.stance || 1.0, rate: 18, charge: true,
         pose: f => (f.abil && f.abil.cut ? RAIKON_POSE.diagonal : RAIKON_POSE.guard),
-        start(f) { f.counterStance = true; f.redline = true; f.telegraph = 0.3; f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, 'REDLINE', '#ff6a52'); AudioManager.play('block'); },
+        start(f) { f.counterStance = true; f.redline = true; f.telegraph = 0.3; f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, o.label || 'REDLINE', '#ff6a52'); AudioManager.play('block'); },
         update(f, w, t, dt) {
           f.vx = damp(f.vx, 0, 12, dt);
           if (this.punish == null) { raikonCrackle(f, w, t); return; }
@@ -544,7 +556,7 @@ const BOSS_ABILITIES = {
             w.fx.lightning(f.sk.wt.x, f.sk.wt.y - 60, f.sk.wt.x + f.facing * 160, f.sk.wt.y + 120, { w: 2.4, branches: 3, dur: 0.14 });
           }
           if (((t * 60) | 0) % 2 === 0) w.fx.afterimage(f, 'rgba(255,74,60,0.35)');
-          if (!this.hit && k < P2 + 0.2) this.hit = Combat.area(w, f, fbox(f, -10, -230, 190, 230), { dmg: 17 * f.dmgMul, kb: 520, up: -380, hs: 0.55, kd: 1, imp: 3, hsnd: 'slash', stamp: 'REDLINE', unb: 1 });
+          if (!this.hit && k < P2 + 0.2) this.hit = Combat.area(w, f, fbox(f, -10, -230, 190, 230), { dmg: 17 * dmg * f.dmgMul, kb: 520, up: -380, hs: 0.55, kd: 1, imp: 3, hsnd: 'slash', stamp: 'REDLINE', unb });
           if (k > P2 + 0.2) f.vx = damp(f.vx, 0, 14, dt);
         },
         // Combat.applyHit calls this when a blow lands on the guard: switch to the punish
@@ -558,6 +570,13 @@ const BOSS_ABILITIES = {
         update(f, w, t) { if (t > 0.5 && !this.done) { this.done = 1; w.spawnMinions(f, 2); } } });
     } }
 };
+/* ---- reduced Raikon moves (RAIKON_VARIANTS in 10-data.js): each runs its base ability's code with the variant's
+   parameters, so Act I's sub-bosses fight with Raikon's own moves at reduced strength ---- */
+for (const id in RAIKON_VARIANTS) {
+  const v = RAIKON_VARIANTS[id], base = BOSS_ABILITIES[v.base];
+  BOSS_ABILITIES[id] = { id, cd: v.cd || base.cd, range: v.range || base.range, chance: v.chance || base.chance,
+    run(f, w, ai, p) { base.run(f, w, ai, p, v); } };
+}
 /* ---- Raikon's poses and shared effects (also used by the player's Thunder Swing rage art, 30-combat.js) ---- */
 const RAIKON_POSE = {
   // Thunder Swing: the odachi drawn far back at shoulder height, weight on the rear leg, ready to sweep flat
@@ -583,12 +602,14 @@ function raikonCrackle(f, w, t) {
 // the red glint on the blade that marks the moment before release
 function raikonGlint(f, w) { w.fx.glint(f.sk.wt.x, f.sk.wt.y, '#ff4a3c'); AudioManager.play('orb', { pitch: 1.7 }); }
 // Thunder Swing's release: the arc's own hit up close, and the lightning wave sent along the ground
-function raikonRelease(f, w) {
-  AudioManager.play('heavyswing'); AudioManager.play('slam');
-  Combat.area(w, f, fbox(f, -10, -210, 210, 200), { dmg: 15 * f.dmgMul, kb: 420, up: -240, hs: 0.5, imp: 2, hsnd: 'slash', stamp: 'THUNDER', gb: 70 });
-  WeaponSystem.spawn(w, 'thunderwave', f, { x: f.x + f.facing * 110 * f.scale });
-  w.fx.lightning(f.sk.wt.x, f.sk.wt.y, f.x + f.facing * 120 * f.scale, 0, { w: 2.6, branches: 4, dur: 0.16 });
-  w.fx.shake(0.45); w.fx.dust(f.x + f.facing * 80, 0, 10);
+// (a reduced cut, `o` from thunderSwing: dmg multiplier, arc reach, and wave: false sends no ground wave)
+function raikonRelease(f, w, o) {
+  o = o || {};
+  AudioManager.play('heavyswing'); if (o.wave !== false) AudioManager.play('slam');
+  Combat.area(w, f, fbox(f, -10, -210, o.reach || 210, 200), { dmg: 15 * (o.dmg || 1) * f.dmgMul, kb: 420, up: -240, hs: 0.5, imp: 2, hsnd: 'slash', stamp: o.wave === false ? 'CUT' : 'THUNDER', gb: 70 });
+  if (o.wave !== false) WeaponSystem.spawn(w, 'thunderwave', f, { x: f.x + f.facing * 110 * f.scale });
+  w.fx.lightning(f.sk.wt.x, f.sk.wt.y, f.x + f.facing * 120 * f.scale, o.wave === false ? f.sk.wt.y + 60 : 0, { w: o.wave === false ? 1.8 : 2.6, branches: o.wave === false ? 2 : 4, dur: 0.16 });
+  w.fx.shake(o.wave === false ? 0.25 : 0.45); w.fx.dust(f.x + f.facing * 80, 0, 10);
 }
 function this_charge_pose(f, t) {
   return t < 0.6 ? P({ lean: -14, fs: 186, fe: 0, wa: 210, fh: 30, fk: -40, bh: -30, bk: -30 }) : P({ lean: 40, fs: 80, fe: 0, wa: 60, bs: -60, be: 30, fh: 60, fk: -60, bh: -50, bk: -20 });

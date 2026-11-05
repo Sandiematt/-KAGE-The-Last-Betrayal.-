@@ -45,7 +45,8 @@ test('every enemy uses a weapon, AI profile and boss abilities that exist', () =
     assert.ok(WEAPONS[d.weapon], `${id} weapon ${d.weapon}`);
     assert.ok(AI_PROFILES.includes(d.ai), `${id} ai ${d.ai}`);
     const abilities = [...(d.abilities || []), ...(d.phases || []).flatMap(p => p.abilities)];
-    for (const a of abilities) assert.ok(BOSS_ABILITIES.includes(a), `${id} ability ${a}`);
+    // coded abilities, or reduced Raikon moves built on one (RAIKON_VARIANTS, registered by 40-ai.js)
+    for (const a of abilities) { const m = Logic.raikonMove(a); assert.ok(BOSS_ABILITIES.includes(a) || (m && BOSS_ABILITIES.includes(m.base)), `${id} ability ${a}`); }
     if (d.type === 'boss') assert.equal((d.phases || []).length, 3, `${id} has three phases`);
   }
 });

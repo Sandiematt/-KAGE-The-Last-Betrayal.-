@@ -136,6 +136,31 @@ const SPEAKERS = {
       storyLine(g, [45, 55, 55, 55], 'rgba(10,9,8,0.5)', 1);
     }
   },
+  // an outer-district survivor (Act I): an old woman under a ragged grey headcloth, tired pale eyes
+  survivor: {
+    name: 'Survivor', accent: STORY_INK.boneDim,
+    portrait(g) {
+      const K = STORY_INK;
+      storyBust(g, { bg: '#16151a', glow: 'rgba(191,181,159,0.16)', rim: 'rgba(191,181,159,0.45)' });
+      storyPoly(g, [28, 76, 30, 40, 38, 26, 50, 22, 62, 26, 70, 40, 72, 76, 64, 74, 62, 46, 38, 46, 36, 74], K.ash);   // headcloth
+      storyPoly(g, [36, 76, 38, 48, 44, 50, 42, 78], K.ash2);                                                          // its lit fold
+      storyEyes(g, K.boneDim, 47);
+      storyLine(g, [44, 56, 50, 57, 56, 56], 'rgba(191,181,159,0.4)', 1);                                              // a thin mouth
+    }
+  },
+  // an Order of Silence officer: slate hood, dark cloth mask over the mouth, the Order mark (a barred circle) on the chest
+  order: {
+    name: 'Order of Silence', accent: '#c4c8cc',
+    portrait(g) {
+      const K = STORY_INK;
+      storyBust(g, { bg: '#14171b', glow: 'rgba(196,200,204,0.14)', rim: 'rgba(196,200,204,0.5)' });
+      storyPoly(g, [30, 70, 31, 36, 40, 25, 50, 22, 60, 25, 69, 36, 70, 70, 62, 66, 62, 44, 38, 44, 38, 66], '#3a4048');  // hood
+      storyPoly(g, [37, 49, 63, 49, 61, 62, 39, 62], '#23272d');                                                        // mask
+      storyEyes(g, '#c4c8cc', 45);
+      g.beginPath(); g.arc(50, 86, 6, 0, Math.PI * 2); g.strokeStyle = '#c4c8cc'; g.lineWidth = 1.8; g.stroke();
+      storyLine(g, [46, 86, 54, 86], '#c4c8cc', 1.8);
+    }
+  },
   narrator: {
     name: '', accent: STORY_INK.gold,
     portrait(g) {

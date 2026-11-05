@@ -243,6 +243,8 @@ const WEAPONS = {
   // copy is raiko_no_tachi, granted when Raikon falls)
   raikon_tachi: { heft: 1.9, el: 'redline', enemy: 1, name: 'Raikō no Tachi', base: 'onikiri', len: 128, stats: [64, 40, 60], trail: '#ff4a3c' },
   temple_staff: { heft: 1.1, el: 'shade', enemy: 1, name: 'Temple Staff', base: 'mizuchi', len: 180, trail: '#ece5d3', staff: 1, stance: 'staff' },
+  // Shiden's war spear (Act I sub-boss): a long vanguard yari on the spear forms, with Raikon's red in its trail
+  vanguard_yari: { heft: 1.3, el: 'redline', enemy: 1, name: 'Vanguard Yari', base: 'mizuchi', len: 176, trail: '#ff6a52' },
   raider_cleaver: { heft: 1.4, el: 'shade', enemy: 1, name: 'Raider Cleaver', base: 'onikiri', len: 86, trail: '#d24a3c' },
   // the Interlude's wooden practice sword (bokken): both young brothers spar with it (see SPAR and FAMILY_FORM). Katana
   // forms, but its string is the family form's rising cut into the horizontal flow (k2 -> k3) and its air cut is ka;
@@ -322,7 +324,8 @@ const SPECIALS = {
    drawHelmet / drawArmor in 20-fighter.js (defaults to the item id).
    Locked items: exclusive (never sold) + hint (what the Armory says unlocks it). Trophies are granted by a
    campaign stage's `reward` (see CAMPAIGN); ngOnly trophies only drop during New Game+.
-   Room is left for 12 sub-boss trophies (tier 'trophy', one per Act sub-boss), added by the sub-boss tickets. */
+   Sub-boss trophies (tier 'trophy', one per act sub-boss) are each worn by the sub-boss that drops it; Act I's four
+   are in (Sumi Eboshi, Ikazuchi-dō, Hisame Zukin, Shiden Yoroi), Acts II and III add theirs. */
 const HELMETS = {
   shiro_maki:   { name: 'White Face-Wrap', tier: 'starter', def: 0.01, hp: 4, price: 0, look: 'topknot', perks: {},
     lore: 'Rem tore it from his own sleeve the night Hoshimura emptied. Kage has never untied it.' },
@@ -349,6 +352,11 @@ const HELMETS = {
   // ---- trophies (locked) ----
   raijin_kabuto:{ name: 'Raijin Kabuto', tier: 'trophy', def: 0.18, hp: 36, exclusive: true, hint: 'Defeat Raikon', look: 'raijin_kabuto', perks: { stunRes: 0.3, dmg: 0.05 },
     lore: 'Raikon\'s thunder helm. The red slit of its visor burned brightest just before he struck.' },
+  // Act I sub-boss trophies
+  sumi_eboshi:  { name: 'Sumi Eboshi', tier: 'trophy', def: 0.18, hp: 34, exclusive: true, hint: 'Defeat Kuroe, the Ink Censor', look: 'sumi_eboshi', perks: { rage: 0.15 },
+    lore: 'The tall lacquered cap of the Archive Bureau\'s chief censor. Ink from ten thousand blacked-out names has soaked into its silk.' },
+  hisame_zukin: { name: 'Hisame Zukin', tier: 'trophy', def: 0.18, hp: 34, exclusive: true, hint: 'Defeat Hisame, the Rain Courier', look: 'rain_hood', perks: { dash: 0.15, speed: 0.04 },
+    lore: 'An Order courier\'s oiled rain hood with a storm-glass visor. It has run every roof in the outer districts and never once been caught.' },
   kasa:         { name: 'Kasa', tier: 'trophy', def: 0.2, hp: 40, exclusive: true, hint: 'Defeat Takashi', look: 'straw_kasa', perks: { ammo: 3, rage: 0.15 },
     lore: 'Takashi\'s battered straw hat. He wore it on the road out of Hoshimura and never told his sons where it led.' }
 };
@@ -376,6 +384,11 @@ const ARMORS = {
   goka_yoroi:   { name: 'Gōka Yoroi', tier: 'epic', def: 0.14, hp: 40, gems: 30, look: 'tyrant', perks: { dmg: 0.06 },
     lore: 'Ember-edged plate quenched in burning memory ash. It hits back harder for every scar it carries.' },
   // ---- trophies (locked) ----
+  // Act I sub-boss trophies
+  ikazuchi_do:  { name: 'Ikazuchi-dō', tier: 'trophy', def: 0.21, hp: 78, exclusive: true, hint: 'Defeat Garan, the Stormbroken', look: 'half_do', perks: { stunRes: 0.2, dmg: 0.04 },
+    lore: 'Half a cuirass from Raikon\'s thunder vanguard. The storm burned the other half off Garan the day he deserted, and he wore what was left like a confession.' },
+  shiden_yoroi: { name: 'Shiden Yoroi', tier: 'trophy', def: 0.21, hp: 80, exclusive: true, hint: 'Defeat Shiden, the Last Lieutenant', look: 'vanguard_plate', perks: { dmg: 0.05, stunRes: 0.1 },
+    lore: 'A lieutenant\'s plate of the thunder vanguard, laced in violet cord. Its echo still keeps the archive road, waiting for orders that stopped ten years ago.' },
   mei_en_garb:  { name: 'Mei-En Garb', tier: 'trophy', def: 0.21, hp: 80, exclusive: true, hint: 'Defeat Akari', look: 'cloak', perks: { dash: 0.2, speed: 0.06 },
     lore: 'Akari\'s smoke-grey fighting garb. Even the Order\'s records cannot agree on what colour it is.' },
   kysmei_robe:  { name: 'Kysmei Robe', tier: 'trophy', def: 0.22, hp: 85, exclusive: true, hint: 'Defeat the Witness', look: 'robe', perks: { rage: 0.3 },
@@ -471,6 +484,46 @@ const ENEMIES = {
               { name: 'Redline', at: 0.66, abilities: ['thunderSwing', 'stormBreak', 'redlineCounter'] },
               { name: 'Lightning Ascendant', at: 0.33, abilities: ['thunderSwing', 'stormBreak', 'redlineCounter'], secondWave: 0.7, aggressive: 1 }
             ] },
+  // ---- Act I sub-bosses (act1.sub1..4) ----
+  // Each is fought in the boss format (one bar, one or two phases; the stage has `format: 'boss'`) and borrows a
+  // REDUCED Raikon move (RAIKON_VARIANTS below), never the full Thunder Swing wave. Each wears the trophy it drops.
+  // `lore` is the sub-boss's tie to Act I.
+  kuroe: { name: 'Kuroe', title: 'the Ink Censor', type: 'sub', ai: 'defensive', weapon: 'temple_staff', helmet: 'sumi_eboshi', armor: 'robe',
+            hp: 360, def: 0.08, dmg: 1, build: { scale: 1.06, w: 9.6, legs: 1.06, head: 0.96 }, eye: '#ece5d3', accent: '#c9a45c', defeat: 'finisher',
+            lore: 'Chief censor of the Order\'s Archive Bureau in the outer districts. He blacked out the Silent War line by line, and the name Rem in every record he touched.',
+            taunt: 'Your name was struck from the registry. I struck it myself. Lie down and stay unwritten.', defeatLine: 'The ink... never dries on that name...', win: 'Struck out. Again.',
+            tip: 'Kuroe hides behind his staff. When he raises it crosswise in the Censure stance, hold your blade: wait it out or throw him.',
+            phases: [
+              { name: 'The Black Line', at: 1, abilities: ['censure'] },
+              { name: 'Redacted', at: 0.5, abilities: ['censure'], aggressive: 1 }
+            ] },
+  garan: { name: 'Garan', title: 'the Stormbroken', type: 'sub', ai: 'heavy', weapon: 'iron_fists', helmet: 'oni', armor: 'ikazuchi_do',
+            hp: 420, def: 0.1, dmg: 1.1, speed: 0.92, build: { scale: 1.18, w: 14, arms: 1.1 }, eye: '#ff6a52', accent: '#ff6a52', heavyArmor: 1, defeat: 'finisher',
+            lore: 'A deserter from Raikon\'s thunder vanguard. Lightning struck him the day he broke ranks and never fully left; now he sells his fists to whoever holds the checkpoint road.',
+            taunt: 'The captain\'s storm marked me for running. Let\'s see what it does to you.', defeatLine: 'Still... faster than the storm... aren\'t you...', win: 'Stay down. The storm does.',
+            tip: 'Storm Fist: his gauntlets crackle red above his head before the slam. Dash away or behind him, then hit the long recovery.',
+            phases: [
+              { name: 'Thunderstruck', at: 1, abilities: ['stormFist'] },
+              { name: 'Stormbroken', at: 0.5, abilities: ['stormFist', 'charge'] }
+            ] },
+  hisame: { name: 'Hisame', title: 'the Rain Courier', type: 'sub', ai: 'agile', weapon: 'mist_fans', helmet: 'hisame_zukin', armor: 'mist_shroud',
+            hp: 330, def: 0.04, dmg: 0.95, speed: 1.16, build: { scale: 0.95, w: 8.8, legs: 1.07 }, eye: '#9fd4ff', accent: '#7fb8ff', defeat: 'finisher',
+            lore: 'The fastest courier the Order ever had, who outran Raikon\'s storms across the rooftops. She carries the erasure orders to the registry, and cuts down anyone who reads them first.',
+            taunt: 'You read the wall, didn\'t you. Couriers don\'t let readers reach the archive.', defeatLine: 'The rain... it never stopped... on that road...', win: 'Delivered.',
+            tip: 'Lightning Cut: she drops low and her fans spark red, then she dashes straight through you. Block or jump it, then strike as she skids to a stop.',
+            phases: [
+              { name: 'Rainfall', at: 1, abilities: ['lightningCut'] },
+              { name: 'Downpour', at: 0.5, abilities: ['lightningCut', 'smokeBomb'], berserk: 1 }
+            ] },
+  shiden: { name: 'Shiden', title: 'the Last Lieutenant', type: 'sub', ai: 'boss', weapon: 'vanguard_yari', helmet: 'sentinel_helm', armor: 'shiden_yoroi',
+            hp: 460, def: 0.12, dmg: 1.05, build: { scale: 1.12, w: 11.4 }, eye: '#d6a8ff', accent: '#b07cff', flashEyes: 1, noGrab: 1, defeat: 'finisher',
+            lore: 'Raikon\'s lieutenant in the thunder vanguard, woken by the Echo System beside his captain and posted on the last road to the archive. He remembers every order Raikon gave him, and none of his own.',
+            taunt: 'The captain holds the archive door. I hold the road to it. Nobody passes us both.', defeatLine: 'Tell the captain... I held as long as I could...', win: 'The road holds.',
+            tip: 'Vanguard Break drives his spear into the ground: step back from the shockwave. From his second phase he raises a guard; do not strike into it.',
+            phases: [
+              { name: 'Vanguard', at: 1, abilities: ['vanguardBreak'] },
+              { name: 'Hold the Line', at: 0.5, abilities: ['vanguardBreak', 'vanguardGuard'], aggressive: 1 }
+            ] },
   // ---- the Interlude ----
   // Young Rem (interlude.spar): a memory, gifted, impulsive and competitive. A smaller build in plain training clothes
   // with a purple sash and headband, a bokken, and the family form (FAMILY_FORM) at his own fast, fluid tempo (`form`).
@@ -494,6 +547,32 @@ const ENEMIES = {
             ] }
 };
 for (const id in ENEMIES) ENEMIES[id].id = id;
+
+/* ---------------- Raikon's moves and their reduced versions ----------------
+   RAIKON_ABILITIES are Raikon's own abilities (BOSS_ABILITIES in 40-ai.js). Act I's sub-bosses fight with reduced
+   versions of them: each RAIKON_VARIANTS entry runs its `base` ability's code with these parameters (40-ai.js registers
+   them as BOSS_ABILITIES next to Raikon's), so no move is written twice. Logic.raikonMove(id) answers what a move is.
+     cd, range, chance   the ability's cooldown (s), distance band and pick chance (default: the base's)
+     label               the call-out shown as it winds up
+     windup              wind-up as a fraction of the difficulty mode's windup (Raikon: Thunder Swing 0.66, Storm Break
+                         0.58); the reduced moves wind up longer, so they telegraph more
+     dmg                 damage multiplier on the base's strike
+     thunderSwing:   wave (false = no travelling ground wave, only the cut), reach (arc width), dash (forward speed of the cut)
+     stormBreak:     shock (shockwave damage multiplier, Raikon 0.9; 0 = none), shockLife (its reach), reach (strike width)
+     redlineCounter: stance (how long the guard is held, Raikon 1 s), punish (delay before the punish cut), unb (1 = the
+                     punish breaks guards, as Raikon's does) */
+const RAIKON_ABILITIES = ['thunderSwing', 'stormBreak', 'redlineCounter'];
+const RAIKON_VARIANTS = {
+  // Kuroe: a brief, weaker Redline Counter whose punish can be blocked
+  censure:        { base: 'redlineCounter', label: 'CENSURE', cd: 7, range: [60, 260], chance: 0.5, stance: 0.7, punish: 0.14, dmg: 0.6, unb: 0 },
+  // Garan: a short Storm Break with the gauntlets: a slow wind-up and a stubby shockwave
+  stormFist:      { base: 'stormBreak', label: 'STORM FIST', cd: 5.6, range: [0, 240], chance: 0.6, windup: 0.78, dmg: 0.65, shock: 0.5, shockLife: 0.4, reach: 170 },
+  // Hisame: Thunder Swing cut down to its first stroke, a short dashing lightning cut with no ground wave
+  lightningCut:   { base: 'thunderSwing', label: 'LIGHTNING CUT', cd: 5, range: [120, 420], chance: 0.65, wave: false, windup: 0.56, dmg: 0.6, reach: 160, dash: 900 },
+  // Shiden: a lighter Storm Break, and in his second phase a short guard whose punish can be blocked
+  vanguardBreak:  { base: 'stormBreak', label: 'VANGUARD BREAK', cd: 5, range: [0, 300], chance: 0.6, windup: 0.68, dmg: 0.8, shock: 0.7, shockLife: 0.5 },
+  vanguardGuard:  { base: 'redlineCounter', label: 'HOLD THE LINE', cd: 7.5, range: [60, 280], chance: 0.5, stance: 0.8, dmg: 0.75, unb: 0 }
+};
 
 /* ---------------- The family form ----------------
    Takashi's sword grammar, shared by Kage, Rem and Takashi (the spec's "shared attack language"): a grounded opening
@@ -655,6 +734,49 @@ const CAMPAIGN = (function buildCampaign() {
   Object.assign(chapters[1].stages.find(st => st.id === 'act1.boss'), {
     enemy: 'raikon', reward: { weapons: ['raiko_no_tachi'], helmets: ['raijin_kabuto'] },
     scenes: { before: 'act1.raikon.before', defeat: 'act1.raikon.defeat' } });
+  // Act I, The Missing Brother: four stretches through Yomi's outer districts, where the Order of Silence has erased
+  // the records of the Silent War. Mostly Order soldiers with a few Hollows, more of them each stretch; survivors'
+  // story beats; the act's three clues (the torn report, the two sword marks, Takashi's evacuation recording); and a
+  // sub-boss at the end of each stretch, fought in the boss format, who drops a trophy.
+  const F = 'order_footman', RU = 'order_runner', SH = 'order_shieldbearer', CH = 'order_chainthrower', IR = 'order_ironclad';
+  const ACT1 = {
+    'act1.stretch1': { name: 'The Silent Ward', enemy: F, scenes: { before: 'act1.stretch1.before' },
+      stretch: { length: 4400, start: 160, env: 'rooftops',
+        encounters: [
+          { x: 1100, gate: 1750, waves: [[F, F], [F, RU]] },
+          { x: 2900, gate: 3600, waves: [[RU, F], [F, F, 'hollow_shade']] }],
+        clues: [{ id: 'report', x: 2300, label: 'A torn mission report', scene: 'act1.clue.report' }],
+        props: [{ type: 'edict', x: 620 }, { type: 'collapsed', x: 2300 }, { type: 'barricade', x: 3900 }] } },
+    'act1.sub1': { foe: 'Kuroe', foeTitle: 'the Ink Censor', enemy: 'kuroe', format: 'boss', env: 'rooftops', reward: { helmets: ['sumi_eboshi'] } },
+    'act1.stretch2': { name: 'Checkpoint Row', enemy: CH, scenes: { before: 'act1.stretch2.before' },
+      stretch: { length: 4900, start: 160, env: 'districts',
+        encounters: [
+          { x: 1000, gate: 1650, waves: [[F, CH], [F, F]] },
+          { x: 2300, gate: 2950, waves: [[RU, RU], [CH, F, RU]] },
+          { x: 3600, gate: 4300, waves: [[F, CH, F]] }],
+        clues: [{ id: 'marks', x: 3200, label: 'Two sword marks', scene: 'act1.clue.marks' }],
+        props: [{ type: 'barricade', x: 700 }, { type: 'edict', x: 1900 }, { type: 'edict', x: 3250 }, { type: 'barricade', x: 4550 }] } },
+    'act1.sub2': { foe: 'Garan', foeTitle: 'the Stormbroken', enemy: 'garan', format: 'boss', env: 'districts', reward: { armors: ['ikazuchi_do'] } },
+    'act1.stretch3': { name: 'The Burned Registry', enemy: SH, scenes: { before: 'act1.stretch3.before' },
+      stretch: { length: 5200, start: 160, env: 'wasteland',
+        encounters: [
+          { x: 1100, gate: 1750, waves: [[SH, F], [RU, 'hollow_flicker']] },
+          { x: 2500, gate: 3150, waves: [[F, SH, CH], ['hollow_shade', 'hollow_flicker']] },
+          { x: 3900, gate: 4600, waves: [[SH, RU], [F, CH, RU, 'hollow_shade']] }],
+        clues: [{ id: 'recording', x: 3450, label: 'A sealed recording', scene: 'act1.clue.recording' }],
+        props: [{ type: 'house', x: 800 }, { type: 'collapsed', x: 2000 }, { type: 'shrine', x: 3450 }, { type: 'house', x: 4850 }] } },
+    'act1.sub3': { foe: 'Hisame', foeTitle: 'the Rain Courier', enemy: 'hisame', format: 'boss', env: 'districts', reward: { helmets: ['hisame_zukin'] } },
+    'act1.stretch4': { name: 'The Archive Road', enemy: SH, scenes: { before: 'act1.stretch4.before' },
+      stretch: { length: 5600, start: 160, env: 'districts',
+        encounters: [
+          { x: 1000, gate: 1650, waves: [[F, SH, F], [CH, RU]] },
+          { x: 2400, gate: 3050, waves: [[IR], [SH, CH, F]] },
+          { x: 3800, gate: 4600, waves: [[IR, RU, F], [SH, F, CH, 'hollow_husk']] }],
+        clues: [],
+        props: [{ type: 'barricade', x: 600 }, { type: 'edict', x: 2000 }, { type: 'barricade', x: 3400 }, { type: 'edict', x: 5000 }] } },
+    'act1.sub4': { foe: 'Shiden', foeTitle: 'the Last Lieutenant', enemy: 'shiden', format: 'boss', env: 'districts', reward: { armors: ['shiden_yoroi'] } }
+  };
+  for (const st of chapters[1].stages) if (ACT1[st.id]) Object.assign(st, ACT1[st.id]);
   for (const ch of chapters) ch.stages.forEach((st, i) => { st.chapter = ch.id; st.pos = i; });
   return { chapters };
 })();
