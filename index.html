@@ -7100,8 +7100,8 @@ function drawArmor(ctx, f, ink, opt, Ut) {
         // her hips: a full, rounded seat behind the hip joint flowing into the back of the thigh, so the waist curves out
         // into it naturally (drawn with the body, and in the flat outline pass, so the white rim follows the curve)
         {
-          const ux = Math.cos(ang), uy = Math.sin(ang), bkx = -ox * fo, bky = -oy * fo, hr2 = W * 1.05;
-          const cx = hx + bkx * W * 0.62 - ux * W * 0.2, cy = hy + bky * W * 0.62 - uy * W * 0.2;
+          const ux = Math.cos(ang), uy = Math.sin(ang), bkx = -ox * fo, bky = -oy * fo, hr2 = W * 1.42;
+          const cx = hx + bkx * W * 0.78 - ux * W * 0.38, cy = hy + bky * W * 0.78 - uy * W * 0.38;
           ctx.beginPath(); ctx.ellipse(cx, cy, hr2, hr2 * 0.86, ang, 0, TAU); ctx.fill();
           ctx.beginPath(); ctx.moveTo(hx + bkx * W * 0.2 + ux * W * 0.9, hy + bky * W * 0.2 + uy * W * 0.9);
           ctx.quadraticCurveTo(hx + bkx * W * 1.1 + ux * W * 0.3, hy + bky * W * 1.1 + uy * W * 0.3, cx + bkx * hr2 * 0.9, cy + bky * hr2 * 0.9);
