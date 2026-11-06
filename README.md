@@ -1,6 +1,6 @@
 <p align="center"><img src="docs/logo.webp" alt="KAGE — Wrath of Shadow" width="360"></p>
 
-<h1 align="center">KAGE — Wrath of Shadow</h1>
+<h1 align="center">KAGE — The Last Betrayal</h1>
 
 <p align="center"><i>Step out of the shadow. Draw the blade. Answer the blood moon.</i></p>
 
