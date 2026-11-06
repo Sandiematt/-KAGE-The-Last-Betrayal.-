@@ -24,6 +24,8 @@ class FightSession {
     this.spar = !cfg.stretch && (cfg.format || Logic.fightFormat(cfg)).name === 'spar';
     this.memory = this.spar;
     this.player = this.makePlayer(save);
+    // Boss Rush: the health the last fight left, plus the partial restore (Logic.bossRushCarryHp)
+    if (cfg.carryHp != null) this.player.hp = clamp(Math.round(cfg.carryHp), 1, this.player.maxHp);
     this.setup();
   }
   // The single-screen arena: one main foe, rounds, a round timer and the intro duel. StretchSession overrides this.
@@ -131,6 +133,8 @@ class FightSession {
     this.cam.x = e.x - 80; this.cam.zoom = 1.3;
     if (this.mode === 'trials') { this.nameBossEcho(); this.trialBanner(); }
   }
+  // Boss Rush: where this fight sits in the run (cfg.rush from Game.bossRushFight)
+  rushLabel() { const r = this.cfg.rush; return r ? `Boss ${r.index + 1} / ${r.total}` : ''; }
 
   // ---- world interface used by fighters / combat / AI ----
   opponentOf(f) {
@@ -434,6 +438,7 @@ class FightSession {
         if (this.phaseT < 0.05 && !this.roundShown) {
           this.roundShown = true; this.rounds.n++;
           if (this.spar) this.fx.banner('Sparring Match', "A memory · Takashi's yard", C.gold);
+          else if (this.mode === 'bossrush') this.fx.banner(`Boss Rush · ${this.rushLabel()}`, `${e.name} · ${Logic.difficulty(SaveManager.data.difficulty).label}`, C.gold);
           else if (this.mode !== 'trials') this.fx.banner(this.roundsToWin > 1 ? `Round ${ROMAN[this.rounds.n - 1]}` : 'Final Duel', this.bossFormat ? `One life · ${['one phase', 'two phases', 'three phases'][this.format.phases - 1] || this.format.phases + ' phases'} · ${Logic.difficulty(SaveManager.data.difficulty).label}` : `${e.name} · ${DIFF_LABEL[clamp((this.cfg.diff || 1) + (this.cfg.ng || 0), 0, 4)]} · ${Logic.difficulty(SaveManager.data.difficulty).label}`, C.gold);
           AudioManager.play('round');
         }
@@ -532,7 +537,7 @@ class FightSession {
     w.state = 'pose'; w.poseName = 'victory'; w.vx = 0;
     if (!win) w.poseName = 'taunt';
     const line = win ? (defeatScene ? null : l.def.defeatLine || null) : (w.def && w.def.win) || null;
-    if (line && this.mode !== 'trials') this.dialogue = { name: win ? l.name : w.name, title: win ? l.title : w.title, text: line, t: 0 };
+    if (line && this.mode === 'campaign') this.dialogue = { name: win ? l.name : w.name, title: win ? l.title : w.title, text: line, t: 0 };
     AudioManager.play(win ? 'victory' : 'defeat');
     AudioManager.setMusic('none');
   }
@@ -559,6 +564,7 @@ class FightSession {
     return {
       mode: this.mode, win: !!this.win, outcome: this.outcome || null, enemyId: e.def.id, stageId: this.cfg.stageId, foeName: e.name, ng: this.cfg.ng || 0,
       time: this.fightTime, hpLeft: p.hp / p.maxHp, flawless: this.damageTaken < 1, maxCombo: p.stats.maxCombo, parries: p.stats.parries,
+      hp: Math.max(0, p.hp), maxHp: p.maxHp,
       enemyDamage: 1 - Math.max(0, e.hp) / e.maxHp, waves: this.wavesCleared, trialCoins: this.trialCoins, trialGems: this.trialGems,
       env: this.cfg.env
     };
@@ -974,7 +980,7 @@ const Game = {
     this.session = cfg.stretch ? new StretchSession(cfg) : new FightSession(cfg);
     this.scene = 'fight'; this.paused = false; this.acc = 0; this.tableau = null;
     const d = ENEMIES[cfg.enemyId];
-    AudioManager.setMusic(cfg.mode === 'trials' ? 'trials' : d.type === 'boss' ? 'boss' : 'fight');
+    AudioManager.setMusic(cfg.mode === 'trials' ? 'trials' : d.type === 'boss' || cfg.mode === 'bossrush' ? 'boss' : 'fight');
     UIManager.showHud(this.session);
     if (cfg.mode === 'campaign' && !(opts && opts.skipBefore)) this.playStory(Logic.stageScene(cfg.stageId, 'before'));
   },
@@ -987,7 +993,36 @@ const Game = {
   quitFight() { this.session = null; this.paused = false; AudioManager.setMusic('menu'); },
   setTableau(env, opts) { this.tableau = { env: getEnv(env), t: 0, opts }; this.scene = 'tableau'; },
 
+  /* ---- Boss Rush ----
+     A run (Logic.bossRushRun) is held in Game.rush; each boss is its own FightSession in mode 'bossrush'
+     (Logic.bossRushConfig: the story boss format in its stage's arena, no story scenes). finishFight hands each result
+     to Logic.bossRushAdvance, which carries the health over, and the last fight (or a loss) goes to the results. */
+  startBossRush(from) {
+    const run = Logic.bossRushRun(SaveManager.data, from);
+    if (!run) return false;
+    this.rush = run; this.rushFrom = from || null;
+    UIManager.go('hud', () => this.startFight(this.bossRushFight()));
+    return true;
+  },
+  bossRushFight() {
+    const run = this.rush, cfg = Logic.bossRushConfig(SaveManager.data, run.stages[run.index]);
+    cfg.rush = { index: run.index, total: run.stages.length };
+    if (run.hp != null) cfg.carryHp = run.hp;
+    return cfg;
+  },
+  finishBossRushFight(r) {
+    this.lastCfg = this.session ? this.session.cfg : this.lastCfg;
+    const run = this.rush = Logic.bossRushAdvance(this.rush, { win: r.win, time: r.time, hp: r.hp, maxHp: r.maxHp });
+    if (!run.done) { this.session = null; UIManager.go('hud', () => this.startFight(this.bossRushFight())); return; }
+    const out = Logic.applyBossRushResult(SaveManager.data, run);
+    out.lastEnemyId = r.enemyId; out.lastFoe = r.foeName; out.win = run.cleared; out.env = r.env;
+    SaveManager.save();
+    this.lastResult = out; this.rush = null;
+    this.session = null;
+    UIManager.go('result', () => UIManager.showBossRushResult(out));
+  },
   finishFight(r) {
+    if (r.mode === 'bossrush') return this.finishBossRushFight(r);
     this.lastCfg = this.session ? this.session.cfg : this.lastCfg;
     const out = Logic.applyFightResult(SaveManager.data, r);
     SaveManager.save();

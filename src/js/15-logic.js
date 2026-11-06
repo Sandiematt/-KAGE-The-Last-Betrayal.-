@@ -114,6 +114,7 @@ const Logic = {
       difficulty: 'normal',    // Easy / Normal / Hard / Impossible (DIFFICULTY_IDS); only the player changes it
       difficultyPicked: false, // false until the new-game mode picker has been answered
       trialsBest: 0,
+      bossRushBest: { bosses: 0, time: 0 },   // Boss Rush record: most bosses beaten in one run, then the fastest time
       stats: { wins: 0, losses: 0, perfects: 0, bosses: 0, playTime: 0 },
       settings: { shake: 'full', reduceFlash: false, sound: true, music: true, touch: 'auto', stick: 'float' }
     };
@@ -153,6 +154,8 @@ const Logic = {
     delete d.unlockedActs;
     // Survival became Echo Trials: an older save's best wave carries over
     d.trialsBest = Math.max(0, +s.trialsBest || 0, +s.survivalBest || 0); delete d.survivalBest;
+    { const b = s.bossRushBest, n = b && Math.floor(+b.bosses), t = b && +b.time;
+      d.bossRushBest = n > 0 && t > 0 ? { bosses: n, time: t } : { bosses: 0, time: 0 }; }
     d.seenRewards = s.seenRewards || {};
     // found clues: only clues a stretch stage still has
     d.clues = {};
@@ -279,6 +282,11 @@ const Logic = {
   fightFormat(cfg) {
     cfg = cfg || {};
     if (cfg.mode === 'trials') return { name: 'trials', roundsToWin: 1, timer: 90, phases: 0, defeat: null };
+    // Boss Rush: every boss in the story boss format; nobody escapes or is reabsorbed, each just falls (no fate is kept)
+    if (cfg.mode === 'bossrush') {
+      const st = this.stage(cfg.stageId), n = this.bossPhases(cfg.enemyId).length;
+      return { name: 'boss', roundsToWin: 1, timer: 0, phases: st && st.kind === 'boss' ? Math.max(3, n) : Math.max(1, n), defeat: 'finisher' };
+    }
     if (cfg.stretch) return { name: 'stretch', roundsToWin: 1, timer: 0, phases: 0, defeat: null };
     const st = this.stage(cfg.stageId), d = ENEMIES[cfg.enemyId];
     if (st && st.kind === 'spar') return { name: 'spar', roundsToWin: 1, timer: SPAR.timer, phases: 0, defeat: null, interruptAt: SPAR.interruptAt, preventKO: true };
@@ -747,9 +755,8 @@ const Logic = {
      fixed function gives the same wave every time. */
   // The bosses this save has beaten in the story: every defeated stage of kind subboss, boss or echo, in story order.
   echoTrialBosses(save) {
-    const def = (save && save.defeated) || {};
-    return STAGE_LIST.filter(st => TRIALS.bossKinds.includes(st.kind) && def[st.id] > 0 && ENEMIES[st.enemy])
-      .map(st => ({ stageId: st.id, enemyId: st.enemy, name: st.foe || ENEMIES[st.enemy].name, kind: st.kind }));
+    return this.bossRushRoster(save).filter(b => b.available)
+      .map(b => ({ stageId: b.stageId, enemyId: b.enemyId, name: b.name, kind: b.kind }));
   },
   echoTrialEnv(n) { const e = TRIALS.envs, i = Math.floor((Math.max(1, n) - 1) / TRIALS.shiftEvery); return e[i % e.length]; },
   echoTrialWave(save, n, rand) {
@@ -774,6 +781,54 @@ const Logic = {
     const count = TRIALS.count.reduce((c, step) => n >= step.from ? step.n : c, 1);
     for (let i = 0; i < count; i++) out.foes.push(pick(pool));
     return out;
+  },
+  /* ---------------- Boss Rush ----------------
+     Every boss of the story in story order (every CAMPAIGN stage of kind subboss, boss or echo: TRIALS.bossKinds), so
+     a boss a later update adds joins on its own. A boss is available once beaten in the story (save.defeated). A run
+     fights the available ones back to back, each as the story boss format in its own stage's arena, with no story
+     scenes and no story effects: health carries over with BOSS_RUSH.heal of max health restored between fights, the
+     difficulty mode applies as everywhere, and the end pays BOSS_RUSH.coins per boss beaten and keeps `bossRushBest`
+     ({ bosses, time }: more bosses wins, then the faster time). A run never clears stages, records defeats or fates,
+     grants gear, gems or XP. */
+  BOSS_RUSH,
+  // [{ stageId, enemyId, name, title, kind, chapter, available }] in story order.
+  bossRushRoster(save) {
+    const def = (save && save.defeated) || {};
+    return STAGE_LIST.filter(st => TRIALS.bossKinds.includes(st.kind) && ENEMIES[st.enemy]).map(st => ({
+      stageId: st.id, enemyId: st.enemy, name: st.foe || ENEMIES[st.enemy].name, title: st.foeTitle || ENEMIES[st.enemy].title || '',
+      kind: st.kind, chapter: st.chapter, available: def[st.id] > 0
+    }));
+  },
+  // A new run over the available bosses (from the stage `from` on, when given), or null when none is available:
+  // { stages, index, beaten, time, hp, done, cleared }. `hp` is the health the next fight starts with (null = full).
+  bossRushRun(save, from) {
+    let list = this.bossRushRoster(save).filter(b => b.available).map(b => b.stageId);
+    const i = from ? list.indexOf(from) : 0;
+    if (i > 0) list = list.slice(i);
+    return list.length ? { stages: list, index: 0, beaten: 0, time: 0, hp: null, done: false, cleared: false } : null;
+  },
+  // The fight config of one rush boss: its stage's config (arena, chapter curve, foe name) as mode 'bossrush'.
+  bossRushConfig(save, stageId) {
+    return Object.assign(this.stageConfig(save, stageId), { mode: 'bossrush', format: this.fightFormat({ mode: 'bossrush', stageId, enemyId: this.stage(stageId).enemy }) });
+  },
+  // The health the next fight starts with: what was left plus BOSS_RUSH.heal of max health, capped at max.
+  bossRushCarryHp(hp, maxHp) { return Math.min(maxHp, Math.round(Math.max(0, hp) + maxHp * BOSS_RUSH.heal)); },
+  // A run after one fight ({ win, time, hp, maxHp }): a new run object, done on a loss or after the last boss.
+  bossRushAdvance(run, fight) {
+    const r = Object.assign({}, run, { time: run.time + (fight.time || 0) });
+    if (!fight.win) return Object.assign(r, { done: true, cleared: false });
+    r.beaten++; r.index++; r.hp = this.bossRushCarryHp(fight.hp, fight.maxHp);
+    if (r.index >= r.stages.length) Object.assign(r, { done: true, cleared: true });
+    return r;
+  },
+  // Applies a finished run to the save: { mode: 'bossrush', beaten, total, time, cleared, coins, gems, xp, newBest, best }.
+  applyBossRushResult(save, run) {
+    const coins = run.beaten * BOSS_RUSH.coins, prev = save.bossRushBest || { bosses: 0, time: 0 };
+    const newBest = run.beaten > 0 && (run.beaten > prev.bosses || (run.beaten === prev.bosses && run.time < prev.time));
+    if (newBest) save.bossRushBest = { bosses: run.beaten, time: run.time };
+    save.coins += coins;
+    return { mode: 'bossrush', beaten: run.beaten, total: run.stages.length, time: run.time, cleared: !!run.cleared,
+      stages: run.stages.slice(), coins, gems: 0, xp: 0, newBest, best: Object.assign({}, save.bossRushBest) };
   },
   // Applies a finished fight (campaign or Echo Trials) to the save and returns what it earned:
   // { coins, gems, xp, rating, seals, unlocks, firstClear, next?, levelUps, levelBefore, xpBefore, newBest? }

@@ -861,6 +861,31 @@ body { font-family: var(--font-num); }
   .st-hint { display: none; }
   .st-skip { top: .6rem; right: .8rem; height: 2.3rem; }
 }
+
+/* ---------- Boss Rush: the roster (locked bosses as silhouettes) ---------- */
+#scr-bossrush { background: radial-gradient(circle at 70% 40%, #2a1210 0%, var(--bg-charcoal) 45%, var(--bg-void) 100%); }
+.br-wrap { position: absolute; inset: 6.5rem 3rem 1.6rem; display: grid; grid-template-columns: 24rem 1fr; gap: 2.2rem; }
+.br-side { display: flex; flex-direction: column; gap: 1.2rem; }
+.br-side .best { gap: 1.6rem; } .br-side .best b { font-size: 1.6rem; }
+.br-grid { display: grid; grid-template-columns: repeat(5, 1fr); grid-auto-rows: 1fr; gap: .6rem; min-height: 0; overflow-y: auto; padding-right: .3rem; }
+.br-card { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: .1rem; padding: .4rem .3rem .5rem; min-height: 7.5rem;
+  border: 1px solid #3a2a22; background: rgba(10,6,6,.6); color: var(--text-primary, #ece5d3); cursor: pointer; font: inherit; text-align: center; }
+.br-card canvas { width: 100%; flex: 1; min-height: 3.6rem; }
+.br-card b { font-family: var(--font-display); font-size: .92rem; line-height: 1.1; }
+.br-card span { color: var(--text-muted); font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; }
+.br-card.locked { opacity: .7; cursor: not-allowed; }
+.br-card.locked b { color: var(--text-muted); letter-spacing: .3em; }
+.br-card.on { border-color: #6a4a2a; }
+.br-card.run { border-color: var(--accent-gold); box-shadow: inset 0 0 1.2rem rgba(201,164,92,.12); }
+.br-card.from { border-color: var(--accent-ember-bright); box-shadow: inset 0 0 1.4rem rgba(163,48,42,.35); }
+.br-card em { position: absolute; top: .3rem; left: .35rem; font-style: normal; font-size: .65rem; letter-spacing: .18em; text-transform: uppercase; color: var(--accent-ember-bright); }
+.br-card:focus-visible { outline: 2px solid var(--accent-gold); outline-offset: 2px; }
+@media (max-height: 560px) {
+  .br-wrap { inset: 4.8rem 1.4rem .8rem; grid-template-columns: 17rem 1fr; gap: 1.2rem; }
+  .br-side { gap: .6rem; } .br-side .rules { font-size: .85rem; gap: .4rem .7rem; }
+  .br-card { min-height: 5.6rem; } .br-card b { font-size: .78rem; }
+}
+@media (max-width: 900px) and (min-height: 561px) { .br-wrap { grid-template-columns: 1fr; } .br-grid { grid-template-columns: repeat(4, 1fr); } }
 </style>
 </head>
 <body>
@@ -875,6 +900,7 @@ body { font-family: var(--font-num); }
     <section class="screen" id="scr-result" aria-label="Results"></section>
     <section class="screen" id="scr-settings" aria-label="Settings"></section>
     <section class="screen" id="scr-trials" aria-label="Echo Trials"></section>
+    <section class="screen" id="scr-bossrush" aria-label="Boss Rush"></section>
     <div id="touch" aria-hidden="true"></div>
     <div class="overlay" id="ov-pause" role="dialog" aria-label="Paused"></div>
     <div class="overlay" id="ov-help" role="dialog" aria-label="Controls"></div>
@@ -2755,6 +2781,13 @@ const TRIALS = {
   gemsEvery: 5
 };
 
+/* ---------------- Boss Rush ----------------
+   Every boss of the story (stage kinds `TRIALS.bossKinds`) back to back, each one only once beaten in the story.
+   Logic.bossRushRoster / bossRushRun / bossRushAdvance / applyBossRushResult read this.
+     heal    share of max health restored between fights (the rest carries over)
+     coins   coins paid per boss beaten in a run (no gems, no XP, no gear, no story progress) */
+const BOSS_RUSH = { heal: 0.3, coins: 30 };
+
 /* Enemy AI archetypes (ENEMIES[id].ai). Logic.aiTuning sharpens them by stage level, New Game+ and difficulty mode;
    40-ai.js reads the tuned copy. react = reaction delay range (s), combo = string length range. */
 const AI_PROFILES = {
@@ -3420,6 +3453,7 @@ const Logic = {
       difficulty: 'normal',    // Easy / Normal / Hard / Impossible (DIFFICULTY_IDS); only the player changes it
       difficultyPicked: false, // false until the new-game mode picker has been answered
       trialsBest: 0,
+      bossRushBest: { bosses: 0, time: 0 },   // Boss Rush record: most bosses beaten in one run, then the fastest time
       stats: { wins: 0, losses: 0, perfects: 0, bosses: 0, playTime: 0 },
       settings: { shake: 'full', reduceFlash: false, sound: true, music: true, touch: 'auto', stick: 'float' }
     };
@@ -3459,6 +3493,8 @@ const Logic = {
     delete d.unlockedActs;
     // Survival became Echo Trials: an older save's best wave carries over
     d.trialsBest = Math.max(0, +s.trialsBest || 0, +s.survivalBest || 0); delete d.survivalBest;
+    { const b = s.bossRushBest, n = b && Math.floor(+b.bosses), t = b && +b.time;
+      d.bossRushBest = n > 0 && t > 0 ? { bosses: n, time: t } : { bosses: 0, time: 0 }; }
     d.seenRewards = s.seenRewards || {};
     // found clues: only clues a stretch stage still has
     d.clues = {};
@@ -3585,6 +3621,11 @@ const Logic = {
   fightFormat(cfg) {
     cfg = cfg || {};
     if (cfg.mode === 'trials') return { name: 'trials', roundsToWin: 1, timer: 90, phases: 0, defeat: null };
+    // Boss Rush: every boss in the story boss format; nobody escapes or is reabsorbed, each just falls (no fate is kept)
+    if (cfg.mode === 'bossrush') {
+      const st = this.stage(cfg.stageId), n = this.bossPhases(cfg.enemyId).length;
+      return { name: 'boss', roundsToWin: 1, timer: 0, phases: st && st.kind === 'boss' ? Math.max(3, n) : Math.max(1, n), defeat: 'finisher' };
+    }
     if (cfg.stretch) return { name: 'stretch', roundsToWin: 1, timer: 0, phases: 0, defeat: null };
     const st = this.stage(cfg.stageId), d = ENEMIES[cfg.enemyId];
     if (st && st.kind === 'spar') return { name: 'spar', roundsToWin: 1, timer: SPAR.timer, phases: 0, defeat: null, interruptAt: SPAR.interruptAt, preventKO: true };
@@ -4053,9 +4094,8 @@ const Logic = {
      fixed function gives the same wave every time. */
   // The bosses this save has beaten in the story: every defeated stage of kind subboss, boss or echo, in story order.
   echoTrialBosses(save) {
-    const def = (save && save.defeated) || {};
-    return STAGE_LIST.filter(st => TRIALS.bossKinds.includes(st.kind) && def[st.id] > 0 && ENEMIES[st.enemy])
-      .map(st => ({ stageId: st.id, enemyId: st.enemy, name: st.foe || ENEMIES[st.enemy].name, kind: st.kind }));
+    return this.bossRushRoster(save).filter(b => b.available)
+      .map(b => ({ stageId: b.stageId, enemyId: b.enemyId, name: b.name, kind: b.kind }));
   },
   echoTrialEnv(n) { const e = TRIALS.envs, i = Math.floor((Math.max(1, n) - 1) / TRIALS.shiftEvery); return e[i % e.length]; },
   echoTrialWave(save, n, rand) {
@@ -4080,6 +4120,54 @@ const Logic = {
     const count = TRIALS.count.reduce((c, step) => n >= step.from ? step.n : c, 1);
     for (let i = 0; i < count; i++) out.foes.push(pick(pool));
     return out;
+  },
+  /* ---------------- Boss Rush ----------------
+     Every boss of the story in story order (every CAMPAIGN stage of kind subboss, boss or echo: TRIALS.bossKinds), so
+     a boss a later update adds joins on its own. A boss is available once beaten in the story (save.defeated). A run
+     fights the available ones back to back, each as the story boss format in its own stage's arena, with no story
+     scenes and no story effects: health carries over with BOSS_RUSH.heal of max health restored between fights, the
+     difficulty mode applies as everywhere, and the end pays BOSS_RUSH.coins per boss beaten and keeps `bossRushBest`
+     ({ bosses, time }: more bosses wins, then the faster time). A run never clears stages, records defeats or fates,
+     grants gear, gems or XP. */
+  BOSS_RUSH,
+  // [{ stageId, enemyId, name, title, kind, chapter, available }] in story order.
+  bossRushRoster(save) {
+    const def = (save && save.defeated) || {};
+    return STAGE_LIST.filter(st => TRIALS.bossKinds.includes(st.kind) && ENEMIES[st.enemy]).map(st => ({
+      stageId: st.id, enemyId: st.enemy, name: st.foe || ENEMIES[st.enemy].name, title: st.foeTitle || ENEMIES[st.enemy].title || '',
+      kind: st.kind, chapter: st.chapter, available: def[st.id] > 0
+    }));
+  },
+  // A new run over the available bosses (from the stage `from` on, when given), or null when none is available:
+  // { stages, index, beaten, time, hp, done, cleared }. `hp` is the health the next fight starts with (null = full).
+  bossRushRun(save, from) {
+    let list = this.bossRushRoster(save).filter(b => b.available).map(b => b.stageId);
+    const i = from ? list.indexOf(from) : 0;
+    if (i > 0) list = list.slice(i);
+    return list.length ? { stages: list, index: 0, beaten: 0, time: 0, hp: null, done: false, cleared: false } : null;
+  },
+  // The fight config of one rush boss: its stage's config (arena, chapter curve, foe name) as mode 'bossrush'.
+  bossRushConfig(save, stageId) {
+    return Object.assign(this.stageConfig(save, stageId), { mode: 'bossrush', format: this.fightFormat({ mode: 'bossrush', stageId, enemyId: this.stage(stageId).enemy }) });
+  },
+  // The health the next fight starts with: what was left plus BOSS_RUSH.heal of max health, capped at max.
+  bossRushCarryHp(hp, maxHp) { return Math.min(maxHp, Math.round(Math.max(0, hp) + maxHp * BOSS_RUSH.heal)); },
+  // A run after one fight ({ win, time, hp, maxHp }): a new run object, done on a loss or after the last boss.
+  bossRushAdvance(run, fight) {
+    const r = Object.assign({}, run, { time: run.time + (fight.time || 0) });
+    if (!fight.win) return Object.assign(r, { done: true, cleared: false });
+    r.beaten++; r.index++; r.hp = this.bossRushCarryHp(fight.hp, fight.maxHp);
+    if (r.index >= r.stages.length) Object.assign(r, { done: true, cleared: true });
+    return r;
+  },
+  // Applies a finished run to the save: { mode: 'bossrush', beaten, total, time, cleared, coins, gems, xp, newBest, best }.
+  applyBossRushResult(save, run) {
+    const coins = run.beaten * BOSS_RUSH.coins, prev = save.bossRushBest || { bosses: 0, time: 0 };
+    const newBest = run.beaten > 0 && (run.beaten > prev.bosses || (run.beaten === prev.bosses && run.time < prev.time));
+    if (newBest) save.bossRushBest = { bosses: run.beaten, time: run.time };
+    save.coins += coins;
+    return { mode: 'bossrush', beaten: run.beaten, total: run.stages.length, time: run.time, cleared: !!run.cleared,
+      stages: run.stages.slice(), coins, gems: 0, xp: 0, newBest, best: Object.assign({}, save.bossRushBest) };
   },
   // Applies a finished fight (campaign or Echo Trials) to the save and returns what it earned:
   // { coins, gems, xp, rating, seals, unlocks, firstClear, next?, levelUps, levelBefore, xpBefore, newBest? }
@@ -11580,6 +11668,8 @@ class FightSession {
     this.spar = !cfg.stretch && (cfg.format || Logic.fightFormat(cfg)).name === 'spar';
     this.memory = this.spar;
     this.player = this.makePlayer(save);
+    // Boss Rush: the health the last fight left, plus the partial restore (Logic.bossRushCarryHp)
+    if (cfg.carryHp != null) this.player.hp = clamp(Math.round(cfg.carryHp), 1, this.player.maxHp);
     this.setup();
   }
   // The single-screen arena: one main foe, rounds, a round timer and the intro duel. StretchSession overrides this.
@@ -11687,6 +11777,8 @@ class FightSession {
     this.cam.x = e.x - 80; this.cam.zoom = 1.3;
     if (this.mode === 'trials') { this.nameBossEcho(); this.trialBanner(); }
   }
+  // Boss Rush: where this fight sits in the run (cfg.rush from Game.bossRushFight)
+  rushLabel() { const r = this.cfg.rush; return r ? `Boss ${r.index + 1} / ${r.total}` : ''; }
 
   // ---- world interface used by fighters / combat / AI ----
   opponentOf(f) {
@@ -11990,6 +12082,7 @@ class FightSession {
         if (this.phaseT < 0.05 && !this.roundShown) {
           this.roundShown = true; this.rounds.n++;
           if (this.spar) this.fx.banner('Sparring Match', "A memory · Takashi's yard", C.gold);
+          else if (this.mode === 'bossrush') this.fx.banner(`Boss Rush · ${this.rushLabel()}`, `${e.name} · ${Logic.difficulty(SaveManager.data.difficulty).label}`, C.gold);
           else if (this.mode !== 'trials') this.fx.banner(this.roundsToWin > 1 ? `Round ${ROMAN[this.rounds.n - 1]}` : 'Final Duel', this.bossFormat ? `One life · ${['one phase', 'two phases', 'three phases'][this.format.phases - 1] || this.format.phases + ' phases'} · ${Logic.difficulty(SaveManager.data.difficulty).label}` : `${e.name} · ${DIFF_LABEL[clamp((this.cfg.diff || 1) + (this.cfg.ng || 0), 0, 4)]} · ${Logic.difficulty(SaveManager.data.difficulty).label}`, C.gold);
           AudioManager.play('round');
         }
@@ -12088,7 +12181,7 @@ class FightSession {
     w.state = 'pose'; w.poseName = 'victory'; w.vx = 0;
     if (!win) w.poseName = 'taunt';
     const line = win ? (defeatScene ? null : l.def.defeatLine || null) : (w.def && w.def.win) || null;
-    if (line && this.mode !== 'trials') this.dialogue = { name: win ? l.name : w.name, title: win ? l.title : w.title, text: line, t: 0 };
+    if (line && this.mode === 'campaign') this.dialogue = { name: win ? l.name : w.name, title: win ? l.title : w.title, text: line, t: 0 };
     AudioManager.play(win ? 'victory' : 'defeat');
     AudioManager.setMusic('none');
   }
@@ -12115,6 +12208,7 @@ class FightSession {
     return {
       mode: this.mode, win: !!this.win, outcome: this.outcome || null, enemyId: e.def.id, stageId: this.cfg.stageId, foeName: e.name, ng: this.cfg.ng || 0,
       time: this.fightTime, hpLeft: p.hp / p.maxHp, flawless: this.damageTaken < 1, maxCombo: p.stats.maxCombo, parries: p.stats.parries,
+      hp: Math.max(0, p.hp), maxHp: p.maxHp,
       enemyDamage: 1 - Math.max(0, e.hp) / e.maxHp, waves: this.wavesCleared, trialCoins: this.trialCoins, trialGems: this.trialGems,
       env: this.cfg.env
     };
@@ -12530,7 +12624,7 @@ const Game = {
     this.session = cfg.stretch ? new StretchSession(cfg) : new FightSession(cfg);
     this.scene = 'fight'; this.paused = false; this.acc = 0; this.tableau = null;
     const d = ENEMIES[cfg.enemyId];
-    AudioManager.setMusic(cfg.mode === 'trials' ? 'trials' : d.type === 'boss' ? 'boss' : 'fight');
+    AudioManager.setMusic(cfg.mode === 'trials' ? 'trials' : d.type === 'boss' || cfg.mode === 'bossrush' ? 'boss' : 'fight');
     UIManager.showHud(this.session);
     if (cfg.mode === 'campaign' && !(opts && opts.skipBefore)) this.playStory(Logic.stageScene(cfg.stageId, 'before'));
   },
@@ -12543,7 +12637,36 @@ const Game = {
   quitFight() { this.session = null; this.paused = false; AudioManager.setMusic('menu'); },
   setTableau(env, opts) { this.tableau = { env: getEnv(env), t: 0, opts }; this.scene = 'tableau'; },
 
+  /* ---- Boss Rush ----
+     A run (Logic.bossRushRun) is held in Game.rush; each boss is its own FightSession in mode 'bossrush'
+     (Logic.bossRushConfig: the story boss format in its stage's arena, no story scenes). finishFight hands each result
+     to Logic.bossRushAdvance, which carries the health over, and the last fight (or a loss) goes to the results. */
+  startBossRush(from) {
+    const run = Logic.bossRushRun(SaveManager.data, from);
+    if (!run) return false;
+    this.rush = run; this.rushFrom = from || null;
+    UIManager.go('hud', () => this.startFight(this.bossRushFight()));
+    return true;
+  },
+  bossRushFight() {
+    const run = this.rush, cfg = Logic.bossRushConfig(SaveManager.data, run.stages[run.index]);
+    cfg.rush = { index: run.index, total: run.stages.length };
+    if (run.hp != null) cfg.carryHp = run.hp;
+    return cfg;
+  },
+  finishBossRushFight(r) {
+    this.lastCfg = this.session ? this.session.cfg : this.lastCfg;
+    const run = this.rush = Logic.bossRushAdvance(this.rush, { win: r.win, time: r.time, hp: r.hp, maxHp: r.maxHp });
+    if (!run.done) { this.session = null; UIManager.go('hud', () => this.startFight(this.bossRushFight())); return; }
+    const out = Logic.applyBossRushResult(SaveManager.data, run);
+    out.lastEnemyId = r.enemyId; out.lastFoe = r.foeName; out.win = run.cleared; out.env = r.env;
+    SaveManager.save();
+    this.lastResult = out; this.rush = null;
+    this.session = null;
+    UIManager.go('result', () => UIManager.showBossRushResult(out));
+  },
   finishFight(r) {
+    if (r.mode === 'bossrush') return this.finishBossRushFight(r);
     this.lastCfg = this.session ? this.session.cfg : this.lastCfg;
     const out = Logic.applyFightResult(SaveManager.data, r);
     SaveManager.save();
@@ -13105,6 +13228,8 @@ const ICON = {
   fwd: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>'
 };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+// m:ss for Boss Rush times (seconds in)
+const brTime = t => { t = Math.max(0, Math.round(t || 0)); return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}`; };
 const $ = (sel, root) => (root || document).querySelector(sel);
 const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
 function currencyHTML() { const s = SaveManager.data; return `<div class="currency"><span><i class="coin"></i><b data-coins>${fmt(s.coins)}</b></span><span><i class="gem"></i><b data-gems>${fmt(s.gems)}</b></span></div>`; }
@@ -13150,6 +13275,7 @@ function drawPortrait(cv, f, enemy) {
 function gearName(kind, id) { return gearTable(kind)[id].name; }
 
 const MENU_IC = {
+  rush: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18l3-9 5 5 5-5 3 9z"/><path d="M4 21h16"/><circle cx="7" cy="6" r="1.3" fill="currentColor"/><circle cx="12" cy="4.5" r="1.3" fill="currentColor"/><circle cx="17" cy="6" r="1.3" fill="currentColor"/></svg>',
   swords: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" x2="19" y1="19" y2="13"/><line x1="16" x2="20" y1="16" y2="20"/><line x1="19" x2="21" y1="21" y2="19"/><polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5"/><line x1="5" x2="9" y1="14" y2="18"/><line x1="7" x2="4" y1="17" y2="20"/><line x1="3" x2="5" y1="19" y2="21"/></svg>',
   torii: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4c6 1.3 14 1.3 20 0"/><path d="M4 8h16"/><path d="M6 6v15M18 6v15"/><path d="M12 8v3"/></svg>',
   anvil: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h13c0 3 2 4 5 4v1c-4 0-6 1-7 3H8C7 12 5 11 3 11z"/><path d="M8 15l-2 5h12l-2-5"/></svg>',
@@ -13229,7 +13355,7 @@ const UIManager = {
   action(a, el) {
     const save = SaveManager.data, d = el.dataset;
     // a new game asks for a difficulty mode before the first campaign or Echo Trials entry
-    if ((a === 'play' || a === 'campaign' || a === 'trials') && !save.difficultyPicked) { this.openModePicker(a); return; }
+    if ((a === 'play' || a === 'campaign' || a === 'trials' || a === 'br-start') && !save.difficultyPicked) { this.openModePicker(a); return; }
     switch (a) {
       case 'pick-mode': {
         const next = this._modeNext; this._modeNext = null;
@@ -13257,6 +13383,13 @@ const UIManager = {
       }
       case 'campaign': this.selStage = Game.nextStage() || this.selStage; this.go('campaign', () => this.renderCampaign()); break;
       case 'trials': this.go('trials', () => this.renderTrials()); break;
+      case 'bossrush': this.go('bossrush', () => this.renderBossRush()); break;
+      case 'br-pick': {
+        const b = Logic.bossRushRoster(save).find(x => x.stageId === d.id);
+        if (!b || !b.available) { AudioManager.play('block'); this.toast('Locked', 'Defeat in the story', true); return; }
+        this.brFrom = this.brFrom === d.id ? null : d.id; AudioManager.play('ui'); this.renderBossRush(); break;
+      }
+      case 'br-start': if (!Game.startBossRush(this.brFrom)) { AudioManager.play('block'); this.toast('No boss yet', 'Defeat a boss in the story to add it to the rush', true); } break;
       case 'armory': this.returnTo = this.current; this.go('armory', () => this.renderArmory()); break;
       case 'settings': this.returnTo = this.current === 'settings' ? 'title' : this.current; this.go('settings', () => this.renderSettings()); break;
       case 'title': this.go('title', () => this.renderTitle()); break;
@@ -13322,16 +13455,18 @@ const UIManager = {
       }
       case 'pause': this.openPause(); break;
       case 'resume': this.closeOverlay(); break;
-      case 'restart': this.closeOverlay(); Game.paused = false; { const cfg = Object.assign({}, Game.session.cfg); if (cfg.mode === 'trials') cfg.wave = 1; Game.quitFight(); this.go('hud', () => Game.startFight(cfg, { skipBefore: true })); } break;
-      case 'quit': this.closeOverlay(); { const mode = Game.session && Game.session.mode; Game.quitFight(); if (mode === 'trials') this.go('trials', () => this.renderTrials()); else this.go('campaign', () => this.renderCampaign()); } break;
+      case 'restart': this.closeOverlay(); Game.paused = false; { const cfg = Object.assign({}, Game.session.cfg); if (cfg.mode === 'trials') cfg.wave = 1;
+        if (cfg.mode === 'bossrush') { Game.quitFight(); Game.startBossRush(Game.rushFrom); break; } Game.quitFight(); this.go('hud', () => Game.startFight(cfg, { skipBefore: true })); } break;
+      case 'quit': this.closeOverlay(); { const mode = Game.session && Game.session.mode; Game.quitFight(); Game.rush = null; if (mode === 'trials') this.go('trials', () => this.renderTrials()); else if (mode === 'bossrush') this.go('bossrush', () => this.renderBossRush()); else this.go('campaign', () => this.renderCampaign()); } break;
       case 'res-continue': {
         const r = Game.lastResult;
         if (r.mode === 'trials') { this.go('trials', () => this.renderTrials()); break; }
+        if (r.mode === 'bossrush') { this.go('bossrush', () => this.renderBossRush()); break; }
         this.selStage = r.win && r.next ? r.next : r.stageId;
         this.go('campaign', () => this.renderCampaign());
         break;
       }
-      case 'res-retry': Game.retry(); break;
+      case 'res-retry': if (Game.lastResult && Game.lastResult.mode === 'bossrush') Game.startBossRush(Game.rushFrom); else Game.retry(); break;
       case 'res-armory': this.returnTo = 'result'; this.go('armory', () => this.renderArmory()); break;
       case 'res-map': this.selStage = Game.lastResult.stageId; this.go('campaign', () => this.renderCampaign()); break;
     }
@@ -13348,7 +13483,7 @@ const UIManager = {
         else this.go('title', () => this.renderTitle());
         break;
       }
-      case 'trials': this.go('title', () => this.renderTitle()); break;
+      case 'trials': case 'bossrush': this.go('title', () => this.renderTitle()); break;
       case 'prefight': if (this.pfCfg.mode === 'trials') this.go('trials', () => this.renderTrials()); else { this.selStage = this.pfCfg.stageId; this.go('campaign', () => this.renderCampaign()); } break;
       case 'result': this.action('res-continue', document.body); break;
     }
@@ -13395,6 +13530,7 @@ const UIManager = {
         ${item('campaign', MENU_IC.torii, 'Campaign')}
         ${item('armory', MENU_IC.anvil, 'Armory')}
         ${item('trials', MENU_IC.echo, 'Echo Trials')}
+        ${item('bossrush', MENU_IC.rush, 'Boss Rush')}
         ${item('settings', MENU_IC.gear, 'Settings')}
       </nav>
       <div class="tl-currency">
@@ -13818,7 +13954,8 @@ const UIManager = {
         const tb = $('#touch .tb.rage'); if (tb) tb.classList.toggle('ready', full);
       });
       this.set('kunai', p.ammo, v => { e.kunai.innerHTML = `<svg viewBox="0 0 24 24"><path d="M3 21 L14 10 M14 10 L21 3 L18 11 Z" stroke="currentColor" stroke-width="2" fill="currentColor" stroke-linejoin="round"/></svg>${v}`; const k = $('#touch [data-ammo]'); if (k) k.textContent = v; });
-      this.set('wave', s.mode === 'trials' ? `${s.wave}-${s.trialCoins}` : '', () => { e.wave.innerHTML = s.mode === 'trials' ? `<span>Wave ${s.wave}</span><span class="wv-c"><i class="coin"></i>${s.trialCoins}</span><span class="muted">Best ${SaveManager.data.trialsBest}</span>` : ''; });
+      this.set('wave', s.mode === 'trials' ? `${s.wave}-${s.trialCoins}` : s.mode === 'bossrush' ? 'br' + s.rushLabel() : '', () => { e.wave.innerHTML = s.mode === 'trials' ? `<span>Wave ${s.wave}</span><span class="wv-c"><i class="coin"></i>${s.trialCoins}</span><span class="muted">Best ${SaveManager.data.trialsBest}</span>`
+        : s.mode === 'bossrush' ? `<span>Boss Rush</span><span>${esc(s.rushLabel())}</span><span class="muted">Best ${SaveManager.data.bossRushBest.bosses}</span>` : ''; });
       this.set('combo', s.combo >= 2 ? s.combo : 0, v => { e.combo.classList.toggle('on', v >= 2); if (v >= 2) { e.combo.firstChild.textContent = v; e.combo.classList.remove('bump'); void e.combo.offsetWidth; e.combo.classList.add('bump'); } });
       const dl = s.dialogue;
       this.set('dlg', dl ? dl.text : '', () => { e.dlg.classList.toggle('on', !!dl); if (dl) { e.dlg.children[0].textContent = `${dl.name} · ${dl.title}`; e.dlg.children[1].textContent = dl.text; } });
@@ -14005,6 +14142,65 @@ const UIManager = {
     };
   },
 
+  /* ---------------- Boss Rush ----------------
+     The roster is Logic.bossRushRoster: every boss of the story in story order, the ones not yet beaten in the story
+     shown as locked silhouettes. Picking an available boss makes the run start there; Game.startBossRush runs it. */
+  renderBossRush() {
+    const save = SaveManager.data, el = $('#scr-bossrush');
+    Game.setScene('menu'); AudioManager.setMusic('menu');
+    const roster = Logic.bossRushRoster(save), avail = roster.filter(b => b.available);
+    if (this.brFrom && !avail.some(b => b.stageId === this.brFrom)) this.brFrom = null;
+    const run = Logic.bossRushRun(save, this.brFrom), best = save.bossRushBest;
+    const card = b => {
+      const inRun = run && run.stages.includes(b.stageId), from = b.stageId === this.brFrom;
+      return `<button class="br-card ${b.available ? 'on' : 'locked'}${inRun ? ' run' : ''}${from ? ' from' : ''}" data-a="br-pick" data-id="${b.stageId}" aria-label="${esc(b.available ? b.name : 'Locked boss')}">
+        <canvas data-br="${b.stageId}"></canvas>
+        <b>${b.available ? esc(b.name) : '???'}</b><span>${b.available ? esc(Logic.chapter(b.chapter).name) : 'Defeat in the story'}</span>${from ? '<em>Start</em>' : ''}</button>`;
+    };
+    el.innerHTML = `
+      <div class="topbar"><div class="head"><button class="round-btn" data-a="back" aria-label="Back">${ICON.back}</button><div><div class="eyebrow">Every boss, back to back</div><h2 class="disp">Boss Rush</h2></div></div>${currencyHTML()}</div>
+      <div class="br-wrap">
+        <div class="br-side">
+          <div class="best"><div><b>${avail.length} / ${roster.length}</b><span>Unlocked</span></div><div><b>${best.bosses || '—'}</b><span>Best run</span></div><div><b>${best.bosses ? brTime(best.time) : '—'}</b><span>Best time</span></div></div>
+          <div class="rules"><b>Run</b><span>${run ? `${run.stages.length} boss${run.stages.length === 1 ? '' : 'es'} in story order${this.brFrom ? ', from your chosen start' : ''}. One life, no story scenes.` : 'Every boss you defeat in the story joins the rush.'}</span><b>Health</b><span>Carries over: ${Math.round(Logic.BOSS_RUSH.heal * 100)}% of your health returns between fights.</span><b>Earn</b><span>${Logic.BOSS_RUSH.coins} coins per boss beaten, on your ${esc(Logic.difficulty(save.difficulty).label)} mode.</span></div>
+          <button class="btn-primary ${run ? '' : 'locked'}" data-a="br-start" data-focus ${run ? '' : 'disabled'}>${run ? 'Begin the rush' : 'Locked'}</button>
+        </div>
+        <div class="br-grid">${roster.map(card).join('')}</div>
+      </div>`;
+    const paint = () => {
+      for (const cv of $$('#scr-bossrush canvas[data-br]')) {
+        const b = roster.find(x => x.stageId === cv.dataset.br); if (!b) continue;
+        const f = makeFighterFromEnemy(b.enemyId, { facing: -1 }); poseFighter(f, 'taunt', 40);
+        drawFighterInto(cv, f, b.available ? { rim: 'rgba(236,229,211,0.55)', fit: 0.9, tall: 1.15 } : { color: '#3b2f29', rim: null, fit: 0.9, tall: 1.15 });
+      }
+    };
+    if (this.current === 'bossrush') setTimeout(paint, 0); else this.afterShow = paint;
+  },
+  // The end of a run (Logic.applyBossRushResult): bosses beaten, time, the record and the coins.
+  showBossRushResult(r) {
+    const save = SaveManager.data, el = $('#scr-result');
+    const player = makePlayerFighter(save, {}), foe = makeFighterFromEnemy(r.lastEnemyId, {});
+    if (r.cleared) { player.x = -170; poseFighter(player, 'victory', 50); foe.x = -400; foe.facing = 1; poseFighter(foe, 'dead', 50); }
+    else { player.x = -400; poseFighter(player, 'kneel', 50); foe.x = -120; foe.facing = -1; foe.scale *= 1.3; poseFighter(foe, 'taunt', 50); }
+    Game.setTableau(r.env, { fighters: [foe, player], zoom: 1.2, ground: 610, camEase: 0.04, tint: r.cleared ? 'rgba(20,14,6,0.35)' : 'rgba(30,6,4,0.45)', lights: [{ x: 470, y: 330, r: 520, c: r.cleared ? 'rgba(201,164,92,0.2)' : 'rgba(163,48,42,0.35)' }] });
+    const title = r.newBest ? 'New Record' : r.cleared ? 'Rush Complete' : 'Fallen';
+    const line = r.cleared ? 'Every boss you remember, broken in one run.' : `${r.lastFoe} ended the rush.`;
+    el.innerHTML = `
+      <div class="res-col">
+        <div><div class="eyebrow muted" style="color:var(--text-muted)">Boss Rush · ${esc(Logic.difficulty(save.difficulty).label)}</div>
+          <h2 class="disp ${r.cleared || r.newBest ? 'win' : 'lose'}">${title}</h2>
+          <div class="line">${esc(line)}</div></div>
+        <div class="recap" data-br-result>
+          <div><b>${r.beaten} / ${r.total}</b><span>Bosses defeated</span></div>
+          <div><b>${brTime(r.time)}</b><span>Time</span></div>
+          <div><b>${r.best.bosses ? `${r.best.bosses} · ${brTime(r.best.time)}` : '—'}</b><span>Best</span></div>
+        </div>
+        <div class="rewards"><div class="r" style="animation-delay:.5s"><i class="coin"></i><span>+${fmt(r.coins)}</span></div></div>
+        <div class="res-actions"><button class="btn-primary" data-a="res-continue" data-focus>Continue</button><button class="btn-ghost" data-a="res-retry">${ICON.retry} Again</button></div>
+      </div>`;
+    this.afterShow = () => { if (r.coins) AudioManager.play('coin'); if (r.newBest) this.toast('Boss Rush', `New record: ${r.beaten} boss${r.beaten === 1 ? '' : 'es'} in ${brTime(r.time)}`); };
+  },
+
   /* ---------------- overlays ---------------- */
   openOverlay(id, html) {
     for (const o of $$('.overlay')) o.classList.remove('on');
@@ -14020,7 +14216,7 @@ const UIManager = {
     if (!Game.session || StoryPlayer.active) return;
     Game.paused = true; this.updateTouch();
     this.openOverlay('pause', `<div class="ov-card"><div class="eyebrow">Paused · ${esc(Logic.difficulty(SaveManager.data.difficulty).label)}</div><h3 class="disp">${esc(Game.session.enemy ? Game.session.enemy.name : Game.session.cfg.foeName)}</h3>
-      <div class="stack"><button class="btn-primary" data-a="resume" data-focus>Resume</button><button class="btn-ghost" data-a="restart">${ICON.retry} Restart fight</button><button class="btn-ghost" data-a="help">${ICON.help} Controls</button><button class="btn-ghost" data-a="quit">Quit to ${Game.session.mode === 'trials' ? 'trials' : 'map'}</button></div>
+      <div class="stack"><button class="btn-primary" data-a="resume" data-focus>Resume</button><button class="btn-ghost" data-a="restart">${ICON.retry} ${Game.session.mode === 'bossrush' ? 'Restart the rush' : 'Restart fight'}</button><button class="btn-ghost" data-a="help">${ICON.help} Controls</button><button class="btn-ghost" data-a="quit">Quit to ${Game.session.mode === 'trials' ? 'trials' : Game.session.mode === 'bossrush' ? 'Boss Rush' : 'map'}</button></div>
       <div>${this.difficultyRow()}${this.settingsRows()}</div></div>`);
   },
   openHelp() {

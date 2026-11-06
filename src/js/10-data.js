@@ -1385,6 +1385,13 @@ const TRIALS = {
   gemsEvery: 5
 };
 
+/* ---------------- Boss Rush ----------------
+   Every boss of the story (stage kinds `TRIALS.bossKinds`) back to back, each one only once beaten in the story.
+   Logic.bossRushRoster / bossRushRun / bossRushAdvance / applyBossRushResult read this.
+     heal    share of max health restored between fights (the rest carries over)
+     coins   coins paid per boss beaten in a run (no gems, no XP, no gear, no story progress) */
+const BOSS_RUSH = { heal: 0.3, coins: 30 };
+
 /* Enemy AI archetypes (ENEMIES[id].ai). Logic.aiTuning sharpens them by stage level, New Game+ and difficulty mode;
    40-ai.js reads the tuned copy. react = reaction delay range (s), combo = string length range. */
 const AI_PROFILES = {
