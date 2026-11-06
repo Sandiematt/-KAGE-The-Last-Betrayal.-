@@ -113,7 +113,7 @@ const Logic = {
       bossFates: {},           // boss stageId -> 'killed' | 'escaped' | 'reabsorbed', how the story boss left (lifetime)
       difficulty: 'normal',    // Easy / Normal / Hard / Impossible (DIFFICULTY_IDS); only the player changes it
       difficultyPicked: false, // false until the new-game mode picker has been answered
-      survivalBest: 0,
+      trialsBest: 0,
       stats: { wins: 0, losses: 0, perfects: 0, bosses: 0, playTime: 0 },
       settings: { shake: 'full', reduceFlash: false, sound: true, music: true, touch: 'auto', stick: 'float' }
     };
@@ -151,6 +151,8 @@ const Logic = {
     for (const k in s.cleared || {}) if (STAGE_BY_ID[k] && s.cleared[k]) d.cleared[k] = true;
     for (const k in s.defeated || {}) if (STAGE_BY_ID[k] && s.defeated[k] > 0) d.defeated[k] = s.defeated[k];
     delete d.unlockedActs;
+    // Survival became Echo Trials: an older save's best wave carries over
+    d.trialsBest = Math.max(0, +s.trialsBest || 0, +s.survivalBest || 0); delete d.survivalBest;
     d.seenRewards = s.seenRewards || {};
     // found clues: only clues a stretch stage still has
     d.clues = {};
@@ -264,11 +266,11 @@ const Logic = {
     return cfg;
   },
   /* ---------------- fight formats and story bosses ----------------
-     A fight is staged in one of four formats (`fightFormat(cfg)`, cfg from stageConfig or a survival config):
+     A fight is staged in one of four formats (`fightFormat(cfg)`, cfg from stageConfig or an Echo Trials config):
        boss      story boss stages (kind 'boss', or a stage with `format: 'boss'`): ONE round, ONE health bar and
                  three phases, no round clock and so no time-out loss; `defeat` says how the boss leaves;
        duel      every other arena fight: best of three rounds against a 75 s clock;
-       survival  one round per wave against a 90 s clock;
+       trials    Echo Trials: one round per wave against a 90 s clock;
        stretch   a side-scrolling level: no rounds, no clock;
        spar      the Interlude (kind 'spar'): one round on a clock and no KO (`preventKO`). Takashi interrupts when
                  either brother's health falls to `interruptAt` or the clock runs out (sparOutcome); nobody wins.
@@ -276,7 +278,7 @@ const Logic = {
   BOSS_DEFEATS: ['finisher', 'escape', 'reabsorb'],
   fightFormat(cfg) {
     cfg = cfg || {};
-    if (cfg.mode === 'survival') return { name: 'survival', roundsToWin: 1, timer: 90, phases: 0, defeat: null };
+    if (cfg.mode === 'trials') return { name: 'trials', roundsToWin: 1, timer: 90, phases: 0, defeat: null };
     if (cfg.stretch) return { name: 'stretch', roundsToWin: 1, timer: 0, phases: 0, defeat: null };
     const st = this.stage(cfg.stageId), d = ENEMIES[cfg.enemyId];
     if (st && st.kind === 'spar') return { name: 'spar', roundsToWin: 1, timer: SPAR.timer, phases: 0, defeat: null, interruptAt: SPAR.interruptAt, preventKO: true };
@@ -593,32 +595,34 @@ const Logic = {
   difficulty(id) { return DIFFICULTIES[this.normalizeDifficulty(id)]; },
   normalizeDifficulty(id) { return DIFFICULTIES[id] ? id : 'normal'; },
   // The authored challenge curve of a fight: chapter tier (`diff`), stage position, foe weight class, or the
-  // survival wave. Drives AI sharpness. It never reads the player's level, experience or gear.
+  // Echo Trials wave. Drives AI sharpness. It never reads the player's level, experience or gear.
   stageLevel(cfg, enemyId, wave) {
     const d = ENEMIES[enemyId];
-    if (cfg.mode === 'survival') return 1 + (wave || cfg.wave || 1) * 0.35;
+    if (cfg.mode === 'trials') return 1 + (wave || cfg.wave || 1) * 0.35;
     const tier = (cfg.diff || 1) - 1, st = cfg.pos || 0;
     return 1 + tier * 1.6 + st * 0.22 + (d.type === 'sub' ? 0.4 : d.type === 'boss' ? 0.8 : 0);
   },
-  // The foe a boss summons in this fight (cfg from stageConfig; survival has no chapter): see BOSS_MINIONS.
+  // The foe a boss summons in this fight (cfg from stageConfig; Echo Trials has no chapter): see BOSS_MINIONS.
   minionId(cfg) { return BOSS_MINIONS[(cfg && cfg.chapter) || 'default'] || BOSS_MINIONS.default; },
   // A foe's fight stats: { hp, dmgMul, wlvl, defense, speedMul, level, ng, difficulty }. They depend only on the
-  // chosen mode (save.difficulty), the authored curve (stage / chapter tier, survival wave, New Game+ cycle) and the
-  // foe's role: 'minion' (a boss's summoned recruit, 70 base health, 60% damage) or 'clone' (1 health, half damage).
+  // chosen mode (save.difficulty), the authored curve (stage / chapter tier, Echo Trials wave, New Game+ cycle) and the
+  // foe's role: 'minion' (a boss's summoned recruit, 70 base health, 60% damage), 'clone' (1 health, half damage) or
+  // 'elite' (an Echo Trials elite Hollow: TRIALS.elite health and damage on top of everything else).
   // Sub-bosses and bosses take the mode's boss multipliers; everyone else the regular ones.
   enemyStats(save, cfg, enemyId, opts) {
     opts = opts || {};
     const d = ENEMIES[enemyId], ng = cfg.ng || 0, mode = this.difficulty(save.difficulty);
-    const wave = opts.wave || cfg.wave || 1, survival = cfg.mode === 'survival';
+    const wave = opts.wave || cfg.wave || 1, trials = cfg.mode === 'trials';
     const role = opts.role || null, bossy = (d.type === 'boss' || d.type === 'sub') && role !== 'minion';
     let hpMul = 1 + 0.35 * ng, dmgMul = (d.dmg || 1) * (1 + 0.25 * ng);
-    if (survival) { hpMul *= 0.85 + wave * 0.07; dmgMul *= 0.9 + wave * 0.04; }
+    if (trials) { hpMul *= 0.85 + wave * 0.07; dmgMul *= 0.9 + wave * 0.04; }
+    if (role === 'elite') { hpMul *= TRIALS.elite.hp; dmgMul *= TRIALS.elite.dmg; }
     hpMul *= bossy ? mode.bossHp : mode.hp;
     dmgMul *= bossy ? mode.bossDmg : mode.dmg;
     let hp = Math.round(d.hp * hpMul);
     if (role === 'minion') { hp = Math.round(70 * mode.hp); dmgMul *= 0.6; }
     if (role === 'clone') { hp = 1; dmgMul *= 0.5; }
-    const raw = Math.round(1 + ((cfg.diff || 1) - 1) * 2.2 + (cfg.pos || 0) * 0.3 + ng * 2 + (survival ? wave * 0.3 : 0));
+    const raw = Math.round(1 + ((cfg.diff || 1) - 1) * 2.2 + (cfg.pos || 0) * 0.3 + ng * 2 + (trials ? wave * 0.3 : 0));
     return {
       hp, dmgMul, wlvl: Math.min(8, Math.max(1, raw)),
       defense: d.def != null ? d.def : ((HELMETS[d.helmet] || {}).def || 0) * 0.6 + ((ARMORS[d.armor] || {}).def || 0) * 0.6,
@@ -729,10 +733,49 @@ const Logic = {
     const coins = Math.round(this.stageBaseCoins(id) * this.ngRewardMul(save.ng) * (cleared ? 0.5 : 1) / 5) * 5;
     return { coins, gems: cleared ? 0 : this.firstClearGems(this.stageRewardType(id)) + this.stageRewardGems(id) };
   },
-  survivalWaveReward(wave) {
-    return { coins: SURVIVAL.coins(wave), gems: wave % SURVIVAL.gemsEvery === 0 ? 1 : 0 };
+  trialWaveReward(wave) {
+    return { coins: TRIALS.coins(wave), gems: wave % TRIALS.gemsEvery === 0 ? 1 : 0 };
   },
-  // Applies a finished fight (campaign or survival) to the save and returns what it earned:
+  /* ---------------- Echo Trials ----------------
+     Endless Hollow waves in a shifting memory arena (TRIALS, 10-data.js). echoTrialWave(save, n, rand) says what wave n
+     sends: { wave, foes, bossEcho, elite, env }. `foes` are enemy ids, the first one leads (the HUD's bar); the wave is
+     cleared when every one is down. Waves escalate: more Hollows (TRIALS.count) and heavier units (TRIALS.pool[].from).
+     Every TRIALS.bossEvery-th wave is a boss echo, `{ stageId, enemyId, name, kind }`, picked from the bosses this save
+     has beaten in the story (echoTrialBosses), fighting alone in its own stage's arena; with none beaten it is an elite
+     Hollow pack instead (`elite`, TRIALS.eliteWave, fought with role 'elite'). The arena shifts to the next remembered
+     place (TRIALS.envs) every TRIALS.shiftEvery waves. `rand` (default Math.random) makes every pick, so a seeded or
+     fixed function gives the same wave every time. */
+  // The bosses this save has beaten in the story: every defeated stage of kind subboss, boss or echo, in story order.
+  echoTrialBosses(save) {
+    const def = (save && save.defeated) || {};
+    return STAGE_LIST.filter(st => TRIALS.bossKinds.includes(st.kind) && def[st.id] > 0 && ENEMIES[st.enemy])
+      .map(st => ({ stageId: st.id, enemyId: st.enemy, name: st.foe || ENEMIES[st.enemy].name, kind: st.kind }));
+  },
+  echoTrialEnv(n) { const e = TRIALS.envs, i = Math.floor((Math.max(1, n) - 1) / TRIALS.shiftEvery); return e[i % e.length]; },
+  echoTrialWave(save, n, rand) {
+    rand = rand || Math.random; n = Math.max(1, n | 0);
+    const pick = list => list[Math.min(list.length - 1, Math.floor(rand() * list.length))];
+    const out = { wave: n, foes: [], bossEcho: null, elite: false, env: this.echoTrialEnv(n) };
+    const pool = TRIALS.pool.filter(u => n >= u.from).map(u => u.id);
+    if (n % TRIALS.bossEvery === 0) {
+      const bosses = this.echoTrialBosses(save);
+      if (bosses.length) {
+        const b = pick(bosses), st = this.stage(b.stageId);
+        out.bossEcho = b; out.foes = [b.enemyId];
+        out.env = st.env || this.chapterOf(b.stageId).env;
+        return out;
+      }
+      out.elite = true;
+      const ew = TRIALS.eliteWave;
+      out.foes = [ew.lead];
+      for (let i = 1; i < ew.count + Math.min(1, Math.floor(n / 15)); i++) out.foes.push(pick(pool));
+      return out;
+    }
+    const count = TRIALS.count.reduce((c, step) => n >= step.from ? step.n : c, 1);
+    for (let i = 0; i < count; i++) out.foes.push(pick(pool));
+    return out;
+  },
+  // Applies a finished fight (campaign or Echo Trials) to the save and returns what it earned:
   // { coins, gems, xp, rating, seals, unlocks, firstClear, next?, levelUps, levelBefore, xpBefore, newBest? }
   // A campaign result names its stage by `stageId`; a win completes that stage (see completeStage).
   // plus every field of the fight result. The save is updated in place; persisting it is the caller's job.
@@ -763,10 +806,10 @@ const Logic = {
         out.coins = Math.round(base * 0.25 / 5) * 5; out.xp = 20 * diff; save.stats.losses++;
       }
     } else {
-      out.coins = r.survivalCoins; out.gems = r.survivalGems; out.xp = 40 * r.waves;
+      out.coins = r.trialCoins; out.gems = r.trialGems; out.xp = 40 * r.waves;
       out.rating = r.waves >= 15 ? 'S' : r.waves >= 10 ? 'A' : r.waves >= 5 ? 'B' : 'C';
-      out.newBest = r.waves > save.survivalBest;
-      if (out.newBest) save.survivalBest = r.waves;
+      out.newBest = r.waves > save.trialsBest;
+      if (out.newBest) save.trialsBest = r.waves;
       out.seals = [r.waves >= 5, r.waves >= 10, r.waves >= 15];
       save.stats.wins += r.waves; save.stats.losses++;
     }

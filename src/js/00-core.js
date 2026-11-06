@@ -345,7 +345,7 @@ const AudioManager = {
     this.musicNodes = [];
     if (mode === 'none') return;
     // drone bed
-    const roots = { title: [73.42, 110], menu: [73.42, 110], fight: [65.41, 98], boss: [55, 82.41], survival: [61.74, 92.5] };
+    const roots = { title: [73.42, 110], menu: [73.42, 110], fight: [65.41, 98], boss: [55, 82.41], trials: [61.74, 92.5] };
     for (const f of roots[mode] || roots.menu) {
       const o = this.ctx.createOscillator(), g = this.ctx.createGain(), fl = this.ctx.createBiquadFilter();
       o.type = 'sawtooth'; o.frequency.value = f; o.detune.value = rand(-6, 6);
@@ -360,7 +360,7 @@ const AudioManager = {
     if (!this.ctx || this.musicMode === 'none' || !SaveManager.data.settings.music) return;
     const t = this.ctx.currentTime, mode = this.musicMode;
     const scale = [146.83, 174.61, 196, 220, 261.63, 293.66, 349.23, 392];
-    if (mode === 'fight' || mode === 'boss' || mode === 'survival') {
+    if (mode === 'fight' || mode === 'boss' || mode === 'trials') {
       const bpm = mode === 'boss' ? 112 : 96, spb = 60 / bpm / 2;
       while (this.nextBeat < t + 0.2) {
         const b = this.beat % 16, nb = this.nextBeat;

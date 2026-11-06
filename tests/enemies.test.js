@@ -1,11 +1,11 @@
 'use strict';
 // The two regular enemy families: Order of Silence soldiers and Hollows, each in five unit types.
-// Every enemy id the campaign, stretches, survival and boss minions name must exist.
+// Every enemy id the campaign, stretches, Echo Trials and boss minions name must exist.
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { loadLogic } = require('./helpers/load-logic');
 
-const { Logic, ENEMIES, SURVIVAL, ENEMY_FAMILIES, UNIT_TYPES, AI_PROFILES } = loadLogic();
+const { Logic, ENEMIES, TRIALS, ENEMY_FAMILIES, UNIT_TYPES, AI_PROFILES } = loadLogic();
 
 const regulars = () => Object.values(ENEMIES).filter(d => d.type === 'regular');
 const stretchFoes = (stageId) => Logic.stretch(stageId).encounters.flatMap(e => e.waves.flat());
@@ -45,24 +45,24 @@ test('the placeholder grunts are gone', () => {
   for (const id of ['order_recruit', 'order_warden', 'hollow']) assert.equal(ENEMIES[id], undefined, id);
 });
 
-test('every enemy id that campaign, stretch, survival and minion data name exists', () => {
+test('every enemy id that campaign, stretch, Echo Trials and minion data name exists', () => {
   const named = [];
   for (const st of Logic.stages()) {
     if (st.enemy) named.push([st.id, st.enemy]);
     if (st.kind === 'stretch') for (const id of stretchFoes(st.id)) named.push([`${st.id} stretch`, id]);
   }
-  for (const id of [...SURVIVAL.opening, ...SURVIVAL.pool, ...SURVIVAL.bosses]) named.push(['survival', id]);
+  for (const u of TRIALS.pool) named.push(['trials', u.id]);
+  named.push(['trials elite', TRIALS.eliteWave.lead]);
   for (const ch of Logic.chapters()) named.push([`${ch.id} minions`, Logic.minionId({ chapter: ch.id })]);
-  named.push(['survival minions', Logic.minionId({ mode: 'survival' })]);
+  named.push(['trials minions', Logic.minionId({ mode: 'trials' })]);
   for (const [where, id] of named) assert.ok(ENEMIES[id], `${where} -> ${id}`);
 });
 
-test('stretches and survival only send regular Order soldiers and Hollows', () => {
+test('stretches only send regular Order soldiers and Hollows; Echo Trials waves are regular Hollows', () => {
   for (const st of Logic.stages().filter(s => s.kind === 'stretch'))
     for (const id of stretchFoes(st.id)) assert.equal(ENEMIES[id].type, 'regular', `${st.id} -> ${id}`);
-  assert.equal(SURVIVAL.pool.length, 10);
-  for (const id of [...SURVIVAL.opening, ...SURVIVAL.pool]) assert.equal(ENEMIES[id].type, 'regular', id);
-  assert.deepEqual([...new Set(SURVIVAL.opening.map(familyOf))].sort(), ['hollow', 'order'], 'wave 1 can be either family');
+  assert.equal(TRIALS.pool.length, 5);
+  for (const u of TRIALS.pool) { assert.equal(ENEMIES[u.id].type, 'regular', u.id); assert.equal(familyOf(u.id), 'hollow', u.id); }
 });
 
 test('Order territory is held by the Order; the Prologue, the City of Echoes and the Core belong to the Hollows', () => {
@@ -86,5 +86,5 @@ test('bosses summon Order footmen, except in the City of Echoes and the Core, wh
   assert.equal(Logic.minionId({ chapter: 'act3' }), 'order_footman');
   assert.equal(Logic.minionId({ chapter: 'act2' }), 'hollow_shade');
   assert.equal(Logic.minionId({ chapter: 'core' }), 'hollow_shade');
-  assert.equal(Logic.minionId({ mode: 'survival' }), 'order_footman');
+  assert.equal(Logic.minionId({ mode: 'trials' }), 'order_footman');
 });

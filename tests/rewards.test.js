@@ -148,27 +148,27 @@ test('the stage card previews the first-clear reward and the replay reward', () 
   assert.deepEqual({ ...Logic.stageRewardPreview(s, 'act1.boss') }, { coins: 180, gems: 0 });
 });
 
-test('survival waves pay rising coins and a gem every 5th wave', () => {
-  assert.deepEqual({ ...Logic.survivalWaveReward(1) }, { coins: 37, gems: 0 });
-  assert.deepEqual({ ...Logic.survivalWaveReward(4) }, { coins: 73, gems: 0 });
-  assert.deepEqual({ ...Logic.survivalWaveReward(5) }, { coins: 85, gems: 1 });
-  assert.deepEqual({ ...Logic.survivalWaveReward(10) }, { coins: 145, gems: 1 });
+test('Echo Trials waves pay rising coins and a gem every 5th wave', () => {
+  assert.deepEqual({ ...Logic.trialWaveReward(1) }, { coins: 37, gems: 0 });
+  assert.deepEqual({ ...Logic.trialWaveReward(4) }, { coins: 73, gems: 0 });
+  assert.deepEqual({ ...Logic.trialWaveReward(5) }, { coins: 85, gems: 1 });
+  assert.deepEqual({ ...Logic.trialWaveReward(10) }, { coins: 145, gems: 1 });
 });
 
-test('a survival run banks its coins and gems, 40 XP per wave, and tracks the best wave', () => {
+test('an Echo Trials run banks its coins and gems, 40 XP per wave, and tracks the best wave', () => {
   const s = Logic.defaultSave();
-  const out = Logic.applyFightResult(s, { mode: 'survival', waves: 7, survivalCoins: 400, survivalGems: 1, ng: 0 });
+  const out = Logic.applyFightResult(s, { mode: 'trials', waves: 7, trialCoins: 400, trialGems: 1, ng: 0 });
   assert.equal(out.coins, 400);
   assert.equal(out.gems, 1);
   assert.equal(out.xp, 280);
   assert.equal(out.rating, 'B');
   assert.equal(out.newBest, true);
   assert.deepEqual(out.seals, [true, false, false]);
-  assert.equal(s.survivalBest, 7);
+  assert.equal(s.trialsBest, 7);
   assert.equal(s.coins, 650);
   assert.equal(s.gems, 6);
-  const worse = Logic.applyFightResult(s, { mode: 'survival', waves: 3, survivalCoins: 100, survivalGems: 0, ng: 0 });
+  const worse = Logic.applyFightResult(s, { mode: 'trials', waves: 3, trialCoins: 100, trialGems: 0, ng: 0 });
   assert.equal(worse.newBest, false);
   assert.equal(worse.rating, 'C');
-  assert.equal(s.survivalBest, 7);
+  assert.equal(s.trialsBest, 7);
 });

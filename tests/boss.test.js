@@ -59,8 +59,8 @@ test('story boss stages are one round with one health bar, three phases and no r
 test('other arena fights keep their rounds and timers', () => {
   const sub = Logic.fightFormat({ mode: 'campaign', enemyId: 'order_footman' });   // an arena fight outside the boss format
   assert.equal(sub.name, 'duel'); assert.equal(sub.roundsToWin, 2); assert.equal(sub.timer, 75);
-  const surv = Logic.fightFormat({ mode: 'survival', enemyId: 'order_footman' });
-  assert.equal(surv.name, 'survival'); assert.equal(surv.roundsToWin, 1); assert.equal(surv.timer, 90);
+  const surv = Logic.fightFormat({ mode: 'trials', enemyId: 'order_footman' });
+  assert.equal(surv.name, 'trials'); assert.equal(surv.roundsToWin, 1); assert.equal(surv.timer, 90);
   assert.equal(Logic.stageConfig(Logic.defaultSave(), 'act1.stretch1').format.name, 'stretch');
 });
 

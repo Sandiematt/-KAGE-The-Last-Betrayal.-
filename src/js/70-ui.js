@@ -1,4 +1,4 @@
-/* KAGE — UIManager: every DOM screen (title, campaign, armory, pre-fight, HUD, results, settings, survival) */
+/* KAGE — UIManager: every DOM screen (title, campaign, armory, pre-fight, HUD, results, settings, Echo Trials) */
 
 const ICON = {
   back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>',
@@ -65,6 +65,7 @@ const MENU_IC = {
   swords: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" x2="19" y1="19" y2="13"/><line x1="16" x2="20" y1="16" y2="20"/><line x1="19" x2="21" y1="21" y2="19"/><polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5"/><line x1="5" x2="9" y1="14" y2="18"/><line x1="7" x2="4" y1="17" y2="20"/><line x1="3" x2="5" y1="19" y2="21"/></svg>',
   torii: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4c6 1.3 14 1.3 20 0"/><path d="M4 8h16"/><path d="M6 6v15M18 6v15"/><path d="M12 8v3"/></svg>',
   anvil: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h13c0 3 2 4 5 4v1c-4 0-6 1-7 3H8C7 12 5 11 3 11z"/><path d="M8 15l-2 5h12l-2-5"/></svg>',
+  echo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="2.4" fill="currentColor"/><path d="M7.5 7.5a6.4 6.4 0 0 0 0 9M16.5 7.5a6.4 6.4 0 0 1 0 9"/><path d="M4.6 4.6a10.4 10.4 0 0 0 0 14.8M19.4 4.6a10.4 10.4 0 0 1 0 14.8" stroke-dasharray="2.2 2.6"/></svg>',
   infinity: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12c-2-2.7-4-4-6-4a4 4 0 0 0 0 8c2 0 4-1.3 6-4zm0 0c2 2.7 4 4 6 4a4 4 0 0 0 0-8c-2 0-4 1.3-6 4z"/></svg>',
   gear: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>',
   trophy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>',
@@ -139,8 +140,8 @@ const UIManager = {
   /* ---------------- actions ---------------- */
   action(a, el) {
     const save = SaveManager.data, d = el.dataset;
-    // a new game asks for a difficulty mode before the first campaign or survival entry
-    if ((a === 'play' || a === 'campaign' || a === 'survival') && !save.difficultyPicked) { this.openModePicker(a); return; }
+    // a new game asks for a difficulty mode before the first campaign or Echo Trials entry
+    if ((a === 'play' || a === 'campaign' || a === 'trials') && !save.difficultyPicked) { this.openModePicker(a); return; }
     switch (a) {
       case 'pick-mode': {
         const next = this._modeNext; this._modeNext = null;
@@ -167,7 +168,7 @@ const UIManager = {
         break;
       }
       case 'campaign': this.selStage = Game.nextStage() || this.selStage; this.go('campaign', () => this.renderCampaign()); break;
-      case 'survival': this.go('survival', () => this.renderSurvival()); break;
+      case 'trials': this.go('trials', () => this.renderTrials()); break;
       case 'armory': this.returnTo = this.current; this.go('armory', () => this.renderArmory()); break;
       case 'settings': this.returnTo = this.current === 'settings' ? 'title' : this.current; this.go('settings', () => this.renderSettings()); break;
       case 'title': this.go('title', () => this.renderTitle()); break;
@@ -177,7 +178,7 @@ const UIManager = {
       case 'trophies': this.openTrophies(); break;
       case 'loadout': this.openLoadout(); break;
       case 'armory-from-ov': this.closeOverlay(); this.returnTo = this.current; this.go('armory', () => this.renderArmory()); break;
-      case 'earn': this.toast('Earn coins & gems', 'Win duels, topple bosses and climb Survival waves'); this.go('survival', () => this.renderSurvival()); break;
+      case 'earn': this.toast('Earn coins & gems', 'Win duels, topple bosses and climb the Echo Trials'); this.go('trials', () => this.renderTrials()); break;
       case 'help': this.openHelp(); break;
       case 'close-ov': this.closeOverlay(); break;
       case 'chapter': {
@@ -225,17 +226,19 @@ const UIManager = {
       case 'reset': this.confirm('Erase all progress?', 'Coins, gear, levels and campaign progress will be lost. This cannot be undone.', () => { SaveManager.reset(); Game.buildWarrior(); this.toast('Progress erased', 'A fresh start', true); this.renderSettings(); }); break;
       case 'confirm-yes': { const f = this._confirm; this.closeOverlay(); f && f(); break; }
       case 'sv-start': {
-        const cfg = { mode: 'survival', wave: 1, enemyId: pick(SURVIVAL.opening), env: 'rooftops', ng: save.ng };
+        // wave 1's leader and arena, from the same rules every later wave uses (Logic.echoTrialWave)
+        const w = Logic.echoTrialWave(save, 1);
+        const cfg = { mode: 'trials', wave: 1, enemyId: w.foes[0], env: w.env, ng: save.ng };
         this.go('prefight', () => this.preparePrefight(cfg));
         break;
       }
       case 'pause': this.openPause(); break;
       case 'resume': this.closeOverlay(); break;
-      case 'restart': this.closeOverlay(); Game.paused = false; { const cfg = Object.assign({}, Game.session.cfg); if (cfg.mode === 'survival') cfg.wave = 1; Game.quitFight(); this.go('hud', () => Game.startFight(cfg, { skipBefore: true })); } break;
-      case 'quit': this.closeOverlay(); { const mode = Game.session && Game.session.mode; Game.quitFight(); if (mode === 'survival') this.go('survival', () => this.renderSurvival()); else this.go('campaign', () => this.renderCampaign()); } break;
+      case 'restart': this.closeOverlay(); Game.paused = false; { const cfg = Object.assign({}, Game.session.cfg); if (cfg.mode === 'trials') cfg.wave = 1; Game.quitFight(); this.go('hud', () => Game.startFight(cfg, { skipBefore: true })); } break;
+      case 'quit': this.closeOverlay(); { const mode = Game.session && Game.session.mode; Game.quitFight(); if (mode === 'trials') this.go('trials', () => this.renderTrials()); else this.go('campaign', () => this.renderCampaign()); } break;
       case 'res-continue': {
         const r = Game.lastResult;
-        if (r.mode === 'survival') { this.go('survival', () => this.renderSurvival()); break; }
+        if (r.mode === 'trials') { this.go('trials', () => this.renderTrials()); break; }
         this.selStage = r.win && r.next ? r.next : r.stageId;
         this.go('campaign', () => this.renderCampaign());
         break;
@@ -257,8 +260,8 @@ const UIManager = {
         else this.go('title', () => this.renderTitle());
         break;
       }
-      case 'survival': this.go('title', () => this.renderTitle()); break;
-      case 'prefight': if (this.pfCfg.mode === 'survival') this.go('survival', () => this.renderSurvival()); else { this.selStage = this.pfCfg.stageId; this.go('campaign', () => this.renderCampaign()); } break;
+      case 'trials': this.go('title', () => this.renderTitle()); break;
+      case 'prefight': if (this.pfCfg.mode === 'trials') this.go('trials', () => this.renderTrials()); else { this.selStage = this.pfCfg.stageId; this.go('campaign', () => this.renderCampaign()); } break;
       case 'result': this.action('res-continue', document.body); break;
     }
   },
@@ -303,7 +306,7 @@ const UIManager = {
         ${item('play', MENU_IC.swords, 'Play', `<span class="tm-ctx">${esc(ctx)}${save.ng ? ` · NG+${save.ng}` : ''}</span><span class="tm-chev">${ICON.back}</span>`, true)}
         ${item('campaign', MENU_IC.torii, 'Campaign')}
         ${item('armory', MENU_IC.anvil, 'Armory')}
-        ${item('survival', MENU_IC.infinity, 'Survival')}
+        ${item('trials', MENU_IC.echo, 'Echo Trials')}
         ${item('settings', MENU_IC.gear, 'Settings')}
       </nav>
       <div class="tl-currency">
@@ -600,7 +603,7 @@ const UIManager = {
     Game.setTableau(env, { memory: spar, fighters: [player, enemy], zoom: fitZoom, ground: 612, lights: [{ x: 330, y: 470, r: 360, c: 'rgba(201,164,92,0.18)' }, { x: 960, y: 450, r: 400, c: 'rgba(163,48,42,0.32)' }] });
     const dl = clamp((cfg.mode === 'campaign' ? cfg.diff : 2) + (cfg.ng || 0) + (d.type === 'boss' ? 1 : 0), 0, 4);
     const foeName = cfg.foeName || d.name, foeTitle = cfg.foeTitle || d.title;
-    const tag = cfg.mode === 'survival' ? `Survival · Wave ${ROMAN[cfg.wave - 1] || cfg.wave}` : cfg.stretch ? `Stretch · ${DIFF_LABEL[dl]}` : spar ? 'Memory spar · no winner' : `${d.type === 'boss' ? 'Boss' : d.type === 'sub' ? 'Sub-boss' : 'Duelist'} · ${DIFF_LABEL[dl]}`;
+    const tag = cfg.mode === 'trials' ? `Echo Trials · Wave ${ROMAN[cfg.wave - 1] || cfg.wave}` : cfg.stretch ? `Stretch · ${DIFF_LABEL[dl]}` : spar ? 'Memory spar · no winner' : `${d.type === 'boss' ? 'Boss' : d.type === 'sub' ? 'Sub-boss' : 'Duelist'} · ${DIFF_LABEL[dl]}`;
     const taunt = cfg.stretch ? `${cfg.stretch.encounters.length} encounter${cfg.stretch.encounters.length === 1 ? '' : 's'} on the road · clues found ${Logic.cluesFound(save, cfg.stageId).length}/${cfg.stretch.clues.length}` : d.taunt;
     const owned = spar ? [] : Object.keys(save.owned.weapons).filter(w => WEAPONS[w] && !WEAPONS[w].enemy);
     el.innerHTML = `
@@ -727,7 +730,7 @@ const UIManager = {
         const tb = $('#touch .tb.rage'); if (tb) tb.classList.toggle('ready', full);
       });
       this.set('kunai', p.ammo, v => { e.kunai.innerHTML = `<svg viewBox="0 0 24 24"><path d="M3 21 L14 10 M14 10 L21 3 L18 11 Z" stroke="currentColor" stroke-width="2" fill="currentColor" stroke-linejoin="round"/></svg>${v}`; const k = $('#touch [data-ammo]'); if (k) k.textContent = v; });
-      this.set('wave', s.mode === 'survival' ? `${s.wave}-${s.survivalCoins}` : '', () => { e.wave.innerHTML = s.mode === 'survival' ? `<span>Wave ${s.wave}</span><span class="wv-c"><i class="coin"></i>${s.survivalCoins}</span><span class="muted">Best ${SaveManager.data.survivalBest}</span>` : ''; });
+      this.set('wave', s.mode === 'trials' ? `${s.wave}-${s.trialCoins}` : '', () => { e.wave.innerHTML = s.mode === 'trials' ? `<span>Wave ${s.wave}</span><span class="wv-c"><i class="coin"></i>${s.trialCoins}</span><span class="muted">Best ${SaveManager.data.trialsBest}</span>` : ''; });
       this.set('combo', s.combo >= 2 ? s.combo : 0, v => { e.combo.classList.toggle('on', v >= 2); if (v >= 2) { e.combo.firstChild.textContent = v; e.combo.classList.remove('bump'); void e.combo.offsetWidth; e.combo.classList.add('bump'); } });
       const dl = s.dialogue;
       this.set('dlg', dl ? dl.text : '', () => { e.dlg.classList.toggle('on', !!dl); if (dl) { e.dlg.children[0].textContent = `${dl.name} · ${dl.title}`; e.dlg.children[1].textContent = dl.text; } });
@@ -772,7 +775,7 @@ const UIManager = {
     const save = SaveManager.data, el = $('#scr-result'), d = ENEMIES[r.enemyId];
     const player = makePlayerFighter(save, {});
     const foe = makeFighterFromEnemy(r.enemyId, {});
-    const env = r.mode === 'survival' ? 'wasteland' : r.env;
+    const env = r.mode === 'trials' ? 'core' : r.env;
     if (r.win) {
       player.x = -170; poseFighter(player, 'victory', 50);
       foe.x = -400; foe.facing = 1; poseFighter(foe, 'dead', 50);
@@ -782,7 +785,7 @@ const UIManager = {
       foe.x = -120; foe.facing = -1; foe.scale *= 1.3; poseFighter(foe, 'taunt', 50);
       Game.setTableau(env, { fighters: [foe, player], zoom: 1.15, ground: 610, camEase: 0.04, tint: 'rgba(30,6,4,0.45)', lights: [{ x: 520, y: 330, r: 520, c: 'rgba(163,48,42,0.35)' }] });
     }
-    const eyebrow = r.mode === 'survival' ? `Survival · ${r.waves} waves cleared` : `${Logic.chapterOf(r.stageId).name} · ${Logic.stage(r.stageId).name}`;
+    const eyebrow = r.mode === 'trials' ? `Echo Trials · ${r.waves} wave${r.waves === 1 ? '' : 's'} cleared` : `${Logic.chapterOf(r.stageId).name} · ${Logic.stage(r.stageId).name}`;
     const foeName = r.foeName || d.name;
     const xpNeed = xpForLevel(save.level), xpNow = save.xp;
     const gainPct = r.levelUps ? xpNow / xpNeed * 100 : Math.min(100, r.xp / xpNeed * 100);
@@ -790,11 +793,11 @@ const UIManager = {
     const unlockHTML = r.unlocks.filter(u => u.kind !== 'chapter' && u.kind !== 'ng').map(u => `<div class="item"><canvas data-unlock="${u.kind}:${u.id}"></canvas>${esc(gearName(u.kind, u.id))}</div>`).join('');
     // the Interlude spar has no winner (outcome 'interrupted'): Takashi called the boys in
     const sparred = r.outcome === 'interrupted';
-    const sealNames = r.mode === 'survival' ? ['5 waves', '10 waves', '15 waves'] : [sparred ? 'Remembered' : 'Victory', 'Under 60s', 'Flawless'];
-    const win = r.mode === 'survival' ? r.waves > 0 : r.win;
-    const title = r.mode === 'survival' ? (r.newBest ? 'New Record' : 'Fallen') : sparred ? 'Interrupted' : r.win ? 'Victory' : 'Defeated';
+    const sealNames = r.mode === 'trials' ? ['5 waves', '10 waves', '15 waves'] : [sparred ? 'Remembered' : 'Victory', 'Under 60s', 'Flawless'];
+    const win = r.mode === 'trials' ? r.waves > 0 : r.win;
+    const title = r.mode === 'trials' ? (r.newBest ? 'New Record' : 'Fallen') : sparred ? 'Interrupted' : r.win ? 'Victory' : 'Defeated';
     const stretch = r.kind === 'stretch';
-    const line = r.mode === 'survival' ? (r.newBest ? `Wave ${r.waves}. The pit will remember your name.` : `Wave ${r.waves}. Best: wave ${save.survivalBest}.`)
+    const line = r.mode === 'trials' ? (r.newBest ? `Wave ${r.waves}. The echoes will remember you.` : `Wave ${r.waves}. Best: wave ${save.trialsBest}.`)
       : sparred ? 'Takashi called you in before anyone won. Nobody ever settled it.'
       : stretch ? (r.win ? `The road is walked.${r.clues ? ` Clues found: ${r.clues}.` : ''}` : `The road still bars the way. Rise again.`)
       : r.win ? `${foeName} ${Logic.bossDefeat(r.enemyId) === 'escape' ? 'escaped. The way opens.' : Logic.bossDefeat(r.enemyId) === 'reabsorb' ? 'is part of you again.' : d.type === 'boss' ? 'has fallen. The way opens.' : 'has fallen.'}` : `${foeName} still stands. Rise again.`;
@@ -803,7 +806,7 @@ const UIManager = {
         <div><div class="eyebrow muted" style="color:var(--text-muted)">${esc(eyebrow)}</div>
           <h2 class="disp ${win && (r.win || r.newBest) ? 'win' : 'lose'}">${title}</h2>
           <div class="line">${esc(line)}</div></div>
-        ${r.win || r.mode === 'survival' ? `
+        ${r.win || r.mode === 'trials' ? `
           <div style="display:flex;align-items:flex-end">
             <div class="seals">${sealNames.map((n, i) => `<div class="seal-b ${r.seals[i] ? 'on' : ''}" style="animation-delay:${0.25 + i * 0.12}s"><i></i><span>${n}</span></div>`).join('')}</div>
             <div class="rating"><b>${r.rating}</b><span>Rating</span></div>
@@ -821,7 +824,7 @@ const UIManager = {
         <div class="xp"><div class="labels"><b>Level ${save.level}${r.levelUps ? ' · Level up' : ''}</b><span>${fmt(xpNow)} / ${fmt(xpNeed)} · <em>+${r.xp}</em></span></div>
           <div class="track"><i style="width:${basePct}%"></i><u data-xpu style="left:${basePct}%;width:0%"></u></div></div>
         <div class="res-actions">
-          ${r.win || r.mode === 'survival' ? `<button class="btn-primary" data-a="res-continue" data-focus>Continue</button><button class="btn-ghost" data-a="res-retry">${ICON.retry} ${r.mode === 'survival' ? 'Again' : 'Replay'}</button>`
+          ${r.win || r.mode === 'trials' ? `<button class="btn-primary" data-a="res-continue" data-focus>Continue</button><button class="btn-ghost" data-a="res-retry">${ICON.retry} ${r.mode === 'trials' ? 'Again' : 'Replay'}</button>`
             : `<button class="btn-primary" data-a="res-retry" data-focus>${ICON.retry.replace('<svg', '<svg style="width:1.1rem;height:1.1rem"')} Retry</button><button class="btn-ghost" data-a="res-armory">Upgrade</button><button class="btn-link" data-a="res-map">${ICON.map} Map</button>`}
         </div>
       </div>`;
@@ -890,25 +893,27 @@ const UIManager = {
       </div>`;
   },
 
-  /* ---------------- survival ---------------- */
-  renderSurvival() {
-    const save = SaveManager.data, el = $('#scr-survival');
+  /* ---------------- Echo Trials ---------------- */
+  renderTrials() {
+    const save = SaveManager.data, el = $('#scr-trials');
     Game.setScene('menu'); AudioManager.setMusic('menu');
+    const echoes = Logic.echoTrialBosses(save);
+    const echoLine = echoes.length ? `Echoes waiting: ${echoes.map(b => esc(b.name)).join(', ')}.` : 'No boss has fallen to you yet: every fifth wave sends an elite Hollow pack instead.';
     el.innerHTML = `
       <canvas class="sv-art" data-sv></canvas>
-      <div class="topbar"><div class="head"><button class="round-btn" data-a="back" aria-label="Back">${ICON.back}</button><div><div class="eyebrow">Endless mode</div><h2 class="disp">Survival</h2></div></div>${currencyHTML()}</div>
-      <div class="survival-hero">
-        <div class="eyebrow" style="color:var(--accent-ember-bright)">The Endless Pit</div>
-        <h2 class="disp">How long can you stand?</h2>
-        <div class="big-line">One life. Foes from every act, one after another. Every fifth wave a sub-boss steps into the ring.</div>
-        <div class="best"><div><b>${save.survivalBest}</b><span>Best wave</span></div><div><b>+${SURVIVAL.coins(1)}…</b><span>Coins per wave</span></div><div><b>${Math.round(SURVIVAL.heal * 100)}%</b><span>Heal between waves</span></div></div>
-        <div class="rules"><b>Earn</b><span>Coins rise with every wave. A gem every ${SURVIVAL.gemsEvery} waves. Everything earned is kept.</span><b>Scale</b><span>Enemies gain health and damage as the waves climb.</span><b>Gear</b><span>Your equipped weapon, helm and armor fight with you.</span></div>
-        <div><button class="btn-primary" data-a="sv-start" data-focus style="width:16rem">Enter the pit</button></div>
+      <div class="topbar"><div class="head"><button class="round-btn" data-a="back" aria-label="Back">${ICON.back}</button><div><div class="eyebrow">Endless mode</div><h2 class="disp">Echo Trials</h2></div></div>${currencyHTML()}</div>
+      <div class="trials-hero">
+        <div class="eyebrow" style="color:var(--echo-violet)">The shifting memory</div>
+        <h2 class="disp">What do you still remember?</h2>
+        <div class="big-line">Endless waves of Hollows in an arena that drifts through the places you remember. Every ${TRIALS.bossEvery}th wave an echo of a boss you have beaten returns.</div>
+        <div class="best"><div><b>${save.trialsBest}</b><span>Best wave</span></div><div><b>${echoes.length}</b><span>Boss echoes</span></div><div><b>+${TRIALS.coins(1)}…</b><span>Coins per wave</span></div><div><b>${Math.round(TRIALS.heal * 100)}%</b><span>Heal between waves</span></div></div>
+        <div class="rules"><b>Echoes</b><span>${echoLine}</span><b>Earn</b><span>Coins rise with every wave. A gem every ${TRIALS.gemsEvery} waves. Everything earned is kept.</span><b>Scale</b><span>More Hollows, heavier Hollows, more health and damage as the waves climb, on your ${esc(Logic.difficulty(save.difficulty).label)} mode.</span></div>
+        <div><button class="btn-primary" data-a="sv-start" data-focus style="width:16rem">Enter the echoes</button></div>
       </div>`;
     this.afterShow = () => {
-      const cv = $('#scr-survival canvas[data-sv]'); if (!cv) return;
-      const f = makeFighterFromEnemy('echo_sentinel', { facing: -1 }); poseFighter(f, 'taunt', 40);
-      drawFighterInto(cv, f, { glow: 'rgba(163,48,42,0.5)', rim: 'rgba(255,130,80,0.85)', fit: 0.8, tall: 1.15, ground: 0.92 });
+      const cv = $('#scr-trials canvas[data-sv]'); if (!cv) return;
+      const f = makeFighterFromEnemy(echoes.length ? echoes[echoes.length - 1].enemyId : 'hollow_husk', { facing: -1 }); poseFighter(f, 'taunt', 40);
+      drawFighterInto(cv, f, { glow: 'rgba(120,80,220,0.22)', rim: 'rgba(190,160,255,0.85)', fit: 0.8, tall: 1.15, ground: 0.92 });
     };
   },
 
@@ -927,7 +932,7 @@ const UIManager = {
     if (!Game.session || StoryPlayer.active) return;
     Game.paused = true; this.updateTouch();
     this.openOverlay('pause', `<div class="ov-card"><div class="eyebrow">Paused · ${esc(Logic.difficulty(SaveManager.data.difficulty).label)}</div><h3 class="disp">${esc(Game.session.enemy ? Game.session.enemy.name : Game.session.cfg.foeName)}</h3>
-      <div class="stack"><button class="btn-primary" data-a="resume" data-focus>Resume</button><button class="btn-ghost" data-a="restart">${ICON.retry} Restart fight</button><button class="btn-ghost" data-a="help">${ICON.help} Controls</button><button class="btn-ghost" data-a="quit">Quit to ${Game.session.mode === 'survival' ? 'survival' : 'map'}</button></div>
+      <div class="stack"><button class="btn-primary" data-a="resume" data-focus>Resume</button><button class="btn-ghost" data-a="restart">${ICON.retry} Restart fight</button><button class="btn-ghost" data-a="help">${ICON.help} Controls</button><button class="btn-ghost" data-a="quit">Quit to ${Game.session.mode === 'trials' ? 'trials' : 'map'}</button></div>
       <div>${this.difficultyRow()}${this.settingsRows()}</div></div>`);
   },
   openHelp() {
@@ -954,7 +959,7 @@ const UIManager = {
     this.openOverlay('profile', `<div class="ov-card"><div class="eyebrow">Records</div><h3 class="disp">Kage · Level ${s.level}</h3>
       <div class="records">
         <div><b>${s.stats.wins}</b><span>Duels won</span></div><div><b>${s.stats.losses}</b><span>Defeats</span></div>
-        <div><b>${bosses} / ${bossStages.length}</b><span>Bosses broken</span></div><div><b>${s.survivalBest}</b><span>Best survival wave</span></div>
+        <div><b>${bosses} / ${bossStages.length}</b><span>Bosses broken</span></div><div><b>${s.trialsBest}</b><span>Best Echo Trials wave</span></div>
         <div><b>${s.stats.perfects}</b><span>Flawless wins</span></div><div><b>${s.ng ? 'NG+' + s.ng : '—'}</b><span>Current cycle</span></div>
       </div>
       <div class="xp"><div class="labels"><b>Experience</b><span>${fmt(s.xp)} / ${fmt(xpForLevel(s.level))}</span></div><div class="track"><i style="width:${s.xp / xpForLevel(s.level) * 100}%"></i></div></div>

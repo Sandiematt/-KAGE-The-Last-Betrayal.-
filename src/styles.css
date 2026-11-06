@@ -324,7 +324,7 @@ button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--accent
 .res-actions .btn-primary { width: 16rem; height: 3.75rem; }
 .res-actions .btn-ghost { height: 3.75rem; }
 
-/* ---------- settings / survival / overlays ---------- */
+/* ---------- settings / Echo Trials / overlays ---------- */
 .panel-wrap { position: absolute; inset: 6.5rem 3rem 2.5rem; display: grid; grid-template-columns: 1.2fr 1fr; gap: 2.5rem; overflow-y: auto; scrollbar-width: none; }
 .panel-wrap::-webkit-scrollbar { display: none; }
 .panel { background: rgba(20,18,15,.92); border-top: 2px solid var(--accent-gold); padding: 1.6rem 1.8rem; display: flex; flex-direction: column; gap: 1.1rem; box-shadow: 0 1.5rem 3.75rem rgba(0,0,0,.45); animation: cardIn2 .5s var(--pop) both; }
@@ -365,14 +365,20 @@ button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--accent
 .toast.red { border-top-color: var(--accent-ember-bright); }
 @keyframes toastIn { from { opacity: 0; transform: translateY(-1rem) scale(.85) rotate(-2deg); } to { opacity: 1; transform: none; } }
 @keyframes toastOut { to { opacity: 0; transform: translateY(-.8rem) scale(.95); } }
-.survival-hero { position: absolute; left: 6rem; top: 7.5rem; width: 34rem; display: flex; flex-direction: column; gap: 1.3rem; }
-.survival-hero h2 { margin: 0; font-size: 5rem; line-height: .95; }
+.trials-hero { position: absolute; left: 6rem; top: 7.5rem; width: 34rem; display: flex; flex-direction: column; gap: 1.3rem; }
+.trials-hero h2 { margin: 0; font-size: 5rem; line-height: .95; }
 .best { display: flex; gap: 2.5rem; padding: 1.1rem 0; border-top: 1px solid var(--line-ash); border-bottom: 1px solid var(--line-ash); }
 .best div { display: flex; flex-direction: column; gap: .2rem; }
 .best b { font-size: 2rem; font-weight: 600; }
 .best span { color: var(--text-muted); font-size: .8rem; letter-spacing: .2em; text-transform: uppercase; }
-#scr-survival { background: radial-gradient(circle at 75% 50%, #2a0d09 0%, var(--bg-charcoal) 40%, var(--bg-void) 100%); }
-#scr-survival canvas.sv-art { position: absolute; right: 0; bottom: 0; width: 52%; height: 100%; }
+#scr-trials { --echo-violet: #b48aff; background: radial-gradient(circle at 75% 50%, #1e1236 0%, var(--bg-charcoal) 42%, var(--bg-void) 100%); }
+#scr-trials::before { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .35;
+  background: repeating-linear-gradient(0deg, transparent 0 3px, rgba(180,138,255,.06) 3px 4px); animation: trialsDrift 6s linear infinite; }
+@keyframes trialsDrift { to { background-position: 0 40px; } }
+#scr-trials .trials-hero h2 { text-shadow: 3px 0 rgba(180,138,255,.35), -2px 0 rgba(120,220,255,.18); }
+#scr-trials .best { gap: 2rem; }
+#scr-trials .btn-primary { background: linear-gradient(180deg, #8a63e0, #5b3aa8); border-color: #b48aff; }
+#scr-trials canvas.sv-art { position: absolute; right: 0; bottom: 0; width: 52%; height: 100%; }
 #scr-settings { background: radial-gradient(circle at 70% 30%, #1d1a16 0%, var(--bg-void) 70%); }
 
 /* ---------- compact layout for short (phone landscape) screens ---------- */
@@ -410,7 +416,7 @@ button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--accent
   .res-col h2 { font-size: 4rem; }
   .rewards, .recap { padding: .6rem 0; }
   .panel-wrap { inset: 4.6rem 1.5rem 1rem; gap: 1.2rem; }
-  .survival-hero { left: 3rem; top: 5rem; gap: .8rem; } .survival-hero h2 { font-size: 3.2rem; }
+  .trials-hero { left: 3rem; top: 5rem; gap: .8rem; } .trials-hero h2 { font-size: 3.2rem; }
 }
 @media (max-width: 900px) and (min-height: 561px) {
   .panel-wrap { grid-template-columns: 1fr; }
@@ -608,7 +614,7 @@ body { font-family: var(--font-num); }
 .plate .ttl { font-family: var(--font-ui); font-style: normal; letter-spacing: .14em; text-transform: uppercase; font-size: 1.1rem; }
 .vs span { font-family: var(--font-brush); font-style: normal; color: #e8443a; text-shadow: 0 3px 0 #000; }
 .rating b { font-family: var(--font-brush); font-style: normal; }
-.stage-card .name, .arm-details h3, .survival-hero h2 { font-family: var(--font-display); font-weight: 800; }
+.stage-card .name, .arm-details h3, .trials-hero h2 { font-family: var(--font-display); font-weight: 800; }
 .chip, .slot .nm, .tile .nm, .stat .labels span:first-child, .set-row .k, .lvl-row .k { font-family: var(--font-ui); font-size: 1.02em; }
 #scr-campaign { background: #1a0807; }
 

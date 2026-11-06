@@ -1,12 +1,12 @@
 'use strict';
 // Referential integrity of the data tables: every id one table uses must exist in the table it points at,
-// so removing or renaming an enemy, weapon or arena can never leave a stage, survival wave or shop item
+// so removing or renaming an enemy, weapon or arena can never leave a stage, Echo Trials wave or shop item
 // pointing at nothing (which crashes the fight or the Armory in the browser).
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { loadLogic, moduleSource } = require('./helpers/load-logic');
 
-const { Logic, ENEMIES, WEAPONS, HELMETS, ARMORS, SURVIVAL } = loadLogic();
+const { Logic, ENEMIES, WEAPONS, HELMETS, ARMORS, TRIALS } = loadLogic();
 const AI_PROFILES = Object.keys(loadLogic().AI_PROFILES);
 // Names declared as `  key: {` at the top level of an object literal in a non-pure module.
 const keysOf = (file, objName) => {
@@ -34,10 +34,11 @@ test('every chapter and stage arena exists', () => {
   }
 });
 
-test('survival only sends enemies and arenas that exist', () => {
-  for (const id of [...SURVIVAL.pool, ...SURVIVAL.bosses]) assert.ok(ENEMIES[id], id);
-  for (const env of SURVIVAL.envs) assert.ok(ARENAS.includes(env), env);
-  assert.ok(SURVIVAL.bosses.every(id => ENEMIES[id].type !== 'regular'), 'every 5th wave is a sub-boss');
+test('Echo Trials only sends enemies and arenas that exist', () => {
+  for (const u of TRIALS.pool) assert.ok(ENEMIES[u.id], u.id);
+  assert.ok(ENEMIES[TRIALS.eliteWave.lead], TRIALS.eliteWave.lead);
+  for (const env of TRIALS.envs) { assert.ok(ARENAS.includes(env), env); assert.ok(TRIALS.envNames[env], env); }
+  assert.equal(TRIALS.pool.some(u => u.id === 'echo_sentinel'), false, 'the placeholder sub-boss is gone from the waves');
 });
 
 test('every enemy uses a weapon, AI profile and boss abilities that exist', () => {

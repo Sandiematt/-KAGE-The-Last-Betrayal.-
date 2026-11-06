@@ -1357,13 +1357,29 @@ const DIFF_LABEL = ['Calm', 'Tense', 'Fierce', 'Brutal', 'Mythic'];
    See Logic.minionId. Clones copy their owner. */
 const BOSS_MINIONS = { default: 'order_footman', act2: 'hollow_shade', core: 'hollow_shade' };
 
-/* ---------------- Survival ---------------- */
-const SURVIVAL = {
-  pool: ['order_footman', 'order_runner', 'order_shieldbearer', 'order_chainthrower', 'order_ironclad',
-         'hollow_shade', 'hollow_flicker', 'hollow_ward', 'hollow_mimic', 'hollow_husk'],
-  opening: ['order_footman', 'order_runner', 'hollow_shade', 'hollow_flicker'],   // wave 1 is one of these lighter units
-  bosses: ['echo_sentinel'],
-  envs: ['rooftops', 'highlands', 'wasteland'],
+/* ---------------- Echo Trials ----------------
+   Endless Hollow waves in a shifting memory arena (replaces Survival). Logic.echoTrialWave reads all of this.
+     pool        the Hollows a wave draws from, each joining from wave `from`
+     count       how many Hollows a wave sends, by the wave it starts at
+     bossEvery   every n-th wave is a boss echo: one of the bosses the player has beaten (stage kinds `bossKinds`)
+     eliteWave   ... or, with none beaten, an elite pack led by `lead` (role 'elite': `elite` health / damage)
+     envs        the remembered places the arena shifts through, one every `shiftEvery` waves (`envNames` for banners),
+                 with `glitch` seconds of flat glitch at each shift
+     heal        health restored between waves; coins(w) and gemsEvery are the per-wave rewards */
+const TRIALS = {
+  pool: [{ id: 'hollow_shade', from: 1 }, { id: 'hollow_flicker', from: 1 }, { id: 'hollow_ward', from: 3 },
+         { id: 'hollow_mimic', from: 3 }, { id: 'hollow_husk', from: 6 }],
+  count: [{ from: 1, n: 1 }, { from: 4, n: 2 }, { from: 8, n: 3 }],
+  bossEvery: 5,
+  bossKinds: ['subboss', 'boss', 'echo'],
+  eliteWave: { lead: 'hollow_husk', count: 2 },
+  elite: { hp: 1.6, dmg: 1.2 },
+  envs: ['hoshimura', 'districts', 'echoes', 'fortress', 'yard', 'core'],
+  envNames: { hoshimura: 'Hoshimura, before the fire', districts: 'The Outer Districts', echoes: 'The City of Echoes',
+              fortress: 'The Fortress of Silence', yard: 'The training yard', core: 'The Memory Core', rooftops: 'The rooftops',
+              wasteland: 'The edge of memory', highlands: 'The highlands' },
+  shiftEvery: 3,
+  glitch: 0.4,          // seconds of flat glitch as the arena shifts
   heal: 0.35,
   coins: w => 25 + w * 12,
   gemsEvery: 5

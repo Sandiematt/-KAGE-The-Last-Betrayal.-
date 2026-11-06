@@ -71,7 +71,7 @@ test('winning fights, levelling up and New Game+ never change the mode', () => {
   const s = Logic.defaultSave();
   Logic.setDifficulty(s, 'easy');
   Logic.applyFightResult(s, { mode: 'campaign', stageId: 'prologue.1', win: true, hpLeft: 1, time: 20, maxCombo: 9, parries: 3, flawless: true, ng: 0 });
-  for (let i = 0; i < 5; i++) Logic.applyFightResult(s, { mode: 'survival', waves: 30, survivalCoins: 0, survivalGems: 0 });
+  for (let i = 0; i < 5; i++) Logic.applyFightResult(s, { mode: 'trials', waves: 30, trialCoins: 0, trialGems: 0 });
   s.ngUnlocked = true; Logic.startNewGamePlus(s);
   assert.ok(s.level > 1);
   assert.equal(s.ng, 1);
@@ -117,13 +117,13 @@ test('enemy and boss stats ignore the player level, experience and gear', () => 
     veteran.owned.weapons.iwakudaki = 8; veteran.equipped.weapon = 'iwakudaki';
     for (const id of ['prologue.1', 'act1.stretch1', 'act1.sub1', 'act1.boss', 'core.witness'])
       assert.deepEqual(stageFoe(veteran, id), stageFoe(fresh, id), `${mode} ${id}`);
-    const sv = { mode: 'survival', wave: 1, ng: 0 };
-    assert.deepEqual(Logic.enemyStats(veteran, sv, 'echo_sentinel', { wave: 10 }), Logic.enemyStats(fresh, sv, 'echo_sentinel', { wave: 10 }), `${mode} survival`);
+    const sv = { mode: 'trials', wave: 1, ng: 0 };
+    assert.deepEqual(Logic.enemyStats(veteran, sv, 'echo_sentinel', { wave: 10 }), Logic.enemyStats(fresh, sv, 'echo_sentinel', { wave: 10 }), `${mode} Echo Trials`);
   }
 });
 
-test('survival foes climb with the wave on top of the mode', () => {
-  const sv = { mode: 'survival', wave: 1, ng: 0 };
+test('Echo Trials foes climb with the wave on top of the mode', () => {
+  const sv = { mode: 'trials', wave: 1, ng: 0 };
   const normal = Logic.enemyStats(saveOn('normal'), sv, 'echo_sentinel', { wave: 5 });
   assert.equal(normal.hp, 408); close(normal.dmgMul, 1.155, 'dmg'); assert.equal(normal.wlvl, 3); close(normal.level, 2.75, 'level');
   assert.equal(Logic.enemyStats(saveOn('impossible'), sv, 'echo_sentinel', { wave: 5 }).hp, 612);

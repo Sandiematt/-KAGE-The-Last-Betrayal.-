@@ -1,4 +1,4 @@
-/* KAGE — GameEngine: fixed-timestep loop, FightSession (rounds, intros, KO, survival waves) and progression */
+/* KAGE — GameEngine: fixed-timestep loop, FightSession (rounds, intros, KO, Echo Trials waves) and progression */
 
 const HOLLOW_DISSOLVE = 0.75;   // seconds a beaten Hollow takes to come apart into memory ash
 const BOSS_DISSOLVE = 1.8;      // ... and a story boss after his defeat scene (the 'finisher' outcome)
@@ -18,7 +18,7 @@ class FightSession {
     // Void Slash lines waiting to cut, and the Memory Break in progress
     this.hitLog = []; this.voidLines = []; this.memBreak = null; this.memBreakN = 0;
     this.rounds = { p: 0, e: 0, n: 0 };
-    this.wave = cfg.wave || 1; this.survivalCoins = 0; this.survivalGems = 0; this.wavesCleared = 0;
+    this.wave = cfg.wave || 1; this.trialCoins = 0; this.trialGems = 0; this.wavesCleared = 0;
     this.dialogue = null; this.combo = 0; this.comboT = 0; this.damageTaken = 0; this.fightTime = 0;
     // the Interlude spar (Logic.fightFormat 'spar'): young Kage instead of the geared player, drawn as a memory
     this.spar = !cfg.stretch && (cfg.format || Logic.fightFormat(cfg)).name === 'spar';
@@ -29,11 +29,14 @@ class FightSession {
   // The single-screen arena: one main foe, rounds, a round timer and the intro duel. StretchSession overrides this.
   setup() {
     const cfg = this.cfg;
-    this.enemy = this.makeEnemy(cfg.enemyId, 300);
+    // Echo Trials: the wave's contents come from Logic.echoTrialWave (its leader, escorts, boss echo and arena)
+    const tw = this.mode === 'trials' ? this.trialWave(this.wave) : null;
+    this.enemy = this.makeEnemy(tw ? tw.foes[0] : cfg.enemyId, 300, null, tw && tw.elite ? 'elite' : null);
     // campaign stages fight a placeholder rig under the stage's story name (Raikon, Hollow Rem, ...)
     if (cfg.foeName) this.enemy.name = cfg.foeName;
     if (cfg.foeTitle) this.enemy.title = cfg.foeTitle;
     this.fighters = [this.player, this.enemy];
+    if (tw) this.spawnEscorts(tw, 1);
     this.isBoss = this.enemy.def.type === 'boss';
     this.isSub = this.enemy.def.type === 'sub';
     // the fight format (Logic.fightFormat): story bosses are one round, one health bar, three phases and no clock
@@ -65,9 +68,36 @@ class FightSession {
     f.name = 'Kage';
     return f;
   }
-  // The authored challenge curve (chapter tier, stage position, survival wave); see Logic.stageLevel.
+  // ---- Echo Trials ----
+  // Wave n's contents (Logic.echoTrialWave): sets the arena (a glitch when it shifts to a new remembered place) and
+  // names a boss echo after its story stage.
+  trialWave(n) {
+    const w = this.trial = Logic.echoTrialWave(SaveManager.data, n);
+    if (w.env !== this.envId) {
+      if (this.envId) { this.glitch = TRIALS.glitch; AudioManager.play('teleport', { pitch: 0.6 }); this.fx.shake(0.3); }
+      this.envId = w.env; this.env = getEnv(w.env);
+    }
+    return w;
+  }
+  // The wave's other Hollows: they fight beside the leader with their own small bars (`escort`); the wave is cleared
+  // when the last of them is down (see onKO).
+  spawnEscorts(w, side) {
+    const lead = this.enemy;
+    w.foes.slice(1).forEach((id, i) => {
+      const x = clamp(lead.x + side * (i % 2 ? 1 : -1) * (130 + 70 * i), this.bounds.l + 40, this.bounds.r - 40);
+      const f = this.makeEnemy(id, x, null, w.elite ? 'elite' : null);
+      f.minion = true; f.escort = true; f.facing = this.player.x > x ? 1 : -1;
+      this.fighters.push(f);
+    });
+  }
+  trialBanner() {
+    const w = this.trial, e = this.enemy;
+    const sub = w.bossEcho ? `Boss echo · ${e.name}` : w.elite ? `Elite Hollows · ${e.name}` : w.foes.length > 1 ? `${w.foes.length} Hollows · ${TRIALS.envNames[w.env] || ''}` : `${e.name} · ${TRIALS.envNames[w.env] || ''}`;
+    this.fx.banner(`Wave ${this.wave}`, sub, w.bossEcho ? ECHO_TINT : w.elite ? C.emberBright : C.gold);
+  }
+  // The authored challenge curve (chapter tier, stage position, Echo Trials wave); see Logic.stageLevel.
   difficultyLevel(d) { return Logic.stageLevel(this.cfg, d.id, this.wave); }
-  // Every foe (campaign, survival waves, boss minions and clones) is built here from Logic.enemyStats: the chosen
+  // Every foe (campaign, Echo Trials waves, boss minions and clones) is built here from Logic.enemyStats: the chosen
   // difficulty mode and the authored curve only, never the player's level. role: null | 'minion' | 'clone'.
   makeEnemy(id, x, extra, role) {
     const st = this.enemyStats(id, role);
@@ -99,7 +129,7 @@ class FightSession {
     if (this.isBoss) { e.y = -720; e.grounded = false; e.state = 'air'; }
     else if (this.isSub) { e.x = 760; e.vx = 0; }
     this.cam.x = e.x - 80; this.cam.zoom = 1.3;
-    if (this.mode === 'survival') this.fx.banner(`Wave ${this.wave}`, `${e.name}, ${e.title}`, C.gold);
+    if (this.mode === 'trials') { this.nameBossEcho(); this.trialBanner(); }
   }
 
   // ---- world interface used by fighters / combat / AI ----
@@ -287,6 +317,11 @@ class FightSession {
     if (def.hollow) this.dissolve(def);
     if (def.clone) { def.visible = false; this.smokeCloud(def.x); this.fighters.splice(this.fighters.indexOf(def), 1); return; }
     if (def.minion) { if (!def.hollow) fx.embers(def.x, -60, 16); return; }
+    // Echo Trials: while the wave still has Hollows standing, the next one takes the lead (and the HUD bar)
+    if (def === this.enemy && this.mode === 'trials' && this.phase === 'fight') {
+      const next = this.fighters.find(f => f.escort && f.alive);
+      if (next) { next.minion = false; next.escort = false; this.enemy = next; fx.stamp('FINISH', def.x, def.y - 120, 2, C.emberBright); return; }
+    }
     if (this.phase !== 'fight') return;
     const main = def === this.player || def === this.enemy;
     if (!main) return;
@@ -301,12 +336,17 @@ class FightSession {
     for (const f of this.fighters) if (f.decoy && f.alive) this.vanishDecoy(f);
     this.voidLines.length = 0;
     for (const f of this.fighters) if ((f.clone || f.minion) && f.alive) { f.alive = false; f.hp = 0; f.setState('juggle'); f.vy = -300; if (f.clone) { f.visible = false; this.smokeCloud(f.x); } else if (f.hollow) this.dissolve(f); }
-    if (def === this.player) this.rounds.e++; else { this.rounds.p++; if (this.mode === 'survival') this.waveCleared(); }
+    if (def === this.player) this.rounds.e++; else { this.rounds.p++; if (this.mode === 'trials') this.waveCleared(); }
+  }
+  // a boss echo fights under its story name, as an echo of that memory
+  nameBossEcho() {
+    const b = this.trial && this.trial.bossEcho; if (!b) return;
+    this.enemy.name = b.name; this.enemy.title = `Echo of ${b.kind === 'subboss' ? 'a sub-boss' : b.kind === 'echo' ? 'the Core' : 'a boss'}`;
   }
   waveCleared() {
-    const { coins, gems } = Logic.survivalWaveReward(this.wave);
-    this.survivalCoins += coins; this.wavesCleared = this.wave;
-    this.survivalGems += gems;
+    const { coins, gems } = Logic.trialWaveReward(this.wave);
+    this.trialCoins += coins; this.wavesCleared = this.wave;
+    this.trialGems += gems;
     this.fx.popText(this.player, `+${coins} COINS`, C.gold);
     AudioManager.play('coin');
   }
@@ -329,16 +369,19 @@ class FightSession {
   nextWave() {
     this.wave++;
     const p = this.player;
-    p.hp = Math.min(p.maxHp, p.hp + p.maxHp * SURVIVAL.heal); p.ammo = p.maxAmmo; p.hasWeapon = true; p.poison = 0;
+    p.hp = Math.min(p.maxHp, p.hp + p.maxHp * TRIALS.heal); p.ammo = p.maxAmmo; p.hasWeapon = true; p.poison = 0;
     this.projectiles.length = 0; this.pickups.length = 0;
-    const id = this.wave % 5 === 0 ? pick(SURVIVAL.bosses) : pick(SURVIVAL.pool);
-    if ((this.wave - 1) % 3 === 0) this.env = getEnv(SURVIVAL.envs[((this.wave - 1) / 3 | 0) % 3]);
+    this.endMemoryBreak();
+    const w = this.trialWave(this.wave);
     const side = p.x > 0 ? -1 : 1;
-    this.enemy = this.makeEnemy(id, clamp(p.x + side * 620, this.bounds.l + 40, this.bounds.r - 40));
+    this.enemy = this.makeEnemy(w.foes[0], clamp(p.x + side * 620, this.bounds.l + 40, this.bounds.r - 40), null, w.elite ? 'elite' : null);
     this.enemy.facing = -side;
     this.fighters = [p, this.enemy];
+    this.spawnEscorts(w, side);
+    this.nameBossEcho();
+    if (w.bossEcho) { this.fx.memoryAsh(this.enemy, 24, true); AudioManager.play('boss'); }
     this.timer = this.roundTime();
-    this.fx.banner(`Wave ${this.wave}`, `${this.enemy.name}, ${this.enemy.title}`, this.wave % 5 === 0 ? C.emberBright : C.gold);
+    this.trialBanner();
     AudioManager.play('round');
     this.phase = 'round'; this.phaseT = 0.4;
   }
@@ -379,7 +422,7 @@ class FightSession {
           this.fx.shake(0.9); this.fx.dust(e.x, 0, 30); this.fx.ring(e.x, -20, 300, e.accent || C.emberBright, 0.6, 8); AudioManager.play('slam'); AudioManager.play('boss');
           this.fx.impactFrame(e.x, -120, 3);
         }
-        if (this.phaseT > 0.5 && !this.dialogue && this.mode !== 'survival') {
+        if (this.phaseT > 0.5 && !this.dialogue && this.mode !== 'trials') {
           this.dialogue = { name: e.name, title: e.title, text: e.def.taunt, t: 0 };
           if (this.isBoss || this.isSub) this.fx.banner(e.name, e.title, e.accent || C.emberBright);
         }
@@ -391,7 +434,7 @@ class FightSession {
         if (this.phaseT < 0.05 && !this.roundShown) {
           this.roundShown = true; this.rounds.n++;
           if (this.spar) this.fx.banner('Sparring Match', "A memory · Takashi's yard", C.gold);
-          else if (this.mode !== 'survival') this.fx.banner(this.roundsToWin > 1 ? `Round ${ROMAN[this.rounds.n - 1]}` : 'Final Duel', this.bossFormat ? `One life · ${['one phase', 'two phases', 'three phases'][this.format.phases - 1] || this.format.phases + ' phases'} · ${Logic.difficulty(SaveManager.data.difficulty).label}` : `${e.name} · ${DIFF_LABEL[clamp((this.cfg.diff || 1) + (this.cfg.ng || 0), 0, 4)]} · ${Logic.difficulty(SaveManager.data.difficulty).label}`, C.gold);
+          else if (this.mode !== 'trials') this.fx.banner(this.roundsToWin > 1 ? `Round ${ROMAN[this.rounds.n - 1]}` : 'Final Duel', this.bossFormat ? `One life · ${['one phase', 'two phases', 'three phases'][this.format.phases - 1] || this.format.phases + ' phases'} · ${Logic.difficulty(SaveManager.data.difficulty).label}` : `${e.name} · ${DIFF_LABEL[clamp((this.cfg.diff || 1) + (this.cfg.ng || 0), 0, 4)]} · ${Logic.difficulty(SaveManager.data.difficulty).label}`, C.gold);
           AudioManager.play('round');
         }
         if (this.phaseT > 1.25 && !this.fightShown) { this.fightShown = true; this.fx.stamp('FIGHT', (p.x + e.x) / 2, -150, 3, C.emberBright); this.fightFlash = 1; }
@@ -470,7 +513,7 @@ class FightSession {
   }
   afterKO() {
     const pWon = this.koTarget !== this.player;
-    if (this.mode === 'survival') {
+    if (this.mode === 'trials') {
       if (pWon) { this.nextWave(); return; }
       return this.startOutro(false);
     }
@@ -489,7 +532,7 @@ class FightSession {
     w.state = 'pose'; w.poseName = 'victory'; w.vx = 0;
     if (!win) w.poseName = 'taunt';
     const line = win ? (defeatScene ? null : l.def.defeatLine || null) : (w.def && w.def.win) || null;
-    if (line && this.mode !== 'survival') this.dialogue = { name: win ? l.name : w.name, title: win ? l.title : w.title, text: line, t: 0 };
+    if (line && this.mode !== 'trials') this.dialogue = { name: win ? l.name : w.name, title: win ? l.title : w.title, text: line, t: 0 };
     AudioManager.play(win ? 'victory' : 'defeat');
     AudioManager.setMusic('none');
   }
@@ -516,7 +559,7 @@ class FightSession {
     return {
       mode: this.mode, win: !!this.win, outcome: this.outcome || null, enemyId: e.def.id, stageId: this.cfg.stageId, foeName: e.name, ng: this.cfg.ng || 0,
       time: this.fightTime, hpLeft: p.hp / p.maxHp, flawless: this.damageTaken < 1, maxCombo: p.stats.maxCombo, parries: p.stats.parries,
-      enemyDamage: 1 - Math.max(0, e.hp) / e.maxHp, waves: this.wavesCleared, survivalCoins: this.survivalCoins, survivalGems: this.survivalGems,
+      enemyDamage: 1 - Math.max(0, e.hp) / e.maxHp, waves: this.wavesCleared, trialCoins: this.trialCoins, trialGems: this.trialGems,
       env: this.cfg.env
     };
   }
@@ -814,7 +857,7 @@ class StretchSession extends FightSession {
     return {
       mode: this.mode, kind: 'stretch', win: !!this.win, enemyId: this.cfg.enemyId, stageId: this.cfg.stageId, foeName: this.cfg.foeName, ng: this.cfg.ng || 0,
       time: this.fightTime, hpLeft: p.hp / p.maxHp, flawless: this.damageTaken < 1, maxCombo: p.stats.maxCombo, parries: p.stats.parries,
-      enemyDamage: n ? this.cleared / n : 1, encounters: this.cleared, clues: this.clues.filter(c => c.found).length, waves: 0, survivalCoins: 0, survivalGems: 0,
+      enemyDamage: n ? this.cleared / n : 1, encounters: this.cleared, clues: this.clues.filter(c => c.found).length, waves: 0, trialCoins: 0, trialGems: 0,
       env: this.cfg.env
     };
   }
@@ -931,7 +974,7 @@ const Game = {
     this.session = cfg.stretch ? new StretchSession(cfg) : new FightSession(cfg);
     this.scene = 'fight'; this.paused = false; this.acc = 0; this.tableau = null;
     const d = ENEMIES[cfg.enemyId];
-    AudioManager.setMusic(cfg.mode === 'survival' ? 'survival' : d.type === 'boss' ? 'boss' : 'fight');
+    AudioManager.setMusic(cfg.mode === 'trials' ? 'trials' : d.type === 'boss' ? 'boss' : 'fight');
     UIManager.showHud(this.session);
     if (cfg.mode === 'campaign' && !(opts && opts.skipBefore)) this.playStory(Logic.stageScene(cfg.stageId, 'before'));
   },
@@ -940,7 +983,7 @@ const Game = {
     if (!id) { if (onDone) onDone(); return false; }
     return StoryPlayer.play(id, onDone, opts);
   },
-  retry() { if (this.lastCfg) { const c = Object.assign({}, this.lastCfg); if (c.mode === 'survival') c.wave = 1; UIManager.go('prefight', () => UIManager.preparePrefight(c)); } },
+  retry() { if (this.lastCfg) { const c = Object.assign({}, this.lastCfg); if (c.mode === 'trials') c.wave = 1; UIManager.go('prefight', () => UIManager.preparePrefight(c)); } },
   quitFight() { this.session = null; this.paused = false; AudioManager.setMusic('menu'); },
   setTableau(env, opts) { this.tableau = { env: getEnv(env), t: 0, opts }; this.scene = 'tableau'; },
 
