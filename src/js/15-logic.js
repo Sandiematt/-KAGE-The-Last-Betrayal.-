@@ -356,6 +356,15 @@ const Logic = {
     if (!TAKASHI_ABILITIES.includes(id) || !TAKASHI_MOVES[id]) return null;
     return JSON.parse(JSON.stringify(Object.assign({ id }, TAKASHI_MOVES[id])));
   },
+  // Takashi's moves and the reduced versions of them Act III's sub-bosses fight with (TAKASHI_ABILITIES and
+  // TAKASHI_VARIANTS in 10-data.js): the numbers the move runs with (his, with a variant's overrides on top) plus
+  // { id, base, reduced }, where `base` is the Takashi ability whose code runs. null for any other id.
+  takashiDerived(id) {
+    if (TAKASHI_ABILITIES.includes(id)) return Object.assign(this.takashiMove(id), { base: id, reduced: false });
+    const v = TAKASHI_VARIANTS[id];
+    if (!v || !TAKASHI_ABILITIES.includes(v.base)) return null;
+    return JSON.parse(JSON.stringify(Object.assign({}, TAKASHI_MOVES[v.base], v, { id, base: v.base, reduced: true })));
+  },
   // How predictable a move is in the player's recent history (move ids, oldest first): its share of the last
   // PATTERN_READ.last moves, or 0 until PATTERN_READ.min moves are known. FightSession.predictability calls this.
   predictability(history, id) {

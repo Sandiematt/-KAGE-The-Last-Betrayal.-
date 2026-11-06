@@ -129,14 +129,17 @@ class AIController {
      the guard goes up at once, before the blow lands, so the repeated strike is turned aside and punished. A varied
      attack is never read. The chance is the difficulty mode's `punish` (+0.35, capped at 1). Returns true when it fires. */
   readStrike(p) {
-    const f = this.f, w = this.world, list = this.phaseData ? this.phaseData.abilities : this.abilities, a = BOSS_ABILITIES.guardReturn;
-    if (!list || !list.includes('guardReturn') || (this.cds.guardReturn || 0) > 0 || !p.move || p.move.kind === 'throw') return false;
+    const f = this.f, w = this.world, list = this.phaseData ? this.phaseData.abilities : this.abilities;
+    // his own Guard Return, or an Act III sub-boss's reduced one (TAKASHI_VARIANTS)
+    const gid = list && list.find(id => id === 'guardReturn' || (TAKASHI_VARIANTS[id] && TAKASHI_VARIANTS[id].base === 'guardReturn'));
+    const a = gid && BOSS_ABILITIES[gid];
+    if (!a || (this.cds[gid] || 0) > 0 || !p.move || p.move.kind === 'throw') return false;
     if (!f.grounded || !(f.canAct() || f.state === 'block' || (f.state === 'move' && f.mphase === 0))) return false;
     if (!Logic.readsPattern(w.history || [], p.move.id) || !chance(Math.min(1, this.p.punish + 0.35))) return false;
     this.seq = null; this.block = 0; f.move = null;
-    this.cds.guardReturn = a.cd;
+    this.cds[gid] = a.cd;
     a.run(f, w, this, p);
-    w.fx.popText(f, 'HE READS YOU', '#7fd0c8');
+    w.fx.popText(f, gid === 'guardReturn' ? 'HE READS YOU' : 'READ', '#7fd0c8');
     return true;
   }
 
@@ -852,6 +855,15 @@ for (const id in RAIKON_VARIANTS) {
 for (const id in AKARI_VARIANTS) {
   const v = AKARI_VARIANTS[id], base = BOSS_ABILITIES[v.base];
   BOSS_ABILITIES[id] = { id, cd: v.cd || base.cd, range: v.range || base.range, chance: v.chance || base.chance,
+    run(f, w, ai, p) { base.run(f, w, ai, p, v); } };
+}
+/* ---- reduced Takashi moves (TAKASHI_VARIANTS in 10-data.js): each runs his ability's code with the variant's numbers
+   merged over his (takashiOpt), so Act III's sub-bosses fight with his own moves at reduced strength. A Guard Return
+   variant keeps his `cond` (picked on its own only while Kage's last move is a pattern) and is raised by
+   AIController.readStrike like his. ---- */
+for (const id in TAKASHI_VARIANTS) {
+  const v = TAKASHI_VARIANTS[id], base = BOSS_ABILITIES[v.base];
+  BOSS_ABILITIES[id] = { id, cd: v.cd || base.cd, range: v.range || base.range, chance: v.chance || base.chance, cond: base.cond,
     run(f, w, ai, p) { base.run(f, w, ai, p, v); } };
 }
 /* ---- Raikon's poses and shared effects (also used by the player's Thunder Swing rage art, 30-combat.js) ---- */

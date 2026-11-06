@@ -259,6 +259,103 @@ const ENVS = {
       }
     }
   },
+  // The Fortress of Silence (Act III), the Order's seat: a cold slate night, the keep's crenellated walls and towers far
+  // off, an inner curtain wall of dressed stone close behind the road hung with slate Order banners (the barred circle),
+  // memory conduits glowing violet down the stone, and a flagstone floor with a violet conduit seam pulsing through it.
+  fortress: {
+    name: 'The Fortress of Silence', rim: 'rgba(206,200,228,0.74)', light: { x: 0.45, y: -0.88 }, moon: '#cfcadf', trail: '#c9bdff',
+    build() {
+      const r = seeded(97);
+      this.sky = makeLayer(W, H, (g) => {
+        const gr = g.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, '#07070b'); gr.addColorStop(0.55, '#16151f'); gr.addColorStop(1, '#0a090d');
+        g.fillStyle = gr; g.fillRect(0, 0, W, H);
+        for (let i = 0; i < 70; i++) { g.fillStyle = `rgba(214,206,230,${r() * 0.4})`; g.fillRect(r() * W, r() * H * 0.5, 1.2, 1.2); }
+      });
+      this.far = makeLayer(LW, H, (g) => {   // the keep: massive walls, crenellations, tall square towers
+        g.fillStyle = '#17171e';
+        let x = 0;
+        while (x < LW) {
+          const w = 140 + r() * 180, h = 150 + r() * 110, base = 470;
+          g.fillRect(x, base - h, w, h + 300);
+          for (let c = x; c < x + w - 8; c += 20) g.fillRect(c, base - h - 14, 12, 16);
+          if (r() < 0.6) {
+            const tw = 46 + r() * 30, th = h + 90 + r() * 110, tx = x + w * (0.2 + r() * 0.5);
+            g.fillRect(tx, base - th, tw, th);
+            for (let c = tx - 4; c < tx + tw; c += 14) g.fillRect(c, base - th - 12, 9, 14);
+            g.fillStyle = 'rgba(155,124,255,0.22)'; g.fillRect(tx + tw / 2 - 3, base - th + 30, 6, 12); g.fillStyle = '#17171e';   // a lit slit
+          }
+          x += w + 20 + r() * 60;
+        }
+      });
+      this.mid = makeLayer(LW, H, (g) => {   // the inner curtain wall: dressed stone courses, arrow slits, a parapet
+        const top = 300;
+        g.fillStyle = '#0f0f14'; g.fillRect(0, top, LW, H - top);
+        for (let c = 0; c < LW; c += 34) g.fillRect(c, top - 18, 20, 20);
+        g.strokeStyle = 'rgba(160,156,180,0.07)'; g.lineWidth = 1;
+        for (let y = top + 26, row = 0; y < GROUND; y += 30, row++) {
+          g.beginPath(); g.moveTo(0, y); g.lineTo(LW, y); g.stroke();
+          for (let x = (row % 2) * 40; x < LW; x += 80) { g.beginPath(); g.moveTo(x, y); g.lineTo(x, y + 30); g.stroke(); }
+        }
+        g.fillStyle = '#050508';
+        for (let x = 90; x < LW; x += 260 + ((x * 7) % 90)) g.fillRect(x, top + 60, 8, 36);
+      });
+      this.banners = []; for (let x = 160; x < LW; x += 330 + r() * 120) this.banners.push({ x, ph: r() * 6, long: r() < 0.5 });
+      this.conduits = []; for (let x = 60; x < LW; x += 210 + r() * 160) this.conduits.push({ x, ph: r() * 6, w: r() < 0.4 ? 2 : 1 });
+      this.motes = []; for (let i = 0; i < 40; i++) this.motes.push({ x: r() * W, y: r() * H, s: 6 + r() * 14, ph: r() * 6, z: 0.4 + r() * 0.8 });
+    },
+    back(ctx, cx, t) {
+      ctx.drawImage(this.sky, 0, 0);
+      const mx = 880 - cx * 0.04, my = 150;
+      const halo = ctx.createRadialGradient(mx, my, 0, mx, my, 220); halo.addColorStop(0, 'rgba(207,202,223,0.22)'); halo.addColorStop(1, 'rgba(207,202,223,0)');
+      ctx.fillStyle = halo; ctx.fillRect(mx - 220, my - 220, 440, 440);
+      ctx.fillStyle = this.moon; ctx.beginPath(); ctx.arc(mx, my, 58, 0, TAU); ctx.fill();
+      drawTiled(ctx, this.far, -260 - cx * 0.18);
+      ctx.fillStyle = 'rgba(40,36,60,0.35)'; ctx.fillRect(0, 360, W, 160);
+      const mo = -260 - cx * 0.55;
+      drawTiled(ctx, this.mid, mo);
+      const off = wrapX(mo, LW) - LW;
+      for (let rep = off; rep < W; rep += LW) {
+        // memory conduits: glass pipes of violet light running down the wall, a pulse travelling down each
+        for (const c of this.conduits) {
+          const x = c.x + rep; if (x < -20 || x > W + 20) continue;
+          const a = 0.28 + 0.18 * Math.sin(t * 2.4 + c.ph);
+          ctx.fillStyle = '#1b1826'; ctx.fillRect(x - 4 * c.w, 300, 8 * c.w, GROUND - 300);
+          ctx.fillStyle = `rgba(155,124,255,${a})`; ctx.fillRect(x - 1.5 * c.w, 300, 3 * c.w, GROUND - 300);
+          const py = 300 + wrapX(t * 120 + c.ph * 60, GROUND - 300);
+          ctx.fillStyle = 'rgba(201,189,255,0.3)'; ctx.beginPath(); ctx.ellipse(x, py, 5 * c.w, 14, 0, 0, TAU); ctx.fill();
+        }
+        // slate Order banners hung from the parapet, each with the barred circle
+        for (const b of this.banners) {
+          const x = b.x + rep; if (x < -60 || x > W + 60) continue;
+          const len = b.long ? 170 : 120, sw = Math.sin(t * 0.9 + b.ph) * 3;
+          ctx.fillStyle = '#2b2f37'; ctx.beginPath(); ctx.moveTo(x - 24, 302); ctx.lineTo(x + 24, 302); ctx.lineTo(x + 24 + sw, 302 + len); ctx.lineTo(x + sw, 302 + len - 14); ctx.lineTo(x - 24 + sw, 302 + len); ctx.closePath(); ctx.fill();
+          ctx.strokeStyle = 'rgba(196,200,204,0.5)'; ctx.lineWidth = 2;
+          const my2 = 302 + len * 0.38; ctx.beginPath(); ctx.arc(x + sw * 0.4, my2, 10, 0, TAU); ctx.moveTo(x + sw * 0.4 - 7, my2); ctx.lineTo(x + sw * 0.4 + 7, my2); ctx.stroke();
+        }
+      }
+      ctx.fillStyle = 'rgba(52,46,84,0.16)'; ctx.fillRect(0, 0, W, H);
+    },
+    floor(ctx, cx, t) {
+      const gr = ctx.createLinearGradient(0, GROUND, 0, H); gr.addColorStop(0, '#16151b'); gr.addColorStop(1, '#060508');
+      ctx.fillStyle = gr; ctx.fillRect(0, GROUND, W, H - GROUND);
+      ctx.strokeStyle = 'rgba(150,144,170,0.12)'; ctx.lineWidth = 1;   // flagstone joints
+      const off = wrapX(-cx, 120);
+      for (let x = off - 120; x < W + 120; x += 120) { ctx.beginPath(); ctx.moveTo(x, GROUND); ctx.lineTo(x + (x - W / 2) * 0.35, H); ctx.stroke(); }
+      for (let y = GROUND + 16, i = 1; y < H; i++, y += 12 + i * 5) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+      // the conduit seam under the road: a violet line with a pulse running along it
+      const a = 0.22 + 0.1 * Math.sin(t * 3);
+      ctx.fillStyle = `rgba(155,124,255,${a})`; ctx.fillRect(0, GROUND + 26, W, 2);
+      const px = wrapX(t * 260 - cx, W + 400) - 200;
+      ctx.fillStyle = 'rgba(201,189,255,0.35)'; ctx.fillRect(px - 40, GROUND + 25, 80, 4);
+      ctx.fillStyle = '#3a3646'; ctx.fillRect(0, GROUND, W, 1);
+    },
+    front(ctx, cx, t) {
+      for (const m of this.motes) {
+        const x = wrapX(m.x + Math.sin(t * 0.6 + m.ph) * 20 - cx * m.z * 0.6, W), y = wrapX(m.y - t * m.s, H);
+        ctx.fillStyle = `rgba(201,189,255,${0.14 + 0.16 * Math.sin(t * 2 + m.ph)})`; ctx.fillRect(x, y, 2 * m.z, 2 * m.z);
+      }
+    }
+  },
   // Takashi's training yard in Hoshimura, as the brothers remember it (the Interlude spar): a low dusk sun, the dojo's
   // roof and veranda behind a wooden fence, a pine, a striking post and a rack of practice swords, packed warm earth.
   // Drawn in the memory filter by the fight renderer (Renderer.drawMemoryFilter).
@@ -837,6 +934,37 @@ const Renderer = {
       const g = ctx.createLinearGradient(x - 70, 0, x + 70, 0);
       g.addColorStop(0, 'rgba(155,140,255,0)'); g.addColorStop(0.5, `rgba(155,140,255,${0.12 + 0.06 * Math.sin(t * 7)})`); g.addColorStop(1, 'rgba(155,140,255,0)');
       ctx.fillStyle = g; ctx.fillRect(x - 70, -h, 140, h);
+    } else if (pr.type === 'banner') {
+      // the Fortress of Silence: a tall Order war banner on a pole, slate cloth with the barred circle, a pale hem
+      ctx.fillRect(x - 4, -320, 8, 320); ctx.fillRect(x - 4, -320, 74, 6);
+      const sw = Math.sin(t * 1.1 + x * 0.01) * 4;
+      ctx.fillStyle = '#2b2f37'; ctx.beginPath(); ctx.moveTo(x + 4, -314); ctx.lineTo(x + 70, -314); ctx.lineTo(x + 70 + sw, -150); ctx.lineTo(x + 37 + sw, -168); ctx.lineTo(x + 4 + sw * 0.5, -150); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = 'rgba(196,200,204,0.75)'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(x + 37 + sw * 0.4, -260, 16, 0, TAU); ctx.moveTo(x + 26 + sw * 0.4, -260); ctx.lineTo(x + 48 + sw * 0.4, -260); ctx.stroke();
+      ctx.fillStyle = 'rgba(196,200,204,0.35)'; ctx.fillRect(x + 6, -318, 64, 3);
+    } else if (pr.type === 'conduit') {
+      // a memory conduit rising out of the floor: an iron-banded glass pipe of violet light, a pulse climbing it, a
+      // junction box flickering where it meets the road
+      const h = 360, a = 0.4 + 0.2 * Math.sin(t * 3 + x);
+      ctx.fillStyle = `rgba(155,124,255,${a * 0.12})`; ctx.fillRect(x - 40, -h, 80, h);   // the glow on the stone around it
+      ctx.fillStyle = ink; ctx.fillRect(x - 14, -h, 28, h);
+      ctx.fillStyle = `rgba(185,150,255,${a})`; ctx.fillRect(x - 6, -h, 12, h);
+      ctx.fillStyle = ink; for (let y = -h + 20; y < -30; y += 56) ctx.fillRect(x - 17, y, 34, 7);
+      const py = -wrapX(t * 140 + x, h);
+      ctx.fillStyle = 'rgba(236,229,255,0.75)'; ctx.fillRect(x - 6, py - 16, 12, 32);
+      ctx.fillStyle = ink; ctx.fillRect(x - 30, -54, 60, 54);
+      const on = Math.sin(t * 7 + x) > -0.2; ctx.fillStyle = on ? 'rgba(201,189,255,0.9)' : 'rgba(90,70,150,0.7)'; ctx.fillRect(x - 18, -40, 10, 6); ctx.fillRect(x + 4, -40, 14, 6);
+    } else if (pr.type === 'record_shelf') {
+      // the Hall of Records: a tall shelf of Order ledgers, spines stamped with the barred circle, a ladder against it
+      ctx.fillRect(x - 110, -300, 220, 300);
+      ctx.fillStyle = '#1a1c21'; for (let row = 0; row < 5; row++) ctx.fillRect(x - 100, -288 + row * 56, 200, 46);
+      for (let row = 0; row < 5; row++) for (let k = 0; k < 11; k++) {
+        const bx = x - 96 + k * 18, h = 30 + ((k * 7 + row * 3) % 4) * 4;
+        ctx.fillStyle = (k + row) % 3 ? 'rgba(160,150,128,0.32)' : 'rgba(110,104,132,0.4)'; ctx.fillRect(bx, -244 + row * 56 - h + 2, 14, h);
+        if ((k + row * 2) % 5 === 0) { ctx.strokeStyle = 'rgba(30,32,36,0.9)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(bx + 7, -244 + row * 56 - h / 2, 3, 0, TAU); ctx.stroke(); }
+      }
+      ctx.strokeStyle = ink; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(x + 80, 0); ctx.lineTo(x + 130, -260); ctx.moveTo(x + 104, 0); ctx.lineTo(x + 152, -250); ctx.stroke();
+      ctx.lineWidth = 3; for (let k = 1; k < 8; k++) { ctx.beginPath(); ctx.moveTo(x + 80 + k * 6.2, -k * 32); ctx.lineTo(x + 104 + k * 6, -k * 31); ctx.stroke(); }
     } else if (pr.type === 'collapsed') {
       // a fallen house: beams in a heap across the road's edge
       ctx.save(); ctx.translate(x - 60, -8); ctx.rotate(-0.22); ctx.fillRect(-90, -9, 200, 16); ctx.restore();

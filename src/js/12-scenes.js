@@ -298,6 +298,58 @@ const SCENES = {
       { say: 'akari', text: 'I kept his secret ten years. It is lighter now. Find him, Kage... before Takashi does.' }
     ]
   },
+  // ---- Act III, The Father's Sin: the Fortress of Silence (act3.stretch1..4) ----
+  // The stretch beats build toward one thing: Takashi is alive, and here. The Order's records name him, a guard speaks
+  // of him in the present tense, a memory conduit carries his voice live. Kept off-screen: Rem in the Core (Takashi's
+  // own reveal, act3.takashi.defeat).
+  'act3.stretch1.before': {
+    steps: [
+      { illus: null },
+      { say: 'narrator', text: 'The Fortress of Silence. The Order’s seat: black stone, slate banners, and violet light pulsing in the walls.' },
+      { say: 'order', name: 'Gate guard', text: 'Halt. The upper halls are closed. By order of the Founder.' },
+      { say: 'kage', text: 'The Founder. The Order’s founder died in the war.' },
+      { say: 'order', name: 'Gate guard', text: 'Did he? Then who signs the orders?' },
+      { say: 'kage', text: '...Open the gate.' }
+    ]
+  },
+  'act3.stretch2.before': {
+    steps: [
+      { say: 'narrator', text: 'The Hall of Records. Shelves of Order ledgers run up into the dark, every spine stamped with the barred circle.' },
+      { say: 'narrator', text: 'One ledger lies open on a lectern. FOUNDER OF THE ORDER: TACHIBANA TAKASHI. STATUS: DECEASED.' },
+      { say: 'narrator', text: 'The word DECEASED has been struck through. Beside it, in fresh ink: IN RESIDENCE.' },
+      { say: 'kage', text: 'Tachibana Takashi. Father.' },
+      { say: 'kage', text: 'Akari said he built the Echo System. She never said he was dead. Nobody here ever buried him.' }
+    ]
+  },
+  // the one clue of the Fortress (optional): the night watch's duty roster
+  'act3.clue.roster': {
+    steps: [
+      { say: 'narrator', text: 'An Order duty roster, pinned to a shelf. Last night’s watch, in a clerk’s neat hand.' },
+      { say: 'narrator', text: 'UPPER STAIR: THE FOUNDER RECEIVES NO ONE. TEA AT THE HOUR OF THE OX. LAMP KEPT LIT UNTIL DAWN.' },
+      { say: 'kage', text: 'He still drinks tea at the hour of the ox. He did that every night in Hoshimura.' },
+      { say: 'kage', text: 'This isn’t a record of a dead man. It’s a schedule.' },
+      { flag: 'act3.roster_found' }
+    ]
+  },
+  'act3.stretch3.before': {
+    steps: [
+      { say: 'narrator', text: 'The Conduit Galleries. Glass pipes of violet light run down through the walls, carrying stored memories into the deep.' },
+      { say: 'narrator', text: 'One conduit flickers as Kage passes it. Through the hum, a voice.' },
+      { say: 'recording', name: 'A voice in the conduit', text: '...keep them. Keep all of them. Nobody is lost while I am still here to hold them...' },
+      { say: 'kage', text: 'That voice.' },
+      { say: 'recording', name: 'A voice in the conduit', text: '...the eastern district is fading again. Send more Hollows to the walls. I will see to it myself.' },
+      { say: 'kage', text: 'That isn’t a recording. Nobody records orders for tonight. He’s speaking now.' }
+    ]
+  },
+  'act3.stretch4.before': {
+    steps: [
+      { say: 'narrator', text: 'The Last Stair. A wounded Order guard sits against the banners, his helm off, laughing quietly.' },
+      { say: 'order', name: 'Wounded guard', text: 'You came for the Founder. Everyone does, in the end.' },
+      { say: 'order', name: 'Wounded guard', text: 'He walks these halls every night. Straw hat, plain blade. He asked about you, once. Whether you still held your elbows in.' },
+      { say: 'kage', text: 'Then he’s alive.' },
+      { say: 'order', name: 'Wounded guard', text: 'Alive, and waiting at the top of the stair. Go on. He told us not to stop you.' }
+    ]
+  },
   // ---- Act III boss: Takashi, in the Fortress of Silence ----
   // Canon kept off-screen: this Takashi is an Echo copy; the real one is outside the reconstruction. Never said outright,
   // only hinted (his outline doubles for a heartbeat, like the City of Echoes' residents).

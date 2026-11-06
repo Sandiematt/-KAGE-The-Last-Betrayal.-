@@ -270,6 +270,11 @@ const WEAPONS = {
   quiet_kodachi: { heft: 0.9, el: 'moon', enemy: 1, name: 'Quiet Kodachi', base: 'kagetsu', len: 66, trail: '#d6cce6' },
   echo_crescents: { heft: 0.8, el: 'moon', enemy: 1, name: 'Echo Crescents', base: 'tsubame', len: 70, trail: '#c9bdff', crescent: 1 },
   ledger_kusari: { heft: 1, el: 'shade', enemy: 1, name: 'Ledger Kusari', base: 'yamigama', len: 66, trail: '#b48ae6' },
+  // Act III sub-boss arms (act3.sub1..4): Takashi's grounded forms in other hands, so their trails carry his gold
+  gate_kanabo: { heft: 1.8, el: 'earth', enemy: 1, name: 'Gate Kanabo', base: 'iwakudaki', len: 120, trail: '#d9b055' },
+  disciple_blade: { heft: 1.1, el: 'gold', enemy: 1, name: 'Discipl\' Blade', base: 'kagetsu', len: 96, trail: '#e6d29a' },
+  conduit_naginata: { heft: 1.3, el: 'shade', enemy: 1, name: 'Conduit Naginata', base: 'mizuchi', len: 172, trail: '#b48aff' },
+  silent_odachi: { heft: 1.6, el: 'gold', enemy: 1, name: 'Silent Odachi', base: 'onikiri', len: 126, trail: '#e8c25c' },
   temple_staff: { heft: 1.1, el: 'shade', enemy: 1, name: 'Temple Staff', base: 'mizuchi', len: 180, trail: '#ece5d3', staff: 1, stance: 'staff' },
   // Shiden's war spear (Act I sub-boss): a long vanguard yari on the spear forms, with Raikon's red in its trail
   vanguard_yari: { heft: 1.3, el: 'redline', enemy: 1, name: 'Vanguard Yari', base: 'mizuchi', len: 176, trail: '#ff6a52' },
@@ -393,6 +398,11 @@ const HELMETS = {
     lore: 'A memory courier\'s flat hat hung with glass vials, each one a stored memory on its way into the City of Echoes. One vial still rattles. Nobody knows whose it is.' },
   utsushi_men:  { name: 'Utsushi-men', tier: 'trophy', def: 0.18, hp: 34, exclusive: true, hint: 'Defeat Utsushi, the Borrowed Face', look: 'borrowed_mask', perks: { rage: 0.2, speed: 0.03 },
     lore: 'The blank mask a Hollow wore to pass as an intelligence operative. The face painted on it is never the same one twice.' },
+  // Act III sub-boss trophies
+  deshi_tenugui: { name: 'Deshi Tenugui', tier: 'trophy', def: 0.18, hp: 34, exclusive: true, hint: 'Defeat Shizune, the First Disciple', look: 'disciple_wrap', perks: { stunRes: 0.15, rage: 0.1 },
+    lore: 'The plain head cloth Takashi tied on each student who learned the grounded stance. Hers still bears the small ring-and-dot of the Tachibana school, half unpicked and never quite gone.' },
+  mokushi_kabuto: { name: 'Mokushi Kabuto', tier: 'trophy', def: 0.18, hp: 36, exclusive: true, hint: 'Defeat Soma, the Silent Blademaster', look: 'blademaster_kabuto', perks: { dmg: 0.05, stunRes: 0.1 },
+    lore: 'The masked helm of the Orde\' first sword. Its iron mouth-guard has no opening: he swore silence the day the war ended, and has kept it for everyone but his old teacher.' },
   kasa:         { name: 'Kasa', tier: 'trophy', def: 0.2, hp: 40, exclusive: true, hint: 'Defeat Takashi', look: 'straw_kasa', perks: { ammo: 3, rage: 0.15 },
     lore: 'Takashi\'s battered straw travel hat. He wore it on the long road into exile, before he was a father or the maker of anything, and never told his sons where that road led.' }
 };
@@ -430,6 +440,11 @@ const ARMORS = {
     lore: 'An intelligence operative\'s vest of lacquered strips, its lining stitched with pockets for message slips. Every slip is blank now; the memory that wrote them is gone.' },
   kasane_haori: { name: 'Kasane Haori', tier: 'trophy', def: 0.21, hp: 80, exclusive: true, hint: 'Defeat Kasane, the Ledger Warden', look: 'ledger_coat', perks: { stunRes: 0.15, rage: 0.1 },
     lore: 'A coat of pasted ledger pages, layer on layer: every memory the City of Echoes was rebuilt from, entered in a careful hand. Some entries contradict the ones beneath them.' },
+  // Act III sub-boss trophies
+  tetsumon_do:  { name: 'Tetsumon-dō', tier: 'trophy', def: 0.21, hp: 80, exclusive: true, hint: 'Defeat Gonryu, the Gate Warden', look: 'gate_plate', perks: { stunRes: 0.25, dmg: 0.03 },
+    lore: 'A gate warde\' cuirass riveted with the studs of the Fortres\' outer door. That door has stayed shut for ten years, and the man inside this plate made sure of it.' },
+  kudamaki_do:  { name: 'Kudamaki-dō', tier: 'trophy', def: 0.21, hp: 78, exclusive: true, hint: 'Defeat Moro, the Conduit Warden', look: 'conduit_harness', perks: { rage: 0.2, dash: 0.1 },
+    lore: 'A conduit tende\' harness, coiled with the violet tubes that carry stored memories down through the Fortress. Put an ear to them and somebody is always talking.' },
   mei_en_garb:  { name: 'Mei-En Garb', tier: 'trophy', def: 0.21, hp: 80, exclusive: true, hint: 'Defeat Akari', look: 'mei_en', perks: { dash: 0.2, speed: 0.06 },
     lore: 'Akari\'s smoke-grey fighting garb. Even the Order\'s records cannot agree on what colour it is.' },
   kysmei_robe:  { name: 'Kysmei Robe', tier: 'trophy', def: 0.22, hp: 85, exclusive: true, hint: 'Defeat the Witness', look: 'robe', perks: { rage: 0.3 },
@@ -634,6 +649,46 @@ const ENEMIES = {
               { name: 'The Ledger', at: 1, abilities: ['ledgerFang'] },
               { name: 'Balanced Accounts', at: 0.5, abilities: ['ledgerFang', 'ledgerStep'], aggressive: 1 }
             ] },
+  // ---- Act III sub-bosses (act3.sub1..4, the Fortress of Silence) ----
+  // Each is fought in the boss format (one bar, two phases; the stage has `format: 'boss'`) and borrows a REDUCED
+  // Takashi move (TAKASHI_VARIANTS above: Earth Cleave, Ground Smash or Guard Return), never Final Flow. Each wears the
+  // trophy it drops. `lore` is the sub-boss's tie to Act III.
+  gonryu: { name: 'Gonryu', title: 'the Gate Warden', type: 'sub', ai: 'heavy', weapon: 'gate_kanabo', helmet: 'tetsu_kabuto', armor: 'tetsumon_do',
+            hp: 420, def: 0.12, dmg: 1.08, speed: 0.88, build: { scale: 1.22, w: 14.5, arms: 1.08 }, eye: '#e8d6a0', accent: '#c9a45c', body: '#23262b', heavyArmor: 1, noGrab: 1, defeat: 'finisher',
+            lore: 'Warden of the Fortress of Silenc\' outer gate. He learned the grounded stance from an Order drill manual copied, page by page, from a master the Order says died in the war.',
+            taunt: 'This gate has been shut for ten years. It opens for the Founder, and for nobody else.', defeatLine: 'The gate... was never meant... to hold you...', win: 'Shut. As ordered.',
+            tip: 'Gate Smash: gold gathers on his raised kanabo before it comes down with a short shockwave. Dash back or jump it, then punish the opening.',
+            phases: [
+              { name: 'The Iron Gate', at: 1, abilities: ['gateSmash'] },
+              { name: 'The Gate Holds', at: 0.5, abilities: ['gateSmash', 'charge'], aggressive: 1 }
+            ] },
+  shizune: { name: 'Shizune', title: 'the First Disciple', type: 'sub', ai: 'defensive', weapon: 'disciple_blade', helmet: 'deshi_tenugui', armor: 'kawa_do', outfit: 'gi', sash: '#3c3428',
+            hp: 400, def: 0.09, dmg: 1.02, build: { scale: 0.98, w: 9, legs: 1.04 }, eye: '#f0e2b8', accent: '#d9c08a', body: '#1c1b18', form: 'disciple', flashEyes: 1, defeat: 'finisher',
+            lore: 'Takash\' first student, long before his sons were born. When he left Hoshimura she followed him to the Fortress, and she still runs his form exactly as he taught it, a beat slower than he does.',
+            taunt: 'Elbows in. Weight low. He taught you that too, did\' he? I was first.', defeatLine: 'Still... a beat too slow... he always said...', win: 'Again. From the stance.',
+            tip: 'Still Return: she settles into a low guard. Strike it and she turns the blow aside and answers with a rising cut, so vary your attacks and wait the guard out.',
+            phases: [
+              { name: 'The First Lesson', at: 1, abilities: ['stillReturn'] },
+              { name: 'The Grounded Stance', at: 0.5, abilities: ['stillReturn', 'lunge'], berserk: 1 }
+            ] },
+  moro: { name: 'Moro', title: 'the Conduit Warden', type: 'sub', ai: 'regular', weapon: 'conduit_naginata', helmet: 'oni_menpo', armor: 'kudamaki_do',
+            hp: 430, def: 0.08, dmg: 1.05, speed: 1.04, build: { scale: 1.06, w: 10.5, legs: 1.06 }, eye: '#c9bdff', accent: '#9b7cff', body: '#1e1b26', defeat: 'finisher',
+            lore: 'He tends the memory conduits that run through the Fortress walls and down into the Echo System. Ten years of listening to them have left him half a Hollow, and sure that one of the voices is not a recording.',
+            taunt: 'Hear that? In the walls. He is talking again. He never stopped.', defeatLine: 'The voices... are getting quieter...', win: 'Into the conduit with you.',
+            tip: 'Conduit Cleave: he drags his naginata low and gold lifts off the floor before the rising cut. Step back out of its reach, then close in on the opening.',
+            phases: [
+              { name: 'The Conduits Hum', at: 1, abilities: ['conduitCleave'] },
+              { name: 'Live Current', at: 0.5, abilities: ['conduitCleave', 'teleport'], berserk: 1 }
+            ] },
+  soma: { name: 'Soma', title: 'the Silent Blademaster', type: 'sub', ai: 'boss', weapon: 'silent_odachi', helmet: 'mokushi_kabuto', armor: 'o_sode',
+            hp: 520, def: 0.12, dmg: 1.1, build: { scale: 1.12, w: 11.5 }, eye: '#ffe6a0', accent: '#e8c25c', body: '#17161a', flashEyes: 1, noGrab: 1, defeat: 'finisher',
+            lore: 'The Orde\' first sword, who fought beside Takashi in the Silent War. He swore the Orde\' oath of silence the night the war ended, and keeps the last stair below the Founde\' door.',
+            taunt: '...', defeatLine: 'Tell him... I held the stair...', win: '...',
+            tip: 'Severing Cleave: his odachi drags low and glints gold before one rising cut. From his second phase he guards with Severing Return; never repeat the same attack into it.',
+            phases: [
+              { name: 'The First Sword', at: 1, abilities: ['severingCleave'] },
+              { name: 'The Oath of Silence', at: 0.5, abilities: ['severingCleave', 'severingReturn'], aggressive: 1 }
+            ] },
   // ---- the Interlude ----
   // Young Rem (interlude.spar): a memory, gifted, impulsive and competitive. A smaller build in plain training clothes
   // with a purple sash and headband, a bokken, and the family form (FAMILY_FORM) at his own fast, fluid tempo (`form`).
@@ -764,6 +819,23 @@ const TAKASHI_MOVES = {
 };
 const PATTERN_READ = { last: 8, min: 4, share: 0.5, streak: 3 };
 
+/* Act III's sub-bosses fight with reduced versions of Takashi's moves: each TAKASHI_VARIANTS entry runs its `base`
+   ability's code (40-ai.js registers them as BOSS_ABILITIES next to his) with these numbers merged over
+   TAKASHI_MOVES[base]. A reduced move winds up longer than his, hits lighter, steps in no further and its shockwave
+   is smaller; a reduced Guard Return holds a shorter guard and its rising cut can be blocked (unb 0). Only Earth Cleave,
+   Ground Smash and Guard Return are borrowed, never Final Flow. Logic.takashiDerived(id) answers what a move is. */
+const TAKASHI_VARIANTS = {
+  // Gonryu: the gate warden's kanabo brought down in a slow, two-handed Ground Smash with a stubby shockwave
+  gateSmash:      { base: 'groundSmash', label: 'GATE SMASH', cd: 6, range: [0, 260], chance: 0.6, windup: 0.84, dmg: 13, shock: 0.45, shockLife: 0.32, reach: 170 },
+  // Shizune: Guard Return as his first disciple learned it: a shorter guard, a longer beat before the cut, blockable
+  stillReturn:    { base: 'guardReturn', label: 'STILL RETURN', cd: 3.4, range: [0, 280], chance: 0.7, windup: 0.26, stance: 0.75, dmg: 11, unb: 0 },
+  // Moro: Earth Cleave dragged along the floor with a naginata, slow to gather and short in its step
+  conduitCleave:  { base: 'earthCleave', label: 'CONDUIT CLEAVE', cd: 5.4, range: [0, 300], chance: 0.6, windup: 0.8, dmg: 11, dash: 460, reach: 180 },
+  // Soma: the Order's first sword, Earth Cleave, then from his second phase a Guard Return of his own
+  severingCleave: { base: 'earthCleave', label: 'SEVERING CLEAVE', cd: 5, range: [0, 320], chance: 0.62, windup: 0.72, dmg: 13, dash: 540, reach: 190 },
+  severingReturn: { base: 'guardReturn', label: 'SEVERING RETURN', cd: 3.2, range: [0, 290], chance: 0.7, windup: 0.22, stance: 0.8, dmg: 13, unb: 0 }
+};
+
 /* ---------------- The family form ----------------
    Takashi's sword grammar, shared by Kage, Rem and Takashi (the spec's "shared attack language"): a grounded opening
    stance, a short dash, a rising cut, an aerial follow-up, a controlled landing, then a finishing horizontal flow.
@@ -793,7 +865,9 @@ const FAMILY_FORM = {
     rem:  { gap: 0.04, hold: 0.12, aerials: 2, flow: ['k1', 'k3'], tempo: 0.72 },
     // Takashi: the root of both: a long grounded stance, a measured pause, one aerial, one heavy finishing flow and
     // slower, heavier cuts; `moves` swaps his Shinsen-style cuts into the steps (Shinsen's `family` map)
-    takashi: { gap: 0.3, hold: 0.75, aerials: 1, flow: ['sh3'], tempo: 1.12, moves: { rise: 'sh2', aerial: 'sha' } }
+    takashi: { gap: 0.3, hold: 0.75, aerials: 1, flow: ['sh3'], tempo: 1.12, moves: { rise: 'sh2', aerial: 'sha' } },
+    // Shizune, his first disciple (act3.sub2): his form exactly as he taught it, a beat slower and with no aerial
+    disciple: { gap: 0.36, hold: 0.6, aerials: 0, flow: ['k3'], tempo: 1.18 }
   }
 };
 
@@ -910,7 +984,7 @@ const CAMPAIGN = (function buildCampaign() {
       stages: [{ id: 'interlude.spar', kind: 'spar', name: 'The Spar', foe: 'Rem', foeTitle: 'Young Rem', enemy: 'young_rem', env: 'yard',
         scenes: { before: 'interlude.spar.before', after: 'interlude.spar.after' } }] },
     act('act2', 'Act II', 'The City of Echoes', 'Where the Hollows gather', 'rooftops', 2, SQUADS.act2, 'Akari', 'the Memory Blade'),
-    act('act3', 'Act III', 'The Fortress of Silence', 'Seat of the Order', 'wasteland', 3, SQUADS.act3, 'Takashi', 'the Father'),
+    act('act3', 'Act III', 'The Fortress of Silence', 'Seat of the Order', 'fortress', 3, SQUADS.act3, 'Takashi', 'the Father'),
     { id: 'core', name: 'The Core', title: 'The Echo System', place: 'Corrupted memory', env: 'wasteland', diff: 3,
       stages: [
         { id: 'core.stretch1', kind: 'stretch', name: 'Into the Core', enemy: 'hollow_flicker', stretch: stretchDefaults(['hollow_flicker', 'hollow_mimic', 'hollow_husk', 'hollow_ward']) },
@@ -1045,6 +1119,57 @@ const CAMPAIGN = (function buildCampaign() {
     'act2.sub4': { foe: 'Kasane', foeTitle: 'the Ledger Warden', enemy: 'kasane', format: 'boss', env: 'echoes', reward: { armors: ['kasane_haori'] } }
   };
   for (const st of chapters[3].stages) if (ACT2[st.id]) Object.assign(st, ACT2[st.id]);
+  // Act III, The Father's Sin: four stretches through the Fortress of Silence, the Order's seat (env `fortress`: stone
+  // walls, Order banners, memory conduits glowing violet). The hardest regular encounters in the game: mostly the
+  // Order's elite (shieldbearers, ironclads, chainthrowers), with Hollows rising wherever the Echo System's conduits run
+  // through the walls, more of them each stretch. The `before` scenes build toward Takashi being alive (the Order's
+  // records, a guard, a conduit speaking in his voice); one clue (the duty roster). Each stretch ends in a sub-boss with
+  // a reduced Takashi move and a trophy.
+  const HS = 'hollow_shade';
+  const ACT3 = {
+    'act3.stretch1': { name: 'The Outer Gate', enemy: SH, scenes: { before: 'act3.stretch1.before' },
+      stretch: { length: 5400, start: 160, env: 'fortress',
+        encounters: [
+          { x: 1000, gate: 1700, waves: [[F, F, SH], [CH, F, RU]] },
+          { x: 2400, gate: 3100, waves: [[SH, CH], [F, IR, HS]] },
+          { x: 3900, gate: 4700, waves: [[IR, F, CH], [SH, F, F, CH]] }],
+        clues: [],
+        props: [{ type: 'banner', x: 520 }, { type: 'barricade', x: 820 }, { type: 'banner', x: 1500 }, { type: 'conduit', x: 2050 },
+          { type: 'edict', x: 2700 }, { type: 'banner', x: 3400 }, { type: 'banner', x: 4300 }, { type: 'barricade', x: 5050 }] } },
+    'act3.sub1': { foe: 'Gonryu', foeTitle: 'the Gate Warden', enemy: 'gonryu', format: 'boss', env: 'fortress', reward: { armors: ['tetsumon_do'] } },
+    'act3.stretch2': { name: 'The Hall of Records', enemy: CH, scenes: { before: 'act3.stretch2.before' },
+      stretch: { length: 5800, start: 160, env: 'fortress',
+        encounters: [
+          { x: 1000, gate: 1700, waves: [[F, SH, CH], [RU, RU, F]] },
+          { x: 2500, gate: 3200, waves: [[IR, HS], [SH, CH, F, HS]] },
+          { x: 4000, gate: 4800, waves: [[IR, SH, F], [CH, HS, F, RU]] }],
+        clues: [{ id: 'roster', x: 3560, label: 'An Order duty roster', scene: 'act3.clue.roster' }],
+        props: [{ type: 'banner', x: 480 }, { type: 'record_shelf', x: 860 }, { type: 'conduit', x: 1500 }, { type: 'record_shelf', x: 2150 },
+          { type: 'banner', x: 2900 }, { type: 'record_shelf', x: 3560 }, { type: 'conduit', x: 4400 }, { type: 'banner', x: 5250 }] } },
+    'act3.sub2': { foe: 'Shizune', foeTitle: 'the First Disciple', enemy: 'shizune', format: 'boss', env: 'fortress', reward: { helmets: ['deshi_tenugui'] } },
+    'act3.stretch3': { name: 'The Conduit Galleries', enemy: IR, scenes: { before: 'act3.stretch3.before' },
+      stretch: { length: 6100, start: 160, env: 'fortress',
+        encounters: [
+          { x: 1000, gate: 1700, waves: [[F, SH, HS], ['hollow_ward', CH, F]] },
+          { x: 2500, gate: 3200, waves: [[IR, HS, 'hollow_mimic'], [SH, F, 'hollow_flicker', CH]] },
+          { x: 4100, gate: 4900, waves: [[IR, SH, 'hollow_ward'], ['hollow_husk', F, CH, HS]] }],
+        clues: [],
+        props: [{ type: 'conduit', x: 500 }, { type: 'banner', x: 900 }, { type: 'conduit', x: 1400 }, { type: 'conduit', x: 2150 },
+          { type: 'banner', x: 2850 }, { type: 'conduit', x: 3600 }, { type: 'conduit', x: 4500 }, { type: 'banner', x: 5300 }, { type: 'conduit', x: 5700 }] } },
+    'act3.sub3': { foe: 'Moro', foeTitle: 'the Conduit Warden', enemy: 'moro', format: 'boss', env: 'fortress', reward: { armors: ['kudamaki_do'] } },
+    'act3.stretch4': { name: 'The Last Stair', enemy: IR, scenes: { before: 'act3.stretch4.before' },
+      stretch: { length: 6300, start: 160, env: 'fortress',
+        encounters: [
+          { x: 900, gate: 1600, waves: [[SH, CH, HS], [IR, 'hollow_flicker', F]] },
+          { x: 2200, gate: 2900, waves: [[IR, SH, 'hollow_mimic'], ['hollow_husk', F, CH, 'hollow_flicker']] },
+          { x: 3500, gate: 4200, waves: [['hollow_ward', SH, IR], [HS, 'hollow_mimic', CH, F]] },
+          { x: 4800, gate: 5600, waves: [[IR, IR, SH], ['hollow_husk', 'hollow_ward', F, CH, HS]] }],
+        clues: [],
+        props: [{ type: 'banner', x: 420 }, { type: 'conduit', x: 1250 }, { type: 'banner', x: 1900 }, { type: 'conduit', x: 2550 },
+          { type: 'banner', x: 3200 }, { type: 'conduit', x: 3850 }, { type: 'banner', x: 4500 }, { type: 'conduit', x: 5200 }, { type: 'banner', x: 5900 }] } },
+    'act3.sub4': { foe: 'Soma', foeTitle: 'the Silent Blademaster', enemy: 'soma', format: 'boss', env: 'fortress', reward: { helmets: ['mokushi_kabuto'] } }
+  };
+  for (const st of chapters[4].stages) if (ACT3[st.id]) Object.assign(st, ACT3[st.id]);
   for (const ch of chapters) ch.stages.forEach((st, i) => { st.chapter = ch.id; st.pos = i; });
   return { chapters };
 })();
