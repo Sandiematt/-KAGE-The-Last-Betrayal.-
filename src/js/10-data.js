@@ -1,6 +1,14 @@
 /* KAGE — game data. Weapons, gear, enemies, bosses and acts are plain data objects:
    add a new entry here and it appears in the Armory / campaign automatically. */
 
+/* ---------------- Developer unlock ----------------
+   DEVELOPER TESTING ONLY. While `unlockAll` is true, every chapter and stage is open in any order, every Boss Rush
+   boss and Echo Trials boss echo is available, New Game+ is open, and the player owns every weapon, helmet and armour
+   (at level 1, so upgrades still work) with `coins` coins and `gems` gems. It plays on its own save
+   (Logic.DEV_SAVE_KEY), so the real save is never touched, and the title shows a DEV badge.
+   SET unlockAll TO false BEFORE RELEASE: the game then returns to the untouched normal save with its normal locks. */
+const DEV = { unlockAll: true, coins: 99999, gems: 999 };
+
 /* ---------------- Poses ----------------
    Angles in degrees, authored facing right.
    Limb angle: 0 = straight down, 90 = forward, 180 = up, -90 = back.
@@ -523,6 +531,11 @@ const ENEMIES = {
   hollow_shade: { name: 'Hollow Shade', title: 'Memory echo', type: 'regular', family: 'hollow', unit: 'regular', ai: 'regular',
             weapon: 'cutter_blade', helmet: 'hollow_shard', armor: 'hollow_rags', hp: 160, def: 0.03, dmg: 0.85, build: { scale: 0.98, w: 9.5 }, eye: '#ece6ff', accent: '#b9a8ff',
             taunt: '…it copies your breathing, then your stance…', tip: 'A Shade fights like the man it remembers. Block, then counter.' },
+  // the Prologue's one fight (prologue.1): a Hollow Shade in look and family, but a tutorial foe: far lower damage and
+  // some lower health, so a new player learns on it on every mode. Used only there (`tutorial`: not a unit type of its own).
+  hollow_tutorial: { name: 'Hollow Shade', title: 'Memory echo', type: 'regular', family: 'hollow', unit: 'regular', ai: 'regular', tutorial: true,
+            weapon: 'cutter_blade', helmet: 'hollow_shard', armor: 'hollow_rags', hp: 95, def: 0, dmg: 0.3, build: { scale: 0.98, w: 9.5 }, eye: '#ece6ff', accent: '#b9a8ff',
+            taunt: '…it copies your breathing, then your stance…', tip: 'It copies you, then strikes. Block, then counter.' },
   hollow_flicker: { name: 'Hollow Flicker', title: 'Memory echo', type: 'regular', family: 'hollow', unit: 'agile', ai: 'agile',
             weapon: 'shadow_daggers', helmet: 'hollow_shard', armor: 'hollow_rags', hp: 140, def: 0.02, dmg: 0.8, speed: 1.18, build: { scale: 0.94, w: 8.5, legs: 1.06 }, eye: '#ece6ff', accent: '#b9a8ff',
             taunt: '…here… no, here…', tip: 'It darts in and out. Dash in when it lands from a jump.' },
@@ -1119,7 +1132,7 @@ const CAMPAIGN = (function buildCampaign() {
         stretch: {
           length: 4200, start: 160, env: 'hoshimura',
           tutorial: [{ step: 'move', at: 0 }, { step: 'jump', at: 520 }, { step: 'slash', at: 1000 }, { step: 'block', at: 1420 }, { step: 'dodge', at: 1780 }],
-          encounters: [{ x: 2600, gate: 3200, waves: [['hollow_shade']], mimicIntro: 2.2 }],
+          encounters: [{ x: 2600, gate: 3200, waves: [['hollow_tutorial']], mimicIntro: 2.2 }],
           clues: [
             { id: 'recording', x: 820, label: 'A broken recording', scene: 'prologue.clue.recording' },
             { id: 'photograph', x: 2160, label: 'A scratched photograph', scene: 'prologue.clue.photograph' },

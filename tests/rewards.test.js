@@ -172,3 +172,12 @@ test('an Echo Trials run banks its coins and gems, 40 XP per wave, and tracks th
   assert.equal(worse.rating, 'C');
   assert.equal(s.trialsBest, 7);
 });
+
+test('a win on a stage that is still locked earns nothing and is flagged as rejected', () => {
+  const s = Logic.defaultSave(), before = JSON.stringify(s);
+  const out = Logic.applyFightResult(s, fight({ stageId: 'act1.boss', enemyId: 'raikon', ...DOMINANT, flawless: true }));
+  assert.equal(out.rejected, true);
+  assert.deepEqual([out.coins, out.gems, out.xp, out.unlocks.length, out.firstClear], [0, 0, 0, 0, false]);
+  assert.equal(JSON.stringify(s), before, 'no coins, XP, gems, stats or progress reach the save');
+  assert.equal(Logic.applyFightResult(s, fight()).rejected, undefined, 'an open stage pays as usual');
+});

@@ -42,7 +42,7 @@ class FightSession {
     this.isBoss = this.enemy.def.type === 'boss';
     this.isSub = this.enemy.def.type === 'sub';
     // the fight format (Logic.fightFormat): story bosses are one round, one health bar, three phases and no clock
-    this.format = cfg.format || Logic.fightFormat(cfg);
+    this.format = tw ? this.trialFormat(tw) : cfg.format || Logic.fightFormat(cfg);
     this.bossFormat = this.format.name === 'boss';
     this.roundsToWin = this.format.roundsToWin;
     this.timer = this.roundTime();
@@ -81,6 +81,8 @@ class FightSession {
     }
     return w;
   }
+  // A wave's format (Logic.fightFormat): Hollow waves run on the trials clock, a boss echo has none
+  trialFormat(w) { return Logic.fightFormat(Object.assign({}, this.cfg, { bossEcho: w.bossEcho })); }
   // The wave's other Hollows: they fight beside the leader with their own small bars (`escort`); the wave is cleared
   // when the last of them is down (see onKO).
   spawnEscorts(w, side) {
@@ -384,6 +386,7 @@ class FightSession {
     this.spawnEscorts(w, side);
     this.nameBossEcho();
     if (w.bossEcho) { this.fx.memoryAsh(this.enemy, 24, true); AudioManager.play('boss'); }
+    this.format = this.trialFormat(w);
     this.timer = this.roundTime();
     this.trialBanner();
     AudioManager.play('round');

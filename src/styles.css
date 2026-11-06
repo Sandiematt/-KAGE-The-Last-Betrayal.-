@@ -869,3 +869,8 @@ body { font-family: var(--font-num); }
   .br-card { min-height: 5.6rem; } .br-card b { font-size: .78rem; }
 }
 @media (max-width: 900px) and (min-height: 561px) { .br-wrap { grid-template-columns: 1fr; } .br-grid { grid-template-columns: repeat(4, 1fr); } }
+
+/* developer unlock badge (DEV.unlockAll in 10-data.js): unmissable while it is on */
+.dev-badge { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); z-index: 50; padding: 6px 14px; border: 2px solid #fff;
+  background: #d4142a; color: #fff; font: 700 15px/1 "KageUI", system-ui, sans-serif; letter-spacing: .12em; text-transform: uppercase;
+  box-shadow: 0 4px 18px rgba(0,0,0,.5); pointer-events: none; white-space: nowrap; }

@@ -62,6 +62,21 @@ test('the echo gems are a first-clear reward; the stage card shows them', () => 
   assert.equal(again.gems, 0, 'a replay pays no echo gems');
 });
 
+test('the echo gems are paid once ever: a New Game+ first clear pays only the usual first-clear gems', () => {
+  const s = Logic.defaultSave();
+  clearUpTo(Logic, s, 'core.echo1');
+  assert.equal(Logic.applyFightResult(s, win('core.echo1')).gems, 5);
+  for (const st of Logic.stages()) Logic.completeStage(s, st.id);
+  assert.equal(Logic.startNewGamePlus(s), true);
+  clearUpTo(Logic, s, 'core.echo1');
+  assert.deepEqual({ ...Logic.stageRewardPreview(s, 'core.echo1') }.gems, 2, 'the card no longer promises the echo gems');
+  const gems = s.gems, again = Logic.completeStage(s, 'core.echo1');
+  assert.equal(again.firstClear, true);
+  assert.equal(again.gems, 0, 'the Core echo gems are not paid a second time');
+  assert.equal(s.gems, gems);
+  assert.equal(Logic.applyFightResult(s, win('core.echo2', { ng: 1 })).gems, 2, 'echo2 was cleared in the first cycle too');
+});
+
 test('no echo stage lists any gear in its reward', () => {
   for (const id of ECHOES) {
     const r = Logic.stage(id).reward || {};

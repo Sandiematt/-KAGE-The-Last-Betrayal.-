@@ -30,9 +30,25 @@ test('the Prologue has a single encounter: one Hollow that mimics Kage before it
   const s = Logic.stretch(P);
   assert.equal(s.encounters.length, 1);
   const [enc] = s.encounters;
-  assert.deepEqual(enc.waves, [['hollow_shade']]);
-  assert.equal(ENEMIES.hollow_shade.family, 'hollow');
+  assert.deepEqual(enc.waves, [['hollow_tutorial']]);
+  assert.equal(ENEMIES.hollow_tutorial.family, 'hollow');
   assert.ok(enc.mimicIntro >= 1 && enc.mimicIntro <= 3, `mimicIntro ${enc.mimicIntro}`);
+});
+
+test('the Prologue\'s Hollow is a gentle tutorial Shade: same look, far less damage and some less health, on every mode', () => {
+  const t = ENEMIES.hollow_tutorial, shade = ENEMIES.hollow_shade;
+  assert.equal(t.tutorial, true);
+  for (const k of ['name', 'family', 'unit', 'ai', 'weapon', 'helmet', 'armor']) assert.equal(t[k], shade[k], k);
+  const cfg = Logic.stageConfig(Logic.defaultSave(), P);
+  for (const mode of Logic.DIFFICULTY_IDS) {
+    const s = Logic.defaultSave(); Logic.setDifficulty(s, mode);
+    const tut = Logic.enemyStats(s, cfg, 'hollow_tutorial'), normalShade = Logic.enemyStats(Logic.defaultSave(), cfg, 'hollow_shade');
+    assert.ok(tut.dmgMul <= 0.5, `${mode}: damage x${tut.dmgMul}`);
+    assert.ok(tut.dmgMul < normalShade.dmgMul * 0.6, `${mode}: well under a Normal Shade's damage`);
+    assert.ok(tut.hp < normalShade.hp, `${mode}: less health than a Normal Shade (${tut.hp})`);
+  }
+  for (const st of Logic.stages()) if (st.id !== P && st.kind === 'stretch')
+    assert.ok(!Logic.stretch(st.id).encounters.some(e => e.waves.flat().includes('hollow_tutorial')), `${st.id} must not use the tutorial Hollow`);
 });
 
 test('the Prologue opens on the one video card and closes with the memory-ash scene', () => {

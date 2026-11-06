@@ -136,3 +136,18 @@ test('Echo Trials fights one round per wave against a 90 s clock', () => {
   const f = Logic.fightFormat({ mode: 'trials', enemyId: 'hollow_shade' });
   assert.equal(f.name, 'trials'); assert.equal(f.roundsToWin, 1); assert.equal(f.timer, 90);
 });
+
+test('a boss-echo wave has no clock and shows the boss\'s phases; Hollow waves keep the 90 s clock', () => {
+  const s = beaten('act1.boss', 'act1.sub1');
+  const echo = Logic.echoTrialWave(beaten('act1.boss'), 5, lo);
+  assert.equal(echo.bossEcho.stageId, 'act1.boss');
+  const boss = Logic.fightFormat({ mode: 'trials', bossEcho: echo.bossEcho });
+  assert.equal(boss.name, 'trials'); assert.equal(boss.roundsToWin, 1);
+  assert.equal(boss.timer, 0, 'a story boss echo can never be lost on time');
+  assert.equal(boss.phases, 3, 'Raikon fights in his three phases');
+  const sub = Logic.fightFormat({ mode: 'trials', bossEcho: Logic.echoTrialWave(s, 5, lo).bossEcho });
+  assert.equal(sub.timer, 0);
+  assert.equal(sub.phases, 2, 'Kuroe, a sub-boss, shows her two phases');
+  const hollow = Logic.fightFormat({ mode: 'trials', bossEcho: null });
+  assert.equal(hollow.timer, 90); assert.equal(hollow.phases, 0);
+});

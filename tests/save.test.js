@@ -131,3 +131,14 @@ test('gear the game no longer has is dropped and the starting loadout is worn in
   assert.equal(save.owned.weapons.iwakudaki, 2);
   assert.deepEqual(save.equipped, { weapon: 'kagetsu', helmet: 'shiro_maki', armor: 'tachibana_yoroi' });
 });
+
+test('an unreadable save is kept: openSave names a backup key and the raw text to copy there before starting fresh', () => {
+  assert.equal(Logic.CORRUPT_SAVE_KEY, 'kage.lastbetrayal.save.v2.corrupt');
+  const raw = '{"coins": 9000,,, oops';
+  const { save, error, backup } = Logic.openSave({ 'kage.lastbetrayal.save.v2': raw });
+  assert.ok(error instanceof Error);
+  assert.deepEqual(backup, { key: 'kage.lastbetrayal.save.v2.corrupt', raw });
+  assert.deepEqual(save, Logic.defaultSave());
+  assert.equal(Logic.openSave({ 'kage.lastbetrayal.save.v2': JSON.stringify(Logic.defaultSave()) }).backup, null, 'a readable save needs no backup');
+  assert.equal(Logic.openSave({}).backup, null);
+});

@@ -51,8 +51,9 @@ const isTouchDevice = () => ('ontouchstart' in window) || navigator.maxTouchPoin
 /* live in Logic (15-logic.js), which gets the raw text from here.      */
 /* ------------------------------------------------------------------ */
 const SaveManager = {
-  // the key and the legacy keys are Logic's rule (Logic.SAVE_KEY / Logic.LEGACY_SAVE_KEYS); this only does the I/O
-  get KEY() { return Logic.SAVE_KEY; },
+  // the keys are Logic's rule (Logic.ACTIVE_SAVE_KEY: SAVE_KEY, or DEV_SAVE_KEY while the developer unlock is on;
+  // Logic.LEGACY_SAVE_KEYS; Logic.CORRUPT_SAVE_KEY); this only does the I/O
+  get KEY() { return Logic.ACTIVE_SAVE_KEY; },
   data: null,
   available: true,
   defaults() { return Logic.defaultSave(); },
@@ -61,16 +62,19 @@ const SaveManager = {
   load() {
     const stored = {};
     try {
-      for (const k of [Logic.SAVE_KEY, ...Logic.LEGACY_SAVE_KEYS]) stored[k] = window.localStorage.getItem(k);
+      for (const k of [this.KEY, ...Logic.LEGACY_SAVE_KEYS]) stored[k] = window.localStorage.getItem(k);
     } catch (e) {
       console.warn('[KAGE] Save could not be read, starting fresh.', e);
       this.available = false;
     }
-    const { save, error, remove, fresh } = Logic.openSave(stored);
+    const { save, error, remove, fresh, backup } = Logic.openSave(stored);
     try { for (const k of remove) window.localStorage.removeItem(k); } catch (e) { console.warn('[KAGE] Old saves could not be removed.', e); }
     if (error) {
       console.warn('[KAGE] Save could not be read, starting fresh.', error);
       this.available = false;
+      // keep the unreadable text (Logic.CORRUPT_SAVE_KEY) before a fresh save is ever written over it
+      if (backup) try { window.localStorage.setItem(backup.key, backup.raw); console.warn(`[KAGE] The unreadable save was copied to "${backup.key}".`); }
+      catch (e) { console.warn('[KAGE] The unreadable save could not be backed up.', e); }
     }
     this.data = save;
     if (fresh && this.available) this.save();

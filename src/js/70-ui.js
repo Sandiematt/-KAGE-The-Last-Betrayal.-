@@ -309,6 +309,7 @@ const UIManager = {
     const item = (a, ic, label, extra, primary) => `<button class="tm ${primary ? 'primary' : ''}" data-a="${a}" ${primary ? 'data-focus' : ''}><span class="tm-ic">${ic}</span><span class="tm-lb">${label}</span>${extra || ''}</button>`;
     el.innerHTML = `
       <div class="tl-art" aria-hidden="true"></div>
+      ${Logic.devUnlocked() ? '<div class="dev-badge" role="status">DEV · everything unlocked</div>' : ''}
       <div class="tl-logo">
         <div class="logo-row"><h1 class="logo-mark" aria-label="KAGE — The Last Betrayal"></h1><div class="logo-banner"><span>影</span></div></div>
         <div class="logo-sub"><i></i><span>The Last Betrayal</span><i></i></div>
@@ -766,6 +767,8 @@ const UIManager = {
       const ph = en.ai && en.ai.phases ? en.ai.phase : -1;
       this.set('phase', ph + ':' + en.uid, () => { e.phases.innerHTML = ph < 0 ? '' : Logic.bossPhases(en.def.id).map((_, i) => i).map(i => `<i class="${i < ph ? 'done' : i === ph ? 'on' : ''}"></i>`).join('') + `<em>Phase ${ROMAN[ph]}</em>`; });
       this.set('timer', Math.max(0, Math.ceil(s.timer)), v => { e.timer.textContent = v; e.timer.classList.toggle('urgent', v <= 10); });
+      // Echo Trials changes format per wave: a boss echo has no clock (Logic.fightFormat)
+      if (!s.isStretch) this.set('clock', !!(s.format && s.format.timer), v => { const c = e.timer.closest('.clock'); if (c) c.classList.toggle('gone', !v); });
       const n = s.roundsToWin * 2 - 1;
       this.set('pips', `${s.rounds.p}-${s.rounds.e}-${n}`, () => { const arr = []; for (let i = 0; i < s.rounds.p; i++) arr.push('p'); for (let i = 0; i < s.rounds.e; i++) arr.push('e'); while (arr.length < n) arr.push(''); e.pips.innerHTML = arr.map(c => `<i class="${c}"></i>`).join(''); });
     },

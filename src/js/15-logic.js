@@ -74,6 +74,26 @@ const DIFFICULTIES = {
     hp: 1.6, dmg: 1.5, bossHp: 1.5, bossDmg: 1.4, windup: 0.72, react: 0.6, aggr: 1.3, guard: 1.3, branch: 0.45, punish: 1.4, recovery: 0.65, idle: 0.6, dodge: 0.85, cap: 0.99, unique: true }
 };
 
+/* ---------------- boss moves ----------------
+   Every boss move table works the same way: a base move, a variant's (or corruption's) overrides on top, deep-copied
+   so the caller can tune the result freely. */
+// A deep copy of the parts merged left to right (Object.assign order).
+function moveCopy(...parts) { return JSON.parse(JSON.stringify(Object.assign({}, ...parts))); }
+// Where a move id comes from: one of the boss's own abilities ({ base: id, variant: null }), a variant of one
+// ({ base: variant.base, variant }), or null for any other id.
+function moveSource(id, abilities, variants) {
+  if (abilities.includes(id)) return { base: id, variant: null };
+  const v = variants[id];
+  return v && abilities.includes(v.base) ? { base: v.base, variant: v } : null;
+}
+// A boss's move or a reduced variant of it, as the numbers it runs with plus { id, base, reduced }.
+function derivedMove(id, abilities, variants, moves) {
+  const src = moveSource(id, abilities, variants);
+  if (!src) return null;
+  return src.variant ? moveCopy(moves[src.base], src.variant, { id, base: src.base, reduced: true })
+    : moveCopy({ id }, moves[id], { base: id, reduced: false });
+}
+
 // The campaign map flattened in story order, and indexed by stage id.
 // The fate a story boss is recorded with, by its defeat outcome (see Logic.fightFormat / bossDefeat).
 const BOSS_FATES = { finisher: 'killed', escape: 'escaped', reabsorb: 'reabsorbed' };
@@ -85,17 +105,42 @@ const Logic = {
   // The Last Betrayal starts over: its saves live under a new key and schema version.
   SAVE_KEY: 'kage.lastbetrayal.save.v2',
   SAVE_VERSION: 2,
+  // The developer unlock (DEV.unlockAll in 10-data.js) plays on its own save, so the real one is never touched.
+  DEV_SAVE_KEY: 'kage.lastbetrayal.save.v2.dev',
   // Keys written by the old game (Ashbound, then the first KAGE). They are deleted on launch and never read.
+  // Never the current save keys (SAVE_KEY, DEV_SAVE_KEY).
   LEGACY_SAVE_KEYS: ['kage.save.v1', 'ashbound.save.v1'],
-  // What to do with storage on launch. `stored` maps each key in SAVE_KEY / LEGACY_SAVE_KEYS to its stored
-  // text (null or missing when absent). Returns the save to play with (from SAVE_KEY only; nothing migrates),
-  // any load error, the legacy keys to delete, and `fresh` when no save existed yet and one should be written.
+  // Whether the developer unlock is on (DEV.unlockAll): everything open and owned, on its own save.
+  devUnlocked() { return !!(typeof DEV !== 'undefined' && DEV && DEV.unlockAll); },
+  // The key the game reads and writes now: DEV_SAVE_KEY while the developer unlock is on, else SAVE_KEY.
+  get ACTIVE_SAVE_KEY() { return this.devUnlocked() ? this.DEV_SAVE_KEY : this.SAVE_KEY; },
+  // Where an unreadable save's raw text is copied before a fresh save replaces it.
+  get CORRUPT_SAVE_KEY() { return this.ACTIVE_SAVE_KEY + '.corrupt'; },
+  // What to do with storage on launch. `stored` maps ACTIVE_SAVE_KEY and each key in LEGACY_SAVE_KEYS to its stored
+  // text (null or missing when absent). Returns the save to play with (from ACTIVE_SAVE_KEY only; nothing migrates),
+  // any load error, the legacy keys to delete, `fresh` when no save existed yet and one should be written, and
+  // `backup` ({ key, raw }) when the stored text was unreadable and should be copied to CORRUPT_SAVE_KEY first.
+  // With the developer unlock on, the save also gets everything (applyDevUnlock).
   openSave(stored) {
     stored = stored || {};
-    const remove = this.LEGACY_SAVE_KEYS.filter(k => stored[k] != null);
-    const raw = stored[this.SAVE_KEY] == null ? null : stored[this.SAVE_KEY];
+    const keep = [this.SAVE_KEY, this.DEV_SAVE_KEY];
+    const remove = this.LEGACY_SAVE_KEYS.filter(k => stored[k] != null && !keep.includes(k));
+    const key = this.ACTIVE_SAVE_KEY, raw = stored[key] == null ? null : stored[key];
     const { save, error } = this.loadSave(raw);
-    return { save, error, remove, fresh: raw == null };
+    if (this.devUnlocked()) this.applyDevUnlock(save);
+    return { save, error, remove, fresh: raw == null, backup: error && raw != null ? { key: this.CORRUPT_SAVE_KEY, raw } : null };
+  },
+  // The developer unlock's grants: every weapon, helmet and armour owned (at level 1 unless already higher), at least
+  // DEV.coins coins and DEV.gems gems, and New Game+ open. Only called while DEV.unlockAll is on.
+  applyDevUnlock(save) {
+    for (const kind of ['weapons', 'helmets', 'armors']) {
+      const table = gearTable(kind);
+      for (const id in table) if (!table[id].enemy && id !== 'fists' && !(save.owned[kind][id] > 0)) save.owned[kind][id] = 1;
+    }
+    save.coins = Math.max(save.coins, (DEV && DEV.coins) || 0);
+    save.gems = Math.max(save.gems, (DEV && DEV.gems) || 0);
+    save.ngUnlocked = true;
+    return save;
   },
   defaultSave() {
     return {
@@ -170,7 +215,7 @@ const Logic = {
     for (const k in s.storyFlags || {}) if (s.storyFlags[k] === true) d.storyFlags[k] = true;
     // boss fates: only story boss stages, only outcomes the game knows
     d.bossFates = {};
-    for (const k in s.bossFates || {}) if (STAGE_BY_ID[k] && Object.values(BOSS_FATES).includes(s.bossFates[k])) d.bossFates[k] = s.bossFates[k];
+    for (const k in s.bossFates || {}) if (this.isStoryBossStage(k) && Object.values(BOSS_FATES).includes(s.bossFates[k])) d.bossFates[k] = s.bossFates[k];
     d.difficulty = this.normalizeDifficulty(s.difficulty);
     d.difficultyPicked = !!s.difficultyPicked;
     return d;
@@ -190,11 +235,14 @@ const Logic = {
   isCombatStage(id) { const st = this.stage(id); return !!st && st.kind !== 'scene'; },
   // Stages that count as a boss fight (trophies list, records, a future Boss Rush).
   isBossStage(id) { const st = this.stage(id); return !!st && (st.kind === 'subboss' || st.kind === 'boss' || st.kind === 'echo'); },
+  // The story bosses (kind 'boss': the act bosses and the Witness), the only stages that record a boss fate.
+  isStoryBossStage(id) { const st = this.stage(id); return !!st && st.kind === 'boss'; },
   isStageComplete(save, id) { return !!save.cleared[id]; },
   isStageUnlocked(save, id) {
     const i = STAGE_LIST.findIndex(s => s.id === id);
     if (i < 0) return false;
-    return i === 0 || this.isStageComplete(save, id) || this.isStageComplete(save, STAGE_LIST[i - 1].id);
+    // the developer unlock (DEV.unlockAll) opens every stage, in any order
+    return this.devUnlocked() || i === 0 || this.isStageComplete(save, id) || this.isStageComplete(save, STAGE_LIST[i - 1].id);
   },
   isChapterUnlocked(save, id) { const c = this.chapter(id); return !!c && this.isStageUnlocked(save, c.stages[0].id); },
   isChapterComplete(save, id) { const c = this.chapter(id); return !!c && c.stages.every(s => this.isStageComplete(save, s.id)); },
@@ -214,6 +262,8 @@ const Logic = {
     const st = this.stage(id);
     if (!st || !this.isStageUnlocked(save, id)) return null;
     const firstClear = !this.isStageComplete(save, id), unlocks = [];
+    // never beaten before, in any cycle (lifetime defeats are kept through New Game+)
+    const firstEver = !(this.defeatedCount(save, id) > 0);
     save.cleared[id] = true;
     // the spar has no winner (Takashi interrupts it), so young Rem is never recorded as beaten
     if (st.kind !== 'spar') save.defeated[id] = (save.defeated[id] || 0) + 1;
@@ -229,15 +279,18 @@ const Logic = {
     }
     const gear = this.grantStageReward(save, id);
     unlocks.push(...gear);
-    // gems a stage rewards on its first clear (the Core echoes: gems instead of gear), paid into the save here
-    const gems = firstClear ? this.stageRewardGems(id) : 0;
+    // gems a stage rewards (the Core echoes: gems instead of gear), paid into the save here ONCE EVER: on its first
+    // clear in the first cycle it is beaten, never again in New Game+
+    const gems = firstClear && firstEver ? this.stageRewardGems(id) : 0;
     save.gems += gems;
-    // a story boss leaves the story the way its data says: killed, escaped or reabsorbed
-    const fate = this.fightFormat(this.stageConfig(save, id)).name === 'boss' ? BOSS_FATES[this.bossDefeat(st.enemy)] : null;
+    // a story boss (kind 'boss': Raikon, Akari, Takashi, the Witness) leaves the story the way its data says: killed,
+    // escaped or reabsorbed. Sub-bosses and the Core echoes fight in the boss format but have no fate.
+    const fate = this.isStoryBossStage(id) ? BOSS_FATES[this.bossDefeat(st.enemy)] || null : null;
     if (fate) save.bossFates[id] = fate;
     return { stage: id, firstClear, next, gear, gems, unlocks, fate };
   },
-  // Gems a stage's `reward: { gems }` pays on its first clear (the Core echoes drop gems, never gear; 0 for other stages).
+  // Gems a stage's `reward: { gems }` pays the first time it is ever beaten (the Core echoes drop gems, never gear; 0 for
+  // other stages). Paid once per save, not once per New Game+ cycle.
   stageRewardGems(id) { const r = (this.stage(id) || {}).reward; return (r && r.gems) || 0; },
   // Gear a stage gives when it is cleared: `reward: { weapons: [...], helmets: [...], armors: [...] }` on a CAMPAIGN
   // stage. Each item is granted exactly once, at level 1, the first time the stage is cleared while the player does
@@ -273,26 +326,35 @@ const Logic = {
        boss      story boss stages (kind 'boss', or a stage with `format: 'boss'`): ONE round, ONE health bar and
                  three phases, no round clock and so no time-out loss; `defeat` says how the boss leaves;
        duel      every other arena fight: best of three rounds against a 75 s clock;
-       trials    Echo Trials: one round per wave against a 90 s clock;
+       trials    Echo Trials: one round per wave against a 90 s clock; a boss-echo wave (`bossEcho`) has no clock
+                 and shows its boss's phases;
        stretch   a side-scrolling level: no rounds, no clock;
        spar      the Interlude (kind 'spar'): one round on a clock and no KO (`preventKO`). Takashi interrupts when
                  either brother's health falls to `interruptAt` or the clock runs out (sparOutcome); nobody wins.
      A boss's phases and defeat outcome are data on its ENEMIES entry (see 10-data.js). */
   BOSS_DEFEATS: ['finisher', 'escape', 'reabsorb'],
+  // How many phases a boss stage's fight shows: story bosses (kind 'boss') at least three, anything else at least one.
+  bossPhaseCount(stageId, enemyId) {
+    const st = this.stage(stageId), n = this.bossPhases(enemyId).length;
+    return st && st.kind === 'boss' ? Math.max(3, n) : Math.max(1, n);
+  },
   fightFormat(cfg) {
     cfg = cfg || {};
-    if (cfg.mode === 'trials') return { name: 'trials', roundsToWin: 1, timer: 90, phases: 0, defeat: null };
-    // Boss Rush: every boss in the story boss format; nobody escapes or is reabsorbed, each just falls (no fate is kept)
-    if (cfg.mode === 'bossrush') {
-      const st = this.stage(cfg.stageId), n = this.bossPhases(cfg.enemyId).length;
-      return { name: 'boss', roundsToWin: 1, timer: 0, phases: st && st.kind === 'boss' ? Math.max(3, n) : Math.max(1, n), defeat: 'finisher' };
+    if (cfg.mode === 'trials') {
+      // a boss-echo wave (cfg.bossEcho, from echoTrialWave) is a full story boss: no clock, so no time-out, and its phases
+      const b = cfg.bossEcho;
+      if (b) return { name: 'trials', roundsToWin: 1, timer: 0, phases: this.bossPhaseCount(b.stageId, b.enemyId), defeat: null, bossEcho: true };
+      return { name: 'trials', roundsToWin: 1, timer: 90, phases: 0, defeat: null };
     }
+    // Boss Rush: every boss in the story boss format; nobody escapes or is reabsorbed, each just falls (no fate is kept)
+    if (cfg.mode === 'bossrush')
+      return { name: 'boss', roundsToWin: 1, timer: 0, phases: this.bossPhaseCount(cfg.stageId, cfg.enemyId), defeat: 'finisher' };
     if (cfg.stretch) return { name: 'stretch', roundsToWin: 1, timer: 0, phases: 0, defeat: null };
     const st = this.stage(cfg.stageId), d = ENEMIES[cfg.enemyId];
     if (st && st.kind === 'spar') return { name: 'spar', roundsToWin: 1, timer: SPAR.timer, phases: 0, defeat: null, interruptAt: SPAR.interruptAt, preventKO: true };
     if (st && (st.kind === 'boss' || st.format === 'boss'))
       // story bosses fight in three phases; a sub-boss in the boss format shows the one or two phases it has
-      return { name: 'boss', roundsToWin: 1, timer: 0, phases: st.kind === 'boss' ? Math.max(3, this.bossPhases(cfg.enemyId).length) : Math.max(1, this.bossPhases(cfg.enemyId).length), defeat: this.bossDefeat(cfg.enemyId) || 'finisher' };
+      return { name: 'boss', roundsToWin: 1, timer: 0, phases: this.bossPhaseCount(cfg.stageId, cfg.enemyId), defeat: this.bossDefeat(cfg.enemyId) || 'finisher' };
     return { name: 'duel', roundsToWin: d && d.type === 'boss' ? 1 : 2, timer: 75, phases: 0, defeat: null };
   },
   /* ---------------- the spar (Interlude) ---------------- */
@@ -345,41 +407,30 @@ const Logic = {
   // RAIKON_VARIANTS in 10-data.js): { id, base, reduced, wave } where `base` is the Raikon ability whose code runs,
   // `reduced` is true for a variant and `wave` says whether a Thunder Swing ground wave is sent. null for any other id.
   raikonMove(id) {
-    if (RAIKON_ABILITIES.includes(id)) return { id, base: id, reduced: false, wave: id === 'thunderSwing' };
-    const v = RAIKON_VARIANTS[id];
-    if (!v || !RAIKON_ABILITIES.includes(v.base)) return null;
-    return { id, base: v.base, reduced: true, wave: v.base === 'thunderSwing' && v.wave !== false };
+    const src = moveSource(id, RAIKON_ABILITIES, RAIKON_VARIANTS);
+    if (!src) return null;
+    return { id, base: src.base, reduced: !!src.variant, wave: src.base === 'thunderSwing' && !(src.variant && src.variant.wave === false) };
   },
   // One of Akari's moves (AKARI_MOVES in 10-data.js): a copy of its numbers (label, windup tell, cooldown, range,
   // damage, smoke, afterimages...) with its id; null for any other id. Act II's sub-bosses (SAN-39) build on these.
   akariMove(id) {
     if (!AKARI_ABILITIES.includes(id) || !AKARI_MOVES[id]) return null;
-    return JSON.parse(JSON.stringify(Object.assign({ id }, AKARI_MOVES[id])));
+    return moveCopy({ id }, AKARI_MOVES[id]);
   },
   // Akari's moves and the reduced versions of them Act II's sub-bosses fight with (AKARI_ABILITIES and AKARI_VARIANTS
   // in 10-data.js): the numbers the move runs with (Akari's, with a variant's overrides on top) plus { id, base,
   // reduced }, where `base` is the Akari ability whose code runs. null for any other id.
-  akariDerived(id) {
-    if (AKARI_ABILITIES.includes(id)) return Object.assign(this.akariMove(id), { base: id, reduced: false });
-    const v = AKARI_VARIANTS[id];
-    if (!v || !AKARI_ABILITIES.includes(v.base)) return null;
-    return JSON.parse(JSON.stringify(Object.assign({}, AKARI_MOVES[v.base], v, { id, base: v.base, reduced: true })));
-  },
+  akariDerived(id) { return derivedMove(id, AKARI_ABILITIES, AKARI_VARIANTS, AKARI_MOVES); },
   // One of Takashi's moves (TAKASHI_MOVES in 10-data.js): a copy of its numbers (label, windup tell, cooldown, range,
   // damage...) with its id; null for any other id. Act III's sub-bosses (SAN-41) can build on these.
   takashiMove(id) {
     if (!TAKASHI_ABILITIES.includes(id) || !TAKASHI_MOVES[id]) return null;
-    return JSON.parse(JSON.stringify(Object.assign({ id }, TAKASHI_MOVES[id])));
+    return moveCopy({ id }, TAKASHI_MOVES[id]);
   },
   // Takashi's moves and the reduced versions of them Act III's sub-bosses fight with (TAKASHI_ABILITIES and
   // TAKASHI_VARIANTS in 10-data.js): the numbers the move runs with (his, with a variant's overrides on top) plus
   // { id, base, reduced }, where `base` is the Takashi ability whose code runs. null for any other id.
-  takashiDerived(id) {
-    if (TAKASHI_ABILITIES.includes(id)) return Object.assign(this.takashiMove(id), { base: id, reduced: false });
-    const v = TAKASHI_VARIANTS[id];
-    if (!v || !TAKASHI_ABILITIES.includes(v.base)) return null;
-    return JSON.parse(JSON.stringify(Object.assign({}, TAKASHI_MOVES[v.base], v, { id, base: v.base, reduced: true })));
-  },
+  takashiDerived(id) { return derivedMove(id, TAKASHI_ABILITIES, TAKASHI_VARIANTS, TAKASHI_MOVES); },
   // How predictable a move is in the player's recent history (move ids, oldest first): its share of the last
   // PATTERN_READ.last moves, or 0 until PATTERN_READ.min moves are known. FightSession.predictability calls this.
   predictability(history, id) {
@@ -401,17 +452,17 @@ const Logic = {
     const v = CORE_ECHO_MOVES[id];
     if (!v) return null;
     const orig = v.of === 'akari' ? AKARI_MOVES[v.base] : v.of === 'takashi' ? TAKASHI_MOVES[v.base] : null;
-    return JSON.parse(JSON.stringify(Object.assign({}, orig, v, { id, corrupt: true })));
+    return moveCopy(orig, v, { id, corrupt: true });
   },
   /* ---- the Witness (core.witness) ---- */
   // One of the Witness's moves (WITNESS_MOVES) or one of Takashi's moves corrupted for Identity Collapse
   // (WITNESS_CORRUPT: his numbers with its overrides on top, plus { base, corrupt: true }). A copy with its id; null for
   // any other id.
   witnessMove(id) {
-    if (WITNESS_ABILITIES.includes(id) && WITNESS_MOVES[id]) return JSON.parse(JSON.stringify(Object.assign({ id }, WITNESS_MOVES[id])));
+    if (WITNESS_ABILITIES.includes(id) && WITNESS_MOVES[id]) return moveCopy({ id }, WITNESS_MOVES[id]);
     const v = WITNESS_CORRUPT[id];
     if (!v || !TAKASHI_ABILITIES.includes(v.base)) return null;
-    return JSON.parse(JSON.stringify(Object.assign({}, TAKASHI_MOVES[v.base], v, { id, corrupt: true })));
+    return moveCopy(TAKASHI_MOVES[v.base], v, { id, corrupt: true });
   },
   // The player's moves (log: [{ id, t, hit }], oldest first) cut into strings: moves ECHO_REPLICATION.gap seconds apart
   // or less belong together. Throws and grabs are never part of a string the Witness can copy.
@@ -739,7 +790,8 @@ const Logic = {
     if (!this.isCombatStage(id)) return { coins: 0, gems: 0 };
     const cleared = this.isStageComplete(save, id);
     const coins = Math.round(this.stageBaseCoins(id) * this.ngRewardMul(save.ng) * (cleared ? 0.5 : 1) / 5) * 5;
-    return { coins, gems: cleared ? 0 : this.firstClearGems(this.stageRewardType(id)) + this.stageRewardGems(id) };
+    const once = this.defeatedCount(save, id) > 0 ? 0 : this.stageRewardGems(id);   // reward gems: once ever
+    return { coins, gems: cleared ? 0 : this.firstClearGems(this.stageRewardType(id)) + once };
   },
   trialWaveReward(wave) {
     return { coins: TRIALS.coins(wave), gems: wave % TRIALS.gemsEvery === 0 ? 1 : 0 };
@@ -796,7 +848,7 @@ const Logic = {
     const def = (save && save.defeated) || {};
     return STAGE_LIST.filter(st => TRIALS.bossKinds.includes(st.kind) && ENEMIES[st.enemy]).map(st => ({
       stageId: st.id, enemyId: st.enemy, name: st.foe || ENEMIES[st.enemy].name, title: st.foeTitle || ENEMIES[st.enemy].title || '',
-      kind: st.kind, chapter: st.chapter, available: def[st.id] > 0
+      kind: st.kind, chapter: st.chapter, available: def[st.id] > 0 || this.devUnlocked()
     }));
   },
   // A new run over the available bosses (from the stage `from` on, when given), or null when none is available:
@@ -832,7 +884,8 @@ const Logic = {
   },
   // Applies a finished fight (campaign or Echo Trials) to the save and returns what it earned:
   // { coins, gems, xp, rating, seals, unlocks, firstClear, next?, levelUps, levelBefore, xpBefore, newBest? }
-  // A campaign result names its stage by `stageId`; a win completes that stage (see completeStage).
+  // A campaign result names its stage by `stageId`; a win completes that stage (see completeStage). A win on a stage
+  // completeStage refuses (still locked) earns nothing and comes back with `rejected: true`.
   // plus every field of the fight result. The save is updated in place; persisting it is the caller's job.
   applyFightResult(save, r) {
     const out = Object.assign({}, r, { coins: 0, gems: 0, xp: 0, unlocks: [], levelUps: 0, firstClear: false });
@@ -846,7 +899,9 @@ const Logic = {
       out.rating = this.rateFight(r);
       out.seals = [r.win, r.win && r.time < 60, r.win && r.flawless];
       if (r.win) {
-        const done = this.completeStage(save, id) || { firstClear: false, unlocks: [] };
+        const done = this.completeStage(save, id);
+        // a win on a stage that is still locked (completeStage refused it) earns nothing at all
+        if (!done) { out.rejected = true; out.levelBefore = save.level; out.xpBefore = save.xp; return out; }
         out.firstClear = done.firstClear;
         out.coins = Math.round(base * ngMul * ({ S: 1.5, A: 1.25, B: 1.1, C: 1 }[out.rating]) * (out.firstClear ? 1 : 0.5) / 5) * 5;
         // done.gems (a stage's reward gems) were already paid into the save by completeStage
@@ -879,6 +934,7 @@ const Logic = {
   resetSave(prev) {
     const d = this.defaultSave();
     if (prev && prev.settings) d.settings = prev.settings;
+    if (this.devUnlocked()) this.applyDevUnlock(d);
     return d;
   }
 };

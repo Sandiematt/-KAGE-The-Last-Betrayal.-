@@ -7,7 +7,8 @@ const { loadLogic } = require('./helpers/load-logic');
 
 const { Logic, ENEMIES, TRIALS, ENEMY_FAMILIES, UNIT_TYPES, AI_PROFILES } = loadLogic();
 
-const regulars = () => Object.values(ENEMIES).filter(d => d.type === 'regular');
+// the Prologue's gentle tutorial Shade (`tutorial`) is a copy of a unit, not a unit type of its own
+const regulars = () => Object.values(ENEMIES).filter(d => d.type === 'regular' && !d.tutorial);
 const stretchFoes = (stageId) => Logic.stretch(stageId).encounters.flatMap(e => e.waves.flat());
 const familyOf = (id) => ENEMIES[id].family;
 

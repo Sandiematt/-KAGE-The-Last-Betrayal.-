@@ -130,3 +130,14 @@ test('Raikon has a before scene and a defeat scene; the defeat scene hands over 
   const said = SCENES[defeat].steps.filter(s => s.say === 'raikon').map(s => s.text).join(' ');
   for (const w of [/Rem/, /Core/, /memor/i]) assert.match(said, w);
 });
+
+test('only the story bosses (kind boss) have a fate: sub-bosses and the Core echoes record none', () => {
+  const s = Logic.defaultSave();
+  for (const st of Logic.stages()) Logic.completeStage(s, st.id);
+  assert.deepEqual(Object.keys(s.bossFates).sort(), ['act1.boss', 'act2.boss', 'act3.boss', 'core.witness']);
+  assert.equal(Logic.stage('core.witness').kind, 'boss');
+  assert.equal(Logic.completeStage(s, 'act1.sub1').fate, null);
+  assert.equal(Logic.completeStage(s, 'core.echo4').fate, null);
+  const back = Logic.normalizeSave({ bossFates: { 'act1.sub1': 'killed', 'core.echo2': 'killed', 'act1.boss': 'killed', 'prologue.1': 'killed' } });
+  assert.deepEqual(back.bossFates, { 'act1.boss': 'killed' }, 'a save loads without fates for stages that are not story bosses');
+});

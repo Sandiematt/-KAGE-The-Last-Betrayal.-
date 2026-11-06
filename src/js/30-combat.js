@@ -13,10 +13,10 @@ const INK_GLYPH = {
   SMASH: '砕', BREAK: '破', SLASH: '斬', CRACK: '撃', WHAM: '打', PARRY: '弾', COUNTER: '返', 'GUARD BREAK': '崩', CLANG: '剣',
   SWEEP: '払', YANK: '引', REAP: '刈', THROW: '投', PIERCE: '貫', SPLIT: '裂', MOONFALL: '月', SHATTER: '砕', SLAM: '震', BASH: '盾',
   CRUSH: '圧', CHARGE: '突', STAGGERED: '隙', ADAPTED: '読', COUNTERED: '返', 'SHIELD BREAK': '崩', WALL: '壁', FIGHT: '闘', TIME: '時',
-  FINISH: '終', FALLEN: '敗', 'K.O.': '斬', PERFECT: '極', CRITICAL: '烈', EVADE: '避', COMBO: '連', 'RAGE READY': '怒', ENOUGH: '止'
+  FINISH: '終', FALLEN: '敗', 'K.O.': '斬', PERFECT: '極', CRITICAL: '烈', EVADE: '避', COMBO: '連', 'RAGE READY': '怒', ENOUGH: '終'
 };
 const BANNER_GLYPH = {
-  'Round I': '壱', 'Round II': '弐', 'Round III': '参', 'Final Duel': '決', 'Sparring Match': '稽', 'Phase II': '弐', 'Phase III': '参',
+  'Round I': '壱', 'Round II': '弐', 'Round III': '参', 'Final Duel': '決', 'Sparring Match': '道', 'Phase II': '弐', 'Phase III': '参',
   Raikon: '雷', Akari: '霧', Takashi: '父', Rem: '弟', 'The Witness': '鏡', 'Hollow Raikon': '雷', 'Hollow Akari': '霧', 'Hollow Takashi': '父', 'Hollow Rem': '弟',
   'Shadow Palm': '影', 'Thousand Cuts': '千', 'Crescent Moon': '月', 'Mountain Split': '山', 'Dragon Lance': '龍', "Reaper's Harvest": '刈',
   Earthshatter: '震', 'Hollow Illusions': '幻', 'Stilled Time': '時', 'Ashen Wrath': '怒'
