@@ -65,6 +65,7 @@ function animeCloths(f) {
     f.cloths.push({ kind: 'coat', part: 'back', c: new Cloth(8, 12 * s, { ph: 2.2, wind: 1150, grav: 1000, stiff: 1.5, hang: 0.55 }), at: 'hip', dx: 6, dy: -4 });
     f.cloths.push({ kind: 'coat', part: 'flap', c: new Cloth(7, 11.4 * s, { ph: 4.7, wind: 260, grav: 1250, stiff: 1.5, hang: 0.15 }), at: 'hip', dx: 1, dy: -3 });
   }
+  if (sk.order) orderCloths(f, sk);   // the Order's hood tails and hat cords (22-anime-order.js)
 }
 
 /* ---- palette ---- */
@@ -328,11 +329,12 @@ Fighter.prototype.drawCoatPanel = function (ctx, part, A, skin, U) {
 /* ---- the body ---- */
 Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   const sk = this.sk, s = this.scale, b = this.build, f = this.facing;
-  const skin = animeSkin(this), A = animeState(this, front, flat, opt), pal = A.pal;
+  const skin = animeSkin(this), A = animeState(this, front, flat, opt), pal = A.pal, ord = skin.order;
   const big = b.w >= 16 ? 1.45 : b.w >= 13 ? 1.2 : 1;
   const L = b.w * s * 0.42 * (b.w >= 13 ? 1.15 : 1), T = L * 1.25 * big;   // the old limb units: armour overlays are sized by them
   const U = s * clamp(b.w / 10, 0.9, 1.75) * (b.w >= 13 ? 1.08 : 1);       // clothing unit (px per design unit)
   const hr = BODY.head * s * b.head, S = animeSpine(this);
+  A.S = S; A.U = U;   // armour parts drawn from drawArmor / drawHelmet (22-anime-order.js) share the spine frame
   const akari = this.helmet === 'akari_mask', slv = skin.sleeve || 1, boot = skin.feet === 'boot';
   const ov = flat ? { color: front } : opt;
   const fabB = pal.back, fab = pal.fab, coatT = skin.top === 'coat' ? pal.coat : pal.fab;
@@ -348,14 +350,17 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   this.animeLeg(ctx, sk.hipB, sk.bkn, sk.bft, A, skin, U, true);
   // --- 4. the torso (Akari's figure is her garb's own cut, drawArmor 'mei_en')
   if (!akari) this.animeTorsoDraw(ctx, S, A, skin, U, coatT);
+  if (ord) this.orderKusazuri(ctx, S, A, U, 'back');
   drawArmor(ctx, this, armInk, ov, T * 1.25);
-  // --- 5. the near leg, then the coat's near flap over its thigh
+  // --- 5. the near leg, then the coat's near flap over its thigh (the Order: the front kusazuri plates)
   this.animeLeg(ctx, sk.hipF, sk.fkn, sk.fft, A, skin, U, false);
+  if (ord) this.orderKusazuri(ctx, S, A, U, 'front');
   if (skin.coat) this.drawCoatPanel(ctx, 'flap', A, skin, U);
   // --- 6. sash / obi and the saya at the hip
   if (skin.sash === 'kage') this.animeSash(ctx, S, A, U);
   else if (skin.sash === 'obi' && !akari) this.animeObi(ctx, S, A, U);
-  if (this.outfit === 'gi' && !flat && skin.sash !== 'kage') this.drawSash(ctx, T);
+  else if (skin.sash === 'order') this.orderBelt(ctx, S, A, U);
+  if (this.outfit === 'gi' && !flat && skin.sash !== 'kage' && !skin.noGiSash) this.drawSash(ctx, T);
   if (skin.saya && this.hasWeapon) this.animeSaya(ctx, S, A, U);
   // --- 7. neck, collar and scarf wrap
   this.animeNeck(ctx, S, A, skin, U, hr);
@@ -397,6 +402,8 @@ Fighter.prototype.animeArm = function (ctx, sh, el, ha, A, skin, U, far, noHand)
       g.moveTo(sh.x + dx * 0.18 + nx * 8 * U, sh.y + dy * 0.18 + ny * 8 * U); g.quadraticCurveTo(sh.x + dx * 0.27, sh.y + dy * 0.27, sh.x + dx * 0.18 - nx * 8 * U, sh.y + dy * 0.18 - ny * 8 * U);
     });
   } });
+  // the Order's sode over the upper sleeve (22-anime-order.js)
+  if (skin.order && skin.order.sode) this.orderSode(ctx, sh, el, A, U / (skin.sleeve || 1), far, skin.order.sode);
   // the kote: a dark lacquered forearm guard from under the sleeve to the wrist, two dark straps with crimson cord
   if (skin.kote) {
     const a = at(0.3, 0), b = at(0.9, 0);
@@ -440,10 +447,11 @@ Fighter.prototype.animeLeg = function (ctx, hp, kn, ft, A, skin, U, far) {
     const dx = b.x - a.x, dy = b.y - a.y, l = Math.hypot(dx, dy) || 1, nx = -dy / l, ny = dx / l;
     animeFold(g, A, tone, () => { for (const o of os) { g.moveTo(a.x + nx * o * U + dx * 0.12, a.y + ny * o * U + dy * 0.12); g.lineTo(b.x + nx * o * 1.1 * U, b.y + ny * o * 1.1 * U); } });
   };
-  const se = boot ? 0.62 : 0.9, shinEnd = { x: lerp(kn.x, ft.x, se), y: lerp(kn.y, ft.y, se) };
+  const sun = skin.suneate, se = boot ? 0.62 : sun ? 0.66 : 0.9, shinEnd = { x: lerp(kn.x, ft.x, se), y: lerp(kn.y, ft.y, se) };
   celFill(ctx, () => animeCapsule(ctx, kn, shinEnd, 9.8 * U, boot ? 8.4 * U : 10.6 * U, 1 * U, 0.5), tone, A, { sd: 4.4 * U, hd: far ? 0 : 0.8 * U, rim: !far, detail: far ? null : (g) => pleats(g, kn, shinEnd, [-3.6, 1, 5]) });
   // the thigh over the shin, so the knee is the thigh's fold, not a round pad
   celFill(ctx, () => animeCapsule(ctx, hp, kn, 11.6 * U, 10 * U, 1.6 * U, 0.42), tone, A, { sd: 5 * U, hd: far ? 0 : 1 * U, rim: !far, detail: far ? null : (g) => pleats(g, hp, kn, [-4.2, 0.2, 4.4]) });
+  if (sun) this.orderSuneate(ctx, kn, ft, A, U, far);
   const btone = far ? [pal.boot[0], pal.boot[0], pal.boot[1]] : pal.boot;
   if (boot) {
     const bt = { x: lerp(kn.x, ft.x, 0.42), y: lerp(kn.y, ft.y, 0.42) };

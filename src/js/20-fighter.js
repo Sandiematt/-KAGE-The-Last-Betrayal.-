@@ -166,7 +166,8 @@ class Fighter {
     this.cloths = [];
     if (this.outfit === 'gi') {
       const fam = this.family, sash = this.def && this.def.sash;   // `sash` on an ENEMIES entry colours the obi (young Rem's purple)
-      const bc = o.isPlayer ? ANIME.crimsonHi : sash || (fam ? fam.trim : '#2a2620'), bc2 = o.isPlayer ? ANIME.crimson : sash ? sash : fam ? '#9298a0' : '#2a2620';
+      const ord = !o.isPlayer && this.def && this.def.family === 'order';   // the Order's belt tails: crimson cord and dark cloth
+      const bc = o.isPlayer ? ANIME.crimsonHi : ord ? ANIME.crimson : sash || (fam ? fam.trim : '#2a2620'), bc2 = o.isPlayer ? ANIME.crimson : ord ? '#1a1c20' : sash ? sash : fam ? '#9298a0' : '#2a2620';
       this.cloths.push({ kind: 'belt', c: new Cloth(6, 5.6 * this.scale, { ph: 7, wind: 200, grav: 1250, stiff: 1.7 }), at: 'hip', color: bc, w: 4 * this.scale, w1: 2.4 * this.scale, dy: -11, dx: -3 });
       this.cloths.push({ kind: 'belt', c: new Cloth(5, 5.4 * this.scale, { ph: 8, wind: 170, grav: 1300, stiff: 1.7 }), at: 'hip', color: bc2, w: 3.2 * this.scale, w1: 2 * this.scale, dy: -10, dx: -1 });
     }
@@ -1907,6 +1908,7 @@ Fighter.prototype.drawOffhand = function (ctx, ink, opt) {
     drawWeaponShape(ctx, twinShape(this.weapon(), sh, 1), this.weaponLen(), opt.color ? 'flat' : 'ink', this.scale, opt.color || ink, this);
     ctx.restore();
   }
+  if (this.weapon().shield && this.hasWeapon && this._A && animeSkin(this).order) { this.orderShield(ctx, this._A); return; }
   if (this.weapon().shield && this.hasWeapon) {
     const s = this.scale;
     ctx.save(); ctx.translate(sk.bha.x + this.facing * 6 * s, sk.bha.y);
@@ -2493,23 +2495,10 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
       if (!flat) { ctx.fillStyle = 'rgba(255,106,60,0.9)'; ctx.fillRect(r * 0.05, -r * 0.2, r * 1.15, r * 0.14); }
       ctx.strokeStyle = acc('rgba(255,106,60,0.35)'); ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(-r * 1.25, -r * 0.6); ctx.lineTo(r * 1.25, -r * 0.6); ctx.stroke();
       break;
-    case 'order_hood': case 'order_kabuto': {
-      // Order of Silence: a close cloth hood (ranks 2+ wear a flat iron helm over it) and a dark cloth mask over the mouth
-      ctx.beginPath(); ctx.arc(0, -r * 0.06, r * 1.13, Math.PI * 0.62, Math.PI * 2.08); ctx.lineTo(-r * 1.25, r * 0.95); ctx.closePath(); ctx.fill();
-      if (key === 'order_kabuto') {
-        ctx.beginPath(); ctx.arc(0, -r * 0.3, r * 1.08, Math.PI, TAU); ctx.lineTo(r * 1.5, -r * 0.18); ctx.lineTo(-r * 1.55, -r * 0.18); ctx.closePath(); ctx.fill();
-        if (!flat) { ctx.strokeStyle = (f && f.family && f.family.trim) || C.bone; ctx.globalAlpha *= 0.85; ctx.lineWidth = Math.max(1, r * 0.1); ctx.beginPath(); ctx.moveTo(-r * 1.5, -r * 0.2); ctx.lineTo(r * 1.45, -r * 0.2); ctx.stroke(); ctx.globalAlpha /= 0.85; }
-      }
-      if (!flat) {
-        ctx.save(); ctx.beginPath(); ctx.arc(0, 0, r * 1.05, 0, TAU); ctx.clip();
-        ctx.fillStyle = '#23272d';
-        ctx.beginPath(); ctx.moveTo(r * 1.2, r * 0.26); ctx.lineTo(-r * 0.2, r * 0.3); ctx.lineTo(-r * 0.75, r * 1.2); ctx.lineTo(r * 1.2, r * 1.2); ctx.closePath(); ctx.fill();
-        ctx.strokeStyle = 'rgba(196,200,204,0.45)'; ctx.lineWidth = Math.max(1, r * 0.06);
-        ctx.beginPath(); ctx.moveTo(r * 1.2, r * 0.27); ctx.lineTo(-r * 0.2, r * 0.31); ctx.stroke();
-        ctx.restore();
-      }
+    case 'order_hood': case 'order_kabuto':
+      // the Order of Silence: each soldier type's own hood or kabuto over a fox mask (22-anime-order.js)
+      drawOrderHead(ctx, f, r, ink, flat);
       break;
-    }
     case 'hollow_shard': {
       // Hollow: the head breaks into a few jagged shards, with a pale crack across the face
       ctx.beginPath(); ctx.moveTo(-r * 0.95, -r * 0.35); ctx.lineTo(-r * 1.3, -r * 1.25); ctx.lineTo(-r * 0.45, -r * 0.85); ctx.lineTo(-r * 0.2, -r * 1.75);
@@ -2857,26 +2846,10 @@ function drawArmor(ctx, f, ink, opt, Ut) {
       }
       break;
     }
-    case 'order_garb': case 'order_plate': {
-      // Order uniform: a plain slate tunic with the Order mark (a closed circle barred like a sealed mouth) on the chest;
-      // rank shows as small pale bars on the shoulder; the heavy wear a dark shoulder plate
-      const plateArmor = f.armor === 'order_plate', trim = (f.family && f.family.trim) || C.bone;
-      torsoShape(ctx, sk.hip, sk.neck, fc, Ut * (plateArmor ? 1.14 : 1.04));
-      if (plateArmor) plate(Ut * 0.66, flat ? null : 'rgba(196,200,204,0.5)');
-      if (flat) break;
-      const ox = Math.cos(ang + Math.PI / 2), oy = Math.sin(ang + Math.PI / 2), side = ox * fc >= 0 ? 1 : -1;
-      const mx = lerp(hx, nx, 0.6) + ox * side * Ut * 0.3, my = lerp(hy, ny, 0.6) + oy * side * Ut * 0.3, mr = 3.4 * s;
-      ctx.strokeStyle = trim; ctx.lineWidth = 1.5 * s;
-      ctx.beginPath(); ctx.arc(mx, my, mr, 0, TAU); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(mx - mr * 0.6, my); ctx.lineTo(mx + mr * 0.6, my); ctx.stroke();
-      ctx.lineWidth = 1.6 * s; ctx.lineCap = 'butt';
-      for (let i = 0; i < f.rank - 1; i++) {
-        const k = 0.86 - i * 0.07, px = lerp(hx, nx, k) - ox * side * Ut * 0.55, py = lerp(hy, ny, k) - oy * side * Ut * 0.55;
-        ctx.beginPath(); ctx.moveTo(px - ox * side * 3.2 * s, py - oy * side * 3.2 * s); ctx.lineTo(px + ox * side * 3.2 * s, py + oy * side * 3.2 * s); ctx.stroke();
-      }
-      ctx.lineCap = 'round';
+    case 'order_garb': case 'order_plate':
+      // the Order's lacquered dō laced in crimson: full, light (hara-ate) or heavy per soldier type (22-anime-order.js)
+      drawOrderArmor(ctx, f, ink, flat);
       break;
-    }
     case 'hollow_rags': {
       // Hollow: the torso frays into torn strips at the waist, with a pale crack across the chest
       torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.02);

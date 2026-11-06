@@ -89,6 +89,7 @@ Keep the existing skeleton (`BODY` in `20-fighter.js`); the art dresses it.
 - A white or bone fox mask (kitsune) with tall pointed ears and black eye slits. The white eyes glow through the slits.
 - A dark lacquered do with crimson lacing (odoshi), layered sode on the shoulders, a kusazuri skirt of plates over a dark hakama, kote on the forearms, suneate on the shins, and waraji.
 - Muted-silver katana. Each type gets its own crest or helmet so the silhouette tells them apart (ticket 03), with the fox mask as the family face.
+- As built (ticket 03, `22-anime-order.js`): the masks are dark slate lacquer with crimson kitsune markings, as in `slash-single`, rather than bone, so the faces stay black under the rule. Footman: full fox helm with tall ears. Runner: peaked hood with two long tails and a fox half-mask. Shieldbearer: kabuto with a silver crescent and a tall tate shield. Chainthrower: wide jingasa and a chain bandolier. Ironclad: horned kabuto, heavy dō with a gorget, huge sode.
 
 **Raikon (ticket 08), from `boss_raikon.webp`.**
 - A wide black jingasa edged in red, with a tall red flame crest on top and red tassels hanging from the brim.
