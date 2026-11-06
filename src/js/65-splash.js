@@ -1,5 +1,9 @@
-/* KAGE — opening splash: the moon scene settles, then K-A-G-E is written stroke by stroke,
-   each letter cut in by a slash that comes from outside the frame (about 3 seconds), then 影 and the prompt. */
+/* KAGE — The Last Betrayal: opening splash. The moon scene settles, then K-A-G-E is written stroke by stroke,
+   each letter cut in by a slash that comes from outside the frame (about 3 seconds), then the subtitle
+   "The Last Betrayal", the tagline and the prompt.
+   The painted scene still shows the hero in the old red hachimaki, so he is recoloured in code (sceneRecolour)
+   into Kage's story-bible look, as the title scene does: the headband and its long red tails are taken out of the
+   black silhouette, a flat white face-wrap covers his lower face, and one short white strip trails from its knot. */
 const Splash = (() => {
   // everything is laid out in the key art's own pixel space (1774 x 887)
   const ART_W = 1774, ART_H = 887;
@@ -24,7 +28,105 @@ const Splash = (() => {
     { t0: 1.8, t1: 1.96, fade: 0.3, w: 14, line: [1120, 690, 1960, 420] }    // exits off the right edge
   ];
   const CUT = { t0: 2.2, t1: 2.3, line: [462, 670, 1048, 450] };          // the final cut through K-A, it stays
-  const MARK_T = 2.6, PROMPT_T = 3.0;
+  const MARK_T = 2.6, TAG_T = 2.85, PROMPT_T = 3.2;
+
+  /* ---- Kage's look on the painted scene (art px) ---- */
+  const MOON = { x: 926, y: 309, r: 231 };                  // the red moon disc behind him
+  const HERO_INK = [3, 2, 2];                               // the silhouette's ink
+  // the long headband tails: over the black sky they are red (inked out), over the moon they are black (painted out)
+  const TAILS_SKY = [[520, 118], [772, 118], [772, 140], [748, 168], [736, 200], [720, 236], [700, 300], [520, 300]];
+  const TAILS_MOON = [[700, 128], [735, 130], [762, 141], [800, 157], [835, 156], [866, 159], [870, 170], [869, 192], [842, 198],
+    [815, 204], [790, 207], [760, 217], [728, 228], [700, 236], [690, 200], [695, 160]];
+  const MOON_EDGE = 0;                                      // extra reach past the disc for the moon-side fill
+  // the headband across his head, from the knot at the back to the hair at his brow
+  const BAND = [[868, 162], [904, 158], [932, 160], [960, 168], [985, 180], [1008, 192], [1022, 203], [1029, 216], [1030, 238],
+    [1018, 247], [1006, 237], [990, 223], [975, 209], [960, 199], [940, 188], [920, 185], [895, 186], [868, 188]];
+  // the face-wrap: everything dark below the eye slit, inside this outline, with a cel-shade under the jaw
+  const WRAP = [[926, 236], [960, 239], [986, 243], [1014, 245], [1024, 300], [948, 300], [934, 268]];
+  const WRAP_TOP = [[930, 237], [960, 240], [986, 244], [1012, 246]];
+  const WRAP_SHADE_Y = x => 270 + (x - 940) * 0.12;
+  const KNOT = { x: 868, y: 176 };
+  const FACEWRAP = '#efe9dd', FACEWRAP_SHADE = '#b4ac9f';
+  const inPoly = (P, x, y) => {
+    let c = false;
+    for (let i = 0, j = P.length - 1; i < P.length; j = i++) {
+      const [xi, yi] = P[i], [xj, yj] = P[j];
+      if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c;
+    }
+    return c;
+  };
+  const inMoon = (x, y, pad) => Math.hypot(x - MOON.x, y - MOON.y) <= MOON.r + (pad || 0);
+  function sceneRecolour(im) {
+    const c = document.createElement('canvas'); c.width = ART_W; c.height = ART_H;
+    const g = c.getContext('2d'); g.drawImage(im, 0, 0, ART_W, ART_H);
+    const x0 = 520, y0 = 110, w = 520, h = 200, id = g.getImageData(x0, y0, w, h), d = id.data;
+    const at = (x, y) => ((y - y0) * w + (x - x0)) * 4;
+    const ink = (i, k) => { d[i] = lerp(d[i], HERO_INK[0], k); d[i + 1] = lerp(d[i + 1], HERO_INK[1], k); d[i + 2] = lerp(d[i + 2], HERO_INK[2], k); };
+    const isMoon = i => d[i] >= 205 && d[i + 1] >= 14 && d[i + 1] <= 50 && d[i + 2] <= 48;
+    const marked = new Uint8Array(w * h);
+    for (let y = y0; y < y0 + h; y++) for (let x = x0; x < x0 + w; x++) {
+      const i = at(x, y), r = d[i], gg = d[i + 1], b = d[i + 2];
+      if (inMoon(x, y, MOON_EDGE) && inPoly(TAILS_MOON, x, y)) {
+        // tails against the moon -> filled with moon (in the ring around the disc, black sky is left alone)
+        if (!isMoon(i) && (inMoon(x, y) || Math.max(r, gg, b) > 14)) marked[(y - y0) * w + (x - x0)] = 1;
+      } else if (inPoly(TAILS_SKY, x, y)) {                               // red tails against the sky -> ink
+        const red = clamp((r - Math.max(gg, b) - 3) / 25, 0, 1); if (red > 0) ink(i, red);
+      }
+      if (inPoly(BAND, x, y) && !(r > 200 && gg > 150)) ink(i, 1);       // the headband -> ink (the eye stays white)
+    }
+    // paint the marked tail pixels with the moon around them, interpolating each column between the nearest clean pixels
+    for (let x = x0; x < x0 + w; x++) for (let y = y0; y < y0 + h; y++) {
+      if (!marked[(y - y0) * w + (x - x0)]) continue;
+      let up = -1, dn = -1;
+      const clean = (xx, yy) => xx >= x0 && xx < x0 + w && !marked[(yy - y0) * w + (xx - x0)] && inMoon(xx, yy, MOON_EDGE) && isMoon(at(xx, yy));
+      for (let k = 1; k < 60 && y - k >= y0; k++) if (clean(x, y - k)) { up = y - k; break; }
+      for (let k = 1; k < 60 && y + k < y0 + h; k++) if (clean(x, y + k)) { dn = y + k; break; }
+      if (up < 0 && dn < 0) continue;
+      // average a few clean neighbours along each sample row so the fill shows no column streaks
+      const sample = yy => { const o = [0, 0, 0]; let n = 0; for (let k = -3; k <= 3; k++) if (clean(x + k, yy)) { const j = at(x + k, yy); o[0] += d[j]; o[1] += d[j + 1]; o[2] += d[j + 2]; n++; } return o.map(v => v / n); };
+      const A = sample(up < 0 ? dn : up), B = sample(dn < 0 ? up : dn), t = up < 0 || dn < 0 ? 0 : (y - up) / (dn - up), i = at(x, y);
+      for (let ch = 0; ch < 3; ch++) d[i + ch] = lerp(A[ch], B[ch], t);
+    }
+    // the face-wrap: dark pixels inside the outline, keeping a thin ink edge where the silhouette meets the moon
+    const dark = (x, y) => { const i = at(x, y); return Math.max(d[i], d[i + 1], d[i + 2]) < 70; };
+    const fill = [];
+    for (let y = 230; y < 300; y++) for (let x = 920; x < 1030; x++) {
+      if (!inPoly(WRAP, x, y) || !dark(x, y) || !dark(x - 3, y) || !dark(x + 3, y) || !dark(x, y - 3) || !dark(x, y + 3)) continue;
+      fill.push(x, y);
+    }
+    const rgb = hex => [1, 3, 5].map(k => parseInt(hex.slice(k, k + 2), 16)), lit = rgb(FACEWRAP), sh = rgb(FACEWRAP_SHADE);
+    for (let k = 0; k < fill.length; k += 2) {
+      const x = fill[k], y = fill[k + 1], i = at(x, y), col = y > WRAP_SHADE_Y(x) ? sh : lit;
+      d[i] = col[0]; d[i + 1] = col[1]; d[i + 2] = col[2];
+    }
+    g.putImageData(id, x0, y0);
+    // crisp ink edges: the wrap's top under the eye and one fold
+    const path = pts => pts.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1]));
+    g.save(); g.strokeStyle = 'rgb(3,2,2)'; g.lineWidth = 3; g.lineJoin = g.lineCap = 'round';
+    g.beginPath(); path(WRAP_TOP); g.stroke();
+    g.beginPath(); g.moveTo(1004, 258); g.quadraticCurveTo(975, 266, 948, 258); g.stroke();
+    g.restore();
+    return c;
+  }
+  // the short white strip trailing from the knot, blown back to the left
+  function drawStrip(t) {
+    const strip = (len, n, w0, w1, ph, lift, col) => {
+      const L = [], R = [], pt = u => [KNOT.x - u * len, KNOT.y + u * lift + Math.sin(t * 7 + u * 5 + ph) * 7 * u];
+      for (let i = 0; i <= n; i++) {
+        const u = i / n, [x, y] = pt(u), [nx, ny] = pt(u + 0.05);
+        let dx = nx - x, dy = ny - y; const dl = Math.hypot(dx, dy) || 1; dx /= dl; dy /= dl;
+        const ww = lerp(w0, w1, u) / 2; L.push([x - dy * ww, y + dx * ww]); R.push([x + dy * ww, y - dx * ww]);
+      }
+      ctx.fillStyle = col; ctx.beginPath();
+      L.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
+      for (let i = R.length - 1; i >= 0; i--) ctx.lineTo(R[i][0], R[i][1]);
+      ctx.closePath(); ctx.fill();
+    };
+    strip(62, 10, 9, 5, 2, 14, FACEWRAP_SHADE);
+    strip(96, 12, 14, 6, 0, -8, FACEWRAP);
+    ctx.fillStyle = FACEWRAP; ctx.strokeStyle = 'rgb(3,2,2)'; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.ellipse(KNOT.x, KNOT.y, 9, 7, -0.5, 0, TAU); ctx.fill(); ctx.stroke();
+  }
 
   let cv, ctx, imgs = {}, ready = 0, t0 = 0, raf = 0, petals = [], sparks = [], jag = [];
   const load = () => new Promise(res => {
@@ -103,6 +205,12 @@ const Splash = (() => {
     ctx.restore();
   }
 
+  // letter-spaced text centred on cx
+  function spaced(txt, cx, y, sp) {
+    let w = -sp; for (const ch of txt) w += ctx.measureText(ch).width + sp;
+    let x = cx - w / 2; for (const ch of txt) { ctx.fillText(ch, x, y); x += ctx.measureText(ch).width + sp; }
+  }
+
   function frame(now) {
     raf = requestAnimationFrame(frame);
     const boot = document.getElementById('boot');
@@ -120,7 +228,9 @@ const Splash = (() => {
     const sk = Ease.outCubic(clamp(t / 0.6, 0, 1)), zoom = 1.05 - 0.05 * sk + 0.006 * Math.sin(t * 0.6);
     ctx.save(); ctx.globalAlpha = sk;
     ctx.translate(ART_W / 2, ART_H * 0.42); ctx.scale(zoom, zoom); ctx.translate(-ART_W / 2, -ART_H * 0.42);
-    ctx.drawImage(imgs.scene, 0, 0, ART_W, ART_H);
+    if (!imgs.kage) imgs.kage = sceneRecolour(imgs.scene);
+    ctx.drawImage(imgs.kage, 0, 0, ART_W, ART_H);
+    drawStrip(t);
     ctx.restore();
     // petals drifting on the wind
     if (petals.length < 16 && Math.random() < dt * 3) spawnPetal(false);
@@ -173,16 +283,23 @@ const Splash = (() => {
       ctx.fillRect(sx - 2.5, sy - 2.5, 5, 5);
     }
     ctx.globalAlpha = 1;
-    // 7) the shadow mark 影 between two rules
+    // 7) the subtitle between two rules, then the tagline
     const mk = clamp((t - MARK_T) / 0.4, 0, 1);
     if (mk > 0) {
-      const y = 712, e = Ease.outCubic(mk);
+      const y = 712, e = Ease.outCubic(mk), half = 232;
       ctx.save(); ctx.globalAlpha = e;
       ctx.strokeStyle = 'rgba(232,222,206,0.55)'; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.moveTo(887 - 70 - 220 * e, y); ctx.lineTo(887 - 70, y); ctx.moveTo(887 + 70, y); ctx.lineTo(887 + 70 + 220 * e, y); ctx.stroke();
-      ctx.translate(887, y); ctx.scale(1.25 - 0.25 * e, 1.25 - 0.25 * e);
-      ctx.fillStyle = '#e0242b'; ctx.font = '400 74px KageKanji, serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText('影', 0, 0);
+      ctx.beginPath(); ctx.moveTo(887 - half - 40 - 150 * e, y); ctx.lineTo(887 - half - 40, y); ctx.moveTo(887 + half + 40, y); ctx.lineTo(887 + half + 40 + 150 * e, y); ctx.stroke();
+      ctx.translate(887, y); ctx.scale(1.15 - 0.15 * e, 1.15 - 0.15 * e);
+      ctx.fillStyle = '#f0dcc0'; ctx.font = '600 44px KageSerif, serif'; ctx.textBaseline = 'middle';
+      spaced('THE LAST BETRAYAL', 0, 0, 10);
+      ctx.restore();
+    }
+    const tk = clamp((t - TAG_T) / 0.45, 0, 1);
+    if (tk > 0) {
+      ctx.save(); ctx.globalAlpha = Ease.outCubic(tk);
+      ctx.fillStyle = '#c9a45c'; ctx.font = 'italic 600 30px KageSerif, serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('Brothers until the end.', 887, 762 + 8 * (1 - tk));
       ctx.restore();
     }
     // 8) prompt, gently pulsing
@@ -192,7 +309,7 @@ const Splash = (() => {
       ctx.fillStyle = '#efe4d2'; ctx.font = '500 38px KageUI, sans-serif'; ctx.textBaseline = 'middle';
       const txt = 'TAP  OR  PRESS  ANY  KEY', sp = 9;
       let w = 0; for (const ch of txt) w += ctx.measureText(ch).width + sp;
-      let x = 887 - w / 2; for (const ch of txt) { ctx.fillText(ch, x, 790); x += ctx.measureText(ch).width + sp; }
+      let x = 887 - w / 2; for (const ch of txt) { ctx.fillText(ch, x, 832); x += ctx.measureText(ch).width + sp; }
       ctx.restore();
     }
   }
@@ -204,11 +321,11 @@ const Splash = (() => {
       ctx = cv.getContext('2d');
       resize(); window.addEventListener('resize', resize);
       for (let i = 0; i < 9; i++) spawnPetal(true);
-      const fonts = document.fonts && document.fonts.load ? Promise.all([document.fonts.load('400 74px KageKanji', '影'), document.fonts.load('500 38px KageUI', 'TAP')]).catch(() => {}) : Promise.resolve();
+      const fonts = document.fonts && document.fonts.load ? Promise.all([document.fonts.load('600 44px KageSerif', 'THE LAST BETRAYAL'), document.fonts.load('500 38px KageUI', 'TAP')]).catch(() => {}) : Promise.resolve();
       Promise.all([load(), fonts]).then(() => {
         ready = 1; t0 = performance.now();
         // reduced motion: open straight on the finished title card
-        if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) t0 -= 3500;
+        if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) t0 -= 4000;
       });
       raf = requestAnimationFrame(frame);
     }

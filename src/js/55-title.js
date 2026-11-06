@@ -1,15 +1,53 @@
 /* KAGE — animated title scene: the key art, alive.
    The painted backdrop (title-plate) and the hero (title-hero) are cut from the key art; on top of them the moon
-   breathes, clouds and petals drift, the hachimaki tails blow in the wind, the blade glows, the cracked ground
-   smoulders and embers rise, and the hero breathes. A 2.5D camera drifts slowly and follows the pointer. */
+   breathes, clouds and petals drift, the face-wrap's trailing strip blows in the wind, the blade glows, the cracked
+   ground smoulders and embers rise, and the hero breathes. A 2.5D camera drifts slowly and follows the pointer.
+   The painted hero still wears the old red hachimaki, so he is recoloured in code (heroRecolour) into Kage's
+   story-bible look: the headband is inked out and a flat white face-wrap is laid over his lower face. */
 // the key art (1254 px square) sits right-aligned at 0.6 scale; landmarks below are in canvas units
 const TA = { x: 528, y: -20, s: 0.6 };
 const TITLE_MOON = { x: 894, y: 209, r: 211 };
 const TITLE_LAND = { x: 936, y: 625 };       // the hero's ground line
 const TITLE_HORIZON = 500;                     // where the ground plane meets the hills
 const TITLE_OVERSCAN = 1.07;                   // layers are drawn slightly enlarged so camera moves never reveal an edge
-// hero sprite: its top-left in art px, plus anchors in sprite px (scarf knot, sword guard) and the blade tip in art px
-const HERO_SPR = { ax: 398, ay: 625, knot: [358, 98], guard: [68, 52], tip: [70, 824] };
+// hero sprite: its top-left in art px, plus anchors in sprite px (face-wrap knot, sword guard) and the blade tip in art px
+const HERO_SPR = { ax: 398, ay: 625, knot: [377, 150], guard: [68, 52], tip: [70, 824] };
+// Kage's face-wrap on the sprite (sprite px): the painted head is a circle; the red headband inside it is inked out
+// and a flat white wrap covers the lower face below the eye slits, knotted at his right where the strip trails
+const HERO_HEAD = { x: 300, y: 112, r: 80 };
+const HERO_WRAP_TOP = [[212, 146], [258, 161], [302, 166], [345, 153], [392, 122]];   // just under the eye slits
+const HERO_WRAP_SHADE = [[392, 150], [340, 176], [290, 181], [212, 168]];             // the cel-shade line under the jaw
+const HERO_INK = [16, 7, 8];                                                         // the painted body's ink
+
+// Kage's look on the painted hero: ink out the red headband, then lay a flat white face-wrap over the lower face,
+// clipped to the painted head so his outline and rim light stay exactly as painted
+function heroRecolour(im) {
+  const w = im.naturalWidth, h = im.naturalHeight, Hd = HERO_HEAD;
+  return makeLayer(w, h, g => {
+    g.drawImage(im, 0, 0);
+    const x0 = Hd.x - Hd.r - 4, y0 = Hd.y - Hd.r - 4, sz = (Hd.r + 4) * 2;
+    const id = g.getImageData(x0, y0, sz, sz), d = id.data;
+    for (let y = 0; y < sz; y++) for (let x = 0; x < sz; x++) {
+      const dx = x0 + x - Hd.x, dy = y0 + y - Hd.y; if (dx * dx + dy * dy > (Hd.r + 3) * (Hd.r + 3)) continue;
+      const i = (y * sz + x) * 4, r = d[i], gg = d[i + 1], b = d[i + 2], red = clamp((r - Math.max(gg, b) - 6) / 50, 0, 1);
+      if (red <= 0) continue;
+      d[i] = lerp(r, HERO_INK[0], red); d[i + 1] = lerp(gg, HERO_INK[1], red); d[i + 2] = lerp(b, HERO_INK[2], red);
+    }
+    g.putImageData(id, x0, y0);
+    const path = pts => pts.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1]));
+    g.save(); g.beginPath(); g.arc(Hd.x, Hd.y, Hd.r - 1, 0, TAU); g.clip();
+    g.fillStyle = '#efe9dd'; g.beginPath(); path(HERO_WRAP_TOP); g.lineTo(400, 220); g.lineTo(200, 220); g.closePath(); g.fill();
+    g.fillStyle = '#b4ac9f'; g.beginPath(); path(HERO_WRAP_SHADE); g.lineTo(200, 220); g.lineTo(400, 220); g.closePath(); g.fill();
+    // crisp ink edges: the top edge under the eyes and one wrap fold
+    g.strokeStyle = 'rgb(16,7,8)'; g.lineWidth = 3; g.lineJoin = 'round'; g.lineCap = 'round';
+    g.beginPath(); path(HERO_WRAP_TOP); g.stroke();
+    g.beginPath(); g.moveTo(384, 146); g.quadraticCurveTo(310, 184, 236, 166); g.stroke();
+    g.restore();
+    // the knot the strip trails from
+    g.fillStyle = '#efe9dd'; g.strokeStyle = 'rgb(16,7,8)'; g.lineWidth = 2.5;
+    g.beginPath(); g.ellipse(HERO_SPR.knot[0], HERO_SPR.knot[1], 9, 7, -0.5, 0, TAU); g.fill(); g.stroke();
+  });
+}
 
 // A smooth radial glow sprite. Canvas gradients are globally stepped for the cel look (see flatGradients in core),
 // so soft light is built from many tiny steps instead: rgb at full alpha in the middle, fading by profile(u).
@@ -169,7 +207,7 @@ const TitleScene = {
     return c;
   },
 
-  /* ---------------- hachimaki tails ---------------- */
+  /* ---------------- the face-wrap's trailing strip ---------------- */
   ribbon(n) { return { n, px: new Float32Array(n), py: new Float32Array(n), ox: new Float32Array(n), oy: new Float32Array(n), init: false }; },
   stepRibbon(rb, ax, ay, seg, wx, wy, dt, t, ph) {
     const n = rb.n, px = rb.px, py = rb.py, ox = rb.ox, oy = rb.oy;
@@ -187,12 +225,12 @@ const TitleScene = {
       px[i] -= dx * diff; py[i] -= dy * diff;
     }
   },
-  // an easterly breeze lifts the tails up and to the right, like the key art
+  // an easterly breeze lifts the short strip (and the stub of the knot's other end) up and to the right
   stepCloth(dt, t, knot) {
     dt = Math.min(dt, 1 / 30); if (dt <= 0) return;
-    if (!this.scarf) this.scarf = [this.ribbon(13), this.ribbon(11)];
-    this.stepRibbon(this.scarf[0], knot.x, knot.y, 15, 900, -260, dt, t, 0);
-    this.stepRibbon(this.scarf[1], knot.x, knot.y + 4, 13, 810, -140, dt, t, 2);
+    if (!this.scarf) this.scarf = [this.ribbon(8), this.ribbon(5)];
+    this.stepRibbon(this.scarf[0], knot.x, knot.y, 13, 900, -220, dt, t, 0);
+    this.stepRibbon(this.scarf[1], knot.x, knot.y + 4, 11, 800, -100, dt, t, 2);
   },
   drawRibbon(ctx, rb, w0, w1, col) {
     if (!rb || !rb.init) return;
@@ -222,9 +260,10 @@ const TitleScene = {
     // a warm glow behind him from the cracked ground
     ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.22 + 0.06 * Math.sin(clock * 2.2);
     ctx.drawImage(T.heroGlow, TITLE_LAND.x - 220, TITLE_LAND.y - 190, 440, 300); ctx.restore();
-    if (this.scarf) { this.drawRibbon(ctx, this.scarf[1], 9, 5, '#9a1418'); this.drawRibbon(ctx, this.scarf[0], 12, 6, '#da1f21'); }
+    if (this.scarf) { this.drawRibbon(ctx, this.scarf[1], 10, 6, '#a39b8e'); this.drawRibbon(ctx, this.scarf[0], 15, 7, '#efe9dd'); }
     ctx.save(); ctx.translate(TITLE_LAND.x, TITLE_LAND.y); ctx.scale(f.sx, f.sy); ctx.translate(-TITLE_LAND.x, -TITLE_LAND.y);
-    if (imgReady(im)) ctx.drawImage(im, TA.x + HERO_SPR.ax * TA.s, TA.y + HERO_SPR.ay * TA.s, im.naturalWidth * TA.s, im.naturalHeight * TA.s);
+    if (imgReady(im) && !T.heroKage) T.heroKage = heroRecolour(im);
+    if (T.heroKage) ctx.drawImage(T.heroKage, TA.x + HERO_SPR.ax * TA.s, TA.y + HERO_SPR.ay * TA.s, im.naturalWidth * TA.s, im.naturalHeight * TA.s);
     ctx.restore();
     const g = this.spritePt(HERO_SPR.guard[0], HERO_SPR.guard[1], clock), gx = g.x, gy = g.y;
     const tip = this.spritePt(HERO_SPR.tip[0] - HERO_SPR.ax, HERO_SPR.tip[1] - HERO_SPR.ay, clock);

@@ -47,53 +47,38 @@ const isTouchDevice = () => ('ontouchstart' in window) || navigator.maxTouchPoin
 
 /* ------------------------------------------------------------------ */
 /* SaveManager — localStorage with defensive error handling             */
+/* Storage only: the save schema, defaults and corrupt-save fallback    */
+/* live in Logic (15-logic.js), which gets the raw text from here.      */
 /* ------------------------------------------------------------------ */
 const SaveManager = {
-  KEY: 'kage.save.v1',
-  LEGACY: ['ashbound.save.v1'], // saves from the previous working title are migrated once
+  // the keys are Logic's rule (Logic.ACTIVE_SAVE_KEY: SAVE_KEY, or DEV_SAVE_KEY while the developer unlock is on;
+  // Logic.LEGACY_SAVE_KEYS; Logic.CORRUPT_SAVE_KEY); this only does the I/O
+  get KEY() { return Logic.ACTIVE_SAVE_KEY; },
   data: null,
   available: true,
-  defaults() {
-    return {
-      v: 1,
-      coins: 250, gems: 5, xp: 0, level: 1,
-      ng: 0, ngUnlocked: false, ngCompletions: 0,
-      cleared: {},            // "act-stage" -> true, current cycle
-      unlockedActs: 1,
-      defeated: {},           // enemyId -> count (lifetime)
-      owned: { weapons: { moon_katana: 1 }, helmets: { topknot: 1 }, armors: { wraps: 1 } },
-      equipped: { weapon: 'moon_katana', helmet: 'topknot', armor: 'wraps' },
-      seenRewards: {},
-      survivalBest: 0,
-      stats: { wins: 0, losses: 0, perfects: 0, bosses: 0, playTime: 0 },
-      settings: { shake: 'full', reduceFlash: false, sound: true, music: true, touch: 'auto', stick: 'float' }
-    };
-  },
+  defaults() { return Logic.defaultSave(); },
+  // On launch: read the current key and the old game's keys, permanently remove the old ones
+  // (nothing is carried over), and write a fresh save when there was none.
   load() {
-    const d = this.defaults();
+    const stored = {};
     try {
-      let raw = window.localStorage.getItem(this.KEY);
-      if (!raw) for (const k of this.LEGACY) { const r = window.localStorage.getItem(k); if (r) { raw = r; break; } }
-      if (raw) {
-        const s = JSON.parse(raw);
-        if (s && typeof s === 'object') {
-          Object.assign(d, s);
-          d.owned = Object.assign(this.defaults().owned, s.owned || {});
-          for (const k of ['weapons', 'helmets', 'armors']) d.owned[k] = Object.assign({}, this.defaults().owned[k], (s.owned || {})[k] || {});
-          d.equipped = Object.assign(this.defaults().equipped, s.equipped || {});
-          d.stats = Object.assign(this.defaults().stats, s.stats || {});
-          d.settings = Object.assign(this.defaults().settings, s.settings || {});
-          d.cleared = s.cleared || {};
-          d.defeated = s.defeated || {};
-          d.seenRewards = s.seenRewards || {};
-        }
-      }
+      for (const k of [this.KEY, ...Logic.LEGACY_SAVE_KEYS]) stored[k] = window.localStorage.getItem(k);
     } catch (e) {
       console.warn('[KAGE] Save could not be read, starting fresh.', e);
       this.available = false;
     }
-    this.data = d;
-    return d;
+    const { save, error, remove, fresh, backup } = Logic.openSave(stored);
+    try { for (const k of remove) window.localStorage.removeItem(k); } catch (e) { console.warn('[KAGE] Old saves could not be removed.', e); }
+    if (error) {
+      console.warn('[KAGE] Save could not be read, starting fresh.', error);
+      this.available = false;
+      // keep the unreadable text (Logic.CORRUPT_SAVE_KEY) before a fresh save is ever written over it
+      if (backup) try { window.localStorage.setItem(backup.key, backup.raw); console.warn(`[KAGE] The unreadable save was copied to "${backup.key}".`); }
+      catch (e) { console.warn('[KAGE] The unreadable save could not be backed up.', e); }
+    }
+    this.data = save;
+    if (fresh && this.available) this.save();
+    return save;
   },
   save() {
     try {
@@ -105,9 +90,7 @@ const SaveManager = {
     }
   },
   reset() {
-    const settings = this.data ? this.data.settings : undefined;
-    this.data = this.defaults();
-    if (settings) this.data.settings = settings;
+    this.data = Logic.resetSave(this.data);
     this.save();
   }
 };
@@ -366,7 +349,7 @@ const AudioManager = {
     this.musicNodes = [];
     if (mode === 'none') return;
     // drone bed
-    const roots = { title: [73.42, 110], menu: [73.42, 110], fight: [65.41, 98], boss: [55, 82.41], survival: [61.74, 92.5] };
+    const roots = { title: [73.42, 110], menu: [73.42, 110], fight: [65.41, 98], boss: [55, 82.41], trials: [61.74, 92.5] };
     for (const f of roots[mode] || roots.menu) {
       const o = this.ctx.createOscillator(), g = this.ctx.createGain(), fl = this.ctx.createBiquadFilter();
       o.type = 'sawtooth'; o.frequency.value = f; o.detune.value = rand(-6, 6);
@@ -381,7 +364,7 @@ const AudioManager = {
     if (!this.ctx || this.musicMode === 'none' || !SaveManager.data.settings.music) return;
     const t = this.ctx.currentTime, mode = this.musicMode;
     const scale = [146.83, 174.61, 196, 220, 261.63, 293.66, 349.23, 392];
-    if (mode === 'fight' || mode === 'boss' || mode === 'survival') {
+    if (mode === 'fight' || mode === 'boss' || mode === 'trials') {
       const bpm = mode === 'boss' ? 112 : 96, spb = 60 / bpm / 2;
       while (this.nextBeat < t + 0.2) {
         const b = this.beat % 16, nb = this.nextBeat;
@@ -418,10 +401,12 @@ const InputManager = {
   enabled: true,
   lastDevice: 'keyboard',
   init() {
+    // until a key, button or pad says otherwise, a touch screen is played by touch (tutorial prompts read this)
+    if (isTouchDevice()) this.lastDevice = 'touch';
     for (const [a, codes] of Object.entries(this.map)) for (const c of codes) (this.codeToActions[c] = this.codeToActions[c] || []).push(a);
     window.addEventListener('keydown', e => {
       const acts = this.codeToActions[e.code];
-      if (acts && Game.inFight()) e.preventDefault();
+      if (acts && (Game.inFight() || StoryPlayer.active)) e.preventDefault();
       if (e.repeat) return;
       this.lastDevice = 'keyboard';
       this.down.add(e.code);
@@ -454,7 +439,7 @@ const InputManager = {
     const ax = gp.axes[0] || 0;
     const st = {
       left: ax < -0.4 || b(14), right: ax > 0.4 || b(15), up: (gp.axes[1] || 0) < -0.6 || b(12),
-      jump: b(0), punch: b(2), kick: b(3), dash: b(1) || b(4), weapon: b(5), block: b(6) || b(13), special: b(7), pause: b(9)
+      jump: b(0), punch: b(2), kick: b(3), dash: b(1) || b(4), weapon: b(5), block: b(6) || b(13), special: b(7), pause: b(9), skip: b(8)
     };
     for (const a in st) {
       if (st[a] && !this.padPrev[a]) { this.virtual[a] = true; this.pressedSet.add(a); this.lastDevice = 'pad'; if (a === 'pause' || a === 'jump') UIManager.onPad(a); }

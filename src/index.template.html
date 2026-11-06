@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0a0908">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>KAGE — Wrath of Shadow</title>
+<title>KAGE — The Last Betrayal</title>
 <style>/*__CSS__*/</style>
 </head>
 <body>
@@ -20,12 +20,15 @@
     <section class="screen" id="scr-hud" aria-label="Combat HUD"></section>
     <section class="screen" id="scr-result" aria-label="Results"></section>
     <section class="screen" id="scr-settings" aria-label="Settings"></section>
-    <section class="screen" id="scr-survival" aria-label="Survival"></section>
+    <section class="screen" id="scr-trials" aria-label="Echo Trials"></section>
+    <section class="screen" id="scr-bossrush" aria-label="Boss Rush"></section>
     <div id="touch" aria-hidden="true"></div>
     <div class="overlay" id="ov-pause" role="dialog" aria-label="Paused"></div>
     <div class="overlay" id="ov-help" role="dialog" aria-label="Controls"></div>
     <div class="overlay" id="ov-profile" role="dialog" aria-label="Records"></div>
     <div class="overlay" id="ov-confirm" role="dialog" aria-label="Confirm"></div>
+    <div class="overlay" id="ov-mode" role="dialog" aria-label="Choose difficulty"></div>
+    <div id="story" aria-live="polite"></div>
     <div id="toasts" aria-live="polite"></div>
     <div id="wipe" aria-hidden="true">
       <svg viewBox="0 0 1700 900" preserveAspectRatio="none">
@@ -35,7 +38,7 @@
       </svg>
     </div>
     <div id="rotate-hint"><div><b>Turn your device sideways</b><span>KAGE plays in landscape</span></div></div>
-    <div id="boot" role="button" aria-label="KAGE: Wrath of Shadow. Tap or press any key to start"><canvas class="boot-cv"></canvas></div>
+    <div id="boot" role="button" aria-label="KAGE: The Last Betrayal. Brothers until the end. Tap or press any key to start"><canvas class="boot-cv"></canvas></div>
   </div>
 </div>
 <script>/*__JS__*/</script>

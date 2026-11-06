@@ -13,11 +13,11 @@ const INK_GLYPH = {
   SMASH: '砕', BREAK: '破', SLASH: '斬', CRACK: '撃', WHAM: '打', PARRY: '弾', COUNTER: '返', 'GUARD BREAK': '崩', CLANG: '剣',
   SWEEP: '払', YANK: '引', REAP: '刈', THROW: '投', PIERCE: '貫', SPLIT: '裂', MOONFALL: '月', SHATTER: '砕', SLAM: '震', BASH: '盾',
   CRUSH: '圧', CHARGE: '突', STAGGERED: '隙', ADAPTED: '読', COUNTERED: '返', 'SHIELD BREAK': '崩', WALL: '壁', FIGHT: '闘', TIME: '時',
-  FINISH: '終', FALLEN: '敗', 'K.O.': '斬', PERFECT: '極', CRITICAL: '烈', EVADE: '避', COMBO: '連', 'RAGE READY': '怒'
+  FINISH: '終', FALLEN: '敗', 'K.O.': '斬', PERFECT: '極', CRITICAL: '烈', EVADE: '避', COMBO: '連', 'RAGE READY': '怒', ENOUGH: '終'
 };
 const BANNER_GLYPH = {
-  'Round I': '壱', 'Round II': '弐', 'Round III': '参', 'Final Duel': '決', 'Phase II': '弐', 'Phase III': '参',
-  Noctis: '月', Eryndor: '賢', Malgrath: '灰', Kairo: '刃', Veyra: '霧', Rokan: '鉄', Zephar: '嵐', Brakk: '巨', Drazek: '鎖',
+  'Round I': '壱', 'Round II': '弐', 'Round III': '参', 'Final Duel': '決', 'Sparring Match': '道', 'Phase II': '弐', 'Phase III': '参',
+  Raikon: '雷', Akari: '霧', Takashi: '父', Rem: '弟', 'The Witness': '鏡', 'Hollow Raikon': '雷', 'Hollow Akari': '霧', 'Hollow Takashi': '父', 'Hollow Rem': '弟',
   'Shadow Palm': '影', 'Thousand Cuts': '千', 'Crescent Moon': '月', 'Mountain Split': '山', 'Dragon Lance': '龍', "Reaper's Harvest": '刈',
   Earthshatter: '震', 'Hollow Illusions': '幻', 'Stilled Time': '時', 'Ashen Wrath': '怒'
 };
@@ -63,6 +63,7 @@ function ensoStroke(ctx, x, y, r, color, prog, start, width) {
   }
 }
 
+const ASH_POINTS = ['head', 'neck', 'hip', 'fel', 'fha', 'bel', 'bha', 'fkn', 'bkn', 'fft', 'bft'];
 class Effects {
   constructor() {
     this.P = []; for (let i = 0; i < 700; i++) this.P.push({ on: false });
@@ -108,6 +109,16 @@ class Effects {
   embers(x, y, n, color) {
     for (let i = 0; i < n; i++) this.part({ x: x + rand(-20, 20), y: y + rand(-20, 20), vx: rand(-80, 80), vy: rand(-260, -60), life: rand(0.5, 1.1), size: rand(1.5, 3), color: color || '#ff8a4c', type: 'spark', grav: -60, drag: 1, add: true });
   }
+  // memory ash: flat violet flakes shed by a dissolving Hollow, scattered from its skeleton and drifting upward
+  memoryAsh(f, n, burst) {
+    const sk = f.sk, pts = ASH_POINTS, cols = (f.family && f.family.ash) || ENEMY_FAMILIES.hollow.ash;   // bosses: the same violet ash
+    for (let i = 0; i < n; i++) {
+      const a = sk[pts[(Math.random() * pts.length) | 0]], b = sk[pts[(Math.random() * pts.length) | 0]], k = Math.random();
+      const v = burst ? rand(60, 260) : rand(10, 60), ang = rand(-Math.PI, 0);
+      this.part({ x: lerp(a.x, b.x, k), y: lerp(a.y, b.y, k), vx: Math.cos(ang) * v + (f.vx || 0) * 0.05, vy: Math.sin(ang) * v - rand(20, 90),
+        life: rand(0.6, 1.2), size: rand(3.5, 7) * f.scale, color: cols[i % cols.length], type: 'ash', grav: -70, drag: 1.6, rot: rand(0, TAU), vr: rand(-8, 8) });
+    }
+  }
   poisonPuff(f) {
     this.part({ x: f.x + rand(-14, 14), y: f.y - rand(60, 150) * f.scale, vx: rand(-20, 20), vy: -40, life: 0.7, size: rand(4, 8), color: 'rgba(120,230,110,0.5)', type: 'puff', grav: -40, drag: 1, grow: 10, add: true });
     if (f.isPlayer) AudioManager.play('poison');
@@ -128,10 +139,11 @@ class Effects {
   }
   popText(f, text, color) { this.pops.push({ text, x: f.x, y: f.y - f.height() - 24, t: 0, dur: 1.0, color: color || C.gold }); }
   banner(text, sub, color, glyph) { this.banners.length = 0; this.banners.push({ text, sub, t: 0, dur: 1.55, color: color || C.gold, glyph: glyph || bannerGlyph(text), seed: (Math.random() * 1000) | 0 }); }
-  afterimage(f, color) {
-    const sk = f.sk, pts = [];
-    for (const k of ['hip', 'neck', 'head', 'sh', 'fel', 'fha', 'bel', 'bha', 'fkn', 'fft', 'bkn', 'bft', 'wb', 'wt']) pts.push(sk[k].x, sk[k].y);
-    this.ghosts.push({ pts, lw: f.build.w * f.scale * 1.3, r: BODY.head * f.scale * f.build.head, t: 0, dur: 0.22, color: color || 'rgba(236,229,211,0.2)', wl: f.weaponLen() > 0 });
+  // o (optional): { dur, dx } a longer-lived echo, offset sideways (Akari's afterimage silhouettes, the Smoke Step decoy)
+  afterimage(f, color, o) {
+    const sk = f.sk, pts = [], dx = (o && o.dx) || 0;
+    for (const k of ['hip', 'neck', 'head', 'sh', 'fel', 'fha', 'bel', 'bha', 'fkn', 'fft', 'bkn', 'bft', 'wb', 'wt']) pts.push(sk[k].x + dx, sk[k].y);
+    this.ghosts.push({ pts, lw: f.build.w * f.scale * 1.3, r: BODY.head * f.scale * f.build.head, t: 0, dur: (o && o.dur) || 0.22, color: color || 'rgba(236,229,211,0.2)', wl: f.weaponLen() > 0 });
     if (this.ghosts.length > 14) this.ghosts.shift();
   }
   dashLines(f) {
@@ -216,6 +228,10 @@ class Effects {
         const r = p.size; ctx.beginPath(); ctx.moveTo(p.x - r, p.y); ctx.lineTo(p.x - r * 0.18, p.y - r * 0.18); ctx.lineTo(p.x, p.y - r); ctx.lineTo(p.x + r * 0.18, p.y - r * 0.18); ctx.lineTo(p.x + r, p.y); ctx.lineTo(p.x + r * 0.18, p.y + r * 0.18); ctx.lineTo(p.x, p.y + r); ctx.lineTo(p.x - r * 0.18, p.y + r * 0.18); ctx.closePath(); ctx.fill();
       } else if (p.type === 'flame') {
         const r = Math.max(1, p.size); ctx.beginPath(); ctx.moveTo(p.x - r * 0.6, p.y); ctx.quadraticCurveTo(p.x, p.y - r * 2.6, p.x + r * 0.6, p.y); ctx.arc(p.x, p.y, r * 0.6, 0, Math.PI); ctx.fill();
+      } else if (p.type === 'ash') {
+        // a flat flake: a small diamond that tumbles (rot) and shrinks as it fades
+        const r = p.size * (0.5 + 0.5 * k), c = Math.cos(p.rot) * r, sn = Math.sin(p.rot) * r * 0.55;
+        ctx.beginPath(); ctx.moveTo(p.x + c, p.y + sn); ctx.lineTo(p.x - sn, p.y + c * 0.55); ctx.lineTo(p.x - c, p.y - sn); ctx.lineTo(p.x + sn, p.y - c * 0.55); ctx.closePath(); ctx.fill();
       } else if (p.type === 'drop') {
         ctx.beginPath(); ctx.ellipse(p.x, p.y, p.size, p.size * p.sq, Math.atan2(p.vy, p.vx), 0, TAU); ctx.fill();
       } else {
@@ -357,6 +373,8 @@ const PROJ = {
   shock:    { speed: 760, r: 34, dmg: 13, hs: 0.5, kb: 260, up: -420, life: 0.75, grav: 0, imp: 2, hsnd: 'heavy', kd: 1, ground: 1 },
   bigshock: { speed: 900, r: 44, dmg: 22, hs: 0.6, kb: 420, up: -520, life: 0.9, grav: 0, imp: 3, hsnd: 'heavy', kd: 1, ground: 1, unb: 1, stamp: 'BREAK' },
   hook:     { speed: 1150, r: 16, dmg: 8, hs: 0.5, kb: 0, life: 0.8, grav: 0, imp: 1, hsnd: 'slash', pullTo: 1, ret: 1 },
+  // Thunder Swing: red lightning racing along the ground (jump it, or dash through it). Raikon's and the rage art's.
+  thunderwave: { speed: 640, r: 30, dmg: 15, hs: 0.5, kb: 320, up: -380, life: 1.7, grav: 0, imp: 2, hsnd: 'heavy', kd: 1, ground: 1, unb: 1, stamp: 'THUNDER', bolt: 1 },
   smoke:    { speed: 520, r: 14, dmg: 4, hs: 0.2, kb: 60, life: 1.6, grav: 1500, imp: 0, hsnd: 'punch', smoke: 1 }
 };
 
@@ -365,10 +383,10 @@ const WeaponSystem = {
     const d = PROJ[type]; o = o || {};
     const f = owner, sk = f.sk, dir = o.dir || f.facing;
     const p = {
-      type, d, owner: f, team: f.team, x: o.x != null ? o.x : (type === 'shock' || type === 'bigshock' ? f.x + dir * 70 * f.scale : sk.fha.x + dir * 10),
+      type, d, owner: f, team: f.team, x: o.x != null ? o.x : (d.ground ? f.x + dir * 70 * f.scale : sk.fha.x + dir * 10),
       y: o.y != null ? o.y : (d.ground ? 0 : sk.fha.y), vx: dir * d.speed * (o.speedMul || 1), vy: o.vy || 0,
       life: d.life * (o.lifeMul || 1), dmg: (o.dmg || d.dmg) * (o.dmgMul || 1) * f.dmgMul, t: 0, dir, hit: [], dead: false, ret: false,
-      target: o.target || null, sx: 0, sy: 0
+      target: o.target || null, sx: 0, sy: 0, tint: o.tint || null   // tint: a corrupted echo's violet (Hollow Raikon's wave)
     };
     if (type === 'kunai') {
       p.dmg *= f.kunaiMul;
@@ -402,7 +420,8 @@ const WeaponSystem = {
         if (p.ret) { const hx = o.sk.fha.x, hy = o.sk.fha.y; const a = Math.atan2(hy - p.y, hx - p.x); p.vx = Math.cos(a) * d.speed * 1.2; p.vy = Math.sin(a) * d.speed * 1.2; if (Math.hypot(hx - p.x, hy - p.y) < 30) p.dead = true; }
       }
       p.vy += d.grav * dt; p.x += p.vx * dt; p.y += p.vy * dt;
-      if (d.ground) { p.y = 0; if (((p.t * 30) | 0) % 2 === 0) { world.fx.dust(p.x, 0, 1); world.fx.part({ x: p.x + rand(-14, 14), y: -rand(0, 30), vx: rand(-40, 40), vy: rand(-420, -200), life: 0.4, size: rand(3, 6), color: '#2a2620', type: 'drop', grav: 1600 }); } }
+      if (d.bolt) { p.y = 0; if (((p.t * 60) | 0) % 3 === 0) world.fx.part({ x: p.x + rand(-20, 20), y: -rand(0, 60), vx: rand(-80, 80), vy: rand(-260, -60), life: 0.25, size: rand(1.5, 3), color: chance(0.5) ? (p.tint || '#ff6a52') : '#ffffff', type: 'spark', grav: 300, drag: 2, add: true }); }
+      else if (d.ground) { p.y = 0; if (((p.t * 30) | 0) % 2 === 0) { world.fx.dust(p.x, 0, 1); world.fx.part({ x: p.x + rand(-14, 14), y: -rand(0, 30), vx: rand(-40, 40), vy: rand(-420, -200), life: 0.4, size: rand(3, 6), color: '#2a2620', type: 'drop', grav: 1600 }); } }
       if (d.smoke && p.y >= 0) { world.smokeCloud(p.x); p.dead = true; }
       if (p.type === 'orb' || p.type === 'bigorb') world.fx.part({ x: p.x, y: p.y, vx: rand(-20, 20), vy: rand(-20, 20), life: 0.3, size: d.r * 0.4, color: 'rgba(127,184,255,0.35)', type: 'dot', grav: 0, add: true });
       if (p.type === 'crescent') world.fx.part({ x: p.x - p.dir * 30, y: p.y + rand(-60, 60), vx: -p.dir * 100, vy: 0, life: 0.3, size: 2, color: C.bone, type: 'spark', grav: 0, add: true });
@@ -487,6 +506,32 @@ const WeaponSystem = {
           ctx.beginPath(); ctx.moveTo(-130, -2); ctx.lineTo(10, -2); ctx.stroke();
           break;
         }
+        case 'thunderwave': {
+          // hand-drawn branching red lightning: a crackling column at the front and bolts skittering along the
+          // ground behind it. The shape is redrawn every other frame (a few held, high-contrast frames).
+          ctx.scale(p.dir, 1);
+          const fade = Math.min(1, p.life / 0.25), R = prng(((p.t * 30) | 0) * 7 + (p.seed || (p.seed = (Math.random() * 999) | 0)));
+          ctx.globalAlpha *= fade; ctx.lineCap = 'round'; ctx.lineJoin = 'miter';
+          const bolt = (pts, w) => {
+            for (const [col, lw] of [[p.tint ? '#0d0818' : '#120404', w * 5.6], [p.tint || '#ff3b2f', w * 3.6], ['#ffffff', w * 1.4]]) {
+              ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.beginPath(); ctx.moveTo(pts[0], pts[1]);
+              for (let i = 2; i < pts.length; i += 2) ctx.lineTo(pts[i], pts[i + 1]); ctx.stroke();
+            }
+          };
+          // a flat red scorch along the ground under the wave, then the front column: jagged forks rising from the ground
+          ctx.fillStyle = p.tint ? 'rgba(160,120,255,0.35)' : 'rgba(255,59,47,0.35)'; ctx.beginPath(); ctx.ellipse(-50, 0, 110, 9, 0, 0, TAU); ctx.fill();
+          for (let k = 0; k < 4; k++) {
+            const pts = [(R() - 0.5) * 12, 0]; let x = pts[0], y = 0;
+            const top = 100 + R() * 70;
+            while (y > -top) { y -= 14 + R() * 12; x += (R() - 0.5) * 26 - k * 3; pts.push(x, y); }
+            bolt(pts, k === 0 ? 2.2 : 1.4);
+          }
+          // the trail along the ground
+          const pts = [0, -4]; let x = 0;
+          for (let i = 0; i < 7; i++) { x -= 18 + R() * 12; pts.push(x, -2 - R() * 18); }
+          bolt(pts, 1.6);
+          break;
+        }
         case 'hook': {
           ctx.restore(); ctx.save();
           const o = p.owner.sk.fha;
@@ -518,6 +563,7 @@ const WeaponSystem = {
   },
   drop(world, f) {
     if (!f.hasWeapon || f.weaponId() === 'fists' || f.baseWeapon === 'storm_orbs' || f.baseWeapon === 'iron_fists') return;
+    if (f.def && f.def.mirrorWeapon) return;   // the Witness's shards cannot be knocked away: they re-form in its hand
     f.hasWeapon = false;
     if (f.state === 'move') { f.move = null; }
     world.pickups.push({ wid: f.baseWeapon, owner: f, x: f.sk.fha.x, y: Math.min(-40, f.sk.fha.y), vx: -f.facing * rand(260, 420), vy: -rand(500, 700), rot: f.wAng, vr: rand(14, 20) * -f.facing, grounded: false, t: 0 });
@@ -619,15 +665,19 @@ const Combat = {
     const fx = world.fx;
     const front = Math.sign(att.x - def.x || dir * -1) === def.facing || (m.proj && Math.sign(-dir) === def.facing);
     if (att.unblockable && !m.proj && m.kind) m = Object.assign({}, m, { unb: 1 });
-    // Eryndor's counter stance: any melee blow from the front is turned aside and answered
+    // Akari's False Opening decoy: any blow passes through the afterimage, which vanishes; the real Akari answers
+    if (def.decoy) { world.strikeDecoy && world.strikeDecoy(def, att); return; }
+    // counter stance: any melee blow from the front is turned aside and answered
     if (def.counterStance && !m.proj && front && m.kind !== 'grab') {
       def.counterStance = false;
       this.parry(world, att, def, m, ix, iy, dir);
-      fx.stamp('COUNTERED', ix, iy, 2, '#7fd0c8');
-      def.endAbility(world); def.startMove(def.weapon().moves[0], world);
+      fx.stamp('COUNTERED', ix, iy, 2, def.redline ? '#ff4a3c' : def.goldGuard ? '#e8c25c' : def.guardTint || '#7fd0c8');
+      // an ability may answer the blow itself (Raikon's Redline Counter); otherwise the first weapon strike
+      if (def.abil && def.abil.onCounter) { def.setState('ability'); def.abil.onCounter(def, world, att); }   // parry() set him idle
+      else { def.endAbility(world); def.startMove(def.weapon().moves[0], world); }
       return;
     }
-    // Rokan-style shield: auto-blocks frontal, non-low, non-heavy attacks when not committed
+    // shield bearers: auto-blocks frontal, non-low, non-heavy attacks when not committed
     const shield = def.def && def.def.shield && def.hasWeapon && front && !m.low && def.grounded && !m.unb && (def.isNeutral() || def.state === 'block' || def.state === 'land' || (def.state === 'move' && def.mphase === 0));
     if (shield) {
       if ((m.gb || 0) >= 60 || (m.imp || 0) >= 3) {
@@ -649,7 +699,7 @@ const Combat = {
       def.guard -= (m.gb || m.dmg * 1.3);
       def.vx = dir * (m.kb || 150) * 0.45;
       def.counterT = 0.45;
-      def.rage = Math.min(100, def.rage + m.dmg * 0.4 * def.rageMul * (def.armor === 'executioner_garb' ? 2 : 1));
+      def.rage = Math.min(100, def.rage + m.dmg * 0.4 * def.rageMul * (1 + (def.blockRage || 0)));
       if (!m.proj) att.vx = -att.facing * 120;
       fx.sparks(ix, iy, -dir, 7, att.hasWeapon && m.kind === 'weapon' ? C.gold : C.bone);
       fx.stop(0.04); fx.shake(0.1);
@@ -663,7 +713,7 @@ const Combat = {
     }
     // ---- clean hit ----
     let dmg = m.dmg * (m.id === 'hk' ? 1 + att.moveCharge * 0.9 : 1);
-    if (!m.proj) dmg *= att.dmgMul * ((m.kind === 'weapon' || m.kind === 'air') && att.hasWeapon ? weaponMul(att.wlvl).dmg : 1);
+    if (!m.proj) dmg *= att.dmgMul * ((m.kind === 'weapon' || m.kind === 'air') && att.hasWeapon ? weaponMul(att.weaponId(), att.wlvl).dmg : 1);
     const comboing = def.state === 'hit' || def.state === 'juggle' || def.state === 'stun';
     if (comboing) dmg *= Math.max(0.45, 1 - 0.07 * att.comboHits); else att.comboHits = 0;
     if (!m.proj) dmg *= Math.max(0.55, Math.pow(0.86, att.repeat));
@@ -746,6 +796,8 @@ const Combat = {
     this.checkKO(world, att, def, m);
   },
   checkKO(world, att, def, m) {
+    // the spar (Logic.fightFormat 'spar', preventKO): no blow ever knocks a brother out; Takashi interrupts first
+    if (def.hp <= 0 && world.format && world.format.preventKO && (def === world.player || def === world.enemy)) def.hp = Logic.sparHealth(world.format, def.hp);
     if (def.hp > 0 || !def.alive) return;
     def.hp = 0; def.alive = false; def.move = null; def.abil = null; def.visible = true; def.alpha = 1;
     def.setState('juggle'); def.grounded = false; def.vy = -560; def.vx = att.facing * 560; def.bodyRotVel = -240;
@@ -770,6 +822,89 @@ const Combat = {
 function fbox(f, x, y, w, h) {
   const s = f.scale;
   return { x: f.facing > 0 ? f.x + x * s : f.x - x * s - w * s, y: f.y + y * s, w: w * s, h: h * s };
+}
+
+/* ======================================================================== */
+/* Final Flow: one runner for Shinsen's rage art and a boss ability             */
+/* ======================================================================== */
+// Drives fighter `f` through Final Flow (Logic.finalFlow, FINAL_FLOW in 10-data.js): a short gathering stance with gold
+// embers and a glint, then the table's cuts in order (rising, overhead, a diagonal after stepping through to the
+// target's other side, a back diagonal), each with a gold trail, a short hit-stop and an impact; then a held beat and
+// ONE decisive horizontal cut: impact frame, gold finisher slash, a short freeze and slow motion.
+//   o.tune     overrides merged over the table (Logic.finalFlow(o.tune)): windup, dmg, unb, unbFinisher, label...
+//   o.target   the fighter to follow (default: the nearest foe)
+//   o.dmgMul   damage multiplier (the player passes weaponMul(...).dmg, a boss its f.dmgMul)
+//   o.banner   true shows the rage-art banner (player); otherwise a call-out over the fighter's head (boss)
+//   o.armor    true gives super armour during the gathering stance instead of invulnerability (boss)
+// The player calls it from SPECIAL_IMPL.finalFlow, a boss from BOSS_ABILITIES.finalFlow (40-ai.js).
+function finalFlow(f, world, o) {
+  o = o || {};
+  const ff = Logic.finalFlow(o.tune), cuts = ff.cuts, W = ff.windup, last = cuts[cuts.length - 1];
+  // o.tint: a corrupted echo's colour for every gold accent (Hollow Takashi's broken Final Flow, CORE_ECHO_MOVES)
+  const gold = o.tint || '#e8c25c', glint = o.tint ? '#ece2ff' : '#ffe6a0', ghost = o.tint ? 'rgba(167,123,255,0.45)' : 'rgba(232,186,84,0.45)';
+  const tgt = o.target || world.nearestEnemy(f), mul = (o.dmgMul != null ? o.dmgMul : 1) * ff.dmg;
+  const poseAt = k => {
+    if (k < 0) return MOVES[cuts[0].pose].w;
+    let c = -1; while (c + 1 < cuts.length && k >= cuts[c + 1].at) c++;
+    if (c < 0) return MOVES[cuts[0].pose].w;
+    const n = cuts[c + 1];
+    // hold the strike briefly, then wind into the next cut (the finisher's wind-up is the held beat)
+    return n && k > cuts[c].at + 0.07 ? MOVES[n.pose].w : MOVES[cuts[c].pose].s;
+  };
+  f.startAbility({ dur: W + last.at + 0.55, uninterruptible: true, rate: 34, trail: true, el: ff.el, flow: ff,
+    pose: (f, t) => poseAt(t - W),
+    start(f) {
+      if (o.armor) f.superArmor = true; else f.invuln = W + last.at + 0.3;
+      if (tgt) f.facing = Math.sign(tgt.x - f.x) || f.facing;
+      if (o.banner) world.fx.banner(ff.name, 'Rage art', gold); else world.fx.popText(f, ff.label, gold);
+      if (o.glitch) f.corruptUntil = f.time + W + last.at + 0.6;
+      if (!o.banner) f.telegraph = W;
+      AudioManager.play('teleport', { pitch: 0.8 });
+    },
+    update(f, w, t, dt) {
+      const k = t - W;
+      if (k < 0) {
+        f.vx = damp(f.vx, 0, 12, dt);
+        if (((t * 60) | 0) % 2 === 0) w.fx.embers(f.sk.wt.x, f.sk.wt.y, 1, gold);
+        if (!this.glint && k > -0.1) { this.glint = 1; w.fx.glint(f.sk.wt.x, f.sk.wt.y, glint); }
+        return;
+      }
+      if (o.armor && !this.armorOff) { this.armorOff = 1; f.superArmor = false; }
+      const live = tgt && tgt.alive;
+      // keep close to the target between cuts so every cut connects, facing it from whichever side Kage is on
+      if (live) {
+        const side = Math.sign(f.x - tgt.x) || -f.facing, want = clamp(tgt.x + side * ff.stick * tgt.scale, w.bounds.l + 20, w.bounds.r - 20);
+        f.x = damp(f.x, want, 12, dt); f.facing = Math.sign(tgt.x - f.x) || f.facing;
+      }
+      f.vx = damp(f.vx, 0, 10, dt);
+      this.done = this.done || [];
+      cuts.forEach((c, i) => {
+        if (this.done[i] || k < c.at) return;
+        this.done[i] = 1;
+        if (c.cross && live) {
+          // step through to the target's other side: the sequence changes direction
+          w.fx.afterimage(f, ghost);
+          const side = -(Math.sign(f.x - tgt.x) || -f.facing);
+          f.x = clamp(tgt.x + side * ff.stick * tgt.scale, w.bounds.l + 20, w.bounds.r - 20); f.facing = Math.sign(tgt.x - f.x) || f.facing;
+          f.trail.length = 0; f.trail2.length = 0;   // a fresh smear from the new side, never one stretched across the step
+          w.fx.dashLines(f);
+        }
+        f.vx = f.facing * (c.finisher ? 520 : 220);
+        AudioManager.play(c.finisher ? 'heavyswing' : 'swing', { pitch: c.finisher ? 0.85 : 1 + i * 0.06 });
+        const m = { dmg: c.dmg * mul, kb: c.kb, up: c.up, hs: c.finisher ? 0.6 : 0.28, imp: c.finisher ? 3 : 1, hsnd: 'slash',
+          unb: c.finisher ? ff.unbFinisher : ff.unb, kd: c.finisher ? 1 : 0, stamp: c.finisher ? 'FLOW' : null };
+        const box = fbox(f, -10, -232, ff.reach, 224);
+        const hit = Combat.area(w, f, box, m);
+        const ix = live ? tgt.x : box.x + box.w / 2, iy = live ? tgt.y - 110 * tgt.scale : f.y - 110 * f.scale;
+        if (!c.finisher) { if (hit) { w.fx.stop(0.05); w.fx.impactFrame(ix, iy, 1); } w.fx.shake(0.12); return; }
+        // the decisive horizontal cut
+        w.fx.stop(c.freeze); w.fx.impactFrame(ix, iy, 3); w.fx.finisher(ix, iy, f.facing);
+        w.fx.slowmo(0.3, c.slow); w.fx.shake(0.85); w.fx.punch(0.1);
+        w.fx.ring(ix, iy, 190, o.tint ? 'rgba(167,123,255,0.9)' : 'rgba(232,186,84,0.9)', 0.45, 6);
+        for (let j = 0; j < 22; j++) w.fx.part({ x: ix, y: iy, vx: f.facing * rand(200, 900), vy: rand(-260, 160), life: rand(0.3, 0.6), size: rand(1.6, 3.4), color: j % 3 ? (o.tint || '#ffd27a') : (o.tint ? '#ece2ff' : '#fff4d6'), type: 'spark', grav: 200, drag: 2.5, add: true });
+      });
+    },
+    end(f) { f.superArmor = false; f.invuln = Math.min(f.invuln, 0.2); } });
 }
 
 /* ======================================================================== */
@@ -813,7 +948,57 @@ const SPECIAL_IMPL = {
     f.startAbility({ dur: 0.62, uninterruptible: true, rate: 30, trail: true,
       pose: (f, t) => (t < 0.22 ? MOVES.k1.w : MOVES.k1.s),
       start(f) { f.invuln = 0.3; world.fx.banner('Crescent Moon', 'Rage art', C.bone); },
-      update(f, w, t) { if (t > 0.22 && !this.done) { this.done = true; WeaponSystem.spawn(w, 'crescent', f, { y: f.y - 120 * f.scale, dmgMul: weaponMul(f.wlvl).dmg }); AudioManager.play('heavyswing'); w.fx.shake(0.3); } } });
+      update(f, w, t) { if (t > 0.22 && !this.done) { this.done = true; WeaponSystem.spawn(w, 'crescent', f, { y: f.y - 120 * f.scale, dmgMul: weaponMul(f.weaponId(), f.wlvl).dmg }); AudioManager.play('heavyswing'); w.fx.shake(0.3); } } });
+  },
+  /* Echo Replication (Mugen no Ha): Kage's own most recent landed string, replayed by a phantom memory-shard copy of
+     him. Logic.echoArt reads the fight's hit log (FightSession.hitLog; `landed` marks a blow that hit any foe) and says
+     which moves, at what damage, the last one the finisher. Kage holds a casting stance, untouchable, while a Hollow-
+     styled violet copy (hollow_kage's look, his weapon, team 0, `clone` so the session cleans it up) appears beside the
+     foe and performs the moves in order, unblockable; then it comes apart into memory ash. */
+  echoReplication(f, world) {
+    const log = (world.hitLog || []).map(e => ({ id: e.id, t: e.t, hit: !!(e.hit || e.landed) }));
+    const art = Logic.echoArt(log, f.weaponId());
+    const tgt = world.nearestEnemy ? world.nearestEnemy(f) : world.opponentOf(f);
+    const tint = 'rgba(167,123,255,0.45)';
+    let ph = null, i = 0;
+    const place = () => {
+      if (!tgt || !tgt.alive) return;
+      const dir = Math.sign(tgt.x - ph.x) || ph.facing;
+      ph.x = clamp(tgt.x - dir * 100 * ph.scale, world.bounds.l, world.bounds.r); ph.facing = Math.sign(tgt.x - ph.x) || dir;
+      world.fx.afterimage(ph, tint, { dur: 0.3 });
+    };
+    const vanish = () => {
+      if (!ph || !ph.visible) return;
+      if (ph.alive) world.fx.memoryAsh(ph, 16, true);
+      ph.alive = false; ph.visible = false; ph.life = 0;
+    };
+    f.startAbility({ dur: art.windup + art.life, uninterruptible: true, rate: 18,
+      pose: (f, t) => (t < art.windup ? MOVES.k1.w : POSES.cast),
+      start(f) { f.invuln = art.windup + art.life; world.fx.banner('Echo Replication', art.echoed ? 'Rage art · your last string' : 'Rage art', '#b9a8ff'); AudioManager.play('teleport', { pitch: 1.3 }); world.fx.afterimage(f, tint, { dur: art.windup }); },
+      update(f, w, t) {
+        if (t < art.windup) return;
+        if (!ph) {
+          const side = tgt ? Math.sign(tgt.x - f.x) || f.facing : f.facing;
+          ph = makeFighterFromEnemy('hollow_kage', { team: f.team, x: tgt ? tgt.x - side * 100 : f.x + side * 90, facing: side, weapon: f.weaponId(), wlvl: f.wlvl, hp: 1, dmgMul: f.dmgMul });
+          ph.clone = true; ph.phantom = true; ph.life = art.life + 1; ph.invuln = 99; ph.unblockable = true; ph.alpha = 0.82;
+          ph.y = 0; ph.grounded = true;
+          w.fighters.push(ph); w.fx.memoryAsh(ph, 10, true); AudioManager.play('teleport', { pitch: 0.8 });
+        }
+        if (!ph.alive) return false;
+        ph.invuln = 99;
+        if (ph.state === 'move') return;
+        // the previous blow is over: next one, or the phantom is spent
+        if (i >= art.moves.length || !tgt || !tgt.alive) {
+          if (ph.moveHit && tgt) { w.fx.stamp('ECHO', tgt.x, tgt.y - 130 * tgt.scale, 3, '#b9a8ff'); w.fx.shake(0.4); }
+          vanish(); return false;
+        }
+        const step = art.moves[i++];
+        ph.setState('idle'); place();
+        ph.dmgMul = f.dmgMul * step.dmgMul;
+        ph.startMove(step.id, w);
+        if (step.finisher) w.fx.impactFrame(tgt.x, tgt.y - 110 * tgt.scale, 2);
+      },
+      end(f) { vanish(); f.invuln = 0.2; } });
   },
   mountainSplit(f, world) {
     f.startAbility({ dur: 1.0, uninterruptible: true, rate: 24, trail: true,
@@ -863,6 +1048,66 @@ const SPECIAL_IMPL = {
         }
       } });
   },
+  // Raikō no Tachi: the player's Thunder Swing. A short wind-up (crackle, glint), then a wide flat arc that sends a
+  // red lightning wave along the ground; it hits anything in the arc and every grounded foe the wave crosses.
+  thunderSwing(f, world) {
+    f.startAbility({ dur: 0.85, uninterruptible: true, rate: 26, trail: true, charge: true,
+      pose: (f, t) => (t < 0.3 ? RAIKON_POSE.swingBack : RAIKON_POSE.swingThrough),
+      start(f) { f.invuln = 0.5; world.fx.banner('Thunder Swing', 'Rage art', '#ff4a3c'); AudioManager.play('teleport'); },
+      update(f, w, t, dt) {
+        f.vx = damp(f.vx, 0, 10, dt);
+        if (t < 0.3) { raikonCrackle(f, w, t); if (!this.glint && t > 0.16) { this.glint = 1; raikonGlint(f, w); } return; }
+        if (!this.done) {
+          this.done = true; this.charge = false;
+          const mul = weaponMul(f.weaponId(), f.wlvl).dmg;
+          Combat.area(w, f, fbox(f, -10, -210, 220, 200), { dmg: 16 * mul, kb: 460, up: -320, hs: 0.55, kd: 1, imp: 3, hsnd: 'slash', unb: 1, stamp: 'THUNDER' });
+          WeaponSystem.spawn(w, 'thunderwave', f, { x: f.x + f.facing * 110 * f.scale, dmgMul: mul, speedMul: 1.25 });
+          w.fx.lightning(f.sk.wt.x, f.sk.wt.y, f.x + f.facing * 130, 0, { w: 2.6, branches: 4, dur: 0.16 });
+          w.fx.shake(0.55); AudioManager.play('heavyswing'); AudioManager.play('slam');
+        }
+      } });
+  },
+  // Kagehira & Yūrei: Smoke Step. Kage drops into a compact smoke puff and leaves an afterimage decoy standing where he
+  // was (two offset pale silhouettes); the foe turns to it, and Kage steps out of a second puff behind them for Kagehira's
+  // opener and Yūrei's punishing cut (narrow violet slashes). Unblockable.
+  smokeStep(f, world) {
+    const tgt = world.nearestEnemy(f), puff = AKARI_MOVES.smokeStep.smoke;
+    f.startAbility({ dur: 0.92, uninterruptible: true, rate: 32, trail: true,
+      pose: (f, t) => (t < 0.12 ? AKARI_POSE.smokeCrouch : t < 0.4 ? AKARI_POSE.fangBack : t < 0.56 ? MOVES.tw1.s : MOVES.tw2.s),
+      start(f) { f.invuln = 0.75; world.fx.banner('Smoke Step', 'Rage art', '#9b6bd6'); AudioManager.play('teleport', { pitch: 1.3 }); },
+      update(f, w, t, dt) {
+        f.vx = damp(f.vx, 0, 12, dt);
+        if (t < 0.12) return;
+        if (!this.gone) {
+          this.gone = 1;
+          w.fx.smokePuff(f.x, 0, puff); AudioManager.play('smoke');
+          w.fx.afterimage(f, 'rgba(236,229,211,0.42)', { dur: 0.9, dx: -10 * f.facing }); w.fx.afterimage(f, 'rgba(180,140,240,0.32)', { dur: 0.9, dx: 12 * f.facing });
+          f.alpha = 0;
+          this.decoyX = f.x;
+        }
+        if (t < 0.3) return;
+        if (!this.out) {
+          this.out = 1;
+          if (tgt && tgt.alive) {
+            // the foe turns to the afterimage, Kage comes out on its other side
+            const toDecoy = Math.sign(this.decoyX - tgt.x) || -f.facing;
+            if (!tgt.superArmor && tgt.state !== 'ability') tgt.facing = toDecoy;
+            f.x = clamp(tgt.x - toDecoy * 105 * tgt.scale, w.bounds.l + 20, w.bounds.r - 20); f.facing = Math.sign(tgt.x - f.x) || 1;
+          }
+          f.alpha = 1; w.fx.smokePuff(f.x, 0, puff); w.fx.glint(f.sk.wt.x, f.sk.wt.y, '#c9a8ff');
+        }
+        const mul = weaponMul(f.weaponId(), f.wlvl).dmg;
+        for (const [i, at] of [[0, 0.4], [1, 0.56]]) {
+          if (t < at || this['c' + i] || !tgt || !tgt.alive) continue;
+          this['c' + i] = 1; AudioManager.play('swing', { pitch: 1.2 + i * 0.1 });
+          Combat.applyHit(w, f, tgt, { dmg: (i ? 16 : 8) * mul, kb: i ? 520 : 60, up: i ? -380 : -60, hs: i ? 0.55 : 0.3, imp: i ? 3 : 1, hsnd: 'slash', unb: 1, kd: i, stamp: i ? 'SLASH' : null }, tgt.x, tgt.y - 110 * tgt.scale, f.facing);
+          if (i) w.fx.petalCross(tgt.x, tgt.y - 110 * tgt.scale, f.facing, 130);
+        }
+      },
+      end(f) { f.alpha = 1; f.invuln = 0.2; } });
+  },
+  // Shinsen: Final Flow (the shared runner above; Takashi's BOSS_ABILITIES.finalFlow runs the same sequence)
+  finalFlow(f, world) { finalFlow(f, world, { banner: true, dmgMul: weaponMul(f.weaponId(), f.wlvl).dmg }); },
   earthshatter(f, world) {
     f.startAbility({ dur: 1.25, uninterruptible: true, rate: 20, trail: true,
       pose: (f, t) => (t < 0.55 ? MOVES.m1.w : MOVES.m1.s),
