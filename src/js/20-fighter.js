@@ -4,7 +4,7 @@ const HERO_FACEWRAP = '#efe9dd', HERO_FACEWRAP_SHADE = '#b4ac9f';   // Kage's wh
 const BODY = { torso: 60, neck: 7, head: 18, upper: 36, fore: 34, thigh: 45, shin: 47 };
 const SHAPE = {
   fists: 'none', tsubame: 'short', kagetsu: 'katana', shizuka: 'katana', onikiri: 'cleaver', mizuchi: 'spear',
-  yamigama: 'sickle', iwakudaki: 'hammer', shinsen: 'shinsen', raiko_no_tachi: 'odachi', raikon_tachi: 'odachi', takashi_blade: 'katana', kagehira_yurei: 'short', akari_blades: 'short', mugen_no_ha: 'katana',
+  yamigama: 'sickle', iwakudaki: 'hammer', shinsen: 'shinsen', raiko_no_tachi: 'odachi', raikon_tachi: 'odachi', takashi_blade: 'katana', kagehira_yurei: 'short', akari_blades: 'short', mugen_no_ha: 'katana', mugen_shards: 'katana',
   shadow_daggers: 'short', hollow_crescents: 'crescent', mist_fans: 'fan',
   courier_kunai: 'short', quiet_kodachi: 'katana', echo_crescents: 'crescent', ledger_kusari: 'sickle',
   gate_kanabo: 'hammer', disciple_blade: 'katana', conduit_naginata: 'spear', silent_odachi: 'katana',
@@ -213,6 +213,14 @@ class Fighter {
       this.cloths.push({ kind: 'scarf', c: new Cloth(9, 6.4 * this.scale, { ph: 3.2, wind: 520, grav: 900, stiff: 1.8 }), at: 'head', color: this.def.hair, rim: 'rgba(236,229,211,0.45)', w: 5.4 * this.scale, w1: 2.4 * this.scale, dy: 4, dx: 14 });
       this.cloths.push({ kind: 'scarf', c: new Cloth(2, 3 * this.scale, { ph: 6, wind: 600, grav: 900, stiff: 1.9 }), at: 'head', color: '#c9a45c', w: 2.2 * this.scale, w1: 1.2 * this.scale, dy: 5, dx: 15 });
     }
+    // the Witness: long jagged hair (several dark strands of different length, edged violet) and two pale memory ribbons
+    if (this.def && this.def.witness) {
+      const sc = this.scale, rim = 'rgba(167,123,255,0.6)';
+      [[13, 7.4, 2.2, 7, -10, 9], [11, 7.2, 5.1, 6, -4, 11], [15, 7.6, 3.6, 6.4, 2, 12], [9, 7, 6.6, 5, -14, 8]].forEach(([n, seg, ph, w, dy, dx], i) =>
+        this.cloths.push({ kind: 'scarf', witness: true, c: new Cloth(n, seg * sc, { ph, wind: 420 + i * 70, grav: 520, stiff: 1.5 }), at: 'head', color: '#0b0910', rim, w: w * sc, w1: 0.9 * sc, dy, dx }));
+      this.cloths.push({ kind: 'scarf', witness: true, c: new Cloth(14, 8 * sc, { ph: 8.2, wind: 680, grav: 300, stiff: 1.7 }), at: 'neck', color: '#e8e1f6', w: 2.6 * sc, w1: 0.8 * sc, dy: 4, dx: 6 });
+      this.cloths.push({ kind: 'scarf', witness: true, c: new Cloth(12, 8 * sc, { ph: 11, wind: 600, grav: 260, stiff: 1.7 }), at: 'neck', color: '#a77bff', w: 2.2 * sc, w1: 0.7 * sc, dy: 8, dx: 3 });
+    }
     // the Shinsei Yoroi's layered robe skirts, hanging from the waist guard
     if (this.armor === 'shinsei') this.cloths.push({ kind: 'robe', c: new Cloth(6, 9.4 * this.scale, { ph: 3, wind: 180, grav: 1250 }), at: 'hip', color: '#1f1b15', w0: 24 * this.scale, w1: 36 * this.scale });
     // the Mei-En Garb's split cloth panels: a front and a back panel hanging from the waist, muted violet over charcoal
@@ -228,6 +236,7 @@ class Fighter {
   elementOf(m) {
     if (m && (m.kind === 'punch' || m.kind === 'kick' || m.kind === 'grab' || m.kind === 'throw')) return this.isPlayer ? 'wind' : null;
     if (!this.hasWeapon && this.baseWeapon !== 'storm_orbs' && this.baseWeapon !== 'iron_fists') return this.isPlayer ? 'wind' : null;
+    if (this.def && this.def.el) return this.def.el;   // the Witness cuts in violet void whatever weapon it copies
     return this.weapon().el || (this.isPlayer ? 'wind' : 'shade');
   }
   weaponId() { return this.hasWeapon ? this.baseWeapon : (this.baseWeapon === 'storm_orbs' || this.baseWeapon === 'iron_fists' ? this.baseWeapon : 'fists'); }
@@ -250,6 +259,8 @@ class Fighter {
     if (this.invuln > 0) this.invuln -= dt;
     if (this.flash > 0) this.flash -= dt;
     if (this.telegraph > 0) this.telegraph -= dt;
+    if (this.kageFlicker > 0) this.kageFlicker -= dt;
+    if (this.shardMorph > 0) this.shardMorph -= dt;
     if (this.counterT > 0) this.counterT -= dt;
     if (this.dashCd > 0) this.dashCd -= dt;
     if (this.comboT > 0) { this.comboT -= dt; if (this.comboT <= 0) this.comboHits = 0; }
@@ -1321,21 +1332,31 @@ Fighter.prototype.draw = function (ctx, opt) {
   const flashing = this.flash > 0 && !opt.noFlash && !opt.color;
   const flat = !!opt.color || flashing;
   const ink = opt.color || (flashing ? (opt.flashColor || C.bone) : this.bodyColor());
-  // Hollows: now and then a frame "glitches": the body skips sideways, the outline doubles and jitters
-  const glitch = this.hollow && !opt.color ? this.glitchAmount() : 0;
+  // Hollows: now and then a frame "glitches": the body skips sideways, the outline doubles and jitters. The Witness
+  // glitches too (all the time while a corrupted move runs), and now and then its outline flickers to Kage's own
+  // silhouette (face-wrap, red sash, no robe shards: `kageFrame`), more often while it copies him (`kageFlicker`).
+  const wit = this.def && this.def.witness;
+  if (wit) this.kageFrame = !opt.color && this.alive && !this.coreBroken && this.witnessFlicker();
+  const corrupt = wit && this.corruptUntil > this.time;
+  const glitch = (this.hollow || (wit && !this.kageFrame)) && !opt.color ? this.glitchAmount(corrupt ? 0.6 : 0) : 0;
+  const gcol = this.hollow ? this.family.trim : '#7b5ad6';
   ctx.save();
   ctx.globalAlpha *= this.alpha;
+  // the Witness hovers, almost weightless: a slow bob a hand's width above the floor
+  if (wit && this.grounded && this.alive && !opt.color) ctx.translate(0, -(7 + Math.sin(this.time * 2.1) * 4) * s);
   if (glitch) {
     ctx.save(); ctx.globalAlpha *= 0.42; ctx.translate(glitch * 26 * s, -Math.abs(glitch) * 4 * s);
-    this.silhouette(ctx, this.family.trim, this.family.trim, true, { color: this.family.trim, noEyes: true });
+    this.silhouette(ctx, gcol, gcol, true, { color: gcol, noEyes: true });
     ctx.restore();
     ctx.translate(-glitch * 7 * s, 0);
+    if (wit) { ctx.translate(this.x, this.y); ctx.scale(1 - Math.abs(glitch) * 0.12, 1 + Math.abs(glitch) * 0.14); ctx.translate(-this.x, -this.y); }   // the impossible version: too tall, too thin
   }
   ctx.lineCap = 'round'; ctx.lineJoin = 'round';
   // squash & stretch around the feet, then the spin turn
   if (this.sqx !== 1 || this.sqy !== 1) { ctx.translate(this.x, this.y); ctx.scale(this.sqx, this.sqy); ctx.translate(-this.x, -this.y); }
   if (this.turnX !== 1) { ctx.translate(this.x, 0); ctx.scale(Math.abs(this.turnX) < 0.12 ? 0.12 * Math.sign(this.turnX || 1) : this.turnX, 1); ctx.translate(-this.x, 0); }
   if (!opt.color) this.drawFlipArcs(ctx, false);
+  if (this.armor === 'kysmei' && !this.kageFrame) this.drawKysmei(ctx, -1, opt);
   for (const cl of this.cloths) if (cl.kind === 'cape' || cl.kind === 'robe') cl.c.draw(ctx, opt.color || cl.color, cl.w0, cl.w1, null);
   // clean, even white outline: the silhouette stamped around itself, then the flat body on top
   if (opt.rim && !opt.color) {
@@ -1345,11 +1366,14 @@ Fighter.prototype.draw = function (ctx, opt) {
     for (const [dx, dy] of OUTLINE_DIRS) { ctx.save(); ctx.translate(dx * d, dy * d); this.silhouette(ctx, oc, oc, true, ro); ctx.restore(); }
   }
   for (const cl of this.cloths) if (cl.kind === 'scarf' || cl.kind === 'ribbon' || cl.kind === 'belt') {
+    if (cl.witness && this.kageFrame) continue;
     const col = opt.color || (flashing ? ink : cl.color);
     if (cl.rim && !opt.color && cl.w1) cl.c.ribbon(ctx, cl.rim, cl.w + 3 * s, cl.w1 + 3 * s);
     if (cl.w1) cl.c.ribbon(ctx, col, cl.w, cl.w1); else cl.c.strand(ctx, col, cl.w);
   }
   this.silhouette(ctx, ink, ink, flat, opt);
+  if (this.armor === 'kysmei' && !this.kageFrame) this.drawKysmei(ctx, 1, opt);
+  if (wit && !this.kageFrame && !this.coreBroken) this.drawCore(ctx, opt);
   if (!flat) this.drawDetails(ctx, opt);
   if (!opt.color) this.drawFlipArcs(ctx, true);
   if (this.state === 'kickcharge' && this.charge > 0.18 && !opt.color) {
@@ -1368,14 +1392,99 @@ Fighter.prototype.bodyColor = function () {
   return fam.flicker[(_hash(Math.floor(this.time * 11) + this.seed()) * fam.flicker.length) | 0];
 };
 Fighter.prototype.seed = function () { return this._seed || (this._seed = 1 + Math.random() * 97); };
-// 0 most frames; on roughly one 1/7 s slice in six a signed jolt in [-0.5, 0.5] (always on while dissolving)
-Fighter.prototype.glitchAmount = function () {
+// 0 most frames; on roughly one 1/7 s slice in six a signed jolt in [-0.5, 0.5] (always on while dissolving; `more`
+// raises the share of glitching slices, the Witness's corrupted moves)
+Fighter.prototype.glitchAmount = function (more) {
   const k = Math.floor(this.time * 7) + this.seed() * 3, h = _hash(k);
-  if (h > (this.dissolve ? 0.75 : 0.16)) return 0;
+  if (h > (this.dissolve ? 0.75 : Math.max(0.16, more || 0))) return 0;
   const g = _hash(k * 1.73 + 5) - 0.5;
   return Math.abs(g) < 0.12 ? 0.12 * Math.sign(g || 1) : g;
 };
 
+/* ---- the Witness ---- */
+// Whether this frame shows Kage's familiar silhouette: a brief flicker on about one 1/9 s slice in fourteen, every other
+// slice while it copies him (`kageFlicker`: Echo Replication's tell, summoning his Hollow copies).
+Fighter.prototype.witnessFlicker = function () {
+  const k = Math.floor(this.time * 9), h = _hash(k * 3.1 + this.seed());
+  return h < (this.kageFlicker > 0 ? 0.5 : 0.07);
+};
+// The Kysmei Robe: a fragmented robe of flat shapes drifting around the body instead of cloth. `depth` -1 draws the
+// shards behind the body (darker), +1 the ones in front (edged violet). Each shard has an anchor along the torso
+// (u: 0 the hip, 1 the neck, below 0 a broken skirt hanging toward the knees), a side offset, a size and a slow drift of
+// its own. While its wearer comes apart (dissolve) the shards drift away from the body.
+const KYSMEI_SHARDS = Array.from({ length: 18 }, (_, i) => {
+  const r = n => _hash(i * 7.3 + n);
+  return { u: i < 7 ? -0.15 - r(1) * 0.75 : r(1) * 1.05, side: (r(2) - 0.5) * 2.4, sz: 0.55 + r(3) * 0.75, ph: r(4) * TAU, rate: 0.8 + r(5) * 1.2, rot: r(6) * TAU, depth: i % 3 === 0 ? -1 : 1, kind: i % 4 };
+});
+Fighter.prototype.drawKysmei = function (ctx, depth, opt) {
+  const sk = this.sk, s = this.scale, t = this.time || 0, flat = !!opt.color;
+  const hx = sk.hip.x, hy = sk.hip.y, nx = sk.neck.x, ny = sk.neck.y, ang = Math.atan2(ny - hy, nx - hx), px = Math.cos(ang + Math.PI / 2), py = Math.sin(ang + Math.PI / 2);
+  const spread = 1 + (this.dissolve ? this.dissolve * 2.4 : 0) + (this.shardMorph > 0 ? this.shardMorph : 0), U = 15 * s;
+  ctx.save();
+  for (const d of KYSMEI_SHARDS) {
+    if (d.depth !== depth) continue;
+    const dx = Math.sin(t * d.rate + d.ph) * 4 * s, dy = Math.cos(t * d.rate * 0.8 + d.ph) * 5 * s;
+    const ox = lerp(hx, nx, d.u) + px * d.side * U * spread + dx * spread - this.facing * (d.u < 0 ? -d.u * 10 * s : 0);
+    const oy = lerp(hy, ny, d.u) + py * d.side * U * spread + dy + (d.u < 0 ? Math.abs(d.side) * 2 * s : 0);
+    const z = d.sz * U * (d.u < 0 ? 1.15 : 0.9), rot = d.rot + Math.sin(t * d.rate * 0.6 + d.ph) * 0.35;
+    ctx.save(); ctx.translate(ox, oy); ctx.rotate(rot);
+    ctx.fillStyle = flat ? opt.color : depth < 0 ? '#16111f' : '#0d0a14';
+    ctx.beginPath();
+    if (d.kind === 0) { ctx.moveTo(0, -z); ctx.lineTo(z * 0.55, z * 0.7); ctx.lineTo(-z * 0.5, z * 0.5); }
+    else if (d.kind === 1) { ctx.moveTo(-z * 0.4, -z * 0.8); ctx.lineTo(z * 0.45, -z * 0.6); ctx.lineTo(z * 0.3, z * 0.9); ctx.lineTo(-z * 0.5, z * 0.6); }
+    else if (d.kind === 2) { ctx.moveTo(0, -z * 1.1); ctx.lineTo(z * 0.3, 0); ctx.lineTo(0, z * 1.1); ctx.lineTo(-z * 0.3, 0); }
+    else { ctx.moveTo(-z * 0.6, -z * 0.3); ctx.lineTo(z * 0.7, -z * 0.5); ctx.lineTo(z * 0.2, z * 0.7); }
+    ctx.closePath(); ctx.fill();
+    if (!flat) { ctx.strokeStyle = depth < 0 ? 'rgba(167,123,255,0.35)' : 'rgba(190,160,255,0.75)'; ctx.lineWidth = 1.1 * s; ctx.stroke(); }
+    ctx.restore();
+  }
+  ctx.restore();
+};
+// The Witness's chest core: a bright circle (white heart, violet ring and a soft violet bloom) that pulses
+Fighter.prototype.drawCore = function (ctx, opt) {
+  const sk = this.sk, s = this.scale, x = lerp(sk.hip.x, sk.neck.x, 0.62) + this.facing * 2 * s, y = lerp(sk.hip.y, sk.neck.y, 0.62);
+  if (opt.color) { ctx.fillStyle = opt.color; ctx.beginPath(); ctx.arc(x, y, 7 * s, 0, TAU); ctx.fill(); return; }
+  const pulse = 1 + Math.sin(this.time * 5) * 0.12, r = 6.5 * s * pulse;
+  const g = ctx.createRadialGradient(x, y, r, x, y, r * 2.8);
+  g.addColorStop(0, 'rgba(200,176,255,0.6)'); g.addColorStop(1, 'rgba(140,100,255,0)');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r * 2.8, 0, TAU); ctx.fill();
+  ctx.fillStyle = '#a77bff'; ctx.beginPath(); ctx.arc(x, y, r * 1.35, 0, TAU); ctx.fill();
+  ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
+  ctx.strokeStyle = '#2a1c4a'; ctx.lineWidth = 1 * s; ctx.beginPath(); ctx.arc(x, y, r * 1.35, 0, TAU); ctx.stroke();
+};
+// Mugen no Ha: whatever weapon shape the Witness copies (sh), drawn as floating memory shards along its length: a dark
+// grip, then pale violet-edged shards with gaps between them that bob apart, and the copied weapon's head (a hammer's
+// block, a spear's point, a sickle's curve). After a weapon change (`shardMorph`) the shards scatter and re-form.
+function drawShardWeapon(ctx, sh, L, mode, s, ink, f) {
+  if (sh === 'none') return;
+  const flat = mode !== 'ink', t = f.time || 0, morph = Math.max(0, f.shardMorph || 0) / 0.4;
+  const fill = flat ? ink : '#ddd2ff', edge = flat ? null : '#7b5ad6';
+  const pole = sh === 'spear' || sh === 'staff' || sh === 'hammer' || sh === 'sickle' || sh === 'hook';
+  const grip = pole ? 0.12 : sh === 'short' || sh === 'kagehira' || sh === 'yurei' || sh === 'crescent' || sh === 'fan' ? 0.22 : 0.3;
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = flat ? ink : '#1a1228'; ctx.lineWidth = 4 * s; ctx.beginPath(); ctx.moveTo(-L * grip, 0); ctx.lineTo(0, 0); ctx.stroke();
+  const shard = (x, y, len, w, rot, i) => {
+    const j = Math.sin(t * 5 + i * 1.7) * 1.4 * s * (1 + morph * 14), jx = morph * Math.cos(i * 2.3) * 22 * s;
+    ctx.save(); ctx.translate(x + jx, y + j); ctx.rotate(rot + morph * Math.sin(i * 3.1) * 1.4);
+    ctx.fillStyle = fill; ctx.beginPath(); ctx.moveTo(-len * 0.5, 0); ctx.lineTo(-len * 0.1, -w); ctx.lineTo(len * 0.5, -w * 0.3); ctx.lineTo(len * 0.2, w); ctx.closePath(); ctx.fill();
+    if (edge) { ctx.strokeStyle = edge; ctx.lineWidth = 0.9 * s; ctx.stroke(); }
+    ctx.restore();
+  };
+  const curve = sh === 'katana' || sh === 'odachi' || sh === 'shinsen' || sh === 'yurei' ? 0.05 : 0;
+  const thin = pole ? 1.6 * s : sh === 'cleaver' || sh === 'odachi' ? 4.6 * s : 3.2 * s;
+  const end = pole ? (sh === 'hammer' ? 0.78 : 0.86) : 1, n = Math.max(3, Math.round(L * end / (15 * s)));
+  for (let i = 0; i < n; i++) {
+    const u0 = 0.04 + (end - 0.04) * i / n, u1 = 0.04 + (end - 0.04) * (i + 0.78) / n, um = (u0 + u1) / 2;
+    shard(L * um, -curve * L * um * um, L * (u1 - u0), thin * (1 - um * 0.3), 0, i);
+  }
+  // the copied weapon's head
+  if (sh === 'spear') { shard(L * 0.93, 0, L * 0.16, 4.6 * s, 0, 40); }
+  else if (sh === 'staff') { shard(L * 0.93, 0, L * 0.12, 2.4 * s, 0, 41); }
+  else if (sh === 'hammer') { for (let k = 0; k < 4; k++) shard(L * (0.86 + (k % 2) * 0.08), (k < 2 ? -1 : 1) * 9 * s, 14 * s, 9 * s, Math.PI / 2, 42 + k); }
+  else if (sh === 'sickle' || sh === 'hook') { for (let k = 0; k < 4; k++) { const a = -0.2 - k * 0.5; shard(L * 0.9 + Math.cos(a) * 18 * s, Math.sin(a) * 22 * s - 10 * s, 14 * s, 3.4 * s, a + Math.PI / 2, 46 + k); } }
+  else if (sh === 'crescent' || sh === 'fan') { for (let k = 0; k < 3; k++) { const a = -0.9 + k * 0.6; shard(Math.cos(a) * L * 0.6, Math.sin(a) * L * 0.6, 16 * s, 4 * s, a + Math.PI / 2, 50 + k); } }
+  else shard(L * 0.98, -curve * L * 0.96, 12 * s, thin * 0.8, -0.2, 39);   // a blade's point
+}
 Fighter.prototype.drawMainWeapon = function (ctx, ink, opt) {
   const sh = this.shape(); if (sh === 'none') return;
   const L = this.weaponLen(), sk = this.sk;
@@ -1432,7 +1541,7 @@ Fighter.prototype.drawFistGear = function (ctx, ink, opt) {
 };
 
 function drawEyes(ctx, f, r, opt) {
-  if (opt.color) return;
+  if (opt.color || f.helmet === 'witness_mask') return;   // the Witness's one eye is part of its mask
   ctx.save();
   if (f.isPlayer) {
     ctx.fillStyle = '#ffffff';
@@ -1450,6 +1559,7 @@ function drawEyes(ctx, f, r, opt) {
 function twinShape(w, sh, offhand) { return w && w.twin && sh === 'short' ? (offhand ? 'yurei' : 'kagehira') : sh; }
 /* ---- weapon art: origin at the grip, +x along the blade ---- */
 function drawWeaponShape(ctx, sh, L, mode, s, ink, f) {
+  if (f && f.def && f.def.mirrorWeapon && mode !== 'art') return drawShardWeapon(ctx, sh, L, mode, s, ink, f);
   const rim = mode === 'rim'; if (rim) mode = 'flat';   // outline pass: the steel stays thin, only the hilt gets the white edge
   const art = mode === 'art';
   const steel = art ? C.bone : mode === 'flat' ? ink : '#e6e1d6';
@@ -1720,6 +1830,33 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
       ctx.restore();
       ctx.fillStyle = flat ? ink : '#b8362b'; ctx.beginPath(); ctx.ellipse(-r * 1.0, -r * 0.39, r * 0.15, r * 0.12, 0.4, 0, TAU); ctx.fill();
       break;
+    case 'witness_mask': { // the Witness: jagged hair swept back, a broken white mask, ONE violet eye; on a flicker frame, Kage's face-wrap
+      if (f && f.kageFrame) {
+        drawHeroHair(ctx, r, ink); drawFaceWrap(ctx, r, ink, flat);
+        if (!flat) { ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.moveTo(r * 0.14, -r * 0.08); ctx.lineTo(r * 0.72, 0); ctx.lineTo(r * 0.6, r * 0.22); ctx.lineTo(r * 0.24, r * 0.16); ctx.closePath(); ctx.fill(); }
+        break;
+      }
+      // jagged hair: long spikes swept back off the crown (the strands below are cloth)
+      ctx.fillStyle = ink; ctx.beginPath(); ctx.moveTo(r * 0.6, -r * 0.8);
+      for (const [x, y] of [[r * 0.1, -r * 1.5], [-r * 0.2, -r * 1.05], [-r * 0.9, -r * 1.55], [-r * 0.85, -r * 0.8], [-r * 1.9, -r * 1.1], [-r * 1.1, -r * 0.4], [-r * 2.1, -r * 0.3], [-r * 1.0, r * 0.15]]) ctx.lineTo(x, y);
+      ctx.arc(0, 0, r, Math.PI * 0.9, Math.PI * 1.75, false); ctx.closePath(); ctx.fill();
+      if (flat) { ctx.beginPath(); ctx.arc(0, 0, r * 1.02, -Math.PI * 0.55, Math.PI * 0.5); ctx.fill(); break; }
+      // the mask: a white plate over the front of the face, a chunk broken off at the brow, cracks running from the break
+      ctx.fillStyle = '#efeaf6';
+      ctx.beginPath(); ctx.moveTo(-r * 0.05, -r * 1.02); ctx.lineTo(r * 0.38, -r * 0.62); ctx.lineTo(r * 0.52, -r * 0.94); ctx.lineTo(r * 0.82, -r * 0.6);
+      ctx.quadraticCurveTo(r * 1.18, -r * 0.1, r * 1.0, r * 0.45); ctx.quadraticCurveTo(r * 0.7, r * 1.05, r * 0.0, r * 1.02); ctx.lineTo(r * 0.12, r * 0.4); ctx.lineTo(-r * 0.08, -r * 0.2); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#b9b0c9'; ctx.beginPath(); ctx.moveTo(r * 0.0, r * 1.02); ctx.quadraticCurveTo(r * 0.7, r * 1.05, r * 1.0, r * 0.45); ctx.lineTo(r * 0.85, r * 0.55); ctx.quadraticCurveTo(r * 0.55, r * 0.9, r * 0.08, r * 0.84); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = '#1a1228'; ctx.lineWidth = Math.max(1, r * 0.07);
+      ctx.beginPath(); ctx.moveTo(r * 0.38, -r * 0.62); ctx.lineTo(r * 0.3, -r * 0.2); ctx.lineTo(r * 0.46, r * 0.18); ctx.lineTo(r * 0.36, r * 0.62); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(r * 0.3, -r * 0.2); ctx.lineTo(r * 0.08, -r * 0.02); ctx.stroke();
+      // the one eye: a violet almond with a white core, flaring white when it is about to strike
+      const hot = f && f.telegraph > 0, ex = r * 0.68, ey = -r * 0.12;
+      ctx.fillStyle = 'rgba(167,123,255,0.45)'; ctx.beginPath(); ctx.ellipse(ex, ey, r * 0.42, r * 0.22, -0.1, 0, TAU); ctx.fill();
+      ctx.fillStyle = hot ? '#ffffff' : '#a77bff'; ctx.beginPath(); ctx.moveTo(ex - r * 0.26, ey + r * 0.02); ctx.quadraticCurveTo(ex, ey - r * 0.2, ex + r * 0.28, ey - r * 0.04); ctx.quadraticCurveTo(ex, ey + r * 0.16, ex - r * 0.26, ey + r * 0.02); ctx.fill();
+      ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(ex + r * 0.02, ey - r * 0.02, r * 0.06, 0, TAU); ctx.fill();
+      if (hot) { ctx.strokeStyle = '#a77bff'; ctx.lineWidth = 2; const fl = r * (1 + 0.3 * Math.sin(t * 50)); ctx.beginPath(); ctx.moveTo(ex - fl, ey); ctx.lineTo(ex + fl, ey); ctx.moveTo(ex, ey - fl * 0.5); ctx.lineTo(ex, ey + fl * 0.5); ctx.stroke(); }
+      break;
+    }
     case 'headband': { // the Interlude's young brothers: a plain cloth training band (Kage pale, Rem in his purple accent)
       drawHeroHair(ctx, r, ink);
       ctx.save(); ctx.beginPath(); ctx.arc(0, 0, r * 1.04, 0, TAU); ctx.clip();
@@ -2042,6 +2179,22 @@ function drawArmor(ctx, f, ink, opt, Ut) {
       if (flat) break;
       ctx.strokeStyle = '#6a5a86'; ctx.lineWidth = 4 * s; ctx.lineCap = 'butt';
       const a = Q(0.16, -1.05), b = Q(0.16, 1.05); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); ctx.lineCap = 'round';
+      break;
+    }
+    case 'kysmei': {
+      // the Kysmei Robe: a narrow dark under-robe with a violet crossed collar (its fragments drift around the body,
+      // Fighter.drawKysmei). On a Witness flicker frame: Kage's own red sash instead
+      torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 0.86);
+      if (flat) break;
+      const ox = Math.cos(ang + Math.PI / 2), oy = Math.sin(ang + Math.PI / 2), Q = (u, w) => [lerp(hx, nx, u) + ox * w * Ut, lerp(hy, ny, u) + oy * w * Ut];
+      if (f.kageFrame) {
+        const a = Q(0.16, -0.95), b = Q(0.16, 0.95);
+        ctx.strokeStyle = C.emberBright; ctx.lineWidth = 7 * s; ctx.lineCap = 'butt'; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); ctx.lineCap = 'round';
+        break;
+      }
+      ctx.strokeStyle = '#7b5ad6'; ctx.lineWidth = 1.6 * s;
+      const a = Q(0.96, -0.6), b = Q(0.58, 0.2), c = Q(0.96, 0.6);
+      ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.lineTo(c[0], c[1]); ctx.stroke();
       break;
     }
     case 'shinsei': {

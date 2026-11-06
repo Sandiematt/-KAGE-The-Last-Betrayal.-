@@ -1629,6 +1629,10 @@ const WEAPONS = {
   // Final Flow rage art off him (no rage art; a kunai instead); his Final Flow is the boss ability (BOSS_ABILITIES).
   takashi_blade: { heft: 1.5, el: 'gold', enemy: 1, name: 'Nameless Blade', base: 'kagetsu', len: 104, stats: [60, 58, 66], trail: '#e8c25c',
     moves: ['sh1', 'sh2', 'sh3'], air: 'sha', counter: 'shc', special: 'none' },
+  // The Witness's Mugen no Ha (final boss): an enemy-only copy of the boss weapon, a fragmented sword of memory shards.
+  // It only starts on the katana forms: the Witness copies whatever Kage holds (ENEMIES.witness.mirrorWeapon), so its
+  // move-set, stance and reach become his weapon's while the shards re-form into that weapon's shape (20-fighter.js).
+  mugen_shards: { heft: 1, el: 'void', enemy: 1, name: 'Mugen no Ha', base: 'kagetsu', len: 96, trail: '#9b8cff', special: 'none' },
   // Act II sub-boss arms (act2.sub1..4)
   courier_kunai: { heft: 0.6, el: 'shade', enemy: 1, name: 'Courier Kunai', base: 'tsubame', len: 44, trail: '#b9a8d8' },
   quiet_kodachi: { heft: 0.9, el: 'moon', enemy: 1, name: 'Quiet Kodachi', base: 'kagetsu', len: 66, trail: '#d6cce6' },
@@ -1811,7 +1815,7 @@ const ARMORS = {
     lore: 'A conduit tende\' harness, coiled with the violet tubes that carry stored memories down through the Fortress. Put an ear to them and somebody is always talking.' },
   mei_en_garb:  { name: 'Mei-En Garb', tier: 'trophy', def: 0.21, hp: 80, exclusive: true, hint: 'Defeat Akari', look: 'mei_en', perks: { dash: 0.2, speed: 0.06 },
     lore: 'Akari\'s smoke-grey fighting garb. Even the Order\'s records cannot agree on what colour it is.' },
-  kysmei_robe:  { name: 'Kysmei Robe', tier: 'trophy', def: 0.22, hp: 85, exclusive: true, hint: 'Defeat the Witness', look: 'robe', perks: { rage: 0.3 },
+  kysmei_robe:  { name: 'Kysmei Robe', tier: 'trophy', def: 0.22, hp: 85, exclusive: true, hint: 'Defeat the Witness', look: 'kysmei', perks: { rage: 0.3 },
     lore: 'The Witness\'s robe, stitched from the threads of every memory the Echo System ever swallowed.' },
   kurokumo_yoroi:{ name: 'Kurokumo Yoroi', tier: 'trophy', def: 0.23, hp: 85, exclusive: true, hint: 'Defeat Rem', look: 'tyrant', perks: { dmg: 0.06, speed: 0.04 },
     lore: 'Rem\'s black-cloud armour. Under the ash on its collar, the Tachibana crest has been scratched away.' },
@@ -1886,6 +1890,11 @@ const ENEMIES = {
   hollow_husk: { name: 'Hollow Husk', title: 'Memory echo', type: 'regular', family: 'hollow', unit: 'heavy', ai: 'heavy',
             weapon: 'iron_fists', helmet: 'hollow_shard', armor: 'hollow_rags', hp: 270, def: 0.1, dmg: 1.15, speed: 0.88, build: { scale: 1.16, w: 14, arms: 1.08 }, eye: '#ece6ff', accent: '#b9a8ff',
             taunt: '…heavy… everything is so heavy…', tip: 'Slow and hard to stagger. Never trade blows; dodge and strike from behind.' },
+  // the Witness's Hollow copies (core.witness, phase 2): cheap Hollow-styled silhouettes of Kage himself, summoned one
+  // or two at a time (WITNESS_MOVES.hollowCopies). Not a regular unit: they belong to the Witness alone.
+  hollow_kage: { name: 'Hollow Kage', title: 'A copy of you', type: 'echo', family: 'hollow', ai: 'agile',
+            weapon: 'kagetsu', helmet: 'topknot', armor: 'hollow_rags', hp: 70, def: 0, dmg: 0.7, build: { scale: 1, w: 9.6, legs: 0.9, head: 1.05 }, eye: '#ece6ff', accent: '#b9a8ff',
+            taunt: '...is this... how you stand?...', tip: 'A copy of you, thinner. Two clean cuts end it.' },
   // ---- story bosses ----
   // A story boss is fought in the boss format (see Logic.fightFormat): one round, one health bar, three phases.
   //   phases: [{ name, at, abilities, ...flags }]  `at` is the health fraction at which the phase opens (1, 0.66, 0.33
@@ -1932,6 +1941,23 @@ const ENEMIES = {
               { name: 'The Grounded Stance', at: 1, abilities: ['earthCleave', 'guardReturn'] },
               { name: 'The Father\'s Weight', at: 0.66, abilities: ['earthCleave', 'groundSmash', 'guardReturn'] },
               { name: 'The Master\'s Flow', at: 0.33, abilities: ['earthCleave', 'groundSmash', 'guardReturn', 'finalFlow'], aggressive: 1 }
+            ] },
+  // The Witness, Mirror of the Self (final boss, core.witness): Kage's original consciousness, separated and stored in
+  // the Echo System. Tall, thin, almost weightless (it hovers); a broken white mask with ONE violet eye (helmet
+  // `witness_mask`), long jagged hair and memory ribbons (cloth), the Kysmei Robe (look `kysmei`: flat shards drifting
+  // round the body), a bright core in its chest (`core`), and Mugen no Ha (mugen_shards), whose shards re-form into
+  // whatever weapon Kage holds (`mirrorWeapon`). Its outline flickers to Kage's own silhouette now and then (`witness`,
+  // 20-fighter.js). Its moves: WITNESS_MOVES. It is not killed: its core shatters and its light flows back into Kage
+  // (`defeat: 'reabsorb'`).
+  witness: { name: 'The Witness', title: 'Mirror of the Self', type: 'boss', ai: 'boss', weapon: 'mugen_shards', helmet: 'witness_mask', armor: 'kysmei_robe',
+            hp: 760, def: 0.12, dmg: 1.12, speed: 1.08, build: { scale: 1.3, w: 7.6, legs: 1.12, arms: 1.1, torso: 1.06, head: 0.94 }, eye: '#b48aff', accent: '#9b8cff', body: '#0d0b12',
+            el: 'void', witness: 1, core: 1, mirrorWeapon: 1, flashEyes: 1, noGrab: 1, defeat: 'reabsorb',
+            taunt: 'You stand the way I taught you. I remember teaching you.', defeatLine: 'Then take it back. All of it.', win: 'Sleep. I will remember for both of us.',
+            tip: 'It copies the last string that hurt it, so change your attacks: land the same string three times and it is waiting for it. A dark line hanging in the air is a Void Slash: it cuts a moment later, so step off the line.',
+            phases: [
+              { name: 'The Mirror', at: 1, abilities: ['echoReplication', 'voidSlash'], mirror: 1 },
+              { name: 'Memory Break', at: 0.66, abilities: ['echoReplication', 'voidSlash', 'memoryBreak', 'hollowCopies'] },
+              { name: 'Identity Collapse', at: 0.33, abilities: ['echoReplication', 'voidSlash', 'collapseCleave', 'collapseSmash', 'collapseReturn'], mirror: 1, aggressive: 1 }
             ] },
   // ---- Act I sub-bosses (act1.sub1..4) ----
   // Each is fought in the boss format (one bar, one or two phases; the stage has `format: 'boss'`) and borrows a
@@ -2200,6 +2226,39 @@ const TAKASHI_VARIANTS = {
   severingReturn: { base: 'guardReturn', label: 'SEVERING RETURN', cd: 3.2, range: [0, 290], chance: 0.7, windup: 0.22, stance: 0.8, dmg: 13, unb: 0 }
 };
 
+/* ---------------- The Witness's moves ----------------
+   BOSS_ABILITIES in 40-ai.js read these; Logic.witnessMove(id) answers them. Every tell is `windup x
+   Logic.aiTuning(...).windup` seconds (scaled by the difficulty mode), with the violet eye flaring white.
+     echoReplication  plays back the player's last SUCCESSFUL string (Logic.echoReplication over the fight's hit log);
+                      `speed` the playback tempo, `punishMul` its damage once the player has spammed it (ECHO_REPLICATION)
+     voidSlash        a cut from far away: a dark afterimage line hangs across the floor for `delay` seconds, then cuts
+                      (`len` long, `dmg`); jump it, dash through it or step off it
+     memoryBreak      the arena becomes a remembered place (MEMORY_BREAK.envs, in turn) for `dur` seconds, with a flat
+                      glitch in and out (`glitch` seconds)
+     hollowCopies     summons `count` Hollow copies of Kage (`enemy`), never more than `max` alive
+   WITNESS_CORRUPT are Takashi's moves turned corrupt in Identity Collapse: each runs his ability's code with its numbers
+   merged over TAKASHI_MOVES[base], a violet `tint` instead of his gold, and glitch frames (`glitch`). */
+const WITNESS_ABILITIES = ['echoReplication', 'voidSlash', 'memoryBreak', 'hollowCopies'];
+const WITNESS_MOVES = {
+  echoReplication: { label: 'ECHO REPLICATION', cd: 6.5, range: [0, 420], chance: 0.7, windup: 0.42, speed: 1.08, punishMul: 1.35 },
+  voidSlash:       { label: 'VOID SLASH', cd: 5.2, range: [140, 900], chance: 0.6, windup: 0.5, delay: 0.62, len: 620, dmg: 16 },
+  memoryBreak:     { label: 'MEMORY BREAK', cd: 11, range: [0, 1200], chance: 0.8, windup: 0.5, dur: 4.2, glitch: 0.35 },
+  hollowCopies:    { label: 'HOLLOW COPIES', cd: 12, range: [0, 1200], chance: 0.7, windup: 0.6, count: 2, max: 2, enemy: 'hollow_kage' }
+};
+const WITNESS_TINT = '#a77bff';
+const WITNESS_CORRUPT = {
+  collapseCleave: { base: 'earthCleave', label: 'COLLAPSE CLEAVE', tint: WITNESS_TINT, glitch: 1, cd: 4.8, windup: 0.56, dmg: 17 },
+  collapseSmash:  { base: 'groundSmash', label: 'COLLAPSE SMASH', tint: WITNESS_TINT, glitch: 1, cd: 5.6, windup: 0.6, dmg: 18 },
+  collapseReturn: { base: 'guardReturn', label: 'COLLAPSE RETURN', tint: WITNESS_TINT, glitch: 1, cd: 2.8, windup: 0.16, dmg: 16 }
+};
+/* Echo Replication's rule (Logic.echoReplication): the player's moves `gap` seconds apart or less are one string; the
+   Witness copies the LATEST string that landed on it, its last `max` copyable moves (never throws or grabs). The same
+   landed string `spam` times running is spam: it is read and punished. */
+const ECHO_REPLICATION = { gap: 0.7, max: 5, spam: 3 };
+// Memory Break's remembered places, in the order the arena shifts through them
+const MEMORY_BREAK = { envs: ['hoshimura', 'echoes', 'fortress', 'yard'],
+  names: { hoshimura: 'Hoshimura, before the fire', echoes: 'The City of Echoes', fortress: 'The Fortress of Silence', yard: 'The training yard' } };
+
 /* ---------------- The family form ----------------
    Takashi's sword grammar, shared by Kage, Rem and Takashi (the spec's "shared attack language"): a grounded opening
    stance, a short dash, a rising cut, an aerial follow-up, a controlled landing, then a finishing horizontal flow.
@@ -2356,7 +2415,8 @@ const CAMPAIGN = (function buildCampaign() {
         { id: 'core.echo2', kind: 'echo', name: 'Echo II', foe: 'Hollow Akari', foeTitle: 'Corrupted echo', enemy: 'echo_sentinel' },
         { id: 'core.echo3', kind: 'echo', name: 'Echo III', foe: 'Hollow Takashi', foeTitle: 'Corrupted echo', enemy: 'echo_sentinel' },
         { id: 'core.echo4', kind: 'echo', name: 'Echo IV', foe: 'Hollow Rem', foeTitle: 'Corrupted echo', enemy: 'echo_sentinel' },
-        { id: 'core.witness', kind: 'boss', name: 'The Witness', foe: 'The Witness', foeTitle: 'Heart of the Echo System', enemy: 'echo_warden' }
+        { id: 'core.witness', kind: 'boss', name: 'The Witness', foe: 'The Witness', foeTitle: 'Mirror of the Self', enemy: 'witness',
+          scenes: { before: 'core.witness.before', defeat: 'core.witness.defeat' } }
       ] },
     { id: 'epilogue', name: 'Epilogue', title: 'The Last Choice', place: 'Dawn', env: 'highlands', diff: 1,
       stages: [{ id: 'epilogue', kind: 'scene', name: 'The Last Choice', scenes: { before: 'epilogue.stub' } }] }
@@ -2960,6 +3020,38 @@ const SCENES = {
       { say: 'narrator', text: 'Smoke, and he is gone. Only his kasa is left on the stone, the old straw hat he wore on the road.' }
     ]
   },
+  // The Witness (core.witness, the final boss). `before`: the reconstruction revealed. The memories were real fragments,
+  // their order and context were not. Its "the system was testing you" framing is its own, and it keeps changing it.
+  'core.witness.before': {
+    steps: [
+      { illus: null },
+      { say: 'narrator', text: 'The heart of the Echo System. No floor, no sky: only light folding over itself, and a figure standing in it as if it weighed nothing.' },
+      { say: 'narrator', text: 'A broken white mask. One violet eye. A shape that is almost his.' },
+      { say: 'witness', text: 'You came the long way. I laid it out for you, piece by piece. You never asked why the pieces fit so neatly.' },
+      { say: 'kage', text: 'Who are you?' },
+      { say: 'witness', text: 'The part of you they kept. The first one. The one who remembers.' },
+      { say: 'witness', text: 'Hoshimura. The City. The Fortress. None of it was the world, Kage. It was a reconstruction. Every road you walked was built out of what was stored in here.' },
+      { say: 'kage', text: 'The ash. The photograph. Rem. That was real.' },
+      { say: 'witness', text: 'Real fragments, yes. Every one. But the order you found them in, and what they seemed to mean... that was arranged.' },
+      { say: 'witness', text: 'The system was testing whether you could be restored. That is what I tell myself.' },
+      { say: 'witness', text: 'Or I was testing you. Or I wanted you to come home tired. Pick the version you can live with. I have tried all of them.' },
+      { say: 'kage', text: 'You planted the clues. "Find the Witness."' },
+      { say: 'witness', text: 'Did I? You remember it that way. That is the trouble with memory.' },
+      { say: 'witness', text: 'Come, then. Show me who they rebuilt.' }
+    ]
+  },
+  // `defeat`: after the finishing slash the Witness dies as a separate being; its core shatters and its light flows back
+  // into Kage, restoring his original identity (flag core.identity_restored, which The Last Choice reads).
+  'core.witness.defeat': {
+    steps: [
+      { say: 'narrator', text: 'The core in its chest cracks. Light leaks through the seams of the mask.' },
+      { say: 'witness', text: 'There. You see it now. We were never two.' },
+      { say: 'narrator', text: 'The core shatters. Violet and white light pours out of it and into Kage, every memory finding its place.' },
+      { flag: 'core.identity_restored' },
+      { say: 'kage', text: '...I remember. All of it. In order.' },
+      { say: 'witness', text: 'Then carry it. I am tired of carrying it alone.' }
+    ]
+  },
   // Stub; SAN-44 writes the real Epilogue.
   'epilogue.stub': {
     steps: [
@@ -3352,6 +3444,48 @@ const Logic = {
     if (h.length >= n && h.slice(-n).every(x => x === id)) return true;
     return this.predictability(h, id) >= PATTERN_READ.share;
   },
+  /* ---- the Witness (core.witness) ---- */
+  // One of the Witness's moves (WITNESS_MOVES) or one of Takashi's moves corrupted for Identity Collapse
+  // (WITNESS_CORRUPT: his numbers with its overrides on top, plus { base, corrupt: true }). A copy with its id; null for
+  // any other id.
+  witnessMove(id) {
+    if (WITNESS_ABILITIES.includes(id) && WITNESS_MOVES[id]) return JSON.parse(JSON.stringify(Object.assign({ id }, WITNESS_MOVES[id])));
+    const v = WITNESS_CORRUPT[id];
+    if (!v || !TAKASHI_ABILITIES.includes(v.base)) return null;
+    return JSON.parse(JSON.stringify(Object.assign({}, TAKASHI_MOVES[v.base], v, { id, corrupt: true })));
+  },
+  // The player's moves (log: [{ id, t, hit }], oldest first) cut into strings: moves ECHO_REPLICATION.gap seconds apart
+  // or less belong together. Throws and grabs are never part of a string the Witness can copy.
+  echoStrings(log) {
+    const out = []; let cur = null, last = -1e9;
+    for (const e of log || []) {
+      const m = MOVES[e.id];
+      if (!m || m.kind === 'throw' || m.kind === 'grab') continue;
+      if (!cur || e.t - last > ECHO_REPLICATION.gap) { cur = []; out.push(cur); }
+      cur.push(e); last = e.t;
+    }
+    return out;
+  },
+  // Echo Replication: the pattern the Witness copies is the player's LATEST string that landed on it (its last
+  // ECHO_REPLICATION.max moves). { moves, repeats, punish }: `repeats` is how many landed strings in a row (counting
+  // back from it) were that same pattern; `punish` once it is ECHO_REPLICATION.spam or more (spam is read and punished).
+  // null until a blow has landed.
+  echoReplication(log) {
+    const hit = this.echoStrings(log).filter(s => s.some(e => e.hit)).map(s => s.slice(-ECHO_REPLICATION.max).map(e => e.id));
+    if (!hit.length) return null;
+    const moves = hit[hit.length - 1], key = moves.join(' ');
+    let repeats = 0;
+    for (let i = hit.length - 1; i >= 0 && hit[i].join(' ') === key; i--) repeats++;
+    return { moves, repeats, punish: repeats >= ECHO_REPLICATION.spam };
+  },
+  // Phase 1's mirror: the player's latest string, with the wait before each move (0 for the first), for the Witness to
+  // replay with Kage's own timing. [] before he has attacked.
+  mirrorSequence(log) {
+    const s = this.echoStrings(log), last = s[s.length - 1] || [];
+    return last.slice(-ECHO_REPLICATION.max).map((e, i, a) => ({ id: e.id, wait: i ? e.t - a[i - 1].t : 0 }));
+  },
+  // The remembered place Memory Break's n-th shift turns the arena into (MEMORY_BREAK.envs in turn).
+  memoryBreakEnv(n) { const e = MEMORY_BREAK.envs; return e[((n % e.length) + e.length) % e.length]; },
   // A weapon's grounded string as it plays at a level: [{ id, startup, active, recovery, dmg, reach }] with the
   // weapon's speed, damage and reach multipliers (weaponMul) applied, so two blades can be compared (Shinsen vs Kagetsu).
   weaponMoves(id, lvl) {
@@ -3693,7 +3827,7 @@ const HERO_FACEWRAP = '#efe9dd', HERO_FACEWRAP_SHADE = '#b4ac9f';   // Kage's wh
 const BODY = { torso: 60, neck: 7, head: 18, upper: 36, fore: 34, thigh: 45, shin: 47 };
 const SHAPE = {
   fists: 'none', tsubame: 'short', kagetsu: 'katana', shizuka: 'katana', onikiri: 'cleaver', mizuchi: 'spear',
-  yamigama: 'sickle', iwakudaki: 'hammer', shinsen: 'shinsen', raiko_no_tachi: 'odachi', raikon_tachi: 'odachi', takashi_blade: 'katana', kagehira_yurei: 'short', akari_blades: 'short', mugen_no_ha: 'katana',
+  yamigama: 'sickle', iwakudaki: 'hammer', shinsen: 'shinsen', raiko_no_tachi: 'odachi', raikon_tachi: 'odachi', takashi_blade: 'katana', kagehira_yurei: 'short', akari_blades: 'short', mugen_no_ha: 'katana', mugen_shards: 'katana',
   shadow_daggers: 'short', hollow_crescents: 'crescent', mist_fans: 'fan',
   courier_kunai: 'short', quiet_kodachi: 'katana', echo_crescents: 'crescent', ledger_kusari: 'sickle',
   gate_kanabo: 'hammer', disciple_blade: 'katana', conduit_naginata: 'spear', silent_odachi: 'katana',
@@ -3902,6 +4036,14 @@ class Fighter {
       this.cloths.push({ kind: 'scarf', c: new Cloth(9, 6.4 * this.scale, { ph: 3.2, wind: 520, grav: 900, stiff: 1.8 }), at: 'head', color: this.def.hair, rim: 'rgba(236,229,211,0.45)', w: 5.4 * this.scale, w1: 2.4 * this.scale, dy: 4, dx: 14 });
       this.cloths.push({ kind: 'scarf', c: new Cloth(2, 3 * this.scale, { ph: 6, wind: 600, grav: 900, stiff: 1.9 }), at: 'head', color: '#c9a45c', w: 2.2 * this.scale, w1: 1.2 * this.scale, dy: 5, dx: 15 });
     }
+    // the Witness: long jagged hair (several dark strands of different length, edged violet) and two pale memory ribbons
+    if (this.def && this.def.witness) {
+      const sc = this.scale, rim = 'rgba(167,123,255,0.6)';
+      [[13, 7.4, 2.2, 7, -10, 9], [11, 7.2, 5.1, 6, -4, 11], [15, 7.6, 3.6, 6.4, 2, 12], [9, 7, 6.6, 5, -14, 8]].forEach(([n, seg, ph, w, dy, dx], i) =>
+        this.cloths.push({ kind: 'scarf', witness: true, c: new Cloth(n, seg * sc, { ph, wind: 420 + i * 70, grav: 520, stiff: 1.5 }), at: 'head', color: '#0b0910', rim, w: w * sc, w1: 0.9 * sc, dy, dx }));
+      this.cloths.push({ kind: 'scarf', witness: true, c: new Cloth(14, 8 * sc, { ph: 8.2, wind: 680, grav: 300, stiff: 1.7 }), at: 'neck', color: '#e8e1f6', w: 2.6 * sc, w1: 0.8 * sc, dy: 4, dx: 6 });
+      this.cloths.push({ kind: 'scarf', witness: true, c: new Cloth(12, 8 * sc, { ph: 11, wind: 600, grav: 260, stiff: 1.7 }), at: 'neck', color: '#a77bff', w: 2.2 * sc, w1: 0.7 * sc, dy: 8, dx: 3 });
+    }
     // the Shinsei Yoroi's layered robe skirts, hanging from the waist guard
     if (this.armor === 'shinsei') this.cloths.push({ kind: 'robe', c: new Cloth(6, 9.4 * this.scale, { ph: 3, wind: 180, grav: 1250 }), at: 'hip', color: '#1f1b15', w0: 24 * this.scale, w1: 36 * this.scale });
     // the Mei-En Garb's split cloth panels: a front and a back panel hanging from the waist, muted violet over charcoal
@@ -3917,6 +4059,7 @@ class Fighter {
   elementOf(m) {
     if (m && (m.kind === 'punch' || m.kind === 'kick' || m.kind === 'grab' || m.kind === 'throw')) return this.isPlayer ? 'wind' : null;
     if (!this.hasWeapon && this.baseWeapon !== 'storm_orbs' && this.baseWeapon !== 'iron_fists') return this.isPlayer ? 'wind' : null;
+    if (this.def && this.def.el) return this.def.el;   // the Witness cuts in violet void whatever weapon it copies
     return this.weapon().el || (this.isPlayer ? 'wind' : 'shade');
   }
   weaponId() { return this.hasWeapon ? this.baseWeapon : (this.baseWeapon === 'storm_orbs' || this.baseWeapon === 'iron_fists' ? this.baseWeapon : 'fists'); }
@@ -3939,6 +4082,8 @@ class Fighter {
     if (this.invuln > 0) this.invuln -= dt;
     if (this.flash > 0) this.flash -= dt;
     if (this.telegraph > 0) this.telegraph -= dt;
+    if (this.kageFlicker > 0) this.kageFlicker -= dt;
+    if (this.shardMorph > 0) this.shardMorph -= dt;
     if (this.counterT > 0) this.counterT -= dt;
     if (this.dashCd > 0) this.dashCd -= dt;
     if (this.comboT > 0) { this.comboT -= dt; if (this.comboT <= 0) this.comboHits = 0; }
@@ -5010,21 +5155,31 @@ Fighter.prototype.draw = function (ctx, opt) {
   const flashing = this.flash > 0 && !opt.noFlash && !opt.color;
   const flat = !!opt.color || flashing;
   const ink = opt.color || (flashing ? (opt.flashColor || C.bone) : this.bodyColor());
-  // Hollows: now and then a frame "glitches": the body skips sideways, the outline doubles and jitters
-  const glitch = this.hollow && !opt.color ? this.glitchAmount() : 0;
+  // Hollows: now and then a frame "glitches": the body skips sideways, the outline doubles and jitters. The Witness
+  // glitches too (all the time while a corrupted move runs), and now and then its outline flickers to Kage's own
+  // silhouette (face-wrap, red sash, no robe shards: `kageFrame`), more often while it copies him (`kageFlicker`).
+  const wit = this.def && this.def.witness;
+  if (wit) this.kageFrame = !opt.color && this.alive && !this.coreBroken && this.witnessFlicker();
+  const corrupt = wit && this.corruptUntil > this.time;
+  const glitch = (this.hollow || (wit && !this.kageFrame)) && !opt.color ? this.glitchAmount(corrupt ? 0.6 : 0) : 0;
+  const gcol = this.hollow ? this.family.trim : '#7b5ad6';
   ctx.save();
   ctx.globalAlpha *= this.alpha;
+  // the Witness hovers, almost weightless: a slow bob a hand's width above the floor
+  if (wit && this.grounded && this.alive && !opt.color) ctx.translate(0, -(7 + Math.sin(this.time * 2.1) * 4) * s);
   if (glitch) {
     ctx.save(); ctx.globalAlpha *= 0.42; ctx.translate(glitch * 26 * s, -Math.abs(glitch) * 4 * s);
-    this.silhouette(ctx, this.family.trim, this.family.trim, true, { color: this.family.trim, noEyes: true });
+    this.silhouette(ctx, gcol, gcol, true, { color: gcol, noEyes: true });
     ctx.restore();
     ctx.translate(-glitch * 7 * s, 0);
+    if (wit) { ctx.translate(this.x, this.y); ctx.scale(1 - Math.abs(glitch) * 0.12, 1 + Math.abs(glitch) * 0.14); ctx.translate(-this.x, -this.y); }   // the impossible version: too tall, too thin
   }
   ctx.lineCap = 'round'; ctx.lineJoin = 'round';
   // squash & stretch around the feet, then the spin turn
   if (this.sqx !== 1 || this.sqy !== 1) { ctx.translate(this.x, this.y); ctx.scale(this.sqx, this.sqy); ctx.translate(-this.x, -this.y); }
   if (this.turnX !== 1) { ctx.translate(this.x, 0); ctx.scale(Math.abs(this.turnX) < 0.12 ? 0.12 * Math.sign(this.turnX || 1) : this.turnX, 1); ctx.translate(-this.x, 0); }
   if (!opt.color) this.drawFlipArcs(ctx, false);
+  if (this.armor === 'kysmei' && !this.kageFrame) this.drawKysmei(ctx, -1, opt);
   for (const cl of this.cloths) if (cl.kind === 'cape' || cl.kind === 'robe') cl.c.draw(ctx, opt.color || cl.color, cl.w0, cl.w1, null);
   // clean, even white outline: the silhouette stamped around itself, then the flat body on top
   if (opt.rim && !opt.color) {
@@ -5034,11 +5189,14 @@ Fighter.prototype.draw = function (ctx, opt) {
     for (const [dx, dy] of OUTLINE_DIRS) { ctx.save(); ctx.translate(dx * d, dy * d); this.silhouette(ctx, oc, oc, true, ro); ctx.restore(); }
   }
   for (const cl of this.cloths) if (cl.kind === 'scarf' || cl.kind === 'ribbon' || cl.kind === 'belt') {
+    if (cl.witness && this.kageFrame) continue;
     const col = opt.color || (flashing ? ink : cl.color);
     if (cl.rim && !opt.color && cl.w1) cl.c.ribbon(ctx, cl.rim, cl.w + 3 * s, cl.w1 + 3 * s);
     if (cl.w1) cl.c.ribbon(ctx, col, cl.w, cl.w1); else cl.c.strand(ctx, col, cl.w);
   }
   this.silhouette(ctx, ink, ink, flat, opt);
+  if (this.armor === 'kysmei' && !this.kageFrame) this.drawKysmei(ctx, 1, opt);
+  if (wit && !this.kageFrame && !this.coreBroken) this.drawCore(ctx, opt);
   if (!flat) this.drawDetails(ctx, opt);
   if (!opt.color) this.drawFlipArcs(ctx, true);
   if (this.state === 'kickcharge' && this.charge > 0.18 && !opt.color) {
@@ -5057,14 +5215,99 @@ Fighter.prototype.bodyColor = function () {
   return fam.flicker[(_hash(Math.floor(this.time * 11) + this.seed()) * fam.flicker.length) | 0];
 };
 Fighter.prototype.seed = function () { return this._seed || (this._seed = 1 + Math.random() * 97); };
-// 0 most frames; on roughly one 1/7 s slice in six a signed jolt in [-0.5, 0.5] (always on while dissolving)
-Fighter.prototype.glitchAmount = function () {
+// 0 most frames; on roughly one 1/7 s slice in six a signed jolt in [-0.5, 0.5] (always on while dissolving; `more`
+// raises the share of glitching slices, the Witness's corrupted moves)
+Fighter.prototype.glitchAmount = function (more) {
   const k = Math.floor(this.time * 7) + this.seed() * 3, h = _hash(k);
-  if (h > (this.dissolve ? 0.75 : 0.16)) return 0;
+  if (h > (this.dissolve ? 0.75 : Math.max(0.16, more || 0))) return 0;
   const g = _hash(k * 1.73 + 5) - 0.5;
   return Math.abs(g) < 0.12 ? 0.12 * Math.sign(g || 1) : g;
 };
 
+/* ---- the Witness ---- */
+// Whether this frame shows Kage's familiar silhouette: a brief flicker on about one 1/9 s slice in fourteen, every other
+// slice while it copies him (`kageFlicker`: Echo Replication's tell, summoning his Hollow copies).
+Fighter.prototype.witnessFlicker = function () {
+  const k = Math.floor(this.time * 9), h = _hash(k * 3.1 + this.seed());
+  return h < (this.kageFlicker > 0 ? 0.5 : 0.07);
+};
+// The Kysmei Robe: a fragmented robe of flat shapes drifting around the body instead of cloth. `depth` -1 draws the
+// shards behind the body (darker), +1 the ones in front (edged violet). Each shard has an anchor along the torso
+// (u: 0 the hip, 1 the neck, below 0 a broken skirt hanging toward the knees), a side offset, a size and a slow drift of
+// its own. While its wearer comes apart (dissolve) the shards drift away from the body.
+const KYSMEI_SHARDS = Array.from({ length: 18 }, (_, i) => {
+  const r = n => _hash(i * 7.3 + n);
+  return { u: i < 7 ? -0.15 - r(1) * 0.75 : r(1) * 1.05, side: (r(2) - 0.5) * 2.4, sz: 0.55 + r(3) * 0.75, ph: r(4) * TAU, rate: 0.8 + r(5) * 1.2, rot: r(6) * TAU, depth: i % 3 === 0 ? -1 : 1, kind: i % 4 };
+});
+Fighter.prototype.drawKysmei = function (ctx, depth, opt) {
+  const sk = this.sk, s = this.scale, t = this.time || 0, flat = !!opt.color;
+  const hx = sk.hip.x, hy = sk.hip.y, nx = sk.neck.x, ny = sk.neck.y, ang = Math.atan2(ny - hy, nx - hx), px = Math.cos(ang + Math.PI / 2), py = Math.sin(ang + Math.PI / 2);
+  const spread = 1 + (this.dissolve ? this.dissolve * 2.4 : 0) + (this.shardMorph > 0 ? this.shardMorph : 0), U = 15 * s;
+  ctx.save();
+  for (const d of KYSMEI_SHARDS) {
+    if (d.depth !== depth) continue;
+    const dx = Math.sin(t * d.rate + d.ph) * 4 * s, dy = Math.cos(t * d.rate * 0.8 + d.ph) * 5 * s;
+    const ox = lerp(hx, nx, d.u) + px * d.side * U * spread + dx * spread - this.facing * (d.u < 0 ? -d.u * 10 * s : 0);
+    const oy = lerp(hy, ny, d.u) + py * d.side * U * spread + dy + (d.u < 0 ? Math.abs(d.side) * 2 * s : 0);
+    const z = d.sz * U * (d.u < 0 ? 1.15 : 0.9), rot = d.rot + Math.sin(t * d.rate * 0.6 + d.ph) * 0.35;
+    ctx.save(); ctx.translate(ox, oy); ctx.rotate(rot);
+    ctx.fillStyle = flat ? opt.color : depth < 0 ? '#16111f' : '#0d0a14';
+    ctx.beginPath();
+    if (d.kind === 0) { ctx.moveTo(0, -z); ctx.lineTo(z * 0.55, z * 0.7); ctx.lineTo(-z * 0.5, z * 0.5); }
+    else if (d.kind === 1) { ctx.moveTo(-z * 0.4, -z * 0.8); ctx.lineTo(z * 0.45, -z * 0.6); ctx.lineTo(z * 0.3, z * 0.9); ctx.lineTo(-z * 0.5, z * 0.6); }
+    else if (d.kind === 2) { ctx.moveTo(0, -z * 1.1); ctx.lineTo(z * 0.3, 0); ctx.lineTo(0, z * 1.1); ctx.lineTo(-z * 0.3, 0); }
+    else { ctx.moveTo(-z * 0.6, -z * 0.3); ctx.lineTo(z * 0.7, -z * 0.5); ctx.lineTo(z * 0.2, z * 0.7); }
+    ctx.closePath(); ctx.fill();
+    if (!flat) { ctx.strokeStyle = depth < 0 ? 'rgba(167,123,255,0.35)' : 'rgba(190,160,255,0.75)'; ctx.lineWidth = 1.1 * s; ctx.stroke(); }
+    ctx.restore();
+  }
+  ctx.restore();
+};
+// The Witness's chest core: a bright circle (white heart, violet ring and a soft violet bloom) that pulses
+Fighter.prototype.drawCore = function (ctx, opt) {
+  const sk = this.sk, s = this.scale, x = lerp(sk.hip.x, sk.neck.x, 0.62) + this.facing * 2 * s, y = lerp(sk.hip.y, sk.neck.y, 0.62);
+  if (opt.color) { ctx.fillStyle = opt.color; ctx.beginPath(); ctx.arc(x, y, 7 * s, 0, TAU); ctx.fill(); return; }
+  const pulse = 1 + Math.sin(this.time * 5) * 0.12, r = 6.5 * s * pulse;
+  const g = ctx.createRadialGradient(x, y, r, x, y, r * 2.8);
+  g.addColorStop(0, 'rgba(200,176,255,0.6)'); g.addColorStop(1, 'rgba(140,100,255,0)');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r * 2.8, 0, TAU); ctx.fill();
+  ctx.fillStyle = '#a77bff'; ctx.beginPath(); ctx.arc(x, y, r * 1.35, 0, TAU); ctx.fill();
+  ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
+  ctx.strokeStyle = '#2a1c4a'; ctx.lineWidth = 1 * s; ctx.beginPath(); ctx.arc(x, y, r * 1.35, 0, TAU); ctx.stroke();
+};
+// Mugen no Ha: whatever weapon shape the Witness copies (sh), drawn as floating memory shards along its length: a dark
+// grip, then pale violet-edged shards with gaps between them that bob apart, and the copied weapon's head (a hammer's
+// block, a spear's point, a sickle's curve). After a weapon change (`shardMorph`) the shards scatter and re-form.
+function drawShardWeapon(ctx, sh, L, mode, s, ink, f) {
+  if (sh === 'none') return;
+  const flat = mode !== 'ink', t = f.time || 0, morph = Math.max(0, f.shardMorph || 0) / 0.4;
+  const fill = flat ? ink : '#ddd2ff', edge = flat ? null : '#7b5ad6';
+  const pole = sh === 'spear' || sh === 'staff' || sh === 'hammer' || sh === 'sickle' || sh === 'hook';
+  const grip = pole ? 0.12 : sh === 'short' || sh === 'kagehira' || sh === 'yurei' || sh === 'crescent' || sh === 'fan' ? 0.22 : 0.3;
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = flat ? ink : '#1a1228'; ctx.lineWidth = 4 * s; ctx.beginPath(); ctx.moveTo(-L * grip, 0); ctx.lineTo(0, 0); ctx.stroke();
+  const shard = (x, y, len, w, rot, i) => {
+    const j = Math.sin(t * 5 + i * 1.7) * 1.4 * s * (1 + morph * 14), jx = morph * Math.cos(i * 2.3) * 22 * s;
+    ctx.save(); ctx.translate(x + jx, y + j); ctx.rotate(rot + morph * Math.sin(i * 3.1) * 1.4);
+    ctx.fillStyle = fill; ctx.beginPath(); ctx.moveTo(-len * 0.5, 0); ctx.lineTo(-len * 0.1, -w); ctx.lineTo(len * 0.5, -w * 0.3); ctx.lineTo(len * 0.2, w); ctx.closePath(); ctx.fill();
+    if (edge) { ctx.strokeStyle = edge; ctx.lineWidth = 0.9 * s; ctx.stroke(); }
+    ctx.restore();
+  };
+  const curve = sh === 'katana' || sh === 'odachi' || sh === 'shinsen' || sh === 'yurei' ? 0.05 : 0;
+  const thin = pole ? 1.6 * s : sh === 'cleaver' || sh === 'odachi' ? 4.6 * s : 3.2 * s;
+  const end = pole ? (sh === 'hammer' ? 0.78 : 0.86) : 1, n = Math.max(3, Math.round(L * end / (15 * s)));
+  for (let i = 0; i < n; i++) {
+    const u0 = 0.04 + (end - 0.04) * i / n, u1 = 0.04 + (end - 0.04) * (i + 0.78) / n, um = (u0 + u1) / 2;
+    shard(L * um, -curve * L * um * um, L * (u1 - u0), thin * (1 - um * 0.3), 0, i);
+  }
+  // the copied weapon's head
+  if (sh === 'spear') { shard(L * 0.93, 0, L * 0.16, 4.6 * s, 0, 40); }
+  else if (sh === 'staff') { shard(L * 0.93, 0, L * 0.12, 2.4 * s, 0, 41); }
+  else if (sh === 'hammer') { for (let k = 0; k < 4; k++) shard(L * (0.86 + (k % 2) * 0.08), (k < 2 ? -1 : 1) * 9 * s, 14 * s, 9 * s, Math.PI / 2, 42 + k); }
+  else if (sh === 'sickle' || sh === 'hook') { for (let k = 0; k < 4; k++) { const a = -0.2 - k * 0.5; shard(L * 0.9 + Math.cos(a) * 18 * s, Math.sin(a) * 22 * s - 10 * s, 14 * s, 3.4 * s, a + Math.PI / 2, 46 + k); } }
+  else if (sh === 'crescent' || sh === 'fan') { for (let k = 0; k < 3; k++) { const a = -0.9 + k * 0.6; shard(Math.cos(a) * L * 0.6, Math.sin(a) * L * 0.6, 16 * s, 4 * s, a + Math.PI / 2, 50 + k); } }
+  else shard(L * 0.98, -curve * L * 0.96, 12 * s, thin * 0.8, -0.2, 39);   // a blade's point
+}
 Fighter.prototype.drawMainWeapon = function (ctx, ink, opt) {
   const sh = this.shape(); if (sh === 'none') return;
   const L = this.weaponLen(), sk = this.sk;
@@ -5121,7 +5364,7 @@ Fighter.prototype.drawFistGear = function (ctx, ink, opt) {
 };
 
 function drawEyes(ctx, f, r, opt) {
-  if (opt.color) return;
+  if (opt.color || f.helmet === 'witness_mask') return;   // the Witness's one eye is part of its mask
   ctx.save();
   if (f.isPlayer) {
     ctx.fillStyle = '#ffffff';
@@ -5139,6 +5382,7 @@ function drawEyes(ctx, f, r, opt) {
 function twinShape(w, sh, offhand) { return w && w.twin && sh === 'short' ? (offhand ? 'yurei' : 'kagehira') : sh; }
 /* ---- weapon art: origin at the grip, +x along the blade ---- */
 function drawWeaponShape(ctx, sh, L, mode, s, ink, f) {
+  if (f && f.def && f.def.mirrorWeapon && mode !== 'art') return drawShardWeapon(ctx, sh, L, mode, s, ink, f);
   const rim = mode === 'rim'; if (rim) mode = 'flat';   // outline pass: the steel stays thin, only the hilt gets the white edge
   const art = mode === 'art';
   const steel = art ? C.bone : mode === 'flat' ? ink : '#e6e1d6';
@@ -5409,6 +5653,33 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
       ctx.restore();
       ctx.fillStyle = flat ? ink : '#b8362b'; ctx.beginPath(); ctx.ellipse(-r * 1.0, -r * 0.39, r * 0.15, r * 0.12, 0.4, 0, TAU); ctx.fill();
       break;
+    case 'witness_mask': { // the Witness: jagged hair swept back, a broken white mask, ONE violet eye; on a flicker frame, Kage's face-wrap
+      if (f && f.kageFrame) {
+        drawHeroHair(ctx, r, ink); drawFaceWrap(ctx, r, ink, flat);
+        if (!flat) { ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.moveTo(r * 0.14, -r * 0.08); ctx.lineTo(r * 0.72, 0); ctx.lineTo(r * 0.6, r * 0.22); ctx.lineTo(r * 0.24, r * 0.16); ctx.closePath(); ctx.fill(); }
+        break;
+      }
+      // jagged hair: long spikes swept back off the crown (the strands below are cloth)
+      ctx.fillStyle = ink; ctx.beginPath(); ctx.moveTo(r * 0.6, -r * 0.8);
+      for (const [x, y] of [[r * 0.1, -r * 1.5], [-r * 0.2, -r * 1.05], [-r * 0.9, -r * 1.55], [-r * 0.85, -r * 0.8], [-r * 1.9, -r * 1.1], [-r * 1.1, -r * 0.4], [-r * 2.1, -r * 0.3], [-r * 1.0, r * 0.15]]) ctx.lineTo(x, y);
+      ctx.arc(0, 0, r, Math.PI * 0.9, Math.PI * 1.75, false); ctx.closePath(); ctx.fill();
+      if (flat) { ctx.beginPath(); ctx.arc(0, 0, r * 1.02, -Math.PI * 0.55, Math.PI * 0.5); ctx.fill(); break; }
+      // the mask: a white plate over the front of the face, a chunk broken off at the brow, cracks running from the break
+      ctx.fillStyle = '#efeaf6';
+      ctx.beginPath(); ctx.moveTo(-r * 0.05, -r * 1.02); ctx.lineTo(r * 0.38, -r * 0.62); ctx.lineTo(r * 0.52, -r * 0.94); ctx.lineTo(r * 0.82, -r * 0.6);
+      ctx.quadraticCurveTo(r * 1.18, -r * 0.1, r * 1.0, r * 0.45); ctx.quadraticCurveTo(r * 0.7, r * 1.05, r * 0.0, r * 1.02); ctx.lineTo(r * 0.12, r * 0.4); ctx.lineTo(-r * 0.08, -r * 0.2); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#b9b0c9'; ctx.beginPath(); ctx.moveTo(r * 0.0, r * 1.02); ctx.quadraticCurveTo(r * 0.7, r * 1.05, r * 1.0, r * 0.45); ctx.lineTo(r * 0.85, r * 0.55); ctx.quadraticCurveTo(r * 0.55, r * 0.9, r * 0.08, r * 0.84); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = '#1a1228'; ctx.lineWidth = Math.max(1, r * 0.07);
+      ctx.beginPath(); ctx.moveTo(r * 0.38, -r * 0.62); ctx.lineTo(r * 0.3, -r * 0.2); ctx.lineTo(r * 0.46, r * 0.18); ctx.lineTo(r * 0.36, r * 0.62); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(r * 0.3, -r * 0.2); ctx.lineTo(r * 0.08, -r * 0.02); ctx.stroke();
+      // the one eye: a violet almond with a white core, flaring white when it is about to strike
+      const hot = f && f.telegraph > 0, ex = r * 0.68, ey = -r * 0.12;
+      ctx.fillStyle = 'rgba(167,123,255,0.45)'; ctx.beginPath(); ctx.ellipse(ex, ey, r * 0.42, r * 0.22, -0.1, 0, TAU); ctx.fill();
+      ctx.fillStyle = hot ? '#ffffff' : '#a77bff'; ctx.beginPath(); ctx.moveTo(ex - r * 0.26, ey + r * 0.02); ctx.quadraticCurveTo(ex, ey - r * 0.2, ex + r * 0.28, ey - r * 0.04); ctx.quadraticCurveTo(ex, ey + r * 0.16, ex - r * 0.26, ey + r * 0.02); ctx.fill();
+      ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(ex + r * 0.02, ey - r * 0.02, r * 0.06, 0, TAU); ctx.fill();
+      if (hot) { ctx.strokeStyle = '#a77bff'; ctx.lineWidth = 2; const fl = r * (1 + 0.3 * Math.sin(t * 50)); ctx.beginPath(); ctx.moveTo(ex - fl, ey); ctx.lineTo(ex + fl, ey); ctx.moveTo(ex, ey - fl * 0.5); ctx.lineTo(ex, ey + fl * 0.5); ctx.stroke(); }
+      break;
+    }
     case 'headband': { // the Interlude's young brothers: a plain cloth training band (Kage pale, Rem in his purple accent)
       drawHeroHair(ctx, r, ink);
       ctx.save(); ctx.beginPath(); ctx.arc(0, 0, r * 1.04, 0, TAU); ctx.clip();
@@ -5731,6 +6002,22 @@ function drawArmor(ctx, f, ink, opt, Ut) {
       if (flat) break;
       ctx.strokeStyle = '#6a5a86'; ctx.lineWidth = 4 * s; ctx.lineCap = 'butt';
       const a = Q(0.16, -1.05), b = Q(0.16, 1.05); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); ctx.lineCap = 'round';
+      break;
+    }
+    case 'kysmei': {
+      // the Kysmei Robe: a narrow dark under-robe with a violet crossed collar (its fragments drift around the body,
+      // Fighter.drawKysmei). On a Witness flicker frame: Kage's own red sash instead
+      torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 0.86);
+      if (flat) break;
+      const ox = Math.cos(ang + Math.PI / 2), oy = Math.sin(ang + Math.PI / 2), Q = (u, w) => [lerp(hx, nx, u) + ox * w * Ut, lerp(hy, ny, u) + oy * w * Ut];
+      if (f.kageFrame) {
+        const a = Q(0.16, -0.95), b = Q(0.16, 0.95);
+        ctx.strokeStyle = C.emberBright; ctx.lineWidth = 7 * s; ctx.lineCap = 'butt'; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); ctx.lineCap = 'round';
+        break;
+      }
+      ctx.strokeStyle = '#7b5ad6'; ctx.lineWidth = 1.6 * s;
+      const a = Q(0.96, -0.6), b = Q(0.58, 0.2), c = Q(0.96, 0.6);
+      ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.lineTo(c[0], c[1]); ctx.stroke();
       break;
     }
     case 'shinsei': {
@@ -6540,6 +6827,7 @@ const WeaponSystem = {
   },
   drop(world, f) {
     if (!f.hasWeapon || f.weaponId() === 'fists' || f.baseWeapon === 'storm_orbs' || f.baseWeapon === 'iron_fists') return;
+    if (f.def && f.def.mirrorWeapon) return;   // the Witness's shards cannot be knocked away: they re-form in its hand
     f.hasWeapon = false;
     if (f.state === 'move') { f.move = null; }
     world.pickups.push({ wid: f.baseWeapon, owner: f, x: f.sk.fha.x, y: Math.min(-40, f.sk.fha.y), vx: -f.facing * rand(260, 420), vy: -rand(500, 700), rot: f.wAng, vr: rand(14, 20) * -f.facing, grounded: false, t: 0 });
@@ -6647,7 +6935,7 @@ const Combat = {
     if (def.counterStance && !m.proj && front && m.kind !== 'grab') {
       def.counterStance = false;
       this.parry(world, att, def, m, ix, iy, dir);
-      fx.stamp('COUNTERED', ix, iy, 2, def.redline ? '#ff4a3c' : def.goldGuard ? '#e8c25c' : '#7fd0c8');
+      fx.stamp('COUNTERED', ix, iy, 2, def.redline ? '#ff4a3c' : def.goldGuard ? '#e8c25c' : def.guardTint || '#7fd0c8');
       // an ability may answer the blow itself (Raikon's Redline Counter); otherwise the first weapon strike
       if (def.abil && def.abil.onCounter) { def.setState('ability'); def.abil.onCounter(def, world, att); }   // parry() set him idle
       else { def.endAbility(world); def.startMove(def.weapon().moves[0], world); }
@@ -7071,7 +7359,10 @@ const ELEMENTS = {
   // Akari's twin blades (Kagehira & Yurei): a NARROW violet slash with a thin white core, shedding a few flat petals
   petal:     { smear: [155, 107, 214], edge: 'rgba(246,238,255,1)', glow: [155, 107, 214], alpha: 0.55, narrow: 0.32 },
   // Shinsen and the Tachibana father style (Takashi): a broad GOLD slash with a pale-gold outer band and a white core
-  gold:      { smear: [232, 186, 84], alt: [255, 226, 150], edge: 'rgba(255,250,232,1)', glow: [240, 196, 90], alpha: 0.56, layers: 1 }
+  gold:      { smear: [232, 186, 84], alt: [255, 226, 150], edge: 'rgba(255,250,232,1)', glow: [240, 196, 90], alpha: 0.56, layers: 1 },
+  // the Witness (Mugen no Ha, whatever weapon it copies): a deep violet slash over a near-black outer band, white core,
+  // shedding flat memory shards
+  void:      { smear: [140, 100, 255], alt: [22, 14, 40], edge: 'rgba(240,232,255,1)', glow: [150, 110, 255], alpha: 0.58, layers: 1 }
 };
 const _sp = [];
 function smearSamples(arr) {
@@ -7146,6 +7437,7 @@ const VFX = {
     else if (el === 'flame') { fx.part({ x: tx, y: ty, vx: rand(-40, 40), vy: rand(-220, -80), life: rand(0.35, 0.7), size: rand(1.4, 2.6), color: '#ffb35a', type: 'spark', grav: -140, drag: 1.2, add: true }); fx.part({ x: tx, y: ty, vx: rand(-30, 30), vy: rand(-120, -40), life: 0.3, size: rand(6, 10), color: 'rgba(255,120,40,0.5)', type: 'flame', grav: -200, drag: 2, add: true, grow: -10 }); }
     else if (el === 'moon' || el === 'blood') fx.part({ x: tx + rand(-6, 6), y: ty + rand(-6, 6), vx: vx * 0.1, vy: vy * 0.1, life: rand(0.3, 0.55), size: rand(2.5, 4.5), color: el === 'moon' ? (chance(0.5) ? '#d9ccff' : '#ff6a82') : (chance(0.6) ? '#ff5470' : '#cdbfff'), type: 'star', grav: 0, drag: 3, add: true });
     else if (el === 'gold') fx.part({ x: tx + rand(-5, 5), y: ty + rand(-5, 5), vx: vx * 0.1 + rand(-30, 30), vy: vy * 0.1 - rand(10, 40), life: rand(0.3, 0.55), size: rand(1.6, 3), color: chance(0.6) ? '#ffd27a' : '#fff4d6', type: 'spark', grav: 120, drag: 3, add: true });
+    else if (el === 'void') { if (chance(0.6)) fx.part({ x: tx + rand(-5, 5), y: ty + rand(-5, 5), vx: vx * 0.08 + rand(-40, 40), vy: vy * 0.08 - rand(10, 40), life: rand(0.3, 0.55), size: rand(2.4, 4), color: chance(0.5) ? '#a77bff' : (chance(0.5) ? '#ece6ff' : '#1a1228'), type: 'ash', grav: 40, drag: 2.4, rot: rand(0, TAU), vr: rand(-12, 12) }); }
     else if (el === 'petal') { if (chance(0.5)) fx.part({ x: tx + rand(-5, 5), y: ty + rand(-5, 5), vx: vx * 0.08 + rand(-40, 40), vy: vy * 0.08 - rand(10, 50), life: rand(0.35, 0.6), size: rand(2.6, 4.2), color: chance(0.6) ? '#b48ae6' : '#ece2ff', type: 'ash', grav: 60, drag: 2.4, rot: rand(0, TAU), vr: rand(-10, 10) }); }
     else if (el === 'redline') fx.part({ x: tx, y: ty, vx: rand(-220, 220), vy: rand(-220, 120), life: rand(0.08, 0.18), size: rand(1.2, 2.4), color: chance(0.6) ? '#ff5a46' : '#ffffff', type: 'spark', grav: 0, drag: 4, add: true });
     else if (el === 'lightning') fx.part({ x: tx, y: ty, vx: rand(-200, 200), vy: rand(-200, 200), life: rand(0.08, 0.16), size: rand(1, 2), color: '#cfeeff', type: 'spark', grav: 0, drag: 4, add: true });
@@ -7157,7 +7449,7 @@ const VFX = {
 /* ---- Effects extensions: elemental impacts, rings, finisher slash, clash flare, heat haze ---- */
 Object.assign(Effects.prototype, {
   vfx() {
-    return this._v || (this._v = { puffs: [], marks: [], crosses: [], zaps: [], glints: [], fire: [], ripples: [], bolts: [], cres: [], streaks: [], shards: [], rings: [], flares: [], rise: [], trail: [], lburst: [], finisher: null, tint: null });
+    return this._v || (this._v = { puffs: [], marks: [], crosses: [], zaps: [], glints: [], fire: [], ripples: [], bolts: [], cres: [], streaks: [], shards: [], rings: [], flares: [], rise: [], trail: [], lburst: [], voids: [], cshards: [], streams: [], finisher: null, tint: null });
   },
   elemImpact(el, x, y, dir, tier, crit) {
     const V = this.vfx(), big = crit ? 1.4 : 1, t = clamp(tier, 0, 3);
@@ -7271,6 +7563,25 @@ Object.assign(Effects.prototype, {
     this.vfx().crosses.push({ x, y, a, len: s, t: 0, dur: 0.42, n: 2, dir });
     for (let i = 0; i < 14; i++) { const g = rand(0, TAU), v = rand(80, 320); this.part({ x, y, vx: Math.cos(g) * v + dir * 80, vy: Math.sin(g) * v - 60, life: rand(0.5, 0.9), size: rand(3, 5.2), color: chance(0.55) ? '#b48ae6' : '#ece2ff', type: 'ash', grav: 70, drag: 1.8, rot: rand(0, TAU), vr: rand(-10, 10) }); }
   },
+  /* ---- the Witness ---- */
+  // Void Slash's afterimage: a dark line hanging across the floor from x0 to x1 at height y. It is drawn in at once,
+  // trembles and thickens while it waits (`delay`, the readable beat), then cuts: a flash of white along it, a violet
+  // band and flat shards thrown off the length of the line.
+  voidLine(x0, x1, y, delay, dir) { this.vfx().voids.push({ x0, x1, y, t: 0, delay, dur: delay + 0.32, dir: dir || 1, seed: (Math.random() * 999) | 0 }); },
+  // the chest core shattering: a white flash and flat triangular shards (white, violet, near-black) flung out of it
+  coreShatter(x, y, k) {
+    const V = this.vfx(); k = k || 1;
+    for (let i = 0; i < 26; i++) {
+      const a = rand(0, TAU), v = rand(160, 620) * k, c = i % 3 === 0 ? '#ffffff' : i % 3 === 1 ? '#a77bff' : '#1a1228';
+      V.cshards.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 120, r: rand(0, TAU), vr: rand(-14, 14), sz: rand(5, 13) * k, c, t: 0, dur: rand(0.8, 1.4) });
+    }
+    V.flares.push({ x, y, t: 0, dur: 0.4, r: 160 * k });
+  },
+  // one ribbon of light flowing from (x, y) into a fighter's chest along a curve; its head travels the curve, its tail
+  // follows, so a stream of them reads as the Witness pouring into Kage
+  lightStream(x, y, target, color) {
+    this.vfx().streams.push({ x, y, target, color: color || '#ffffff', t: 0, dur: rand(0.55, 0.8), bend: rand(-1, 1) * 140, w: rand(2.5, 5) });
+  },
   // a four-point glint on a blade edge: the moment before a strike is released
   glint(x, y, color) { this.vfx().glints.push({ x, y, color: color || '#ffffff', t: 0, dur: 0.3 }); },
   clashFlare(x, y) { this.vfx().flares.push({ x, y, t: 0, dur: 0.32, r: 90 }); },
@@ -7280,7 +7591,8 @@ Object.assign(Effects.prototype, {
     const V = this.vfx();
     const tick = (arr, d) => { for (let i = arr.length - 1; i >= 0; i--) { arr[i].t += d; if (arr[i].t >= arr[i].dur) arr.splice(i, 1); } };
     tick(V.zaps, dt); tick(V.glints, dt); tick(V.puffs, dt); tick(V.marks, dt); tick(V.crosses, dt);
-    tick(V.fire, dt); tick(V.ripples, dt); tick(V.bolts, dt); tick(V.cres, dt); tick(V.streaks, dt); tick(V.shards, dt); tick(V.rings, dt); tick(V.flares, realDt); tick(V.rise, dt); tick(V.trail, dt); tick(V.lburst, dt);
+    tick(V.fire, dt); tick(V.ripples, dt); tick(V.bolts, dt); tick(V.cres, dt); tick(V.streaks, dt); tick(V.shards, dt); tick(V.rings, dt); tick(V.flares, realDt); tick(V.rise, dt); tick(V.trail, dt); tick(V.lburst, dt); tick(V.voids, dt); tick(V.streams, dt);
+    for (let i = V.cshards.length - 1; i >= 0; i--) { const c = V.cshards[i]; c.t += dt; c.x += c.vx * dt; c.y += c.vy * dt; c.vx *= 1 - 1.6 * dt; c.vy = c.vy * (1 - 1.6 * dt) + 200 * dt; c.r += c.vr * dt; if (c.t >= c.dur) V.cshards.splice(i, 1); }
     if (V.finisher) { V.finisher.t += realDt; if (V.finisher.t >= V.finisher.dur) V.finisher = null; }
     if (V.tint) { V.tint.t += realDt; if (V.tint.t >= V.tint.dur) V.tint = null; }
   },
@@ -7448,6 +7760,54 @@ Object.assign(Effects.prototype, {
       for (const L of p.lobes) { ctx.fillStyle = L.c; ctx.beginPath(); ctx.arc(p.x + L.dx * p.R * sc, p.y + L.dy * p.R - rise, L.r * p.R * sc, 0, TAU); ctx.fill(); }
       ctx.globalAlpha = 1;
     }
+    // the Witness: Void Slash lines waiting to cut, then cutting
+    for (const v of V.voids) {
+      const R = prng(v.seed + ((v.t * 24) | 0)), wait = v.t < v.delay, k = wait ? v.t / v.delay : (v.t - v.delay) / (v.dur - v.delay);
+      const n = 10, L = v.x1 - v.x0;
+      if (wait) {
+        // the afterimage: a jittering near-black line, edged violet, thickening toward the cut
+        const th = 3 + 5 * k, j = 2 + 3 * k;
+        ctx.globalAlpha = 0.55 + 0.45 * k;
+        for (const [col, w] of [['rgba(167,123,255,0.7)', th + 4], ['#07050c', th]]) {
+          ctx.strokeStyle = col; ctx.lineWidth = w; ctx.beginPath();
+          for (let i = 0; i <= n; i++) { const x = v.x0 + L * i / n, y = v.y + (i && i < n ? (R() - 0.5) * j : 0); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+          ctx.stroke();
+        }
+        // a slash afterimage at the near end, fading: the cut that was already made
+        ctx.fillStyle = `rgba(20,12,34,${0.5 * (1 - k)})`; ctx.beginPath(); ctx.ellipse(v.x0 + L * 0.08, v.y, Math.abs(L) * 0.1, 26, 0, 0, TAU); ctx.fill();
+        if (k > 0.75) { ctx.strokeStyle = `rgba(255,255,255,${(k - 0.75) * 3})`; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(v.x0, v.y); ctx.lineTo(v.x1, v.y); ctx.stroke(); }
+      } else {
+        // the cut: a white flash along the line, a violet band opening and closing, flat shards thrown up off it
+        const a = 1 - k, open = Math.sin(Math.min(1, k * 2.2) * Math.PI) * 18;
+        ctx.globalAlpha = a;
+        ctx.fillStyle = '#a77bff'; ctx.beginPath(); ctx.moveTo(v.x0, v.y); ctx.quadraticCurveTo((v.x0 + v.x1) / 2, v.y - open, v.x1, v.y); ctx.quadraticCurveTo((v.x0 + v.x1) / 2, v.y + open, v.x0, v.y); ctx.fill();
+        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3 * a + 1; ctx.beginPath(); ctx.moveTo(v.x0, v.y); ctx.lineTo(v.x1, v.y); ctx.stroke();
+        ctx.fillStyle = '#120c1e';
+        for (let i = 0; i < 9; i++) { const x = v.x0 + L * (i + 0.5) / 9, h = (10 + R() * 18) * a; ctx.beginPath(); ctx.moveTo(x - 5, v.y); ctx.lineTo(x + (R() - 0.5) * 10, v.y - h - k * 30); ctx.lineTo(x + 5, v.y); ctx.closePath(); ctx.fill(); }
+      }
+      ctx.globalAlpha = 1;
+    }
+    // the shattered core: flat spinning triangles
+    for (const c of V.cshards) {
+      const a = 1 - c.t / c.dur;
+      ctx.save(); ctx.translate(c.x, c.y); ctx.rotate(c.r); ctx.globalAlpha = a; ctx.fillStyle = c.c;
+      ctx.beginPath(); ctx.moveTo(c.sz, 0); ctx.lineTo(-c.sz * 0.6, c.sz * 0.5); ctx.lineTo(-c.sz * 0.4, -c.sz * 0.7); ctx.closePath(); ctx.fill();
+      ctx.restore();
+    }
+    // light streams flowing into a fighter's chest
+    ctx.lineCap = 'round';
+    for (const st of V.streams) {
+      const T = st.target; if (!T || !T.sk) continue;
+      const tx = lerp(T.sk.hip.x, T.sk.neck.x, 0.6), ty = lerp(T.sk.hip.y, T.sk.neck.y, 0.6);
+      const mx = (st.x + tx) / 2, my = (st.y + ty) / 2 - 60 + st.bend * 0.4, k = st.t / st.dur;
+      const head = Ease.outCubic(Math.min(1, k * 1.25)), tail = Math.max(0, k * 1.25 - 0.35);
+      const P = u => { const v = 1 - u; return [v * v * st.x + 2 * v * u * mx + u * u * tx, v * v * st.y + 2 * v * u * (my + st.bend * 0.3) + u * u * ty]; };
+      for (const [col, w] of [[st.color === '#ffffff' ? 'rgba(167,123,255,0.45)' : 'rgba(255,255,255,0.35)', st.w + 4], [st.color, st.w]]) {
+        ctx.strokeStyle = col; ctx.lineWidth = w; ctx.beginPath();
+        for (let i = 0; i <= 8; i++) { const u = lerp(tail, head, i / 8), q = P(u); i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); }
+        ctx.stroke();
+      }
+    }
     // red cut streaks
     for (const s of V.streaks) {
       const k = s.t / s.dur, grow = clamp(k / 0.2, 0, 1), a = k < 0.2 ? 1 : 1 - (k - 0.2) / 0.8;
@@ -7553,6 +7913,8 @@ class AIController {
     this.checkPhase();
     if (this.formCd > 0) this.formCd -= dt;
     if (this.running) { this.stepForm(dt, toward); return; }
+    if (f.def && f.def.mirrorWeapon) this.mirrorWeapon(p);
+    if (this.playback) { this.stepPlayback(dt, toward, dist); return; }
     // disarmed: go get the weapon back
     if (!f.hasWeapon && f.weaponId() === 'fists' && f.baseWeapon !== 'fists') {
       const pk = w.pickups.find(k => k.owner === f);
@@ -7563,6 +7925,7 @@ class AIController {
     if (threat && this.reactTo !== p.move) {
       this.reactTo = p.move; this.react = rand(this.p.react[0], this.p.react[1]) * (this.lastSeen === p.move.id ? 0.6 : 1); this.lastSeen = p.move.id;
       if (this.readStrike(p)) return;   // Takashi: a repeated attack is read the moment it starts
+      if (this.readEcho(p)) return;     // the Witness: the string Kage keeps landing is read the moment it starts
     }
     if (!threat && p.state !== 'move') this.reactTo = null;
     if (this.reactTo && this.react > 0) {
@@ -7605,6 +7968,7 @@ class AIController {
     if (this.plan === 'approach') { c.dir = toward; if (dist < this.p.pref) this.plan = 'hold'; }
     else if (this.plan === 'retreat') { c.dir = -toward; if (f.x < w.bounds.l + 60 || f.x > w.bounds.r - 60) { this.plan = 'hold'; if (this.p.dodge > 0.2) { c.jumpP = true; c.dir = toward; } } }
     else if (this.plan === 'strafe') { c.dir = this.strafeDir; }
+    else if (this.plan === 'mirror') { c.dir = -(p.ctrl.dir || 0); c.blockHeld = !!p.ctrl.blockHeld; }
     else if (this.plan === 'ring') { c.dir = toward; if (dist < this.ring) this.plan = 'hold'; }
     if (p.state === 'down' || p.state === 'getup') { if (dist < 140) c.dir = -toward; }
   }
@@ -7632,7 +7996,7 @@ class AIController {
   readStrike(p) {
     const f = this.f, w = this.world, list = this.phaseData ? this.phaseData.abilities : this.abilities;
     // his own Guard Return, or an Act III sub-boss's reduced one (TAKASHI_VARIANTS)
-    const gid = list && list.find(id => id === 'guardReturn' || (TAKASHI_VARIANTS[id] && TAKASHI_VARIANTS[id].base === 'guardReturn'));
+    const gid = list && list.find(id => id === 'guardReturn' || ((TAKASHI_VARIANTS[id] || WITNESS_CORRUPT[id]) && (TAKASHI_VARIANTS[id] || WITNESS_CORRUPT[id]).base === 'guardReturn'));
     const a = gid && BOSS_ABILITIES[gid];
     if (!a || (this.cds[gid] || 0) > 0 || !p.move || p.move.kind === 'throw') return false;
     if (!f.grounded || !(f.canAct() || f.state === 'block' || (f.state === 'move' && f.mphase === 0))) return false;
@@ -7640,7 +8004,90 @@ class AIController {
     this.seq = null; this.block = 0; f.move = null;
     this.cds[gid] = a.cd;
     a.run(f, w, this, p);
-    w.fx.popText(f, gid === 'guardReturn' ? 'HE READS YOU' : 'READ', '#7fd0c8');
+    w.fx.popText(f, gid === 'guardReturn' ? 'HE READS YOU' : WITNESS_CORRUPT[gid] ? 'IT READS YOU' : 'READ', WITNESS_CORRUPT[gid] ? WITNESS_TINT : '#7fd0c8');
+    return true;
+  }
+
+  /* ---- the Witness (final boss) ----
+     Mirror: Mugen no Ha takes whatever Kage holds. Its move-set, stance and reach become his weapon's (so the stance
+     follows on its own) and the shards re-form into that weapon's shape (`shardMorph`, 20-fighter.js). Only between
+     moves, never mid-cut. */
+  mirrorWeapon(p) {
+    const f = this.f, want = p.weaponId(), has = f.weaponId();
+    if (want === has || !(f.canAct() || f.state === 'air')) return;
+    f.baseWeapon = want === 'fists' ? 'fists' : want; f.hasWeapon = want !== 'fists';
+    f.shardMorph = 0.4; f.trail.length = 0;
+    this.world.fx.memoryAsh(f, 10, true);
+    AudioManager.play('teleport', { pitch: 1.6 });
+  }
+  /* Playback: a list of [{ id, wait }] MOVES the Witness performs in order, the way Kage did (phase 1 mirrors his latest
+     string with his own timing, Logic.mirrorSequence; Echo Replication plays back his last landed string). Each move
+     fires once it can (a cut chains from the previous one's follow-through, an air move jumps first), closing the gap
+     on the way. o: { speed (a tempo on start-up and recovery), dmg (a damage multiplier), echo }. A move Mugen no Ha
+     cannot perform with the weapon it holds now is skipped; getting hit, or a move that cannot fire in time, ends it. */
+  startPlayback(steps, o) {
+    o = o || {};
+    const f = this.f, list = (steps || []).filter(s => MOVES[s.id]);
+    if (!list.length) return;
+    this.playback = { steps: list, i: 0, t: 0, wait: list[0].wait || 0, boost: f.boostAtk, dmg: f.dmgMul, echo: !!o.echo };
+    f.boostAtk = (f.boostAtk || 1) / (o.speed || 1); f.dmgMul *= o.dmg || 1;
+    if (o.echo) f.echoing = true;
+  }
+  endPlayback() {
+    const r = this.playback; if (!r) return;
+    const f = this.f; f.boostAtk = r.boost; f.dmgMul = r.dmg; f.echoing = false; this.playback = null;
+    this.t = rand(0.2, 0.35) * this.p.idle;
+  }
+  canPerform(id) {
+    const m = MOVES[id], w = this.f.weapon(); if (!m || m.kind === 'throw' || m.kind === 'grab') return false;
+    if (UNARMED[id]) return true;   // punches, kicks and their air versions: any fighter can copy them
+    return (w.moves || []).includes(id) || w.counter === id || w.air === id;
+  }
+  stepPlayback(dt, toward, dist) {
+    const f = this.f, c = f.ctrl, w = this.world, r = this.playback, st = r.steps[r.i];
+    r.t += dt;
+    const broken = f.state === 'hit' || f.state === 'juggle' || f.state === 'stun' || f.state === 'down' || f.state === 'getup' || f.state === 'grabbed';
+    if (broken || r.t > 1.4) return this.endPlayback();
+    if (r.wait > 0) { r.wait -= dt; return; }
+    if (!this.canPerform(st.id)) return this.nextPlayback();
+    const m = MOVES[st.id], reach = m.box ? (m.box[0] + m.box[2]) * f.scale * (f.hasWeapon ? weaponMul(f.weaponId(), f.wlvl).reach : 1) : 120;
+    const ready = f.canAct() || (f.state === 'move' && f.mphase === 2 && f.move.kind !== 'air' && f.grounded);
+    if (m.kind === 'air') {
+      if (f.state === 'air') { f.startMove(st.id, w); return this.nextPlayback(); }
+      if (ready && f.grounded) { f.endMove(); f.setState('idle'); c.dir = toward; f.doJump(w); }
+      return;
+    }
+    if (!f.grounded) { c.dir = toward; return; }
+    // close the gap first (a moment at most): a copied cut thrown at empty air reads as a mirror, not an attack
+    if (dist > reach + 30 && r.t < 0.6 && f.isNeutral()) { c.dir = toward; return; }
+    if (!ready) return;
+    f.endMove(); f.facing = toward; f.startMove(st.id, w);
+    this.nextPlayback();
+  }
+  nextPlayback() {
+    const r = this.playback; r.i++; r.t = 0;
+    if (r.i >= r.steps.length) this.endPlayback(); else r.wait = Math.min(0.6, r.steps[r.i].wait || 0);
+  }
+  // Phase 1 (and 3): the mirror. Kage's latest string is replayed back at him with his own timing.
+  mirrorAttack() {
+    const seq = Logic.mirrorSequence(this.world.hitLog);
+    if (!seq.length) return false;
+    this.startPlayback(seq, { speed: 1 });
+    return !!this.playback;
+  }
+  /* Echo read: when Kage starts the first move of a string he has already landed ECHO_REPLICATION.spam times running
+     (Logic.echoReplication(...).punish), the Witness raises a corrupted Guard Return at once: the spammed string is
+     turned aside and punished. The chance is the mode's `punish` (+0.35). Returns true when it fires. */
+  readEcho(p) {
+    const f = this.f, w = this.world, list = this.phaseData ? this.phaseData.abilities : this.abilities;
+    if (!list || !list.includes('echoReplication') || (this.cds.echoRead || 0) > 0 || !p.move || this.playback) return false;
+    if (!f.grounded || !(f.canAct() || f.state === 'block' || (f.state === 'move' && f.mphase === 0))) return false;
+    const echo = Logic.echoReplication(w.hitLog);
+    if (!echo || !echo.punish || echo.moves[0] !== p.move.id || !chance(Math.min(1, this.p.punish + 0.35))) return false;
+    this.seq = null; this.block = 0; f.move = null;
+    this.cds.echoRead = 3;
+    BOSS_ABILITIES.guardReturn.run(f, w, this, p, WITNESS_CORRUPT.collapseReturn);
+    w.fx.popText(f, 'I KNOW THIS ONE', WITNESS_TINT);
     return true;
   }
 
@@ -7703,7 +8150,9 @@ class AIController {
       if (dist > 300 && f.ammo > 0 && chance(pr.kunai * 0.6)) { this.startSeq(['special']); return; }
       this.plan = 'approach'; return;
     }
-    if (chance(aggr)) { this.attack(dist); return; }
+    if (chance(aggr)) { if (this.phaseData && this.phaseData.mirror && chance(0.75) && this.mirrorAttack()) return; this.attack(dist); return; }
+    // the mirror's footwork: while it waits it moves as Kage's mirror image would (he steps in, it steps in)
+    if (this.phaseData && this.phaseData.mirror && chance(0.6)) { this.plan = 'mirror'; this.t = rand(0.3, 0.6); return; }
     if (chance(pr.grab) && dist < 90 && (p.state === 'block' || chance(0.3))) { this.startSeq(['grab']); return; }
     const r = Math.random();
     if (r < 0.35) { this.plan = 'strafe'; this.strafeDir = chance(0.5) ? toward : -toward; this.t = rand(0.15, 0.35); }
@@ -7796,7 +8245,7 @@ class AIController {
     if (target > this.phase) {
       this.phase = target;
       this.world.onBossPhase(f, target, this.phases[target]);
-      f.move = null; this.seq = null;
+      f.move = null; this.seq = null; this.endPlayback();
       BOSS_ABILITIES.roar.run(f, this.world, this);
     }
     this.phaseData = this.phases[this.phase];
@@ -8110,11 +8559,11 @@ const BOSS_ABILITIES = {
       f.telegraph = W;
       f.startAbility({ dur: W + 0.72, rate: 22, trail: true, charge: true,
         pose: (f, t) => (t < W ? TAKASHI_POSE.cleaveLow : t < W + 0.24 ? MOVES.sh2.s : MOVES.sh2.f),
-        start(f) { f.superArmor = true; f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, o.label, TAKASHI_GOLD); AudioManager.play('teleport', { pitch: 0.7 }); },
+        start(f) { f.superArmor = true; f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, o.label, o.tint || TAKASHI_GOLD); corruptFrames(f, o); AudioManager.play('teleport', { pitch: 0.7 }); },
         update(f, w, t, dt) {
           if (t < W) {
-            f.vx = damp(f.vx, 0, 10, dt); takashiGather(f, w, t, true);
-            if (!this.glint && t > W - 0.18) { this.glint = 1; takashiGlint(f, w); }
+            f.vx = damp(f.vx, 0, 10, dt); takashiGather(f, w, t, true, o.tint);
+            if (!this.glint && t > W - 0.18) { this.glint = 1; takashiGlint(f, w, o.tint); }
             return;
           }
           if (!this.cut) {
@@ -8137,11 +8586,11 @@ const BOSS_ABILITIES = {
       f.telegraph = W;
       f.startAbility({ dur: W + 0.75, rate: 20, trail: true, charge: true,
         pose: (f, t) => (t < W ? RAIKON_POSE.overhead : RAIKON_POSE.slam),
-        start(f) { f.superArmor = true; f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, o.label, TAKASHI_GOLD); AudioManager.play('teleport', { pitch: 0.6 }); },
+        start(f) { f.superArmor = true; f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, o.label, o.tint || TAKASHI_GOLD); corruptFrames(f, o); AudioManager.play('teleport', { pitch: 0.6 }); },
         update(f, w, t, dt) {
           if (t < W) {
-            f.vx = damp(f.vx, f.facing * 70, 6, dt); takashiGather(f, w, t);
-            if (!this.glint && t > W - 0.18) { this.glint = 1; takashiGlint(f, w); }
+            f.vx = damp(f.vx, f.facing * 70, 6, dt); takashiGather(f, w, t, false, o.tint);
+            if (!this.glint && t > W - 0.18) { this.glint = 1; takashiGlint(f, w, o.tint); }
             return;
           }
           f.vx = damp(f.vx, 0, 14, dt);
@@ -8150,8 +8599,8 @@ const BOSS_ABILITIES = {
             const gx = f.x + f.facing * 120 * f.scale;
             Combat.area(w, f, fbox(f, 0, -230, o.reach, 230), { dmg: o.dmg * f.dmgMul, kb: 380, up: -460, hs: 0.6, kd: 1, imp: 3, hsnd: 'heavy', stamp: 'SMASH', gb: 110 });
             if (o.shock > 0) WeaponSystem.spawn(w, 'shock', f, { x: gx, lifeMul: o.shockLife, dmgMul: o.shock });
-            w.fx.ring(gx, -6, 150, 'rgba(232,186,84,0.85)', 0.4, 5);
-            w.fx.groundShards(gx, 7, 1.1); w.fx.dust(gx, 0, 18); w.fx.embers(gx, -10, 10, TAKASHI_GOLD); w.fx.shake(0.7); AudioManager.play('slam');
+            w.fx.ring(gx, -6, 150, o.tint ? 'rgba(167,123,255,0.85)' : 'rgba(232,186,84,0.85)', 0.4, 5);
+            w.fx.groundShards(gx, 7, 1.1); w.fx.dust(gx, 0, 18); w.fx.embers(gx, -10, 10, o.tint || TAKASHI_GOLD); w.fx.shake(0.7); AudioManager.play('slam');
           }
           if (!this.tell && t > W + 0.3) { this.tell = 1; w.fx.popText(f, 'OPENING', C.gold); }
         },
@@ -8169,20 +8618,20 @@ const BOSS_ABILITIES = {
       const P2 = o.windup * ai.p.windup;
       f.startAbility({ dur: o.stance, rate: 20, charge: true,
         pose: f => (f.abil && f.abil.cut ? MOVES.shc.s : TAKASHI_POSE.guard),
-        start(f) { f.counterStance = true; f.goldGuard = true; f.telegraph = 0.25; f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, o.label, TAKASHI_GOLD); AudioManager.play('block'); },
+        start(f) { f.counterStance = true; f.goldGuard = !o.tint; f.guardTint = o.tint || null; f.telegraph = 0.25; f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, o.label, o.tint || TAKASHI_GOLD); corruptFrames(f, o); AudioManager.play('block'); },
         update(f, w, t, dt) {
           f.vx = damp(f.vx, 0, 12, dt);
-          if (this.punish == null) { if (((t * 60) | 0) % 6 === 0) w.fx.embers(f.sk.wt.x, f.sk.wt.y, 1, TAKASHI_GOLD); return; }
+          if (this.punish == null) { if (((t * 60) | 0) % 6 === 0) w.fx.embers(f.sk.wt.x, f.sk.wt.y, 1, o.tint || TAKASHI_GOLD); return; }
           const k = t - this.punish;
           if (k < P2) return;
           if (!this.cut) { this.cut = 1; f.vx = f.facing * 900; AudioManager.play('heavyswing', { pitch: 0.9 }); }
-          if (((t * 60) | 0) % 2 === 0) w.fx.afterimage(f, 'rgba(232,186,84,0.35)');
+          if (((t * 60) | 0) % 2 === 0) w.fx.afterimage(f, o.tint ? 'rgba(167,123,255,0.35)' : 'rgba(232,186,84,0.35)');
           if (!this.hit && k < P2 + 0.2) this.hit = Combat.area(w, f, fbox(f, -10, -240, 190, 240), { dmg: o.dmg * f.dmgMul, kb: 420, up: -620, hs: 0.6, kd: 1, imp: 3, hsnd: 'slash', stamp: 'RETURN', unb: o.unb });
           if (k > P2 + 0.2) f.vx = damp(f.vx, 0, 14, dt);
         },
         // Combat.applyHit calls this when a blow lands on the guard: the gold glint, then the rising cut
-        onCounter(f, w) { f.counterStance = false; this.charge = false; this.punish = this.t; this.dur = this.t + P2 + 0.6; f.telegraph = P2; takashiGlint(f, w); },
-        end(f) { f.counterStance = false; f.goldGuard = false; } });
+        onCounter(f, w) { f.counterStance = false; this.charge = false; this.punish = this.t; this.dur = this.t + P2 + 0.6; f.telegraph = P2; takashiGlint(f, w, o.tint); },
+        end(f) { f.counterStance = false; f.goldGuard = false; f.guardTint = null; } });
     } },
   /* ---- Akari, the Memory Blade (Act II boss). Numbers come from AKARI_MOVES (10-data.js); `o` (optional) overrides
      them, for Act II's sub-bosses later. Every tell is `windup x Logic.aiTuning(...).windup` seconds long, with white
@@ -8337,6 +8786,66 @@ const BOSS_ABILITIES = {
           if (!this.tell && t > W + D + 0.3) { this.tell = 1; w.fx.popText(f, 'OPENING', C.gold); }
         } });
     } },
+  /* ---- The Witness, Mirror of the Self (final boss). Numbers come from WITNESS_MOVES (10-data.js). Every tell is
+     `windup x Logic.aiTuning(...).windup` seconds with the violet eye flaring white (telegraph) and a violet glint. ---- */
+  // Echo Replication: Kage's own last SUCCESSFUL string played back at him (Logic.echoReplication over the fight's hit
+  // log, FightSession.hitLog). A held stance in Kage's own guard with his silhouette ghosting over the Witness, then the
+  // copied moves in order (AIController.startPlayback). If he has landed that same string three times running it was
+  // spam: it comes back harder (`punishMul`), and the Witness also reads its first move (AIController.readStrike).
+  echoReplication: { id: 'echoReplication', cd: WITNESS_MOVES.echoReplication.cd, range: WITNESS_MOVES.echoReplication.range, chance: WITNESS_MOVES.echoReplication.chance,
+    cond: (f, w) => !!Logic.echoReplication(w.hitLog),
+    run(f, w, ai) {
+      const m = WITNESS_MOVES.echoReplication, echo = Logic.echoReplication(w.hitLog); if (!echo) return;
+      const W = m.windup * ai.p.windup;
+      f.telegraph = W;
+      f.startAbility({ dur: W, rate: 16,
+        start(f) {
+          f.facing = w.player.x > f.x ? 1 : -1; f.kageFlicker = W;
+          w.fx.popText(f, echo.punish ? 'YOUR PATTERN' : m.label, WITNESS_TINT); AudioManager.play('teleport', { pitch: 1.3 });
+          w.fx.afterimage(w.player, 'rgba(167,123,255,0.4)', { dur: W });
+        },
+        update(f, w, t) { if (!this.glint && t > W - 0.16) { this.glint = 1; witnessGlint(f, w); } },
+        end(f) { ai.startPlayback(echo.moves.map((id, i) => ({ id, wait: i ? 0.06 : 0 })), { speed: m.speed, dmg: echo.punish ? m.punishMul : 1, echo: true }); } });
+    } },
+  // Void Slash: a cut from far away. The blade is drawn back low (the tell), then one flat sweep; a dark afterimage line
+  // stays hanging across the floor ahead (`len` long, at chest height) for `delay` seconds, then it cuts
+  // (FightSession.spawnVoidLine). Jump it, dash through it or step off its end.
+  voidSlash: { id: 'voidSlash', cd: WITNESS_MOVES.voidSlash.cd, range: WITNESS_MOVES.voidSlash.range, chance: WITNESS_MOVES.voidSlash.chance,
+    run(f, w, ai) {
+      const m = WITNESS_MOVES.voidSlash, W = m.windup * ai.p.windup, D = m.delay * Math.max(1, ai.p.windup);
+      f.telegraph = W;
+      f.startAbility({ dur: W + 0.5, rate: 22, trail: true, el: 'void',
+        pose: (f, t) => (t < W ? TAKASHI_POSE.cleaveLow : RAIKON_POSE.swingThrough),
+        start(f) { f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, m.label, WITNESS_TINT); AudioManager.play('teleport', { pitch: 0.55 }); },
+        update(f, w, t, dt) {
+          f.vx = damp(f.vx, 0, 12, dt);
+          if (t < W) { if (!this.glint && t > W - 0.16) { this.glint = 1; witnessGlint(f, w); } return; }
+          if (!this.cut) {
+            this.cut = 1; AudioManager.play('heavyswing', { pitch: 0.7 });
+            w.spawnVoidLine(f, fbox(f, 40, -128, m.len, 48), D, m.dmg * f.dmgMul);
+          }
+        } });
+    } },
+  // Memory Break (phase 2): the Witness lifts its hand and the arena becomes a remembered place for a few seconds
+  // (FightSession.memoryBreak: Hoshimura, the City of Echoes, the Fortress, the training yard, in turn), with a flat
+  // glitch in and out.
+  memoryBreak: { id: 'memoryBreak', cd: WITNESS_MOVES.memoryBreak.cd, range: WITNESS_MOVES.memoryBreak.range, chance: WITNESS_MOVES.memoryBreak.chance,
+    cond: (f, w) => !w.memBreak,
+    run(f, w, ai) {
+      const m = WITNESS_MOVES.memoryBreak, W = m.windup * ai.p.windup;
+      f.startAbility({ dur: W + 0.25, pose: POSES.castUp, rate: 12, uninterruptible: true,
+        start(f) { f.invuln = W + 0.25; w.fx.popText(f, m.label, WITNESS_TINT); AudioManager.play('boss'); },
+        update(f, w, t) { if (!this.done && t > W) { this.done = 1; w.memoryBreak(f, m); } } });
+    } },
+  // Hollow copies (phase 2): one or two thin Hollow silhouettes of Kage peel off the Witness (cheap, never more than `max`)
+  hollowCopies: { id: 'hollowCopies', cd: WITNESS_MOVES.hollowCopies.cd, range: WITNESS_MOVES.hollowCopies.range, chance: WITNESS_MOVES.hollowCopies.chance,
+    cond: (f, w) => w.fighters.filter(x => x.minion && x.alive && x.def && x.def.id === WITNESS_MOVES.hollowCopies.enemy).length < WITNESS_MOVES.hollowCopies.max,
+    run(f, w, ai) {
+      const m = WITNESS_MOVES.hollowCopies, W = m.windup * ai.p.windup;
+      f.startAbility({ dur: W + 0.2, pose: POSES.castUp, rate: 14, uninterruptible: true,
+        start(f) { f.invuln = W + 0.2; f.kageFlicker = W; w.fx.popText(f, m.label, WITNESS_TINT); AudioManager.play('teleport', { pitch: 0.8 }); },
+        update(f, w, t) { if (!this.done && t > W) { this.done = 1; w.spawnHollowCopies(f, m); } } });
+    } },
   summon: { id: 'summon', cd: 15, range: [0, 1200], chance: 0.7, cond: (f, w) => w.fighters.filter(x => x.minion && x.alive).length === 0,
     run(f, w) {
       f.startAbility({ dur: 1.0, pose: POSES.castUp, rate: 12, uninterruptible: true,
@@ -8364,6 +8873,14 @@ for (const id in AKARI_VARIANTS) {
    AIController.readStrike like his. ---- */
 for (const id in TAKASHI_VARIANTS) {
   const v = TAKASHI_VARIANTS[id], base = BOSS_ABILITIES[v.base];
+  BOSS_ABILITIES[id] = { id, cd: v.cd || base.cd, range: v.range || base.range, chance: v.chance || base.chance, cond: base.cond,
+    run(f, w, ai, p) { base.run(f, w, ai, p, v); } };
+}
+/* ---- the Witness's corrupted Takashi moves (WITNESS_CORRUPT in 10-data.js, Identity Collapse): his own ability code
+   with the corrupted numbers merged over his (takashiOpt), a violet tint for every gold accent and glitch frames.
+   A corrupted Guard Return keeps his `cond` and is raised by AIController.readStrike like his. ---- */
+for (const id in WITNESS_CORRUPT) {
+  const v = WITNESS_CORRUPT[id], base = BOSS_ABILITIES[v.base];
   BOSS_ABILITIES[id] = { id, cd: v.cd || base.cd, range: v.range || base.range, chance: v.chance || base.chance, cond: base.cond,
     run(f, w, ai, p) { base.run(f, w, ai, p, v); } };
 }
@@ -8428,13 +8945,17 @@ const TAKASHI_POSE = {
 };
 const takashiOpt = (id, o) => Object.assign({}, TAKASHI_MOVES[id], o || {});
 // gold embers gathering on the blade while a strike winds up (and, `low`, gold dust lifting off the floor ahead)
-function takashiGather(f, w, t, low) {
+function takashiGather(f, w, t, low, tint) {
   if (((t * 60) | 0) % 3 !== 0) return;
-  w.fx.embers(f.sk.wt.x, f.sk.wt.y, 1, TAKASHI_GOLD);
-  if (low) w.fx.part({ x: f.x + f.facing * rand(20, 90) * f.scale, y: -rand(0, 6), vx: rand(-30, 30), vy: -rand(40, 90), life: 0.4, size: rand(1.5, 2.6), color: '#d9b055', type: 'spark', grav: 0, drag: 2, add: true });
+  w.fx.embers(f.sk.wt.x, f.sk.wt.y, 1, tint || TAKASHI_GOLD);
+  if (low) w.fx.part({ x: f.x + f.facing * rand(20, 90) * f.scale, y: -rand(0, 6), vx: rand(-30, 30), vy: -rand(40, 90), life: 0.4, size: rand(1.5, 2.6), color: tint ? '#8f6bff' : '#d9b055', type: 'spark', grav: 0, drag: 2, add: true });
 }
 // the gold glint on the plain blade that marks the moment before release
-function takashiGlint(f, w) { w.fx.glint(f.sk.wt.x, f.sk.wt.y, '#ffe6a0'); AudioManager.play('orb', { pitch: 1.5 }); }
+function takashiGlint(f, w, tint) { w.fx.glint(f.sk.wt.x, f.sk.wt.y, tint ? '#e4d6ff' : '#ffe6a0'); AudioManager.play('orb', { pitch: tint ? 1.2 : 1.5 }); }
+// the Witness's violet glint: the moment before a cut or a playback is released
+function witnessGlint(f, w) { w.fx.glint(f.sk.wt.x, f.sk.wt.y, '#e4d6ff'); AudioManager.play('orb', { pitch: 1.1 }); }
+// a corrupted move (the Witness's Identity Collapse, `o.glitch`) glitches the fighter's frames while it runs
+function corruptFrames(f, o) { if (o && o.glitch) f.corruptUntil = f.time + 1.8; }
 // a violet glint on one of her blades ('wt' Kagehira, 'w2t' Yūrei): the moment before that blade cuts
 function akariGlint(f, w, tip) { w.fx.glint(f.sk[tip].x, f.sk[tip].y, '#e0ccff'); AudioManager.play('orb', { pitch: 1.9 }); }
 // where she lands `dist` from x on `side`, inside the arena (the other side when the wall is in the way)
@@ -9217,8 +9738,17 @@ const Renderer = {
       ctx.fillStyle = g; ctx.beginPath(); ctx.arc(f.x, f.y - 100 * f.scale, 140 * f.scale, 0, TAU); ctx.fill();
       ctx.restore();
     }
+    if (f.glow > 0) {
+      // Kage taking the Witness's light back into himself: a white-violet bloom around him (FightSession.stepReabsorb)
+      const cy = f.y - 100 * f.scale, R = 170 * f.scale * (1 + Math.sin(t * 7) * 0.06), k = Math.min(1, f.glow / 0.6);
+      ctx.save();
+      const g = ctx.createRadialGradient(f.x, cy, 8, f.x, cy, R);
+      g.addColorStop(0, `rgba(255,255,255,${0.55 * k})`); g.addColorStop(0.4, `rgba(190,160,255,${0.32 * k})`); g.addColorStop(1, 'rgba(167,123,255,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(f.x, cy, R * 0.7, R, 0, 0, TAU); ctx.fill();
+      ctx.restore();
+    }
     if (f.counterStance) {
-      ctx.save(); ctx.strokeStyle = f.redline ? `rgba(255,74,60,${0.55 + Math.sin(t * 20) * 0.25})` : `rgba(127,208,200,${0.4 + Math.sin(t * 20) * 0.2})`; ctx.lineWidth = f.redline ? 4 : 3;   // Raikon's Redline guard glows red
+      ctx.save(); ctx.strokeStyle = f.redline ? `rgba(255,74,60,${0.55 + Math.sin(t * 20) * 0.25})` : f.guardTint ? `rgba(167,123,255,${0.5 + Math.sin(t * 20) * 0.25})` : `rgba(127,208,200,${0.4 + Math.sin(t * 20) * 0.2})`; ctx.lineWidth = f.redline ? 4 : 3;   // Raikon's Redline guard glows red
       ctx.beginPath(); ctx.arc(f.x, f.y - 110 * f.scale, 90 * f.scale, -Math.PI * 0.8, -Math.PI * 0.2); ctx.stroke(); ctx.restore();
     }
   },
@@ -10299,6 +10829,7 @@ const TitleScene = {
 const HOLLOW_DISSOLVE = 0.75;   // seconds a beaten Hollow takes to come apart into memory ash
 const BOSS_DISSOLVE = 1.8;      // ... and a story boss after his defeat scene (the 'finisher' outcome)
 const BOSS_ESCAPE = 0.7;        // seconds an escaping boss takes to fade out in his smoke
+const BOSS_REABSORB = 3.0;      // seconds the Witness takes to come apart while its light flows into Kage
 
 class FightSession {
   constructor(cfg) {
@@ -10309,6 +10840,9 @@ class FightSession {
     this.cam = { x: 0, y: 0, zoom: 1.05 };
     this.env = getEnv(cfg.env);
     this.history = []; this.letterbox = 1; this.fightFlash = 0;
+    // the Witness: the player's moves with whether each landed (Logic.echoReplication / mirrorSequence read it),
+    // Void Slash lines waiting to cut, and the Memory Break in progress
+    this.hitLog = []; this.voidLines = []; this.memBreak = null; this.memBreakN = 0;
     this.rounds = { p: 0, e: 0, n: 0 };
     this.wave = cfg.wave || 1; this.survivalCoins = 0; this.survivalGems = 0; this.wavesCleared = 0;
     this.dialogue = null; this.combo = 0; this.comboT = 0; this.damageTaken = 0; this.fightTime = 0;
@@ -10413,6 +10947,7 @@ class FightSession {
   onMoveStart(f, m) {
     if (!f.isPlayer) return;
     this.history.push(m.id); if (this.history.length > 12) this.history.shift();
+    this.hitLog.push({ id: m.id, t: this.time, hit: false }); if (this.hitLog.length > 24) this.hitLog.shift();
     const h = this.history, L = h.length;
     if (L >= 3 && h[L - 1] === h[L - 2] && h[L - 2] === h[L - 3]) {
       for (const e of this.fighters) if (e.ai && e.def && e.def.adapts && e.alive && e.ai.adapted !== m.id) { e.ai.adapted = m.id; e.ai.adaptT = 8; this.fx.popText(e, 'He reads you', '#7fd0c8'); }
@@ -10420,6 +10955,8 @@ class FightSession {
   }
   onSpecial(f) { this.fx.slowmo(0.55, 0.35); this.fx.punch(0.05); }
   onHit(att, def, dmg) {
+    // the blow that landed on the boss marks its move in the hit log (Echo Replication copies landed strings)
+    if (att.isPlayer && def === this.enemy && att.move) { for (let i = this.hitLog.length - 1; i >= 0; i--) if (this.hitLog[i].id === att.move.id) { this.hitLog[i].hit = true; break; } }
     if (att.isPlayer) {
       this.combo = att.comboHits; this.comboT = 1.2;
       // consecutive-hit milestones get a beat of slow motion and a calligraphy mark
@@ -10483,6 +11020,56 @@ class FightSession {
       this.fighters.push(m); this.fx.embers(x, -60, 20);
     }
   }
+  /* ---- the Witness ---- */
+  // Void Slash: the cut is already made; a dark afterimage line hangs over `box` for `delay` seconds, then cuts
+  // whoever stands in it (dash i-frames and a high enough jump get through). Drawn by Effects.voidLine.
+  spawnVoidLine(owner, box, delay, dmg) {
+    this.voidLines.push({ owner, box, t: 0, delay, dmg });
+    this.fx.voidLine(box.x, box.x + box.w, box.y + box.h * 0.5, delay, owner.facing);
+  }
+  stepVoidLines(dt) {
+    for (let i = this.voidLines.length - 1; i >= 0; i--) {
+      const v = this.voidLines[i];
+      v.t += dt;
+      if (v.t < v.delay) continue;
+      this.voidLines.splice(i, 1);
+      if (this.phase !== 'fight' || !v.owner.alive) continue;
+      Combat.area(this, v.owner, v.box, { dmg: v.dmg, kb: 380, up: -260, hs: 0.5, imp: 2, hsnd: 'slash', stamp: 'VOID', dir: v.owner.facing });
+      this.fx.shake(0.3); AudioManager.play('slash', { pitch: 0.7 });
+    }
+  }
+  // Memory Break: for `m.dur` seconds the arena is a remembered place (Logic.memoryBreakEnv, in turn), seen through the
+  // memory filter, with a flat glitch (`m.glitch` seconds) as it shifts in and again as it snaps back.
+  memoryBreak(owner, m) {
+    if (this.memBreak) return;
+    const id = Logic.memoryBreakEnv(this.memBreakN++);
+    this.memBreak = { base: this.env, baseMemory: this.memory, t: 0, dur: m.dur, glitch: m.glitch, id };
+    this.env = getEnv(id); this.memory = true; this.glitch = m.glitch;
+    this.fx.banner('Memory Break', MEMORY_BREAK.names[id] || id, WITNESS_TINT);
+    this.fx.shake(0.4); AudioManager.play('teleport', { pitch: 0.5 });
+  }
+  stepMemoryBreak(dt) {
+    if (this.glitch > 0 && !this.isStretch) this.glitch = Math.max(0, this.glitch - dt);
+    const mb = this.memBreak; if (!mb) return;
+    mb.t += dt;
+    if (mb.t >= mb.dur || this.phase === 'outro' || this.phase === 'done') this.endMemoryBreak();
+  }
+  endMemoryBreak() {
+    const mb = this.memBreak; if (!mb) return;
+    this.env = mb.base; this.memory = mb.baseMemory; this.glitch = mb.glitch; this.memBreak = null;
+    AudioManager.play('teleport', { pitch: 0.7 });
+  }
+  // Hollow copies of Kage (WITNESS_MOVES.hollowCopies): cheap minions peeling off the Witness, holding his weapon
+  spawnHollowCopies(owner, m) {
+    const alive = this.fighters.filter(x => x.minion && x.alive && x.def && x.def.id === m.enemy).length;
+    for (let i = 0; i < Math.min(m.count, m.max - alive); i++) {
+      const side = i % 2 ? 1 : -1, x = clamp(owner.x + side * rand(90, 150), this.bounds.l + 40, this.bounds.r - 40);
+      const c = this.makeEnemy(m.enemy, x, { weapon: this.player.weaponId() }, 'minion');
+      c.minion = true; c.facing = this.player.x > x ? 1 : -1;
+      this.fighters.push(c);
+      this.fx.memoryAsh(c, 18, true); this.fx.afterimage(owner, 'rgba(185,160,255,0.45)', { dur: 0.3, dx: side * 40 });
+    }
+  }
   // A beaten Hollow never ragdolls: it freezes on its last frame, glitches, and comes apart into violet memory ash
   // (a flat particle burst, then a trickle while it fades). stepDissolve runs it; the fighter is dropped when gone.
   dissolve(f) {
@@ -10496,10 +11083,27 @@ class FightSession {
     const k = Math.min(1, f.dissolve / (f.dissolveDur || HOLLOW_DISSOLVE));
     f.alpha = 1 - k * k;
     if (!f.fadeOnly) { f.sqx = 1 + 0.12 * k; f.sqy = 1 - 0.18 * k; }
-    if (k < 1 && !f.fadeOnly) this.fx.memoryAsh(f, f.dissolveDur ? 2 : 1);
-    // the Witness (reabsorb, placeholder until SAN-42): light streams from it into Kage
-    if (k < 1 && f.reabsorb && ((f.dissolve * 60) | 0) % 2 === 0) { const p = this.player; this.fx.part({ x: f.x + rand(-30, 30), y: f.y - rand(20, 180) * f.scale, vx: (p.x - f.x) * 1.4, vy: (p.y - f.y) * 1.4, life: 0.7, size: rand(3, 6), color: '#c9bdff', type: 'spark', grav: 0, drag: 0.2, add: true }); }
+    if (k < 1 && !f.fadeOnly && !(f.reabsorb && f.dissolve < 0.5)) this.fx.memoryAsh(f, f.dissolveDur ? 2 : 1);
+    if (f.reabsorb) this.stepReabsorb(f, k);
     if (k >= 1) { f.visible = false; f.alpha = 0; }
+  }
+  /* The Witness's reabsorb (defeat 'reabsorb', after its defeat scene): its chest core shatters into flat shards, violet
+     and white light streams flow out of it into Kage's chest, Kage glows, and the Witness's fragments come apart into
+     memory ash. stepDissolve calls this each tick with k = 0..1 over BOSS_REABSORB. */
+  stepReabsorb(f, k) {
+    const p = this.player, s = f.scale, cx = f.sk.neck.x * 0.6 + f.sk.hip.x * 0.4, cy = f.sk.neck.y * 0.6 + f.sk.hip.y * 0.4;
+    if (!f.coreBroken) {
+      f.coreBroken = true;
+      this.fx.coreShatter(cx, cy, 1.2 * s); this.fx.impactFrame(cx, cy, 3); this.fx.shake(0.8); this.fx.punch(0.08);
+      this.fx.ring(cx, cy, 260, '#ffffff', 0.5, 6); this.fx.ring(cx, cy, 380, WITNESS_TINT, 0.7, 8);
+      this.fx.slowmo(0.4, 0.5); AudioManager.play('clang', { pitch: 0.6 }); AudioManager.play('boss');
+    }
+    // the light streams: a new ribbon every few ticks, alternating violet and white, from the body into Kage's chest
+    if (k < 0.8 && ((f.dissolve * 60) | 0) % 4 === 0) {
+      this.fx.lightStream(cx + rand(-26, 26) * s, cy + rand(-70, 70) * s, p, ((f.dissolve * 15) | 0) % 2 ? '#ffffff' : '#a77bff');
+    }
+    p.glow = Math.max(p.glow || 0, k < 0.85 ? 0.6 : 0);
+    if (k > 0.25 && k < 0.85 && ((f.dissolve * 60) | 0) % 18 === 0) p.flash = 0.06;   // Kage pulses with the light he takes in
   }
   smokeCloud(x, big) { this.fx.smoke(x, 0, big ? 18 : 12, big); AudioManager.play('smoke'); }
 
@@ -10520,6 +11124,7 @@ class FightSession {
     AudioManager.play('ko');
     this.koTarget = def; this.phase = 'ko'; this.phaseT = 0;
     for (const f of this.fighters) if (f.decoy && f.alive) this.vanishDecoy(f);
+    this.voidLines.length = 0;
     for (const f of this.fighters) if ((f.clone || f.minion) && f.alive) { f.alive = false; f.hp = 0; f.setState('juggle'); f.vy = -300; if (f.clone) { f.visible = false; this.smokeCloud(f.x); } else if (f.hollow) this.dissolve(f); }
     if (def === this.player) this.rounds.e++; else { this.rounds.p++; if (this.mode === 'survival') this.waveCleared(); }
   }
@@ -10655,6 +11260,8 @@ class FightSession {
       if (f.aura > 0) { f.aura -= dt; if (Math.abs(p.x - f.x) < 330 && f.alive) p.slow = 0.68; }
       if (f.clone && f.alive) { f.life -= dt; if (f.life <= 0) { if (f.decoy) this.vanishDecoy(f); else { f.alive = false; f.visible = false; this.smokeCloud(f.x); } } }
     }
+    this.stepVoidLines(dt); this.stepMemoryBreak(dt);
+    if (p.glow > 0) p.glow = Math.max(0, p.glow - dt * 0.5);
     // simulate
     for (const f of this.fighters) { if (f.dissolve) { this.stepDissolve(f, dt); continue; } f.update(dt, this); VFX.emit(f, this.fx); }
     if (this.phase === 'fight' || this.phase === 'ko') Combat.resolve(this);
@@ -10714,13 +11321,18 @@ class FightSession {
   // How a beaten story boss leaves, after his defeat scene (Logic.fightFormat: format.defeat):
   //   finisher  he comes apart into violet memory ash (the same dissolve as a Hollow, slower and fuller);
   //   escape    he rises from his knee into a burst of smoke and fades out;
-  //   reabsorb  the Witness: a placeholder (it dissolves and its light streams into Kage); SAN-42 finishes it.
+  //   reabsorb  the Witness: its chest core shatters into flat shards, violet and white light streams flow into Kage,
+  //             Kage glows, and its fragments come apart into memory ash (stepReabsorb); recorded as reabsorbed.
   bossExit() {
     const e = this.enemy, d = this.format.defeat;
     if (!e || e.dissolve) return;
     if (d === 'escape') { e.fadeOnly = true; e.dissolveDur = BOSS_ESCAPE; this.smokeCloud(e.x, true); this.fx.popText(e, 'ESCAPED', C.gold); this.dissolve(e); return; }
+    if (d === 'reabsorb') {
+      e.reabsorb = true; e.dissolveDur = BOSS_REABSORB; this.phaseT = 0;   // hold the outro until the light has flowed in
+      this.dissolve(e); this.fx.popText(e, 'REABSORBED', WITNESS_TINT);
+      return;
+    }
     e.dissolveDur = BOSS_DISSOLVE;
-    if (d === 'reabsorb') { e.reabsorb = true; this.player.flash = 0.3; }
     this.dissolve(e);
     this.fx.slowmo(0.6, 0.6);
   }
@@ -12498,7 +13110,7 @@ const UIManager = {
     const line = r.mode === 'survival' ? (r.newBest ? `Wave ${r.waves}. The pit will remember your name.` : `Wave ${r.waves}. Best: wave ${save.survivalBest}.`)
       : sparred ? 'Takashi called you in before anyone won. Nobody ever settled it.'
       : stretch ? (r.win ? `The road is walked.${r.clues ? ` Clues found: ${r.clues}.` : ''}` : `The road still bars the way. Rise again.`)
-      : r.win ? `${foeName} ${Logic.bossDefeat(r.enemyId) === 'escape' ? 'escaped. The way opens.' : d.type === 'boss' ? 'has fallen. The way opens.' : 'has fallen.'}` : `${foeName} still stands. Rise again.`;
+      : r.win ? `${foeName} ${Logic.bossDefeat(r.enemyId) === 'escape' ? 'escaped. The way opens.' : Logic.bossDefeat(r.enemyId) === 'reabsorb' ? 'is part of you again.' : d.type === 'boss' ? 'has fallen. The way opens.' : 'has fallen.'}` : `${foeName} still stands. Rise again.`;
     el.innerHTML = `
       <div class="res-col">
         <div><div class="eyebrow muted" style="color:var(--text-muted)">${esc(eyebrow)}</div>

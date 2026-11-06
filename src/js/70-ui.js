@@ -797,7 +797,7 @@ const UIManager = {
     const line = r.mode === 'survival' ? (r.newBest ? `Wave ${r.waves}. The pit will remember your name.` : `Wave ${r.waves}. Best: wave ${save.survivalBest}.`)
       : sparred ? 'Takashi called you in before anyone won. Nobody ever settled it.'
       : stretch ? (r.win ? `The road is walked.${r.clues ? ` Clues found: ${r.clues}.` : ''}` : `The road still bars the way. Rise again.`)
-      : r.win ? `${foeName} ${Logic.bossDefeat(r.enemyId) === 'escape' ? 'escaped. The way opens.' : d.type === 'boss' ? 'has fallen. The way opens.' : 'has fallen.'}` : `${foeName} still stands. Rise again.`;
+      : r.win ? `${foeName} ${Logic.bossDefeat(r.enemyId) === 'escape' ? 'escaped. The way opens.' : Logic.bossDefeat(r.enemyId) === 'reabsorb' ? 'is part of you again.' : d.type === 'boss' ? 'has fallen. The way opens.' : 'has fallen.'}` : `${foeName} still stands. Rise again.`;
     el.innerHTML = `
       <div class="res-col">
         <div><div class="eyebrow muted" style="color:var(--text-muted)">${esc(eyebrow)}</div>

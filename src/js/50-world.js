@@ -765,8 +765,17 @@ const Renderer = {
       ctx.fillStyle = g; ctx.beginPath(); ctx.arc(f.x, f.y - 100 * f.scale, 140 * f.scale, 0, TAU); ctx.fill();
       ctx.restore();
     }
+    if (f.glow > 0) {
+      // Kage taking the Witness's light back into himself: a white-violet bloom around him (FightSession.stepReabsorb)
+      const cy = f.y - 100 * f.scale, R = 170 * f.scale * (1 + Math.sin(t * 7) * 0.06), k = Math.min(1, f.glow / 0.6);
+      ctx.save();
+      const g = ctx.createRadialGradient(f.x, cy, 8, f.x, cy, R);
+      g.addColorStop(0, `rgba(255,255,255,${0.55 * k})`); g.addColorStop(0.4, `rgba(190,160,255,${0.32 * k})`); g.addColorStop(1, 'rgba(167,123,255,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(f.x, cy, R * 0.7, R, 0, 0, TAU); ctx.fill();
+      ctx.restore();
+    }
     if (f.counterStance) {
-      ctx.save(); ctx.strokeStyle = f.redline ? `rgba(255,74,60,${0.55 + Math.sin(t * 20) * 0.25})` : `rgba(127,208,200,${0.4 + Math.sin(t * 20) * 0.2})`; ctx.lineWidth = f.redline ? 4 : 3;   // Raikon's Redline guard glows red
+      ctx.save(); ctx.strokeStyle = f.redline ? `rgba(255,74,60,${0.55 + Math.sin(t * 20) * 0.25})` : f.guardTint ? `rgba(167,123,255,${0.5 + Math.sin(t * 20) * 0.25})` : `rgba(127,208,200,${0.4 + Math.sin(t * 20) * 0.2})`; ctx.lineWidth = f.redline ? 4 : 3;   // Raikon's Redline guard glows red
       ctx.beginPath(); ctx.arc(f.x, f.y - 110 * f.scale, 90 * f.scale, -Math.PI * 0.8, -Math.PI * 0.2); ctx.stroke(); ctx.restore();
     }
   },

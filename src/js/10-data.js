@@ -265,6 +265,10 @@ const WEAPONS = {
   // Final Flow rage art off him (no rage art; a kunai instead); his Final Flow is the boss ability (BOSS_ABILITIES).
   takashi_blade: { heft: 1.5, el: 'gold', enemy: 1, name: 'Nameless Blade', base: 'kagetsu', len: 104, stats: [60, 58, 66], trail: '#e8c25c',
     moves: ['sh1', 'sh2', 'sh3'], air: 'sha', counter: 'shc', special: 'none' },
+  // The Witness's Mugen no Ha (final boss): an enemy-only copy of the boss weapon, a fragmented sword of memory shards.
+  // It only starts on the katana forms: the Witness copies whatever Kage holds (ENEMIES.witness.mirrorWeapon), so its
+  // move-set, stance and reach become his weapon's while the shards re-form into that weapon's shape (20-fighter.js).
+  mugen_shards: { heft: 1, el: 'void', enemy: 1, name: 'Mugen no Ha', base: 'kagetsu', len: 96, trail: '#9b8cff', special: 'none' },
   // Act II sub-boss arms (act2.sub1..4)
   courier_kunai: { heft: 0.6, el: 'shade', enemy: 1, name: 'Courier Kunai', base: 'tsubame', len: 44, trail: '#b9a8d8' },
   quiet_kodachi: { heft: 0.9, el: 'moon', enemy: 1, name: 'Quiet Kodachi', base: 'kagetsu', len: 66, trail: '#d6cce6' },
@@ -447,7 +451,7 @@ const ARMORS = {
     lore: 'A conduit tende\' harness, coiled with the violet tubes that carry stored memories down through the Fortress. Put an ear to them and somebody is always talking.' },
   mei_en_garb:  { name: 'Mei-En Garb', tier: 'trophy', def: 0.21, hp: 80, exclusive: true, hint: 'Defeat Akari', look: 'mei_en', perks: { dash: 0.2, speed: 0.06 },
     lore: 'Akari\'s smoke-grey fighting garb. Even the Order\'s records cannot agree on what colour it is.' },
-  kysmei_robe:  { name: 'Kysmei Robe', tier: 'trophy', def: 0.22, hp: 85, exclusive: true, hint: 'Defeat the Witness', look: 'robe', perks: { rage: 0.3 },
+  kysmei_robe:  { name: 'Kysmei Robe', tier: 'trophy', def: 0.22, hp: 85, exclusive: true, hint: 'Defeat the Witness', look: 'kysmei', perks: { rage: 0.3 },
     lore: 'The Witness\'s robe, stitched from the threads of every memory the Echo System ever swallowed.' },
   kurokumo_yoroi:{ name: 'Kurokumo Yoroi', tier: 'trophy', def: 0.23, hp: 85, exclusive: true, hint: 'Defeat Rem', look: 'tyrant', perks: { dmg: 0.06, speed: 0.04 },
     lore: 'Rem\'s black-cloud armour. Under the ash on its collar, the Tachibana crest has been scratched away.' },
@@ -522,6 +526,11 @@ const ENEMIES = {
   hollow_husk: { name: 'Hollow Husk', title: 'Memory echo', type: 'regular', family: 'hollow', unit: 'heavy', ai: 'heavy',
             weapon: 'iron_fists', helmet: 'hollow_shard', armor: 'hollow_rags', hp: 270, def: 0.1, dmg: 1.15, speed: 0.88, build: { scale: 1.16, w: 14, arms: 1.08 }, eye: '#ece6ff', accent: '#b9a8ff',
             taunt: '…heavy… everything is so heavy…', tip: 'Slow and hard to stagger. Never trade blows; dodge and strike from behind.' },
+  // the Witness's Hollow copies (core.witness, phase 2): cheap Hollow-styled silhouettes of Kage himself, summoned one
+  // or two at a time (WITNESS_MOVES.hollowCopies). Not a regular unit: they belong to the Witness alone.
+  hollow_kage: { name: 'Hollow Kage', title: 'A copy of you', type: 'echo', family: 'hollow', ai: 'agile',
+            weapon: 'kagetsu', helmet: 'topknot', armor: 'hollow_rags', hp: 70, def: 0, dmg: 0.7, build: { scale: 1, w: 9.6, legs: 0.9, head: 1.05 }, eye: '#ece6ff', accent: '#b9a8ff',
+            taunt: '...is this... how you stand?...', tip: 'A copy of you, thinner. Two clean cuts end it.' },
   // ---- story bosses ----
   // A story boss is fought in the boss format (see Logic.fightFormat): one round, one health bar, three phases.
   //   phases: [{ name, at, abilities, ...flags }]  `at` is the health fraction at which the phase opens (1, 0.66, 0.33
@@ -568,6 +577,23 @@ const ENEMIES = {
               { name: 'The Grounded Stance', at: 1, abilities: ['earthCleave', 'guardReturn'] },
               { name: 'The Father\'s Weight', at: 0.66, abilities: ['earthCleave', 'groundSmash', 'guardReturn'] },
               { name: 'The Master\'s Flow', at: 0.33, abilities: ['earthCleave', 'groundSmash', 'guardReturn', 'finalFlow'], aggressive: 1 }
+            ] },
+  // The Witness, Mirror of the Self (final boss, core.witness): Kage's original consciousness, separated and stored in
+  // the Echo System. Tall, thin, almost weightless (it hovers); a broken white mask with ONE violet eye (helmet
+  // `witness_mask`), long jagged hair and memory ribbons (cloth), the Kysmei Robe (look `kysmei`: flat shards drifting
+  // round the body), a bright core in its chest (`core`), and Mugen no Ha (mugen_shards), whose shards re-form into
+  // whatever weapon Kage holds (`mirrorWeapon`). Its outline flickers to Kage's own silhouette now and then (`witness`,
+  // 20-fighter.js). Its moves: WITNESS_MOVES. It is not killed: its core shatters and its light flows back into Kage
+  // (`defeat: 'reabsorb'`).
+  witness: { name: 'The Witness', title: 'Mirror of the Self', type: 'boss', ai: 'boss', weapon: 'mugen_shards', helmet: 'witness_mask', armor: 'kysmei_robe',
+            hp: 760, def: 0.12, dmg: 1.12, speed: 1.08, build: { scale: 1.3, w: 7.6, legs: 1.12, arms: 1.1, torso: 1.06, head: 0.94 }, eye: '#b48aff', accent: '#9b8cff', body: '#0d0b12',
+            el: 'void', witness: 1, core: 1, mirrorWeapon: 1, flashEyes: 1, noGrab: 1, defeat: 'reabsorb',
+            taunt: 'You stand the way I taught you. I remember teaching you.', defeatLine: 'Then take it back. All of it.', win: 'Sleep. I will remember for both of us.',
+            tip: 'It copies the last string that hurt it, so change your attacks: land the same string three times and it is waiting for it. A dark line hanging in the air is a Void Slash: it cuts a moment later, so step off the line.',
+            phases: [
+              { name: 'The Mirror', at: 1, abilities: ['echoReplication', 'voidSlash'], mirror: 1 },
+              { name: 'Memory Break', at: 0.66, abilities: ['echoReplication', 'voidSlash', 'memoryBreak', 'hollowCopies'] },
+              { name: 'Identity Collapse', at: 0.33, abilities: ['echoReplication', 'voidSlash', 'collapseCleave', 'collapseSmash', 'collapseReturn'], mirror: 1, aggressive: 1 }
             ] },
   // ---- Act I sub-bosses (act1.sub1..4) ----
   // Each is fought in the boss format (one bar, one or two phases; the stage has `format: 'boss'`) and borrows a
@@ -836,6 +862,39 @@ const TAKASHI_VARIANTS = {
   severingReturn: { base: 'guardReturn', label: 'SEVERING RETURN', cd: 3.2, range: [0, 290], chance: 0.7, windup: 0.22, stance: 0.8, dmg: 13, unb: 0 }
 };
 
+/* ---------------- The Witness's moves ----------------
+   BOSS_ABILITIES in 40-ai.js read these; Logic.witnessMove(id) answers them. Every tell is `windup x
+   Logic.aiTuning(...).windup` seconds (scaled by the difficulty mode), with the violet eye flaring white.
+     echoReplication  plays back the player's last SUCCESSFUL string (Logic.echoReplication over the fight's hit log);
+                      `speed` the playback tempo, `punishMul` its damage once the player has spammed it (ECHO_REPLICATION)
+     voidSlash        a cut from far away: a dark afterimage line hangs across the floor for `delay` seconds, then cuts
+                      (`len` long, `dmg`); jump it, dash through it or step off it
+     memoryBreak      the arena becomes a remembered place (MEMORY_BREAK.envs, in turn) for `dur` seconds, with a flat
+                      glitch in and out (`glitch` seconds)
+     hollowCopies     summons `count` Hollow copies of Kage (`enemy`), never more than `max` alive
+   WITNESS_CORRUPT are Takashi's moves turned corrupt in Identity Collapse: each runs his ability's code with its numbers
+   merged over TAKASHI_MOVES[base], a violet `tint` instead of his gold, and glitch frames (`glitch`). */
+const WITNESS_ABILITIES = ['echoReplication', 'voidSlash', 'memoryBreak', 'hollowCopies'];
+const WITNESS_MOVES = {
+  echoReplication: { label: 'ECHO REPLICATION', cd: 6.5, range: [0, 420], chance: 0.7, windup: 0.42, speed: 1.08, punishMul: 1.35 },
+  voidSlash:       { label: 'VOID SLASH', cd: 5.2, range: [140, 900], chance: 0.6, windup: 0.5, delay: 0.62, len: 620, dmg: 16 },
+  memoryBreak:     { label: 'MEMORY BREAK', cd: 11, range: [0, 1200], chance: 0.8, windup: 0.5, dur: 4.2, glitch: 0.35 },
+  hollowCopies:    { label: 'HOLLOW COPIES', cd: 12, range: [0, 1200], chance: 0.7, windup: 0.6, count: 2, max: 2, enemy: 'hollow_kage' }
+};
+const WITNESS_TINT = '#a77bff';
+const WITNESS_CORRUPT = {
+  collapseCleave: { base: 'earthCleave', label: 'COLLAPSE CLEAVE', tint: WITNESS_TINT, glitch: 1, cd: 4.8, windup: 0.56, dmg: 17 },
+  collapseSmash:  { base: 'groundSmash', label: 'COLLAPSE SMASH', tint: WITNESS_TINT, glitch: 1, cd: 5.6, windup: 0.6, dmg: 18 },
+  collapseReturn: { base: 'guardReturn', label: 'COLLAPSE RETURN', tint: WITNESS_TINT, glitch: 1, cd: 2.8, windup: 0.16, dmg: 16 }
+};
+/* Echo Replication's rule (Logic.echoReplication): the player's moves `gap` seconds apart or less are one string; the
+   Witness copies the LATEST string that landed on it, its last `max` copyable moves (never throws or grabs). The same
+   landed string `spam` times running is spam: it is read and punished. */
+const ECHO_REPLICATION = { gap: 0.7, max: 5, spam: 3 };
+// Memory Break's remembered places, in the order the arena shifts through them
+const MEMORY_BREAK = { envs: ['hoshimura', 'echoes', 'fortress', 'yard'],
+  names: { hoshimura: 'Hoshimura, before the fire', echoes: 'The City of Echoes', fortress: 'The Fortress of Silence', yard: 'The training yard' } };
+
 /* ---------------- The family form ----------------
    Takashi's sword grammar, shared by Kage, Rem and Takashi (the spec's "shared attack language"): a grounded opening
    stance, a short dash, a rising cut, an aerial follow-up, a controlled landing, then a finishing horizontal flow.
@@ -992,7 +1051,8 @@ const CAMPAIGN = (function buildCampaign() {
         { id: 'core.echo2', kind: 'echo', name: 'Echo II', foe: 'Hollow Akari', foeTitle: 'Corrupted echo', enemy: 'echo_sentinel' },
         { id: 'core.echo3', kind: 'echo', name: 'Echo III', foe: 'Hollow Takashi', foeTitle: 'Corrupted echo', enemy: 'echo_sentinel' },
         { id: 'core.echo4', kind: 'echo', name: 'Echo IV', foe: 'Hollow Rem', foeTitle: 'Corrupted echo', enemy: 'echo_sentinel' },
-        { id: 'core.witness', kind: 'boss', name: 'The Witness', foe: 'The Witness', foeTitle: 'Heart of the Echo System', enemy: 'echo_warden' }
+        { id: 'core.witness', kind: 'boss', name: 'The Witness', foe: 'The Witness', foeTitle: 'Mirror of the Self', enemy: 'witness',
+          scenes: { before: 'core.witness.before', defeat: 'core.witness.defeat' } }
       ] },
     { id: 'epilogue', name: 'Epilogue', title: 'The Last Choice', place: 'Dawn', env: 'highlands', diff: 1,
       stages: [{ id: 'epilogue', kind: 'scene', name: 'The Last Choice', scenes: { before: 'epilogue.stub' } }] }

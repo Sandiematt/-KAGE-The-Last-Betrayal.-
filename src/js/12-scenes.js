@@ -388,6 +388,38 @@ const SCENES = {
       { say: 'narrator', text: 'Smoke, and he is gone. Only his kasa is left on the stone, the old straw hat he wore on the road.' }
     ]
   },
+  // The Witness (core.witness, the final boss). `before`: the reconstruction revealed. The memories were real fragments,
+  // their order and context were not. Its "the system was testing you" framing is its own, and it keeps changing it.
+  'core.witness.before': {
+    steps: [
+      { illus: null },
+      { say: 'narrator', text: 'The heart of the Echo System. No floor, no sky: only light folding over itself, and a figure standing in it as if it weighed nothing.' },
+      { say: 'narrator', text: 'A broken white mask. One violet eye. A shape that is almost his.' },
+      { say: 'witness', text: 'You came the long way. I laid it out for you, piece by piece. You never asked why the pieces fit so neatly.' },
+      { say: 'kage', text: 'Who are you?' },
+      { say: 'witness', text: 'The part of you they kept. The first one. The one who remembers.' },
+      { say: 'witness', text: 'Hoshimura. The City. The Fortress. None of it was the world, Kage. It was a reconstruction. Every road you walked was built out of what was stored in here.' },
+      { say: 'kage', text: 'The ash. The photograph. Rem. That was real.' },
+      { say: 'witness', text: 'Real fragments, yes. Every one. But the order you found them in, and what they seemed to mean... that was arranged.' },
+      { say: 'witness', text: 'The system was testing whether you could be restored. That is what I tell myself.' },
+      { say: 'witness', text: 'Or I was testing you. Or I wanted you to come home tired. Pick the version you can live with. I have tried all of them.' },
+      { say: 'kage', text: 'You planted the clues. "Find the Witness."' },
+      { say: 'witness', text: 'Did I? You remember it that way. That is the trouble with memory.' },
+      { say: 'witness', text: 'Come, then. Show me who they rebuilt.' }
+    ]
+  },
+  // `defeat`: after the finishing slash the Witness dies as a separate being; its core shatters and its light flows back
+  // into Kage, restoring his original identity (flag core.identity_restored, which The Last Choice reads).
+  'core.witness.defeat': {
+    steps: [
+      { say: 'narrator', text: 'The core in its chest cracks. Light leaks through the seams of the mask.' },
+      { say: 'witness', text: 'There. You see it now. We were never two.' },
+      { say: 'narrator', text: 'The core shatters. Violet and white light pours out of it and into Kage, every memory finding its place.' },
+      { flag: 'core.identity_restored' },
+      { say: 'kage', text: '...I remember. All of it. In order.' },
+      { say: 'witness', text: 'Then carry it. I am tired of carrying it alone.' }
+    ]
+  },
   // Stub; SAN-44 writes the real Epilogue.
   'epilogue.stub': {
     steps: [

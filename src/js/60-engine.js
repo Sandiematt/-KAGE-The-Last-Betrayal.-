@@ -3,6 +3,7 @@
 const HOLLOW_DISSOLVE = 0.75;   // seconds a beaten Hollow takes to come apart into memory ash
 const BOSS_DISSOLVE = 1.8;      // ... and a story boss after his defeat scene (the 'finisher' outcome)
 const BOSS_ESCAPE = 0.7;        // seconds an escaping boss takes to fade out in his smoke
+const BOSS_REABSORB = 3.0;      // seconds the Witness takes to come apart while its light flows into Kage
 
 class FightSession {
   constructor(cfg) {
@@ -13,6 +14,9 @@ class FightSession {
     this.cam = { x: 0, y: 0, zoom: 1.05 };
     this.env = getEnv(cfg.env);
     this.history = []; this.letterbox = 1; this.fightFlash = 0;
+    // the Witness: the player's moves with whether each landed (Logic.echoReplication / mirrorSequence read it),
+    // Void Slash lines waiting to cut, and the Memory Break in progress
+    this.hitLog = []; this.voidLines = []; this.memBreak = null; this.memBreakN = 0;
     this.rounds = { p: 0, e: 0, n: 0 };
     this.wave = cfg.wave || 1; this.survivalCoins = 0; this.survivalGems = 0; this.wavesCleared = 0;
     this.dialogue = null; this.combo = 0; this.comboT = 0; this.damageTaken = 0; this.fightTime = 0;
@@ -117,6 +121,7 @@ class FightSession {
   onMoveStart(f, m) {
     if (!f.isPlayer) return;
     this.history.push(m.id); if (this.history.length > 12) this.history.shift();
+    this.hitLog.push({ id: m.id, t: this.time, hit: false }); if (this.hitLog.length > 24) this.hitLog.shift();
     const h = this.history, L = h.length;
     if (L >= 3 && h[L - 1] === h[L - 2] && h[L - 2] === h[L - 3]) {
       for (const e of this.fighters) if (e.ai && e.def && e.def.adapts && e.alive && e.ai.adapted !== m.id) { e.ai.adapted = m.id; e.ai.adaptT = 8; this.fx.popText(e, 'He reads you', '#7fd0c8'); }
@@ -124,6 +129,8 @@ class FightSession {
   }
   onSpecial(f) { this.fx.slowmo(0.55, 0.35); this.fx.punch(0.05); }
   onHit(att, def, dmg) {
+    // the blow that landed on the boss marks its move in the hit log (Echo Replication copies landed strings)
+    if (att.isPlayer && def === this.enemy && att.move) { for (let i = this.hitLog.length - 1; i >= 0; i--) if (this.hitLog[i].id === att.move.id) { this.hitLog[i].hit = true; break; } }
     if (att.isPlayer) {
       this.combo = att.comboHits; this.comboT = 1.2;
       // consecutive-hit milestones get a beat of slow motion and a calligraphy mark
@@ -187,6 +194,56 @@ class FightSession {
       this.fighters.push(m); this.fx.embers(x, -60, 20);
     }
   }
+  /* ---- the Witness ---- */
+  // Void Slash: the cut is already made; a dark afterimage line hangs over `box` for `delay` seconds, then cuts
+  // whoever stands in it (dash i-frames and a high enough jump get through). Drawn by Effects.voidLine.
+  spawnVoidLine(owner, box, delay, dmg) {
+    this.voidLines.push({ owner, box, t: 0, delay, dmg });
+    this.fx.voidLine(box.x, box.x + box.w, box.y + box.h * 0.5, delay, owner.facing);
+  }
+  stepVoidLines(dt) {
+    for (let i = this.voidLines.length - 1; i >= 0; i--) {
+      const v = this.voidLines[i];
+      v.t += dt;
+      if (v.t < v.delay) continue;
+      this.voidLines.splice(i, 1);
+      if (this.phase !== 'fight' || !v.owner.alive) continue;
+      Combat.area(this, v.owner, v.box, { dmg: v.dmg, kb: 380, up: -260, hs: 0.5, imp: 2, hsnd: 'slash', stamp: 'VOID', dir: v.owner.facing });
+      this.fx.shake(0.3); AudioManager.play('slash', { pitch: 0.7 });
+    }
+  }
+  // Memory Break: for `m.dur` seconds the arena is a remembered place (Logic.memoryBreakEnv, in turn), seen through the
+  // memory filter, with a flat glitch (`m.glitch` seconds) as it shifts in and again as it snaps back.
+  memoryBreak(owner, m) {
+    if (this.memBreak) return;
+    const id = Logic.memoryBreakEnv(this.memBreakN++);
+    this.memBreak = { base: this.env, baseMemory: this.memory, t: 0, dur: m.dur, glitch: m.glitch, id };
+    this.env = getEnv(id); this.memory = true; this.glitch = m.glitch;
+    this.fx.banner('Memory Break', MEMORY_BREAK.names[id] || id, WITNESS_TINT);
+    this.fx.shake(0.4); AudioManager.play('teleport', { pitch: 0.5 });
+  }
+  stepMemoryBreak(dt) {
+    if (this.glitch > 0 && !this.isStretch) this.glitch = Math.max(0, this.glitch - dt);
+    const mb = this.memBreak; if (!mb) return;
+    mb.t += dt;
+    if (mb.t >= mb.dur || this.phase === 'outro' || this.phase === 'done') this.endMemoryBreak();
+  }
+  endMemoryBreak() {
+    const mb = this.memBreak; if (!mb) return;
+    this.env = mb.base; this.memory = mb.baseMemory; this.glitch = mb.glitch; this.memBreak = null;
+    AudioManager.play('teleport', { pitch: 0.7 });
+  }
+  // Hollow copies of Kage (WITNESS_MOVES.hollowCopies): cheap minions peeling off the Witness, holding his weapon
+  spawnHollowCopies(owner, m) {
+    const alive = this.fighters.filter(x => x.minion && x.alive && x.def && x.def.id === m.enemy).length;
+    for (let i = 0; i < Math.min(m.count, m.max - alive); i++) {
+      const side = i % 2 ? 1 : -1, x = clamp(owner.x + side * rand(90, 150), this.bounds.l + 40, this.bounds.r - 40);
+      const c = this.makeEnemy(m.enemy, x, { weapon: this.player.weaponId() }, 'minion');
+      c.minion = true; c.facing = this.player.x > x ? 1 : -1;
+      this.fighters.push(c);
+      this.fx.memoryAsh(c, 18, true); this.fx.afterimage(owner, 'rgba(185,160,255,0.45)', { dur: 0.3, dx: side * 40 });
+    }
+  }
   // A beaten Hollow never ragdolls: it freezes on its last frame, glitches, and comes apart into violet memory ash
   // (a flat particle burst, then a trickle while it fades). stepDissolve runs it; the fighter is dropped when gone.
   dissolve(f) {
@@ -200,10 +257,27 @@ class FightSession {
     const k = Math.min(1, f.dissolve / (f.dissolveDur || HOLLOW_DISSOLVE));
     f.alpha = 1 - k * k;
     if (!f.fadeOnly) { f.sqx = 1 + 0.12 * k; f.sqy = 1 - 0.18 * k; }
-    if (k < 1 && !f.fadeOnly) this.fx.memoryAsh(f, f.dissolveDur ? 2 : 1);
-    // the Witness (reabsorb, placeholder until SAN-42): light streams from it into Kage
-    if (k < 1 && f.reabsorb && ((f.dissolve * 60) | 0) % 2 === 0) { const p = this.player; this.fx.part({ x: f.x + rand(-30, 30), y: f.y - rand(20, 180) * f.scale, vx: (p.x - f.x) * 1.4, vy: (p.y - f.y) * 1.4, life: 0.7, size: rand(3, 6), color: '#c9bdff', type: 'spark', grav: 0, drag: 0.2, add: true }); }
+    if (k < 1 && !f.fadeOnly && !(f.reabsorb && f.dissolve < 0.5)) this.fx.memoryAsh(f, f.dissolveDur ? 2 : 1);
+    if (f.reabsorb) this.stepReabsorb(f, k);
     if (k >= 1) { f.visible = false; f.alpha = 0; }
+  }
+  /* The Witness's reabsorb (defeat 'reabsorb', after its defeat scene): its chest core shatters into flat shards, violet
+     and white light streams flow out of it into Kage's chest, Kage glows, and the Witness's fragments come apart into
+     memory ash. stepDissolve calls this each tick with k = 0..1 over BOSS_REABSORB. */
+  stepReabsorb(f, k) {
+    const p = this.player, s = f.scale, cx = f.sk.neck.x * 0.6 + f.sk.hip.x * 0.4, cy = f.sk.neck.y * 0.6 + f.sk.hip.y * 0.4;
+    if (!f.coreBroken) {
+      f.coreBroken = true;
+      this.fx.coreShatter(cx, cy, 1.2 * s); this.fx.impactFrame(cx, cy, 3); this.fx.shake(0.8); this.fx.punch(0.08);
+      this.fx.ring(cx, cy, 260, '#ffffff', 0.5, 6); this.fx.ring(cx, cy, 380, WITNESS_TINT, 0.7, 8);
+      this.fx.slowmo(0.4, 0.5); AudioManager.play('clang', { pitch: 0.6 }); AudioManager.play('boss');
+    }
+    // the light streams: a new ribbon every few ticks, alternating violet and white, from the body into Kage's chest
+    if (k < 0.8 && ((f.dissolve * 60) | 0) % 4 === 0) {
+      this.fx.lightStream(cx + rand(-26, 26) * s, cy + rand(-70, 70) * s, p, ((f.dissolve * 15) | 0) % 2 ? '#ffffff' : '#a77bff');
+    }
+    p.glow = Math.max(p.glow || 0, k < 0.85 ? 0.6 : 0);
+    if (k > 0.25 && k < 0.85 && ((f.dissolve * 60) | 0) % 18 === 0) p.flash = 0.06;   // Kage pulses with the light he takes in
   }
   smokeCloud(x, big) { this.fx.smoke(x, 0, big ? 18 : 12, big); AudioManager.play('smoke'); }
 
@@ -224,6 +298,7 @@ class FightSession {
     AudioManager.play('ko');
     this.koTarget = def; this.phase = 'ko'; this.phaseT = 0;
     for (const f of this.fighters) if (f.decoy && f.alive) this.vanishDecoy(f);
+    this.voidLines.length = 0;
     for (const f of this.fighters) if ((f.clone || f.minion) && f.alive) { f.alive = false; f.hp = 0; f.setState('juggle'); f.vy = -300; if (f.clone) { f.visible = false; this.smokeCloud(f.x); } else if (f.hollow) this.dissolve(f); }
     if (def === this.player) this.rounds.e++; else { this.rounds.p++; if (this.mode === 'survival') this.waveCleared(); }
   }
@@ -359,6 +434,8 @@ class FightSession {
       if (f.aura > 0) { f.aura -= dt; if (Math.abs(p.x - f.x) < 330 && f.alive) p.slow = 0.68; }
       if (f.clone && f.alive) { f.life -= dt; if (f.life <= 0) { if (f.decoy) this.vanishDecoy(f); else { f.alive = false; f.visible = false; this.smokeCloud(f.x); } } }
     }
+    this.stepVoidLines(dt); this.stepMemoryBreak(dt);
+    if (p.glow > 0) p.glow = Math.max(0, p.glow - dt * 0.5);
     // simulate
     for (const f of this.fighters) { if (f.dissolve) { this.stepDissolve(f, dt); continue; } f.update(dt, this); VFX.emit(f, this.fx); }
     if (this.phase === 'fight' || this.phase === 'ko') Combat.resolve(this);
@@ -418,13 +495,18 @@ class FightSession {
   // How a beaten story boss leaves, after his defeat scene (Logic.fightFormat: format.defeat):
   //   finisher  he comes apart into violet memory ash (the same dissolve as a Hollow, slower and fuller);
   //   escape    he rises from his knee into a burst of smoke and fades out;
-  //   reabsorb  the Witness: a placeholder (it dissolves and its light streams into Kage); SAN-42 finishes it.
+  //   reabsorb  the Witness: its chest core shatters into flat shards, violet and white light streams flow into Kage,
+  //             Kage glows, and its fragments come apart into memory ash (stepReabsorb); recorded as reabsorbed.
   bossExit() {
     const e = this.enemy, d = this.format.defeat;
     if (!e || e.dissolve) return;
     if (d === 'escape') { e.fadeOnly = true; e.dissolveDur = BOSS_ESCAPE; this.smokeCloud(e.x, true); this.fx.popText(e, 'ESCAPED', C.gold); this.dissolve(e); return; }
+    if (d === 'reabsorb') {
+      e.reabsorb = true; e.dissolveDur = BOSS_REABSORB; this.phaseT = 0;   // hold the outro until the light has flowed in
+      this.dissolve(e); this.fx.popText(e, 'REABSORBED', WITNESS_TINT);
+      return;
+    }
     e.dissolveDur = BOSS_DISSOLVE;
-    if (d === 'reabsorb') { e.reabsorb = true; this.player.flash = 0.3; }
     this.dissolve(e);
     this.fx.slowmo(0.6, 0.6);
   }

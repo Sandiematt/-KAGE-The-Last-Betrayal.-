@@ -378,6 +378,48 @@ const Logic = {
     if (h.length >= n && h.slice(-n).every(x => x === id)) return true;
     return this.predictability(h, id) >= PATTERN_READ.share;
   },
+  /* ---- the Witness (core.witness) ---- */
+  // One of the Witness's moves (WITNESS_MOVES) or one of Takashi's moves corrupted for Identity Collapse
+  // (WITNESS_CORRUPT: his numbers with its overrides on top, plus { base, corrupt: true }). A copy with its id; null for
+  // any other id.
+  witnessMove(id) {
+    if (WITNESS_ABILITIES.includes(id) && WITNESS_MOVES[id]) return JSON.parse(JSON.stringify(Object.assign({ id }, WITNESS_MOVES[id])));
+    const v = WITNESS_CORRUPT[id];
+    if (!v || !TAKASHI_ABILITIES.includes(v.base)) return null;
+    return JSON.parse(JSON.stringify(Object.assign({}, TAKASHI_MOVES[v.base], v, { id, corrupt: true })));
+  },
+  // The player's moves (log: [{ id, t, hit }], oldest first) cut into strings: moves ECHO_REPLICATION.gap seconds apart
+  // or less belong together. Throws and grabs are never part of a string the Witness can copy.
+  echoStrings(log) {
+    const out = []; let cur = null, last = -1e9;
+    for (const e of log || []) {
+      const m = MOVES[e.id];
+      if (!m || m.kind === 'throw' || m.kind === 'grab') continue;
+      if (!cur || e.t - last > ECHO_REPLICATION.gap) { cur = []; out.push(cur); }
+      cur.push(e); last = e.t;
+    }
+    return out;
+  },
+  // Echo Replication: the pattern the Witness copies is the player's LATEST string that landed on it (its last
+  // ECHO_REPLICATION.max moves). { moves, repeats, punish }: `repeats` is how many landed strings in a row (counting
+  // back from it) were that same pattern; `punish` once it is ECHO_REPLICATION.spam or more (spam is read and punished).
+  // null until a blow has landed.
+  echoReplication(log) {
+    const hit = this.echoStrings(log).filter(s => s.some(e => e.hit)).map(s => s.slice(-ECHO_REPLICATION.max).map(e => e.id));
+    if (!hit.length) return null;
+    const moves = hit[hit.length - 1], key = moves.join(' ');
+    let repeats = 0;
+    for (let i = hit.length - 1; i >= 0 && hit[i].join(' ') === key; i--) repeats++;
+    return { moves, repeats, punish: repeats >= ECHO_REPLICATION.spam };
+  },
+  // Phase 1's mirror: the player's latest string, with the wait before each move (0 for the first), for the Witness to
+  // replay with Kage's own timing. [] before he has attacked.
+  mirrorSequence(log) {
+    const s = this.echoStrings(log), last = s[s.length - 1] || [];
+    return last.slice(-ECHO_REPLICATION.max).map((e, i, a) => ({ id: e.id, wait: i ? e.t - a[i - 1].t : 0 }));
+  },
+  // The remembered place Memory Break's n-th shift turns the arena into (MEMORY_BREAK.envs in turn).
+  memoryBreakEnv(n) { const e = MEMORY_BREAK.envs; return e[((n % e.length) + e.length) % e.length]; },
   // A weapon's grounded string as it plays at a level: [{ id, startup, active, recovery, dmg, reach }] with the
   // weapon's speed, damage and reach multipliers (weaponMul) applied, so two blades can be compared (Shinsen vs Kagetsu).
   weaponMoves(id, lvl) {

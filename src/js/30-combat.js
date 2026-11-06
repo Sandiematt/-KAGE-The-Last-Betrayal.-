@@ -563,6 +563,7 @@ const WeaponSystem = {
   },
   drop(world, f) {
     if (!f.hasWeapon || f.weaponId() === 'fists' || f.baseWeapon === 'storm_orbs' || f.baseWeapon === 'iron_fists') return;
+    if (f.def && f.def.mirrorWeapon) return;   // the Witness's shards cannot be knocked away: they re-form in its hand
     f.hasWeapon = false;
     if (f.state === 'move') { f.move = null; }
     world.pickups.push({ wid: f.baseWeapon, owner: f, x: f.sk.fha.x, y: Math.min(-40, f.sk.fha.y), vx: -f.facing * rand(260, 420), vy: -rand(500, 700), rot: f.wAng, vr: rand(14, 20) * -f.facing, grounded: false, t: 0 });
@@ -670,7 +671,7 @@ const Combat = {
     if (def.counterStance && !m.proj && front && m.kind !== 'grab') {
       def.counterStance = false;
       this.parry(world, att, def, m, ix, iy, dir);
-      fx.stamp('COUNTERED', ix, iy, 2, def.redline ? '#ff4a3c' : def.goldGuard ? '#e8c25c' : '#7fd0c8');
+      fx.stamp('COUNTERED', ix, iy, 2, def.redline ? '#ff4a3c' : def.goldGuard ? '#e8c25c' : def.guardTint || '#7fd0c8');
       // an ability may answer the blow itself (Raikon's Redline Counter); otherwise the first weapon strike
       if (def.abil && def.abil.onCounter) { def.setState('ability'); def.abil.onCounter(def, world, att); }   // parry() set him idle
       else { def.endAbility(world); def.startMove(def.weapon().moves[0], world); }
