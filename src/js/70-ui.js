@@ -563,7 +563,7 @@ const UIManager = {
     if (kind === 'helmets') {
       const { g, w, h } = prepCanvas(cv);
       const r = h * 0.2;
-      g.save(); g.translate(w / 2, h * 0.62); g.fillStyle = owned ? '#2a2620' : '#1a1814'; g.beginPath(); g.arc(0, 0, r, 0, TAU); g.fill();
+      g.save(); g.translate(w / 2, h * 0.62); drawAnimeHead(g, r, owned ? '#2a2620' : '#1a1814');
       drawHelmet(g, gearLook('helmets', id), r, owned ? '#2a2620' : '#1a1814', {}, f);
       g.restore();
     } else drawFighterInto(cv, f, { fit: 1.2, tall: 1.05, color: owned ? null : '#1a1814', rim: owned ? 'rgba(236,229,211,0.25)' : null, ground: 1.15 });

@@ -1,6 +1,5 @@
 /* KAGE — Fighter: procedural skeleton, pose blending, state machine, gear & weapon art (Player / Enemy share it) */
 
-const HERO_FACEWRAP = '#efe9dd', HERO_FACEWRAP_SHADE = '#b4ac9f';   // Kage's white face-wrap: flat fill + one cel-shade tone
 const BODY = { torso: 60, neck: 7, head: 18, upper: 36, fore: 34, thigh: 45, shin: 47 };
 const SHAPE = {
   fists: 'none', tsubame: 'short', kagetsu: 'katana', shizuka: 'katana', onikiri: 'cleaver', mizuchi: 'spear',
@@ -24,7 +23,9 @@ class Cloth {
   update(ax, ay, facing, vx, dt, t) {
     const n = this.n, px = this.px, py = this.py, ox = this.ox, oy = this.oy, seg = this.seg;
     if (!this.init) {
-      for (let i = 0; i < n; i++) { px[i] = ox[i] = ax - facing * i * seg; py[i] = oy[i] = ay + i * 2; }
+      // `hang` (0..1): start hanging down and slightly back instead of straight out behind (long coat skirts settle at once)
+      const hg = this.o.hang, hx = hg ? hg : 1, hy = hg ? Math.sqrt(1 - hg * hg) * seg : 2;
+      for (let i = 0; i < n; i++) { px[i] = ox[i] = ax - facing * i * seg * hx; py[i] = oy[i] = ay + i * hy; }
       this.init = true;
     }
     const wind = (this.o.wind || 520) + Math.sin(t * 3.1 + this.o.ph) * 260;
@@ -165,15 +166,16 @@ class Fighter {
     this.cloths = [];
     if (this.outfit === 'gi') {
       const fam = this.family, sash = this.def && this.def.sash;   // `sash` on an ENEMIES entry colours the obi (young Rem's purple)
-      const bc = o.isPlayer ? C.emberBright : sash || (fam ? fam.trim : '#2a2620'), bc2 = o.isPlayer ? '#b8362b' : sash ? sash : fam ? '#9298a0' : '#2a2620';
+      const bc = o.isPlayer ? ANIME.crimsonHi : sash || (fam ? fam.trim : '#2a2620'), bc2 = o.isPlayer ? ANIME.crimson : sash ? sash : fam ? '#9298a0' : '#2a2620';
       this.cloths.push({ kind: 'belt', c: new Cloth(6, 5.6 * this.scale, { ph: 7, wind: 200, grav: 1250, stiff: 1.7 }), at: 'hip', color: bc, w: 4 * this.scale, w1: 2.4 * this.scale, dy: -11, dx: -3 });
       this.cloths.push({ kind: 'belt', c: new Cloth(5, 5.4 * this.scale, { ph: 8, wind: 170, grav: 1300, stiff: 1.7 }), at: 'hip', color: bc2, w: 3.2 * this.scale, w1: 2 * this.scale, dy: -10, dx: -1 });
     }
-    if (this.helmet === 'topknot' && o.isPlayer) {
-      // Kage's bible look: one short trailing strip of the white face-wrap, knotted low at the back of the head,
-      // with a small stub of the other end beside it (out of phase so they never move as one strip)
-      this.cloths.push({ kind: 'scarf', c: new Cloth(6, 6.2 * this.scale, { ph: 9, wind: 1050, grav: 560, stiff: 1.9 }), at: 'head', color: HERO_FACEWRAP, w: 4 * this.scale, w1: 1.6 * this.scale, dy: 6, dx: 17 });
-      this.cloths.push({ kind: 'scarf', c: new Cloth(4, 5 * this.scale, { ph: 12.5, wind: 900, grav: 640, stiff: 1.9 }), at: 'head', color: HERO_FACEWRAP_SHADE, w: 3 * this.scale, w1: 1.3 * this.scale, dy: 8, dx: 16 });
+    if (o.isPlayer && this.armor !== 'training' && (o.scarf || this.helmet === 'topknot')) {
+      // Kage's signature: a red scarf wound round the neck (drawn with the body, 21-anime-body.js) with two long tails
+      // streaming back, out of phase so they never move as one strip
+      const sc = this.scale;
+      this.cloths.push({ kind: 'scarf', c: new Cloth(12, 7.4 * sc, { ph: 9, wind: 1400, grav: 430, stiff: 1.85 }), at: 'neck', color: ANIME.scarf, rim: 'rgba(24,6,6,0.7)', w: 6.4 * sc, w1: 2.2 * sc, dy: -2, dx: 7 });
+      this.cloths.push({ kind: 'scarf', c: new Cloth(10, 7 * sc, { ph: 12.5, wind: 1250, grav: 480, stiff: 1.85 }), at: 'neck', color: '#a8262c', rim: 'rgba(24,6,6,0.7)', w: 4.8 * sc, w1: 1.6 * sc, dy: 1, dx: 6 });
     } else if (this.helmet === 'topknot') {
       // two thin hachimaki tails of different length, out of phase so they never move as one strip
       this.cloths.push({ kind: 'scarf', c: new Cloth(10, 7.6 * this.scale, { ph: 9, wind: 860, grav: 680, stiff: 1.75 }), at: 'head', color: C.emberBright, w: 3.4 * this.scale, w1: 1.3 * this.scale, dy: -8, dx: 16 });
@@ -190,11 +192,9 @@ class Fighter {
       this.cloths.push({ kind: 'scarf', c: new Cloth(6, 5.6 * this.scale, { ph: 9, wind: 820, grav: 700, stiff: 1.8 }), at: 'head', color: hc, w: 2.8 * this.scale, w1: 1.1 * this.scale, dy: -5, dx: 16 });
       this.cloths.push({ kind: 'scarf', c: new Cloth(5, 5 * this.scale, { ph: 12.5, wind: 700, grav: 780, stiff: 1.8 }), at: 'head', color: hc, w: 2.3 * this.scale, w1: 1 * this.scale, dy: -3, dx: 16 });
     }
-    if (o.scarf && this.helmet !== 'topknot') {
-      // under another helmet the face-wrap still trails a short white strip from the neck (the sash stays the one red accent)
-      const pc = o.isPlayer, sc = pc ? HERO_FACEWRAP : C.emberBright;
-      this.cloths.push({ kind: 'scarf', c: new Cloth(pc ? 6 : 9, (pc ? 5.6 : 7) * this.scale, { ph: 0, wind: 560 }), at: 'neck', color: sc, w: (pc ? 4.2 : 5.5) * this.scale });
-      if (!pc) this.cloths.push({ kind: 'scarf', c: new Cloth(8, 6.5 * this.scale, { ph: 2, wind: 480 }), at: 'neck', color: C.emberBright, w: 3.6 * this.scale, dy: 4 });
+    if (o.scarf && !o.isPlayer) {
+      this.cloths.push({ kind: 'scarf', c: new Cloth(9, 7 * this.scale, { ph: 0, wind: 560 }), at: 'neck', color: C.emberBright, w: 5.5 * this.scale });
+      this.cloths.push({ kind: 'scarf', c: new Cloth(8, 6.5 * this.scale, { ph: 2, wind: 480 }), at: 'neck', color: C.emberBright, w: 3.6 * this.scale, dy: 4 });
     }
     const cape = { cloak: [C.ink, '#9b8cff'], shadow_cloak: [C.ink, '#3a342b'], mist_shroud: ['rgba(150,160,165,0.55)', null], tyrant: ['#050404', C.emberBright] }[this.armor];
     if (cape) this.cloths.push({ kind: 'cape', c: new Cloth(9, 11 * this.scale, { ph: 1, wind: 380, grav: 900 }), at: 'sh', color: cape[0], edge: cape[1], w0: 14 * this.scale, w1: 30 * this.scale });
@@ -266,6 +266,7 @@ class Fighter {
     }
     if (this.helmet === 'rain_hood') this.cloths.push({ kind: 'scarf', c: new Cloth(9, 7.4 * this.scale, { ph: 3.5, wind: 820, grav: 640, stiff: 1.7 }), at: 'head', color: '#7fb8ff', w: 3 * this.scale, w1: 1.2 * this.scale, dy: 2, dx: 15 });
     if (this.helmet === 'sentinel_helm') this.cloths.push({ kind: 'scarf', c: new Cloth(6, 7 * this.scale, { ph: 6, wind: 600 }), at: 'head', color: C.ember, w: 6 * this.scale, dy: -14 });
+    animeCloths(this);   // the anime body's own cloth (Kage's coat panels: 21-anime-body.js)
   }
 
   /* ---- equipment helpers ---- */
@@ -1172,29 +1173,6 @@ const MOVE_EASE = {
 /* ======================================================================== */
 /*  Drawing                                                                   */
 /* ======================================================================== */
-function strokeLimb(ctx, a, b, c) { ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.lineTo(c.x, c.y); ctx.stroke(); }
-
-/* ---- anatomical silhouette primitives ---- */
-// tapered limb with a muscle bulge: front = bulge on the side the fighter faces (quads, biceps), rear = opposite (calf, triceps)
-function limbShape(ctx, a, b, ra, rb, front, rear, facing, pos) {
-  const ax = a.x, ay = a.y, bx = b.x, by = b.y;
-  const dx = bx - ax, dy = by - ay, L = Math.sqrt(dx * dx + dy * dy) || 0.001;
-  const ux = dx / L, uy = dy / L, nx = -uy, ny = ux;
-  const nFront = nx * facing >= 0;
-  const rm = ra + (rb - ra) * pos;
-  const rP = rm + (nFront ? front : rear), rN = rm + (nFront ? rear : front);
-  const mx = ax + dx * pos, my = ay + dy * pos;
-  const p0x = ax + nx * ra, p0y = ay + ny * ra, p2x = bx + nx * rb, p2y = by + ny * rb;
-  const q0x = bx - nx * rb, q0y = by - ny * rb, q2x = ax - nx * ra, q2y = ay - ny * ra;
-  const an = Math.atan2(ny, nx);
-  ctx.beginPath();
-  ctx.moveTo(p0x, p0y);
-  ctx.quadraticCurveTo(2 * (mx + nx * rP) - (p0x + p2x) / 2, 2 * (my + ny * rP) - (p0y + p2y) / 2, p2x, p2y);
-  ctx.arc(bx, by, rb, an, an - Math.PI, true);
-  ctx.quadraticCurveTo(2 * (mx - nx * rN) - (q0x + q2x) / 2, 2 * (my - ny * rN) - (q0y + q2y) / 2, q2x, q2y);
-  ctx.arc(ax, ay, ra, an + Math.PI, an, true);
-  ctx.closePath(); ctx.fill();
-}
 // V-tapered torso: glutes, lower back, chest and lats, shoulders, neck — profile measured along the spine
 const TORSO_FRONT = [[-0.08, 0.6], [0.12, 0.72], [0.4, 0.6], [0.7, 1.02], [0.9, 0.82], [1.04, 0.34]];
 const TORSO_BACK = [[1.04, 0.36], [0.9, 0.8], [0.66, 0.86], [0.42, 0.58], [0.16, 0.86], [-0.08, 0.6]];
@@ -1242,84 +1220,6 @@ function torsoShape(ctx, hip, neck, facing, Ut, front, back) {
   }
   ctx.closePath(); ctx.fill();
 }
-// foot: flat along the floor when standing, flexed (heel leading) when the shin swings forward into a kick
-function footShape(ctx, knee, ankle, facing, U, len) {
-  let sx = ankle.x - knee.x, sy = ankle.y - knee.y; const sl = Math.sqrt(sx * sx + sy * sy) || 1; sx /= sl; sy /= sl;
-  const fx = facing > 0 ? sy : -sy, fy = facing > 0 ? -sx : sx;
-  const ax = ankle.x, ay = ankle.y, h = U * 0.42;
-  ctx.beginPath();
-  ctx.moveTo(ax - fx * h * 0.9 - sx * h * 0.6, ay - fy * h * 0.9 - sy * h * 0.6);
-  ctx.lineTo(ax - fx * h * 1.0 + sx * h * 0.9, ay - fy * h * 1.0 + sy * h * 0.9);
-  ctx.lineTo(ax + fx * len + sx * h * 0.9, ay + fy * len + sy * h * 0.9);
-  ctx.quadraticCurveTo(ax + fx * (len + h * 0.6) + sx * h * 0.3, ay + fy * (len + h * 0.6) + sy * h * 0.3, ax + fx * len * 0.8 - sx * h * 0.05, ay + fy * len * 0.8 - sy * h * 0.05);
-  ctx.lineTo(ax + fx * h * 0.6 - sx * h * 0.7, ay + fy * h * 0.6 - sy * h * 0.7);
-  ctx.closePath(); ctx.fill();
-}
-function fistShape(ctx, p, r) { ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, TAU); ctx.fill(); }
-const _np = { x: 0, y: 0 };
-
-// flat 2D stickman: uniform round-capped limbs, plain circle head, no shading, no muscle volume
-// Kage (the player) gets the story-bible details: small feet, dark arm/leg wraps, the red sash and (in drawHelmet) the white face-wrap
-// the limb wraps stay dark so the silhouette reads black; white is kept for the face-wrap alone
-const HERO_WRAP = '#3b3631', HERO_WRAP_BACK = '#25211e';
-function heroWrap(ctx, a, b, u0, u1, r, col, ink, s) {
-  const ax = lerp(a.x, b.x, u0), ay = lerp(a.y, b.y, u0), bx = lerp(a.x, b.x, u1), by = lerp(a.y, b.y, u1);
-  ctx.strokeStyle = col; ctx.lineWidth = r * 2; ctx.lineCap = 'butt';
-  ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
-  // diagonal binding lines
-  const dx = bx - ax, dy = by - ay, D = Math.hypot(dx, dy) || 1, ux = dx / D, uy = dy / D, nx = -uy, ny = ux, n = Math.max(2, Math.round(D / (4.2 * s)));
-  ctx.strokeStyle = ink; ctx.globalAlpha *= 0.5; ctx.lineWidth = 0.8 * s;
-  ctx.beginPath();
-  for (let i = 1; i < n; i++) { const k = i / n, cx = ax + dx * k, cy = ay + dy * k; ctx.moveTo(cx - nx * r - ux * r * 0.55, cy - ny * r - uy * r * 0.55); ctx.lineTo(cx + nx * r + ux * r * 0.55, cy + ny * r + uy * r * 0.55); }
-  ctx.stroke(); ctx.globalAlpha /= 0.5; ctx.lineCap = 'round';
-}
-Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
-  const sk = this.sk, s = this.scale, b = this.build, f = this.facing;
-  const big = b.w >= 16 ? 1.45 : b.w >= 13 ? 1.2 : 1;
-  const L = b.w * s * 0.42 * (b.w >= 13 ? 1.15 : 1);          // limb half-width, one value for every arm and leg
-  const T = L * 1.25 * big, hr = BODY.head * s * b.head;
-  const hero = this.isPlayer, det = !flat && hero, gi = !flat && this.outfit === 'gi';
-  const seg = (a, c, r) => limbShape(ctx, a, c, r, r, 0, 0, f, 0.5);
-  const legW = hero ? L : L * 1.05;
-  const foot = (kn, an) => footShape(ctx, kn, an, f, legW * 2.3, (hero ? 8.5 : 9) * s * big);
-  ctx.fillStyle = front;
-  seg(sk.shB, sk.bel, L); seg(sk.bel, sk.bha, L);
-  if (det) heroWrap(ctx, sk.bel, sk.bha, 0.42, 0.9, L * 1.02, HERO_WRAP_BACK, front, s);
-  this.drawOffhand(ctx, front, flat ? Object.assign({}, opt, { color: front }) : opt);
-  ctx.fillStyle = front;
-  seg(sk.hipB, sk.bkn, legW); seg(sk.bkn, sk.bft, legW); foot(sk.bkn, sk.bft);
-  if (det) heroWrap(ctx, sk.bkn, sk.bft, 0.5, 0.9, legW * 1.04, HERO_WRAP_BACK, front, s);
-  ctx.fillStyle = front;
-  // torso: a touch narrower at the waist than across the chest, so shoulders read without bulk
-  // (Akari's slim, curved torso is her garb's own shape, drawArmor 'mei_en': no capsule under it to hide the waist)
-  const akari = this.helmet === 'akari_mask';
-  if (hero) { limbShape(ctx, sk.hip, sk.neck, T * 0.9, T * 1.02, 0, 0, f, 0.5); }
-  else if (!akari) seg(sk.hip, sk.neck, T);
-  drawArmor(ctx, this, front, flat ? { color: front } : opt, T * 1.25);
-  ctx.fillStyle = front;
-  seg(sk.hipF, sk.fkn, legW); seg(sk.fkn, sk.fft, legW); foot(sk.fkn, sk.fft);
-  if (det) heroWrap(ctx, sk.fkn, sk.fft, 0.5, 0.9, legW * 1.04, HERO_WRAP, front, s);
-  if (gi) this.drawSash(ctx, T);
-  ctx.fillStyle = front;
-  _np.x = lerp(sk.neck.x, sk.head.x, 0.5); _np.y = lerp(sk.neck.y, sk.head.y, 0.5);
-  seg(sk.neck, _np, hero ? L * 0.72 : L * 0.9);
-  ctx.save(); ctx.translate(sk.head.x, sk.head.y); ctx.rotate((this.pose.lean + this.pose.head + this.pose.rot + this.extraRot) * DEG * f); ctx.scale(f, 1);
-  ctx.fillStyle = front;
-  const takashi = bossLook(this) === 'takashi';
-  if (akari || isRem(this)) akariHeadPath(ctx, hr); else if (takashi) takashiHeadPath(ctx, hr); else { ctx.beginPath(); ctx.arc(0, 0, hr, 0, TAU); }
-  ctx.fill();
-  if (takashi) drawTakashiBeard(ctx, hr, front, flat);
-  drawHelmet(ctx, this.helmet, hr, front, flat ? { color: front } : opt, this);
-  if (!flat && !opt.noEyes) drawEyes(ctx, this, hr, opt);
-  ctx.restore();
-  ctx.fillStyle = front;
-  seg(sk.shF, sk.fel, L); seg(sk.fel, sk.fha, L);
-  if (det) heroWrap(ctx, sk.fel, sk.fha, 0.42, 0.9, L * 1.02, HERO_WRAP, front, s);
-  ctx.fillStyle = front;
-  if (this.weaponId() === 'iron_fists' || this.weaponId() === 'storm_orbs') this.drawFistGear(ctx, front, flat ? { color: front } : opt);
-  this.drawMainWeapon(ctx, front, flat ? Object.assign({}, opt, { color: front }) : opt);
-};
-
 // red obi: a band around the waist with a small knot at the front (its tails are cloth)
 Fighter.prototype.drawSash = function (ctx, T) {
   const sk = this.sk, s = this.scale, f = this.facing;
@@ -1397,6 +1297,12 @@ const OUTLINE_DIRS = Array.from({ length: 12 }, (_, i) => [Math.cos(i * Math.PI 
 Fighter.prototype.draw = function (ctx, opt) {
   opt = opt || {};
   if (!this.visible || this.alpha <= 0.01) return;
+  // a translucent fighter (clones, Akari's decoy) is drawn opaque into a layer and composited once (21-anime-body.js)
+  if (this.alpha < 0.99 && !opt.layered) {
+    const a = this.alpha, lo = Object.assign({}, opt, { layered: true });
+    animeLayer(ctx, a, 0, (g) => { this.alpha = 1; this.draw(g, lo); this.alpha = a; });
+    return;
+  }
   const sk = this.sk, s = this.scale;
   const flashing = this.flash > 0 && !opt.noFlash && !opt.color;
   const flat = !!opt.color || flashing;
@@ -1437,7 +1343,7 @@ Fighter.prototype.draw = function (ctx, opt) {
   for (const cl of this.cloths) if (cl.kind === 'cape' || cl.kind === 'robe') cl.c.draw(ctx, opt.color || cl.color, cl.w0, cl.w1, null);
   // clean, even white outline: the silhouette stamped around itself, then the flat body on top
   if (opt.rim && !opt.color) {
-    const d = 1.6 * s * (glitch ? 1 + Math.abs(glitch) * 3 : 1), oc = (this.hollow && this.family.outline) || opt.outline || '#f1ebe0', ro = this._rimOpt || (this._rimOpt = {});
+    const d = 1.6 * s * (glitch ? 1 + Math.abs(glitch) * 3 : 1), oc = (this.hollow && this.family.outline) || opt.outline || (typeof opt.rim === 'string' ? opt.rim : '#f1ebe0'), ro = this._rimOpt || (this._rimOpt = {});
     for (const k in ro) delete ro[k];
     Object.assign(ro, opt, { rimPass: true });
     for (const [dx, dy] of OUTLINE_DIRS) { ctx.save(); ctx.translate(dx * d, dy * d); this.silhouette(ctx, oc, oc, true, ro); ctx.restore(); }
@@ -2021,21 +1927,6 @@ Fighter.prototype.drawFistGear = function (ctx, ink, opt) {
   }
 };
 
-function drawEyes(ctx, f, r, opt) {
-  if (opt.color || f.helmet === 'witness_mask' || f.helmet === 'akari_mask') return;   // the Witness's and Akari's eyes are part of their masks
-  ctx.save();
-  if (f.isPlayer) {
-    ctx.fillStyle = '#ffffff';
-    ctx.beginPath(); ctx.moveTo(r * 0.14, -r * 0.08); ctx.lineTo(r * 0.72, r * 0.0); ctx.lineTo(r * 0.6, r * 0.22); ctx.lineTo(r * 0.24, r * 0.16); ctx.closePath(); ctx.fill();
-    ctx.restore(); return;
-  }
-  // enemies: flat angry eyes in their colour, white when telegraphing
-  ctx.fillStyle = f.telegraph > 0 ? '#ffffff' : f.eye;
-  ctx.beginPath(); ctx.moveTo(r * 0.12, -r * 0.2); ctx.lineTo(r * 0.62, -r * 0.02); ctx.lineTo(r * 0.52, r * 0.18); ctx.lineTo(r * 0.18, r * 0.06); ctx.closePath(); ctx.fill();
-  if (f.telegraph > 0) { ctx.strokeStyle = f.eye; ctx.lineWidth = 2; const fl = r * (1 + 0.3 * Math.sin(f.time * 50)); ctx.beginPath(); ctx.moveTo(r * 0.38 - fl, 0); ctx.lineTo(r * 0.38 + fl, 0); ctx.moveTo(r * 0.38, -fl * 0.5); ctx.lineTo(r * 0.38, fl * 0.5); ctx.stroke(); }
-  ctx.restore();
-}
-
 // a `twin` weapon (Kagehira & Yūrei) draws a different blade in each hand: Kagehira in the main hand, Yūrei in the off hand
 function twinShape(w, sh, offhand) { return w && w.twin && sh === 'short' ? (offhand ? 'yurei' : 'kagehira') : sh; }
 /* ---- weapon art: origin at the grip, +x along the blade ---- */
@@ -2043,7 +1934,7 @@ function drawWeaponShape(ctx, sh, L, mode, s, ink, f) {
   if (f && f.def && f.def.mirrorWeapon && mode !== 'art') return drawShardWeapon(ctx, sh, L, mode, s, ink, f);
   const rim = mode === 'rim'; if (rim) mode = 'flat';   // outline pass: the steel stays thin, only the hilt gets the white edge
   const art = mode === 'art';
-  const steel = art ? C.bone : mode === 'flat' ? ink : '#e6e1d6';
+  const steel = art ? C.bone : mode === 'flat' ? ink : ANIME.silver;   // muted silver (STYLE.md), never pure white
   const edge = art ? C.emberBright : null;
   const dark = art ? '#2a2620' : ink;
   ctx.lineCap = 'round'; ctx.lineJoin = 'round';
@@ -2054,11 +1945,12 @@ function drawWeaponShape(ctx, sh, L, mode, s, ink, f) {
       const hl = 0.31, hw = 2.2 * s;
       line(-L * hl, 0, -1.5 * s, 0, hw * 2, dark);
       if (!rim && mode !== 'flat') {
-        ctx.fillStyle = art ? C.gold : '#d9d3c6';
+        ctx.fillStyle = art ? C.gold : '#4e4f55';
         for (let i = 1; i < 5; i++) { ctx.save(); ctx.translate(-L * hl * (i + 0.1) / 5.2, 0); ctx.rotate(Math.PI / 4); ctx.fillRect(-0.95 * s, -0.95 * s, 1.9 * s, 1.9 * s); ctx.restore(); }
       }
       if (art) { ctx.fillStyle = C.gold; ctx.beginPath(); ctx.arc(-L * hl, 0, hw * 1.1, 0, TAU); ctx.fill(); }
-      ctx.fillStyle = art ? C.gold : ink; ctx.beginPath(); ctx.ellipse(-0.6 * s, 0, 1.7 * s, 5 * s, 0, 0, TAU); ctx.fill();
+      ctx.fillStyle = art ? C.gold : ink; ctx.beginPath(); ctx.ellipse(-0.6 * s, 0, 1.9 * s, 5.4 * s, 0, 0, TAU); ctx.fill();
+      if (!rim && mode !== 'flat' && !art) { ctx.strokeStyle = ANIME.metal2; ctx.lineWidth = 0.9 * s; ctx.stroke(); ctx.fillStyle = ANIME.silver; ctx.beginPath(); ctx.arc(-L * hl, 0, hw * 1.05, 0, TAU); ctx.fill(); }   // round tsuba rim, silver kashira
       if (rim) break;
       // centre line y(u) = -sori * u^2, half-width tapers from the habaki to the yokote
       const N = 9, sori = L * 0.045, w0 = 1.75 * s, w1 = 1.2 * s, yk = 0.9, bx = 1.4 * s;
@@ -2070,10 +1962,14 @@ function drawWeaponShape(ctx, sh, L, mode, s, ink, f) {
       for (let i = N - 1; i >= 0; i--) { const u = yk * i / N; ctx.lineTo(X(u), cy(u) + lerp(w0, w1, u / yk)); } // ha (edge)
       ctx.closePath(); ctx.fillStyle = steel; ctx.fill();
       if (mode !== 'flat') {
-        ctx.strokeStyle = art ? C.emberBright : 'rgba(120,114,104,0.55)'; ctx.lineWidth = (art ? 1.2 : 0.7) * s;
+        ctx.strokeStyle = art ? C.emberBright : 'rgba(84,90,98,0.8)'; ctx.lineWidth = (art ? 1.2 : 0.7) * s;
         ctx.beginPath(); ctx.moveTo(bx + 3 * s, cy(0) - w0 * 0.25);
         for (let i = 1; i <= N; i++) { const u = yk * i / N; ctx.lineTo(X(u), cy(u) - lerp(w0, w1, u / yk) * 0.25); } ctx.stroke();  // shinogi line
-        ctx.fillStyle = art ? C.gold : '#b9b3a6'; ctx.fillRect(bx, cy(0) - w0, 3 * s, w0 * 2);                    // habaki
+        if (!art) {   // the one bright edge line along the ha
+          ctx.strokeStyle = ANIME.silverHi; ctx.lineWidth = 0.6 * s; ctx.beginPath(); ctx.moveTo(bx + 4 * s, cy(0) + w0 * 0.8);
+          for (let i = 1; i <= N; i++) { const u = yk * i / N; ctx.lineTo(X(u), cy(u) + lerp(w0, w1, u / yk) * 0.8); } ctx.stroke();
+        }
+        ctx.fillStyle = art ? C.gold : ANIME.silver; ctx.fillRect(bx, cy(0) - w0, 3 * s, w0 * 2);                    // habaki
       }
       break;
     }
@@ -2270,41 +2166,6 @@ function drawWeaponShape(ctx, sh, L, mode, s, ink, f) {
   }
 }
 
-/* ---- Kage's hair: a few sharp spikes swept up and back, one fringe spike over the brow ---- */
-const HERO_HAIR = [[0.9, -0.3], [1.1, -0.56], [0.62, -0.8], [0.4, -1.36], [0.06, -0.98], [-0.5, -1.56], [-0.4, -0.94], [-1.26, -1.3], [-0.84, -0.62], [-1.86, -0.74], [-0.98, -0.3], [-1.6, -0.08], [-1.0, -0.02]];
-function drawHeroHair(ctx, r, ink) {
-  ctx.fillStyle = ink; ctx.beginPath(); ctx.moveTo(HERO_HAIR[0][0] * r, HERO_HAIR[0][1] * r);
-  for (let i = 1; i < HERO_HAIR.length; i++) {
-    const p = HERO_HAIR[i], q = HERO_HAIR[i - 1];
-    // spike edges bow slightly backward so the hair reads as swept, not as a crown
-    ctx.quadraticCurveTo((p[0] + q[0]) / 2 * r - 0.14 * r, (p[1] + q[1]) / 2 * r - 0.08 * r, p[0] * r, p[1] * r);
-  }
-  ctx.arc(0, 0, r, Math.PI * 0.99, Math.PI * 1.9, false); ctx.closePath(); ctx.fill();
-}
-
-/* ---- Kage's face-wrap: white cloth over the lower face, wound round to a knot low at the back of the head ---- */
-function drawFaceWrap(ctx, r, ink, flat) {
-  const W = flat ? ink : HERO_FACEWRAP, S = flat ? ink : HERO_FACEWRAP_SHADE;
-  ctx.save();
-  ctx.beginPath(); ctx.arc(0, 0, r * 1.06, 0, TAU); ctx.clip();
-  // the wrap: top edge sits just under the eye slit at the front and climbs toward the knot at the back
-  ctx.fillStyle = W;
-  ctx.beginPath();
-  ctx.moveTo(r * 1.2, r * 0.3); ctx.lineTo(r * 0.55, r * 0.33); ctx.quadraticCurveTo(-r * 0.3, r * 0.3, -r * 1.2, -r * 0.02);
-  ctx.lineTo(-r * 1.2, r * 1.2); ctx.lineTo(r * 1.2, r * 1.2); ctx.closePath(); ctx.fill();
-  if (!flat) {
-    // one cel-shade band under the jaw and two crisp wrap folds
-    ctx.fillStyle = S;
-    ctx.beginPath(); ctx.moveTo(-r * 1.2, r * 0.62); ctx.quadraticCurveTo(r * 0.1, r * 0.86, r * 1.2, r * 0.7); ctx.lineTo(r * 1.2, r * 1.2); ctx.lineTo(-r * 1.2, r * 1.2); ctx.closePath(); ctx.fill();
-    ctx.strokeStyle = ink; ctx.lineWidth = Math.max(1, r * 0.07); ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(r * 0.85, r * 0.56); ctx.quadraticCurveTo(-r * 0.1, r * 0.6, -r * 0.8, r * 0.3); ctx.stroke();
-  }
-  ctx.restore();
-  // the knot at the back of the head (its strip is cloth)
-  ctx.fillStyle = W; ctx.beginPath(); ctx.ellipse(-r * 0.98, r * 0.3, r * 0.2, r * 0.16, 0.5, 0, TAU); ctx.fill();
-  if (!flat) { ctx.strokeStyle = ink; ctx.lineWidth = Math.max(1, r * 0.06); ctx.stroke(); }
-}
-
 /* ---- helmets: local head frame, origin = head centre, +x = facing ---- */
 function drawHelmet(ctx, key, r, ink, opt, f) {
   const flat = !!opt.color;
@@ -2312,8 +2173,9 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
   ctx.fillStyle = ink; ctx.strokeStyle = ink;
   const t = f ? f.time : 0;
   switch (key) {
-    case 'topknot': // player: Kage's white face-wrap; everyone else: crimson hachimaki tied at the back of the head
-      if (f && f.isPlayer) { drawHeroHair(ctx, r, ink); drawFaceWrap(ctx, r, ink, flat); break; }
+    case 'topknot': // Kage's spiky hair over his black face (his red scarf is drawn with the body); anyone else adds a crimson hachimaki
+      drawKageHair(ctx, r, ink, flat, f);
+      if (f && f.isPlayer) break;
       ctx.save(); ctx.beginPath(); ctx.arc(0, 0, r * 1.04, 0, TAU); ctx.clip();
       ctx.fillStyle = flat ? ink : C.emberBright;
       ctx.beginPath(); ctx.moveTo(-r * 1.1, -r * 0.5); ctx.lineTo(r * 1.1, -r * 0.4); ctx.lineTo(r * 1.1, -r * 0.2); ctx.lineTo(-r * 1.1, -r * 0.29); ctx.closePath(); ctx.fill();
@@ -2322,7 +2184,7 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
       break;
     case 'witness_mask': { // the Witness: jagged hair swept back, a broken white mask, ONE violet eye; on a flicker frame, Kage's face-wrap
       if (f && f.kageFrame) {
-        drawHeroHair(ctx, r, ink); drawFaceWrap(ctx, r, ink, flat);
+        drawKageHair(ctx, r, ink, flat, f);
         if (!flat) { ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.moveTo(r * 0.14, -r * 0.08); ctx.lineTo(r * 0.72, 0); ctx.lineTo(r * 0.6, r * 0.22); ctx.lineTo(r * 0.24, r * 0.16); ctx.closePath(); ctx.fill(); }
         break;
       }
@@ -2363,7 +2225,7 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
     }
     case 'headband': { // the Interlude's young brothers: a plain cloth training band (Kage pale, Rem in his purple accent)
       if (isRem(f)) { drawRemHair(ctx, r, ink, flat); break; }
-      drawHeroHair(ctx, r, ink);
+      drawKageHair(ctx, r, ink, flat, f);
       ctx.save(); ctx.beginPath(); ctx.arc(0, 0, r * 1.04, 0, TAU); ctx.clip();
       ctx.fillStyle = flat ? ink : headbandColor(f);
       ctx.beginPath(); ctx.moveTo(-r * 1.1, -r * 0.42); ctx.lineTo(r * 1.1, -r * 0.34); ctx.lineTo(r * 1.1, -r * 0.12); ctx.lineTo(-r * 1.1, -r * 0.2); ctx.closePath(); ctx.fill();
@@ -2696,13 +2558,21 @@ function drawArmor(ctx, f, ink, opt, Ut) {
       break;
     }
     case 'tachibana': {
-      // Kage's starting Tachibana Yoroi: a compact shoulder guard (the forearm guards are the hero wraps)
-      // and the small family crest, half-hidden behind the front arm
-      plate(Ut * 0.42, 'rgba(160,151,133,0.35)');
+      // Kage's starting Tachibana Yoroi: a compact dark-metal shoulder guard of three lames laced in crimson, and the
+      // small family crest, half-hidden behind the near arm
+      const r = Ut * 0.5, a = ang + Math.PI / 2;
+      for (let i = 2; i >= 0; i--) {
+        const cx = sk.sh.x - fc * r * 0.18 + Math.cos(ang) * -r * 0.45 * i, cy = sk.sh.y + r * 0.2 + Math.sin(ang) * -r * 0.45 * i;
+        ctx.fillStyle = flat ? ink : i === 0 ? ANIME.metal1 : ANIME.metal0;
+        ctx.beginPath(); ctx.ellipse(cx, cy, r * (1.12 - i * 0.06), r * 0.62, a, Math.PI * 0.95, Math.PI * 2.05); ctx.closePath(); ctx.fill();
+        if (!flat) {
+          ctx.strokeStyle = ANIME.metal2; ctx.lineWidth = 0.9 * s; ctx.beginPath(); ctx.ellipse(cx, cy, r * (1.12 - i * 0.06), r * 0.62, a, Math.PI * 1.2, Math.PI * 1.8); ctx.stroke();
+          ctx.fillStyle = ANIME.crimson; for (const k of [-0.5, 0, 0.5]) { ctx.beginPath(); ctx.arc(cx + Math.cos(a) * k * r, cy + Math.sin(a) * k * r + r * 0.15, 0.8 * s, 0, TAU); ctx.fill(); }
+        }
+      }
       if (!flat) {
         const px = lerp(hx, nx, 0.72) - fc * Ut * 0.3, py = lerp(hy, ny, 0.72);
-        ctx.fillStyle = 'rgba(201,164,92,0.6)'; ctx.beginPath(); ctx.arc(px, py, 1.6 * s, 0, TAU); ctx.fill();
-        ctx.strokeStyle = 'rgba(201,164,92,0.4)'; ctx.lineWidth = 0.7 * s; ctx.beginPath(); ctx.arc(px, py, 3 * s, 0, TAU); ctx.stroke();
+        ctx.fillStyle = 'rgba(169,173,179,0.55)'; ctx.beginPath(); ctx.arc(px, py, 1.4 * s, 0, TAU); ctx.fill();
       }
       break;
     }

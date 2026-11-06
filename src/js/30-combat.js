@@ -141,9 +141,11 @@ class Effects {
   banner(text, sub, color, glyph) { this.banners.length = 0; this.banners.push({ text, sub, t: 0, dur: 1.55, color: color || C.gold, glyph: glyph || bannerGlyph(text), seed: (Math.random() * 1000) | 0 }); }
   // o (optional): { dur, dx } a longer-lived echo, offset sideways (Akari's afterimage silhouettes, the Smoke Step decoy)
   afterimage(f, color, o) {
-    const sk = f.sk, pts = [], dx = (o && o.dx) || 0;
-    for (const k of ['hip', 'neck', 'head', 'sh', 'fel', 'fha', 'bel', 'bha', 'fkn', 'fft', 'bkn', 'bft', 'wb', 'wt']) pts.push(sk[k].x + dx, sk[k].y);
-    this.ghosts.push({ pts, lw: f.build.w * f.scale * 1.3, r: BODY.head * f.scale * f.build.head, t: 0, dur: (o && o.dur) || 0.22, color: color || 'rgba(236,229,211,0.2)', wl: f.weaponLen() > 0 });
+    // the fighter's whole render pose at this moment (skeleton, blades, cloth), redrawn later as a flat silhouette of
+    // its body (Fighter.drawAfterimage, 21-anime-body.js)
+    const snap = []; f.packRender(snap);
+    const hr = (f.pose.lean + f.pose.head + f.pose.rot + f.extraRot) * DEG * f.facing;
+    this.ghosts.push({ f, snap, facing: f.facing, hr, dx: (o && o.dx) || 0, t: 0, dur: (o && o.dur) || 0.22, color: color || 'rgba(236,229,211,0.2)' });
     if (this.ghosts.length > 14) this.ghosts.shift();
   }
   dashLines(f) {
@@ -204,14 +206,10 @@ class Effects {
       ctx.strokeStyle = `rgba(236,229,211,${0.22 * (1 - k)})`; ctx.lineWidth = l.w;
       ctx.beginPath(); ctx.moveTo(l.x - l.dir * l.len * k, l.y); ctx.lineTo(l.x - l.dir * (l.len * k + l.len), l.y); ctx.stroke();
     }
-    // afterimages: translucent body echoes
+    // afterimages: translucent body echoes, each one flat silhouette composited once
     for (const g of this.ghosts) {
-      const a = 1 - g.t / g.dur, p = g.pts;
-      ctx.globalAlpha = a; ctx.strokeStyle = g.color; ctx.lineWidth = g.lw;
-      const seg = (i, j) => { ctx.moveTo(p[i * 2], p[i * 2 + 1]); ctx.lineTo(p[j * 2], p[j * 2 + 1]); };
-      ctx.beginPath(); seg(0, 1); seg(3, 4); seg(4, 5); seg(3, 6); seg(6, 7); seg(0, 8); seg(8, 9); seg(0, 10); seg(10, 11); if (g.wl) seg(5, 13); ctx.stroke();
-      ctx.fillStyle = g.color; ctx.beginPath(); ctx.arc(p[4], p[5], g.r, 0, TAU); ctx.fill();
-      ctx.globalAlpha = 1;
+      const a = 1 - g.t / g.dur, [col, ca] = splitAlpha(g.color);
+      animeLayer(ctx, a * ca, 1, (L) => { L.translate(g.dx, 0); g.f.drawAfterimage(L, g.snap, g.facing, g.hr, col); });
     }
   }
   drawWorld(ctx) {
