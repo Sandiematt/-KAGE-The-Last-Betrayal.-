@@ -164,10 +164,18 @@ const StoryPlayer = {
   drawPortrait(id) {
     const cv = this.q.portrait, sp = SPEAKERS[id];
     if (!sp) return;
+    this.portraitId = id;
     const { g, w, h } = prepCanvas(cv);
     g.save(); g.beginPath(); g.arc(w / 2, h / 2, w / 2, 0, TAU); g.clip();
-    g.scale(w / 100, h / 100);
-    sp.portrait(g);
+    // a boss with key art speaks with its painted face (SPEAKER_FACES); until the picture has loaded, and for everyone
+    // else, the flat portrait drawn in code
+    const img = speakerFace(id);
+    if (img && img.complete && img.naturalWidth) g.drawImage(img, 0, 0, w, h);
+    else {
+      if (img) img.addEventListener('load', () => { if (this.portraitId === id) this.drawPortrait(id); }, { once: true });
+      g.scale(w / 100, h / 100);
+      sp.portrait(g);
+    }
     g.restore();
   }
 };

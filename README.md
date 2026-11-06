@@ -65,6 +65,9 @@ The shipped file is built from readable modules in `src/`:
 | `src/js/68-story.js` | **StoryPlayer**: plays a scene over the game: dialogue panel, typewriter, illustrations, video card |
 | `src/js/70-ui.js` | **UIManager**: every DOM screen, HUD, overlays, touch controls |
 | `src/js/35-vfx.js` | elemental sword smears, impacts, rings, finisher slash, heat haze |
+| `src/js/34-vfx-sheets.js` | **generated** by `vfx/tools/export_game.py`: the sprite-sheet data of the baked Effekseer effects (images in `src/img/raikon_*.webp`) |
+| `src/js/37-vfx-sheets.js` | **VfxSheets**: plays the baked Effekseer effects additively in world space: Raikon's sky strike, blade charge, Thunder Swing wave, Redline guard and storm mantle (loop crossfaded) |
+| `src/js/36-storm.js` | **storm VFX**: cinematic red lightning from the sky (stepped leader, re-struck bolt, ground cracks, crawling arcs, scorch), the arena light it throws, the storm sky (clouds, sheet lightning, distant strikes, rain), Raikon's lightning aura, and **StormDirector**, which decides when the sky strikes in sub-boss and Raikon fights. Purely cosmetic: no strike deals damage or changes timing |
 | `src/styles.css` | identity tokens, brush buttons, HUD and all screen styles |
 | `src/fonts/` | embedded fonts (inlined by the build) |
 
@@ -316,6 +319,18 @@ Then point a stage of the campaign map (`CAMPAIGN` in the same file) at it with 
   - `noGrab`: cannot be thrown
 
 ---
+
+## Effekseer VFX (Raikon's red lightning)
+
+Raikon's effects are real Effekseer effects authored with the effekseer-vfx skill: recipes in `vfx/src/` (shared
+palette and bolt builder in `vfx/src/_raikon.py`), briefs in `vfx/briefs/`, built `.efkefc`/`.efk` in
+`vfx/effects/` and `vfx/exports/`, reviewed in the skill's Godot Lab (`vfx/godot/`). The game is Canvas 2D, so
+`vfx/tools/export_game.py` bakes each built effect into a sprite sheet: it renders it alone on black in Godot
+(`vfx/tools/GameSheet.gd`, in a temporary copy of the Lab project, side-on, with the Lab's HDR bloom), grades the
+frames for additive play and writes `src/img/raikon_*.webp` and `src/js/34-vfx-sheets.js`.
+
+After changing an effect: `vfx build --ids <ID>`, review it, then (with `GODOT` set to the Godot 4 executable)
+`python vfx/tools/export_game.py` and `node build.mjs`.
 
 ## Wrap it for Android with Capacitor
 

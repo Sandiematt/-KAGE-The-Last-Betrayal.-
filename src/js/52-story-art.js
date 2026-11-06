@@ -52,6 +52,20 @@ function storyEyes(g, color, y, slant) {
   storyPoly(g, [53, y - 1 + slant, 60, y, 60, y + 1.2, 53, y + 1.4 + slant], color);
 }
 
+// The bosses' painted faces for the dialogue medallion (src/img/face_*.webp, cut from their key art; inlined by the
+// build). speakerFace(id) gives a loaded-or-loading Image, or null for a speaker without one (or a missing file).
+const SPEAKER_FACES = {
+  raikon: '__IMG(face_raikon.webp)__', akari: '__IMG(face_akari.webp)__',
+  takashi: '__IMG(face_takashi.webp)__', witness: '__IMG(face_witness.webp)__',
+  rem: '__IMG(face_rem.webp)__', rem_adult: '__IMG(face_rem.webp)__'
+};
+const _faceImgs = {};
+function speakerFace(id) {
+  const src = SPEAKER_FACES[id];
+  if (typeof src !== 'string' || !src.startsWith('data:') || typeof Image === 'undefined') return null;
+  if (!_faceImgs[id]) { _faceImgs[id] = new Image(); _faceImgs[id].src = src; }
+  return _faceImgs[id];
+}
 const SPEAKERS = {
   kage: {
     name: 'Kage', accent: STORY_INK.emberBright,

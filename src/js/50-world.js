@@ -756,10 +756,12 @@ const Renderer = {
     }
     // background
     env.back(ctx, cam.x, realT);
+    fx.drawStormSky(ctx, s, toScreen, realT);   // storm darkness, clouds, distant strikes, the sky lit by lightning
     this.drawFloor(ctx, env, cam.x, realT, GROUND - cam.y * zoom + fx.shakeY);
     // world
     ctx.save(); this.worldTransform(ctx, s, zoom);
     fx.drawWorldBack(ctx);
+    fx.drawStormGround(ctx);
     if (s.isStretch) this.drawStretchProps(ctx, s, realT);
     for (const f of s.fighters) f.drawShadow(ctx);
     for (const f of s.fighters) this.drawAuras(ctx, f, realT);
@@ -772,9 +774,12 @@ const Renderer = {
     for (const f of order) this.drawTrails(ctx, f, realT);
     WeaponSystem.draw(ctx, s);
     fx.drawWorld(ctx);
+    fx.drawStormWorld(ctx);
+    fx.drawSheets(ctx);   // baked Effekseer effects (37-vfx-sheets.js)
     if (s.isStretch && !StoryPlayer.active) this.drawTutorial(ctx, s, realT);
     ctx.restore();
     fx.applyHaze(ctx, toScreen);
+    fx.drawStormLight(ctx, s, toScreen, realT, zoom);   // the arena lit by a strike, the contact veil, rain
     env.front(ctx, cam.x, realT);
     if (imp && imp.t < imp.dur + 0.2) {
       // reduced-flash fallback and the after-glow of a real impact frame

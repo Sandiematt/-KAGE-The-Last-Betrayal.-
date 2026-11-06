@@ -47,6 +47,7 @@ class FightSession {
     this.roundsToWin = this.format.roundsToWin;
     this.timer = this.roundTime();
     this.phase = 'intro'; this.phaseT = 0;
+    StormDirector.setup(this);   // sub-boss and Raikon fights: the red-lightning storm (36-storm.js)
     this.setupIntro();
   }
   // 0 = no round clock (story bosses): the fight can never be lost on time
@@ -186,6 +187,7 @@ class FightSession {
     this.cine = { t: 1.2, target: f }; this.fx.elemImpact(f.elementOf(null) || 'ink', f.x, f.y - 100 * f.scale, f.facing, 3, true);
     this.fx.ring(f.x, f.y - 100, 380, f.accent || C.emberBright, 0.7, 10);
     if (ph.berserk) { f.eye = '#8be07a'; }
+    StormDirector.phase(this, f, idx);
   }
   // Akari's False Opening: an afterimage of her stands where she was, guard down, at reduced opacity (o.opacity) with
   // o.afterimages offset echoes, for o.hold seconds. It has no AI and no eyes; any blow passes through it (Combat.applyHit
@@ -338,6 +340,7 @@ class FightSession {
     if (escapes) { def.setState('pose'); def.poseName = 'kneel'; def.vx = def.vy = 0; def.bodyRotVel = 0; def.bodyRot = 0; def.y = 0; def.grounded = true; }
     else if (def !== this.player) { fx.finisher(def.x, def.y - 100 * def.scale, att.facing); const el = att.elementOf(null); if (el) fx.elemImpact(el, def.x, def.y - 100 * def.scale, att.facing, 3, true); }
     AudioManager.play('ko');
+    StormDirector.ko(this, def);
     this.koTarget = def; this.phase = 'ko'; this.phaseT = 0;
     for (const f of this.fighters) if (f.decoy && f.alive) this.vanishDecoy(f);
     this.voidLines.length = 0;
@@ -429,8 +432,9 @@ class FightSession {
           this.fx.shake(0.9); this.fx.dust(e.x, 0, 30); this.fx.ring(e.x, -20, 300, e.accent || C.emberBright, 0.6, 8); AudioManager.play('slam'); AudioManager.play('boss');
           this.fx.impactFrame(e.x, -120, 3);
         }
+        StormDirector.intro(this, e);
         if (this.phaseT > 0.5 && !this.dialogue && this.mode !== 'trials') {
-          this.dialogue = { name: e.name, title: e.title, text: e.def.taunt, t: 0 };
+          this.dialogue = { id: e.def.id, name: e.name, title: e.title, text: e.def.taunt, t: 0 };
           if (this.isBoss || this.isSub) this.fx.banner(e.name, e.title, e.accent || C.emberBright);
         }
         const skip = this.phaseT > 0.6 && (InputManager.pressed('punch') || InputManager.pressed('jump') || InputManager.pressed('weapon') || UIManager.skipRequested());
@@ -491,6 +495,7 @@ class FightSession {
     // simulate
     for (const f of this.fighters) { if (f.dissolve) { this.stepDissolve(f, dt); continue; } f.update(dt, this); VFX.emit(f, this.fx); }
     if (this.phase === 'fight' || this.phase === 'ko') Combat.resolve(this);
+    StormDirector.step(this);
     WeaponSystem.update(this, dt);
     WeaponSystem.updatePickups(this, dt);
     this.separate();
@@ -515,7 +520,7 @@ class FightSession {
     for (const f of [p, e]) { f.move = null; f.abil = null; f.ctrl.dir = 0; if (f.grounded && f.state !== 'down') f.vx *= 0.2; }
     this.fx.slowmo(0.35, 0.7); this.fx.shake(0.25);
     this.fx.stamp('ENOUGH', (p.x + e.x) / 2, -190, 3, C.gold, 'ENOUGH!');
-    this.dialogue = { name: 'Takashi', title: 'from the veranda', text: 'Enough! Both of you. Inside, now.', t: 0 };
+    this.dialogue = { id: 'takashi', name: 'Takashi', title: 'from the veranda', text: 'Enough! Both of you. Inside, now.', t: 0 };
     AudioManager.play('round');
     AudioManager.setMusic('none');
   }
@@ -540,7 +545,7 @@ class FightSession {
     w.state = 'pose'; w.poseName = 'victory'; w.vx = 0;
     if (!win) w.poseName = 'taunt';
     const line = win ? (defeatScene ? null : l.def.defeatLine || null) : (w.def && w.def.win) || null;
-    if (line && this.mode === 'campaign') this.dialogue = { name: win ? l.name : w.name, title: win ? l.title : w.title, text: line, t: 0 };
+    if (line && this.mode === 'campaign') this.dialogue = { id: ((win ? l : w).def || {}).id, name: win ? l.name : w.name, title: win ? l.title : w.title, text: line, t: 0 };
     AudioManager.play(win ? 'victory' : 'defeat');
     AudioManager.setMusic('none');
   }

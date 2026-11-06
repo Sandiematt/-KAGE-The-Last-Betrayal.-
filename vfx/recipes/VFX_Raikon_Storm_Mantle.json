@@ -1,0 +1,1186 @@
+{
+  "id": "VFX_Raikon_Storm_Mantle",
+  "name": "Raikon Storm Mantle",
+  "category": "status",
+  "element": "lightning",
+  "duration": 1.0,
+  "loop": true,
+  "attach": "caster_ground",
+  "peak": 0,
+  "impact": 0,
+  "light": [
+    1,
+    0.22,
+    0.16
+  ],
+  "seed": 1729,
+  "layers": [
+    {
+      "name": "Mantle",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        255,
+        40,
+        28,
+        45
+      ],
+      "life": 60,
+      "delay": 0,
+      "size": 2.2,
+      "size_curve": [
+        [
+          0,
+          1
+        ],
+        [
+          100,
+          1
+        ]
+      ],
+      "billboard": "Billboard",
+      "fade_in": 4,
+      "fade_out": 4,
+      "position": [
+        0,
+        1.05,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Orbit 1",
+      "renderer": "None",
+      "life": 60,
+      "position": [
+        0,
+        0.55,
+        0
+      ],
+      "spin": [
+        0,
+        12,
+        0
+      ],
+      "children": [
+        {
+          "name": "Ribbon 1",
+          "renderer": "Ring",
+          "color": [
+            215,
+            22,
+            16,
+            235
+          ],
+          "life": 60,
+          "delay": 0,
+          "billboard": "Fixed",
+          "rotation": [
+            -72,
+            0,
+            14
+          ],
+          "ring": {
+            "vertices": 96,
+            "outer": [
+              0.49000000000000005,
+              0
+            ],
+            "inner": [
+              0.36000000000000004,
+              0
+            ],
+            "center_ratio": 0.3,
+            "outer_color": [
+              150,
+              8,
+              12,
+              0
+            ],
+            "center_color": [
+              215,
+              22,
+              16,
+              235
+            ],
+            "inner_color": [
+              255,
+              40,
+              28,
+              0
+            ],
+            "angle_start": 0,
+            "angle_end": 210
+          },
+          "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+          "alpha_scroll": [
+            -0.06,
+            0
+          ],
+          "fade_in": 5,
+          "fade_out": 9,
+          "emissive": 1.7,
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        }
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Orbit 2",
+      "renderer": "None",
+      "life": 60,
+      "position": [
+        0,
+        1.1,
+        0
+      ],
+      "spin": [
+        0,
+        -12,
+        0
+      ],
+      "children": [
+        {
+          "name": "Ribbon 2",
+          "renderer": "Ring",
+          "color": [
+            215,
+            22,
+            16,
+            235
+          ],
+          "life": 58,
+          "delay": 2,
+          "billboard": "Fixed",
+          "rotation": [
+            -72,
+            0,
+            -18
+          ],
+          "ring": {
+            "vertices": 96,
+            "outer": [
+              0.55,
+              0
+            ],
+            "inner": [
+              0.42000000000000004,
+              0
+            ],
+            "center_ratio": 0.3,
+            "outer_color": [
+              150,
+              8,
+              12,
+              0
+            ],
+            "center_color": [
+              215,
+              22,
+              16,
+              235
+            ],
+            "inner_color": [
+              255,
+              40,
+              28,
+              0
+            ],
+            "angle_start": 0,
+            "angle_end": 210
+          },
+          "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+          "alpha_scroll": [
+            -0.06,
+            0
+          ],
+          "fade_in": 5,
+          "fade_out": 9,
+          "emissive": 1.7,
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        }
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Orbit 3",
+      "renderer": "None",
+      "life": 60,
+      "position": [
+        0,
+        1.6,
+        0
+      ],
+      "spin": [
+        0,
+        12,
+        0
+      ],
+      "children": [
+        {
+          "name": "Ribbon 3",
+          "renderer": "Ring",
+          "color": [
+            215,
+            22,
+            16,
+            235
+          ],
+          "life": 56,
+          "delay": 4,
+          "billboard": "Fixed",
+          "rotation": [
+            -72,
+            0,
+            8
+          ],
+          "ring": {
+            "vertices": 96,
+            "outer": [
+              0.49000000000000005,
+              0
+            ],
+            "inner": [
+              0.36000000000000004,
+              0
+            ],
+            "center_ratio": 0.3,
+            "outer_color": [
+              150,
+              8,
+              12,
+              0
+            ],
+            "center_color": [
+              215,
+              22,
+              16,
+              235
+            ],
+            "inner_color": [
+              255,
+              40,
+              28,
+              0
+            ],
+            "angle_start": 0,
+            "angle_end": 210
+          },
+          "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+          "alpha_scroll": [
+            -0.06,
+            0
+          ],
+          "fade_in": 5,
+          "fade_out": 9,
+          "emissive": 1.7,
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        }
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Body arc 1",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+      "color": [
+        255,
+        236,
+        228,
+        255
+      ],
+      "life": 3,
+      "delay": 3,
+      "billboard": "DirectionalBillboard",
+      "pivot": "bottom",
+      "position": [
+        -0.0682804139928393,
+        1.598488132636756,
+        0.26
+      ],
+      "velocity": [
+        2.2165074770065392e-05,
+        9.751261180194801e-05,
+        0.0
+      ],
+      "scale_start": [
+        0.3,
+        0.5220042835677151,
+        1
+      ],
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 1.7,
+      "color_end": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Body arc 2",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+      "color": [
+        255,
+        120,
+        100,
+        255
+      ],
+      "life": 3,
+      "delay": 4,
+      "billboard": "DirectionalBillboard",
+      "pivot": "bottom",
+      "position": [
+        0.1908352469516867,
+        0.6392100612569527,
+        0.26
+      ],
+      "velocity": [
+        -5.5702867034088226e-05,
+        8.304932633190163e-05,
+        0.0
+      ],
+      "scale_start": [
+        -0.3,
+        0.5642049538679396,
+        1
+      ],
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 1.7,
+      "color_end": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Body arc 3",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+      "color": [
+        255,
+        120,
+        100,
+        255
+      ],
+      "life": 3,
+      "delay": 6,
+      "billboard": "DirectionalBillboard",
+      "pivot": "bottom",
+      "position": [
+        0.009399617303613633,
+        1.2205428620809893,
+        0.26
+      ],
+      "velocity": [
+        2.614649335223574e-06,
+        9.996581220024082e-05,
+        0.0
+      ],
+      "scale_start": [
+        0.3,
+        0.37472196291810644,
+        1
+      ],
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 1.7,
+      "color_end": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Body arc 4",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+      "color": [
+        255,
+        120,
+        100,
+        255
+      ],
+      "life": 3,
+      "delay": 7,
+      "billboard": "DirectionalBillboard",
+      "pivot": "bottom",
+      "position": [
+        -0.11205749565735368,
+        1.014268974219151,
+        0.26
+      ],
+      "velocity": [
+        1.6730967224363187e-05,
+        9.859043937287877e-05,
+        0.0
+      ],
+      "scale_start": [
+        -0.3,
+        0.43505836852097085,
+        1
+      ],
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 1.7,
+      "color_end": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Body arc 5",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+      "color": [
+        255,
+        236,
+        228,
+        255
+      ],
+      "life": 3,
+      "delay": 8,
+      "billboard": "DirectionalBillboard",
+      "pivot": "bottom",
+      "position": [
+        0.10269581764729846,
+        1.302787452701501,
+        0.26
+      ],
+      "velocity": [
+        -1.591552581245676e-05,
+        9.872535661172881e-05,
+        0.0
+      ],
+      "scale_start": [
+        0.3,
+        0.4044773308148586,
+        1
+      ],
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 1.7,
+      "color_end": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Body arc 6",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+      "color": [
+        255,
+        120,
+        100,
+        255
+      ],
+      "life": 3,
+      "delay": 16,
+      "billboard": "DirectionalBillboard",
+      "pivot": "bottom",
+      "position": [
+        0.11089536516449272,
+        1.141542412475744,
+        0.26
+      ],
+      "velocity": [
+        -4.875825654289187e-05,
+        8.730768820039584e-05,
+        0.0
+      ],
+      "scale_start": [
+        -0.3,
+        0.5891403175943398,
+        1
+      ],
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 1.7,
+      "color_end": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Body arc 7",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+      "color": [
+        255,
+        120,
+        100,
+        255
+      ],
+      "life": 3,
+      "delay": 20,
+      "billboard": "DirectionalBillboard",
+      "pivot": "bottom",
+      "position": [
+        0.07542702657185779,
+        0.7169005914032479,
+        0.26
+      ],
+      "velocity": [
+        1.6616619399843944e-05,
+        9.860977618735746e-05,
+        0.0
+      ],
+      "scale_start": [
+        0.3,
+        0.3456333411736753,
+        1
+      ],
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 1.7,
+      "color_end": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Body arc 8",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+      "color": [
+        255,
+        120,
+        100,
+        255
+      ],
+      "life": 3,
+      "delay": 24,
+      "billboard": "DirectionalBillboard",
+      "pivot": "bottom",
+      "position": [
+        -0.02959910790149034,
+        1.1502192496241317,
+        0.26
+      ],
+      "velocity": [
+        -1.7262565146871197e-05,
+        -9.84987504720239e-05,
+        0.0
+      ],
+      "scale_start": [
+        -0.3,
+        0.3860507030126613,
+        1
+      ],
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 1.7,
+      "color_end": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Body arc 9",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+      "color": [
+        255,
+        236,
+        228,
+        255
+      ],
+      "life": 3,
+      "delay": 27,
+      "billboard": "DirectionalBillboard",
+      "pivot": "bottom",
+      "position": [
+        0.079620021502112,
+        1.4498755172888171,
+        0.26
+      ],
+      "velocity": [
+        2.6002034741105547e-05,
+        -9.656031373873192e-05,
+        0.0
+      ],
+      "scale_start": [
+        0.3,
+        0.4845767490877038,
+        1
+      ],
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 1.7,
+      "color_end": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Body arc 10",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+      "color": [
+        255,
+        120,
+        100,
+        255
+      ],
+      "life": 3,
+      "delay": 28,
+      "billboard": "DirectionalBillboard",
+      "pivot": "bottom",
+      "position": [
+        0.10201802260242843,
+        0.4182584760097308,
+        0.26
+      ],
+      "velocity": [
+        -2.6783288020914492e-05,
+        9.634653850963582e-05,
+        0.0
+      ],
+      "scale_start": [
+        -0.3,
+        0.5476064762005296,
+        1
+      ],
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 1.7,
+      "color_end": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Body arc 11",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+      "color": [
+        255,
+        120,
+        100,
+        255
+      ],
+      "life": 3,
+      "delay": 30,
+      "billboard": "DirectionalBillboard",
+      "pivot": "bottom",
+      "position": [
+        -0.13969023439222666,
+        0.5630806544700341,
+        0.26
+      ],
+      "velocity": [
+        5.570366379051525e-05,
+        -8.304879192567007e-05,
+        0.0
+      ],
+      "scale_start": [
+        0.3,
+        0.5793297807012898,
+        1
+      ],
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 1.7,
+      "color_end": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Body arc 12",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+      "color": [
+        255,
+        120,
+        100,
+        255
+      ],
+      "life": 3,
+      "delay": 34,
+      "billboard": "DirectionalBillboard",
+      "pivot": "bottom",
+      "position": [
+        -0.07685901188696326,
+        1.3117401508630793,
+        0.26
+      ],
+      "velocity": [
+        -2.5197973315503464e-05,
+        -9.677325116369283e-05,
+        0.0
+      ],
+      "scale_start": [
+        -0.3,
+        0.5551492214198085,
+        1
+      ],
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 1.7,
+      "color_end": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Body arc 13",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+      "color": [
+        255,
+        236,
+        228,
+        255
+      ],
+      "life": 3,
+      "delay": 37,
+      "billboard": "DirectionalBillboard",
+      "pivot": "bottom",
+      "position": [
+        -0.19665555610859872,
+        1.0177795567948538,
+        0.26
+      ],
+      "velocity": [
+        1.3477736930105683e-05,
+        9.90875905814793e-05,
+        0.0
+      ],
+      "scale_start": [
+        0.3,
+        0.3960120084077282,
+        1
+      ],
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 1.7,
+      "color_end": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Body arc 14",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+      "color": [
+        255,
+        120,
+        100,
+        255
+      ],
+      "life": 3,
+      "delay": 40,
+      "billboard": "DirectionalBillboard",
+      "pivot": "bottom",
+      "position": [
+        0.09229285476414412,
+        0.4789433928818753,
+        0.26
+      ],
+      "velocity": [
+        -5.147277719965298e-05,
+        -8.573536730751718e-05,
+        0.0
+      ],
+      "scale_start": [
+        -0.3,
+        0.3869096841500199,
+        1
+      ],
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 1.7,
+      "color_end": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Body arc 15",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+      "color": [
+        255,
+        120,
+        100,
+        255
+      ],
+      "life": 3,
+      "delay": 47,
+      "billboard": "DirectionalBillboard",
+      "pivot": "bottom",
+      "position": [
+        -0.13381639169455656,
+        0.5353144473598307,
+        0.26
+      ],
+      "velocity": [
+        -1.3688779848110591e-05,
+        9.905865588766063e-05,
+        0.0
+      ],
+      "scale_start": [
+        0.3,
+        0.5213137298256559,
+        1
+      ],
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 1.7,
+      "color_end": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Body arc 16",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+      "color": [
+        255,
+        120,
+        100,
+        255
+      ],
+      "life": 3,
+      "delay": 49,
+      "billboard": "DirectionalBillboard",
+      "pivot": "bottom",
+      "position": [
+        0.053596096838519625,
+        0.6421144712271091,
+        0.26
+      ],
+      "velocity": [
+        2.045294459730368e-05,
+        -9.788604117697083e-05,
+        0.0
+      ],
+      "scale_start": [
+        -0.3,
+        0.5473990527764027,
+        1
+      ],
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 1.7,
+      "color_end": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Body arc 17",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+      "color": [
+        255,
+        236,
+        228,
+        255
+      ],
+      "life": 3,
+      "delay": 52,
+      "billboard": "DirectionalBillboard",
+      "pivot": "bottom",
+      "position": [
+        0.12969709563820647,
+        0.672342141402485,
+        0.26
+      ],
+      "velocity": [
+        -5.7377384679651946e-05,
+        -8.190137805509283e-05,
+        0.0
+      ],
+      "scale_start": [
+        0.3,
+        0.608631132064468,
+        1
+      ],
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 1.7,
+      "color_end": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Body arc 18",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+      "color": [
+        255,
+        120,
+        100,
+        255
+      ],
+      "life": 3,
+      "delay": 53,
+      "billboard": "DirectionalBillboard",
+      "pivot": "bottom",
+      "position": [
+        -0.0740594707986657,
+        1.0875915162477254,
+        0.26
+      ],
+      "velocity": [
+        2.849664058946317e-05,
+        -9.585375044887374e-05,
+        0.0
+      ],
+      "scale_start": [
+        -0.3,
+        0.5458733688266663,
+        1
+      ],
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 1.7,
+      "color_end": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Foot arc 1",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+      "color": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "life": 3,
+      "delay": 6,
+      "billboard": "DirectionalBillboard",
+      "pivot": "bottom",
+      "position": [
+        -0.22914465691976982,
+        0.04,
+        0.1
+      ],
+      "velocity": [
+        9.557315409404556e-05,
+        1.5464010523256562e-05,
+        -2.5032710501510538e-05
+      ],
+      "scale_start": [
+        0.28,
+        0.5992159737993561,
+        1
+      ],
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 1.6,
+      "color_end": [
+        150,
+        8,
+        12,
+        255
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Foot arc 2",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+      "color": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "life": 3,
+      "delay": 27,
+      "billboard": "DirectionalBillboard",
+      "pivot": "bottom",
+      "position": [
+        -0.23323154966296583,
+        0.04,
+        0.1
+      ],
+      "velocity": [
+        9.344199689874201e-05,
+        1.515450927608868e-05,
+        -3.2232500122957146e-05
+      ],
+      "scale_start": [
+        -0.28,
+        0.4653688030025466,
+        1
+      ],
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 1.6,
+      "color_end": [
+        150,
+        8,
+        12,
+        255
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Foot arc 3",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+      "color": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "life": 3,
+      "delay": 44,
+      "billboard": "DirectionalBillboard",
+      "pivot": "bottom",
+      "position": [
+        -0.23035521023000488,
+        0.04,
+        0.1
+      ],
+      "velocity": [
+        9.684613174892759e-05,
+        9.960305917607962e-06,
+        -2.2838981397974413e-05
+      ],
+      "scale_start": [
+        0.28,
+        0.6567718471599767,
+        1
+      ],
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 1.6,
+      "color_end": [
+        150,
+        8,
+        12,
+        255
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Ember source",
+      "renderer": "None",
+      "life": 72,
+      "position": [
+        0,
+        0.75,
+        0
+      ],
+      "children": [
+        {
+          "name": "Embers",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Spark01.png",
+          "color": [
+            255,
+            150,
+            110,
+            255
+          ],
+          "color_end": [
+            150,
+            8,
+            12,
+            0
+          ],
+          "count": 26,
+          "life": [
+            16,
+            20
+          ],
+          "delay": 2,
+          "billboard": "DirectionalBillboard",
+          "spawn": {
+            "shape": "Sphere",
+            "radius": [
+              0,
+              0.45
+            ],
+            "rotate": false
+          },
+          "travel": {
+            "end": [
+              [
+                -0.35,
+                0.35
+              ],
+              [
+                1.1,
+                1.7
+              ],
+              [
+                -0.1,
+                0.1
+              ]
+            ],
+            "easing": "EaseOutCubic"
+          },
+          "scale_start": [
+            0.08,
+            [
+              0.18,
+              0.3
+            ],
+            1
+          ],
+          "scale_end": [
+            0.024,
+            0.036,
+            1
+          ],
+          "easing": "EaseInQuadratic",
+          "forces": [],
+          "fade_in": 0,
+          "fade_out": 5,
+          "emissive": 2.0,
+          "interval": 2,
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        }
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    }
+  ],
+  "design": "Hard red ribbons orbiting him at three heights inside a faint red mantle, short red arcs jumping between points on his body at uneven times, embers rising off him and a few arcs at his feet.",
+  "delivery": {
+    "kind": "self"
+  }
+}

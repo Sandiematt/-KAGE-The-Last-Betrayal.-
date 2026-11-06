@@ -193,6 +193,8 @@ class Effects {
     tick(this.rings, realDt); tick(this.arcs, realDt); tick(this.ghosts, realDt); tick(this.pops, realDt); tick(this.lines, realDt);
     tick(this.stamps, realDt); tick(this.banners, realDt); tick(this.ensos, realDt); tick(this.flashes, realDt); tick(this.bursts, realDt);
     this.updateVfx(realDt, simDt);
+    this.updateStorm(realDt, simDt);
+    this.updateSheets(simDt);
   }
   drawWorldBack(ctx) {
     ctx.lineCap = 'round';
@@ -507,6 +509,9 @@ const WeaponSystem = {
           break;
         }
         case 'thunderwave': {
+          // the red wave is the baked Effekseer effect (37-vfx-sheets.js); a corrupted echo's violet wave, or the red
+          // one before its sheet has decoded, is drawn by hand below
+          if (!p.tint && VfxSheets.drawWave(ctx, p)) break;
           // hand-drawn branching red lightning: a crackling column at the front and bolts skittering along the
           // ground behind it. The shape is redrawn every other frame (a few held, high-contrast frames).
           ctx.scale(p.dir, 1);

@@ -179,7 +179,12 @@ class Fighter {
       this.cloths.push({ kind: 'scarf', c: new Cloth(10, 7.6 * this.scale, { ph: 9, wind: 860, grav: 680, stiff: 1.75 }), at: 'head', color: C.emberBright, w: 3.4 * this.scale, w1: 1.3 * this.scale, dy: -8, dx: 16 });
       this.cloths.push({ kind: 'scarf', c: new Cloth(8, 7 * this.scale, { ph: 12.5, wind: 740, grav: 760, stiff: 1.75 }), at: 'head', color: '#b8362b', w: 2.8 * this.scale, w1: 1.1 * this.scale, dy: -6, dx: 16 });
     }
-    if (this.helmet === 'headband') {
+    if (this.helmet === 'headband' && isRem(this)) {
+      // Rem: the band's two long white tails stream back from the steel ring at its knot
+      const sc = this.scale;
+      this.cloths.push({ kind: 'scarf', c: new Cloth(11, 7.4 * sc, { ph: 9, wind: 950, grav: 520, stiff: 1.8 }), at: 'head', color: '#efe7da', rim: 'rgba(20,14,12,0.6)', w: 5 * sc, w1: 1.4 * sc, dy: -7, dx: 15 });
+      this.cloths.push({ kind: 'scarf', c: new Cloth(9, 6.8 * sc, { ph: 12.5, wind: 820, grav: 600, stiff: 1.8 }), at: 'head', color: '#d9cfc0', rim: 'rgba(20,14,12,0.6)', w: 4 * sc, w1: 1.1 * sc, dy: -4, dx: 15 });
+    } else if (this.helmet === 'headband') {
       // two short tails of the training band, knotted at the back of the head
       const hc = headbandColor(this);
       this.cloths.push({ kind: 'scarf', c: new Cloth(6, 5.6 * this.scale, { ph: 9, wind: 820, grav: 700, stiff: 1.8 }), at: 'head', color: hc, w: 2.8 * this.scale, w1: 1.1 * this.scale, dy: -5, dx: 16 });
@@ -200,27 +205,48 @@ class Fighter {
     if (this.helmet === 'veil') this.cloths.push({ kind: 'cape', c: new Cloth(8, 10 * this.scale, { ph: 5, wind: 420, grav: 600 }), at: 'head', color: 'rgba(160,170,176,0.5)', w0: 18 * this.scale, w1: 30 * this.scale });
     // Raikon: a long dark scarf from the neck, two tails of different length, edged pale so it reads on the dark arena
     if (this.def && this.def.longScarf) {
-      const sc = this.def.longScarf, rim = 'rgba(236,229,211,0.5)';
+      const sc = bossLook(this) === 'raikon' ? '#9e1018' : this.def.longScarf, rim = bossLook(this) === 'raikon' ? 'rgba(255,90,80,0.55)' : 'rgba(236,229,211,0.5)';
       this.cloths.push({ kind: 'scarf', c: new Cloth(14, 8.6 * this.scale, { ph: 2.5, wind: 640, grav: 620, stiff: 1.6 }), at: 'neck', color: sc, rim, w: 7.2 * this.scale, w1: 2.8 * this.scale, dy: 2 });
       this.cloths.push({ kind: 'scarf', c: new Cloth(9, 8 * this.scale, { ph: 6.2, wind: 560, grav: 700, stiff: 1.6 }), at: 'neck', color: sc, rim, w: 5.4 * this.scale, w1: 2.2 * this.scale, dy: 6 });
     }
-    // Akari's tied hair: a short high tail kicking back off the crown, with a violet tie at its root
+    // Raikon, the Storm King: a tattered cloak from the shoulders (kind 'rcloak', Fighter.drawRaikonCloak), black
+    // bleeding to crimson at its ragged hem, a red cloud crest on its widest panel; and a long dark coat skirt
+    if (bossLook(this) === 'raikon') {
+      const sc = this.scale;
+      [[10, 15, 1.3, 40, 4, 4, 1], [10, 14, 3.9, 34, 8, 12, 0], [9, 13.4, 5.2, 30, 12, 0, 0], [9, 12.6, 2.2, 26, 2, 18, 0]].forEach(([n, seg, ph, w, dy, dx, crest], i) =>
+        this.cloths.push({ kind: 'rcloak', c: new Cloth(n, seg * sc, { ph, wind: 1100 + i * 170, grav: 1000, stiff: 1.95 }), at: 'neck', w: w * sc, dy, dx, crest }));
+      this.cloths.push({ kind: 'robe', c: new Cloth(6, 10.4 * sc, { ph: 2.8, wind: 260, grav: 1150 }), at: 'hip', color: '#140c0c', w0: 26 * sc, w1: 36 * sc });
+    }
+    // Akari's hair: a long high ponytail streaming back off the crown (two layers: black, and a violet-sheened lock over
+    // it), two short violet tassels hanging from the sakura pin at its root (the pin itself: drawHelmet 'akari_mask')
     if (this.helmet === 'akari_mask') {
-      this.cloths.push({ kind: 'scarf', c: new Cloth(7, 6.6 * this.scale, { ph: 4.5, wind: 760, grav: 720, stiff: 1.8 }), at: 'head', color: '#141218', rim: 'rgba(236,229,211,0.55)', w: 6 * this.scale, w1: 2 * this.scale, dy: -13, dx: 12 });
-      this.cloths.push({ kind: 'scarf', c: new Cloth(3, 4.4 * this.scale, { ph: 7, wind: 820, grav: 700, stiff: 1.8 }), at: 'head', color: '#8a5cc9', w: 2.2 * this.scale, w1: 1 * this.scale, dy: -12, dx: 13 });
+      const sc = this.scale;
+      this.cloths.push({ kind: 'scarf', c: new Cloth(12, 7.4 * sc, { ph: 4.5, wind: 900, grav: 520, stiff: 1.85 }), at: 'head', color: '#120f18', rim: 'rgba(214,190,255,0.7)', w: 11 * sc, w1: 1.2 * sc, dy: -16, dx: 9 });
+      this.cloths.push({ kind: 'scarf', c: new Cloth(10, 7 * sc, { ph: 6.1, wind: 1000, grav: 460, stiff: 1.85 }), at: 'head', color: '#3a2560', w: 5 * sc, w1: 0.8 * sc, dy: -17, dx: 10 });
+      this.cloths.push({ kind: 'scarf', c: new Cloth(4, 3.6 * sc, { ph: 7, wind: 200, grav: 1100, stiff: 1.6 }), at: 'head', color: '#a978f0', w: 1.6 * sc, w1: 2.4 * sc, dy: -8, dx: 13 });
+      this.cloths.push({ kind: 'scarf', c: new Cloth(4, 3.2 * sc, { ph: 8.4, wind: 180, grav: 1100, stiff: 1.6 }), at: 'head', color: '#8a5cc9', w: 1.4 * sc, w1: 2.2 * sc, dy: -7, dx: 10 });
     }
     // Takashi: long hair tied back at the nape, hanging below the brim of his Kasa (`hair` on his ENEMIES entry)
     if (this.def && this.def.hair) {
-      this.cloths.push({ kind: 'scarf', c: new Cloth(9, 6.4 * this.scale, { ph: 3.2, wind: 520, grav: 900, stiff: 1.8 }), at: 'head', color: this.def.hair, rim: 'rgba(236,229,211,0.45)', w: 5.4 * this.scale, w1: 2.4 * this.scale, dy: 4, dx: 14 });
-      this.cloths.push({ kind: 'scarf', c: new Cloth(2, 3 * this.scale, { ph: 6, wind: 600, grav: 900, stiff: 1.9 }), at: 'head', color: '#c9a45c', w: 2.2 * this.scale, w1: 1.2 * this.scale, dy: 5, dx: 15 });
+      const tk = bossLook(this) === 'takashi';   // his key art: white hair, tied with a red cord
+      this.cloths.push({ kind: 'scarf', c: new Cloth(9, 6.4 * this.scale, { ph: 3.2, wind: 520, grav: 900, stiff: 1.8 }), at: 'head', color: tk ? '#e4ded4' : this.def.hair, rim: 'rgba(236,229,211,0.45)', w: 5.4 * this.scale, w1: 2.4 * this.scale, dy: 4, dx: 14 });
+      this.cloths.push({ kind: 'scarf', c: new Cloth(tk ? 7 : 2, (tk ? 5.6 : 3) * this.scale, { ph: 6, wind: 760, grav: 760, stiff: 1.9 }), at: 'head', color: tk ? '#9e1626' : '#c9a45c', w: 2.2 * this.scale, w1: 1.2 * this.scale, dy: 5, dx: 15 });
     }
-    // the Witness: long jagged hair (several dark strands of different length, edged violet) and two pale memory ribbons
+    // the Witness: long violet hair streaming back off the spiked crown (lavender strands of different length, two dark
+    // ones underneath for depth), and its long tattered coat: blade-shaped tails (kind 'wcoat', drawn by
+    // Fighter.drawWitnessCoat, not by the cloth passes) from the upper back and the waist, violet fading out of black
+    // with crimson veins and glowing rune circles. `depth` -1 hangs behind the body, +1 in front of it.
     if (this.def && this.def.witness) {
-      const sc = this.scale, rim = 'rgba(167,123,255,0.6)';
-      [[13, 7.4, 2.2, 7, -10, 9], [11, 7.2, 5.1, 6, -4, 11], [15, 7.6, 3.6, 6.4, 2, 12], [9, 7, 6.6, 5, -14, 8]].forEach(([n, seg, ph, w, dy, dx], i) =>
-        this.cloths.push({ kind: 'scarf', witness: true, c: new Cloth(n, seg * sc, { ph, wind: 420 + i * 70, grav: 520, stiff: 1.5 }), at: 'head', color: '#0b0910', rim, w: w * sc, w1: 0.9 * sc, dy, dx }));
-      this.cloths.push({ kind: 'scarf', witness: true, c: new Cloth(14, 8 * sc, { ph: 8.2, wind: 680, grav: 300, stiff: 1.7 }), at: 'neck', color: '#e8e1f6', w: 2.6 * sc, w1: 0.8 * sc, dy: 4, dx: 6 });
-      this.cloths.push({ kind: 'scarf', witness: true, c: new Cloth(12, 8 * sc, { ph: 11, wind: 600, grav: 260, stiff: 1.7 }), at: 'neck', color: '#a77bff', w: 2.2 * sc, w1: 0.7 * sc, dy: 8, dx: 3 });
+      const sc = this.scale;
+      [[12, 7.6, 2.2, 6.4, -12, 8, '#140c22'], [10, 7.4, 6.6, 5.4, -4, 10, '#140c22'],
+       [14, 8, 3.6, 6.8, -16, 6, '#8d5fe8'], [12, 7.6, 5.1, 6, -8, 9, '#a27af2'], [16, 8.2, 1.4, 7.2, -1, 11, '#7c4fe0'], [10, 7, 7.7, 4.6, -18, 3, '#b896ff']]
+        .forEach(([n, seg, ph, w, dy, dx, color], i) =>
+          this.cloths.push({ kind: 'scarf', witness: true, c: new Cloth(n, seg * sc, { ph, wind: 900 + i * 90, grav: 380 + i * 40, stiff: 1.88 }), at: 'head', color, rim: color === '#140c22' ? 'rgba(167,123,255,0.55)' : 'rgba(232,220,255,0.75)', w: w * sc, w1: 0.8 * sc, dy, dx }));
+      // [links, link length, phase, max width, dy, dx (back from the anchor), anchor, depth, rune circle]
+      [[9, 13.6, 1.1, 30, 12, 8, 'neck', -1, 1], [9, 12.8, 4.2, 24, 20, 4, 'neck', -1, 0],
+       [8, 13, 2.6, 28, -2, 10, 'hip', -1, 1], [8, 12.2, 5.6, 24, 0, 16, 'hip', -1, 1], [7, 12.4, 3.3, 20, 3, 4, 'hip', -1, 0],
+       [6, 11, 0.4, 16, -1, -4, 'hip', 1, 0]].forEach(([n, seg, ph, w, dy, dx, at, depth, rune], i) =>
+        this.cloths.push({ kind: 'wcoat', witness: true, c: new Cloth(n, seg * sc, { ph, wind: depth < 0 ? 1500 + i * 180 : 420, grav: 1000, stiff: 1.96 }), at, w: w * sc, dy, dx, depth, rune }));
     }
     // Hollow Rem's worn travel coat (the Core): long split coat tails hanging from the waist, dark with a purple edge
     if (this.armor === 'travel_coat') {
@@ -230,7 +256,11 @@ class Fighter {
     // the Shinsei Yoroi's layered robe skirts, hanging from the waist guard
     if (this.armor === 'shinsei') this.cloths.push({ kind: 'robe', c: new Cloth(6, 9.4 * this.scale, { ph: 3, wind: 180, grav: 1250 }), at: 'hip', color: '#1f1b15', w0: 24 * this.scale, w1: 36 * this.scale });
     // the Mei-En Garb's split cloth panels: a front and a back panel hanging from the waist, muted violet over charcoal
-    if (this.armor === 'mei_en') {
+    // On Akari herself (and her echo) the garb is her own cut: one long violet sash down the front from the belt, with a
+    // sakura crest near its end (kind 'asash', drawn by Fighter.drawAkariSash)
+    if (this.armor === 'mei_en' && this.helmet === 'akari_mask') {
+      this.cloths.push({ kind: 'asash', c: new Cloth(8, 10.5 * this.scale, { ph: 2, wind: 260, grav: 1250, stiff: 1.9 }), at: 'hip', w: 9 * this.scale, dy: -3, dx: -5 });
+    } else if (this.armor === 'mei_en') {
       this.cloths.push({ kind: 'belt', c: new Cloth(5, 7.4 * this.scale, { ph: 2, wind: 190, grav: 1300, stiff: 1.7 }), at: 'hip', color: '#2b2733', rim: 'rgba(200,170,250,0.6)', w: 8 * this.scale, w1: 5.4 * this.scale, dy: -4, dx: 7 });
       this.cloths.push({ kind: 'belt', c: new Cloth(5, 6.8 * this.scale, { ph: 5, wind: 170, grav: 1300, stiff: 1.7 }), at: 'hip', color: '#5c4d78', rim: 'rgba(236,229,211,0.4)', w: 7 * this.scale, w1: 4.6 * this.scale, dy: -4, dx: -6 });
     }
@@ -1168,13 +1198,41 @@ function limbShape(ctx, a, b, ra, rb, front, rear, facing, pos) {
 // V-tapered torso: glutes, lower back, chest and lats, shoulders, neck — profile measured along the spine
 const TORSO_FRONT = [[-0.08, 0.6], [0.12, 0.72], [0.4, 0.6], [0.7, 1.02], [0.9, 0.82], [1.04, 0.34]];
 const TORSO_BACK = [[1.04, 0.36], [0.9, 0.8], [0.66, 0.86], [0.42, 0.58], [0.16, 0.86], [-0.08, 0.6]];
+// Akari's figure: a full bust on the front, a narrow waist, the hips flaring toward the back
+const FEM_FRONT = [[-0.08, 0.78], [0.12, 0.88], [0.44, 0.52], [0.66, 1.95], [0.86, 1.05], [1.04, 0.3]];
+const FEM_BACK = [[1.04, 0.32], [0.88, 0.78], [0.64, 0.64], [0.4, 0.5], [0.14, 1.3], [-0.08, 0.98]];
 const _tp = new Float32Array(24);
-function torsoShape(ctx, hip, neck, facing, Ut) {
+// Akari's head: an anime face instead of a ball: a rounded crown and back of the head, a near-vertical brow and cheek,
+// and a narrow jaw tapering to a pointed chin that sits a little below where the circle would end. Local head coords
+// (+x the face side, r the head radius); the path is left open for the caller to fill or clip.
+function akariHeadPath(ctx, r) {
+  ctx.beginPath(); ctx.moveTo(-r * 0.92, r * 0.15);
+  ctx.bezierCurveTo(-r * 1.02, -r * 0.75, -r * 0.45, -r * 1.08, r * 0.1, -r * 1.05);
+  ctx.bezierCurveTo(r * 0.7, -r * 1.0, r * 0.98, -r * 0.55, r * 0.95, -r * 0.1);
+  ctx.quadraticCurveTo(r * 0.98, r * 0.38, r * 0.78, r * 0.68);
+  ctx.quadraticCurveTo(r * 0.58, r * 1.02, r * 0.4, r * 1.14);
+  ctx.quadraticCurveTo(r * 0.02, r * 0.96, -r * 0.35, r * 0.7);
+  ctx.quadraticCurveTo(-r * 0.8, r * 0.6, -r * 0.92, r * 0.15);
+  ctx.closePath();
+}
+// A five-petal sakura with notched petal tips and a pale heart (Akari's pin and sash crest)
+function drawSakura(ctx, x, y, R, rot, fill, core) {
+  ctx.save(); ctx.translate(x, y); ctx.rotate(rot); ctx.fillStyle = fill;
+  for (let i = 0; i < 5; i++) {
+    ctx.beginPath(); ctx.moveTo(0, 0);
+    ctx.bezierCurveTo(-R * 0.6, -R * 0.45, -R * 0.42, -R * 1.0, -R * 0.14, -R * 1.0); ctx.lineTo(0, -R * 0.82); ctx.lineTo(R * 0.14, -R * 1.0);
+    ctx.bezierCurveTo(R * 0.42, -R * 1.0, R * 0.6, -R * 0.45, 0, 0); ctx.fill();
+    ctx.rotate(TAU / 5);
+  }
+  if (core) { ctx.fillStyle = core; ctx.beginPath(); ctx.arc(0, 0, R * 0.2, 0, TAU); ctx.fill(); }
+  ctx.restore();
+}
+function torsoShape(ctx, hip, neck, facing, Ut, front, back) {
   const dx = neck.x - hip.x, dy = neck.y - hip.y, T = Math.sqrt(dx * dx + dy * dy) || 1, ux = dx / T, uy = dy / T;
   let fx = -uy, fy = ux; if (fx * facing < 0) { fx = -fx; fy = -fy; }
   let k = 0;
-  for (const [u, w] of TORSO_FRONT) { _tp[k++] = hip.x + ux * T * u + fx * w * Ut; _tp[k++] = hip.y + uy * T * u + fy * w * Ut; }
-  for (const [u, w] of TORSO_BACK) { _tp[k++] = hip.x + ux * T * u - fx * w * Ut; _tp[k++] = hip.y + uy * T * u - fy * w * Ut; }
+  for (const [u, w] of front || TORSO_FRONT) { _tp[k++] = hip.x + ux * T * u + fx * w * Ut; _tp[k++] = hip.y + uy * T * u + fy * w * Ut; }
+  for (const [u, w] of back || TORSO_BACK) { _tp[k++] = hip.x + ux * T * u - fx * w * Ut; _tp[k++] = hip.y + uy * T * u - fy * w * Ut; }
   const n = 12;
   ctx.beginPath();
   ctx.moveTo((_tp[0] + _tp[2]) / 2, (_tp[1] + _tp[3]) / 2);
@@ -1233,8 +1291,10 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   if (det) heroWrap(ctx, sk.bkn, sk.bft, 0.5, 0.9, legW * 1.04, HERO_WRAP_BACK, front, s);
   ctx.fillStyle = front;
   // torso: a touch narrower at the waist than across the chest, so shoulders read without bulk
+  // (Akari's slim, curved torso is her garb's own shape, drawArmor 'mei_en': no capsule under it to hide the waist)
+  const akari = this.helmet === 'akari_mask';
   if (hero) { limbShape(ctx, sk.hip, sk.neck, T * 0.9, T * 1.02, 0, 0, f, 0.5); }
-  else seg(sk.hip, sk.neck, T);
+  else if (!akari) seg(sk.hip, sk.neck, T);
   drawArmor(ctx, this, front, flat ? { color: front } : opt, T * 1.25);
   ctx.fillStyle = front;
   seg(sk.hipF, sk.fkn, legW); seg(sk.fkn, sk.fft, legW); foot(sk.fkn, sk.fft);
@@ -1245,7 +1305,10 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   seg(sk.neck, _np, hero ? L * 0.72 : L * 0.9);
   ctx.save(); ctx.translate(sk.head.x, sk.head.y); ctx.rotate((this.pose.lean + this.pose.head + this.pose.rot + this.extraRot) * DEG * f); ctx.scale(f, 1);
   ctx.fillStyle = front;
-  ctx.beginPath(); ctx.arc(0, 0, hr, 0, TAU); ctx.fill();
+  const takashi = bossLook(this) === 'takashi';
+  if (akari || isRem(this)) akariHeadPath(ctx, hr); else if (takashi) takashiHeadPath(ctx, hr); else { ctx.beginPath(); ctx.arc(0, 0, hr, 0, TAU); }
+  ctx.fill();
+  if (takashi) drawTakashiBeard(ctx, hr, front, flat);
   drawHelmet(ctx, this.helmet, hr, front, flat ? { color: front } : opt, this);
   if (!flat && !opt.noEyes) drawEyes(ctx, this, hr, opt);
   ctx.restore();
@@ -1344,7 +1407,9 @@ Fighter.prototype.draw = function (ctx, opt) {
   const wit = this.def && this.def.witness;
   if (wit) this.kageFrame = !opt.color && this.alive && !this.coreBroken && this.witnessFlicker();
   const corrupt = (wit || this.hollow) && this.corruptUntil > this.time;   // a corrupted move (the Witness, the Core's echoes)
-  const glitch = (this.hollow || (wit && !this.kageFrame)) && !opt.color ? this.glitchAmount(corrupt ? 0.6 : 0) : 0;
+  const glitch = (this.hollow || (wit && !this.kageFrame)) && !opt.color && !opt.noGlitch ? this.glitchAmount(corrupt ? 0.6 : 0) : 0;
+  // the Witness glitches like a broken signal (drawWitnessGlitch); Hollows keep their offset ghost below
+  if (wit && glitch && !opt.rimPass && this.drawWitnessGlitch(ctx, opt, glitch, corrupt)) return;
   const gcol = this.hollow ? this.family.trim : '#7b5ad6';
   ctx.save();
   ctx.globalAlpha *= this.alpha;
@@ -1362,7 +1427,13 @@ Fighter.prototype.draw = function (ctx, opt) {
   if (this.sqx !== 1 || this.sqy !== 1) { ctx.translate(this.x, this.y); ctx.scale(this.sqx, this.sqy); ctx.translate(-this.x, -this.y); }
   if (this.turnX !== 1) { ctx.translate(this.x, 0); ctx.scale(Math.abs(this.turnX) < 0.12 ? 0.12 * Math.sign(this.turnX || 1) : this.turnX, 1); ctx.translate(-this.x, 0); }
   if (!opt.color) this.drawFlipArcs(ctx, false);
-  if (this.armor === 'kysmei' && !this.kageFrame) this.drawKysmei(ctx, -1, opt);
+  // the Witness's own look (not while it flickers to Kage): the halo ring, high collar and back coat tails behind the
+  // body, then (below) the front tail, the chest core with its rune cards and the crimson veins over it
+  const witArt = wit && !this.kageFrame;
+  if (witArt) { this.drawWitnessHalo(ctx, opt); this.drawWitnessCoat(ctx, -1, opt); }
+  if (this.armor === 'kysmei' && !this.kageFrame && !wit) this.drawKysmei(ctx, -1, opt);
+  const look = bossLook(this);
+  if (look === 'raikon') this.drawRaikonCloak(ctx, opt);
   for (const cl of this.cloths) if (cl.kind === 'cape' || cl.kind === 'robe') cl.c.draw(ctx, opt.color || cl.color, cl.w0, cl.w1, null);
   // clean, even white outline: the silhouette stamped around itself, then the flat body on top
   if (opt.rim && !opt.color) {
@@ -1378,8 +1449,10 @@ Fighter.prototype.draw = function (ctx, opt) {
     if (cl.w1) cl.c.ribbon(ctx, col, cl.w, cl.w1); else cl.c.strand(ctx, col, cl.w);
   }
   this.silhouette(ctx, ink, ink, flat, opt);
-  if (this.armor === 'kysmei' && !this.kageFrame) this.drawKysmei(ctx, 1, opt);
-  if (wit && !this.kageFrame && !this.coreBroken) this.drawCore(ctx, opt);
+  if (this.armor === 'kysmei' && !this.kageFrame && !wit) this.drawKysmei(ctx, 1, opt);
+  if (witArt) { this.drawWitnessCoat(ctx, 1, opt); this.drawWitnessVeins(ctx, opt); if (!this.coreBroken) this.drawCore(ctx, opt); }
+  if (this.helmet === 'akari_mask') { this.drawAkariDetails(ctx, opt); this.drawAkariSash(ctx, opt); }
+  if (look === 'raikon') this.drawRaikonDetails(ctx, opt);
   if (!flat) this.drawDetails(ctx, opt);
   if (!opt.color) this.drawFlipArcs(ctx, true);
   if (this.state === 'kickcharge' && this.charge > 0.18 && !opt.color) {
@@ -1446,17 +1519,419 @@ Fighter.prototype.drawKysmei = function (ctx, depth, opt) {
   }
   ctx.restore();
 };
-// The Witness's chest core: a bright circle (white heart, violet ring and a soft violet bloom) that pulses
+// Which story boss's own look a fighter wears: the boss itself or its Core echo (echoOf) give that boss's id
+// ('raikon', 'akari', 'takashi', 'witness'); anyone else gives their own id or null. The bosses' redesigns key on this,
+// so the gear they drop (the Raijin Kabuto, the Kasa) keeps its own look on Kage.
+function bossLook(f) { const d = f && f.def; return d ? d.echoOf || d.id || null : null; }
+
+/* ---- Raikon ---- */
+// His cloak (cloth kind 'rcloak'): long ragged panels from the shoulders, black at the top bleeding into crimson toward
+// the hem, which is torn into teeth; a pale-red edge, and on the widest panel a red cloud crest
+const _rcl = new Float32Array(28), _rcr = new Float32Array(28);
+Fighter.prototype.drawRaikonCloak = function (ctx, opt) {
+  const s = this.scale, flat = !!opt.color;
+  for (const cl of this.cloths) {
+    if (cl.kind !== 'rcloak' || !cl.c.init) continue;
+    const c = cl.c, n = c.n, px = c.px, py = c.py;
+    for (let i = 0; i < n; i++) {
+      const a = i === 0 ? 0 : i - 1, b = i === n - 1 ? n - 1 : i + 1;
+      let dx = px[b] - px[a], dy = py[b] - py[a]; const d = Math.sqrt(dx * dx + dy * dy) || 1; dx /= d; dy /= d;
+      const u = i / (n - 1), tear = u > 0.55 ? (i % 2 ? 1 : 0.62) : 1;   // the lower half torn into teeth
+      const w = cl.w * 0.5 * (0.45 + 0.75 * Math.sin(Math.PI * (0.2 + 0.7 * u)));
+      _rcl[i * 2] = px[i] - dy * w * tear; _rcl[i * 2 + 1] = py[i] + dx * w * tear;
+      _rcr[i * 2] = px[i] + dy * w * (2 - tear) * 0.8; _rcr[i * 2 + 1] = py[i] - dx * w * (2 - tear) * 0.8;
+    }
+    const e = (n - 1) * 2, vx = px[n - 1] - px[n - 2], vy = py[n - 1] - py[n - 2];
+    ctx.beginPath(); ctx.moveTo(_rcl[0], _rcl[1]);
+    for (let i = 1; i < n; i++) ctx.lineTo(_rcl[i * 2], _rcl[i * 2 + 1]);
+    ctx.lineTo(_rcl[e] + vx * 0.9, _rcl[e + 1] + vy * 0.9); ctx.lineTo(px[n - 1] + vx * 0.3, py[n - 1] + vy * 0.3); ctx.lineTo(_rcr[e] + vx * 1.1, _rcr[e + 1] + vy * 1.1);
+    for (let i = n - 1; i >= 0; i--) ctx.lineTo(_rcr[i * 2], _rcr[i * 2 + 1]);
+    ctx.closePath();
+    if (flat) { ctx.fillStyle = opt.color; ctx.fill(); continue; }
+    const g = ctx.createLinearGradient(px[0], py[0], px[n - 1] + vx, py[n - 1] + vy);
+    g.addColorStop(0, '#0c0808'); g.addColorStop(0.45, '#1c0a0b'); g.addColorStop(0.78, '#7a0c12'); g.addColorStop(1, '#d01a22');
+    ctx.fillStyle = g; ctx.fill();
+    ctx.strokeStyle = 'rgba(255,110,100,0.55)'; ctx.lineWidth = 1 * s; ctx.stroke();
+    if (cl.crest) { const j = Math.round((n - 1) * 0.55); drawCloudCrest(ctx, px[j], py[j], cl.w * 0.26, Math.atan2(vy, vx) - Math.PI / 2, '#d4141c'); }
+  }
+};
+// A swirling storm-cloud crest: three billows on a flat base, with a curl cut into each
+function drawCloudCrest(ctx, x, y, R, rot, col) {
+  ctx.save(); ctx.translate(x, y); ctx.rotate(rot);
+  ctx.fillStyle = col; ctx.beginPath();
+  ctx.arc(-R * 0.55, R * 0.1, R * 0.45, 0, TAU); ctx.moveTo(R * 0.55, -R * 0.2); ctx.arc(0, -R * 0.2, R * 0.55, 0, TAU);
+  ctx.moveTo(R * 0.97, R * 0.12); ctx.arc(R * 0.55, R * 0.12, R * 0.42, 0, TAU); ctx.rect(-R * 0.9, R * 0.1, R * 1.8, R * 0.45); ctx.fill();
+  ctx.strokeStyle = '#1a0607'; ctx.lineWidth = Math.max(1, R * 0.12);
+  for (const [cx, cy, rr] of [[-R * 0.55, R * 0.1, R * 0.22], [0, -R * 0.2, R * 0.28], [R * 0.55, R * 0.12, R * 0.2]]) { ctx.beginPath(); ctx.arc(cx, cy, rr, Math.PI * 0.2, Math.PI * 1.6); ctx.stroke(); }
+  ctx.restore();
+}
+// The shoulder guard with the red three-comma crest on his near shoulder, the red wraps on his forearms and the wrapped
+// tops of his boots (his white fur mantle is part of his armour: drawArmor 'raikon_plate')
+Fighter.prototype.drawRaikonDetails = function (ctx, opt) {
+  if (opt.color) return;
+  const sk = this.sk, s = this.scale, fc = this.facing, L = this.build.w * s * 0.42 * 1.15;
+  const band = (a, b, u, w, col) => {
+    const x = lerp(a.x, b.x, u), y = lerp(a.y, b.y, u), an = Math.atan2(b.y - a.y, b.x - a.x), ox = -Math.sin(an) * L * 1.2, oy = Math.cos(an) * L * 1.2;
+    ctx.strokeStyle = col; ctx.lineWidth = w * s; ctx.lineCap = 'butt'; ctx.beginPath(); ctx.moveTo(x - ox, y - oy); ctx.lineTo(x + ox, y + oy); ctx.stroke();
+  };
+  ctx.save();
+  for (const [el, ha, kn, ft, dim] of [[sk.bel, sk.bha, sk.bkn, sk.bft, 1], [sk.fel, sk.fha, sk.fkn, sk.fft, 0]]) {
+    const red = dim ? '#6e0d12' : '#c3161e';
+    band(el, ha, 0.62, 3.2, red); band(el, ha, 0.8, 1.6, red);
+    band(kn, ft, 0.28, 4.2, dim ? '#3a3434' : '#5c5454'); band(kn, ft, 0.38, 1.4, red);
+  }
+  const x = sk.shF.x + fc * 1 * s, y = sk.shF.y + 2 * s, R = 8.5 * s;
+  ctx.fillStyle = '#140b0b'; ctx.beginPath(); ctx.arc(x, y, R, 0, TAU); ctx.fill();
+  ctx.strokeStyle = '#d4141c'; ctx.lineWidth = 1.4 * s; ctx.beginPath(); ctx.arc(x, y, R * 0.72, 0, TAU); ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,120,110,0.5)'; ctx.lineWidth = 1 * s; ctx.beginPath(); ctx.arc(x, y, R, 0, TAU); ctx.stroke();
+  ctx.fillStyle = '#ff2a2a';
+  for (let i = 0; i < 3; i++) {
+    const a = i * TAU / 3, cx = x + Math.cos(a) * R * 0.3, cy = y + Math.sin(a) * R * 0.3;
+    ctx.beginPath(); ctx.arc(cx, cy, R * 0.17, 0, TAU); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(cx + Math.cos(a + 1.6) * R * 0.17, cy + Math.sin(a + 1.6) * R * 0.17);
+    ctx.quadraticCurveTo(x + Math.cos(a + 1.1) * R * 0.55, y + Math.sin(a + 1.1) * R * 0.55, x + Math.cos(a + 2) * R * 0.5, y + Math.sin(a + 2) * R * 0.5); ctx.lineTo(cx, cy); ctx.fill();
+  }
+  ctx.restore();
+};
+// His white fur mantle: a spiky ruff round the back of the neck spilling over the back shoulder, white with grey
+// shading; in a flat pass just its shape (the white outline follows it)
+function drawRaikonFur(ctx, f, ink, flat, Ut) {
+  const sk = f.sk, fc = f.facing, x = sk.neck.x, y = sk.neck.y + Ut * 0.35;
+  const P = (bx, by) => [x - fc * bx * Ut, y + by * Ut];
+  const pts = [P(-0.5, -0.2), P(0.2, -1.4), P(0.45, -0.7), P(1.1, -1.5), P(1.0, -0.6), P(1.9, -1.1), P(1.45, -0.25), P(2.3, -0.2), P(1.6, 0.35), P(2.1, 0.9), P(1.2, 0.8), P(1.3, 1.5), P(0.6, 1.0), P(0.3, 1.6), P(0.0, 0.7)];
+  ctx.fillStyle = flat ? ink : '#e9e4df';
+  ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]); for (const q of pts.slice(1)) ctx.lineTo(q[0], q[1]); ctx.closePath(); ctx.fill();
+  if (flat) return;
+  ctx.strokeStyle = '#9d9690'; ctx.lineWidth = Math.max(1, Ut * 0.12); ctx.lineJoin = 'miter';
+  ctx.beginPath();
+  for (const [a, b] of [[P(0.3, -0.2), P(1.1, -1.0)], [P(0.5, 0.2), P(1.7, -0.1)], [P(0.4, 0.5), P(1.6, 0.8)], [P(0.3, 0.7), P(0.8, 1.2)]]) { ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); }
+  ctx.stroke(); ctx.lineJoin = 'round';
+}
+
+/* ---- Takashi ---- */
+// His head: a rounded crown over a broad, square jaw (instead of a ball); local head coords, left open to fill
+function takashiHeadPath(ctx, r) {
+  ctx.beginPath(); ctx.moveTo(-r * 0.95, r * 0.12);
+  ctx.bezierCurveTo(-r * 1.02, -r * 0.8, -r * 0.4, -r * 1.06, r * 0.12, -r * 1.02);
+  ctx.bezierCurveTo(r * 0.72, -r * 0.96, r * 1.0, -r * 0.55, r * 0.98, -r * 0.12);
+  ctx.lineTo(r * 1.0, r * 0.5); ctx.quadraticCurveTo(r * 0.96, r * 0.86, r * 0.68, r * 0.96);
+  ctx.lineTo(r * 0.12, r * 0.96); ctx.quadraticCurveTo(-r * 0.4, r * 0.86, -r * 0.7, r * 0.6); ctx.quadraticCurveTo(-r * 0.92, r * 0.42, -r * 0.95, r * 0.12);
+  ctx.closePath();
+}
+// His beard and moustache: a full beard along the jaw drawn to a point below the chin, iron-grey with pale strands;
+// in a flat pass (the white outline, an impact frame) just its shape, so the outline follows it
+function drawTakashiBeard(ctx, r, ink, flat) {
+  ctx.fillStyle = flat ? ink : '#e6e0d6';
+  ctx.beginPath(); ctx.moveTo(r * 0.18, r * 0.12);
+  for (const [x, y] of [[r * 0.36, r * 0.6], [r * 0.98, r * 0.58], [r * 1.06, r * 0.92], [r * 0.9, r * 1.38], [r * 0.66, r * 1.95], [r * 0.46, r * 1.4], [r * 0.08, r * 1.02], [-r * 0.06, r * 0.5]]) ctx.lineTo(x, y);
+  ctx.closePath(); ctx.fill();
+  if (flat) return;
+  ctx.strokeStyle = 'rgba(120,112,100,0.7)'; ctx.lineWidth = Math.max(0.8, r * 0.05);
+  ctx.beginPath();
+  for (const [x0, y0, x1, y1] of [[r * 0.9, r * 0.75, r * 0.74, r * 1.5], [r * 0.62, r * 0.78, r * 0.6, r * 1.55], [r * 0.34, r * 0.8, r * 0.46, r * 1.25], [r * 0.08, r * 0.6, r * 0.14, r * 0.95]]) { ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); }
+  ctx.stroke();
+  // the moustache, drooping past the corners of the mouth
+  ctx.strokeStyle = '#f4f0e8'; ctx.lineWidth = Math.max(1, r * 0.14); ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(r * 1.02, r * 0.44); ctx.quadraticCurveTo(r * 0.66, r * 0.44, r * 0.4, r * 0.72); ctx.stroke();
+}
+
+/* ---- Rem ---- */
+// Rem (young Rem in the spar, Hollow Rem in the Core): his own hairstyle and band from his key art
+function isRem(f) { const d = f && f.def; return !!d && (d.id === 'young_rem' || d.id === 'rem' || d.echoOf === 'rem'); }
+// Big swept hair: two tall spikes rising off the crown, more fanning back past the nape, a jagged fringe falling over
+// the brow; a white band across the forehead under the fringe with a steel ring at its knot (the tails are cloth)
+const REM_HAIR = [[0.98, -0.34], [0.72, -0.72], [1.2, -1.02], [0.46, -1.08], [0.42, -2.0], [0.0, -1.3], [-0.42, -2.25], [-0.55, -1.32], [-1.45, -1.8],
+  [-0.98, -0.92], [-2.0, -1.0], [-1.08, -0.46], [-1.7, -0.06], [-0.96, 0.14]];
+function drawRemHair(ctx, r, ink, flat) {
+  ctx.fillStyle = ink; ctx.beginPath(); ctx.moveTo(REM_HAIR[0][0] * r, REM_HAIR[0][1] * r);
+  for (let i = 1; i < REM_HAIR.length; i++) {
+    const p = REM_HAIR[i], q = REM_HAIR[i - 1];
+    ctx.quadraticCurveTo((p[0] + q[0]) / 2 * r - 0.12 * r, (p[1] + q[1]) / 2 * r - 0.06 * r, p[0] * r, p[1] * r);
+  }
+  ctx.arc(0, 0, r, Math.PI * 0.95, Math.PI * 1.85, false); ctx.closePath(); ctx.fill();
+  if (flat) return;
+  // the band, clipped to the head
+  ctx.save(); akariHeadPath(ctx, r * 1.04); ctx.clip();
+  ctx.fillStyle = '#efe7da'; ctx.beginPath(); ctx.moveTo(-r * 1.2, -r * 0.5); ctx.lineTo(r * 1.2, -r * 0.44); ctx.lineTo(r * 1.2, -r * 0.2); ctx.lineTo(-r * 1.2, -r * 0.26); ctx.closePath(); ctx.fill();
+  ctx.restore();
+  // a fringe spike falling over the band at the front, with pale strand lines through the hair
+  ctx.fillStyle = ink; ctx.beginPath(); ctx.moveTo(r * 0.3, -r * 0.62); ctx.lineTo(r * 0.98, -r * 0.6); ctx.lineTo(r * 0.86, -r * 0.08); ctx.lineTo(r * 0.62, -r * 0.42); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = 'rgba(236,229,211,0.55)'; ctx.lineWidth = Math.max(0.8, r * 0.05);
+  ctx.beginPath(); ctx.moveTo(-r * 0.1, -r * 0.95); ctx.quadraticCurveTo(r * 0.1, -r * 1.4, r * 0.35, -r * 1.75); ctx.moveTo(-r * 0.6, -r * 0.9); ctx.quadraticCurveTo(-r * 1.0, -r * 1.2, -r * 1.3, -r * 1.6); ctx.stroke();
+  // the ring at the knot
+  ctx.fillStyle = '#efe7da'; ctx.beginPath(); ctx.arc(-r * 0.92, -r * 0.36, r * 0.27, 0, TAU); ctx.fill();
+  ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(-r * 0.92, -r * 0.36, r * 0.14, 0, TAU); ctx.fill();
+  ctx.strokeStyle = '#1a1210'; ctx.lineWidth = Math.max(0.8, r * 0.05); ctx.beginPath(); ctx.arc(-r * 0.92, -r * 0.36, r * 0.27, 0, TAU); ctx.stroke();
+}
+
+/* ---- Akari ---- */
+// Her long front sash (cloth kind 'asash'): a straight violet panel from the belt, widening slightly, cut in a V at the
+// end, deep violet at the knot to lilac at the tip, a pale edge, and a white sakura crest near the end
+const _asl = new Float32Array(24), _asr = new Float32Array(24);
+Fighter.prototype.drawAkariSash = function (ctx, opt) {
+  const s = this.scale, flat = !!opt.color;
+  for (const cl of this.cloths) {
+    if (cl.kind !== 'asash' || !cl.c.init) continue;
+    const c = cl.c, n = c.n, px = c.px, py = c.py;
+    for (let i = 0; i < n; i++) {
+      const a = i === 0 ? 0 : i - 1, b = i === n - 1 ? n - 1 : i + 1;
+      let dx = px[b] - px[a], dy = py[b] - py[a]; const d = Math.sqrt(dx * dx + dy * dy) || 1; dx /= d; dy /= d;
+      const w = cl.w * 0.5 * (0.8 + 0.3 * i / (n - 1));
+      _asl[i * 2] = px[i] - dy * w; _asl[i * 2 + 1] = py[i] + dx * w; _asr[i * 2] = px[i] + dy * w; _asr[i * 2 + 1] = py[i] - dx * w;
+    }
+    const e = (n - 1) * 2, vx = px[n - 1] - px[n - 2], vy = py[n - 1] - py[n - 2];
+    ctx.beginPath(); ctx.moveTo(_asl[0], _asl[1]);
+    for (let i = 1; i < n; i++) ctx.lineTo(_asl[i * 2], _asl[i * 2 + 1]);
+    ctx.lineTo(_asl[e] + vx * 0.7, _asl[e + 1] + vy * 0.7); ctx.lineTo(px[n - 1], py[n - 1]); ctx.lineTo(_asr[e] + vx * 0.7, _asr[e + 1] + vy * 0.7);
+    for (let i = n - 1; i >= 0; i--) ctx.lineTo(_asr[i * 2], _asr[i * 2 + 1]);
+    ctx.closePath();
+    if (flat) { ctx.fillStyle = opt.color; ctx.fill(); continue; }
+    const g = ctx.createLinearGradient(px[0], py[0], px[n - 1], py[n - 1]);
+    g.addColorStop(0, '#3a2266'); g.addColorStop(0.6, '#7446c4'); g.addColorStop(1, '#a77bf0');
+    ctx.fillStyle = g; ctx.fill();
+    ctx.strokeStyle = 'rgba(226,210,255,0.85)'; ctx.lineWidth = 1 * s; ctx.stroke();
+    const j = Math.round((n - 1) * 0.72);
+    drawSakura(ctx, px[j], py[j], cl.w * 0.36, Math.atan2(vy, vx), 'rgba(250,244,255,0.92)', '#a77bf0');
+  }
+};
+// Her violet arm cuffs above the gloves and the bands at the top of her boots; the back limbs' first, dimmer
+Fighter.prototype.drawAkariDetails = function (ctx, opt) {
+  if (opt.color) return;
+  const sk = this.sk, s = this.scale, L = this.build.w * s * 0.42;
+  const band = (a, b, u, w, col) => {
+    const x = lerp(a.x, b.x, u), y = lerp(a.y, b.y, u), an = Math.atan2(b.y - a.y, b.x - a.x), ox = -Math.sin(an) * L * 1.25, oy = Math.cos(an) * L * 1.25;
+    ctx.strokeStyle = col; ctx.lineWidth = w * s; ctx.lineCap = 'butt';
+    ctx.beginPath(); ctx.moveTo(x - ox, y - oy); ctx.lineTo(x + ox, y + oy); ctx.stroke();
+  };
+  ctx.save();
+  for (const [el, ha, kn, ft, col] of [[sk.bel, sk.bha, sk.bkn, sk.bft, '#5e3f96'], [sk.fel, sk.fha, sk.fkn, sk.fft, '#9a6ae6']]) {
+    band(el, ha, 0.18, 2.4, col); band(el, ha, 0.7, 1.4, col);
+    band(kn, ft, 0.22, 2.8, col); band(kn, ft, 0.9, 1.6, col);
+  }
+  ctx.restore();
+};
+// The Witness's glitch frame: the figure is drawn once into an offscreen canvas, then put back as horizontal slices,
+// some torn sideways, over a magenta / cyan colour split, with dark scanlines across the figure and a few bright pixel
+// blocks flickering beside it. Deterministic per 1/30 s, stronger during a corrupted move. Returns false (draw it the
+// plain way) when the context gives no transform or the frame would be too large to copy.
+const _glitchCv = [];
+function glitchCanvas(i, w, h) {
+  const c = _glitchCv[i] || (_glitchCv[i] = document.createElement('canvas'));
+  if (c.width < w || c.height < h) { c.width = Math.max(c.width, w); c.height = Math.max(c.height, h); }
+  return c;
+}
+Fighter.prototype.drawWitnessGlitch = function (ctx, opt, g, corrupt) {
+  if (typeof document === 'undefined' || !ctx.getTransform) return false;
+  const T = ctx.getTransform(), cv = ctx.canvas, s = this.scale;
+  const corners = [[this.x - 260 * s, this.y - 380 * s], [this.x + 260 * s, this.y - 380 * s], [this.x - 260 * s, this.y + 30 * s], [this.x + 260 * s, this.y + 30 * s]]
+    .map(([x, y]) => [T.a * x + T.c * y + T.e, T.b * x + T.d * y + T.f]);
+  const bx = Math.max(0, Math.floor(Math.min(...corners.map(p => p[0])))), by = Math.max(0, Math.floor(Math.min(...corners.map(p => p[1]))));
+  const bw = Math.min(cv.width, Math.ceil(Math.max(...corners.map(p => p[0])))) - bx, bh = Math.min(cv.height, Math.ceil(Math.max(...corners.map(p => p[1])))) - by;
+  if (bw <= 0 || bh <= 0) return true;   // off screen
+  if (bw * bh > 5e6) return false;
+  const off = glitchCanvas(0, bw, bh), og = off.getContext('2d');
+  og.setTransform(1, 0, 0, 1, 0, 0); og.globalCompositeOperation = 'source-over'; og.globalAlpha = 1; og.clearRect(0, 0, bw, bh);
+  og.setTransform(T.a, T.b, T.c, T.d, T.e - bx, T.f - by);
+  this.draw(og, Object.assign({}, opt, { noGlitch: true }));
+  og.setTransform(1, 0, 0, 1, 0, 0);
+  const unit = Math.hypot(T.a, T.b) * s, amp = Math.abs(g) * (corrupt ? 1.6 : 1), k = Math.floor((this.time || 0) * 30);
+  // scanlines and a violet wash, on the figure's own pixels only
+  og.globalCompositeOperation = 'source-atop';
+  og.fillStyle = 'rgba(150,90,255,0.14)'; og.fillRect(0, 0, bw, bh);
+  og.fillStyle = 'rgba(8,0,18,0.45)'; const step = Math.max(3, Math.round(unit * 2.4));
+  for (let y = (k % 2) * Math.round(step / 2); y < bh; y += step) og.fillRect(0, y, bw, Math.max(1, Math.round(step / 3)));
+  og.globalCompositeOperation = 'source-over';
+  // the colour split: the figure in flat magenta and cyan, pushed apart
+  const tint = (i, col) => { const c = glitchCanvas(i, bw, bh), t = c.getContext('2d'); t.setTransform(1, 0, 0, 1, 0, 0); t.globalCompositeOperation = 'source-over'; t.clearRect(0, 0, bw, bh); t.drawImage(off, 0, 0, bw, bh, 0, 0, bw, bh); t.globalCompositeOperation = 'source-in'; t.fillStyle = col; t.fillRect(0, 0, bw, bh); t.globalCompositeOperation = 'source-over'; return c; };
+  const mag = tint(1, '#ff2bd6'), cya = tint(2, '#38e8ff');
+  const base = ctx.globalAlpha, split = (3 + amp * 8) * unit;
+  ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = base * 0.5;
+  ctx.drawImage(mag, 0, 0, bw, bh, bx - split, by, bw, bh);
+  ctx.drawImage(cya, 0, 0, bw, bh, bx + split * 0.7, by + unit, bw, bh);
+  ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = base;
+  // the slices: bands of varied height, about half of them torn sideways
+  for (let y = 0, i = 0; y < bh; i++) {
+    const h = Math.min(bh - y, Math.max(3, Math.round((0.03 + _hash(k * 7.1 + i) * 0.14) * bh)));
+    const torn = _hash(k * 3.3 + i * 1.9) < 0.5, shift = torn ? (_hash(k + i * 5.7) - 0.5) * 2 * (10 + amp * 60) * unit : 0;
+    ctx.drawImage(off, 0, y, bw, h, bx + shift, by + y, bw, h);
+    if (torn && _hash(k * 2.2 + i) < 0.3) { ctx.globalAlpha = base * 0.35; ctx.drawImage(off, 0, y, bw, h, bx - shift * 0.6, by + y, bw, h); ctx.globalAlpha = base; }   // a doubled band
+    y += h;
+  }
+  // pixel blocks flickering round the figure
+  ctx.globalCompositeOperation = 'lighter';
+  for (let j = 0; j < 9; j++) {
+    if (_hash(k * 1.7 + j * 9.1) < 0.45) continue;
+    const w = (3 + _hash(k + j * 3.1) * 16) * unit, h = (1.5 + _hash(k * 1.3 + j) * 4) * unit;
+    const x = bx + bw * (0.3 + 0.4 * _hash(k * 0.7 + j * 4.3)), y = by + bh * (0.08 + 0.8 * _hash(k * 2.9 + j * 1.1));
+    ctx.fillStyle = j % 3 === 0 ? 'rgba(255,255,255,0.75)' : j % 3 === 1 ? 'rgba(190,140,255,0.85)' : 'rgba(255,60,190,0.75)';
+    ctx.fillRect(x, y, w, h);
+  }
+  ctx.restore();
+  return true;
+};
+// Where the Witness's chest core sits: high on the chest, toward the back shoulder (as on its side-view sheet)
+Fighter.prototype.corePos = function () {
+  const sk = this.sk, s = this.scale;
+  return { x: lerp(sk.hip.x, sk.neck.x, 0.74) - this.facing * 3 * s, y: lerp(sk.hip.y, sk.neck.y, 0.74) };
+};
+// How much of the Witness's own glow shows: all of it, fading out while it comes apart
+Fighter.prototype.witFade = function () { return this.dissolve ? clamp(1 - this.dissolve * 1.6, 0, 1) : 1; };
+// The Witness's chest core: a white-hot orb in a violet bloom, a magenta ring, a slowly turning dashed circuit ring,
+// circuit traces running off it across the chest, and a fan of glowing rune cards hanging beneath it. It pulses.
 Fighter.prototype.drawCore = function (ctx, opt) {
-  const sk = this.sk, s = this.scale, x = lerp(sk.hip.x, sk.neck.x, 0.62) + this.facing * 2 * s, y = lerp(sk.hip.y, sk.neck.y, 0.62);
-  if (opt.color) { ctx.fillStyle = opt.color; ctx.beginPath(); ctx.arc(x, y, 7 * s, 0, TAU); ctx.fill(); return; }
-  const pulse = 1 + Math.sin(this.time * 5) * 0.12, r = 6.5 * s * pulse;
-  const g = ctx.createRadialGradient(x, y, r, x, y, r * 2.8);
-  g.addColorStop(0, 'rgba(200,176,255,0.6)'); g.addColorStop(1, 'rgba(140,100,255,0)');
-  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r * 2.8, 0, TAU); ctx.fill();
-  ctx.fillStyle = '#a77bff'; ctx.beginPath(); ctx.arc(x, y, r * 1.35, 0, TAU); ctx.fill();
+  const s = this.scale, t = this.time || 0, f = this.facing, { x, y } = this.corePos();
+  if (opt.color) { ctx.fillStyle = opt.color; ctx.beginPath(); ctx.arc(x, y, 9 * s, 0, TAU); ctx.fill(); this.drawRuneCards(ctx, x, y, opt); return; }
+  const pulse = 1 + Math.sin(t * 5) * 0.1, r = 6.2 * s * pulse, k = this.witFade();
+  ctx.save(); ctx.globalAlpha *= k;
+  // circuit traces: angular magenta lines from the orb across the chest and down toward the waist
+  ctx.strokeStyle = 'rgba(255,79,170,0.75)'; ctx.lineWidth = 1.1 * s; ctx.lineJoin = 'miter';
+  for (const [a, l1, a2, l2] of [[0.3, 10, 1.1, 9], [1.2, 13, 1.8, 10], [-0.5, 9, 0.2, 8], [2.6, 8, 2.0, 9]]) {
+    const ca = f > 0 ? a : Math.PI - a, cb = f > 0 ? a2 : Math.PI - a2;
+    const x1 = x + Math.cos(ca) * (r * 1.6 + l1 * s), y1 = y + Math.sin(ca) * (r * 1.6 + l1 * s);
+    ctx.beginPath(); ctx.moveTo(x + Math.cos(ca) * r * 1.5, y + Math.sin(ca) * r * 1.5); ctx.lineTo(x1, y1); ctx.lineTo(x1 + Math.cos(cb) * l2 * s, y1 + Math.sin(cb) * l2 * s); ctx.stroke();
+    ctx.fillStyle = '#ff8ad0'; ctx.beginPath(); ctx.arc(x1 + Math.cos(cb) * l2 * s, y1 + Math.sin(cb) * l2 * s, 1.2 * s, 0, TAU); ctx.fill();
+  }
+  this.drawRuneCards(ctx, x, y, opt);
+  const g = ctx.createRadialGradient(x, y, r * 0.6, x, y, r * 3.6);
+  g.addColorStop(0, 'rgba(226,200,255,0.75)'); g.addColorStop(0.45, 'rgba(176,110,255,0.3)'); g.addColorStop(1, 'rgba(140,80,255,0)');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r * 3.6, 0, TAU); ctx.fill();
+  ctx.fillStyle = '#1a0a1e'; ctx.beginPath(); ctx.arc(x, y, r * 1.75, 0, TAU); ctx.fill();
+  ctx.strokeStyle = '#ff4fa6'; ctx.lineWidth = 1.5 * s; ctx.beginPath(); ctx.arc(x, y, r * 1.75, 0, TAU); ctx.stroke();
+  ctx.save(); ctx.translate(x, y); ctx.rotate(t * 0.9 * f);
+  ctx.setLineDash([3 * s, 2.2 * s]); ctx.strokeStyle = 'rgba(255,140,220,0.9)'; ctx.lineWidth = 1.2 * s; ctx.beginPath(); ctx.arc(0, 0, r * 2.25, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = '#ff6fc0'; for (let i = 0; i < 4; i++) { const a = i * Math.PI / 2; ctx.fillRect(Math.cos(a) * r * 2.25 - 1.3 * s, Math.sin(a) * r * 2.25 - 1.3 * s, 2.6 * s, 2.6 * s); }
+  ctx.restore();
+  ctx.fillStyle = '#b48aff'; ctx.beginPath(); ctx.arc(x, y, r * 1.3, 0, TAU); ctx.fill();
   ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
-  ctx.strokeStyle = '#2a1c4a'; ctx.lineWidth = 1 * s; ctx.beginPath(); ctx.arc(x, y, r * 1.35, 0, TAU); ctx.stroke();
+  ctx.restore();
+};
+// The ofuda-like rune cards: five small dark-crimson tags fanned below and behind the core, each edged in glowing pink
+// with a glyph, swaying on their own
+Fighter.prototype.drawRuneCards = function (ctx, x, y, opt) {
+  const s = this.scale, t = this.time || 0, f = this.facing, flat = !!opt.color;
+  for (let i = 0; i < 5; i++) {
+    const a = (0.35 + i * 0.36) + Math.sin(t * 1.8 + i * 1.3) * 0.07, d = (22 + (i % 2) * 9) * s;
+    const ang = f > 0 ? Math.PI - a + 0.1 : a - 0.1;   // fanned down and back of the core
+    const cx = x + Math.cos(ang) * d, cy = y + Math.sin(ang) * d + 4 * s, w = 4.6 * s, h = 10.5 * s;
+    ctx.save(); ctx.translate(cx, cy); ctx.rotate(ang - Math.PI / 2);
+    ctx.fillStyle = flat ? opt.color : '#2a0b1f'; ctx.fillRect(-w / 2, -h / 2, w, h);
+    if (!flat) {
+      ctx.strokeStyle = '#ff4f9a'; ctx.lineWidth = 0.9 * s; ctx.strokeRect(-w / 2, -h / 2, w, h);
+      ctx.strokeStyle = 'rgba(255,170,220,0.95)'; ctx.lineWidth = 0.8 * s;
+      ctx.beginPath(); ctx.moveTo(0, -h * 0.32); ctx.lineTo(0, h * 0.3); ctx.moveTo(-w * 0.25, -h * 0.1); ctx.lineTo(w * 0.25, -h * 0.1); ctx.moveTo(-w * 0.22, h * 0.14); ctx.lineTo(w * 0.22, h * 0.2); ctx.stroke();
+    }
+    ctx.restore();
+  }
+};
+// The halo: a large dark ring behind its head and shoulders, glowing magenta at the rim, notched with small ticks that
+// turn slowly, a crown spike at the top and two clasps at its sides. Behind the body; drawn flat in an impact frame.
+Fighter.prototype.drawWitnessHalo = function (ctx, opt) {
+  const sk = this.sk, s = this.scale, f = this.facing, t = this.time || 0, hr = BODY.head * s * this.build.head, flat = !!opt.color;
+  const cx = lerp(sk.neck.x, sk.head.x, 0.35) - f * hr * 1.25, cy = lerp(sk.neck.y, sk.head.y, 0.35) + hr * 0.2, R = hr * 2.9;
+  ctx.save(); ctx.globalAlpha *= this.witFade();
+  if (!flat) {
+    ctx.strokeStyle = 'rgba(255,60,150,0.16)'; ctx.lineWidth = 9 * s; ctx.beginPath(); ctx.arc(cx, cy, R, 0, TAU); ctx.stroke();
+  }
+  ctx.strokeStyle = flat ? opt.color : '#2b0a26'; ctx.lineWidth = 3.6 * s; ctx.beginPath(); ctx.arc(cx, cy, R, 0, TAU); ctx.stroke();
+  if (!flat) {
+    ctx.strokeStyle = `rgba(255,90,170,${0.75 + Math.sin(t * 3) * 0.2})`; ctx.lineWidth = 1 * s;
+    ctx.beginPath(); ctx.arc(cx, cy, R + 1.2 * s, 0, TAU); ctx.stroke();
+    ctx.strokeStyle = 'rgba(180,120,255,0.6)'; ctx.beginPath(); ctx.arc(cx, cy, R - 1.6 * s, 0, TAU); ctx.stroke();
+  }
+  // the notches, turning slowly
+  ctx.save(); ctx.translate(cx, cy); ctx.rotate(t * 0.25 * f);
+  for (let i = 0; i < 14; i++) {
+    const a = i * TAU / 14; ctx.save(); ctx.rotate(a);
+    ctx.fillStyle = flat ? opt.color : i % 2 ? '#3d0f35' : '#ff5fae'; ctx.fillRect(R - 2.6 * s, -0.9 * s, 5.2 * s, 1.8 * s);
+    ctx.restore();
+  }
+  ctx.restore();
+  // the crown spike on top and the clasps at the sides (these do not turn)
+  ctx.fillStyle = flat ? opt.color : '#2b0a26';
+  ctx.beginPath(); ctx.moveTo(cx, cy - R - 13 * s); ctx.lineTo(cx + 3.4 * s, cy - R - 2 * s); ctx.lineTo(cx, cy - R + 3 * s); ctx.lineTo(cx - 3.4 * s, cy - R - 2 * s); ctx.closePath(); ctx.fill();
+  if (!flat) { ctx.strokeStyle = '#ff5fae'; ctx.lineWidth = 0.9 * s; ctx.stroke(); }
+  for (const sd of [-1, 1]) {
+    ctx.fillStyle = flat ? opt.color : '#2b0a26'; ctx.fillRect(cx + sd * R - 2.4 * s, cy - 5 * s, 4.8 * s, 10 * s);
+    if (!flat) { ctx.strokeStyle = '#ff5fae'; ctx.lineWidth = 0.9 * s; ctx.strokeRect(cx + sd * R - 2.4 * s, cy - 5 * s, 4.8 * s, 10 * s); }
+  }
+  // the high collar: two dark blades rising behind the neck
+  const nx = sk.neck.x, ny = sk.neck.y;
+  ctx.fillStyle = flat ? opt.color : '#0d0b12';
+  ctx.beginPath(); ctx.moveTo(nx + f * 4 * s, ny + 4 * s); ctx.lineTo(nx - f * 8 * s, ny - 16 * s); ctx.lineTo(nx - f * 9 * s, ny + 2 * s);
+  ctx.lineTo(nx - f * 15 * s, ny - 9 * s); ctx.lineTo(nx - f * 12 * s, ny + 8 * s); ctx.closePath(); ctx.fill();
+  if (!flat) { ctx.strokeStyle = 'rgba(190,150,255,0.7)'; ctx.lineWidth = 1 * s; ctx.stroke(); }
+  ctx.restore();
+};
+// The coat tails (cloths of kind 'wcoat'): blade-shaped panels that widen off the anchor and taper to a point, black at
+// the root bleeding into violet and lavender at the tip, a pale edge, a crimson vein down the middle and, on some, a
+// glowing rune circle. depth -1: the tails behind the body; +1 the one in front.
+const _wco = { l: new Float32Array(32), r: new Float32Array(32) };
+Fighter.prototype.drawWitnessCoat = function (ctx, depth, opt) {
+  const s = this.scale, t = this.time || 0, flat = !!opt.color;
+  ctx.save(); ctx.globalAlpha *= depth < 0 ? 1 : this.witFade();
+  for (const cl of this.cloths) {
+    if (cl.kind !== 'wcoat' || cl.depth !== depth || !cl.c.init) continue;
+    const c = cl.c, n = c.n, px = c.px, py = c.py, Lp = _wco.l, Rp = _wco.r;
+    for (let i = 0; i < n; i++) {
+      const a = i === 0 ? 0 : i - 1, b = i === n - 1 ? n - 1 : i + 1;
+      let dx = px[b] - px[a], dy = py[b] - py[a]; const d = Math.sqrt(dx * dx + dy * dy) || 1; dx /= d; dy /= d;
+      const u = i / (n - 1), w = cl.w * 0.5 * Math.pow(Math.sin(Math.PI * (0.16 + 0.84 * u)), 0.7) * (1 + 0.1 * Math.sin(i * 2.1 + c.o.ph));
+      Lp[i * 2] = px[i] - dy * w; Lp[i * 2 + 1] = py[i] + dx * w; Rp[i * 2] = px[i] + dy * w; Rp[i * 2 + 1] = py[i] - dx * w;
+    }
+    const tx = px[n - 1] + (px[n - 1] - px[n - 2]) * 0.9, ty = py[n - 1] + (py[n - 1] - py[n - 2]) * 0.9;
+    ctx.beginPath(); ctx.moveTo(Lp[0], Lp[1]);
+    for (let i = 1; i < n; i++) ctx.quadraticCurveTo(Lp[i * 2 - 2], Lp[i * 2 - 1], (Lp[i * 2 - 2] + Lp[i * 2]) / 2, (Lp[i * 2 - 1] + Lp[i * 2 + 1]) / 2);
+    ctx.lineTo(tx, ty);
+    for (let i = n - 1; i > 0; i--) ctx.quadraticCurveTo(Rp[i * 2], Rp[i * 2 + 1], (Rp[i * 2] + Rp[i * 2 - 2]) / 2, (Rp[i * 2 + 1] + Rp[i * 2 - 1]) / 2);
+    ctx.lineTo(Rp[0], Rp[1]); ctx.closePath();
+    if (flat) { ctx.fillStyle = opt.color; ctx.fill(); continue; }
+    const g = ctx.createLinearGradient(px[0], py[0], tx, ty);
+    if (depth < 0) { g.addColorStop(0, '#0d0a14'); g.addColorStop(0.32, '#2a1450'); g.addColorStop(0.72, '#7a48d8'); g.addColorStop(1, '#c49bff'); }
+    else { g.addColorStop(0, '#0d0a14'); g.addColorStop(0.5, '#3a1d6e'); g.addColorStop(1, '#9a6af0'); }
+    ctx.fillStyle = g; ctx.fill();
+    ctx.strokeStyle = 'rgba(236,224,255,0.7)'; ctx.lineWidth = 1 * s; ctx.stroke();
+    // the crimson vein: a jagged line down the panel, brightening toward the tip
+    ctx.strokeStyle = 'rgba(235,34,86,0.85)'; ctx.lineWidth = 1.3 * s; ctx.beginPath();
+    for (let i = 1; i < n; i++) {
+      // zigzag across the panel: L - R is the panel's normal, scaled by its width here
+      const z = (i % 2 ? 1 : -1) * 0.14, nx = Lp[i * 2] - Rp[i * 2], ny = Lp[i * 2 + 1] - Rp[i * 2 + 1];
+      i === 1 ? ctx.moveTo(px[i] + nx * z, py[i] + ny * z) : ctx.lineTo(px[i] + nx * z, py[i] + ny * z);
+    }
+    ctx.lineTo(lerp(px[n - 1], tx, 0.6), lerp(py[n - 1], ty, 0.6)); ctx.stroke();
+    if (cl.rune) {
+      const j = Math.round((n - 1) * 0.62), rx = px[j], ry = py[j], rr = cl.w * 0.24, glow = 0.7 + Math.sin(t * 2.4 + c.o.ph) * 0.3;
+      ctx.strokeStyle = `rgba(255,120,200,${glow})`; ctx.lineWidth = 1.1 * s;
+      ctx.beginPath(); ctx.arc(rx, ry, rr, 0, TAU); ctx.stroke();
+      ctx.beginPath(); ctx.arc(rx, ry, rr * 0.62, 0, TAU); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(rx, ry - rr * 0.55); ctx.lineTo(rx + rr * 0.45, ry + rr * 0.3); ctx.lineTo(rx - rr * 0.45, ry + rr * 0.3); ctx.closePath(); ctx.stroke();
+    }
+  }
+  ctx.restore();
+};
+// The crimson veins on its black body: jagged glowing lines down the torso and along both legs, and a jagged plate on
+// the front shoulder
+Fighter.prototype.drawWitnessVeins = function (ctx, opt) {
+  if (opt.color) return;
+  const sk = this.sk, s = this.scale, f = this.facing;
+  ctx.save(); ctx.globalAlpha *= this.witFade();
+  const vein = (a, b, off, zig) => {
+    const ang = Math.atan2(b.y - a.y, b.x - a.x), ox = -Math.sin(ang), oy = Math.cos(ang);
+    ctx.beginPath();
+    for (let i = 0; i <= 5; i++) { const u = 0.1 + i * 0.16, z = (off + (i % 2 ? zig : -zig)) * s; const x = lerp(a.x, b.x, u) + ox * z, y = lerp(a.y, b.y, u) + oy * z; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+    ctx.stroke();
+  };
+  ctx.lineWidth = 1.2 * s; ctx.lineJoin = 'miter';
+  ctx.strokeStyle = 'rgba(235,34,86,0.8)';
+  vein(sk.neck, sk.hip, 3 * f, 1.6); vein(sk.hipF, sk.fkn, 1.5 * f, 1.2); vein(sk.fkn, sk.fft, 1.2 * f, 1);
+  ctx.strokeStyle = 'rgba(167,123,255,0.65)';
+  vein(sk.neck, sk.hip, -4 * f, 1.2); vein(sk.hipB, sk.bkn, -1.4 * f, 1); vein(sk.shF, sk.fel, 0, 1);
+  // the shoulder plate
+  const x = sk.shF.x, y = sk.shF.y;
+  ctx.fillStyle = '#100c18'; ctx.strokeStyle = 'rgba(200,170,255,0.75)'; ctx.lineWidth = 1 * s;
+  ctx.beginPath(); ctx.moveTo(x - f * 9 * s, y - 4 * s); ctx.lineTo(x + f * 3 * s, y - 9 * s); ctx.lineTo(x + f * 10 * s, y - 2 * s); ctx.lineTo(x + f * 5 * s, y + 9 * s); ctx.lineTo(x - f * 2 * s, y + 4 * s); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle = 'rgba(235,34,86,0.85)'; ctx.beginPath(); ctx.moveTo(x - f * 3 * s, y - 3 * s); ctx.lineTo(x + f * 4 * s, y + 4 * s); ctx.stroke();
+  ctx.restore();
 };
 // Mugen no Ha: whatever weapon shape the Witness copies (sh), drawn as floating memory shards along its length: a dark
 // grip, then pale violet-edged shards with gaps between them that bob apart, and the copied weapon's head (a hammer's
@@ -1547,7 +2022,7 @@ Fighter.prototype.drawFistGear = function (ctx, ink, opt) {
 };
 
 function drawEyes(ctx, f, r, opt) {
-  if (opt.color || f.helmet === 'witness_mask') return;   // the Witness's one eye is part of its mask
+  if (opt.color || f.helmet === 'witness_mask' || f.helmet === 'akari_mask') return;   // the Witness's and Akari's eyes are part of their masks
   ctx.save();
   if (f.isPlayer) {
     ctx.fillStyle = '#ffffff';
@@ -1677,9 +2152,13 @@ function drawWeaponShape(ctx, sh, L, mode, s, ink, f) {
       ctx.beginPath();
       if (!yurei) { ctx.moveTo(b0, -w); ctx.lineTo(L * 0.9, -w); ctx.lineTo(L, -w * 0.15); ctx.lineTo(L * 0.86, w); ctx.lineTo(b0, w); }
       else { const sori = L * 0.06; ctx.moveTo(b0, -w); ctx.quadraticCurveTo(L * 0.55, -w - sori, L, -sori * 1.4); ctx.quadraticCurveTo(L * 0.55, w - sori * 0.6, b0, w); }
-      ctx.closePath(); ctx.fillStyle = steel; ctx.fill();
+      ctx.closePath();
+      // in Akari's own hands the blades glow violet (a soft bloom round a lilac blade)
+      const glow = mode === 'ink' && f && f.helmet === 'akari_mask';
+      if (glow) { ctx.strokeStyle = 'rgba(170,110,255,0.45)'; ctx.lineWidth = 4 * s; ctx.stroke(); }
+      ctx.fillStyle = glow ? '#e4d6ff' : steel; ctx.fill();
       if (mode !== 'flat') {
-        ctx.strokeStyle = art ? C.emberBright : yurei ? 'rgba(180,140,240,0.85)' : 'rgba(120,114,104,0.6)'; ctx.lineWidth = (art ? 1.3 : 0.9) * s;
+        ctx.strokeStyle = art ? C.emberBright : yurei || glow ? 'rgba(180,140,240,0.85)' : 'rgba(120,114,104,0.6)'; ctx.lineWidth = (art ? 1.3 : 0.9) * s;
         ctx.beginPath(); if (yurei) { const sori = L * 0.06; ctx.moveTo(b0 + 2 * s, w * 0.6); ctx.quadraticCurveTo(L * 0.55, w * 0.6 - sori * 0.6, L * 0.96, -sori * 1.3); } else { ctx.moveTo(b0 + 2 * s, 0); ctx.lineTo(L * 0.88, 0); } ctx.stroke();
       }
       break;
@@ -1730,7 +2209,11 @@ function drawWeaponShape(ctx, sh, L, mode, s, ink, f) {
       ctx.lineTo(L, cy(1) - wb(1) * 0.3);                                          // clipped point
       ctx.lineTo(X(0.95), cy(0.95) + we(0.95));
       for (let i = N; i >= 0; i--) { const u = yk * i / N; ctx.lineTo(X(u), cy(u) + we(u)); } // broad edge
-      ctx.closePath(); ctx.fillStyle = steel; ctx.fill();
+      ctx.closePath();
+      // in the Storm King's own hand the blade burns: a red bloom round a pale-hot edge
+      const burn = mode === 'ink' && bossLook(f) === 'raikon' && !(f && f.hollow);
+      if (burn) { ctx.strokeStyle = 'rgba(255,40,40,0.4)'; ctx.lineWidth = 5 * s; ctx.stroke(); }
+      ctx.fillStyle = burn ? '#ffe3de' : steel; ctx.fill();
       if (mode !== 'flat') {
         // the red lightning groove; it flares while the blade gathers a strike
         const hot = f && (f.telegraph > 0 || (f.state === 'ability' && f.abil && f.abil.charge));
@@ -1843,28 +2326,43 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
         if (!flat) { ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.moveTo(r * 0.14, -r * 0.08); ctx.lineTo(r * 0.72, 0); ctx.lineTo(r * 0.6, r * 0.22); ctx.lineTo(r * 0.24, r * 0.16); ctx.closePath(); ctx.fill(); }
         break;
       }
-      // jagged hair: long spikes swept back off the crown (the strands below are cloth)
-      ctx.fillStyle = ink; ctx.beginPath(); ctx.moveTo(r * 0.6, -r * 0.8);
-      for (const [x, y] of [[r * 0.1, -r * 1.5], [-r * 0.2, -r * 1.05], [-r * 0.9, -r * 1.55], [-r * 0.85, -r * 0.8], [-r * 1.9, -r * 1.1], [-r * 1.1, -r * 0.4], [-r * 2.1, -r * 0.3], [-r * 1.0, r * 0.15]]) ctx.lineTo(x, y);
-      ctx.arc(0, 0, r, Math.PI * 0.9, Math.PI * 1.75, false); ctx.closePath(); ctx.fill();
-      if (flat) { ctx.beginPath(); ctx.arc(0, 0, r * 1.02, -Math.PI * 0.55, Math.PI * 0.5); ctx.fill(); break; }
-      // the mask: a white plate over the front of the face, a chunk broken off at the brow, cracks running from the break
-      ctx.fillStyle = '#efeaf6';
-      ctx.beginPath(); ctx.moveTo(-r * 0.05, -r * 1.02); ctx.lineTo(r * 0.38, -r * 0.62); ctx.lineTo(r * 0.52, -r * 0.94); ctx.lineTo(r * 0.82, -r * 0.6);
-      ctx.quadraticCurveTo(r * 1.18, -r * 0.1, r * 1.0, r * 0.45); ctx.quadraticCurveTo(r * 0.7, r * 1.05, r * 0.0, r * 1.02); ctx.lineTo(r * 0.12, r * 0.4); ctx.lineTo(-r * 0.08, -r * 0.2); ctx.closePath(); ctx.fill();
-      ctx.fillStyle = '#b9b0c9'; ctx.beginPath(); ctx.moveTo(r * 0.0, r * 1.02); ctx.quadraticCurveTo(r * 0.7, r * 1.05, r * 1.0, r * 0.45); ctx.lineTo(r * 0.85, r * 0.55); ctx.quadraticCurveTo(r * 0.55, r * 0.9, r * 0.08, r * 0.84); ctx.closePath(); ctx.fill();
-      ctx.strokeStyle = '#1a1228'; ctx.lineWidth = Math.max(1, r * 0.07);
-      ctx.beginPath(); ctx.moveTo(r * 0.38, -r * 0.62); ctx.lineTo(r * 0.3, -r * 0.2); ctx.lineTo(r * 0.46, r * 0.18); ctx.lineTo(r * 0.36, r * 0.62); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(r * 0.3, -r * 0.2); ctx.lineTo(r * 0.08, -r * 0.02); ctx.stroke();
-      // the one eye: a violet almond with a white core, flaring white when it is about to strike
-      const hot = f && f.telegraph > 0, ex = r * 0.68, ey = -r * 0.12;
-      ctx.fillStyle = 'rgba(167,123,255,0.45)'; ctx.beginPath(); ctx.ellipse(ex, ey, r * 0.42, r * 0.22, -0.1, 0, TAU); ctx.fill();
-      ctx.fillStyle = hot ? '#ffffff' : '#a77bff'; ctx.beginPath(); ctx.moveTo(ex - r * 0.26, ey + r * 0.02); ctx.quadraticCurveTo(ex, ey - r * 0.2, ex + r * 0.28, ey - r * 0.04); ctx.quadraticCurveTo(ex, ey + r * 0.16, ex - r * 0.26, ey + r * 0.02); ctx.fill();
-      ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(ex + r * 0.02, ey - r * 0.02, r * 0.06, 0, TAU); ctx.fill();
+      // the crown: tall black spikes flaring up and back off the head, edged violet (the long violet strands are cloth)
+      ctx.fillStyle = ink; ctx.beginPath(); ctx.moveTo(r * 0.55, -r * 0.82);
+      const crown = [[r * 0.42, -r * 1.95], [r * 0.02, -r * 1.12], [-r * 0.3, -r * 2.35], [-r * 0.48, -r * 1.12], [-r * 1.15, -r * 2.05], [-r * 0.98, -r * 0.92],
+        [-r * 2.05, -r * 1.45], [-r * 1.2, -r * 0.5], [-r * 2.35, -r * 0.5], [-r * 1.05, r * 0.12], [-r * 1.7, r * 0.6], [-r * 0.8, r * 0.55]];
+      for (const [x, y] of crown) ctx.lineTo(x, y);
+      ctx.arc(0, 0, r, Math.PI * 0.75, Math.PI * 1.75, false); ctx.closePath(); ctx.fill();
+      if (flat) { ctx.beginPath(); ctx.moveTo(-r * 0.05, -r * 1.02); ctx.lineTo(r * 1.1, -r * 0.1); ctx.lineTo(r * 0.55, r * 1.25); ctx.lineTo(r * 0.0, r * 0.8); ctx.closePath(); ctx.fill(); break; }
+      ctx.strokeStyle = 'rgba(180,130,255,0.8)'; ctx.lineWidth = Math.max(1, r * 0.06);
+      ctx.beginPath(); for (const i of [0, 2, 4, 6, 8]) { const [x, y] = crown[i]; ctx.moveTo(lerp(x, -r * 0.3, 0.55), lerp(y, -r * 0.6, 0.55)); ctx.lineTo(x, y); } ctx.stroke();
+      // the mask: a white face plate with a sharp chin that juts below the head, a chunk broken off at the brow and
+      // cracks running from the break; shaded lavender along the jaw
+      ctx.fillStyle = '#f1edf8';
+      ctx.beginPath(); ctx.moveTo(-r * 0.05, -r * 1.02); ctx.lineTo(r * 0.36, -r * 0.66); ctx.lineTo(r * 0.5, -r * 0.96); ctx.lineTo(r * 0.84, -r * 0.58);
+      ctx.quadraticCurveTo(r * 1.16, -r * 0.18, r * 1.08, r * 0.28); ctx.lineTo(r * 0.92, r * 0.62); ctx.lineTo(r * 0.55, r * 1.28); ctx.lineTo(r * 0.12, r * 0.86);
+      ctx.lineTo(r * 0.1, r * 0.3); ctx.lineTo(-r * 0.1, -r * 0.2); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#c4b9d8'; ctx.beginPath(); ctx.moveTo(r * 0.12, r * 0.86); ctx.lineTo(r * 0.55, r * 1.28); ctx.lineTo(r * 0.92, r * 0.62); ctx.lineTo(r * 0.78, r * 0.66); ctx.lineTo(r * 0.52, r * 1.06); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = '#1a1228'; ctx.lineWidth = Math.max(1, r * 0.06);
+      ctx.beginPath(); ctx.moveTo(r * 0.36, -r * 0.66); ctx.lineTo(r * 0.28, -r * 0.28); ctx.lineTo(r * 0.4, r * 0.02); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(r * 0.28, -r * 0.28); ctx.lineTo(r * 0.06, -r * 0.1); ctx.stroke();
+      // the grin: a thin dark smile curling up toward the back of the jaw, with a few teeth notches
+      ctx.lineWidth = Math.max(1, r * 0.07); ctx.beginPath(); ctx.moveTo(r * 1.0, r * 0.5); ctx.quadraticCurveTo(r * 0.7, r * 0.78, r * 0.32, r * 0.5); ctx.stroke();
+      ctx.lineWidth = Math.max(0.8, r * 0.04); ctx.beginPath();
+      for (const u of [0.25, 0.45, 0.65]) { const x = lerp(r * 1.0, r * 0.32, u), y = r * 0.5 + Math.sin(u * Math.PI) * r * 0.2; ctx.moveTo(x, y - r * 0.08); ctx.lineTo(x, y + r * 0.06); }
+      ctx.stroke();
+      // the eye: a slanted violet slit with a white-hot core, a glow and a violet tear mark under it; flaring white when
+      // it is about to strike
+      const hot = f && f.telegraph > 0, ex = r * 0.66, ey = -r * 0.18;
+      ctx.fillStyle = 'rgba(167,123,255,0.5)'; ctx.beginPath(); ctx.ellipse(ex, ey, r * 0.5, r * 0.26, -0.25, 0, TAU); ctx.fill();
+      ctx.fillStyle = '#1a1228'; ctx.beginPath(); ctx.moveTo(ex - r * 0.34, ey + r * 0.08); ctx.lineTo(ex + r * 0.36, ey - r * 0.16); ctx.lineTo(ex + r * 0.2, ey + r * 0.12); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = hot ? '#ffffff' : '#b48aff'; ctx.beginPath(); ctx.moveTo(ex - r * 0.26, ey + r * 0.06); ctx.lineTo(ex + r * 0.3, ey - r * 0.12); ctx.lineTo(ex + r * 0.16, ey + r * 0.08); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(ex + r * 0.06, ey - r * 0.01, r * 0.06, 0, TAU); ctx.fill();
+      ctx.strokeStyle = 'rgba(150,100,240,0.85)'; ctx.lineWidth = Math.max(1, r * 0.05); ctx.beginPath(); ctx.moveTo(ex - r * 0.05, ey + r * 0.16); ctx.lineTo(ex - r * 0.12, ey + r * 0.5); ctx.stroke();
       if (hot) { ctx.strokeStyle = '#a77bff'; ctx.lineWidth = 2; const fl = r * (1 + 0.3 * Math.sin(t * 50)); ctx.beginPath(); ctx.moveTo(ex - fl, ey); ctx.lineTo(ex + fl, ey); ctx.moveTo(ex, ey - fl * 0.5); ctx.lineTo(ex, ey + fl * 0.5); ctx.stroke(); }
       break;
     }
     case 'headband': { // the Interlude's young brothers: a plain cloth training band (Kage pale, Rem in his purple accent)
+      if (isRem(f)) { drawRemHair(ctx, r, ink, flat); break; }
       drawHeroHair(ctx, r, ink);
       ctx.save(); ctx.beginPath(); ctx.arc(0, 0, r * 1.04, 0, TAU); ctx.clip();
       ctx.fillStyle = flat ? ink : headbandColor(f);
@@ -1942,6 +2440,28 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
       ctx.strokeStyle = acc('#7fb8ff'); ctx.lineWidth = 2.6; ctx.beginPath(); ctx.arc(0, 0, r * 1.02, Math.PI * 1.05, Math.PI * 1.95); ctx.stroke();
       break;
     case 'raijin_kabuto': {
+      if (bossLook(f) === 'raikon') {
+        // Raikon himself, the Storm King: a wide black kasa edged in red, a jagged red crest flaring off its crown, and
+        // a red tassel on a cord at each end of the brim (the trophy keeps the iron helm below)
+        ctx.fillStyle = flat ? ink : '#ff2a2a';
+        ctx.beginPath(); ctx.moveTo(-r * 0.3, -r * 1.4);
+        for (const [x, y] of [[-r * 0.5, -r * 2.2], [-r * 0.15, -r * 1.95], [r * 0.05, -r * 2.85], [r * 0.3, -r * 2.05], [r * 0.62, -r * 2.5], [r * 0.5, -r * 1.65], [r * 0.3, -r * 1.35]]) ctx.lineTo(x, y);
+        ctx.closePath(); ctx.fill();
+        if (!flat) { ctx.fillStyle = '#ffb0a8'; ctx.beginPath(); ctx.moveTo(r * 0.0, -r * 1.5); ctx.lineTo(r * 0.06, -r * 2.4); ctx.lineTo(r * 0.18, -r * 1.55); ctx.closePath(); ctx.fill(); }
+        ctx.fillStyle = flat ? ink : '#0b0808';
+        ctx.beginPath(); ctx.moveTo(-r * 2.25, -r * 0.5); ctx.lineTo(-r * 0.05, -r * 1.6); ctx.lineTo(r * 2.25, -r * 0.4); ctx.quadraticCurveTo(r * 0.1, -r * 0.18, -r * 2.25, -r * 0.5); ctx.closePath(); ctx.fill();
+        if (flat) { for (const sx of [-1, 1]) ctx.fillRect(sx * r * 2.02 - r * 0.1, -r * 0.45, r * 0.2, r * 1.1); break; }
+        ctx.strokeStyle = '#ff3030'; ctx.lineWidth = Math.max(1.2, r * 0.09);
+        ctx.beginPath(); ctx.moveTo(-r * 2.25, -r * 0.5); ctx.quadraticCurveTo(r * 0.1, -r * 0.18, r * 2.25, -r * 0.4); ctx.stroke();   // the red brim edge
+        ctx.strokeStyle = 'rgba(255,60,50,0.35)'; ctx.lineWidth = Math.max(1, r * 0.05);
+        for (const k of [-0.55, 0.55]) { ctx.beginPath(); ctx.moveTo(-r * 0.05, -r * 1.55); ctx.lineTo(k * r * 2.1, -r * 0.42); ctx.stroke(); }
+        for (const [bx, by] of [[-r * 2.05, -r * 0.47], [r * 2.05, -r * 0.39]]) {
+          const sw = Math.sin(t * 2.3 + bx) * r * 0.12;
+          ctx.strokeStyle = '#8e0f18'; ctx.lineWidth = Math.max(1, r * 0.06); ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(bx + sw, by + r * 0.55); ctx.stroke();
+          ctx.fillStyle = '#e0141c'; ctx.beginPath(); ctx.moveTo(bx + sw - r * 0.12, by + r * 0.55); ctx.lineTo(bx + sw + r * 0.12, by + r * 0.55); ctx.lineTo(bx + sw * 1.3 + r * 0.16, by + r * 1.05); ctx.lineTo(bx + sw * 1.3 - r * 0.16, by + r * 1.05); ctx.closePath(); ctx.fill();
+        }
+        break;
+      }
       // Raikon's Raijin Kabuto: an angular faceted bowl, a peak jutting over the brow, a stepped neck guard swept back,
       // and a short red lightning crest on the front
       ctx.beginPath(); ctx.moveTo(-r * 1.15, -r * 0.1); ctx.lineTo(-r * 0.98, -r * 0.92); ctx.lineTo(-r * 0.3, -r * 1.34); ctx.lineTo(r * 0.5, -r * 1.24); ctx.lineTo(r * 1.1, -r * 0.66); ctx.lineTo(r * 1.2, -r * 0.18); ctx.closePath(); ctx.fill();
@@ -2062,20 +2582,41 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
       break;
     }
     case 'akari_mask': {
-      // Akari: hair pulled back tight (a flat cap over the crown, its tail is cloth) and a half-mask over nose and mouth,
-      // a muted violet-grey plate with a centre seam, cel-shaded on its lower edge; nothing else
-      ctx.beginPath(); ctx.arc(0, -r * 0.04, r * 1.08, Math.PI * 0.82, Math.PI * 1.9); ctx.quadraticCurveTo(r * 0.2, -r * 0.62, -r * 0.6, -r * 0.2); ctx.closePath(); ctx.fillStyle = flat ? ink : '#0c0b10'; ctx.fill();
-      if (!flat) { ctx.strokeStyle = 'rgba(180,140,240,0.5)'; ctx.lineWidth = Math.max(1, r * 0.08); ctx.beginPath(); ctx.arc(0, -r * 0.04, r * 0.9, Math.PI * 1.1, Math.PI * 1.6); ctx.stroke(); ctx.fillStyle = '#8a5cc9'; ctx.beginPath(); ctx.ellipse(-r * 0.78, -r * 0.62, r * 0.2, r * 0.14, 0.6, 0, TAU); ctx.fill(); }
-      ctx.save(); ctx.beginPath(); ctx.arc(0, 0, r * 1.04, 0, TAU); ctx.clip();
-      ctx.fillStyle = flat ? ink : '#6a5a86';
-      ctx.beginPath(); ctx.moveTo(-r * 0.25, r * 0.16); ctx.lineTo(r * 1.1, r * 0.1); ctx.lineTo(r * 1.1, r * 0.62); ctx.quadraticCurveTo(r * 0.6, r * 1.1, -r * 0.1, r * 0.95); ctx.closePath(); ctx.fill();
-      if (!flat) {
-        ctx.fillStyle = '#4f4366'; ctx.beginPath(); ctx.moveTo(-r * 0.1, r * 0.7); ctx.lineTo(r * 1.1, r * 0.48); ctx.lineTo(r * 1.1, r * 0.62); ctx.quadraticCurveTo(r * 0.6, r * 1.1, -r * 0.1, r * 0.95); ctx.closePath(); ctx.fill();
-        ctx.strokeStyle = 'rgba(222,204,255,0.85)'; ctx.lineWidth = Math.max(1, r * 0.07);
-        ctx.beginPath(); ctx.moveTo(-r * 0.25, r * 0.16); ctx.lineTo(r * 1.1, r * 0.1); ctx.stroke();   // the mask's upper edge
-        ctx.beginPath(); ctx.moveTo(r * 0.62, r * 0.14); ctx.lineTo(r * 0.55, r * 0.95); ctx.stroke();   // centre seam
-      }
+      // Akari (her head is an anime face, not a ball: akariHeadPath): full black hair over the crown and the back of the
+      // head with a jagged fringe falling over the brow and a lock in front of the ear, a sakura pin at the root of her
+      // high ponytail (the tail and the pin's tassels are cloth), a grey-violet mask over the lower face, and one
+      // glowing violet eye between the fringe and the mask
+      ctx.fillStyle = flat ? ink : '#0c0a12';
+      ctx.beginPath(); ctx.moveTo(r * 0.42, -r * 1.1);
+      for (const [x, y] of [[r * 1.08, -r * 0.66], [r * 1.02, -r * 0.3], [r * 0.84, -r * 0.56], [r * 0.7, -r * 0.24], [r * 0.5, -r * 0.5], [r * 0.3, -r * 0.1],
+        [r * 0.2, r * 0.62], [r * 0.02, r * 0.12], [-r * 0.6, r * 0.7], [-r * 1.12, r * 0.22], [-r * 1.14, -r * 0.6], [-r * 0.62, -r * 1.2], [r * 0.02, -r * 1.24]]) ctx.lineTo(x, y);
+      ctx.closePath(); ctx.fill();
+      if (flat) break;
+      // a fine lilac edge along the fringe and the side lock, so the hairline reads against the dark face
+      ctx.strokeStyle = 'rgba(200,170,255,0.75)'; ctx.lineWidth = Math.max(0.8, r * 0.05); ctx.lineJoin = 'round';
+      ctx.beginPath(); ctx.moveTo(r * 1.08, -r * 0.66);
+      for (const [x, y] of [[r * 1.02, -r * 0.3], [r * 0.84, -r * 0.56], [r * 0.7, -r * 0.24], [r * 0.5, -r * 0.5], [r * 0.3, -r * 0.1], [r * 0.2, r * 0.62], [r * 0.02, r * 0.12]]) ctx.lineTo(x, y);
+      ctx.stroke();
+      // a violet sheen across the crown
+      ctx.strokeStyle = 'rgba(170,120,240,0.7)'; ctx.lineWidth = Math.max(1, r * 0.08);
+      ctx.beginPath(); ctx.moveTo(-r * 0.75, -r * 0.82); ctx.quadraticCurveTo(-r * 0.1, -r * 1.12, r * 0.55, -r * 0.92); ctx.stroke();
+      // the mask, clipped to the face
+      ctx.save(); akariHeadPath(ctx, r * 1.01); ctx.clip();
+      ctx.fillStyle = '#4c445c'; ctx.beginPath(); ctx.moveTo(r * 0.22, -r * 0.04); ctx.lineTo(r * 1.2, -r * 0.1); ctx.lineTo(r * 1.2, r * 1.3); ctx.lineTo(r * 0.18, r * 1.3); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#332d40'; ctx.beginPath(); ctx.moveTo(r * 0.18, r * 0.62); ctx.lineTo(r * 1.2, r * 0.5); ctx.lineTo(r * 1.2, r * 1.3); ctx.lineTo(r * 0.18, r * 1.3); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = 'rgba(226,210,255,0.9)'; ctx.lineWidth = Math.max(1, r * 0.07);
+      ctx.beginPath(); ctx.moveTo(r * 0.22, -r * 0.04); ctx.lineTo(r * 1.2, -r * 0.1); ctx.stroke();   // the mask's upper edge
+      ctx.strokeStyle = 'rgba(20,16,28,0.9)'; ctx.lineWidth = Math.max(1, r * 0.04);
+      ctx.beginPath(); ctx.moveTo(r * 0.86, r * 0.0); ctx.quadraticCurveTo(r * 0.82, r * 0.5, r * 0.5, r * 1.04); ctx.stroke();   // seam down to the chin
       ctx.restore();
+      // the eye: a narrow glowing almond, flaring white when she is about to strike
+      const hot = f && f.telegraph > 0, ex = r * 0.66, ey = -r * 0.2, ec = (f && f.eye) || '#c9a8ff';
+      ctx.fillStyle = 'rgba(176,120,255,0.45)'; ctx.beginPath(); ctx.ellipse(ex, ey, r * 0.38, r * 0.2, -0.1, 0, TAU); ctx.fill();
+      ctx.fillStyle = hot ? '#ffffff' : ec; ctx.beginPath(); ctx.moveTo(ex - r * 0.24, ey + r * 0.06); ctx.quadraticCurveTo(ex, ey - r * 0.14, ex + r * 0.26, ey - r * 0.02); ctx.quadraticCurveTo(ex + r * 0.02, ey + r * 0.12, ex - r * 0.24, ey + r * 0.06); ctx.fill();
+      ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(ex + r * 0.04, ey, r * 0.05, 0, TAU); ctx.fill();
+      if (hot) { ctx.strokeStyle = ec; ctx.lineWidth = 2; const fl = r * (1 + 0.3 * Math.sin(t * 50)); ctx.beginPath(); ctx.moveTo(ex - fl, ey); ctx.lineTo(ex + fl, ey); ctx.moveTo(ex, ey - fl * 0.5); ctx.lineTo(ex, ey + fl * 0.5); ctx.stroke(); }
+      // the sakura pin at the ponytail's root
+      drawSakura(ctx, -r * 0.62, -r * 0.8, r * 0.44, 0.3, '#b384ff', '#f3e6ff');
       break;
     }
     case 'colossus':
@@ -2188,11 +2729,47 @@ function drawArmor(ctx, f, ink, opt, Ut) {
       break;
     }
     case 'mei_en': {
-      // the Mei-En Garb (Akari): light layered armour on a slim frame: two overlapping chest plates edged in muted violet,
-      // a small shoulder guard and a wrapped waist band; its split cloth panels hang from the hip (cloth)
-      torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.0);
       const ox = Math.cos(ang + Math.PI / 2), oy = Math.sin(ang + Math.PI / 2);
       const Q = (u, w) => [lerp(hx, nx, u) + ox * w * Ut, lerp(hy, ny, u) + oy * w * Ut];
+      if (f.helmet === 'akari_mask') {
+        // Akari's own cut of it: her figure (FEM_*), a black halter crop top edged in violet with a diamond keyhole at
+        // the chest, the bare-shouldered line of the halter strap, and a belt with a square buckle (the sash: cloth)
+        const W = Ut * 1.3, fo = ox * fc > 0 || (ox === 0 && fc > 0) ? 1 : -1;   // fo: which side of the spine is her front
+        torsoShape(ctx, sk.hip, sk.neck, fc, W, FEM_FRONT, FEM_BACK);
+        // her hips: a full, rounded seat behind the hip joint flowing into the back of the thigh, so the waist curves out
+        // into it naturally (drawn with the body, and in the flat outline pass, so the white rim follows the curve)
+        {
+          const ux = Math.cos(ang), uy = Math.sin(ang), bkx = -ox * fo, bky = -oy * fo, hr2 = W * 1.42;
+          const cx = hx + bkx * W * 0.78 - ux * W * 0.38, cy = hy + bky * W * 0.78 - uy * W * 0.38;
+          ctx.beginPath(); ctx.ellipse(cx, cy, hr2, hr2 * 0.86, ang, 0, TAU); ctx.fill();
+          ctx.beginPath(); ctx.moveTo(hx + bkx * W * 0.2 + ux * W * 0.9, hy + bky * W * 0.2 + uy * W * 0.9);
+          ctx.quadraticCurveTo(hx + bkx * W * 1.1 + ux * W * 0.3, hy + bky * W * 1.1 + uy * W * 0.3, cx + bkx * hr2 * 0.9, cy + bky * hr2 * 0.9);
+          ctx.lineTo(cx - bkx * hr2 * 0.4, cy - bky * hr2 * 0.4); ctx.closePath(); ctx.fill();
+        }
+        if (flat) break;
+        ctx.save(); ctx.clip();
+        const P = (u, w) => [lerp(hx, nx, u) + ox * w * W * fo, lerp(hy, ny, u) + oy * w * W * fo];
+        const band = (u0, u1, col) => { const a = P(u0, -2), b = P(u0, 2), c = P(u1, 2), d = P(u1, -2); ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.lineTo(c[0], c[1]); ctx.lineTo(d[0], d[1]); ctx.closePath(); ctx.fill(); };
+        band(0.5, 0.9, '#0d0a12');            // the crop top
+        band(0.0, 0.16, '#0d0a12');           // the waistband under the belt
+        ctx.strokeStyle = 'rgba(190,150,255,0.9)'; ctx.lineWidth = 1.3 * s;
+        let a = P(0.5, -2), b = P(0.5, 2); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke();   // its hem
+        a = P(0.9, 0.35); b = P(0.62, 1.1); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.quadraticCurveTo(P(0.78, 1.0)[0], P(0.78, 1.0)[1], b[0], b[1]); ctx.stroke();   // the halter edge
+        // the bust's contour: a lilac curve under it, the line of the chest catching the light
+        ctx.strokeStyle = 'rgba(200,170,255,0.8)'; ctx.lineWidth = 1.1 * s;
+        a = P(0.56, 0.2); b = P(0.66, 1.9); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.quadraticCurveTo(P(0.5, 1.5)[0], P(0.5, 1.5)[1], b[0], b[1]); ctx.stroke();
+        const k = P(0.74, 0.82), kr = 2.4 * s;   // the keyhole
+        ctx.fillStyle = '#a978f0'; ctx.beginPath(); ctx.moveTo(k[0], k[1] - kr * 1.4); ctx.lineTo(k[0] + kr, k[1]); ctx.lineTo(k[0], k[1] + kr * 1.4); ctx.lineTo(k[0] - kr, k[1]); ctx.closePath(); ctx.fill();
+        // the belt and its buckle
+        ctx.strokeStyle = '#7d55c4'; ctx.lineWidth = 3.4 * s; ctx.lineCap = 'butt';
+        a = P(0.12, -2); b = P(0.12, 2); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); ctx.lineCap = 'round';
+        ctx.restore();
+        const bk = P(0.12, 0.45); ctx.strokeStyle = '#d9c6ff'; ctx.lineWidth = 1.2 * s; ctx.strokeRect(bk[0] - 2.6 * s, bk[1] - 2.6 * s, 5.2 * s, 5.2 * s);
+        break;
+      }
+      // the Mei-En Garb (as worn by anyone else): light layered armour on a slim frame: two overlapping chest plates
+      // edged in muted violet, a small shoulder guard and a wrapped waist band; its split cloth panels hang from the hip
+      torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.0);
       ctx.fillStyle = flat ? ink : '#3a3148';
       for (const [u0, u1] of [[0.5, 0.9], [0.32, 0.66]]) {
         const pts = [Q(u1, -1.05), Q(u1, 1.05), Q(u0 + 0.04, 1.1), Q(u0, 0), Q(u0 + 0.04, -1.1)];
@@ -2251,6 +2828,21 @@ function drawArmor(ctx, f, ink, opt, Ut) {
       break;
     }
     case 'raikon_plate': {
+      if (bossLook(f) === 'raikon') {
+        // the Storm King's long dark coat: crossed collar edged in red, a red sash at the waist with a steel ring, and
+        // the white fur mantle round the back of the neck (his cloak, coat skirt and shoulder crest: cloth and details)
+        torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.12);
+        drawRaikonFur(ctx, f, ink, flat, Ut);
+        if (flat) break;
+        const ox = Math.cos(ang + Math.PI / 2), oy = Math.sin(ang + Math.PI / 2), Q = (u, w) => [lerp(hx, nx, u) + ox * w * Ut, lerp(hy, ny, u) + oy * w * Ut];
+        ctx.strokeStyle = '#c3161e'; ctx.lineWidth = 1.6 * s;
+        let a = Q(0.95, -0.7), b = Q(0.5, 0.25), c = Q(0.95, 0.7);
+        ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.lineTo(c[0], c[1]); ctx.stroke();
+        ctx.strokeStyle = '#b3121b'; ctx.lineWidth = 5 * s; ctx.lineCap = 'butt';
+        a = Q(0.16, -1.15); b = Q(0.16, 1.15); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); ctx.lineCap = 'round';
+        const rg = Q(0.16, fc * (ox >= 0 ? 0.55 : -0.55)); ctx.strokeStyle = '#c9c4c0'; ctx.lineWidth = 1.4 * s; ctx.beginPath(); ctx.arc(rg[0], rg[1], 3.2 * s, 0, TAU); ctx.stroke();
+        break;
+      }
       // Raikon's armour: a broad cuirass of a few layered plates, two stacked shoulder plates, a skirt of three
       // plates over the hips and a red cord across the chest; simplified, flat, heavy
       torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.22);

@@ -1,0 +1,236 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Raikon_Storm_Mantle",
+  "role": "boss sustained status: Raikon's storm presence in his later phases, looped by the game",
+  "style": "stylized anime combat, dark storm stage, one red element",
+  "dominant_shape": "hard red ribbons orbiting a standing figure, short arcs crawling over him",
+  "palette": {
+    "core": [
+      255,
+      236,
+      228
+    ],
+    "body": [
+      255,
+      40,
+      28
+    ],
+    "dark": [
+      26,
+      4,
+      8
+    ],
+    "matter": [
+      150,
+      8,
+      12
+    ]
+  },
+  "delivery": {
+    "kind": "self"
+  },
+  "anchor": "caster_ground",
+  "beats": [
+    {
+      "frame": 20,
+      "name": "hold",
+      "expect": "A dim red mantle around him, two or three dark red strands circling, one or two arcs on his body"
+    },
+    {
+      "frame": 45,
+      "name": "hold",
+      "expect": "Arcs at different places than at f20, embers rising off his shoulders"
+    }
+  ],
+  "acceptance": [
+    "The character stays readable inside it",
+    "Arcs never appear twice in the same place in a row",
+    "No frame is brighter than a quick arc"
+  ],
+  "avoid": [
+    "A solid red bubble around him",
+    "Regular, metronome-timed arcs"
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Mantle",
+      "role": "dim red light around him (never the brightest value)",
+      "primitive": "glow",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "1:Orbit 1",
+      "role": "pivot spinning a ribbon about him",
+      "primitive": "renderer None + spin",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "1:Orbit 1/0:Ribbon 1",
+      "role": "shape: hard red ribbon orbiting him, near half in front",
+      "primitive": "orbit_band partial arc",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "2:Orbit 2",
+      "role": "pivot spinning a ribbon about him",
+      "primitive": "renderer None + spin",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "2:Orbit 2/0:Ribbon 2",
+      "role": "shape: hard red ribbon orbiting him, near half in front",
+      "primitive": "orbit_band partial arc",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "3:Orbit 3",
+      "role": "pivot spinning a ribbon about him",
+      "primitive": "renderer None + spin",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "3:Orbit 3/0:Ribbon 3",
+      "role": "shape: hard red ribbon orbiting him, near half in front",
+      "primitive": "orbit_band partial arc",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "4:Body arc 1",
+      "role": "body: arcs jumping between two points on his body (both ends on the capsule surface)",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f6"
+    },
+    {
+      "name": "5:Body arc 2",
+      "role": "body: arcs jumping between two points on his body (both ends on the capsule surface)",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f7"
+    },
+    {
+      "name": "6:Body arc 3",
+      "role": "body: arcs jumping between two points on his body (both ends on the capsule surface)",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f9"
+    },
+    {
+      "name": "7:Body arc 4",
+      "role": "body: arcs jumping between two points on his body (both ends on the capsule surface)",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f10"
+    },
+    {
+      "name": "8:Body arc 5",
+      "role": "body: arcs jumping between two points on his body (both ends on the capsule surface)",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f11"
+    },
+    {
+      "name": "9:Body arc 6",
+      "role": "body: arcs jumping between two points on his body (both ends on the capsule surface)",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f19"
+    },
+    {
+      "name": "10:Body arc 7",
+      "role": "body: arcs jumping between two points on his body (both ends on the capsule surface)",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f23"
+    },
+    {
+      "name": "11:Body arc 8",
+      "role": "body: arcs jumping between two points on his body (both ends on the capsule surface)",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f27"
+    },
+    {
+      "name": "12:Body arc 9",
+      "role": "body: arcs jumping between two points on his body (both ends on the capsule surface)",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f30"
+    },
+    {
+      "name": "13:Body arc 10",
+      "role": "body: arcs jumping between two points on his body (both ends on the capsule surface)",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f31"
+    },
+    {
+      "name": "14:Body arc 11",
+      "role": "body: arcs jumping between two points on his body (both ends on the capsule surface)",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f33"
+    },
+    {
+      "name": "15:Body arc 12",
+      "role": "body: arcs jumping between two points on his body (both ends on the capsule surface)",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f37"
+    },
+    {
+      "name": "16:Body arc 13",
+      "role": "body: arcs jumping between two points on his body (both ends on the capsule surface)",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f40"
+    },
+    {
+      "name": "17:Body arc 14",
+      "role": "body: arcs jumping between two points on his body (both ends on the capsule surface)",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f43"
+    },
+    {
+      "name": "18:Body arc 15",
+      "role": "body: arcs jumping between two points on his body (both ends on the capsule surface)",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f50"
+    },
+    {
+      "name": "19:Body arc 16",
+      "role": "body: arcs jumping between two points on his body (both ends on the capsule surface)",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f52"
+    },
+    {
+      "name": "20:Body arc 17",
+      "role": "body: arcs jumping between two points on his body (both ends on the capsule surface)",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f55"
+    },
+    {
+      "name": "21:Body arc 18",
+      "role": "body: arcs jumping between two points on his body (both ends on the capsule surface)",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f56"
+    },
+    {
+      "name": "22:Foot arc 1",
+      "role": "grounding: arcs at his feet",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f9"
+    },
+    {
+      "name": "23:Foot arc 2",
+      "role": "grounding: arcs at his feet",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f30"
+    },
+    {
+      "name": "24:Foot arc 3",
+      "role": "grounding: arcs at his feet",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f47"
+    },
+    {
+      "name": "25:Ember source",
+      "role": "pivot at his chest for rising embers",
+      "primitive": "renderer None",
+      "exit": "gone by absolute f64.0"
+    },
+    {
+      "name": "25:Ember source/0:Embers",
+      "role": "secondary: embers rising off him",
+      "primitive": "motes",
+      "exit": "gone by absolute f64.0"
+    }
+  ]
+}

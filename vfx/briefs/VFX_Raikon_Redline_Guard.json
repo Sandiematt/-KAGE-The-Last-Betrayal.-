@@ -1,0 +1,312 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Raikon_Redline_Guard",
+  "role": "boss tell: Redline Counter guard stance (do not strike into it from the front)",
+  "style": "stylized anime combat, dark storm stage, one red element",
+  "dominant_shape": "a crackling red crescent barrier standing in front of the caster, over a red ring on the floor",
+  "palette": {
+    "core": [
+      255,
+      236,
+      228
+    ],
+    "body": [
+      255,
+      40,
+      28
+    ],
+    "dark": [
+      26,
+      4,
+      8
+    ],
+    "matter": [
+      150,
+      8,
+      12
+    ]
+  },
+  "delivery": {
+    "kind": "self"
+  },
+  "anchor": "caster_ground",
+  "beats": [
+    {
+      "frame": 3,
+      "name": "open",
+      "expect": "A long thin red line cut across his chest, the floor ring snapping open, a red bloom"
+    },
+    {
+      "frame": 14,
+      "name": "barrier lit",
+      "expect": "The crescent in front of him lit along its whole length, arcs jumping between its points"
+    },
+    {
+      "frame": 36,
+      "name": "hold",
+      "expect": "The barrier still crackles with different arcs; the ring flows round; nothing white-hot"
+    },
+    {
+      "frame": 48,
+      "name": "break",
+      "expect": "The crescent breaks from the top down; sparks kick out from its points"
+    },
+    {
+      "frame": 66,
+      "name": "landed",
+      "expect": "Sparks have fallen and bounced on the floor in front of him; ring faded"
+    }
+  ],
+  "acceptance": [
+    "The barrier is in front of him (his facing side) and reads as a wall, not a halo",
+    "The hold keeps changing (re-struck arcs, flowing ring) without a white flash",
+    "The break is visible as falling sparks, not a switch-off"
+  ],
+  "avoid": [
+    "A full closed circle around him",
+    "An attack-style white contact flash",
+    "A static sticker crescent"
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Guard ring",
+      "role": "ownership: the guard's floor ring, flowing",
+      "primitive": "orbit_band on the floor",
+      "exit": "gone by absolute f50"
+    },
+    {
+      "name": "1:Raise",
+      "role": "stance opening light",
+      "primitive": "glow",
+      "exit": "gone by absolute f10"
+    },
+    {
+      "name": "2:Redline",
+      "role": "identity: the red line cut across his chest as the stance opens",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f13"
+    },
+    {
+      "name": "3:Barrier",
+      "role": "body: the crescent barrier's surface, flowing",
+      "primitive": "orbit_band arc in the camera plane",
+      "exit": "gone by absolute f50"
+    },
+    {
+      "name": "4:Barrier arc node 1",
+      "role": "body: arcs lighting the crescent point by point and re-striking",
+      "primitive": "charge_chain T_ArcStrand01",
+      "exit": "gone by absolute f44"
+    },
+    {
+      "name": "5:Barrier arc node 1 spark",
+      "role": "body: arcs lighting the crescent point by point and re-striking",
+      "primitive": "charge_chain T_ArcStrand01",
+      "exit": "gone by absolute f7"
+    },
+    {
+      "name": "6:Barrier arc arc 1a",
+      "role": "body: arcs lighting the crescent point by point and re-striking",
+      "primitive": "charge_chain T_ArcStrand01",
+      "exit": "gone by absolute f42"
+    },
+    {
+      "name": "7:Barrier arc arc 1b",
+      "role": "body: arcs lighting the crescent point by point and re-striking",
+      "primitive": "charge_chain T_ArcStrand01",
+      "exit": "gone by absolute f45"
+    },
+    {
+      "name": "8:Barrier arc node 2",
+      "role": "body: arcs lighting the crescent point by point and re-striking",
+      "primitive": "charge_chain T_ArcStrand01",
+      "exit": "gone by absolute f44"
+    },
+    {
+      "name": "9:Barrier arc node 2 spark",
+      "role": "body: arcs lighting the crescent point by point and re-striking",
+      "primitive": "charge_chain T_ArcStrand01",
+      "exit": "gone by absolute f9"
+    },
+    {
+      "name": "10:Barrier arc arc 2a",
+      "role": "body: arcs lighting the crescent point by point and re-striking",
+      "primitive": "charge_chain T_ArcStrand01",
+      "exit": "gone by absolute f44"
+    },
+    {
+      "name": "11:Barrier arc arc 2b",
+      "role": "body: arcs lighting the crescent point by point and re-striking",
+      "primitive": "charge_chain T_ArcStrand01",
+      "exit": "gone by absolute f41"
+    },
+    {
+      "name": "12:Barrier arc node 3",
+      "role": "body: arcs lighting the crescent point by point and re-striking",
+      "primitive": "charge_chain T_ArcStrand01",
+      "exit": "gone by absolute f44"
+    },
+    {
+      "name": "13:Barrier arc node 3 spark",
+      "role": "body: arcs lighting the crescent point by point and re-striking",
+      "primitive": "charge_chain T_ArcStrand01",
+      "exit": "gone by absolute f11"
+    },
+    {
+      "name": "14:Barrier arc arc 3a",
+      "role": "body: arcs lighting the crescent point by point and re-striking",
+      "primitive": "charge_chain T_ArcStrand01",
+      "exit": "gone by absolute f40"
+    },
+    {
+      "name": "15:Barrier arc arc 3b",
+      "role": "body: arcs lighting the crescent point by point and re-striking",
+      "primitive": "charge_chain T_ArcStrand01",
+      "exit": "gone by absolute f43"
+    },
+    {
+      "name": "16:Barrier arc node 4",
+      "role": "body: arcs lighting the crescent point by point and re-striking",
+      "primitive": "charge_chain T_ArcStrand01",
+      "exit": "gone by absolute f44"
+    },
+    {
+      "name": "17:Barrier arc node 4 spark",
+      "role": "body: arcs lighting the crescent point by point and re-striking",
+      "primitive": "charge_chain T_ArcStrand01",
+      "exit": "gone by absolute f13"
+    },
+    {
+      "name": "18:Barrier arc arc 4a",
+      "role": "body: arcs lighting the crescent point by point and re-striking",
+      "primitive": "charge_chain T_ArcStrand01",
+      "exit": "gone by absolute f42"
+    },
+    {
+      "name": "19:Barrier arc arc 4b",
+      "role": "body: arcs lighting the crescent point by point and re-striking",
+      "primitive": "charge_chain T_ArcStrand01",
+      "exit": "gone by absolute f45"
+    },
+    {
+      "name": "20:Barrier arc node 5",
+      "role": "body: arcs lighting the crescent point by point and re-striking",
+      "primitive": "charge_chain T_ArcStrand01",
+      "exit": "gone by absolute f44"
+    },
+    {
+      "name": "21:Barrier arc node 5 spark",
+      "role": "body: arcs lighting the crescent point by point and re-striking",
+      "primitive": "charge_chain T_ArcStrand01",
+      "exit": "gone by absolute f15"
+    },
+    {
+      "name": "22:Barrier arc arc 5a",
+      "role": "body: arcs lighting the crescent point by point and re-striking",
+      "primitive": "charge_chain T_ArcStrand01",
+      "exit": "gone by absolute f44"
+    },
+    {
+      "name": "23:Barrier arc arc 5b",
+      "role": "body: arcs lighting the crescent point by point and re-striking",
+      "primitive": "charge_chain T_ArcStrand01",
+      "exit": "gone by absolute f41"
+    },
+    {
+      "name": "24:Barrier arc node 6",
+      "role": "body: arcs lighting the crescent point by point and re-striking",
+      "primitive": "charge_chain T_ArcStrand01",
+      "exit": "gone by absolute f44"
+    },
+    {
+      "name": "25:Barrier arc node 6 spark",
+      "role": "body: arcs lighting the crescent point by point and re-striking",
+      "primitive": "charge_chain T_ArcStrand01",
+      "exit": "gone by absolute f17"
+    },
+    {
+      "name": "26:Break 1",
+      "role": "exit: one pivot per crescent point; sparks thrown out, then falling and landing (top first)",
+      "primitive": "radial_sparks + collide",
+      "exit": "gone by absolute f66"
+    },
+    {
+      "name": "26:Break 1/0:Break sparks 1",
+      "role": "exit: the barrier breaking into falling sparks",
+      "primitive": "radial_sparks",
+      "exit": "gone by absolute f66"
+    },
+    {
+      "name": "27:Break 2",
+      "role": "exit: one pivot per crescent point; sparks thrown out, then falling and landing (top first)",
+      "primitive": "radial_sparks + collide",
+      "exit": "gone by absolute f68"
+    },
+    {
+      "name": "27:Break 2/0:Break sparks 2",
+      "role": "exit: the barrier breaking into falling sparks",
+      "primitive": "radial_sparks",
+      "exit": "gone by absolute f68"
+    },
+    {
+      "name": "28:Break 3",
+      "role": "exit: one pivot per crescent point; sparks thrown out, then falling and landing (top first)",
+      "primitive": "radial_sparks + collide",
+      "exit": "gone by absolute f70"
+    },
+    {
+      "name": "28:Break 3/0:Break sparks 3",
+      "role": "exit: the barrier breaking into falling sparks",
+      "primitive": "radial_sparks",
+      "exit": "gone by absolute f70"
+    },
+    {
+      "name": "29:Break 4",
+      "role": "exit: one pivot per crescent point; sparks thrown out, then falling and landing (top first)",
+      "primitive": "radial_sparks + collide",
+      "exit": "gone by absolute f72"
+    },
+    {
+      "name": "29:Break 4/0:Break sparks 4",
+      "role": "exit: the barrier breaking into falling sparks",
+      "primitive": "radial_sparks",
+      "exit": "gone by absolute f72"
+    },
+    {
+      "name": "30:Break 5",
+      "role": "exit: one pivot per crescent point; sparks thrown out, then falling and landing (top first)",
+      "primitive": "radial_sparks + collide",
+      "exit": "gone by absolute f74"
+    },
+    {
+      "name": "30:Break 5/0:Break sparks 5",
+      "role": "exit: the barrier breaking into falling sparks",
+      "primitive": "radial_sparks",
+      "exit": "gone by absolute f74"
+    },
+    {
+      "name": "31:Break 6",
+      "role": "exit: one pivot per crescent point; sparks thrown out, then falling and landing (top first)",
+      "primitive": "radial_sparks + collide",
+      "exit": "gone by absolute f76"
+    },
+    {
+      "name": "31:Break 6/0:Break sparks 6",
+      "role": "exit: the barrier breaking into falling sparks",
+      "primitive": "radial_sparks",
+      "exit": "gone by absolute f76"
+    },
+    {
+      "name": "32:Break embers",
+      "role": "exit: embers off the broken barrier",
+      "primitive": "motes under a pivot",
+      "exit": "gone by absolute f66"
+    },
+    {
+      "name": "32:Break embers/0:Break embers",
+      "role": "exit: embers off the broken barrier",
+      "primitive": "motes under a pivot",
+      "exit": "gone by absolute f66"
+    }
+  ]
+}
