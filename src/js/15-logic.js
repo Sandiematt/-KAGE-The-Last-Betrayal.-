@@ -224,11 +224,16 @@ const Logic = {
     }
     const gear = this.grantStageReward(save, id);
     unlocks.push(...gear);
+    // gems a stage rewards on its first clear (the Core echoes: gems instead of gear), paid into the save here
+    const gems = firstClear ? this.stageRewardGems(id) : 0;
+    save.gems += gems;
     // a story boss leaves the story the way its data says: killed, escaped or reabsorbed
     const fate = this.fightFormat(this.stageConfig(save, id)).name === 'boss' ? BOSS_FATES[this.bossDefeat(st.enemy)] : null;
     if (fate) save.bossFates[id] = fate;
-    return { stage: id, firstClear, next, gear, unlocks, fate };
+    return { stage: id, firstClear, next, gear, gems, unlocks, fate };
   },
+  // Gems a stage's `reward: { gems }` pays on its first clear (the Core echoes drop gems, never gear; 0 for other stages).
+  stageRewardGems(id) { const r = (this.stage(id) || {}).reward; return (r && r.gems) || 0; },
   // Gear a stage gives when it is cleared: `reward: { weapons: [...], helmets: [...], armors: [...] }` on a CAMPAIGN
   // stage. Each item is granted exactly once, at level 1, the first time the stage is cleared while the player does
   // not own it; an item flagged `ngOnly` only drops while clearing the stage in New Game+. Returns [{ kind, id }].
@@ -377,6 +382,16 @@ const Logic = {
     const h = history || [], n = PATTERN_READ.streak;
     if (h.length >= n && h.slice(-n).every(x => x === id)) return true;
     return this.predictability(h, id) >= PATTERN_READ.share;
+  },
+  /* ---- the Core's echoes (core.echo1..4) ---- */
+  // One of the echoes' corrupted moves (CORE_ECHO_MOVES): the numbers it runs with (its original's, AKARI_MOVES or
+  // TAKASHI_MOVES, with the echo's on top; Raikon's are written out on the entry) plus { id, base, of, corrupt: true }.
+  // A copy; null for any other id (the originals' own moves are not echoes).
+  echoMove(id) {
+    const v = CORE_ECHO_MOVES[id];
+    if (!v) return null;
+    const orig = v.of === 'akari' ? AKARI_MOVES[v.base] : v.of === 'takashi' ? TAKASHI_MOVES[v.base] : null;
+    return JSON.parse(JSON.stringify(Object.assign({}, orig, v, { id, corrupt: true })));
   },
   /* ---- the Witness (core.witness) ---- */
   // One of the Witness's moves (WITNESS_MOVES) or one of Takashi's moves corrupted for Identity Collapse
@@ -698,7 +713,7 @@ const Logic = {
     if (!this.isCombatStage(id)) return { coins: 0, gems: 0 };
     const cleared = this.isStageComplete(save, id);
     const coins = Math.round(this.stageBaseCoins(id) * this.ngRewardMul(save.ng) * (cleared ? 0.5 : 1) / 5) * 5;
-    return { coins, gems: cleared ? 0 : this.firstClearGems(this.stageRewardType(id)) };
+    return { coins, gems: cleared ? 0 : this.firstClearGems(this.stageRewardType(id)) + this.stageRewardGems(id) };
   },
   survivalWaveReward(wave) {
     return { coins: SURVIVAL.coins(wave), gems: wave % SURVIVAL.gemsEvery === 0 ? 1 : 0 };
@@ -722,7 +737,9 @@ const Logic = {
         const done = this.completeStage(save, id) || { firstClear: false, unlocks: [] };
         out.firstClear = done.firstClear;
         out.coins = Math.round(base * ngMul * ({ S: 1.5, A: 1.25, B: 1.1, C: 1 }[out.rating]) * (out.firstClear ? 1 : 0.5) / 5) * 5;
+        // done.gems (a stage's reward gems) were already paid into the save by completeStage
         out.gems = (out.firstClear ? this.firstClearGems(type) : (type === 'boss' ? 1 : 0)) + (r.flawless ? 1 : 0);
+        out.rewardGems = done.gems || 0;
         out.xp = Math.round((type === 'boss' ? 300 : type === 'sub' ? 150 : 80) * diff * ngMul);
         if (!spar) { save.stats.wins++; if (r.flawless) save.stats.perfects++; }
         if (type === 'boss') save.stats.bosses++;
@@ -740,6 +757,7 @@ const Logic = {
       save.stats.wins += r.waves; save.stats.losses++;
     }
     save.coins += out.coins; save.gems += out.gems; save.xp += out.xp;
+    if (out.rewardGems) out.gems += out.rewardGems;
     out.levelBefore = save.level; out.xpBefore = save.xp - out.xp;
     while (save.xp >= xpForLevel(save.level)) { save.xp -= xpForLevel(save.level); save.level++; out.levelUps++; }
     return out;

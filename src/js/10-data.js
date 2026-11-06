@@ -269,6 +269,13 @@ const WEAPONS = {
   // It only starts on the katana forms: the Witness copies whatever Kage holds (ENEMIES.witness.mirrorWeapon), so its
   // move-set, stance and reach become his weapon's while the shards re-form into that weapon's shape (20-fighter.js).
   mugen_shards: { heft: 1, el: 'void', enemy: 1, name: 'Mugen no Ha', base: 'kagetsu', len: 96, trail: '#9b8cff', special: 'none' },
+  // The Core's echoes (core.echo1..4): corrupted Hollow copies of the blades Kage met on the way, the same shapes in
+  // violet (`void` element), at enemy strength. Never sold, owned or dropped (the echoes grant gems, never gear).
+  echo_tachi: { heft: 1.8, el: 'void', enemy: 1, name: 'Hollow Tachi', base: 'onikiri', len: 124, stats: [58, 40, 58], trail: '#9b8cff' },
+  echo_fangs: { heft: 0.7, el: 'void', enemy: 1, name: 'Hollow Fangs', base: 'tsubame', len: 68, stats: [46, 68, 52], trail: '#9b8cff', twin: 1 },
+  echo_nameless: { heft: 1.4, el: 'void', enemy: 1, name: 'Hollow Nameless Blade', base: 'kagetsu', len: 102, stats: [56, 56, 64], trail: '#9b8cff',
+    moves: ['sh1', 'sh2', 'sh3'], air: 'sha', counter: 'shc', special: 'none' },
+  echo_rem_blade: { heft: 0.9, el: 'void', enemy: 1, name: 'Hollow Travel Blade', base: 'kagetsu', len: 94, stats: [54, 66, 60], trail: '#b48aff', special: 'none' },
   // Act II sub-boss arms (act2.sub1..4)
   courier_kunai: { heft: 0.6, el: 'shade', enemy: 1, name: 'Courier Kunai', base: 'tsubame', len: 44, trail: '#b9a8d8' },
   quiet_kodachi: { heft: 0.9, el: 'moon', enemy: 1, name: 'Quiet Kodachi', base: 'kagetsu', len: 66, trail: '#d6cce6' },
@@ -493,6 +500,7 @@ const ENEMY_FAMILIES = {
   // unstable memory echoes: flat violet silhouettes that flicker, double and glitch
   hollow: { name: 'Hollows', title: 'Memory echo', body: '#4a3b86', trim: '#b9a8ff', outline: 'rgba(196,182,255,0.85)', flicker: ['#4a3b86', '#54449c', '#41347a'], ash: ['#9b8cff', '#6f5fc8', '#c9bdff'] }
 };
+const ECHO_ACCENT = '#b48aff';   // the Core's echoes: one violet accent over every original colour
 const ENEMIES = {
   // ---- Order of Silence ----
   order_footman: { name: 'Order Footman', title: 'Order of Silence', type: 'regular', family: 'order', unit: 'regular', rank: 1, outfit: 'gi', ai: 'regular',
@@ -724,6 +732,51 @@ const ENEMIES = {
             form: 'rem',
             taunt: 'Ready, big brother? Try to keep up this time.', defeatLine: 'Hey! That one doesn’t count!', win: 'Again! Again!',
             tip: 'Rem runs the family form faster than you. Block the rising cut, then punish his landing.' },
+  // ---- the Core's echoes (core.echo1..4) ----
+  // Corrupted memories the Core pulls out of Kage's journey: each is drawn in the Hollow style (family `hollow`: a
+  // flickering violet fill, glitch frames, a dissolve into memory ash) with its original's silhouette (`echoOf`: the same
+  // helmet and armour drawings, a violet copy of the blade), and fights in the boss format (one bar, one or two phases)
+  // with reduced or warped versions of the original's moves (CORE_ECHO_MOVES). They are memories: beaten, they come
+  // apart into ash, and they drop gems, never gear.
+  hollow_raikon: { name: 'Hollow Raikon', title: 'Echo of the Lightning Ascendant', type: 'sub', family: 'hollow', echoOf: 'raikon', ai: 'boss', weapon: 'echo_tachi', helmet: 'raijin_kabuto', armor: 'raikon_plate',
+            hp: 480, def: 0.12, dmg: 1.0, speed: 0.92, build: { scale: 1.2, w: 13, arms: 1.04 }, eye: '#ffffff', accent: ECHO_ACCENT,
+            flashEyes: 1, heavyArmor: 1, noGrab: 1, longScarf: '#2a2148', defeat: 'finisher',
+            taunt: '...the man who... was supposed to... stay buried... buried... buried...', defeatLine: '...the archive... was never... mine to guard...', win: '...stay... buried...',
+            tip: 'A violet wave runs along the floor after Hollow Thunder: jump it or dash through it. It never sends a second one.',
+            phases: [
+              { name: 'Static', at: 1, abilities: ['hollowThunder', 'hollowBreak'] },
+              { name: 'Dead Storm', at: 0.5, abilities: ['hollowThunder', 'hollowBreak'], aggressive: 1 }
+            ] },
+  hollow_akari: { name: 'Hollow Akari', title: 'Echo of the Memory Blade', type: 'sub', family: 'hollow', echoOf: 'akari', ai: 'boss', weapon: 'echo_fangs', helmet: 'akari_mask', armor: 'mei_en_garb',
+            hp: 440, def: 0.08, dmg: 0.98, speed: 1.08, build: { scale: 1.0, w: 8.8, legs: 1.04, head: 0.98 }, eye: '#ffffff', accent: ECHO_ACCENT,
+            flashEyes: 1, noGrab: 1, defeat: 'finisher',
+            taunt: '...you walk through... these memories... like they belong... to you...', defeatLine: '...he asked me to... take it from you... I remember why now...', win: '...stay lost...',
+            tip: 'Smoke curls at her feet before Hollow Step. Once a fight a pale copy of her stands open: strike it and turn, the real echo comes from behind.',
+            phases: [
+              { name: 'Quiet Static', at: 1, abilities: ['hollowFang', 'hollowStep'] },
+              { name: 'False Memory', at: 0.5, abilities: ['hollowFang', 'hollowStep', 'hollowOpening'], aggressive: 1 }
+            ] },
+  hollow_takashi: { name: 'Hollow Takashi', title: 'Echo of the Master\'s Flow', type: 'sub', family: 'hollow', echoOf: 'takashi', ai: 'boss', weapon: 'echo_nameless', helmet: 'kasa', armor: 'shinsei_yoroi',
+            hp: 500, def: 0.1, dmg: 1.02, speed: 0.92, build: { scale: 1.1, w: 11, legs: 1.02 }, eye: '#ffffff', accent: ECHO_ACCENT,
+            outfit: 'gi', sash: '#4a3c7a', hair: '#2a2148', flashEyes: 1, noGrab: 1, form: 'takashi', defeat: 'finisher',
+            taunt: '...elbows in... elbows... in... I taught you... I taught...', defeatLine: '...not the boy... I taught... the one... I could not...', win: '...again... from the stance...',
+            tip: 'It still reads repetition: vary your attacks or Hollow Return turns them aside. In its second phase a broken Final Flow gathers: block the first two cuts, dodge the last.',
+            phases: [
+              { name: 'Grounded Static', at: 1, abilities: ['hollowCleave', 'hollowReturn'] },
+              { name: 'Broken Flow', at: 0.5, abilities: ['hollowCleave', 'hollowReturn', 'hollowFlow'], aggressive: 1 }
+            ] },
+  // Hollow Rem, last: a fake-out just before the real Rem appears. Grown up (an adult build, not the boy from the yard),
+  // in a worn dark travel coat (`travel_coat`) with his purple accent (`sash`), violet-corrupted, running Rem's own fast,
+  // flowing version of the family form (`form: 'rem'`, the style young Rem sparred with in the Interlude).
+  hollow_rem: { name: 'Hollow Rem', title: 'Echo of a brother', type: 'sub', family: 'hollow', echoOf: 'rem', ai: 'agile', weapon: 'echo_rem_blade', helmet: 'headband', armor: 'travel_coat', outfit: 'gi',
+            hp: 460, def: 0.06, dmg: 1.0, speed: 1.14, build: { scale: 1.02, w: 9.4, legs: 1.04 }, eye: '#ffffff', accent: '#a970ff', sash: '#9b5cf0',
+            form: 'rem', defeat: 'finisher',
+            taunt: '...ready, big brother?... try to... keep up... this time...', defeatLine: '...that one... doesn\'t count...', win: '...again... again...',
+            tip: 'It runs Rem\'s family form, faster than yours: block the rising cut, then punish the landing after the second aerial.',
+            phases: [
+              { name: 'The Brother\'s Form', at: 1, abilities: [] },
+              { name: 'Corrupted Echo', at: 0.5, abilities: ['lunge'], berserk: 1 }
+            ] },
   // ---- placeholder sub-boss and boss rigs ----
   echo_sentinel: { name: 'Echo Sentinel', title: 'Placeholder sub-boss', type: 'sub', ai: 'agile', weapon: 'hollow_crescents', helmet: 'oni', armor: 'cloak', hp: 340, dmg: 1.05, speed: 1.15, build: { scale: 1.04, w: 10 }, eye: '#9b8cff', accent: '#9b8cff',
             taunt: 'This memory is guarded. Prove you belong in it.', defeatLine: 'The memory… lets you pass…', win: 'Forget this place.',
@@ -887,6 +940,36 @@ const WITNESS_CORRUPT = {
   collapseSmash:  { base: 'groundSmash', label: 'COLLAPSE SMASH', tint: WITNESS_TINT, glitch: 1, cd: 5.6, windup: 0.6, dmg: 18 },
   collapseReturn: { base: 'guardReturn', label: 'COLLAPSE RETURN', tint: WITNESS_TINT, glitch: 1, cd: 2.8, windup: 0.16, dmg: 16 }
 };
+/* ---------------- The Core's echoes ----------------
+   The four echo fights (core.echo1..4) are corrupted Hollow copies of foes from Kage's journey. Each CORE_ECHO_MOVES
+   entry runs its original's own ability code (`base`, from `of`'s kit; 40-ai.js registers them as BOSS_ABILITIES next
+   to the originals') with these numbers merged over the original's (AKARI_MOVES / TAKASHI_MOVES; Raikon's numbers live
+   in his ability code, so his echo's are written out here in full), a violet `tint` for the original's red / violet /
+   gold accents and glitch frames (`glitch`). They are REDUCED (longer tells, lighter hits) or WARPED (Hollow Takashi's
+   Final Flow is a broken three-cut fragment). Logic.echoMove(id) answers them.
+     cd 600   once a fight (Hollow Akari's single False Opening)
+     cuts, el finalFlow only: the cut list and trail element handed to the shared Final Flow runner (30-combat.js) */
+const ECHO_TINT = '#b48aff';
+const CORE_ECHO_MOVES = {
+  // Hollow Raikon: Thunder Swing with its wave still running along the floor, slower and lighter, never a second wave;
+  // and a lighter Storm Break with a short shockwave. No Redline Counter.
+  hollowThunder: { of: 'raikon', base: 'thunderSwing', label: 'HOLLOW THUNDER', tint: ECHO_TINT, glitch: 1, cd: 6, range: [140, 700], chance: 0.7, windup: 0.8, dmg: 0.75, reach: 190 },
+  hollowBreak:   { of: 'raikon', base: 'stormBreak', label: 'HOLLOW BREAK', tint: ECHO_TINT, glitch: 1, cd: 5.2, range: [0, 300], chance: 0.6, windup: 0.72, dmg: 0.75, shock: 0.6, shockLife: 0.45, reach: 190 },
+  // Hollow Akari: Smoke Step and Twin Fang at reduced strength, and one False Opening a fight, with a single afterimage
+  hollowStep:    { of: 'akari', base: 'smokeStep', label: 'HOLLOW STEP', tint: ECHO_TINT, glitch: 1, cd: 6, range: [140, 640], chance: 0.55, windup: 0.46, dmg: 8, dist: 140, smoke: { life: 0.45, radius: 42 } },
+  hollowFang:    { of: 'akari', base: 'twinFang', label: 'HOLLOW FANG', tint: ECHO_TINT, glitch: 1, cd: 3.8, range: [0, 280], chance: 0.65, windup: 0.5, dmg: [6, 10], dash: 460 },
+  hollowOpening: { of: 'akari', base: 'falseOpening', label: 'HOLLOW OPENING', tint: ECHO_TINT, glitch: 1, cd: 600, range: [100, 480], chance: 0.7, windup: 0.5, dmg: 11, afterimages: 1, opacity: 0.4, hold: 1.5 },
+  // Hollow Takashi: Earth Cleave and a blockable Guard Return, and in his second phase a broken Final Flow: three cuts
+  // (rising, overhead, the horizontal finisher) instead of five, violet, lighter and slower to gather
+  hollowCleave:  { of: 'takashi', base: 'earthCleave', label: 'HOLLOW CLEAVE', tint: ECHO_TINT, glitch: 1, cd: 5, range: [0, 320], chance: 0.62, windup: 0.74, dmg: 14, dash: 540, reach: 190 },
+  hollowReturn:  { of: 'takashi', base: 'guardReturn', label: 'HOLLOW RETURN', tint: ECHO_TINT, glitch: 1, cd: 3.2, range: [0, 290], chance: 0.7, windup: 0.22, stance: 0.8, dmg: 13, unb: 0 },
+  hollowFlow:    { of: 'takashi', base: 'finalFlow', label: 'BROKEN FLOW', tint: ECHO_TINT, glitch: 1, cd: 14, range: [0, 320], chance: 0.6, windup: 0.86, dmg: 1, unb: 0, unbFinisher: 1, el: 'void',
+    cuts: [
+      { dir: 'rising',     at: 0.08, pose: 'sh2', dmg: 3,  kb: 40,  up: -240 },
+      { dir: 'overhead',   at: 0.30, pose: 'sh1', dmg: 3,  kb: 40,  up: 80 },
+      { dir: 'horizontal', at: 0.72, pose: 'sh3', dmg: 10, kb: 700, up: -320, finisher: true, freeze: 0.16, slow: 0.45 }
+    ] }
+};
 /* Echo Replication's rule (Logic.echoReplication): the player's moves `gap` seconds apart or less are one string; the
    Witness copies the LATEST string that landed on it, its last `max` copyable moves (never throws or grabs). The same
    landed string `spam` times running is spam: it is read and punished. */
@@ -950,6 +1033,7 @@ const SPAR = {
      chapter / pos    filled in below (owning chapter id, index inside it).
      reward           optional gear granted when the stage is cleared: { weapons: [ids], helmets: [ids], armors: [ids] }.
                       Each item is given once (see Logic.grantStageReward); items flagged ngOnly only drop in New Game+.
+                      `gems: n` pays n gems on the stage's first clear (Logic.stageRewardGems; the Core echoes).
                       Raikon's stage gives Raikō no Tachi and the Raijin Kabuto; the other boss updates fill theirs in.
      stretch          stretch stages only: the side-scrolling level (see Logic.stretch and StretchSession in 60-engine.js):
                       { length,                     level width in world units (x runs 0 .. length; the screen is 1280 wide),
@@ -1046,7 +1130,7 @@ const CAMPAIGN = (function buildCampaign() {
     act('act3', 'Act III', 'The Fortress of Silence', 'Seat of the Order', 'fortress', 3, SQUADS.act3, 'Takashi', 'the Father'),
     { id: 'core', name: 'The Core', title: 'The Echo System', place: 'Corrupted memory', env: 'wasteland', diff: 3,
       stages: [
-        { id: 'core.stretch1', kind: 'stretch', name: 'Into the Core', enemy: 'hollow_flicker', stretch: stretchDefaults(['hollow_flicker', 'hollow_mimic', 'hollow_husk', 'hollow_ward']) },
+        { id: 'core.stretch1', kind: 'stretch', name: 'Into the Core', enemy: 'hollow_flicker' },
         { id: 'core.echo1', kind: 'echo', name: 'Echo I', foe: 'Hollow Raikon', foeTitle: 'Corrupted echo', enemy: 'echo_sentinel' },
         { id: 'core.echo2', kind: 'echo', name: 'Echo II', foe: 'Hollow Akari', foeTitle: 'Corrupted echo', enemy: 'echo_sentinel' },
         { id: 'core.echo3', kind: 'echo', name: 'Echo III', foe: 'Hollow Takashi', foeTitle: 'Corrupted echo', enemy: 'echo_sentinel' },
@@ -1230,6 +1314,29 @@ const CAMPAIGN = (function buildCampaign() {
     'act3.sub4': { foe: 'Soma', foeTitle: 'the Silent Blademaster', enemy: 'soma', format: 'boss', env: 'fortress', reward: { helmets: ['mokushi_kabuto'] } }
   };
   for (const st of chapters[4].stages) if (ACT3[st.id]) Object.assign(st, ACT3[st.id]);
+  // The Core: one stretch inside the Memory Core (env `core`: a violet void, floating memory fragments, flat shards and
+  // conduit light), Hollows only and the hardest Hollow mix in the game; then four echo fights the Core pulls out of
+  // Kage's journey, each a corrupted Hollow copy of a foe he beat, fighting with reduced or warped versions of the
+  // original's moves (CORE_ECHO_MOVES), Hollow Rem last; then the Witness. The echoes drop gems, never gear (`reward.gems`,
+  // paid once on the first clear by Logic.completeStage).
+  const CORE = {
+    'core.stretch1': { name: 'Into the Core', enemy: HU, scenes: { before: 'core.stretch1.before' },
+      stretch: { length: 6200, start: 160, env: 'core',
+        encounters: [
+          { x: 1000, gate: 1700, waves: [[S, FL, MI], [WD, HU, S]] },
+          { x: 2500, gate: 3200, waves: [[HU, FL, FL], [MI, WD, S, HU]] },
+          { x: 4000, gate: 4800, waves: [[HU, HU, WD], [FL, MI, S, WD, HU]] }],
+        clues: [],
+        props: [{ type: 'fragment', x: 520 }, { type: 'conduit', x: 900 }, { type: 'fragment', x: 1450, alt: 1 }, { type: 'shard', x: 2050 },
+          { type: 'fragment', x: 2700 }, { type: 'conduit', x: 3350 }, { type: 'shard', x: 3700, alt: 1 }, { type: 'fragment', x: 4400, alt: 1 },
+          { type: 'conduit', x: 5050 }, { type: 'shard', x: 5500 }, { type: 'fragment', x: 5900 }],
+        ashTrail: { from: 4900, to: 6150 } } },
+    'core.echo1': { enemy: 'hollow_raikon', format: 'boss', env: 'core', reward: { gems: 3 }, scenes: { before: 'core.echo1.before' } },
+    'core.echo2': { enemy: 'hollow_akari', format: 'boss', env: 'core', reward: { gems: 3 }, scenes: { before: 'core.echo2.before' } },
+    'core.echo3': { enemy: 'hollow_takashi', format: 'boss', env: 'core', reward: { gems: 3 }, scenes: { before: 'core.echo3.before' } },
+    'core.echo4': { enemy: 'hollow_rem', format: 'boss', env: 'core', reward: { gems: 3 }, scenes: { before: 'core.echo4.before', defeat: 'core.echo4.defeat' } }
+  };
+  for (const st of chapters[5].stages) if (CORE[st.id]) Object.assign(st, CORE[st.id]);
   for (const ch of chapters) ch.stages.forEach((st, i) => { st.chapter = ch.id; st.pos = i; });
   return { chapters };
 })();

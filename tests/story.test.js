@@ -25,7 +25,9 @@ test('a stage plays the scene attached to a hook, and nothing for a hook it has 
   assert.equal(Logic.stageScene('act1.stretch1', 'before'), 'act1.stretch1.before');
   assert.equal(Logic.stageScene('act2.stretch1', 'before'), 'act2.stretch1.before');
   assert.equal(Logic.stageScene('act3.stretch1', 'before'), 'act3.stretch1.before');
-  assert.equal(Logic.stageScene('core.stretch1', 'before'), null);
+  assert.equal(Logic.stageScene('core.stretch1', 'before'), 'core.stretch1.before');
+  assert.equal(Logic.stageScene('core.echo4', 'defeat'), 'core.echo4.defeat');
+  assert.equal(Logic.stageScene('core.echo1', 'defeat'), null);
   assert.equal(Logic.stageScene('no.such.stage', 'before'), null);
 });
 

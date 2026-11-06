@@ -46,8 +46,8 @@ test('every enemy uses a weapon, AI profile and boss abilities that exist', () =
     assert.ok(AI_PROFILES.includes(d.ai), `${id} ai ${d.ai}`);
     const abilities = [...(d.abilities || []), ...(d.phases || []).flatMap(p => p.abilities)];
     // coded abilities, or reduced Raikon, Akari or Takashi moves built on one (RAIKON_VARIANTS / AKARI_VARIANTS /
-    // TAKASHI_VARIANTS, the Witness's corrupted WITNESS_CORRUPT, registered by 40-ai.js)
-    for (const a of abilities) { const m = Logic.raikonMove(a) || Logic.akariDerived(a) || Logic.takashiDerived(a) || Logic.witnessMove(a); assert.ok(BOSS_ABILITIES.includes(a) || (m && BOSS_ABILITIES.includes(m.base)), `${id} ability ${a}`); }
+    // TAKASHI_VARIANTS, the Witness's corrupted WITNESS_CORRUPT, the Core echoes' CORE_ECHO_MOVES, registered by 40-ai.js)
+    for (const a of abilities) { const m = Logic.raikonMove(a) || Logic.akariDerived(a) || Logic.takashiDerived(a) || Logic.witnessMove(a) || Logic.echoMove(a); assert.ok(BOSS_ABILITIES.includes(a) || (m && BOSS_ABILITIES.includes(m.base)), `${id} ability ${a}`); }
     if (d.type === 'boss') assert.equal((d.phases || []).length, 3, `${id} has three phases`);
   }
 });

@@ -388,6 +388,64 @@ const SCENES = {
       { say: 'narrator', text: 'Smoke, and he is gone. Only his kasa is left on the stone, the old straw hat he wore on the road.' }
     ]
   },
+  // ---- The Core (core.stretch1, core.echo1..4): inside the Memory Core, where the stored memories come loose ----
+  // The stretch's `before`: Kage comes down the east lift into the Core, and fragments of familiar voices bleed through.
+  // Each echo's `before` is a short beat as the Core pulls that memory out of him. Hollow Rem's `defeat` is the fake-out
+  // breaking: it was only an echo, and the real Rem is close. Nothing here gives away the Witness or the Epilogue.
+  'core.stretch1.before': {
+    steps: [
+      { illus: null },
+      { say: 'narrator', text: 'The east lift opens on nothing. A violet dark with no walls, shards of light hanging in it, and a road of memory laid across the void.' },
+      { say: 'narrator', text: 'Pieces of the journey drift past: a burnt doorway, a lantern, a slate banner. Then the voices start.' },
+      { say: 'raikon', memory: true, text: '...the man who was supposed to stay buried...' },
+      { say: 'akari', memory: true, text: '...he asked me to take it from you. To keep you safe...' },
+      { say: 'takashi', memory: true, text: '...elbows in. Weight low. Again, from the stance...' },
+      { say: 'rem', name: 'A voice', memory: true, text: '...brother. Hurry. I can’t hold it much longer...' },
+      { say: 'kage', text: 'Rem?' },
+      { say: 'narrator', text: 'The voice breaks apart into static. Ahead, the Hollows rise out of the road, more of them than anywhere above.' },
+      { say: 'kage', text: 'I’m coming. Hold on.' }
+    ]
+  },
+  'core.echo1.before': {
+    steps: [
+      { say: 'narrator', text: 'The road narrows to a platform of light. Static gathers on it, and takes the shape of an armoured man with a long scarf.' },
+      { say: 'narrator', text: 'Raikon. Or what the Core kept of him: violet where the red lightning was, his outline skipping like a damaged recording.' },
+      { say: 'kage', text: 'I watched you die.' },
+      { say: 'raikon', name: 'Hollow Raikon', text: '...the archive... will not have you... will not... have...' }
+    ]
+  },
+  'core.echo2.before': {
+    steps: [
+      { say: 'narrator', text: 'Smoke curls up out of the void, and steps out of itself as a slim figure with two blades.' },
+      { say: 'akari', name: 'Hollow Akari', text: '...you walk through these memories... like they belong to you...' },
+      { say: 'kage', text: 'You told me the truth, at the end. Whatever this is, it isn’t you.' }
+    ]
+  },
+  'core.echo3.before': {
+    steps: [
+      { say: 'narrator', text: 'A straw hat. A plain blade. The Core builds Takashi out of every lesson Kage ever took from him, and gets the face wrong.' },
+      { say: 'takashi', name: 'Hollow Takashi', text: '...you carry it like I taught you... elbows in... elbows...' },
+      { say: 'kage', text: 'He walked away. You’re only what he left behind in here.' }
+    ]
+  },
+  'core.echo4.before': {
+    steps: [
+      { say: 'narrator', text: 'The light ahead parts. A man stands in it, in a worn dark travel coat with a purple sash, a sword at his hip.' },
+      { say: 'kage', text: '...Rem?' },
+      { say: 'rem', name: 'Rem?', text: '...ready, big brother? Try to keep up... this time...' },
+      { say: 'narrator', text: 'He draws the way he always drew. Fast. Flowing. The family form, the way only Rem ever ran it.' }
+    ]
+  },
+  'core.echo4.defeat': {
+    steps: [
+      { say: 'narrator', text: 'The figure staggers. Its outline doubles, then comes apart, flake by violet flake, into memory ash.' },
+      { say: 'rem', name: 'Hollow Rem', text: '...that one... doesn’t count...' },
+      { say: 'kage', text: 'An echo. Just another echo.' },
+      { say: 'narrator', text: 'The ash does not fall. It drifts up and away, all in one direction, toward the heart of the Core.' },
+      { say: 'rem', name: 'A voice', memory: true, text: '...Kage. That wasn’t me. I’m close now. Keep going...' },
+      { say: 'kage', text: 'Rem. I hear you. I’m almost there, brother.' }
+    ]
+  },
   // The Witness (core.witness, the final boss). `before`: the reconstruction revealed. The memories were real fragments,
   // their order and context were not. Its "the system was testing you" framing is its own, and it keeps changing it.
   'core.witness.before': {

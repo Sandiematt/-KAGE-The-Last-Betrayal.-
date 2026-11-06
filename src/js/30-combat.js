@@ -386,7 +386,7 @@ const WeaponSystem = {
       type, d, owner: f, team: f.team, x: o.x != null ? o.x : (d.ground ? f.x + dir * 70 * f.scale : sk.fha.x + dir * 10),
       y: o.y != null ? o.y : (d.ground ? 0 : sk.fha.y), vx: dir * d.speed * (o.speedMul || 1), vy: o.vy || 0,
       life: d.life * (o.lifeMul || 1), dmg: (o.dmg || d.dmg) * (o.dmgMul || 1) * f.dmgMul, t: 0, dir, hit: [], dead: false, ret: false,
-      target: o.target || null, sx: 0, sy: 0
+      target: o.target || null, sx: 0, sy: 0, tint: o.tint || null   // tint: a corrupted echo's violet (Hollow Raikon's wave)
     };
     if (type === 'kunai') {
       p.dmg *= f.kunaiMul;
@@ -420,7 +420,7 @@ const WeaponSystem = {
         if (p.ret) { const hx = o.sk.fha.x, hy = o.sk.fha.y; const a = Math.atan2(hy - p.y, hx - p.x); p.vx = Math.cos(a) * d.speed * 1.2; p.vy = Math.sin(a) * d.speed * 1.2; if (Math.hypot(hx - p.x, hy - p.y) < 30) p.dead = true; }
       }
       p.vy += d.grav * dt; p.x += p.vx * dt; p.y += p.vy * dt;
-      if (d.bolt) { p.y = 0; if (((p.t * 60) | 0) % 3 === 0) world.fx.part({ x: p.x + rand(-20, 20), y: -rand(0, 60), vx: rand(-80, 80), vy: rand(-260, -60), life: 0.25, size: rand(1.5, 3), color: chance(0.5) ? '#ff6a52' : '#ffffff', type: 'spark', grav: 300, drag: 2, add: true }); }
+      if (d.bolt) { p.y = 0; if (((p.t * 60) | 0) % 3 === 0) world.fx.part({ x: p.x + rand(-20, 20), y: -rand(0, 60), vx: rand(-80, 80), vy: rand(-260, -60), life: 0.25, size: rand(1.5, 3), color: chance(0.5) ? (p.tint || '#ff6a52') : '#ffffff', type: 'spark', grav: 300, drag: 2, add: true }); }
       else if (d.ground) { p.y = 0; if (((p.t * 30) | 0) % 2 === 0) { world.fx.dust(p.x, 0, 1); world.fx.part({ x: p.x + rand(-14, 14), y: -rand(0, 30), vx: rand(-40, 40), vy: rand(-420, -200), life: 0.4, size: rand(3, 6), color: '#2a2620', type: 'drop', grav: 1600 }); } }
       if (d.smoke && p.y >= 0) { world.smokeCloud(p.x); p.dead = true; }
       if (p.type === 'orb' || p.type === 'bigorb') world.fx.part({ x: p.x, y: p.y, vx: rand(-20, 20), vy: rand(-20, 20), life: 0.3, size: d.r * 0.4, color: 'rgba(127,184,255,0.35)', type: 'dot', grav: 0, add: true });
@@ -513,13 +513,13 @@ const WeaponSystem = {
           const fade = Math.min(1, p.life / 0.25), R = prng(((p.t * 30) | 0) * 7 + (p.seed || (p.seed = (Math.random() * 999) | 0)));
           ctx.globalAlpha *= fade; ctx.lineCap = 'round'; ctx.lineJoin = 'miter';
           const bolt = (pts, w) => {
-            for (const [col, lw] of [['#120404', w * 5.6], ['#ff3b2f', w * 3.6], ['#ffffff', w * 1.4]]) {
+            for (const [col, lw] of [[p.tint ? '#0d0818' : '#120404', w * 5.6], [p.tint || '#ff3b2f', w * 3.6], ['#ffffff', w * 1.4]]) {
               ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.beginPath(); ctx.moveTo(pts[0], pts[1]);
               for (let i = 2; i < pts.length; i += 2) ctx.lineTo(pts[i], pts[i + 1]); ctx.stroke();
             }
           };
           // a flat red scorch along the ground under the wave, then the front column: jagged forks rising from the ground
-          ctx.fillStyle = 'rgba(255,59,47,0.35)'; ctx.beginPath(); ctx.ellipse(-50, 0, 110, 9, 0, 0, TAU); ctx.fill();
+          ctx.fillStyle = p.tint ? 'rgba(160,120,255,0.35)' : 'rgba(255,59,47,0.35)'; ctx.beginPath(); ctx.ellipse(-50, 0, 110, 9, 0, 0, TAU); ctx.fill();
           for (let k = 0; k < 4; k++) {
             const pts = [(R() - 0.5) * 12, 0]; let x = pts[0], y = 0;
             const top = 100 + R() * 70;
@@ -840,6 +840,8 @@ function fbox(f, x, y, w, h) {
 function finalFlow(f, world, o) {
   o = o || {};
   const ff = Logic.finalFlow(o.tune), cuts = ff.cuts, W = ff.windup, last = cuts[cuts.length - 1];
+  // o.tint: a corrupted echo's colour for every gold accent (Hollow Takashi's broken Final Flow, CORE_ECHO_MOVES)
+  const gold = o.tint || '#e8c25c', glint = o.tint ? '#ece2ff' : '#ffe6a0', ghost = o.tint ? 'rgba(167,123,255,0.45)' : 'rgba(232,186,84,0.45)';
   const tgt = o.target || world.nearestEnemy(f), mul = (o.dmgMul != null ? o.dmgMul : 1) * ff.dmg;
   const poseAt = k => {
     if (k < 0) return MOVES[cuts[0].pose].w;
@@ -854,7 +856,8 @@ function finalFlow(f, world, o) {
     start(f) {
       if (o.armor) f.superArmor = true; else f.invuln = W + last.at + 0.3;
       if (tgt) f.facing = Math.sign(tgt.x - f.x) || f.facing;
-      if (o.banner) world.fx.banner(ff.name, 'Rage art', '#e8c25c'); else world.fx.popText(f, ff.label, '#e8c25c');
+      if (o.banner) world.fx.banner(ff.name, 'Rage art', gold); else world.fx.popText(f, ff.label, gold);
+      if (o.glitch) f.corruptUntil = f.time + W + last.at + 0.6;
       if (!o.banner) f.telegraph = W;
       AudioManager.play('teleport', { pitch: 0.8 });
     },
@@ -862,8 +865,8 @@ function finalFlow(f, world, o) {
       const k = t - W;
       if (k < 0) {
         f.vx = damp(f.vx, 0, 12, dt);
-        if (((t * 60) | 0) % 2 === 0) w.fx.embers(f.sk.wt.x, f.sk.wt.y, 1, '#e8c25c');
-        if (!this.glint && k > -0.1) { this.glint = 1; w.fx.glint(f.sk.wt.x, f.sk.wt.y, '#ffe6a0'); }
+        if (((t * 60) | 0) % 2 === 0) w.fx.embers(f.sk.wt.x, f.sk.wt.y, 1, gold);
+        if (!this.glint && k > -0.1) { this.glint = 1; w.fx.glint(f.sk.wt.x, f.sk.wt.y, glint); }
         return;
       }
       if (o.armor && !this.armorOff) { this.armorOff = 1; f.superArmor = false; }
@@ -880,7 +883,7 @@ function finalFlow(f, world, o) {
         this.done[i] = 1;
         if (c.cross && live) {
           // step through to the target's other side: the sequence changes direction
-          w.fx.afterimage(f, 'rgba(232,186,84,0.45)');
+          w.fx.afterimage(f, ghost);
           const side = -(Math.sign(f.x - tgt.x) || -f.facing);
           f.x = clamp(tgt.x + side * ff.stick * tgt.scale, w.bounds.l + 20, w.bounds.r - 20); f.facing = Math.sign(tgt.x - f.x) || f.facing;
           f.trail.length = 0; f.trail2.length = 0;   // a fresh smear from the new side, never one stretched across the step
@@ -897,8 +900,8 @@ function finalFlow(f, world, o) {
         // the decisive horizontal cut
         w.fx.stop(c.freeze); w.fx.impactFrame(ix, iy, 3); w.fx.finisher(ix, iy, f.facing);
         w.fx.slowmo(0.3, c.slow); w.fx.shake(0.85); w.fx.punch(0.1);
-        w.fx.ring(ix, iy, 190, 'rgba(232,186,84,0.9)', 0.45, 6);
-        for (let j = 0; j < 22; j++) w.fx.part({ x: ix, y: iy, vx: f.facing * rand(200, 900), vy: rand(-260, 160), life: rand(0.3, 0.6), size: rand(1.6, 3.4), color: j % 3 ? '#ffd27a' : '#fff4d6', type: 'spark', grav: 200, drag: 2.5, add: true });
+        w.fx.ring(ix, iy, 190, o.tint ? 'rgba(167,123,255,0.9)' : 'rgba(232,186,84,0.9)', 0.45, 6);
+        for (let j = 0; j < 22; j++) w.fx.part({ x: ix, y: iy, vx: f.facing * rand(200, 900), vy: rand(-260, 160), life: rand(0.3, 0.6), size: rand(1.6, 3.4), color: j % 3 ? (o.tint || '#ffd27a') : (o.tint ? '#ece2ff' : '#fff4d6'), type: 'spark', grav: 200, drag: 2.5, add: true });
       });
     },
     end(f) { f.superArmor = false; f.invuln = Math.min(f.invuln, 0.2); } });

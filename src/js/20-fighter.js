@@ -9,7 +9,8 @@ const SHAPE = {
   courier_kunai: 'short', quiet_kodachi: 'katana', echo_crescents: 'crescent', ledger_kusari: 'sickle',
   gate_kanabo: 'hammer', disciple_blade: 'katana', conduit_naginata: 'spear', silent_odachi: 'katana',
   sentinel_spear: 'spear', vanguard_yari: 'spear', sage_staff: 'staff', storm_orbs: 'none', iron_fists: 'none', chain_hook: 'hook',
-  tyrant_cleaver: 'tyrant', cutter_blade: 'katana', temple_staff: 'staff', raider_cleaver: 'cleaver', bokken: 'bokken'
+  tyrant_cleaver: 'tyrant', cutter_blade: 'katana', temple_staff: 'staff', raider_cleaver: 'cleaver', bokken: 'bokken',
+  echo_tachi: 'odachi', echo_fangs: 'short', echo_nameless: 'katana', echo_rem_blade: 'katana'
 };
 const IK_OFF = { katana: -0.2, spear: -0.3, hammer: 0.3, staff: -0.32 };
 const CARRY = { katana: 40, short: 30, cleaver: 60, odachi: 56, spear: 10, sickle: 70, hammer: 100, staff: 0, crescent: 40, fan: 40, hook: 70, tyrant: 60, none: 0 };
@@ -220,6 +221,11 @@ class Fighter {
         this.cloths.push({ kind: 'scarf', witness: true, c: new Cloth(n, seg * sc, { ph, wind: 420 + i * 70, grav: 520, stiff: 1.5 }), at: 'head', color: '#0b0910', rim, w: w * sc, w1: 0.9 * sc, dy, dx }));
       this.cloths.push({ kind: 'scarf', witness: true, c: new Cloth(14, 8 * sc, { ph: 8.2, wind: 680, grav: 300, stiff: 1.7 }), at: 'neck', color: '#e8e1f6', w: 2.6 * sc, w1: 0.8 * sc, dy: 4, dx: 6 });
       this.cloths.push({ kind: 'scarf', witness: true, c: new Cloth(12, 8 * sc, { ph: 11, wind: 600, grav: 260, stiff: 1.7 }), at: 'neck', color: '#a77bff', w: 2.2 * sc, w1: 0.7 * sc, dy: 8, dx: 3 });
+    }
+    // Hollow Rem's worn travel coat (the Core): long split coat tails hanging from the waist, dark with a purple edge
+    if (this.armor === 'travel_coat') {
+      this.cloths.push({ kind: 'robe', c: new Cloth(6, 10.4 * this.scale, { ph: 3.6, wind: 320, grav: 1100 }), at: 'hip', color: '#2a2340', w0: 22 * this.scale, w1: 34 * this.scale });
+      this.cloths.push({ kind: 'belt', c: new Cloth(6, 9.6 * this.scale, { ph: 5.4, wind: 300, grav: 1150, stiff: 1.7 }), at: 'hip', color: '#2a2338', rim: 'rgba(169,112,255,0.75)', w: 7 * this.scale, w1: 4.6 * this.scale, dy: -2, dx: -8 });
     }
     // the Shinsei Yoroi's layered robe skirts, hanging from the waist guard
     if (this.armor === 'shinsei') this.cloths.push({ kind: 'robe', c: new Cloth(6, 9.4 * this.scale, { ph: 3, wind: 180, grav: 1250 }), at: 'hip', color: '#1f1b15', w0: 24 * this.scale, w1: 36 * this.scale });
@@ -1337,7 +1343,7 @@ Fighter.prototype.draw = function (ctx, opt) {
   // silhouette (face-wrap, red sash, no robe shards: `kageFrame`), more often while it copies him (`kageFlicker`).
   const wit = this.def && this.def.witness;
   if (wit) this.kageFrame = !opt.color && this.alive && !this.coreBroken && this.witnessFlicker();
-  const corrupt = wit && this.corruptUntil > this.time;
+  const corrupt = (wit || this.hollow) && this.corruptUntil > this.time;   // a corrupted move (the Witness, the Core's echoes)
   const glitch = (this.hollow || (wit && !this.kageFrame)) && !opt.color ? this.glitchAmount(corrupt ? 0.6 : 0) : 0;
   const gcol = this.hollow ? this.family.trim : '#7b5ad6';
   ctx.save();
@@ -1728,7 +1734,8 @@ function drawWeaponShape(ctx, sh, L, mode, s, ink, f) {
       if (mode !== 'flat') {
         // the red lightning groove; it flares while the blade gathers a strike
         const hot = f && (f.telegraph > 0 || (f.state === 'ability' && f.abil && f.abil.charge));
-        ctx.strokeStyle = art ? C.emberBright : hot ? '#ff6a52' : '#c8261e'; ctx.lineWidth = (hot ? 2.2 : 1.5) * s; ctx.lineJoin = 'miter';
+        const echo = f && f.hollow;   // Hollow Raikon's corrupted copy (the Core): the groove runs violet
+        ctx.strokeStyle = art ? C.emberBright : echo ? (hot ? '#e4d6ff' : '#b48aff') : hot ? '#ff6a52' : '#c8261e'; ctx.lineWidth = (hot ? 2.2 : 1.5) * s; ctx.lineJoin = 'miter';
         ctx.beginPath();
         for (let i = 0; i <= 8; i++) { const u = 0.06 + 0.78 * i / 8; ctx.lineTo(X(u), cy(u) + (i % 2 ? 1.6 : -0.6) * s); }
         ctx.stroke(); ctx.lineJoin = 'round';
@@ -2130,6 +2137,23 @@ function drawArmor(ctx, f, ink, opt, Ut) {
   ctx.fillStyle = ink;
   switch (f.armor) {
     case 'training': break;   // the Interlude's plain training clothes: just the gi and its obi
+    case 'travel_coat': {
+      // Hollow Rem (the Core): a worn dark travel coat, open at the throat with a high turned-up collar, a patched
+      // shoulder and a purple accent along the front edge (its tails are cloth, hanging from the waist)
+      const ox = Math.cos(ang + Math.PI / 2), oy = Math.sin(ang + Math.PI / 2), Q = (u, w) => [lerp(hx, nx, u) + ox * w * Ut, lerp(hy, ny, u) + oy * w * Ut];
+      ctx.fillStyle = flat ? ink : '#2a2340';
+      torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.08);
+      if (flat) break;
+      const c0 = Q(1.02, -0.9), c1 = Q(1.18, -0.55), c2 = Q(0.86, -0.15);
+      ctx.fillStyle = '#3a3156'; ctx.beginPath(); ctx.moveTo(c0[0], c0[1]); ctx.lineTo(c1[0], c1[1]); ctx.lineTo(c2[0], c2[1]); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = '#a970ff'; ctx.lineWidth = 1.8 * s;
+      const a = Q(0.98, 0.35), b = Q(0.5, 0.7), c = Q(0.06, 0.8);
+      ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.lineTo(c[0], c[1]); ctx.stroke();
+      ctx.strokeStyle = 'rgba(236,229,211,0.18)'; ctx.lineWidth = 1 * s; ctx.setLineDash([2 * s, 2.5 * s]);
+      const p0 = Q(0.86, -0.7), p1 = Q(0.7, -0.2); ctx.strokeRect(Math.min(p0[0], p1[0]), Math.min(p0[1], p1[1]), Math.abs(p1[0] - p0[0]) + 3 * s, Math.abs(p1[1] - p0[1]) + 3 * s);
+      ctx.setLineDash([]);
+      break;
+    }
     case 'tachibana': {
       // Kage's starting Tachibana Yoroi: a compact shoulder guard (the forearm guards are the hero wraps)
       // and the small family crest, half-hidden behind the front arm

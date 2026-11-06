@@ -135,7 +135,8 @@ class AIController {
   readStrike(p) {
     const f = this.f, w = this.world, list = this.phaseData ? this.phaseData.abilities : this.abilities;
     // his own Guard Return, or an Act III sub-boss's reduced one (TAKASHI_VARIANTS)
-    const gid = list && list.find(id => id === 'guardReturn' || ((TAKASHI_VARIANTS[id] || WITNESS_CORRUPT[id]) && (TAKASHI_VARIANTS[id] || WITNESS_CORRUPT[id]).base === 'guardReturn'));
+    const variant = id => TAKASHI_VARIANTS[id] || WITNESS_CORRUPT[id] || CORE_ECHO_MOVES[id];
+    const gid = list && list.find(id => id === 'guardReturn' || (variant(id) && variant(id).base === 'guardReturn'));
     const a = gid && BOSS_ABILITIES[gid];
     if (!a || (this.cds[gid] || 0) > 0 || !p.move || p.move.kind === 'throw') return false;
     if (!f.grounded || !(f.canAct() || f.state === 'block' || (f.state === 'move' && f.mphase === 0))) return false;
@@ -589,22 +590,23 @@ const BOSS_ABILITIES = {
   // jump it or dash through it). In phase 3 (`secondWave` on the phase) the blade crackles again and a second wave
   // follows after a delay, punishing a dodge made too early.
   // `o` (optional) is a reduced variant's parameters (RAIKON_VARIANTS in 10-data.js): label, windup, dmg, reach,
-  // dash, and wave: false for the cut alone (no ground wave and no second wave).
+  // dash, and wave: false for the cut alone (no ground wave and no second wave); a Core echo's (CORE_ECHO_MOVES) adds
+  // `tint` (violet for every red: lightning, glint, the wave) and `glitch` (corrupted frames).
   thunderSwing: { id: 'thunderSwing', cd: 5.2, range: [140, 760], chance: 0.75,
     run(f, w, ai, p, o) {
       o = o || {};
       const wave = o.wave !== false, tell = ai.p.windup, W = (o.windup || 0.66) * tell;
       const delay = wave && ai.phaseData && ai.phaseData.secondWave ? ai.phaseData.secondWave * Math.max(1, tell) : 0;
-      const T2 = W + delay, rel = { dmg: o.dmg || 1, reach: o.reach || 210, wave };
+      const T2 = W + delay, rel = { dmg: o.dmg || 1, reach: o.reach || 210, wave, tint: o.tint };
       f.telegraph = W;
       f.startAbility({ dur: (delay ? T2 : W) + 0.6, rate: 22, trail: true, charge: true,
         pose: (f, t) => (t < W || (delay && t > W + 0.2 && t < T2) ? RAIKON_POSE.swingBack : RAIKON_POSE.swingThrough),
-        start(f) { f.superArmor = true; f.facing = w.player.x > f.x ? 1 : -1; AudioManager.play('teleport'); w.fx.popText(f, o.label || 'THUNDER SWING', '#ff6a52'); },
+        start(f) { f.superArmor = true; f.facing = w.player.x > f.x ? 1 : -1; AudioManager.play('teleport'); w.fx.popText(f, o.label || 'THUNDER SWING', o.tint || '#ff6a52'); corruptFrames(f, o); },
         update(f, w, t, dt) {
           // a reduced cut can dash forward through its release (o.dash), then skids to a stop
           f.vx = o.dash && t >= W && t < W + 0.16 ? f.facing * o.dash : damp(f.vx, 0, 10, dt);
-          if (o.dash && t >= W && t < W + 0.16 && ((t * 60) | 0) % 2 === 0) w.fx.afterimage(f, 'rgba(255,74,60,0.3)');
-          if (t < W) { this.charge = true; raikonCrackle(f, w, t); if (!this.glint && t > W - 0.2) { this.glint = 1; raikonGlint(f, w); } return; }
+          if (o.dash && t >= W && t < W + 0.16 && ((t * 60) | 0) % 2 === 0) w.fx.afterimage(f, o.tint ? 'rgba(167,123,255,0.3)' : 'rgba(255,74,60,0.3)');
+          if (t < W) { this.charge = true; raikonCrackle(f, w, t, o.tint); if (!this.glint && t > W - 0.2) { this.glint = 1; raikonGlint(f, w, o.tint); } return; }
           if (!this.swung) {
             this.swung = 1; this.charge = false; f.superArmor = false;
             if (!o.dash) raikonRelease(f, w, rel);
@@ -613,7 +615,7 @@ const BOSS_ABILITIES = {
           // the dashing cut lands mid-dash, once
           if (o.dash && !this.cut && t > W + 0.06) { this.cut = 1; raikonRelease(f, w, rel); }
           if (delay && t < T2) {
-            if (t > W + 0.2) { this.charge = true; raikonCrackle(f, w, t); if (!this.glint2 && t > T2 - 0.2) { this.glint2 = 1; raikonGlint(f, w); } }
+            if (t > W + 0.2) { this.charge = true; raikonCrackle(f, w, t, o.tint); if (!this.glint2 && t > T2 - 0.2) { this.glint2 = 1; raikonGlint(f, w, o.tint); } }
             return;
           }
           if (delay && !this.swung2) { this.swung2 = 1; this.charge = false; raikonRelease(f, w, rel); }
@@ -623,7 +625,8 @@ const BOSS_ABILITIES = {
     } },
   // Wind-up overhead (super armour, crackle, glint), then the blade driven into the ground: a crushing hit up close
   // and a short ground shockwave forward.
-  // `o` (optional): a reduced variant's label, windup, dmg, reach, shock (shockwave damage, 0 = none) and shockLife.
+  // `o` (optional): a reduced variant's label, windup, dmg, reach, shock (shockwave damage, 0 = none) and shockLife;
+  // a Core echo's `tint` and `glitch`.
   stormBreak: { id: 'stormBreak', cd: 4.4, range: [0, 340], chance: 0.65,
     run(f, w, ai, p, o) {
       o = o || {};
@@ -631,16 +634,16 @@ const BOSS_ABILITIES = {
       f.telegraph = W;
       f.startAbility({ dur: W + 0.75, rate: 20, trail: true, charge: true,
         pose: (f, t) => (t < W ? RAIKON_POSE.overhead : RAIKON_POSE.slam),
-        start(f) { f.superArmor = true; f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, o.label || 'STORM BREAK', '#ff6a52'); AudioManager.play('teleport'); },
+        start(f) { f.superArmor = true; f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, o.label || 'STORM BREAK', o.tint || '#ff6a52'); corruptFrames(f, o); AudioManager.play('teleport'); },
         update(f, w, t, dt) {
-          if (t < W) { this.charge = true; f.vx = damp(f.vx, f.facing * 90, 6, dt); raikonCrackle(f, w, t); if (!this.glint && t > W - 0.18) { this.glint = 1; raikonGlint(f, w); } return; }
+          if (t < W) { this.charge = true; f.vx = damp(f.vx, f.facing * 90, 6, dt); raikonCrackle(f, w, t, o.tint); if (!this.glint && t > W - 0.18) { this.glint = 1; raikonGlint(f, w, o.tint); } return; }
           f.vx = damp(f.vx, 0, 14, dt);
           if (!this.done) {
             this.done = 1; this.charge = false; f.superArmor = false;
             const gx = f.x + f.facing * 120 * f.scale;
             Combat.area(w, f, fbox(f, 0, -230, o.reach || 200, 230), { dmg: 19 * (o.dmg || 1) * f.dmgMul, kb: 380, up: -460, hs: 0.6, kd: 1, imp: 3, hsnd: 'heavy', stamp: 'BREAK', gb: 110 });
             if (shock > 0) WeaponSystem.spawn(w, 'shock', f, { x: gx, lifeMul: o.shockLife || 0.6, dmgMul: shock });
-            for (let i = 0; i < (o.dmg && o.dmg < 1 ? 2 : 3); i++) w.fx.lightning(gx, 0, gx + rand(-90, 90), -rand(60, 150), { w: 2.2, branches: 2, dur: 0.14 });
+            for (let i = 0; i < (o.dmg && o.dmg < 1 ? 2 : 3); i++) w.fx.lightning(gx, 0, gx + rand(-90, 90), -rand(60, 150), { w: 2.2, branches: 2, dur: 0.14, color: o.tint });
             w.fx.groundShards(gx, 7, 1.1); w.fx.dust(gx, 0, 18); w.fx.shake(0.7); AudioManager.play('slam');
           }
           if (!this.tell && t > W + 0.3) { this.tell = 1; w.fx.popText(f, 'OPENING', C.gold); }
@@ -686,8 +689,11 @@ const BOSS_ABILITIES = {
     run(f, w, ai, p, o) {
       const m = takashiOpt('finalFlow', o);
       const tune = { unb: m.unb, unbFinisher: m.unbFinisher, dmg: m.dmg, windup: m.windup * ai.p.windup, label: m.label };
+      // a Core echo's broken Final Flow (CORE_ECHO_MOVES.hollowFlow): its own shorter cut list, the void element, violet
+      if (m.cuts) tune.cuts = m.cuts;
+      if (m.el) tune.el = m.el;
       f.facing = w.player.x > f.x ? 1 : -1;
-      finalFlow(f, w, { tune, target: w.player, dmgMul: f.dmgMul, armor: true });
+      finalFlow(f, w, { tune, target: w.player, dmgMul: f.dmgMul, armor: true, tint: m.tint, glitch: m.glitch });
     } },
   // Earth Cleave: the blade dragged low behind him in a deep, grounded stance, gold dust lifting off the floor; then one
   // heavy low-to-high cut (Shinsen's rising form, sh2) that steps in, throws up ground shards and launches.
@@ -784,7 +790,7 @@ const BOSS_ABILITIES = {
       f.telegraph = W;
       f.startAbility({ dur: W + G * 2 + 0.45, rate: 30, trail: true,
         pose: (f, t) => (t < W ? AKARI_POSE.fangBack : t < W + G ? MOVES.tw1.s : MOVES.tw2.s),
-        start(f) { f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, o.label, AKARI_VIOLET); AudioManager.play('teleport', { pitch: 1.4 }); },
+        start(f) { f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, o.label, o.tint || AKARI_VIOLET); corruptFrames(f, o); AudioManager.play('teleport', { pitch: 1.4 }); },
         update(f, w, t, dt) {
           if (t < W) {
             f.vx = damp(f.vx, 0, 10, dt);
@@ -808,7 +814,7 @@ const BOSS_ABILITIES = {
       f.telegraph = W;
       f.startAbility({ dur: W + H + R + 0.6, rate: 26, trail: true,
         pose: (f, t) => (t < W ? AKARI_POSE.smokeCrouch : t < W + H + R ? AKARI_POSE.fangBack : MOVES.tw2.s),
-        start(f) { f.facing = pl.x > f.x ? 1 : -1; w.fx.popText(f, o.label, AKARI_VIOLET); AudioManager.play('teleport', { pitch: 1.2 }); },
+        start(f) { f.facing = pl.x > f.x ? 1 : -1; w.fx.popText(f, o.label, o.tint || AKARI_VIOLET); corruptFrames(f, o); AudioManager.play('teleport', { pitch: 1.2 }); },
         update(f, w, t, dt) {
           f.vx = damp(f.vx, 0, 12, dt);
           if (t < W) { if (((t * 60) | 0) % 4 === 0) w.fx.part({ x: f.x + rand(-26, 26), y: -rand(2, 14), vx: rand(-40, 40), vy: rand(-50, -20), life: 0.32, size: rand(5, 9), color: 'rgba(74,61,94,0.7)', type: 'puff', grav: -20, drag: 2, grow: 10 }); return; }
@@ -868,7 +874,7 @@ const BOSS_ABILITIES = {
       f.telegraph = W;
       f.startAbility({ dur: W + o.hold + R + 1, rate: 22, trail: true,
         pose: (f) => (f.abil && f.abil.cut ? AKARI_POSE.punish : f.abil && f.abil.out ? AKARI_POSE.fangBack : AKARI_POSE.open),
-        start(f) { f.facing = pl.x > f.x ? 1 : -1; w.fx.popText(f, o.label, AKARI_VIOLET); AudioManager.play('teleport', { pitch: 0.8 }); },
+        start(f) { f.facing = pl.x > f.x ? 1 : -1; w.fx.popText(f, o.label, o.tint || AKARI_VIOLET); corruptFrames(f, o); AudioManager.play('teleport', { pitch: 0.8 }); },
         update(f, w, t, dt) {
           f.vx = damp(f.vx, 0, 12, dt);
           if (t < W) { if (((t * 60) | 0) % 6 === 0) w.fx.afterimage(f, 'rgba(180,140,240,0.4)', { dur: 0.3, dx: (((t * 10) | 0) % 2 ? 1 : -1) * 18 }); return; }
@@ -1023,6 +1029,15 @@ for (const id in WITNESS_CORRUPT) {
   BOSS_ABILITIES[id] = { id, cd: v.cd || base.cd, range: v.range || base.range, chance: v.chance || base.chance, cond: base.cond,
     run(f, w, ai, p) { base.run(f, w, ai, p, v); } };
 }
+/* ---- the Core echoes' corrupted moves (CORE_ECHO_MOVES in 10-data.js): each runs its original's own ability code
+   (Raikon's, Akari's or Takashi's) with the echo's numbers, a violet tint for the original's accents and glitch frames.
+   A Guard Return or False Opening echo keeps the base's `cond`; a Guard Return echo is raised by readStrike like his.
+   `cd` 600 is once a fight (Hollow Akari's single False Opening). ---- */
+for (const id in CORE_ECHO_MOVES) {
+  const v = CORE_ECHO_MOVES[id], base = BOSS_ABILITIES[v.base];
+  BOSS_ABILITIES[id] = { id, cd: v.cd || base.cd, range: v.range || base.range, chance: v.chance || base.chance, cond: base.cond,
+    run(f, w, ai, p) { base.run(f, w, ai, p, v); } };
+}
 /* ---- Raikon's poses and shared effects (also used by the player's Thunder Swing rage art, 30-combat.js) ---- */
 const RAIKON_POSE = {
   // Thunder Swing: the odachi drawn far back at shoulder height, weight on the rear leg, ready to sweep flat
@@ -1039,22 +1054,23 @@ const RAIKON_POSE = {
   diagonal: P({ lean: 34, rx: 20, head: 10, fs: 40, fe: 0, wa: 34, bs: -30, be: 30, fh: 54, fk: -60, bh: -50, bk: -8 })
 };
 // red lightning crackling along Raikō no Tachi while a strike gathers
-function raikonCrackle(f, w, t) {
+// (`tint`: a corrupted echo's violet instead of the red)
+function raikonCrackle(f, w, t, tint) {
   if (((t * 60) | 0) % 4 !== 0) return;
   const sk = f.sk;
-  w.fx.lightning(sk.fha.x, sk.fha.y, sk.wt.x + rand(-10, 10), sk.wt.y + rand(-10, 10), { w: 1.6, branches: 2, dur: 0.1 });
-  w.fx.part({ x: sk.wt.x, y: sk.wt.y, vx: rand(-60, 60), vy: rand(-90, -20), life: 0.25, size: rand(1.5, 3), color: '#ff6a52', type: 'spark', grav: 0, drag: 3, add: true });
+  w.fx.lightning(sk.fha.x, sk.fha.y, sk.wt.x + rand(-10, 10), sk.wt.y + rand(-10, 10), { w: 1.6, branches: 2, dur: 0.1, color: tint });
+  w.fx.part({ x: sk.wt.x, y: sk.wt.y, vx: rand(-60, 60), vy: rand(-90, -20), life: 0.25, size: rand(1.5, 3), color: tint || '#ff6a52', type: 'spark', grav: 0, drag: 3, add: true });
 }
 // the red glint on the blade that marks the moment before release
-function raikonGlint(f, w) { w.fx.glint(f.sk.wt.x, f.sk.wt.y, '#ff4a3c'); AudioManager.play('orb', { pitch: 1.7 }); }
+function raikonGlint(f, w, tint) { w.fx.glint(f.sk.wt.x, f.sk.wt.y, tint ? '#e4d6ff' : '#ff4a3c'); AudioManager.play('orb', { pitch: tint ? 1.3 : 1.7 }); }
 // Thunder Swing's release: the arc's own hit up close, and the lightning wave sent along the ground
 // (a reduced cut, `o` from thunderSwing: dmg multiplier, arc reach, and wave: false sends no ground wave)
 function raikonRelease(f, w, o) {
   o = o || {};
   AudioManager.play('heavyswing'); if (o.wave !== false) AudioManager.play('slam');
   Combat.area(w, f, fbox(f, -10, -210, o.reach || 210, 200), { dmg: 15 * (o.dmg || 1) * f.dmgMul, kb: 420, up: -240, hs: 0.5, imp: 2, hsnd: 'slash', stamp: o.wave === false ? 'CUT' : 'THUNDER', gb: 70 });
-  if (o.wave !== false) WeaponSystem.spawn(w, 'thunderwave', f, { x: f.x + f.facing * 110 * f.scale });
-  w.fx.lightning(f.sk.wt.x, f.sk.wt.y, f.x + f.facing * 120 * f.scale, o.wave === false ? f.sk.wt.y + 60 : 0, { w: o.wave === false ? 1.8 : 2.6, branches: o.wave === false ? 2 : 4, dur: 0.16 });
+  if (o.wave !== false) WeaponSystem.spawn(w, 'thunderwave', f, { x: f.x + f.facing * 110 * f.scale, tint: o.tint, dmgMul: o.tint ? o.dmg || 1 : 1 });
+  w.fx.lightning(f.sk.wt.x, f.sk.wt.y, f.x + f.facing * 120 * f.scale, o.wave === false ? f.sk.wt.y + 60 : 0, { w: o.wave === false ? 1.8 : 2.6, branches: o.wave === false ? 2 : 4, dur: 0.16, color: o.tint });
   w.fx.shake(o.wave === false ? 0.25 : 0.45); w.fx.dust(f.x + f.facing * 80, 0, 10);
 }
 /* ---- Akari's poses and helpers (the player's Smoke Step rage art, 30-combat.js, uses them too) ---- */

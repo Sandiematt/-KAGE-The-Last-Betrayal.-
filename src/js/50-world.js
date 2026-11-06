@@ -356,6 +356,103 @@ const ENVS = {
       }
     }
   },
+  // The Memory Core (the Core's stretch and echo fights): no sky and no walls, a violet void with the Core's heart glowing
+  // far off, flat geometric shards and pieces of remembered places (a doorway, a lantern, a banner) floating in it,
+  // columns of conduit light falling through the dark, and a road of memory laid across the void, its edge ruled violet.
+  core: {
+    name: 'The Memory Core', rim: 'rgba(206,188,255,0.8)', light: { x: 0.3, y: -0.95 }, trail: '#c9bdff',
+    build() {
+      const r = seeded(131);
+      this.sky = makeLayer(W, H, (g) => {
+        const gr = g.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, '#05040b'); gr.addColorStop(0.5, '#120c24'); gr.addColorStop(0.78, '#1b1234'); gr.addColorStop(1, '#06050c');
+        g.fillStyle = gr; g.fillRect(0, 0, W, H);
+        for (let i = 0; i < 120; i++) { g.fillStyle = `rgba(190,170,255,${r() * 0.35})`; g.fillRect(r() * W, r() * H * 0.8, 1.4, 1.4); }
+      });
+      // far: slow flat shards, dark violet, a few edged with light
+      this.far = makeLayer(LW, H, (g) => {
+        for (let i = 0; i < 26; i++) {
+          const x = r() * LW, y = 90 + r() * 360, sz = 18 + r() * 60, a = r() * TAU, n = r() < 0.5 ? 3 : 4;
+          g.fillStyle = r() < 0.5 ? '#1d1538' : '#261a48';
+          g.beginPath(); for (let k = 0; k < n; k++) { const q = a + k * TAU / n + (r() - 0.5) * 0.8, rr = sz * (0.6 + r() * 0.6); g.lineTo(x + Math.cos(q) * rr, y + Math.sin(q) * rr * 0.8); } g.closePath(); g.fill();
+          if (r() < 0.4) { g.strokeStyle = 'rgba(180,150,255,0.35)'; g.lineWidth = 1; g.stroke(); }
+        }
+      });
+      this.shards = []; for (let i = 0; i < 14; i++) this.shards.push({ x: r() * LW, y: 120 + r() * 330, sz: 10 + r() * 34, ph: r() * 6, rot: r() * TAU, vr: (r() - 0.5) * 0.5, n: r() < 0.5 ? 3 : 4 });
+      // remembered places, broken off and floating: 0 a burnt doorway, 1 a lantern, 2 a slate banner, 3 a torii
+      this.frags = []; for (let i = 0; i < 6; i++) this.frags.push({ x: i * (LW / 6) + r() * 120, y: 170 + r() * 190, w: 90 + r() * 70, h: 70 + r() * 60, kind: i % 4, ph: r() * 6, tilt: (r() - 0.5) * 0.3 });
+      this.beams = []; for (let x = 120; x < LW; x += 260 + r() * 220) this.beams.push({ x, w: 6 + r() * 16, ph: r() * 6 });
+      this.motes = []; for (let i = 0; i < 54; i++) this.motes.push({ x: r() * W, y: r() * H, s: 10 + r() * 22, ph: r() * 6, z: 0.4 + r() * 0.9 });
+    },
+    back(ctx, cx, t) {
+      ctx.drawImage(this.sky, 0, 0);
+      // the heart of the Core, far off: a pale violet glow that breathes
+      const hx = 820 - cx * 0.03, hy = 300, br = 1 + Math.sin(t * 1.3) * 0.05;
+      const heart = ctx.createRadialGradient(hx, hy, 0, hx, hy, 230 * br); heart.addColorStop(0, 'rgba(226,212,255,0.32)'); heart.addColorStop(0.3, 'rgba(160,120,255,0.1)'); heart.addColorStop(1, 'rgba(120,80,220,0)');
+      ctx.fillStyle = heart; ctx.fillRect(hx - 250, hy - 250, 500, 500);
+      ctx.fillStyle = 'rgba(236,228,255,0.85)'; ctx.beginPath(); ctx.arc(hx, hy, 16 * br, 0, TAU); ctx.fill();
+      drawTiled(ctx, this.far, -260 - cx * 0.12);
+      // conduit light falling through the void
+      const bo = wrapX(-260 - cx * 0.3, LW) - LW;
+      for (let rep = bo; rep < W; rep += LW) for (const b of this.beams) {
+        const x = b.x + rep; if (x < -40 || x > W + 40) continue;
+        const a = 0.08 + 0.06 * Math.sin(t * 1.8 + b.ph), gr = ctx.createLinearGradient(0, 0, 0, GROUND);
+        gr.addColorStop(0, `rgba(170,140,255,${a * 1.6})`); gr.addColorStop(1, 'rgba(170,140,255,0)');
+        ctx.fillStyle = gr; ctx.fillRect(x - b.w / 2, 0, b.w, GROUND);
+        const py = wrapX(t * 160 + b.ph * 80, GROUND);
+        ctx.fillStyle = 'rgba(226,212,255,0.25)'; ctx.fillRect(x - b.w / 4, py, b.w / 2, 40);
+      }
+      // floating memory fragments: pieces of the journey, outlined in violet, drifting
+      const fo = wrapX(-260 - cx * 0.4, LW) - LW;
+      for (let rep = fo; rep < W; rep += LW) for (const f of this.frags) {
+        const x = f.x + rep, y = f.y + Math.sin(t * 0.6 + f.ph) * 10; if (x + f.w < -40 || x > W + 40) continue;
+        ctx.save(); ctx.translate(x, y); ctx.rotate(f.tilt + Math.sin(t * 0.4 + f.ph) * 0.03);
+        ctx.fillStyle = 'rgba(28,20,52,0.85)'; ctx.beginPath(); ctx.moveTo(-f.w / 2, -f.h / 2); ctx.lineTo(f.w / 2 - 14, -f.h / 2); ctx.lineTo(f.w / 2, -f.h / 2 + 18); ctx.lineTo(f.w / 2, f.h / 2); ctx.lineTo(-f.w / 2 + 20, f.h / 2); ctx.lineTo(-f.w / 2, f.h / 2 - 12); ctx.closePath(); ctx.fill();
+        ctx.strokeStyle = `rgba(185,160,255,${0.3 + 0.2 * Math.sin(t * 2 + f.ph)})`; ctx.lineWidth = 1.2; ctx.stroke();
+        ctx.fillStyle = 'rgba(150,120,230,0.45)';
+        if (f.kind === 0) { ctx.fillRect(-f.w * 0.18, -f.h * 0.3, f.w * 0.36, f.h * 0.7); ctx.fillStyle = 'rgba(28,20,52,0.9)'; ctx.fillRect(-f.w * 0.1, -f.h * 0.2, f.w * 0.2, f.h * 0.6); }
+        else if (f.kind === 1) { ctx.beginPath(); ctx.ellipse(0, 0, f.w * 0.1, f.h * 0.18, 0, 0, TAU); ctx.fill(); ctx.fillRect(-1, -f.h * 0.42, 2, f.h * 0.24); }
+        else if (f.kind === 2) { ctx.beginPath(); ctx.moveTo(-f.w * 0.15, -f.h * 0.38); ctx.lineTo(f.w * 0.15, -f.h * 0.38); ctx.lineTo(f.w * 0.15, f.h * 0.3); ctx.lineTo(0, f.h * 0.18); ctx.lineTo(-f.w * 0.15, f.h * 0.3); ctx.closePath(); ctx.fill(); }
+        else { ctx.fillRect(-f.w * 0.32, -f.h * 0.28, f.w * 0.64, 6); ctx.fillRect(-f.w * 0.24, -f.h * 0.28, 6, f.h * 0.66); ctx.fillRect(f.w * 0.2, -f.h * 0.28, 6, f.h * 0.66); }
+        ctx.restore();
+      }
+      // nearer shards turning slowly
+      const so = wrapX(-260 - cx * 0.6, LW) - LW;
+      for (let rep = so; rep < W; rep += LW) for (const sh of this.shards) {
+        const x = sh.x + rep, y = sh.y + Math.sin(t * 0.8 + sh.ph) * 14; if (x < -60 || x > W + 60) continue;
+        const a = sh.rot + t * sh.vr;
+        ctx.fillStyle = '#2c1f54'; ctx.beginPath();
+        for (let k = 0; k < sh.n; k++) { const q = a + k * TAU / sh.n; ctx.lineTo(x + Math.cos(q) * sh.sz, y + Math.sin(q) * sh.sz * 0.7); }
+        ctx.closePath(); ctx.fill(); ctx.strokeStyle = 'rgba(201,180,255,0.5)'; ctx.lineWidth = 1; ctx.stroke();
+      }
+      const low = ctx.createLinearGradient(0, 420, 0, GROUND + 20); low.addColorStop(0, 'rgba(110,80,200,0)'); low.addColorStop(1, 'rgba(110,80,200,0.22)');
+      ctx.fillStyle = low; ctx.fillRect(0, 420, W, GROUND - 400);
+    },
+    floor(ctx, cx, t) {
+      // the road of memory: a dark slab over the void, its tiles cut flat, a violet edge line pulsing along the front
+      const gr = ctx.createLinearGradient(0, GROUND, 0, H); gr.addColorStop(0, '#171029'); gr.addColorStop(0.35, '#0c0818'); gr.addColorStop(1, '#040308');
+      ctx.fillStyle = gr; ctx.fillRect(0, GROUND, W, H - GROUND);
+      ctx.strokeStyle = 'rgba(170,140,255,0.13)'; ctx.lineWidth = 1;
+      const off = wrapX(-cx, 140);
+      for (let x = off - 140; x < W + 140; x += 140) { ctx.beginPath(); ctx.moveTo(x, GROUND); ctx.lineTo(x + (x - W / 2) * 0.4, GROUND + 46); ctx.stroke(); }
+      ctx.beginPath(); ctx.moveTo(0, GROUND + 22); ctx.lineTo(W, GROUND + 22); ctx.stroke();
+      const a = 0.45 + 0.15 * Math.sin(t * 2.6);
+      ctx.fillStyle = `rgba(180,150,255,${a})`; ctx.fillRect(0, GROUND + 46, W, 2);
+      const px = wrapX(t * 300 - cx, W + 400) - 200;
+      ctx.fillStyle = 'rgba(236,228,255,0.5)'; ctx.fillRect(px - 50, GROUND + 45, 100, 4);
+      // below the road: the void again, with fragments falling away into it
+      for (let i = 0; i < 6; i++) {
+        const x = wrapX(i * 230 - cx * 1.1, W + 200) - 100, y = GROUND + 70 + wrapX(t * 14 + i * 23, H - GROUND - 70);
+        ctx.fillStyle = `rgba(150,120,230,${0.18 * (1 - (y - GROUND) / (H - GROUND))})`; ctx.fillRect(x, y, 10 + (i % 3) * 6, 4 + (i % 2) * 3);
+      }
+      ctx.fillStyle = 'rgba(201,189,255,0.6)'; ctx.fillRect(0, GROUND, W, 1);
+    },
+    front(ctx, cx, t) {
+      for (const m of this.motes) {
+        const x = wrapX(m.x + Math.sin(t * 0.7 + m.ph) * 24 - cx * m.z * 0.6, W), y = wrapX(m.y - t * m.s, H);
+        ctx.fillStyle = `rgba(206,190,255,${0.16 + 0.2 * Math.sin(t * 2.2 + m.ph)})`; ctx.fillRect(x, y, 2.2 * m.z, 2.2 * m.z);
+      }
+    }
+  },
   // Takashi's training yard in Hoshimura, as the brothers remember it (the Interlude spar): a low dusk sun, the dojo's
   // roof and veranda behind a wooden fence, a pine, a striking post and a rack of practice swords, packed warm earth.
   // Drawn in the memory filter by the fight renderer (Renderer.drawMemoryFilter).
@@ -963,6 +1060,28 @@ const Renderer = {
       ctx.fillStyle = 'rgba(236,229,255,0.75)'; ctx.fillRect(x - 6, py - 16, 12, 32);
       ctx.fillStyle = ink; ctx.fillRect(x - 30, -54, 60, 54);
       const on = Math.sin(t * 7 + x) > -0.2; ctx.fillStyle = on ? 'rgba(201,189,255,0.9)' : 'rgba(90,70,150,0.7)'; ctx.fillRect(x - 18, -40, 10, 6); ctx.fillRect(x + 4, -40, 14, 6);
+    } else if (pr.type === 'fragment') {
+      // the Memory Core: a piece of a remembered place floating above the road, broken off at the edges and outlined in
+      // violet (`alt`: a burnt doorway and its lintel; otherwise a lantern post with its lantern), bobbing slowly
+      const y = -250 + Math.sin(t * 0.9 + x * 0.01) * 12, w = 150, h = 120;
+      ctx.save(); ctx.translate(x, y); ctx.rotate(Math.sin(t * 0.5 + x) * 0.04 + (pr.alt ? -0.08 : 0.06));
+      ctx.fillStyle = 'rgba(30,22,58,0.92)'; ctx.beginPath(); ctx.moveTo(-w / 2, -h / 2 + 10); ctx.lineTo(-w / 2 + 26, -h / 2); ctx.lineTo(w / 2, -h / 2 + 6); ctx.lineTo(w / 2 - 12, h / 2 - 20); ctx.lineTo(w / 2 - 34, h / 2); ctx.lineTo(-w / 2 + 8, h / 2 - 6); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = `rgba(190,165,255,${0.5 + 0.25 * Math.sin(t * 3 + x)})`; ctx.lineWidth = 2; ctx.stroke();
+      ctx.fillStyle = 'rgba(160,130,240,0.6)';
+      if (pr.alt) { ctx.fillRect(-40, -34, 80, 8); ctx.fillRect(-34, -26, 8, 72); ctx.fillRect(26, -26, 8, 72); ctx.fillStyle = 'rgba(236,228,255,0.25)'; ctx.fillRect(-24, -20, 48, 60); }
+      else { ctx.fillRect(-3, -40, 6, 86); ctx.beginPath(); ctx.ellipse(16, -16, 12, 17, 0, 0, TAU); ctx.fill(); ctx.fillRect(-3, -40, 22, 4); ctx.fillStyle = 'rgba(236,228,255,0.5)'; ctx.beginPath(); ctx.ellipse(16, -16, 5, 8, 0, 0, TAU); ctx.fill(); }
+      ctx.restore();
+      // a thin thread of light tying it to the road below
+      ctx.fillStyle = 'rgba(180,150,255,0.18)'; ctx.fillRect(x - 1, y + h / 2 - 10, 2, -y - h / 2 + 10);
+    } else if (pr.type === 'shard') {
+      // the Memory Core: a tall flat geometric shard standing up out of the road, faceted, edged violet, a seam of light
+      const h = pr.alt ? 260 : 340, lean = pr.alt ? -26 : 18;
+      ctx.fillStyle = '#1c1434'; ctx.beginPath(); ctx.moveTo(x - 46, 0); ctx.lineTo(x - 30 + lean * 0.5, -h * 0.6); ctx.lineTo(x + lean, -h); ctx.lineTo(x + 30 + lean * 0.4, -h * 0.45); ctx.lineTo(x + 52, 0); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#2a1e4e'; ctx.beginPath(); ctx.moveTo(x + lean, -h); ctx.lineTo(x + 30 + lean * 0.4, -h * 0.45); ctx.lineTo(x + 52, 0); ctx.lineTo(x + 4, 0); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = 'rgba(200,180,255,0.6)'; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(x - 46, 0); ctx.lineTo(x - 30 + lean * 0.5, -h * 0.6); ctx.lineTo(x + lean, -h); ctx.lineTo(x + 30 + lean * 0.4, -h * 0.45); ctx.lineTo(x + 52, 0); ctx.stroke();
+      const a = 0.35 + 0.3 * Math.sin(t * 2.4 + x);
+      ctx.strokeStyle = `rgba(226,212,255,${a})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x + lean, -h); ctx.lineTo(x + 4, 0); ctx.stroke();
+      ctx.fillStyle = `rgba(160,120,255,${0.1 + 0.05 * Math.sin(t * 2 + x)})`; ctx.beginPath(); ctx.ellipse(x + 4, -4, 90, 10, 0, 0, TAU); ctx.fill();
     } else if (pr.type === 'record_shelf') {
       // the Hall of Records: a tall shelf of Order ledgers, spines stamped with the barred circle, a ladder against it
       ctx.fillRect(x - 110, -300, 220, 300);

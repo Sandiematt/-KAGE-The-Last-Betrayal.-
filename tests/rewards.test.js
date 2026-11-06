@@ -97,9 +97,9 @@ test('sub-bosses, the spar and the Core echoes pay sub-boss rewards scaled by th
   assert.equal(sub.gems, 2);
   assert.equal(sub.xp, 150);
   const t = Logic.defaultSave(); reach(t, 'core.echo1');
-  const echo = Logic.applyFightResult(t, fight({ stageId: 'core.echo1', enemyId: 'echo_sentinel' }));
+  const echo = Logic.applyFightResult(t, fight({ stageId: 'core.echo1', enemyId: 'hollow_raikon' }));
   assert.equal(echo.coins, 430);
-  assert.equal(echo.gems, 2);
+  assert.equal(echo.gems, 5, 'the sub-boss 2 plus the echo\'s own 3 gems (it drops gems instead of gear)');
   assert.equal(echo.xp, 450);
 });
 
