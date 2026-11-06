@@ -478,11 +478,55 @@ const SCENES = {
       { say: 'witness', text: 'Then carry it. I am tired of carrying it alone.' }
     ]
   },
-  // Stub; SAN-44 writes the real Epilogue.
-  'epilogue.stub': {
+  // The Epilogue, The Last Choice (stage `epilogue`, kind `scene`: no combat). After the Witness the Core opens and the
+  // real Rem is inside it, older and worn (speaker `rem_adult`, in the Kurokumo Yoroi: a dark travel coat, one purple
+  // accent, frayed cloth). Kage returns Shinsen; they shut the system down together (Kage's restored identity signature,
+  // flag core.identity_restored from the Witness, and Rem letting go); the reconstruction dissolves; the real Takashi's
+  // last transmission; the "who won?" exchange pays off the unfinished Interlude spar; two swords left at the entrance,
+  // two silhouettes walking into dawn, and the end card. Finishing it grants the post-story gear (the stage's reward).
+  'epilogue.last_choice': {
     steps: [
-      { illus: 'memory', caption: 'Dawn over the Echo System. The ash has settled.' },
-      { say: 'narrator', text: 'The Last Choice is still to be written.' },
+      { illus: 'epilogue_core', caption: 'The Witness’s light settles. At the heart of the Echo System, the Core unseals itself, ring by ring.' },
+      { say: 'narrator', text: 'Inside, someone has been sitting with his back to the light for a very long time.' },
+      { say: 'narrator', text: 'Older than Kage remembers. Thinner. A worn dark travel coat, frayed at every edge, one purple band at the collar.' },
+      { say: 'rem_adult', text: '...Took you long enough, little brother.' },
+      { say: 'kage', text: 'Rem.' },
+      { say: 'kage', text: 'They said you betrayed me. Some said you were dead. The Witness said the whole road was arranged.' },
+      { say: 'rem_adult', text: 'The road was. I wasn’t. I’m the one who erased your memories, Kage.' },
+      { say: 'rem_adult', text: 'Father was going to wire you into the Core and make you its permanent controller. A mind with no past is a mind that can’t say no to him. So I took your past first, and hid it where he couldn’t reach it.' },
+      { say: 'rem_adult', text: 'Then I stayed behind to keep the Core sealed. Somebody had to hold the door.' },
+      { say: 'kage', text: 'Ten years.' },
+      { say: 'rem_adult', text: 'Felt longer. You get used to the hum.' },
+      { illus: 'epilogue_handoff', caption: 'Kage unslings the odachi from his back and holds it out, hilt first.' },
+      { say: 'kage', text: 'Shinsen. Father’s blade. It found its way to me; it was always meant to go back to you.' },
+      { say: 'rem_adult', text: '...Heavier than I remember. Or I’m lighter.' },
+      { flag: 'epilogue.shinsen_returned' },
+      { illus: null },
+      { say: 'narrator', text: 'The Core speaks in a voice made of every voice it stored. It offers them two endings, and no third.' },
+      { say: 'rem_adult', text: 'Shut it down, and every memory it swallowed goes free, back to whoever it was taken from. And every reconstruction ends: the City, the Fortress, the faces. All of it.' },
+      { say: 'rem_adult', text: 'Keep it running, and the world stays open to whoever sits in this chair next. Father. Or someone worse.' },
+      { say: 'kage', text: 'Then we end it. Together.' },
+      { say: 'kage', text: 'The Witness gave me back my original identity signature. The first one. The Core will take an order from that.' },
+      { say: 'rem_adult', text: 'And it’s been holding on to me as hard as I’ve held on to it. I have to let go of the Core.' },
+      { say: 'rem_adult', text: 'On three?' },
+      { say: 'kage', text: 'On three.' },
+      { illus: 'epilogue_collapse', caption: 'The system collapses. Light pours upward out of the Core, a river of memories going home.' },
+      { say: 'narrator', text: 'The reconstructed world comes apart around them. Streets fold into ash. The Fortress forgets its own walls. Hoshimura’s ruins let go of the fire.' },
+      { wait: 0.8 },
+      { illus: 'memory' },
+      { say: 'recording', name: 'Transmission', text: 'A last signal, crackling, from somewhere outside the Core. Not a stored echo. A live line.' },
+      { say: 'takashi', text: 'Memories may fade... but the choices you make will always remain.' },
+      { say: 'narrator', text: 'The signal ends. The real Takashi is alive. Where, no one can say.' },
+      { wait: 0.6 },
+      { say: 'rem_adult', text: 'So... who won?' },
+      { say: 'kage', text: 'I did.' },
+      { say: 'rem_adult', text: 'Keep dreaming.' },
+      { illus: 'epilogue_swords', caption: 'At the ruined entrance, they set their swords side by side against the broken stone.' },
+      { say: 'rem_adult', text: 'And take the coat. Kurokumo’s kept me alive in there. It can keep you alive out here. I’m done hiding in it.' },
+      { illus: 'epilogue_dawn', caption: 'Dawn reaches the real Yomi. Two brothers walk out of the ash, side by side, and keep walking.' },
+      { wait: 1.2 },
+      { illus: 'end_card', card: 'Brothers until the end.' },
+      { wait: 4.5 },
       { illus: null }
     ]
   }

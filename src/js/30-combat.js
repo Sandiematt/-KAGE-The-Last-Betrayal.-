@@ -950,6 +950,56 @@ const SPECIAL_IMPL = {
       start(f) { f.invuln = 0.3; world.fx.banner('Crescent Moon', 'Rage art', C.bone); },
       update(f, w, t) { if (t > 0.22 && !this.done) { this.done = true; WeaponSystem.spawn(w, 'crescent', f, { y: f.y - 120 * f.scale, dmgMul: weaponMul(f.weaponId(), f.wlvl).dmg }); AudioManager.play('heavyswing'); w.fx.shake(0.3); } } });
   },
+  /* Echo Replication (Mugen no Ha): Kage's own most recent landed string, replayed by a phantom memory-shard copy of
+     him. Logic.echoArt reads the fight's hit log (FightSession.hitLog; `landed` marks a blow that hit any foe) and says
+     which moves, at what damage, the last one the finisher. Kage holds a casting stance, untouchable, while a Hollow-
+     styled violet copy (hollow_kage's look, his weapon, team 0, `clone` so the session cleans it up) appears beside the
+     foe and performs the moves in order, unblockable; then it comes apart into memory ash. */
+  echoReplication(f, world) {
+    const log = (world.hitLog || []).map(e => ({ id: e.id, t: e.t, hit: !!(e.hit || e.landed) }));
+    const art = Logic.echoArt(log, f.weaponId());
+    const tgt = world.nearestEnemy ? world.nearestEnemy(f) : world.opponentOf(f);
+    const tint = 'rgba(167,123,255,0.45)';
+    let ph = null, i = 0;
+    const place = () => {
+      if (!tgt || !tgt.alive) return;
+      const dir = Math.sign(tgt.x - ph.x) || ph.facing;
+      ph.x = clamp(tgt.x - dir * 100 * ph.scale, world.bounds.l, world.bounds.r); ph.facing = Math.sign(tgt.x - ph.x) || dir;
+      world.fx.afterimage(ph, tint, { dur: 0.3 });
+    };
+    const vanish = () => {
+      if (!ph || !ph.visible) return;
+      if (ph.alive) world.fx.memoryAsh(ph, 16, true);
+      ph.alive = false; ph.visible = false; ph.life = 0;
+    };
+    f.startAbility({ dur: art.windup + art.life, uninterruptible: true, rate: 18,
+      pose: (f, t) => (t < art.windup ? MOVES.k1.w : POSES.cast),
+      start(f) { f.invuln = art.windup + art.life; world.fx.banner('Echo Replication', art.echoed ? 'Rage art · your last string' : 'Rage art', '#b9a8ff'); AudioManager.play('teleport', { pitch: 1.3 }); world.fx.afterimage(f, tint, { dur: art.windup }); },
+      update(f, w, t) {
+        if (t < art.windup) return;
+        if (!ph) {
+          const side = tgt ? Math.sign(tgt.x - f.x) || f.facing : f.facing;
+          ph = makeFighterFromEnemy('hollow_kage', { team: f.team, x: tgt ? tgt.x - side * 100 : f.x + side * 90, facing: side, weapon: f.weaponId(), wlvl: f.wlvl, hp: 1, dmgMul: f.dmgMul });
+          ph.clone = true; ph.phantom = true; ph.life = art.life + 1; ph.invuln = 99; ph.unblockable = true; ph.alpha = 0.82;
+          ph.y = 0; ph.grounded = true;
+          w.fighters.push(ph); w.fx.memoryAsh(ph, 10, true); AudioManager.play('teleport', { pitch: 0.8 });
+        }
+        if (!ph.alive) return false;
+        ph.invuln = 99;
+        if (ph.state === 'move') return;
+        // the previous blow is over: next one, or the phantom is spent
+        if (i >= art.moves.length || !tgt || !tgt.alive) {
+          if (ph.moveHit && tgt) { w.fx.stamp('ECHO', tgt.x, tgt.y - 130 * tgt.scale, 3, '#b9a8ff'); w.fx.shake(0.4); }
+          vanish(); return false;
+        }
+        const step = art.moves[i++];
+        ph.setState('idle'); place();
+        ph.dmgMul = f.dmgMul * step.dmgMul;
+        ph.startMove(step.id, w);
+        if (step.finisher) w.fx.impactFrame(tgt.x, tgt.y - 110 * tgt.scale, 2);
+      },
+      end(f) { vanish(); f.invuln = 0.2; } });
+  },
   mountainSplit(f, world) {
     f.startAbility({ dur: 1.0, uninterruptible: true, rate: 24, trail: true,
       pose: (f, t) => (t < 0.45 ? MOVES.c3.w : MOVES.c3.s),

@@ -427,6 +427,20 @@ const Logic = {
     for (let i = hit.length - 1; i >= 0 && hit[i].join(' ') === key; i--) repeats++;
     return { moves, repeats, punish: repeats >= ECHO_REPLICATION.spam };
   },
+  // Echo Replication as Kage's own rage art (Mugen no Ha; ECHO_ART): the moves his phantom memory-shard copy replays on
+  // the foe. It copies his latest landed string (echoReplication over his hit log), grounded strikes only; with nothing
+  // to copy it falls back to the weapon's own grounded string. { moves: [{ id, dmgMul, finisher }], echoed, windup, life }
+  echoArt(log, weaponId) {
+    const grounded = id => MOVES[id] && ECHO_ART.kinds.includes(MOVES[id].kind);
+    const echo = this.echoReplication(log);
+    let ids = echo ? echo.moves.filter(grounded) : [];
+    const echoed = ids.length > 0;
+    if (!echoed) ids = ((WEAPONS[weaponId] || WEAPONS.kagetsu).moves || WEAPONS.kagetsu.moves).filter(grounded);
+    return {
+      echoed, windup: ECHO_ART.windup, life: ECHO_ART.life,
+      moves: ids.map((id, i) => ({ id, finisher: i === ids.length - 1, dmgMul: i === ids.length - 1 ? ECHO_ART.finisherMul : ECHO_ART.dmgMul }))
+    };
+  },
   // Phase 1's mirror: the player's latest string, with the wait before each move (0 for the first), for the Witness to
   // replay with Kage's own timing. [] before he has attacked.
   mirrorSequence(log) {

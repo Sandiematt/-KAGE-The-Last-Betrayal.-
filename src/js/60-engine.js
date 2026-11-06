@@ -129,8 +129,9 @@ class FightSession {
   }
   onSpecial(f) { this.fx.slowmo(0.55, 0.35); this.fx.punch(0.05); }
   onHit(att, def, dmg) {
-    // the blow that landed on the boss marks its move in the hit log (Echo Replication copies landed strings)
-    if (att.isPlayer && def === this.enemy && att.move) { for (let i = this.hitLog.length - 1; i >= 0; i--) if (this.hitLog[i].id === att.move.id) { this.hitLog[i].hit = true; break; } }
+    // the blow that landed marks its move in the hit log: `hit` on the boss (the Witness's Echo Replication copies those),
+    // `landed` on any foe (Kage's own Echo Replication rage art, Mugen no Ha, replays those)
+    if (att.isPlayer && att.move && def.team !== att.team) { for (let i = this.hitLog.length - 1; i >= 0; i--) if (this.hitLog[i].id === att.move.id) { this.hitLog[i].landed = true; if (def === this.enemy) this.hitLog[i].hit = true; break; } }
     if (att.isPlayer) {
       this.combo = att.comboHits; this.comboT = 1.2;
       // consecutive-hit milestones get a beat of slow motion and a calligraphy mark

@@ -1,7 +1,8 @@
 /* KAGE — StoryPlayer: plays a story scene (SCENES, 12-scenes.js) over whatever is on screen.
    - the bottom dialogue panel: portrait medallion (SPEAKERS, 52-story-art.js), speaker name, typewriter text;
    - full-screen illustrations (ILLUSTRATIONS), drawn on their own canvas, scaled to cover the screen;
-   - the one VIDEO PLACEHOLDER card (Prologue only).
+   - the one VIDEO PLACEHOLDER card (Prologue only);
+   - an end card: an illustration step with `card` text (the Epilogue's end_card), handed to the painter as { card }.
    One press finishes the line, the next press advances; Skip ends the whole scene. Advance: Enter, Space / W, J, K, U,
    a tap or click, gamepad A / X / Y / RB. Skip: Esc or P, the Skip button, gamepad Start or Back.
    While a scene plays Game.loop does not step the fight (gameplay is frozen, its last frame stays drawn behind) and
@@ -75,7 +76,7 @@ const StoryPlayer = {
       a.step = s; a.t = 0;
       if ('video' in s) { a.mode = 'video'; this.show('video'); this.q.vdesc.textContent = s.video; return; }
       if ('say' in s) { const sp = SPEAKERS[s.say] || SPEAKERS.narrator; return this.line(s.name || sp.name, s.text, s.say, !!s.memory); }
-      if ('illus' in s) { this.setIllus(s.illus); if (s.caption) return this.line('', s.caption, null, false); continue; }
+      if ('illus' in s) { a.card = s.card || null; this.setIllus(s.illus); if (s.caption) return this.line('', s.caption, null, false); continue; }
       if ('wait' in s) { a.mode = 'wait'; a.wait = s.wait; this.show(null); return; }
       if ('flag' in s) { if (Logic.setStoryFlag(SaveManager.data, s.flag)) SaveManager.save(); continue; }
     }
@@ -157,7 +158,7 @@ const StoryPlayer = {
     const s = Math.max(w / 1280, h / 720);
     g.fillStyle = '#030303'; g.fillRect(0, 0, w, h);
     g.save(); g.translate(w / 2, h / 2); g.scale(s, s); g.translate(-640, -360);
-    try { ILLUSTRATIONS[a.illus].paint(g); } catch (e) { console.error('[KAGE] illustration', a.illus, e); }
+    try { ILLUSTRATIONS[a.illus].paint(g, { card: a.card }); } catch (e) { console.error('[KAGE] illustration', a.illus, e); }
     g.restore();
   },
   drawPortrait(id) {

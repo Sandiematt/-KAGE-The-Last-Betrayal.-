@@ -239,8 +239,8 @@ const WEAPONS = {
     trail: '#9b6bd6', desc: 'Akari\'s paired short blades on the twin-blade forms. Rage art: Smoke Step.',
     lore: 'Akari\'s paired blades. Kagehira cuts the body; Yūrei cuts the memory of the wound, so it never stops hurting.' },
   mugen_no_ha: { heft: 1.1, el: 'moon', name: 'Mugen no Ha', cls: 'Katana', tab: 'blades', tier: 'boss', base: 'kagetsu', hands: 2, len: 96, stance: 'katana', stats: [162, 124, 128],
-    exclusive: true, hint: 'Defeat the Witness', special: 'crescentMoon', // real rage art: Echo Replication
-    trail: '#9b8cff', desc: 'The Witness\'s blade on the katana forms.',
+    exclusive: true, hint: 'Finish the Epilogue, The Last Choice', special: 'echoReplication',
+    trail: '#9b8cff', desc: 'The Witness\'s blade on the katana forms. Rage art: Echo Replication, a phantom of Kage replays his last landed string.',
     lore: 'A blade of stolen memory shards, pressed together in the Memory Core. It remembers every fighter it has ever cut.' },
 
   /* ---- enemy-only arms ---- */
@@ -362,6 +362,7 @@ const SPECIALS = {
   earthshatter:  { name: 'Earthshatter', desc: 'The ground itself breaks. Every grounded enemy is stunned.' },
   thunderSwing:  { name: 'Thunder Swing', desc: 'A wide arc that sends red lightning racing along the ground. Unblockable.' },
   smokeStep:     { name: 'Smoke Step', desc: 'Vanish in a puff of smoke, leave an afterimage behind, and strike from behind the enemy. Unblockable.' },
+  echoReplication:{ name: 'Echo Replication', desc: 'A phantom memory-shard copy of Kage replays his most recent landed string on the enemy, harder. Unblockable.' },
   finalFlow:     { name: 'Final Flow', desc: 'Rising, overhead and diagonal cuts from both sides, then one decisive horizontal cut. Unblockable.' }
 };
 
@@ -458,11 +459,11 @@ const ARMORS = {
     lore: 'A conduit tende\' harness, coiled with the violet tubes that carry stored memories down through the Fortress. Put an ear to them and somebody is always talking.' },
   mei_en_garb:  { name: 'Mei-En Garb', tier: 'trophy', def: 0.21, hp: 80, exclusive: true, hint: 'Defeat Akari', look: 'mei_en', perks: { dash: 0.2, speed: 0.06 },
     lore: 'Akari\'s smoke-grey fighting garb. Even the Order\'s records cannot agree on what colour it is.' },
-  kysmei_robe:  { name: 'Kysmei Robe', tier: 'trophy', def: 0.22, hp: 85, exclusive: true, hint: 'Defeat the Witness', look: 'kysmei', perks: { rage: 0.3 },
+  kysmei_robe:  { name: 'Kysmei Robe', tier: 'trophy', def: 0.22, hp: 85, exclusive: true, hint: 'Finish the Epilogue, The Last Choice', look: 'kysmei', perks: { rage: 0.3 },
     lore: 'The Witness\'s robe, stitched from the threads of every memory the Echo System ever swallowed.' },
-  kurokumo_yoroi:{ name: 'Kurokumo Yoroi', tier: 'trophy', def: 0.23, hp: 85, exclusive: true, hint: 'Defeat Rem', look: 'tyrant', perks: { dmg: 0.06, speed: 0.04 },
-    lore: 'Rem\'s black-cloud armour. Under the ash on its collar, the Tachibana crest has been scratched away.' },
-  shinsei_yoroi:{ name: 'Shinsei Yoroi', tier: 'trophy', def: 0.26, hp: 100, exclusive: true, ngOnly: true, hint: 'Defeat Takashi in New Game+', look: 'shinsei', perks: { stunRes: 0.3 },
+  kurokumo_yoroi:{ name: 'Kurokumo Yoroi', tier: 'trophy', def: 0.23, hp: 85, exclusive: true, hint: 'Finish the Epilogue, The Last Choice', givenBy: 'Rem', look: 'tyrant', perks: { dmg: 0.06, speed: 0.04 },
+    lore: 'Rem\'s black-cloud armour, given to Kage by Rem at the ruined entrance of the Core. Under the ash on its collar, the Tachibana crest has been scratched away.' },
+  shinsei_yoroi:{ name: 'Shinsei Yoroi', tier: 'trophy', def: 0.26, hp: 100, exclusive: true, ngOnly: true, hint: 'Finish the Epilogue in New Game+', look: 'shinsei', perks: { stunRes: 0.3 },
     lore: 'The armour Takashi wore when he first opened the Echo System. It only answers to one who has walked the road twice.' }
 };
 for (const id in HELMETS) HELMETS[id].id = id;
@@ -974,6 +975,11 @@ const CORE_ECHO_MOVES = {
    Witness copies the LATEST string that landed on it, its last `max` copyable moves (never throws or grabs). The same
    landed string `spam` times running is spam: it is read and punished. */
 const ECHO_REPLICATION = { gap: 0.7, max: 5, spam: 3 };
+/* Echo Replication as the PLAYER's rage art (Mugen no Ha, Logic.echoArt): a phantom memory-shard copy of Kage appears
+   beside the foe after `windup` seconds and replays his latest landed string (grounded strikes only) at `dmgMul`, its
+   last blow the finisher at `finisherMul`; with nothing landed yet it replays the blade's own string. `life` caps how
+   long the phantom stays. */
+const ECHO_ART = { windup: 0.4, dmgMul: 1.3, finisherMul: 2, life: 4.5, kinds: ['weapon', 'punch', 'kick'] };
 // Memory Break's remembered places, in the order the arena shifts through them
 const MEMORY_BREAK = { envs: ['hoshimura', 'echoes', 'fortress', 'yard'],
   names: { hoshimura: 'Hoshimura, before the fire', echoes: 'The City of Echoes', fortress: 'The Fortress of Silence', yard: 'The training yard' } };
@@ -1139,7 +1145,10 @@ const CAMPAIGN = (function buildCampaign() {
           scenes: { before: 'core.witness.before', defeat: 'core.witness.defeat' } }
       ] },
     { id: 'epilogue', name: 'Epilogue', title: 'The Last Choice', place: 'Dawn', env: 'highlands', diff: 1,
-      stages: [{ id: 'epilogue', kind: 'scene', name: 'The Last Choice', scenes: { before: 'epilogue.stub' } }] }
+      // The Last Choice: no combat. Finishing it grants the post-story gear once (Logic.grantStageReward); the Shinsei
+      // Yoroi is ngOnly, so it only drops when the Epilogue is finished again during New Game+ (its one source).
+      stages: [{ id: 'epilogue', kind: 'scene', name: 'The Last Choice', scenes: { before: 'epilogue.last_choice' },
+        reward: { weapons: ['mugen_no_ha'], armors: ['kysmei_robe', 'kurokumo_yoroi', 'shinsei_yoroi'] } }] }
   ];
   // Act I's boss: Raikon, at the route to the old military archive
   Object.assign(chapters[1].stages.find(st => st.id === 'act1.boss'), {

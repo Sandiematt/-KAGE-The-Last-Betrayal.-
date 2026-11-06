@@ -424,7 +424,7 @@ const UIManager = {
       setTimeout(() => {
         if (u.kind === 'ng') this.toast('Story complete', 'New Game+ unlocked in Settings');
         else if (u.kind === 'chapter') this.toast('New chapter unlocked', `${Logic.chapter(u.id).name} · ${Logic.chapter(u.id).title}`);
-        else this.toast(u.kind === 'weapons' ? 'Boss weapon' : 'Trophy', gearName(u.kind, u.id));
+        else { const it = Logic.gearTable(u.kind)[u.id] || {}; this.toast(it.givenBy ? `Given by ${it.givenBy}` : u.kind === 'weapons' ? 'Boss weapon' : 'Trophy', gearName(u.kind, u.id)); }
       }, delay);
       delay += 700;
     }

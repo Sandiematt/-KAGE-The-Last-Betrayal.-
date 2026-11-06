@@ -83,6 +83,28 @@ const SPEAKERS = {
       storyPoly(g, [34, 70, 66, 70, 70, 74, 30, 74], K.violetDim);
     }
   },
+  // Rem as he is now (the Epilogue): older and exhausted, hair grown out and tied back loosely, no smile, a shadow under
+  // the eyes, the high collar of his worn dark travel coat (the Kurokumo Yoroi) with its one purple band, frayed at the edge.
+  rem_adult: {
+    name: 'Rem', accent: STORY_INK.violet,
+    portrait(g) {
+      const K = STORY_INK;
+      storyBust(g, { bg: '#100c15', glow: 'rgba(138,92,201,0.16)', rim: 'rgba(198,162,255,0.4)' });
+      // longer, heavier hair: a ragged fall over the brow and down past the jaw on both sides, a loose tail behind
+      storyPoly(g, [30, 50, 31, 32, 40, 24, 52, 23, 64, 28, 70, 38, 70, 56, 64, 44, 60, 36, 54, 40, 48, 34, 42, 40, 36, 38, 34, 52], K.ink);
+      storyPoly(g, [66, 34, 80, 40, 84, 58, 76, 50, 70, 44], K.ink);
+      storyEyes(g, K.boneDim, 46, 0.6);                                        // tired, heavy-lidded
+      storyLine(g, [40, 49, 46, 49.5], 'rgba(198,162,255,0.28)', 1.2);         // the shadows under the eyes
+      storyLine(g, [54, 49.5, 60, 49], 'rgba(198,162,255,0.28)', 1.2);
+      storyLine(g, [45, 55, 55, 55], 'rgba(236,229,211,0.4)', 1.1);            // a flat, tired mouth
+      storyLine(g, [38, 56, 41, 60], 'rgba(236,229,211,0.18)', 1);             // stubble shading on the jaw
+      // the coat's high collar, dark charcoal with one purple band and a frayed hem at the collar edge
+      storyPoly(g, [26, 100, 30, 70, 40, 62, 46, 74, 54, 74, 60, 62, 70, 70, 74, 100], '#1d1a20');
+      storyPoly(g, [40, 62, 46, 74, 44, 78, 36, 66], '#2a2630');               // cel-shaded lapel fold
+      storyPoly(g, [60, 62, 70, 70, 69, 74, 59, 66], K.purple);                // the one purple accent
+      for (let i = 0; i < 6; i++) storyPoly(g, [28 + i * 8, 100, 31 + i * 8, 95, 34 + i * 8, 100], K.ink2); // frayed cloth
+    }
+  },
   takashi: {
     name: 'Takashi', accent: STORY_INK.gold,
     portrait(g) {
@@ -243,7 +265,188 @@ function storyKageFigure(g, x, y, s) {
   g.restore();
 }
 
+// Adult Rem as a flat silhouette: a long worn travel coat (the Kurokumo Yoroi) flaring to the knees with a frayed hem,
+// one purple band at the collar, hair tied back loosely. x, y = feet. o.sword: an odachi on his back (Shinsen).
+function storyRemFigure(g, x, y, s, o) {
+  const K = STORY_INK;
+  o = o || {};
+  g.save(); g.translate(x, y); g.scale(s, s);
+  storyPoly(g, [-12, 0, -7, -60, 7, -60, 12, 0, 5, 0, 0, -34, -5, 0], K.ink);               // legs
+  // the coat: shoulders to knees, flaring, with a ragged hem
+  const coat = [-17, -126, 17, -126, 26, -40];
+  for (let i = 1; i <= 8; i++) coat.push(26 - i * 6.25, -40 + (i % 2 ? 7 : 0));        // the ragged hem, right to left
+  storyPoly(g, coat, K.ink);
+  storyPoly(g, [-17, -126, -6, -126, -10, -44, -22, -44], '#17141a');                        // cel-shaded coat front
+  storyPoly(g, [6, -128, 16, -126, 14, -116, 4, -118], K.purple);                            // the purple collar band
+  storyPoly(g, [-17, -96, 17, -100, 17, -93, -17, -89], K.purple);                           // his purple sash
+  storyDisc(g, 0, -140, 12.5, K.ink);                                                        // head
+  storyPoly(g, [6, -146, 22, -142, 30, -126, 20, -132, 8, -136], K.ink);                     // loose tail of hair
+  if (o.sword) storyLine(g, [-20, -150, 24, -40], K.ink, 4);                                 // odachi across the back
+  g.restore();
+}
+
 const ILLUSTRATIONS = {
+  /* ---- The Last Choice (the Epilogue) ---- */
+  // The Core opened: concentric rings of light unsealed and drifting apart, a column of violet-white light, and adult
+  // Rem standing in it, worn coat and purple band; Kage, small and from behind, at the edge of the light.
+  epilogue_core: {
+    name: 'Rem in the opened Core',
+    paint(g) {
+      const K = STORY_INK;
+      storySky(g, ['#07050b', '#0b0812', '#100b19', '#0b0812', '#07050b'], 0, 720);
+      storyPoly(g, [560, 0, 720, 0, 760, 720, 520, 720], 'rgba(198,162,255,0.10)');           // the light column
+      storyPoly(g, [600, 0, 680, 0, 700, 720, 580, 720], 'rgba(236,229,211,0.10)');
+      // the unsealed rings: thick flat arcs, each with a gap, offset as if turning open
+      [[300, 0.4, 'rgba(138,92,201,0.45)'], [230, 1.6, 'rgba(198,162,255,0.4)'], [160, 2.8, 'rgba(236,229,211,0.3)']].forEach(([r, a, c]) => {
+        g.beginPath(); g.arc(640, 340, r, a, a + Math.PI * 1.55); g.strokeStyle = c; g.lineWidth = 16; g.lineCap = 'butt'; g.stroke();
+      });
+      storyAsh(g, 301, 120, [200, 40, 880, 600], 'rgba(198,162,255,0.4)', 3);
+      // a floor of flat shards
+      storyPoly(g, [0, 600, 1280, 600, 1280, 720, 0, 720], '#0a0810');
+      storyPoly(g, [420, 600, 860, 600, 960, 720, 320, 720], '#141020');
+      storyRemFigure(g, 640, 560, 1.7);
+      storyKageFigure(g, 250, 690, 1.25);
+      g.fillStyle = 'rgba(3,3,3,0.45)'; g.fillRect(0, 0, 1280, 70); g.fillRect(0, 650, 1280, 70);
+    }
+  },
+  // The handoff: Kage's black arm with its red sash cuff from the left holds Shinsen out hilt first; Rem's frayed dark
+  // coat sleeve with the purple cuff reaches in from the right to take the grip. Violet Core light behind.
+  epilogue_handoff: {
+    name: 'Shinsen returned',
+    paint(g) {
+      const K = STORY_INK;
+      storySky(g, ['#0a0810', '#120d1c', '#1a1228', '#120d1c', '#0a0810'], 0, 720);
+      storyDisc(g, 640, 360, 300, 'rgba(198,162,255,0.08)');
+      // Kage's arm from the lower left, the red cuff at the wrist
+      storyPoly(g, [0, 560, 0, 460, 300, 380, 340, 440], K.ink);
+      storyPoly(g, [270, 384, 300, 378, 332, 436, 304, 446], K.ember);
+      storyPoly(g, [300, 378, 380, 360, 400, 420, 340, 440], K.ink);                       // his hand round the scabbard
+      // the blade: a long black scabbard, gold along the spine, held level, the hilt pointing right toward Rem
+      g.save(); g.translate(640, 400); g.rotate(-0.05);
+      storyPoly(g, [-360, -14, 200, -18, 214, -6, 200, 8, -360, 10], K.ink);
+      storyLine(g, [-360, -16, 200, -20], K.gold, 3);
+      storyPoly(g, [200, -24, 216, -24, 218, 14, 202, 14], K.gold);                        // habaki collar
+      g.beginPath(); g.ellipse(212, -5, 8, 26, 0, 0, Math.PI * 2); g.fillStyle = K.goldDim; g.fill(); // tsuba
+      storyPoly(g, [218, -12, 400, -10, 400, 8, 218, 8], '#2e2834');                       // grip
+      for (let i = 0; i < 6; i++) storyLine(g, [232 + i * 26, -10, 244 + i * 26, 6], K.boneDim, 2);
+      g.restore();
+      // Rem's sleeve from the upper right, frayed at the cuff, one purple band, his hand closing on the grip
+      storyPoly(g, [1280, 180, 1280, 330, 1000, 420, 960, 360], '#1d1a20');
+      storyPoly(g, [990, 352, 1010, 344, 1040, 410, 1016, 418], K.purple);
+      for (let i = 0; i < 5; i++) storyPoly(g, [968 + i * 8, 356 - i * 2, 972 + i * 8, 372 - i * 2, 978 + i * 8, 354 - i * 2], '#1d1a20');
+      storyPoly(g, [960, 360, 990, 420, 960, 432, 900, 412, 900, 380], K.ink);                // his hand
+      storyLine(g, [900, 380, 960, 360, 990, 420], 'rgba(198,162,255,0.4)', 2);
+      g.fillStyle = 'rgba(3,3,3,0.45)'; g.fillRect(0, 0, 1280, 70); g.fillRect(0, 650, 1280, 70);
+    }
+  },
+  // The collapse: the Core's light breaking upward in a broad river of flat shards, the reconstructed skyline coming
+  // apart into ash, two small figures standing together at the bottom of it.
+  epilogue_collapse: {
+    name: 'The system collapses',
+    paint(g) {
+      const K = STORY_INK;
+      storySky(g, ['#08060c', '#0e0a16', '#150f20', '#1c142b', '#241a36'], 0, 720);
+      // the reconstructed skyline, breaking: rooftops whose tops dissolve into rising squares
+      const r = storyRng(411);
+      for (let i = 0; i < 12; i++) {
+        const x = i * 110 - 20, h = 140 + r() * 140, top = 560 - h;
+        storyPoly(g, [x, 560, x, top + 30, x + 50, top, x + 100, top + 30, x + 100, 560], '#120e19');
+        for (let k = 0; k < 8; k++) { const s = 6 + r() * 10; g.fillStyle = k % 2 ? K.violet : '#120e19'; g.fillRect(x + r() * 100, top - 20 - r() * 160, s, s); }
+      }
+      // the river of light going up out of the Core
+      storyPoly(g, [520, 720, 760, 720, 900, 0, 380, 0], 'rgba(198,162,255,0.18)');
+      storyPoly(g, [590, 720, 690, 720, 740, 0, 540, 0], 'rgba(236,229,211,0.22)');
+      for (let i = 0; i < 160; i++) {
+        const t = r(), x = 640 + (r() - 0.5) * (240 + t * 520), y = 720 - t * 720, s = 3 + r() * 9;
+        storyPoly(g, [x, y - s, x + s * 0.6, y, x, y + s, x - s * 0.6, y], i % 3 ? K.violetGlow : K.bone);
+      }
+      g.fillStyle = '#070509'; g.fillRect(0, 540, 1280, 180);
+      storyLine(g, [0, 580, 300, 568, 500, 590, 640, 552, 820, 588, 1000, 570, 1280, 586], 'rgba(198,162,255,0.35)', 3); // a fracture
+      storyKageFigure(g, 600, 570, 0.95);
+      storyRemFigure(g, 680, 570, 0.95, { sword: 1 });
+      g.fillStyle = 'rgba(3,3,3,0.45)'; g.fillRect(0, 0, 1280, 70); g.fillRect(0, 650, 1280, 70);
+    }
+  },
+  // The two swords at the ruined entrance: a broken stone gate in first light, Kagetsu (a katana with a bone-white grip)
+  // and Shinsen (the long odachi, gold collar) leaning side by side against the fallen stones.
+  epilogue_swords: {
+    name: 'Two swords at the entrance',
+    paint(g) {
+      const K = STORY_INK;
+      storySky(g, ['#1a1420', '#2a1c26', '#3c2628', '#5a3428', '#7a4a2c'], 0, 520);
+      storyRidge(g, 470, 50, 501, '#2a1c1e');
+      g.fillStyle = '#120d0c'; g.fillRect(0, 470, 1280, 250);
+      g.save(); g.translate(0, -70);
+      // the ruined gate: two stone posts, one broken short, a fallen lintel
+      storyPoly(g, [300, 560, 310, 240, 400, 240, 410, 560], '#1a1312');
+      storyPoly(g, [880, 560, 870, 360, 920, 330, 960, 380, 970, 560], '#1a1312');
+      storyPoly(g, [300, 240, 410, 240, 404, 252, 306, 252], '#2c2220');                  // cel highlight on top
+      storyPoly(g, [420, 560, 700, 500, 720, 540, 440, 590], '#1a1312');                  // the fallen lintel
+      storyPoly(g, [420, 560, 700, 500, 702, 510, 424, 570], '#3a2a24');
+      storyPoly(g, [560, 600, 640, 560, 760, 580, 800, 610], '#100b0a');                  // rubble
+      // the swords, leaning against the lintel: Kagetsu, then Shinsen
+      storyLine(g, [600, 600, 664, 352], K.ink, 9);
+      storyLine(g, [655, 388, 670, 330], K.bone, 7);                                      // its bone-white grip
+      storyLine(g, [646, 400, 668, 404], K.ink, 6);                                       // tsuba
+      storyLine(g, [690, 604, 782, 290], K.ink, 11);
+      storyLine(g, [690, 604, 782, 290], 'rgba(201,164,92,0.6)', 2);                      // gold along the spine
+      storyLine(g, [762, 352, 788, 358], K.gold, 7);                                      // gold collar and guard
+      storyLine(g, [770, 330, 790, 266], '#2e2834', 8);                                   // the long grip
+      g.restore();
+      storyAsh(g, 521, 50, [100, 100, 1080, 420], 'rgba(236,229,211,0.3)', 2);
+      g.fillStyle = 'rgba(3,3,3,0.45)'; g.fillRect(0, 0, 1280, 70); g.fillRect(0, 650, 1280, 70);
+    }
+  },
+  // Dawn over the real Yomi: flat warm sky bands, the sun just over the ridge, a long road, and two small silhouettes
+  // seen from behind, walking away side by side, mid-stride. Not a victory pose: they are just leaving.
+  epilogue_dawn: {
+    name: 'Two silhouettes walking into dawn',
+    paint(g) {
+      const K = STORY_INK;
+      storySky(g, ['#2a2030', '#4a2e34', '#7a4434', '#b0643a', '#d89a58', '#ecc884'], 0, 470);
+      storyDisc(g, 640, 470, 110, '#f2dca0');
+      storyDisc(g, 640, 470, 80, '#fbefcc');
+      storyRidge(g, 450, 50, 601, '#3a2626');
+      storyRidge(g, 480, 26, 603, '#241818');
+      g.fillStyle = '#140e0c'; g.fillRect(0, 480, 1280, 240);
+      storyPoly(g, [440, 720, 840, 720, 660, 484, 620, 484], '#2a1e18');                  // the road to the sun
+      storyPoly(g, [560, 720, 720, 720, 650, 484, 630, 484], 'rgba(242,220,160,0.35)');   // sunlight along it
+      // two walkers from behind: one stride each, arms loose, a hand's width apart
+      const walker = (x, rem) => {
+        g.save(); g.translate(x, 610); g.scale(1.05, 1.05);
+        storyPoly(g, [-12, 0, -4, -66, 6, -66, 2, -30, 14, -4, 6, 0, -2, -30, -4, 0], K.ink);  // legs mid-stride
+        if (rem) storyPoly(g, [-16, -124, 16, -124, 22, -46, -22, -46], K.ink);               // Rem's coat
+        else storyPoly(g, [-15, -64, -12, -122, 12, -122, 15, -64], K.ink);
+        storyPoly(g, [-15, -118, -22, -70, -16, -68, -10, -112], K.ink);                       // loose arms
+        storyPoly(g, [15, -118, 22, -70, 16, -68, 10, -112], K.ink);
+        storyDisc(g, 0, -136, 12.5, K.ink);
+        if (rem) storyPoly(g, [4, -128, 14, -126, 13, -118, 3, -120], K.purple);
+        else { storyPoly(g, [-12, -140, -34, -150, -40, -140, -12, -134], K.bone); storyPoly(g, [-15, -86, 15, -94, 15, -87, -15, -79], K.ember); }
+        g.restore();
+        storyPoly(g, [x - 10, 610, x + 10, 610, x + 40, 720, x - 30, 720], 'rgba(3,3,3,0.4)'); // the long shadow toward us
+      };
+      walker(612, false); walker(672, true);
+      storyAsh(g, 611, 40, [200, 120, 880, 320], 'rgba(255,240,200,0.4)', 2);
+      g.fillStyle = 'rgba(3,3,3,0.35)'; g.fillRect(0, 0, 1280, 60); g.fillRect(0, 660, 1280, 60);
+    }
+  },
+  // The end card: black, one brush stroke, the card's text (o.card; "Brothers until the end.") and a small red seal.
+  end_card: {
+    name: 'End card',
+    paint(g, o) {
+      const K = STORY_INK, text = (o && o.card) || 'Brothers until the end.';
+      g.fillStyle = K.ink; g.fillRect(0, 0, 1280, 720);
+      storyPoly(g, [340, 402, 640, 392, 950, 398, 940, 410, 640, 404, 350, 414], 'rgba(236,229,211,0.18)'); // brush stroke
+      g.fillStyle = K.bone; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.font = '64px "KageBrush","Permanent Marker","Segoe Print",cursive';
+      g.fillText(text, 640, 340);
+      g.font = '22px "KageUI","Teko","Barlow Condensed","Arial Narrow",sans-serif';
+      g.fillStyle = K.boneDim; g.fillText('KAGE · THE LAST BETRAYAL', 640, 450);
+      storyPoly(g, [622, 500, 658, 500, 658, 536, 622, 536], K.ember);                    // the seal
+      storyPoly(g, [630, 508, 650, 508, 650, 512, 630, 512], K.ink);
+      storyPoly(g, [638, 508, 642, 508, 642, 530, 638, 530], K.ink);
+    }
+  },
   // Hoshimura: the burnt shell of the family house under the red moon.
   hoshimura_ruins: {
     name: 'Hoshimura, the ruined house',
