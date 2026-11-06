@@ -18,26 +18,28 @@ The references set the character look only. The red sun, the HUD, the tutorial c
 
 ## Palette tokens
 
+Values were pulled down in the ticket 02 polish pass: figures read near-black with a narrow separation tone; layers separate by shadow strips, fine dark seams and a thin crimson rim, not by mid-grey cloth.
+
 Add these as one table in the renderer, for example `ANIME` in `20-fighter.js`. Use the tokens, not raw hex, so the family tints below stay in one place.
 
 | Token | Hex | Use |
 |---|---|---|
 | `face` | `#050404` | Faces and the darkest silhouette mass. Darker than any cloth so the eyes read. |
-| `cloth0` | `#0d0b0b` | Shadow tone of black fabric |
-| `cloth1` | `#171312` | Base black fabric (coat, hakama) |
-| `cloth2` | `#2a2422` | Lit fold or highlight tone of black fabric |
-| `char0` | `#1b1a1c` | Shadow tone of charcoal fabric (Kage's coat, Order under-robes) |
-| `char1` | `#2c2a2d` | Base charcoal fabric |
-| `char2` | `#46424a` | Charcoal highlight |
-| `metal0` | `#161719` | Shadow tone of dark armour plates (do, sode, kote, suneate) |
-| `metal1` | `#2b2e33` | Base armour metal |
-| `metal2` | `#545a62` | Armour highlight edge, one thin band per plate |
-| `crimson` | `#8e1a1f` | Embroidery, armour lacing (odoshi), the inner coat lining |
-| `crimsonHi` | `#c8323a` | Embroidery highlights; Kage's scarf base |
-| `scarf` | `#d33a3c` | Kage's scarf lit side (matches `C.emberBright` closely; reuse that if it reads) |
-| `silver` | `#a9adb3` | Blade flats, tsuba, habaki, kashira, buckles: a muted silver, never pure white |
-| `silverHi` | `#dfe2e6` | One edge line on a blade only |
-| `rim` | `rgba(255,74,60,0.85)` | The red rim light, about 1 px at gameplay zoom, on the side away from the camera light |
+| `cloth0` | `#060505` | Shadow tone of black fabric |
+| `cloth1` | `#0d0b0b` | Base black fabric (coat, hakama) |
+| `cloth2` | `#1b1817` | Lit fold or highlight tone of black fabric |
+| `char0` | `#0d0c0e` | Shadow tone of charcoal fabric (Kage's coat, Order under-robes) |
+| `char1` | `#161518` | Base charcoal fabric |
+| `char2` | `#252329` | Charcoal highlight |
+| `metal0` | `#09090b` | Shadow tone of dark armour plates (do, sode, kote, suneate) |
+| `metal1` | `#141518` | Base armour metal |
+| `metal2` | `#2c2f35` | Armour highlight edge, one thin band per plate |
+| `crimson` | `#7e161b` | Embroidery, armour lacing (odoshi), the inner coat lining |
+| `crimsonHi` | `#b02a31` | Embroidery highlights; Kage's scarf base |
+| `scarf` | `#c8343a` | Kage's scarf lit side (matches `C.emberBright` closely; reuse that if it reads) |
+| `silver` | `#9a9ea4` | Blade flats, tsuba, habaki, kashira, buckles: a muted silver, never pure white |
+| `silverHi` | `#d6d9dd` | One edge line on a blade only |
+| `rim` | `rgba(168,30,36,0.55)` | The thin crimson rim inside a part (celFill), on the side away from the camera light. The silhouette rim of the outline pass is the stage's rim colour deepened toward crimson (`animeRimColor`), about 1.1 px at scale 1, on the back and top edges only |
 | `eye` | `#f4f1ea` | Eye fill |
 | `eyeGlow` | `rgba(244,241,234,0.35)` | Eye halo, about 2.5× the eye's size, additive |
 | `outline` | `#030303` | Ink outline (the game's `C.ink`) |
@@ -46,7 +48,7 @@ Family accents stay as they are and replace `crimson` only where the design call
 
 ## Line weight and outline
 
-- The silhouette carries the design. Draw an outer ink outline of about 2.2 px at scale 1 (`1.8 * f.scale` world px) around the whole figure. The existing outline pass (`OUTLINE_DIRS`, 12-direction offset) already does this and must keep working on the new body.
+- The silhouette carries the design. Draw an outer ink outline of about 1.5 px at scale 1 (`1.5 * f.scale` world px, near-black `C.ink`) around the whole figure. The existing outline pass (`OUTLINE_DIRS`, 12-direction offset) already does this and must keep working on the new body.
 - Interior lines are thinner, about 1 px, in `outline` or `cloth0`. Use them for fold lines, plate seams, sleeve openings and the hakama pleats. Draw no interior line that does not describe a fold, seam or edge.
 - Rim light is a separate thin stroke in `rim`, on the back edge of the head, shoulders, arms and coat hem only. It is the "fine red rim light" of the rule. Do not outline the whole figure in red.
 - Embroidery is a pattern, not a line drawing. Use filled crimson shapes such as waves, clouds and asanoha triangles along the coat hem and cuffs, clipped to the cloth panel.

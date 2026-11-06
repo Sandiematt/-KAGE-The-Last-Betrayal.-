@@ -1341,12 +1341,19 @@ Fighter.prototype.draw = function (ctx, opt) {
   const look = bossLook(this);
   if (look === 'raikon') this.drawRaikonCloak(ctx, opt);
   for (const cl of this.cloths) if (cl.kind === 'cape' || cl.kind === 'robe') cl.c.draw(ctx, opt.color || cl.color, cl.w0, cl.w1, null);
-  // clean, even white outline: the silhouette stamped around itself, then the flat body on top
+  // the outline: the silhouette stamped around itself as a thin near-black ink line, then a thinner rim in the stage's
+  // rim colour (deepened toward crimson, animeRimColor) on the back and top edges only, then the body on top
   if (opt.rim && !opt.color) {
-    const d = 1.6 * s * (glitch ? 1 + Math.abs(glitch) * 3 : 1), oc = (this.hollow && this.family.outline) || opt.outline || (typeof opt.rim === 'string' ? opt.rim : '#f1ebe0'), ro = this._rimOpt || (this._rimOpt = {});
+    const gk = glitch ? 1 + Math.abs(glitch) * 3 : 1, src = (this.hollow && this.family.outline) || opt.outline || (typeof opt.rim === 'string' ? opt.rim : '#f1ebe0');
+    const oc = animeRimColor(src, this.hollow), ro = this._rimOpt || (this._rimOpt = {}), f = this.facing;
     for (const k in ro) delete ro[k];
     Object.assign(ro, opt, { rimPass: true });
-    for (const [dx, dy] of OUTLINE_DIRS) { ctx.save(); ctx.translate(dx * d, dy * d); this.silhouette(ctx, oc, oc, true, ro); ctx.restore(); }
+    const di = 1.5 * s * gk, dr = 1.1 * s * gk;
+    for (const [dx, dy] of OUTLINE_DIRS) { ctx.save(); ctx.translate(dx * di, dy * di); this.silhouette(ctx, C.ink, C.ink, true, ro); ctx.restore(); }
+    for (const [dx, dy] of OUTLINE_DIRS) {
+      if (-dx * f * 0.6 - dy * 0.8 < 0.05) continue;   // the back and top edges, away from the camera light
+      ctx.save(); ctx.translate(dx * dr, dy * dr); this.silhouette(ctx, oc, oc, true, ro); ctx.restore();
+    }
   }
   for (const cl of this.cloths) if (cl.kind === 'scarf' || cl.kind === 'ribbon' || cl.kind === 'belt') {
     if (cl.witness && this.kageFrame) continue;
