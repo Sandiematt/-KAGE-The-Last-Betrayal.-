@@ -112,11 +112,8 @@ class FightSession {
     f.vx = -f.vx * 0.55; f.vy = Math.min(f.vy, -420);
     this.fx.dust(f.x, f.y, 10); this.fx.shake(0.45); this.fx.stamp('WALL', f.x, f.y - 100, 2); AudioManager.play('heavy');
   }
-  predictability(id) {
-    const h = this.history.slice(-8); if (h.length < 4) return 0;
-    let n = 0; for (const x of h) if (x === id) n++;
-    return n / h.length;
-  }
+  // how much of the player's recent string is this one move (Logic.predictability; Takashi's Guard Return reads it)
+  predictability(id) { return Logic.predictability(this.history, id); }
   onMoveStart(f, m) {
     if (!f.isPlayer) return;
     this.history.push(m.id); if (this.history.length > 12) this.history.shift();

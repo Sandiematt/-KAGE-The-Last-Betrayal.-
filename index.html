@@ -1623,6 +1623,12 @@ const WEAPONS = {
   // Raikon's own Raikō no Tachi: the same broad odachi and red lightning groove, at enemy strength (the player's boss-tier
   // copy is raiko_no_tachi, granted when Raikon falls)
   raikon_tachi: { heft: 1.9, el: 'redline', enemy: 1, name: 'Raikō no Tachi', base: 'onikiri', len: 128, stats: [64, 40, 60], trail: '#ff4a3c' },
+  // Takashi's own blade (Act III boss): a PLAIN, unadorned long katana, never Shinsen (he abandoned it; Kage carries it
+  // now), but he still cuts in the Shinsen style: Shinsen's forms (sh1-sh3, air sha, counter shc) on the katana base, so
+  // his damage is measured against Kagetsu's like Shinsen's, and gold trails. `special: 'none'` keeps the player's
+  // Final Flow rage art off him (no rage art; a kunai instead); his Final Flow is the boss ability (BOSS_ABILITIES).
+  takashi_blade: { heft: 1.5, el: 'gold', enemy: 1, name: 'Nameless Blade', base: 'kagetsu', len: 104, stats: [60, 58, 66], trail: '#e8c25c',
+    moves: ['sh1', 'sh2', 'sh3'], air: 'sha', counter: 'shc', special: 'none' },
   // Act II sub-boss arms (act2.sub1..4)
   courier_kunai: { heft: 0.6, el: 'shade', enemy: 1, name: 'Courier Kunai', base: 'tsubame', len: 44, trail: '#b9a8d8' },
   quiet_kodachi: { heft: 0.9, el: 'moon', enemy: 1, name: 'Quiet Kodachi', base: 'kagetsu', len: 66, trail: '#d6cce6' },
@@ -1752,7 +1758,7 @@ const HELMETS = {
   utsushi_men:  { name: 'Utsushi-men', tier: 'trophy', def: 0.18, hp: 34, exclusive: true, hint: 'Defeat Utsushi, the Borrowed Face', look: 'borrowed_mask', perks: { rage: 0.2, speed: 0.03 },
     lore: 'The blank mask a Hollow wore to pass as an intelligence operative. The face painted on it is never the same one twice.' },
   kasa:         { name: 'Kasa', tier: 'trophy', def: 0.2, hp: 40, exclusive: true, hint: 'Defeat Takashi', look: 'straw_kasa', perks: { ammo: 3, rage: 0.15 },
-    lore: 'Takashi\'s battered straw hat. He wore it on the road out of Hoshimura and never told his sons where it led.' }
+    lore: 'Takashi\'s battered straw travel hat. He wore it on the long road into exile, before he was a father or the maker of anything, and never told his sons where that road led.' }
 };
 const ARMORS = {
   tachibana_yoroi: { name: 'Tachibana Yoroi', tier: 'starter', def: 0.02, hp: 8, price: 0, look: 'tachibana', perks: {},
@@ -1794,7 +1800,7 @@ const ARMORS = {
     lore: 'The Witness\'s robe, stitched from the threads of every memory the Echo System ever swallowed.' },
   kurokumo_yoroi:{ name: 'Kurokumo Yoroi', tier: 'trophy', def: 0.23, hp: 85, exclusive: true, hint: 'Defeat Rem', look: 'tyrant', perks: { dmg: 0.06, speed: 0.04 },
     lore: 'Rem\'s black-cloud armour. Under the ash on its collar, the Tachibana crest has been scratched away.' },
-  shinsei_yoroi:{ name: 'Shinsei Yoroi', tier: 'trophy', def: 0.26, hp: 100, exclusive: true, ngOnly: true, hint: 'Defeat Takashi in New Game+', look: 'pauldrons', perks: { stunRes: 0.3 },
+  shinsei_yoroi:{ name: 'Shinsei Yoroi', tier: 'trophy', def: 0.26, hp: 100, exclusive: true, ngOnly: true, hint: 'Defeat Takashi in New Game+', look: 'shinsei', perks: { stunRes: 0.3 },
     lore: 'The armour Takashi wore when he first opened the Echo System. It only answers to one who has walked the road twice.' }
 };
 for (const id in HELMETS) HELMETS[id].id = id;
@@ -1895,6 +1901,22 @@ const ENEMIES = {
               { name: 'Quiet Blade', at: 1, abilities: ['twinFang', 'smokeStep'] },
               { name: 'False Opening', at: 0.66, abilities: ['twinFang', 'smokeStep', 'blink', 'falseOpening'] },
               { name: 'Petal Cross', at: 0.33, abilities: ['twinFang', 'smokeStep', 'blink', 'falseOpening', 'petalCross'], aggressive: 1, chainBlink: 1 }
+            ] },
+  // Takashi, the Master's Flow (Act III boss, act3.boss, the Fortress of Silence): the father. Long tied-back hair
+  // (`hair`, a cloth tail under the hat), his Kasa, layered dark robes with a waist guard and a small gold family crest
+  // (the Shinsei Yoroi, look `shinsei`; wearing it here grants nothing), and a PLAIN blade (takashi_blade), never
+  // Shinsen. Measured, grounded and economical: slower than Kage, heavier cuts, disciplined counters (Guard Return reads spam), and the
+  // family form at his own heavy tempo (`form: 'takashi'`). His moves: TAKASHI_MOVES. He is not killed: he kneels and
+  // escapes (`defeat: 'escape'`).
+  takashi: { name: 'Takashi', title: 'the Master\'s Flow', type: 'boss', ai: 'boss', weapon: 'takashi_blade', helmet: 'kasa', armor: 'shinsei_yoroi',
+            hp: 680, def: 0.14, dmg: 1.15, speed: 0.92, build: { scale: 1.1, w: 11, legs: 1.02 }, eye: '#ffe6a0', accent: '#e8c25c', body: '#16140f',
+            outfit: 'gi', sash: '#4a3c22', hair: '#121110', flashEyes: 1, noGrab: 1, form: 'takashi', defeat: 'escape',
+            taunt: 'You carry it like I taught you. Elbows in.', defeatLine: 'Enough. You have made your point.', win: 'Sleep, son. It is kinder.',
+            tip: 'He reads repetition: strike the same way again and again and Guard Return turns it aside and punishes. Vary your attacks. When gold gathers on his blade in his last phase, Final Flow is coming: block the cuts, dodge the last.',
+            phases: [
+              { name: 'The Grounded Stance', at: 1, abilities: ['earthCleave', 'guardReturn'] },
+              { name: 'The Father\'s Weight', at: 0.66, abilities: ['earthCleave', 'groundSmash', 'guardReturn'] },
+              { name: 'The Master\'s Flow', at: 0.33, abilities: ['earthCleave', 'groundSmash', 'guardReturn', 'finalFlow'], aggressive: 1 }
             ] },
   // ---- Act I sub-bosses (act1.sub1..4) ----
   // Each is fought in the boss format (one bar, one or two phases; the stage has `format: 'boss'`) and borrows a
@@ -2086,6 +2108,26 @@ const FINAL_FLOW = {
   ]
 };
 
+/* ---------------- Takashi's moves ----------------
+   Takashi's abilities (BOSS_ABILITIES in 40-ai.js read their numbers here; each takes an optional override object so
+   Act III's sub-bosses can run lighter versions). Logic.takashiMove(id) answers them.
+     label, cd, range, chance   call-out, cooldown (s), distance band, pick chance
+     windup     the tell, a fraction of the difficulty mode's windup (Logic.aiTuning); guardReturn: the beat between the
+                turned-aside blow and the rising cut; finalFlow: the gathering stance in seconds (before the mode's windup)
+     dmg        damage of the cut (finalFlow: the multiplier on FINAL_FLOW's cuts; the old boss default was 0.8)
+     earthCleave: dash (forward speed of the rising cut), reach    groundSmash: shock / shockLife (the short shockwave), reach
+     guardReturn: stance (how long the guard is held), unb (1 = the rising cut breaks guards)
+   Guard Return reads predictability: Logic.readsPattern(history, moveId) with PATTERN_READ (the same move `streak`
+   times running, or at least `share` of the `last` moves once `min` of them are known). */
+const TAKASHI_ABILITIES = ['earthCleave', 'groundSmash', 'guardReturn', 'finalFlow'];
+const TAKASHI_MOVES = {
+  earthCleave: { label: 'EARTH CLEAVE', cd: 4.6, range: [0, 320], chance: 0.65, windup: 0.62, dmg: 18, dash: 620, reach: 200 },
+  groundSmash: { label: 'GROUND SMASH', cd: 5.4, range: [0, 300], chance: 0.6, windup: 0.66, dmg: 20, shock: 0.8, shockLife: 0.45, reach: 190 },
+  guardReturn: { label: 'GUARD RETURN', cd: 2.6, range: [0, 300], chance: 0.8, windup: 0.14, stance: 0.9, dmg: 18, unb: 1 },
+  finalFlow:   { label: 'FINAL FLOW', cd: 10, range: [0, 340], chance: 0.65, windup: 0.62, dmg: 1.5, unb: 0, unbFinisher: 1 }
+};
+const PATTERN_READ = { last: 8, min: 4, share: 0.5, streak: 3 };
+
 /* ---------------- The family form ----------------
    Takashi's sword grammar, shared by Kage, Rem and Takashi (the spec's "shared attack language"): a grounded opening
    stance, a short dash, a rising cut, an aerial follow-up, a controlled landing, then a finishing horizontal flow.
@@ -2112,7 +2154,10 @@ const FAMILY_FORM = {
     // Kage: tight and defensive, one aerial, one clean finishing cut, a measured pause between steps
     kage: { gap: 0.2, hold: 0.45, aerials: 1, flow: ['k3'], tempo: 1 },
     // Rem: fast and fluid, barely a pause, a second aerial off the double jump, and a longer finishing flow
-    rem:  { gap: 0.04, hold: 0.12, aerials: 2, flow: ['k1', 'k3'], tempo: 0.72 }
+    rem:  { gap: 0.04, hold: 0.12, aerials: 2, flow: ['k1', 'k3'], tempo: 0.72 },
+    // Takashi: the root of both: a long grounded stance, a measured pause, one aerial, one heavy finishing flow and
+    // slower, heavier cuts; `moves` swaps his Shinsen-style cuts into the steps (Shinsen's `family` map)
+    takashi: { gap: 0.3, hold: 0.75, aerials: 1, flow: ['sh3'], tempo: 1.12, moves: { rise: 'sh2', aerial: 'sha' } }
   }
 };
 
@@ -2252,6 +2297,11 @@ const CAMPAIGN = (function buildCampaign() {
   Object.assign(chapters[3].stages.find(st => st.id === 'act2.boss'), {
     enemy: 'akari', reward: { weapons: ['kagehira_yurei', 'shinsen'], armors: ['mei_en_garb'] },
     scenes: { before: 'act2.akari.before', defeat: 'act2.akari.defeat' } });
+  // Act III's boss: Takashi, in the Fortress of Silence. He kneels and escapes; his defeat scene gives the route to the
+  // Core (story flag act3.core_route) and he leaves his Kasa behind. The Shinsei Yoroi is NOT here: New Game+ only (SAN-44).
+  Object.assign(chapters[4].stages.find(st => st.id === 'act3.boss'), {
+    enemy: 'takashi', reward: { helmets: ['kasa'] },
+    scenes: { before: 'act3.takashi.before', defeat: 'act3.takashi.defeat' } });
   // Act I, The Missing Brother: four stretches through Yomi's outer districts, where the Order of Silence has erased
   // the records of the Silent War. Mostly Order soldiers with a few Hollows, more of them each stretch; survivors'
   // story beats; the act's three clues (the torn report, the two sword marks, Takashi's evacuation recording); and a
@@ -2695,6 +2745,44 @@ const SCENES = {
       { say: 'akari', text: 'I kept his secret ten years. It is lighter now. Find him, Kage... before Takashi does.' }
     ]
   },
+  // ---- Act III boss: Takashi, in the Fortress of Silence ----
+  // Canon kept off-screen: this Takashi is an Echo copy; the real one is outside the reconstruction. Never said outright,
+  // only hinted (his outline doubles for a heartbeat, like the City of Echoes' residents).
+  'act3.takashi.before': {
+    steps: [
+      { illus: null },
+      { say: 'narrator', text: 'The Fortress of Silence. At the top of the last stair, a man in a straw travel hat stands with his back to the door.' },
+      { say: 'kage', text: '...Father.' },
+      { say: 'takashi', text: 'Kage. You found the long way round. You always did.' },
+      { illus: 'shinsen', caption: 'Takashi turns. His eyes go straight to the blade in Kage’s hands: an odachi, gold along its spine.' },
+      { say: 'takashi', text: 'Shinsen. I left it behind so I would never draw it again. And here it is, in my son’s hands.' },
+      { illus: null },
+      { say: 'kage', text: 'You built the Echo System. Why?' },
+      { say: 'takashi', text: 'The war took so many. Whole streets of people, gone in a night. I built the Echo System to keep their memories. So that nobody was lost.' },
+      { say: 'takashi', text: 'But keeping was not enough. I could not accept grief as something we must simply carry. I would not.' },
+      { say: 'takashi', text: 'So I learned to shape what people remember. Controlling memory is kinder than letting them suffer, Kage. I still believe that.' },
+      { say: 'kage', text: 'You took mine.' },
+      { say: 'takashi', text: 'I took what was hurting you. Stance, son. Show me what you kept.' }
+    ]
+  },
+  // No killing blow: he kneels (FightSession), reveals Rem in the Core, hands over the route (flag act3.core_route), and
+  // escapes in smoke before Kage can answer, leaving his Kasa behind (the stage reward, Logic.grantStageReward).
+  'act3.takashi.defeat': {
+    steps: [
+      { say: 'narrator', text: 'Takashi goes down on one knee. The plain blade rests across his thigh. He does not raise it again.' },
+      { say: 'takashi', text: 'Measured. Grounded. You cut like the boy I taught... and like the one I could not.' },
+      { say: 'kage', text: 'Where is Rem?' },
+      { say: 'takashi', text: 'In the Memory Core. Not a prisoner. Connected. Bound to it, body and mind, for ten years.' },
+      { say: 'takashi', text: 'He sealed it from the inside so that nobody could finish what I started. Not even me.' },
+      { say: 'kage', text: 'Ten years...' },
+      { say: 'takashi', text: 'The east lift under this fortress runs straight down to the Core. The way is open now. Take it.' },
+      { flag: 'act3.core_route' },
+      { say: 'narrator', text: 'For a heartbeat his outline doubles, like the faces in the City of Echoes. Then it settles.' },
+      { say: 'kage', text: 'Father. I don’t know if I can forgive you.' },
+      { say: 'takashi', text: 'Then do not decide today.' },
+      { say: 'narrator', text: 'Smoke, and he is gone. Only his kasa is left on the stone, the old straw hat he wore on the road.' }
+    ]
+  },
   // Stub; SAN-44 writes the real Epilogue.
   'epilogue.stub': {
     steps: [
@@ -3009,10 +3097,11 @@ const Logic = {
     const id = FAMILY_FORM.styles[style] ? style : 'kage', sty = FAMILY_FORM.styles[id], steps = [];
     for (const p of FAMILY_FORM.pattern) {
       const one = (move, wait) => steps.push(Object.assign({ step: p.step, act: p.act, wait }, move ? { move } : {}));
+      const mv = (sty.moves && sty.moves[p.step]) || p.move;   // a style may cut a step with its own move (Takashi's Shinsen forms)
       if (p.step === 'stance') one(null, sty.hold);
-      else if (p.step === 'aerial') for (let i = 0; i < sty.aerials; i++) one(p.move, sty.gap);
+      else if (p.step === 'aerial') for (let i = 0; i < sty.aerials; i++) one(mv, sty.gap);
       else if (p.step === 'flow') sty.flow.forEach(m => one(m, sty.gap));
-      else one(p.move, sty.gap);
+      else one(mv, sty.gap);
     }
     return { name: FAMILY_FORM.name, style: id, tempo: sty.tempo, steps };
   },
@@ -3057,6 +3146,25 @@ const Logic = {
     const v = AKARI_VARIANTS[id];
     if (!v || !AKARI_ABILITIES.includes(v.base)) return null;
     return JSON.parse(JSON.stringify(Object.assign({}, AKARI_MOVES[v.base], v, { id, base: v.base, reduced: true })));
+  },
+  // One of Takashi's moves (TAKASHI_MOVES in 10-data.js): a copy of its numbers (label, windup tell, cooldown, range,
+  // damage...) with its id; null for any other id. Act III's sub-bosses (SAN-41) can build on these.
+  takashiMove(id) {
+    if (!TAKASHI_ABILITIES.includes(id) || !TAKASHI_MOVES[id]) return null;
+    return JSON.parse(JSON.stringify(Object.assign({ id }, TAKASHI_MOVES[id])));
+  },
+  // How predictable a move is in the player's recent history (move ids, oldest first): its share of the last
+  // PATTERN_READ.last moves, or 0 until PATTERN_READ.min moves are known. FightSession.predictability calls this.
+  predictability(history, id) {
+    const h = (history || []).slice(-PATTERN_READ.last); if (h.length < PATTERN_READ.min) return 0;
+    return h.filter(x => x === id).length / h.length;
+  },
+  // Whether a move is a readable pattern (Takashi's Guard Return reads it and punishes): the same move
+  // PATTERN_READ.streak times running at the end of the history, or a predictability of at least PATTERN_READ.share.
+  readsPattern(history, id) {
+    const h = history || [], n = PATTERN_READ.streak;
+    if (h.length >= n && h.slice(-n).every(x => x === id)) return true;
+    return this.predictability(h, id) >= PATTERN_READ.share;
   },
   // A weapon's grounded string as it plays at a level: [{ id, startup, active, recovery, dmg, reach }] with the
   // weapon's speed, damage and reach multipliers (weaponMul) applied, so two blades can be compared (Shinsen vs Kagetsu).
@@ -3399,7 +3507,7 @@ const HERO_FACEWRAP = '#efe9dd', HERO_FACEWRAP_SHADE = '#b4ac9f';   // Kage's wh
 const BODY = { torso: 60, neck: 7, head: 18, upper: 36, fore: 34, thigh: 45, shin: 47 };
 const SHAPE = {
   fists: 'none', tsubame: 'short', kagetsu: 'katana', shizuka: 'katana', onikiri: 'cleaver', mizuchi: 'spear',
-  yamigama: 'sickle', iwakudaki: 'hammer', shinsen: 'shinsen', raiko_no_tachi: 'odachi', raikon_tachi: 'odachi', kagehira_yurei: 'short', akari_blades: 'short', mugen_no_ha: 'katana',
+  yamigama: 'sickle', iwakudaki: 'hammer', shinsen: 'shinsen', raiko_no_tachi: 'odachi', raikon_tachi: 'odachi', takashi_blade: 'katana', kagehira_yurei: 'short', akari_blades: 'short', mugen_no_ha: 'katana',
   shadow_daggers: 'short', hollow_crescents: 'crescent', mist_fans: 'fan',
   courier_kunai: 'short', quiet_kodachi: 'katana', echo_crescents: 'crescent', ledger_kusari: 'sickle',
   sentinel_spear: 'spear', vanguard_yari: 'spear', sage_staff: 'staff', storm_orbs: 'none', iron_fists: 'none', chain_hook: 'hook',
@@ -3602,6 +3710,13 @@ class Fighter {
       this.cloths.push({ kind: 'scarf', c: new Cloth(7, 6.6 * this.scale, { ph: 4.5, wind: 760, grav: 720, stiff: 1.8 }), at: 'head', color: '#141218', rim: 'rgba(236,229,211,0.55)', w: 6 * this.scale, w1: 2 * this.scale, dy: -13, dx: 12 });
       this.cloths.push({ kind: 'scarf', c: new Cloth(3, 4.4 * this.scale, { ph: 7, wind: 820, grav: 700, stiff: 1.8 }), at: 'head', color: '#8a5cc9', w: 2.2 * this.scale, w1: 1 * this.scale, dy: -12, dx: 13 });
     }
+    // Takashi: long hair tied back at the nape, hanging below the brim of his Kasa (`hair` on his ENEMIES entry)
+    if (this.def && this.def.hair) {
+      this.cloths.push({ kind: 'scarf', c: new Cloth(9, 6.4 * this.scale, { ph: 3.2, wind: 520, grav: 900, stiff: 1.8 }), at: 'head', color: this.def.hair, rim: 'rgba(236,229,211,0.45)', w: 5.4 * this.scale, w1: 2.4 * this.scale, dy: 4, dx: 14 });
+      this.cloths.push({ kind: 'scarf', c: new Cloth(2, 3 * this.scale, { ph: 6, wind: 600, grav: 900, stiff: 1.9 }), at: 'head', color: '#c9a45c', w: 2.2 * this.scale, w1: 1.2 * this.scale, dy: 5, dx: 15 });
+    }
+    // the Shinsei Yoroi's layered robe skirts, hanging from the waist guard
+    if (this.armor === 'shinsei') this.cloths.push({ kind: 'robe', c: new Cloth(6, 9.4 * this.scale, { ph: 3, wind: 180, grav: 1250 }), at: 'hip', color: '#1f1b15', w0: 24 * this.scale, w1: 36 * this.scale });
     // the Mei-En Garb's split cloth panels: a front and a back panel hanging from the waist, muted violet over charcoal
     if (this.armor === 'mei_en') {
       this.cloths.push({ kind: 'belt', c: new Cloth(5, 7.4 * this.scale, { ph: 2, wind: 190, grav: 1300, stiff: 1.7 }), at: 'hip', color: '#2b2733', rim: 'rgba(200,170,250,0.6)', w: 8 * this.scale, w1: 5.4 * this.scale, dy: -4, dx: 7 });
@@ -5389,6 +5504,35 @@ function drawArmor(ctx, f, ink, opt, Ut) {
       const a = Q(0.16, -1.05), b = Q(0.16, 1.05); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); ctx.lineCap = 'round';
       break;
     }
+    case 'shinsei': {
+      // the Shinsei Yoroi (Takashi): layered dark robes with a crossed collar, a practical waist guard of small plates
+      // edged in muted gold, one small shoulder guard, and the Tachibana crest (a ring around a dot) small on the chest
+      const ox = Math.cos(ang + Math.PI / 2), oy = Math.sin(ang + Math.PI / 2);
+      const Q = (u, w) => [lerp(hx, nx, u) + ox * w * Ut, lerp(hy, ny, u) + oy * w * Ut];
+      ctx.fillStyle = flat ? ink : '#221e18';
+      torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.08);
+      if (!flat) {
+        // the inner robe's crossed collar, a lighter layer showing in a V down to mid-chest
+        ctx.strokeStyle = '#4a4232'; ctx.lineWidth = 2.2 * s;
+        const a = Q(0.95, -0.7), b = Q(0.55, 0.15), c = Q(0.95, 0.7);
+        ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.lineTo(c[0], c[1]); ctx.stroke();
+        ctx.strokeStyle = 'rgba(236,229,211,0.28)'; ctx.lineWidth = 0.9 * s;
+        ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke();
+      }
+      // waist guard: a band of three small plates over the hips
+      ctx.fillStyle = flat ? ink : '#15130f';
+      for (let i = -1; i <= 1; i++) {
+        const pts = [Q(0.3, i * 0.72 - 0.38), Q(0.3, i * 0.72 + 0.38), Q(0.04, i * 0.72 + 0.42), Q(0.04, i * 0.72 - 0.42)];
+        ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]); for (const q of pts.slice(1)) ctx.lineTo(q[0], q[1]); ctx.closePath(); ctx.fill();
+        if (!flat) { ctx.strokeStyle = 'rgba(217,176,85,0.55)'; ctx.lineWidth = 1 * s; ctx.stroke(); }
+      }
+      plate(Ut * 0.5, flat ? null : 'rgba(217,176,85,0.4)');
+      if (flat) break;
+      const cr = Q(0.7, 0.42);   // the family crest, restrained: small, gold, on the front of the chest
+      ctx.strokeStyle = '#d9b055'; ctx.lineWidth = 0.9 * s; ctx.beginPath(); ctx.arc(cr[0], cr[1], 3.2 * s, 0, TAU); ctx.stroke();
+      ctx.fillStyle = '#d9b055'; ctx.beginPath(); ctx.arc(cr[0], cr[1], 1.2 * s, 0, TAU); ctx.fill();
+      break;
+    }
     case 'raikon_plate': {
       // Raikon's armour: a broad cuirass of a few layered plates, two stacked shoulder plates, a skirt of three
       // plates over the hips and a red cord across the chest; simplified, flat, heavy
@@ -6234,7 +6378,7 @@ const Combat = {
     if (def.counterStance && !m.proj && front && m.kind !== 'grab') {
       def.counterStance = false;
       this.parry(world, att, def, m, ix, iy, dir);
-      fx.stamp('COUNTERED', ix, iy, 2, def.redline ? '#ff4a3c' : '#7fd0c8');
+      fx.stamp('COUNTERED', ix, iy, 2, def.redline ? '#ff4a3c' : def.goldGuard ? '#e8c25c' : '#7fd0c8');
       // an ability may answer the blow itself (Raikon's Redline Counter); otherwise the first weapon strike
       if (def.abil && def.abil.onCounter) { def.setState('ability'); def.abil.onCounter(def, world, att); }   // parry() set him idle
       else { def.endAbility(world); def.startMove(def.weapon().moves[0], world); }
@@ -7147,7 +7291,10 @@ class AIController {
     }
     // ---- reactions to incoming attacks ----
     const threat = this.threatened(p, dist);
-    if (threat && this.reactTo !== p.move) { this.reactTo = p.move; this.react = rand(this.p.react[0], this.p.react[1]) * (this.lastSeen === p.move.id ? 0.6 : 1); this.lastSeen = p.move.id; }
+    if (threat && this.reactTo !== p.move) {
+      this.reactTo = p.move; this.react = rand(this.p.react[0], this.p.react[1]) * (this.lastSeen === p.move.id ? 0.6 : 1); this.lastSeen = p.move.id;
+      if (this.readStrike(p)) return;   // Takashi: a repeated attack is read the moment it starts
+    }
     if (!threat && p.state !== 'move') this.reactTo = null;
     if (this.reactTo && this.react > 0) {
       this.react -= dt;
@@ -7207,6 +7354,22 @@ class AIController {
     this.t = 0.05; this.plan = 'approach';
     if (this.world.onMimicEnd) this.world.onMimicEnd(f);
     return false;
+  }
+
+  /* Guard Return's read (Takashi; any foe whose phase lists `guardReturn`): when Kage starts an attack that is a pattern
+     (Logic.readsPattern over the session's move history: the same move three times running, or half of the last eight),
+     the guard goes up at once, before the blow lands, so the repeated strike is turned aside and punished. A varied
+     attack is never read. The chance is the difficulty mode's `punish` (+0.35, capped at 1). Returns true when it fires. */
+  readStrike(p) {
+    const f = this.f, w = this.world, list = this.phaseData ? this.phaseData.abilities : this.abilities, a = BOSS_ABILITIES.guardReturn;
+    if (!list || !list.includes('guardReturn') || (this.cds.guardReturn || 0) > 0 || !p.move || p.move.kind === 'throw') return false;
+    if (!f.grounded || !(f.canAct() || f.state === 'block' || (f.state === 'move' && f.mphase === 0))) return false;
+    if (!Logic.readsPattern(w.history || [], p.move.id) || !chance(Math.min(1, this.p.punish + 0.35))) return false;
+    this.seq = null; this.block = 0; f.move = null;
+    this.cds.guardReturn = a.cd;
+    a.run(f, w, this, p);
+    w.fx.popText(f, 'HE READS YOU', '#7fd0c8');
+    return true;
   }
 
   threatened(p, dist) {
@@ -7651,17 +7814,103 @@ const BOSS_ABILITIES = {
         onCounter(f) { f.counterStance = false; this.charge = false; this.punish = this.t; this.dur = this.t + P2 + 0.55; f.telegraph = P2; },
         end(f) { f.counterStance = false; f.redline = false; } });
     } },
-  /* ---- Takashi's Final Flow (SAN-40 adds him): the same sequence as Shinsen's rage art, run by the shared finalFlow()
-     in 30-combat.js. The gathering stance is the tell: FINAL_FLOW.windup x `windup` (default 2.6, so ~0.62 s on
-     Normal) x the difficulty's windup, with white eyes, gold embers and a glint; super armour while gathering. The
-     player's hits are blockable except the finisher. `o` (optional) is merged over the table (Logic.finalFlow), e.g.
-     { windup: 0.8, dmg: 0.8 } for a phase's tuning. ---- */
-  finalFlow: { id: 'finalFlow', cd: 9, range: [0, 360], chance: 0.6,
+  /* ---- Takashi, the Master's Flow (Act III boss). Numbers come from TAKASHI_MOVES (10-data.js); `o` (optional)
+     overrides them (Act III's sub-bosses can run lighter versions). Every tell is `windup x Logic.aiTuning(...).windup`
+     seconds with white eyes (telegraph), a held, grounded pose, gold embers gathering on the plain blade and a gold glint
+     just before release. Powerful but economical: one decisive cut per move, then a short opening. ---- */
+  // Final Flow (phase 3 signature): the same sequence as Shinsen's rage art, run by the shared finalFlow() in
+  // 30-combat.js. The gathering stance is the tell (TAKASHI_MOVES.finalFlow.windup, ~0.62 s on Normal, x the mode's
+  // windup), with super armour while gathering; the cuts are blockable except the finisher, at the boss's `dmg`
+  // multiplier on FINAL_FLOW's cuts (1.5: about 37 base damage for the whole sequence, the old placeholder 0.8 was 20).
+  finalFlow: { id: 'finalFlow', cd: TAKASHI_MOVES.finalFlow.cd, range: TAKASHI_MOVES.finalFlow.range, chance: TAKASHI_MOVES.finalFlow.chance,
     run(f, w, ai, p, o) {
-      const tune = Object.assign({ unb: 0, unbFinisher: 1, dmg: 0.8 }, o || {});
-      tune.windup = (tune.windup || FINAL_FLOW.windup * 2.6) * ai.p.windup;
+      const m = takashiOpt('finalFlow', o);
+      const tune = { unb: m.unb, unbFinisher: m.unbFinisher, dmg: m.dmg, windup: m.windup * ai.p.windup, label: m.label };
       f.facing = w.player.x > f.x ? 1 : -1;
       finalFlow(f, w, { tune, target: w.player, dmgMul: f.dmgMul, armor: true });
+    } },
+  // Earth Cleave: the blade dragged low behind him in a deep, grounded stance, gold dust lifting off the floor; then one
+  // heavy low-to-high cut (Shinsen's rising form, sh2) that steps in, throws up ground shards and launches.
+  earthCleave: { id: 'earthCleave', cd: TAKASHI_MOVES.earthCleave.cd, range: TAKASHI_MOVES.earthCleave.range, chance: TAKASHI_MOVES.earthCleave.chance,
+    run(f, w, ai, p, o) {
+      o = takashiOpt('earthCleave', o);
+      const W = o.windup * ai.p.windup;
+      f.telegraph = W;
+      f.startAbility({ dur: W + 0.72, rate: 22, trail: true, charge: true,
+        pose: (f, t) => (t < W ? TAKASHI_POSE.cleaveLow : t < W + 0.24 ? MOVES.sh2.s : MOVES.sh2.f),
+        start(f) { f.superArmor = true; f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, o.label, TAKASHI_GOLD); AudioManager.play('teleport', { pitch: 0.7 }); },
+        update(f, w, t, dt) {
+          if (t < W) {
+            f.vx = damp(f.vx, 0, 10, dt); takashiGather(f, w, t, true);
+            if (!this.glint && t > W - 0.18) { this.glint = 1; takashiGlint(f, w); }
+            return;
+          }
+          if (!this.cut) {
+            this.cut = 1; f.superArmor = false; f.vx = f.facing * o.dash; AudioManager.play('heavyswing', { pitch: 0.85 });
+            const gx = f.x + f.facing * 70 * f.scale;
+            w.fx.groundShards(gx, 6, 1); w.fx.dust(gx, 0, 12); w.fx.shake(0.35);
+          }
+          f.vx = damp(f.vx, 0, 9, dt);
+          if (!this.hit && t < W + 0.2) this.hit = Combat.area(w, f, fbox(f, -10, -240, o.reach, 240), { dmg: o.dmg * f.dmgMul, kb: 300, up: -560, hs: 0.55, imp: 3, hsnd: 'slash', stamp: 'CLEAVE', gb: 90 });
+          if (!this.tell && t > W + 0.4) { this.tell = 1; w.fx.popText(f, 'OPENING', C.gold); }
+        },
+        end(f) { f.superArmor = false; } });
+    } },
+  // Ground Smash: both hands high, the blade back over his shoulders, a slow step in; then a downward impact into the
+  // floor: a crushing hit up close, a gold ring and a SHORT shockwave forward (jump it or dash through it).
+  groundSmash: { id: 'groundSmash', cd: TAKASHI_MOVES.groundSmash.cd, range: TAKASHI_MOVES.groundSmash.range, chance: TAKASHI_MOVES.groundSmash.chance,
+    run(f, w, ai, p, o) {
+      o = takashiOpt('groundSmash', o);
+      const W = o.windup * ai.p.windup;
+      f.telegraph = W;
+      f.startAbility({ dur: W + 0.75, rate: 20, trail: true, charge: true,
+        pose: (f, t) => (t < W ? RAIKON_POSE.overhead : RAIKON_POSE.slam),
+        start(f) { f.superArmor = true; f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, o.label, TAKASHI_GOLD); AudioManager.play('teleport', { pitch: 0.6 }); },
+        update(f, w, t, dt) {
+          if (t < W) {
+            f.vx = damp(f.vx, f.facing * 70, 6, dt); takashiGather(f, w, t);
+            if (!this.glint && t > W - 0.18) { this.glint = 1; takashiGlint(f, w); }
+            return;
+          }
+          f.vx = damp(f.vx, 0, 14, dt);
+          if (!this.done) {
+            this.done = 1; f.superArmor = false;
+            const gx = f.x + f.facing * 120 * f.scale;
+            Combat.area(w, f, fbox(f, 0, -230, o.reach, 230), { dmg: o.dmg * f.dmgMul, kb: 380, up: -460, hs: 0.6, kd: 1, imp: 3, hsnd: 'heavy', stamp: 'SMASH', gb: 110 });
+            if (o.shock > 0) WeaponSystem.spawn(w, 'shock', f, { x: gx, lifeMul: o.shockLife, dmgMul: o.shock });
+            w.fx.ring(gx, -6, 150, 'rgba(232,186,84,0.85)', 0.4, 5);
+            w.fx.groundShards(gx, 7, 1.1); w.fx.dust(gx, 0, 18); w.fx.embers(gx, -10, 10, TAKASHI_GOLD); w.fx.shake(0.7); AudioManager.play('slam');
+          }
+          if (!this.tell && t > W + 0.3) { this.tell = 1; w.fx.popText(f, 'OPENING', C.gold); }
+        },
+        end(f) { f.superArmor = false; } });
+    } },
+  // Guard Return: a quiet low guard, the blade held across his body. A melee blow from the front is turned aside (the
+  // counter stance in Combat.applyHit) and answered, after a short gold glint (`windup`), with a rising cut (Shinsen's
+  // counter form, shc) that launches. He reads PREDICTABLE strikes: the AI raises it the instant Kage repeats an attack
+  // (AIController.readStrike, Logic.readsPattern over FightSession.history), and only picks it on its own while Kage's
+  // last move is already a pattern (`cond`). Varied attacks are never read.
+  guardReturn: { id: 'guardReturn', cd: TAKASHI_MOVES.guardReturn.cd, range: TAKASHI_MOVES.guardReturn.range, chance: TAKASHI_MOVES.guardReturn.chance,
+    cond: (f, w) => { const h = w.history || []; return h.length > 0 && Logic.readsPattern(h, h[h.length - 1]); },
+    run(f, w, ai, p, o) {
+      o = takashiOpt('guardReturn', o);
+      const P2 = o.windup * ai.p.windup;
+      f.startAbility({ dur: o.stance, rate: 20, charge: true,
+        pose: f => (f.abil && f.abil.cut ? MOVES.shc.s : TAKASHI_POSE.guard),
+        start(f) { f.counterStance = true; f.goldGuard = true; f.telegraph = 0.25; f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, o.label, TAKASHI_GOLD); AudioManager.play('block'); },
+        update(f, w, t, dt) {
+          f.vx = damp(f.vx, 0, 12, dt);
+          if (this.punish == null) { if (((t * 60) | 0) % 6 === 0) w.fx.embers(f.sk.wt.x, f.sk.wt.y, 1, TAKASHI_GOLD); return; }
+          const k = t - this.punish;
+          if (k < P2) return;
+          if (!this.cut) { this.cut = 1; f.vx = f.facing * 900; AudioManager.play('heavyswing', { pitch: 0.9 }); }
+          if (((t * 60) | 0) % 2 === 0) w.fx.afterimage(f, 'rgba(232,186,84,0.35)');
+          if (!this.hit && k < P2 + 0.2) this.hit = Combat.area(w, f, fbox(f, -10, -240, 190, 240), { dmg: o.dmg * f.dmgMul, kb: 420, up: -620, hs: 0.6, kd: 1, imp: 3, hsnd: 'slash', stamp: 'RETURN', unb: o.unb });
+          if (k > P2 + 0.2) f.vx = damp(f.vx, 0, 14, dt);
+        },
+        // Combat.applyHit calls this when a blow lands on the guard: the gold glint, then the rising cut
+        onCounter(f, w) { f.counterStance = false; this.charge = false; this.punish = this.t; this.dur = this.t + P2 + 0.6; f.telegraph = P2; takashiGlint(f, w); },
+        end(f) { f.counterStance = false; f.goldGuard = false; } });
     } },
   /* ---- Akari, the Memory Blade (Act II boss). Numbers come from AKARI_MOVES (10-data.js); `o` (optional) overrides
      them, for Act II's sub-bosses later. Every tell is `windup x Logic.aiTuning(...).windup` seconds long, with white
@@ -7888,6 +8137,23 @@ const AKARI_POSE = {
   crossThrough: P({ lean: 30, rx: 18, head: 8, fs: 60, fe: 0, wa: 20, bs: -50, be: 10, wb: -30, fh: 54, fk: -52, bh: -52, bk: -10 })
 };
 const akariOpt = (id, o) => Object.assign({}, AKARI_MOVES[id], o || {});
+/* ---- Takashi's poses and helpers ---- */
+const TAKASHI_GOLD = '#e8c25c';
+const TAKASHI_POSE = {
+  // Earth Cleave wind-up: sunk deep and grounded, the plain blade dragged low behind him, edge up, ready to rise
+  cleaveLow: P({ lean: 26, head: 12, rx: -8, fs: 0, fe: 10, wa: -56, bs: -10, be: 20, fh: 62, fk: -86, bh: -44, bk: -40 }),
+  // Guard Return: a quiet low guard, blade held across the body, point forward and down; weight settled
+  guard: P({ lean: -6, head: 2, fs: 60, fe: 70, wa: 110, bs: 40, be: 90, fh: 34, fk: -36, bh: -30, bk: -18 })
+};
+const takashiOpt = (id, o) => Object.assign({}, TAKASHI_MOVES[id], o || {});
+// gold embers gathering on the blade while a strike winds up (and, `low`, gold dust lifting off the floor ahead)
+function takashiGather(f, w, t, low) {
+  if (((t * 60) | 0) % 3 !== 0) return;
+  w.fx.embers(f.sk.wt.x, f.sk.wt.y, 1, TAKASHI_GOLD);
+  if (low) w.fx.part({ x: f.x + f.facing * rand(20, 90) * f.scale, y: -rand(0, 6), vx: rand(-30, 30), vy: -rand(40, 90), life: 0.4, size: rand(1.5, 2.6), color: '#d9b055', type: 'spark', grav: 0, drag: 2, add: true });
+}
+// the gold glint on the plain blade that marks the moment before release
+function takashiGlint(f, w) { w.fx.glint(f.sk.wt.x, f.sk.wt.y, '#ffe6a0'); AudioManager.play('orb', { pitch: 1.5 }); }
 // a violet glint on one of her blades ('wt' Kagehira, 'w2t' Yūrei): the moment before that blade cuts
 function akariGlint(f, w, tip) { w.fx.glint(f.sk[tip].x, f.sk[tip].y, '#e0ccff'); AudioManager.play('orb', { pitch: 1.9 }); }
 // where she lands `dist` from x on `side`, inside the arena (the other side when the wall is in the way)
@@ -9733,11 +9999,8 @@ class FightSession {
     f.vx = -f.vx * 0.55; f.vy = Math.min(f.vy, -420);
     this.fx.dust(f.x, f.y, 10); this.fx.shake(0.45); this.fx.stamp('WALL', f.x, f.y - 100, 2); AudioManager.play('heavy');
   }
-  predictability(id) {
-    const h = this.history.slice(-8); if (h.length < 4) return 0;
-    let n = 0; for (const x of h) if (x === id) n++;
-    return n / h.length;
-  }
+  // how much of the player's recent string is this one move (Logic.predictability; Takashi's Guard Return reads it)
+  predictability(id) { return Logic.predictability(this.history, id); }
   onMoveStart(f, m) {
     if (!f.isPlayer) return;
     this.history.push(m.id); if (this.history.length > 12) this.history.shift();
@@ -11826,7 +12089,7 @@ const UIManager = {
     const line = r.mode === 'survival' ? (r.newBest ? `Wave ${r.waves}. The pit will remember your name.` : `Wave ${r.waves}. Best: wave ${save.survivalBest}.`)
       : sparred ? 'Takashi called you in before anyone won. Nobody ever settled it.'
       : stretch ? (r.win ? `The road is walked.${r.clues ? ` Clues found: ${r.clues}.` : ''}` : `The road still bars the way. Rise again.`)
-      : r.win ? `${foeName} ${d.type === 'boss' ? 'has fallen. The way opens.' : 'has fallen.'}` : `${foeName} still stands. Rise again.`;
+      : r.win ? `${foeName} ${Logic.bossDefeat(r.enemyId) === 'escape' ? 'escaped. The way opens.' : d.type === 'boss' ? 'has fallen. The way opens.' : 'has fallen.'}` : `${foeName} still stands. Rise again.`;
     el.innerHTML = `
       <div class="res-col">
         <div><div class="eyebrow muted" style="color:var(--text-muted)">${esc(eyebrow)}</div>

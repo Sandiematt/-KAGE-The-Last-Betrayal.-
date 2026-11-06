@@ -259,6 +259,12 @@ const WEAPONS = {
   // Raikon's own Raikō no Tachi: the same broad odachi and red lightning groove, at enemy strength (the player's boss-tier
   // copy is raiko_no_tachi, granted when Raikon falls)
   raikon_tachi: { heft: 1.9, el: 'redline', enemy: 1, name: 'Raikō no Tachi', base: 'onikiri', len: 128, stats: [64, 40, 60], trail: '#ff4a3c' },
+  // Takashi's own blade (Act III boss): a PLAIN, unadorned long katana, never Shinsen (he abandoned it; Kage carries it
+  // now), but he still cuts in the Shinsen style: Shinsen's forms (sh1-sh3, air sha, counter shc) on the katana base, so
+  // his damage is measured against Kagetsu's like Shinsen's, and gold trails. `special: 'none'` keeps the player's
+  // Final Flow rage art off him (no rage art; a kunai instead); his Final Flow is the boss ability (BOSS_ABILITIES).
+  takashi_blade: { heft: 1.5, el: 'gold', enemy: 1, name: 'Nameless Blade', base: 'kagetsu', len: 104, stats: [60, 58, 66], trail: '#e8c25c',
+    moves: ['sh1', 'sh2', 'sh3'], air: 'sha', counter: 'shc', special: 'none' },
   // Act II sub-boss arms (act2.sub1..4)
   courier_kunai: { heft: 0.6, el: 'shade', enemy: 1, name: 'Courier Kunai', base: 'tsubame', len: 44, trail: '#b9a8d8' },
   quiet_kodachi: { heft: 0.9, el: 'moon', enemy: 1, name: 'Quiet Kodachi', base: 'kagetsu', len: 66, trail: '#d6cce6' },
@@ -388,7 +394,7 @@ const HELMETS = {
   utsushi_men:  { name: 'Utsushi-men', tier: 'trophy', def: 0.18, hp: 34, exclusive: true, hint: 'Defeat Utsushi, the Borrowed Face', look: 'borrowed_mask', perks: { rage: 0.2, speed: 0.03 },
     lore: 'The blank mask a Hollow wore to pass as an intelligence operative. The face painted on it is never the same one twice.' },
   kasa:         { name: 'Kasa', tier: 'trophy', def: 0.2, hp: 40, exclusive: true, hint: 'Defeat Takashi', look: 'straw_kasa', perks: { ammo: 3, rage: 0.15 },
-    lore: 'Takashi\'s battered straw hat. He wore it on the road out of Hoshimura and never told his sons where it led.' }
+    lore: 'Takashi\'s battered straw travel hat. He wore it on the long road into exile, before he was a father or the maker of anything, and never told his sons where that road led.' }
 };
 const ARMORS = {
   tachibana_yoroi: { name: 'Tachibana Yoroi', tier: 'starter', def: 0.02, hp: 8, price: 0, look: 'tachibana', perks: {},
@@ -430,7 +436,7 @@ const ARMORS = {
     lore: 'The Witness\'s robe, stitched from the threads of every memory the Echo System ever swallowed.' },
   kurokumo_yoroi:{ name: 'Kurokumo Yoroi', tier: 'trophy', def: 0.23, hp: 85, exclusive: true, hint: 'Defeat Rem', look: 'tyrant', perks: { dmg: 0.06, speed: 0.04 },
     lore: 'Rem\'s black-cloud armour. Under the ash on its collar, the Tachibana crest has been scratched away.' },
-  shinsei_yoroi:{ name: 'Shinsei Yoroi', tier: 'trophy', def: 0.26, hp: 100, exclusive: true, ngOnly: true, hint: 'Defeat Takashi in New Game+', look: 'pauldrons', perks: { stunRes: 0.3 },
+  shinsei_yoroi:{ name: 'Shinsei Yoroi', tier: 'trophy', def: 0.26, hp: 100, exclusive: true, ngOnly: true, hint: 'Defeat Takashi in New Game+', look: 'shinsei', perks: { stunRes: 0.3 },
     lore: 'The armour Takashi wore when he first opened the Echo System. It only answers to one who has walked the road twice.' }
 };
 for (const id in HELMETS) HELMETS[id].id = id;
@@ -531,6 +537,22 @@ const ENEMIES = {
               { name: 'Quiet Blade', at: 1, abilities: ['twinFang', 'smokeStep'] },
               { name: 'False Opening', at: 0.66, abilities: ['twinFang', 'smokeStep', 'blink', 'falseOpening'] },
               { name: 'Petal Cross', at: 0.33, abilities: ['twinFang', 'smokeStep', 'blink', 'falseOpening', 'petalCross'], aggressive: 1, chainBlink: 1 }
+            ] },
+  // Takashi, the Master's Flow (Act III boss, act3.boss, the Fortress of Silence): the father. Long tied-back hair
+  // (`hair`, a cloth tail under the hat), his Kasa, layered dark robes with a waist guard and a small gold family crest
+  // (the Shinsei Yoroi, look `shinsei`; wearing it here grants nothing), and a PLAIN blade (takashi_blade), never
+  // Shinsen. Measured, grounded and economical: slower than Kage, heavier cuts, disciplined counters (Guard Return reads spam), and the
+  // family form at his own heavy tempo (`form: 'takashi'`). His moves: TAKASHI_MOVES. He is not killed: he kneels and
+  // escapes (`defeat: 'escape'`).
+  takashi: { name: 'Takashi', title: 'the Master\'s Flow', type: 'boss', ai: 'boss', weapon: 'takashi_blade', helmet: 'kasa', armor: 'shinsei_yoroi',
+            hp: 680, def: 0.14, dmg: 1.15, speed: 0.92, build: { scale: 1.1, w: 11, legs: 1.02 }, eye: '#ffe6a0', accent: '#e8c25c', body: '#16140f',
+            outfit: 'gi', sash: '#4a3c22', hair: '#121110', flashEyes: 1, noGrab: 1, form: 'takashi', defeat: 'escape',
+            taunt: 'You carry it like I taught you. Elbows in.', defeatLine: 'Enough. You have made your point.', win: 'Sleep, son. It is kinder.',
+            tip: 'He reads repetition: strike the same way again and again and Guard Return turns it aside and punishes. Vary your attacks. When gold gathers on his blade in his last phase, Final Flow is coming: block the cuts, dodge the last.',
+            phases: [
+              { name: 'The Grounded Stance', at: 1, abilities: ['earthCleave', 'guardReturn'] },
+              { name: 'The Father\'s Weight', at: 0.66, abilities: ['earthCleave', 'groundSmash', 'guardReturn'] },
+              { name: 'The Master\'s Flow', at: 0.33, abilities: ['earthCleave', 'groundSmash', 'guardReturn', 'finalFlow'], aggressive: 1 }
             ] },
   // ---- Act I sub-bosses (act1.sub1..4) ----
   // Each is fought in the boss format (one bar, one or two phases; the stage has `format: 'boss'`) and borrows a
@@ -722,6 +744,26 @@ const FINAL_FLOW = {
   ]
 };
 
+/* ---------------- Takashi's moves ----------------
+   Takashi's abilities (BOSS_ABILITIES in 40-ai.js read their numbers here; each takes an optional override object so
+   Act III's sub-bosses can run lighter versions). Logic.takashiMove(id) answers them.
+     label, cd, range, chance   call-out, cooldown (s), distance band, pick chance
+     windup     the tell, a fraction of the difficulty mode's windup (Logic.aiTuning); guardReturn: the beat between the
+                turned-aside blow and the rising cut; finalFlow: the gathering stance in seconds (before the mode's windup)
+     dmg        damage of the cut (finalFlow: the multiplier on FINAL_FLOW's cuts; the old boss default was 0.8)
+     earthCleave: dash (forward speed of the rising cut), reach    groundSmash: shock / shockLife (the short shockwave), reach
+     guardReturn: stance (how long the guard is held), unb (1 = the rising cut breaks guards)
+   Guard Return reads predictability: Logic.readsPattern(history, moveId) with PATTERN_READ (the same move `streak`
+   times running, or at least `share` of the `last` moves once `min` of them are known). */
+const TAKASHI_ABILITIES = ['earthCleave', 'groundSmash', 'guardReturn', 'finalFlow'];
+const TAKASHI_MOVES = {
+  earthCleave: { label: 'EARTH CLEAVE', cd: 4.6, range: [0, 320], chance: 0.65, windup: 0.62, dmg: 18, dash: 620, reach: 200 },
+  groundSmash: { label: 'GROUND SMASH', cd: 5.4, range: [0, 300], chance: 0.6, windup: 0.66, dmg: 20, shock: 0.8, shockLife: 0.45, reach: 190 },
+  guardReturn: { label: 'GUARD RETURN', cd: 2.6, range: [0, 300], chance: 0.8, windup: 0.14, stance: 0.9, dmg: 18, unb: 1 },
+  finalFlow:   { label: 'FINAL FLOW', cd: 10, range: [0, 340], chance: 0.65, windup: 0.62, dmg: 1.5, unb: 0, unbFinisher: 1 }
+};
+const PATTERN_READ = { last: 8, min: 4, share: 0.5, streak: 3 };
+
 /* ---------------- The family form ----------------
    Takashi's sword grammar, shared by Kage, Rem and Takashi (the spec's "shared attack language"): a grounded opening
    stance, a short dash, a rising cut, an aerial follow-up, a controlled landing, then a finishing horizontal flow.
@@ -748,7 +790,10 @@ const FAMILY_FORM = {
     // Kage: tight and defensive, one aerial, one clean finishing cut, a measured pause between steps
     kage: { gap: 0.2, hold: 0.45, aerials: 1, flow: ['k3'], tempo: 1 },
     // Rem: fast and fluid, barely a pause, a second aerial off the double jump, and a longer finishing flow
-    rem:  { gap: 0.04, hold: 0.12, aerials: 2, flow: ['k1', 'k3'], tempo: 0.72 }
+    rem:  { gap: 0.04, hold: 0.12, aerials: 2, flow: ['k1', 'k3'], tempo: 0.72 },
+    // Takashi: the root of both: a long grounded stance, a measured pause, one aerial, one heavy finishing flow and
+    // slower, heavier cuts; `moves` swaps his Shinsen-style cuts into the steps (Shinsen's `family` map)
+    takashi: { gap: 0.3, hold: 0.75, aerials: 1, flow: ['sh3'], tempo: 1.12, moves: { rise: 'sh2', aerial: 'sha' } }
   }
 };
 
@@ -888,6 +933,11 @@ const CAMPAIGN = (function buildCampaign() {
   Object.assign(chapters[3].stages.find(st => st.id === 'act2.boss'), {
     enemy: 'akari', reward: { weapons: ['kagehira_yurei', 'shinsen'], armors: ['mei_en_garb'] },
     scenes: { before: 'act2.akari.before', defeat: 'act2.akari.defeat' } });
+  // Act III's boss: Takashi, in the Fortress of Silence. He kneels and escapes; his defeat scene gives the route to the
+  // Core (story flag act3.core_route) and he leaves his Kasa behind. The Shinsei Yoroi is NOT here: New Game+ only (SAN-44).
+  Object.assign(chapters[4].stages.find(st => st.id === 'act3.boss'), {
+    enemy: 'takashi', reward: { helmets: ['kasa'] },
+    scenes: { before: 'act3.takashi.before', defeat: 'act3.takashi.defeat' } });
   // Act I, The Missing Brother: four stretches through Yomi's outer districts, where the Order of Silence has erased
   // the records of the Silent War. Mostly Order soldiers with a few Hollows, more of them each stretch; survivors'
   // story beats; the act's three clues (the torn report, the two sword marks, Takashi's evacuation recording); and a

@@ -4,7 +4,7 @@ const HERO_FACEWRAP = '#efe9dd', HERO_FACEWRAP_SHADE = '#b4ac9f';   // Kage's wh
 const BODY = { torso: 60, neck: 7, head: 18, upper: 36, fore: 34, thigh: 45, shin: 47 };
 const SHAPE = {
   fists: 'none', tsubame: 'short', kagetsu: 'katana', shizuka: 'katana', onikiri: 'cleaver', mizuchi: 'spear',
-  yamigama: 'sickle', iwakudaki: 'hammer', shinsen: 'shinsen', raiko_no_tachi: 'odachi', raikon_tachi: 'odachi', kagehira_yurei: 'short', akari_blades: 'short', mugen_no_ha: 'katana',
+  yamigama: 'sickle', iwakudaki: 'hammer', shinsen: 'shinsen', raiko_no_tachi: 'odachi', raikon_tachi: 'odachi', takashi_blade: 'katana', kagehira_yurei: 'short', akari_blades: 'short', mugen_no_ha: 'katana',
   shadow_daggers: 'short', hollow_crescents: 'crescent', mist_fans: 'fan',
   courier_kunai: 'short', quiet_kodachi: 'katana', echo_crescents: 'crescent', ledger_kusari: 'sickle',
   sentinel_spear: 'spear', vanguard_yari: 'spear', sage_staff: 'staff', storm_orbs: 'none', iron_fists: 'none', chain_hook: 'hook',
@@ -207,6 +207,13 @@ class Fighter {
       this.cloths.push({ kind: 'scarf', c: new Cloth(7, 6.6 * this.scale, { ph: 4.5, wind: 760, grav: 720, stiff: 1.8 }), at: 'head', color: '#141218', rim: 'rgba(236,229,211,0.55)', w: 6 * this.scale, w1: 2 * this.scale, dy: -13, dx: 12 });
       this.cloths.push({ kind: 'scarf', c: new Cloth(3, 4.4 * this.scale, { ph: 7, wind: 820, grav: 700, stiff: 1.8 }), at: 'head', color: '#8a5cc9', w: 2.2 * this.scale, w1: 1 * this.scale, dy: -12, dx: 13 });
     }
+    // Takashi: long hair tied back at the nape, hanging below the brim of his Kasa (`hair` on his ENEMIES entry)
+    if (this.def && this.def.hair) {
+      this.cloths.push({ kind: 'scarf', c: new Cloth(9, 6.4 * this.scale, { ph: 3.2, wind: 520, grav: 900, stiff: 1.8 }), at: 'head', color: this.def.hair, rim: 'rgba(236,229,211,0.45)', w: 5.4 * this.scale, w1: 2.4 * this.scale, dy: 4, dx: 14 });
+      this.cloths.push({ kind: 'scarf', c: new Cloth(2, 3 * this.scale, { ph: 6, wind: 600, grav: 900, stiff: 1.9 }), at: 'head', color: '#c9a45c', w: 2.2 * this.scale, w1: 1.2 * this.scale, dy: 5, dx: 15 });
+    }
+    // the Shinsei Yoroi's layered robe skirts, hanging from the waist guard
+    if (this.armor === 'shinsei') this.cloths.push({ kind: 'robe', c: new Cloth(6, 9.4 * this.scale, { ph: 3, wind: 180, grav: 1250 }), at: 'hip', color: '#1f1b15', w0: 24 * this.scale, w1: 36 * this.scale });
     // the Mei-En Garb's split cloth panels: a front and a back panel hanging from the waist, muted violet over charcoal
     if (this.armor === 'mei_en') {
       this.cloths.push({ kind: 'belt', c: new Cloth(5, 7.4 * this.scale, { ph: 2, wind: 190, grav: 1300, stiff: 1.7 }), at: 'hip', color: '#2b2733', rim: 'rgba(200,170,250,0.6)', w: 8 * this.scale, w1: 5.4 * this.scale, dy: -4, dx: 7 });
@@ -1992,6 +1999,35 @@ function drawArmor(ctx, f, ink, opt, Ut) {
       if (flat) break;
       ctx.strokeStyle = '#6a5a86'; ctx.lineWidth = 4 * s; ctx.lineCap = 'butt';
       const a = Q(0.16, -1.05), b = Q(0.16, 1.05); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); ctx.lineCap = 'round';
+      break;
+    }
+    case 'shinsei': {
+      // the Shinsei Yoroi (Takashi): layered dark robes with a crossed collar, a practical waist guard of small plates
+      // edged in muted gold, one small shoulder guard, and the Tachibana crest (a ring around a dot) small on the chest
+      const ox = Math.cos(ang + Math.PI / 2), oy = Math.sin(ang + Math.PI / 2);
+      const Q = (u, w) => [lerp(hx, nx, u) + ox * w * Ut, lerp(hy, ny, u) + oy * w * Ut];
+      ctx.fillStyle = flat ? ink : '#221e18';
+      torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.08);
+      if (!flat) {
+        // the inner robe's crossed collar, a lighter layer showing in a V down to mid-chest
+        ctx.strokeStyle = '#4a4232'; ctx.lineWidth = 2.2 * s;
+        const a = Q(0.95, -0.7), b = Q(0.55, 0.15), c = Q(0.95, 0.7);
+        ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.lineTo(c[0], c[1]); ctx.stroke();
+        ctx.strokeStyle = 'rgba(236,229,211,0.28)'; ctx.lineWidth = 0.9 * s;
+        ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke();
+      }
+      // waist guard: a band of three small plates over the hips
+      ctx.fillStyle = flat ? ink : '#15130f';
+      for (let i = -1; i <= 1; i++) {
+        const pts = [Q(0.3, i * 0.72 - 0.38), Q(0.3, i * 0.72 + 0.38), Q(0.04, i * 0.72 + 0.42), Q(0.04, i * 0.72 - 0.42)];
+        ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]); for (const q of pts.slice(1)) ctx.lineTo(q[0], q[1]); ctx.closePath(); ctx.fill();
+        if (!flat) { ctx.strokeStyle = 'rgba(217,176,85,0.55)'; ctx.lineWidth = 1 * s; ctx.stroke(); }
+      }
+      plate(Ut * 0.5, flat ? null : 'rgba(217,176,85,0.4)');
+      if (flat) break;
+      const cr = Q(0.7, 0.42);   // the family crest, restrained: small, gold, on the front of the chest
+      ctx.strokeStyle = '#d9b055'; ctx.lineWidth = 0.9 * s; ctx.beginPath(); ctx.arc(cr[0], cr[1], 3.2 * s, 0, TAU); ctx.stroke();
+      ctx.fillStyle = '#d9b055'; ctx.beginPath(); ctx.arc(cr[0], cr[1], 1.2 * s, 0, TAU); ctx.fill();
       break;
     }
     case 'raikon_plate': {

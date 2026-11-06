@@ -59,7 +59,10 @@ class AIController {
     }
     // ---- reactions to incoming attacks ----
     const threat = this.threatened(p, dist);
-    if (threat && this.reactTo !== p.move) { this.reactTo = p.move; this.react = rand(this.p.react[0], this.p.react[1]) * (this.lastSeen === p.move.id ? 0.6 : 1); this.lastSeen = p.move.id; }
+    if (threat && this.reactTo !== p.move) {
+      this.reactTo = p.move; this.react = rand(this.p.react[0], this.p.react[1]) * (this.lastSeen === p.move.id ? 0.6 : 1); this.lastSeen = p.move.id;
+      if (this.readStrike(p)) return;   // Takashi: a repeated attack is read the moment it starts
+    }
     if (!threat && p.state !== 'move') this.reactTo = null;
     if (this.reactTo && this.react > 0) {
       this.react -= dt;
@@ -119,6 +122,22 @@ class AIController {
     this.t = 0.05; this.plan = 'approach';
     if (this.world.onMimicEnd) this.world.onMimicEnd(f);
     return false;
+  }
+
+  /* Guard Return's read (Takashi; any foe whose phase lists `guardReturn`): when Kage starts an attack that is a pattern
+     (Logic.readsPattern over the session's move history: the same move three times running, or half of the last eight),
+     the guard goes up at once, before the blow lands, so the repeated strike is turned aside and punished. A varied
+     attack is never read. The chance is the difficulty mode's `punish` (+0.35, capped at 1). Returns true when it fires. */
+  readStrike(p) {
+    const f = this.f, w = this.world, list = this.phaseData ? this.phaseData.abilities : this.abilities, a = BOSS_ABILITIES.guardReturn;
+    if (!list || !list.includes('guardReturn') || (this.cds.guardReturn || 0) > 0 || !p.move || p.move.kind === 'throw') return false;
+    if (!f.grounded || !(f.canAct() || f.state === 'block' || (f.state === 'move' && f.mphase === 0))) return false;
+    if (!Logic.readsPattern(w.history || [], p.move.id) || !chance(Math.min(1, this.p.punish + 0.35))) return false;
+    this.seq = null; this.block = 0; f.move = null;
+    this.cds.guardReturn = a.cd;
+    a.run(f, w, this, p);
+    w.fx.popText(f, 'HE READS YOU', '#7fd0c8');
+    return true;
   }
 
   threatened(p, dist) {
@@ -563,17 +582,103 @@ const BOSS_ABILITIES = {
         onCounter(f) { f.counterStance = false; this.charge = false; this.punish = this.t; this.dur = this.t + P2 + 0.55; f.telegraph = P2; },
         end(f) { f.counterStance = false; f.redline = false; } });
     } },
-  /* ---- Takashi's Final Flow (SAN-40 adds him): the same sequence as Shinsen's rage art, run by the shared finalFlow()
-     in 30-combat.js. The gathering stance is the tell: FINAL_FLOW.windup x `windup` (default 2.6, so ~0.62 s on
-     Normal) x the difficulty's windup, with white eyes, gold embers and a glint; super armour while gathering. The
-     player's hits are blockable except the finisher. `o` (optional) is merged over the table (Logic.finalFlow), e.g.
-     { windup: 0.8, dmg: 0.8 } for a phase's tuning. ---- */
-  finalFlow: { id: 'finalFlow', cd: 9, range: [0, 360], chance: 0.6,
+  /* ---- Takashi, the Master's Flow (Act III boss). Numbers come from TAKASHI_MOVES (10-data.js); `o` (optional)
+     overrides them (Act III's sub-bosses can run lighter versions). Every tell is `windup x Logic.aiTuning(...).windup`
+     seconds with white eyes (telegraph), a held, grounded pose, gold embers gathering on the plain blade and a gold glint
+     just before release. Powerful but economical: one decisive cut per move, then a short opening. ---- */
+  // Final Flow (phase 3 signature): the same sequence as Shinsen's rage art, run by the shared finalFlow() in
+  // 30-combat.js. The gathering stance is the tell (TAKASHI_MOVES.finalFlow.windup, ~0.62 s on Normal, x the mode's
+  // windup), with super armour while gathering; the cuts are blockable except the finisher, at the boss's `dmg`
+  // multiplier on FINAL_FLOW's cuts (1.5: about 37 base damage for the whole sequence, the old placeholder 0.8 was 20).
+  finalFlow: { id: 'finalFlow', cd: TAKASHI_MOVES.finalFlow.cd, range: TAKASHI_MOVES.finalFlow.range, chance: TAKASHI_MOVES.finalFlow.chance,
     run(f, w, ai, p, o) {
-      const tune = Object.assign({ unb: 0, unbFinisher: 1, dmg: 0.8 }, o || {});
-      tune.windup = (tune.windup || FINAL_FLOW.windup * 2.6) * ai.p.windup;
+      const m = takashiOpt('finalFlow', o);
+      const tune = { unb: m.unb, unbFinisher: m.unbFinisher, dmg: m.dmg, windup: m.windup * ai.p.windup, label: m.label };
       f.facing = w.player.x > f.x ? 1 : -1;
       finalFlow(f, w, { tune, target: w.player, dmgMul: f.dmgMul, armor: true });
+    } },
+  // Earth Cleave: the blade dragged low behind him in a deep, grounded stance, gold dust lifting off the floor; then one
+  // heavy low-to-high cut (Shinsen's rising form, sh2) that steps in, throws up ground shards and launches.
+  earthCleave: { id: 'earthCleave', cd: TAKASHI_MOVES.earthCleave.cd, range: TAKASHI_MOVES.earthCleave.range, chance: TAKASHI_MOVES.earthCleave.chance,
+    run(f, w, ai, p, o) {
+      o = takashiOpt('earthCleave', o);
+      const W = o.windup * ai.p.windup;
+      f.telegraph = W;
+      f.startAbility({ dur: W + 0.72, rate: 22, trail: true, charge: true,
+        pose: (f, t) => (t < W ? TAKASHI_POSE.cleaveLow : t < W + 0.24 ? MOVES.sh2.s : MOVES.sh2.f),
+        start(f) { f.superArmor = true; f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, o.label, TAKASHI_GOLD); AudioManager.play('teleport', { pitch: 0.7 }); },
+        update(f, w, t, dt) {
+          if (t < W) {
+            f.vx = damp(f.vx, 0, 10, dt); takashiGather(f, w, t, true);
+            if (!this.glint && t > W - 0.18) { this.glint = 1; takashiGlint(f, w); }
+            return;
+          }
+          if (!this.cut) {
+            this.cut = 1; f.superArmor = false; f.vx = f.facing * o.dash; AudioManager.play('heavyswing', { pitch: 0.85 });
+            const gx = f.x + f.facing * 70 * f.scale;
+            w.fx.groundShards(gx, 6, 1); w.fx.dust(gx, 0, 12); w.fx.shake(0.35);
+          }
+          f.vx = damp(f.vx, 0, 9, dt);
+          if (!this.hit && t < W + 0.2) this.hit = Combat.area(w, f, fbox(f, -10, -240, o.reach, 240), { dmg: o.dmg * f.dmgMul, kb: 300, up: -560, hs: 0.55, imp: 3, hsnd: 'slash', stamp: 'CLEAVE', gb: 90 });
+          if (!this.tell && t > W + 0.4) { this.tell = 1; w.fx.popText(f, 'OPENING', C.gold); }
+        },
+        end(f) { f.superArmor = false; } });
+    } },
+  // Ground Smash: both hands high, the blade back over his shoulders, a slow step in; then a downward impact into the
+  // floor: a crushing hit up close, a gold ring and a SHORT shockwave forward (jump it or dash through it).
+  groundSmash: { id: 'groundSmash', cd: TAKASHI_MOVES.groundSmash.cd, range: TAKASHI_MOVES.groundSmash.range, chance: TAKASHI_MOVES.groundSmash.chance,
+    run(f, w, ai, p, o) {
+      o = takashiOpt('groundSmash', o);
+      const W = o.windup * ai.p.windup;
+      f.telegraph = W;
+      f.startAbility({ dur: W + 0.75, rate: 20, trail: true, charge: true,
+        pose: (f, t) => (t < W ? RAIKON_POSE.overhead : RAIKON_POSE.slam),
+        start(f) { f.superArmor = true; f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, o.label, TAKASHI_GOLD); AudioManager.play('teleport', { pitch: 0.6 }); },
+        update(f, w, t, dt) {
+          if (t < W) {
+            f.vx = damp(f.vx, f.facing * 70, 6, dt); takashiGather(f, w, t);
+            if (!this.glint && t > W - 0.18) { this.glint = 1; takashiGlint(f, w); }
+            return;
+          }
+          f.vx = damp(f.vx, 0, 14, dt);
+          if (!this.done) {
+            this.done = 1; f.superArmor = false;
+            const gx = f.x + f.facing * 120 * f.scale;
+            Combat.area(w, f, fbox(f, 0, -230, o.reach, 230), { dmg: o.dmg * f.dmgMul, kb: 380, up: -460, hs: 0.6, kd: 1, imp: 3, hsnd: 'heavy', stamp: 'SMASH', gb: 110 });
+            if (o.shock > 0) WeaponSystem.spawn(w, 'shock', f, { x: gx, lifeMul: o.shockLife, dmgMul: o.shock });
+            w.fx.ring(gx, -6, 150, 'rgba(232,186,84,0.85)', 0.4, 5);
+            w.fx.groundShards(gx, 7, 1.1); w.fx.dust(gx, 0, 18); w.fx.embers(gx, -10, 10, TAKASHI_GOLD); w.fx.shake(0.7); AudioManager.play('slam');
+          }
+          if (!this.tell && t > W + 0.3) { this.tell = 1; w.fx.popText(f, 'OPENING', C.gold); }
+        },
+        end(f) { f.superArmor = false; } });
+    } },
+  // Guard Return: a quiet low guard, the blade held across his body. A melee blow from the front is turned aside (the
+  // counter stance in Combat.applyHit) and answered, after a short gold glint (`windup`), with a rising cut (Shinsen's
+  // counter form, shc) that launches. He reads PREDICTABLE strikes: the AI raises it the instant Kage repeats an attack
+  // (AIController.readStrike, Logic.readsPattern over FightSession.history), and only picks it on its own while Kage's
+  // last move is already a pattern (`cond`). Varied attacks are never read.
+  guardReturn: { id: 'guardReturn', cd: TAKASHI_MOVES.guardReturn.cd, range: TAKASHI_MOVES.guardReturn.range, chance: TAKASHI_MOVES.guardReturn.chance,
+    cond: (f, w) => { const h = w.history || []; return h.length > 0 && Logic.readsPattern(h, h[h.length - 1]); },
+    run(f, w, ai, p, o) {
+      o = takashiOpt('guardReturn', o);
+      const P2 = o.windup * ai.p.windup;
+      f.startAbility({ dur: o.stance, rate: 20, charge: true,
+        pose: f => (f.abil && f.abil.cut ? MOVES.shc.s : TAKASHI_POSE.guard),
+        start(f) { f.counterStance = true; f.goldGuard = true; f.telegraph = 0.25; f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, o.label, TAKASHI_GOLD); AudioManager.play('block'); },
+        update(f, w, t, dt) {
+          f.vx = damp(f.vx, 0, 12, dt);
+          if (this.punish == null) { if (((t * 60) | 0) % 6 === 0) w.fx.embers(f.sk.wt.x, f.sk.wt.y, 1, TAKASHI_GOLD); return; }
+          const k = t - this.punish;
+          if (k < P2) return;
+          if (!this.cut) { this.cut = 1; f.vx = f.facing * 900; AudioManager.play('heavyswing', { pitch: 0.9 }); }
+          if (((t * 60) | 0) % 2 === 0) w.fx.afterimage(f, 'rgba(232,186,84,0.35)');
+          if (!this.hit && k < P2 + 0.2) this.hit = Combat.area(w, f, fbox(f, -10, -240, 190, 240), { dmg: o.dmg * f.dmgMul, kb: 420, up: -620, hs: 0.6, kd: 1, imp: 3, hsnd: 'slash', stamp: 'RETURN', unb: o.unb });
+          if (k > P2 + 0.2) f.vx = damp(f.vx, 0, 14, dt);
+        },
+        // Combat.applyHit calls this when a blow lands on the guard: the gold glint, then the rising cut
+        onCounter(f, w) { f.counterStance = false; this.charge = false; this.punish = this.t; this.dur = this.t + P2 + 0.6; f.telegraph = P2; takashiGlint(f, w); },
+        end(f) { f.counterStance = false; f.goldGuard = false; } });
     } },
   /* ---- Akari, the Memory Blade (Act II boss). Numbers come from AKARI_MOVES (10-data.js); `o` (optional) overrides
      them, for Act II's sub-bosses later. Every tell is `windup x Logic.aiTuning(...).windup` seconds long, with white
@@ -800,6 +905,23 @@ const AKARI_POSE = {
   crossThrough: P({ lean: 30, rx: 18, head: 8, fs: 60, fe: 0, wa: 20, bs: -50, be: 10, wb: -30, fh: 54, fk: -52, bh: -52, bk: -10 })
 };
 const akariOpt = (id, o) => Object.assign({}, AKARI_MOVES[id], o || {});
+/* ---- Takashi's poses and helpers ---- */
+const TAKASHI_GOLD = '#e8c25c';
+const TAKASHI_POSE = {
+  // Earth Cleave wind-up: sunk deep and grounded, the plain blade dragged low behind him, edge up, ready to rise
+  cleaveLow: P({ lean: 26, head: 12, rx: -8, fs: 0, fe: 10, wa: -56, bs: -10, be: 20, fh: 62, fk: -86, bh: -44, bk: -40 }),
+  // Guard Return: a quiet low guard, blade held across the body, point forward and down; weight settled
+  guard: P({ lean: -6, head: 2, fs: 60, fe: 70, wa: 110, bs: 40, be: 90, fh: 34, fk: -36, bh: -30, bk: -18 })
+};
+const takashiOpt = (id, o) => Object.assign({}, TAKASHI_MOVES[id], o || {});
+// gold embers gathering on the blade while a strike winds up (and, `low`, gold dust lifting off the floor ahead)
+function takashiGather(f, w, t, low) {
+  if (((t * 60) | 0) % 3 !== 0) return;
+  w.fx.embers(f.sk.wt.x, f.sk.wt.y, 1, TAKASHI_GOLD);
+  if (low) w.fx.part({ x: f.x + f.facing * rand(20, 90) * f.scale, y: -rand(0, 6), vx: rand(-30, 30), vy: -rand(40, 90), life: 0.4, size: rand(1.5, 2.6), color: '#d9b055', type: 'spark', grav: 0, drag: 2, add: true });
+}
+// the gold glint on the plain blade that marks the moment before release
+function takashiGlint(f, w) { w.fx.glint(f.sk.wt.x, f.sk.wt.y, '#ffe6a0'); AudioManager.play('orb', { pitch: 1.5 }); }
 // a violet glint on one of her blades ('wt' Kagehira, 'w2t' Yūrei): the moment before that blade cuts
 function akariGlint(f, w, tip) { w.fx.glint(f.sk[tip].x, f.sk[tip].y, '#e0ccff'); AudioManager.play('orb', { pitch: 1.9 }); }
 // where she lands `dist` from x on `side`, inside the arena (the other side when the wall is in the way)

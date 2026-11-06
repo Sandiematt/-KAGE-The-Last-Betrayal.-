@@ -670,7 +670,7 @@ const Combat = {
     if (def.counterStance && !m.proj && front && m.kind !== 'grab') {
       def.counterStance = false;
       this.parry(world, att, def, m, ix, iy, dir);
-      fx.stamp('COUNTERED', ix, iy, 2, def.redline ? '#ff4a3c' : '#7fd0c8');
+      fx.stamp('COUNTERED', ix, iy, 2, def.redline ? '#ff4a3c' : def.goldGuard ? '#e8c25c' : '#7fd0c8');
       // an ability may answer the blow itself (Raikon's Redline Counter); otherwise the first weapon strike
       if (def.abil && def.abil.onCounter) { def.setState('ability'); def.abil.onCounter(def, world, att); }   // parry() set him idle
       else { def.endAbility(world); def.startMove(def.weapon().moves[0], world); }

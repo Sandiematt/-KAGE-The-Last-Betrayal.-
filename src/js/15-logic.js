@@ -300,10 +300,11 @@ const Logic = {
     const id = FAMILY_FORM.styles[style] ? style : 'kage', sty = FAMILY_FORM.styles[id], steps = [];
     for (const p of FAMILY_FORM.pattern) {
       const one = (move, wait) => steps.push(Object.assign({ step: p.step, act: p.act, wait }, move ? { move } : {}));
+      const mv = (sty.moves && sty.moves[p.step]) || p.move;   // a style may cut a step with its own move (Takashi's Shinsen forms)
       if (p.step === 'stance') one(null, sty.hold);
-      else if (p.step === 'aerial') for (let i = 0; i < sty.aerials; i++) one(p.move, sty.gap);
+      else if (p.step === 'aerial') for (let i = 0; i < sty.aerials; i++) one(mv, sty.gap);
       else if (p.step === 'flow') sty.flow.forEach(m => one(m, sty.gap));
-      else one(p.move, sty.gap);
+      else one(mv, sty.gap);
     }
     return { name: FAMILY_FORM.name, style: id, tempo: sty.tempo, steps };
   },
@@ -348,6 +349,25 @@ const Logic = {
     const v = AKARI_VARIANTS[id];
     if (!v || !AKARI_ABILITIES.includes(v.base)) return null;
     return JSON.parse(JSON.stringify(Object.assign({}, AKARI_MOVES[v.base], v, { id, base: v.base, reduced: true })));
+  },
+  // One of Takashi's moves (TAKASHI_MOVES in 10-data.js): a copy of its numbers (label, windup tell, cooldown, range,
+  // damage...) with its id; null for any other id. Act III's sub-bosses (SAN-41) can build on these.
+  takashiMove(id) {
+    if (!TAKASHI_ABILITIES.includes(id) || !TAKASHI_MOVES[id]) return null;
+    return JSON.parse(JSON.stringify(Object.assign({ id }, TAKASHI_MOVES[id])));
+  },
+  // How predictable a move is in the player's recent history (move ids, oldest first): its share of the last
+  // PATTERN_READ.last moves, or 0 until PATTERN_READ.min moves are known. FightSession.predictability calls this.
+  predictability(history, id) {
+    const h = (history || []).slice(-PATTERN_READ.last); if (h.length < PATTERN_READ.min) return 0;
+    return h.filter(x => x === id).length / h.length;
+  },
+  // Whether a move is a readable pattern (Takashi's Guard Return reads it and punishes): the same move
+  // PATTERN_READ.streak times running at the end of the history, or a predictability of at least PATTERN_READ.share.
+  readsPattern(history, id) {
+    const h = history || [], n = PATTERN_READ.streak;
+    if (h.length >= n && h.slice(-n).every(x => x === id)) return true;
+    return this.predictability(h, id) >= PATTERN_READ.share;
   },
   // A weapon's grounded string as it plays at a level: [{ id, startup, active, recovery, dmg, reach }] with the
   // weapon's speed, damage and reach multipliers (weaponMul) applied, so two blades can be compared (Shinsen vs Kagetsu).

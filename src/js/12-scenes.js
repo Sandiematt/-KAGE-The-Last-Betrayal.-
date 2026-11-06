@@ -298,6 +298,44 @@ const SCENES = {
       { say: 'akari', text: 'I kept his secret ten years. It is lighter now. Find him, Kage... before Takashi does.' }
     ]
   },
+  // ---- Act III boss: Takashi, in the Fortress of Silence ----
+  // Canon kept off-screen: this Takashi is an Echo copy; the real one is outside the reconstruction. Never said outright,
+  // only hinted (his outline doubles for a heartbeat, like the City of Echoes' residents).
+  'act3.takashi.before': {
+    steps: [
+      { illus: null },
+      { say: 'narrator', text: 'The Fortress of Silence. At the top of the last stair, a man in a straw travel hat stands with his back to the door.' },
+      { say: 'kage', text: '...Father.' },
+      { say: 'takashi', text: 'Kage. You found the long way round. You always did.' },
+      { illus: 'shinsen', caption: 'Takashi turns. His eyes go straight to the blade in Kage’s hands: an odachi, gold along its spine.' },
+      { say: 'takashi', text: 'Shinsen. I left it behind so I would never draw it again. And here it is, in my son’s hands.' },
+      { illus: null },
+      { say: 'kage', text: 'You built the Echo System. Why?' },
+      { say: 'takashi', text: 'The war took so many. Whole streets of people, gone in a night. I built the Echo System to keep their memories. So that nobody was lost.' },
+      { say: 'takashi', text: 'But keeping was not enough. I could not accept grief as something we must simply carry. I would not.' },
+      { say: 'takashi', text: 'So I learned to shape what people remember. Controlling memory is kinder than letting them suffer, Kage. I still believe that.' },
+      { say: 'kage', text: 'You took mine.' },
+      { say: 'takashi', text: 'I took what was hurting you. Stance, son. Show me what you kept.' }
+    ]
+  },
+  // No killing blow: he kneels (FightSession), reveals Rem in the Core, hands over the route (flag act3.core_route), and
+  // escapes in smoke before Kage can answer, leaving his Kasa behind (the stage reward, Logic.grantStageReward).
+  'act3.takashi.defeat': {
+    steps: [
+      { say: 'narrator', text: 'Takashi goes down on one knee. The plain blade rests across his thigh. He does not raise it again.' },
+      { say: 'takashi', text: 'Measured. Grounded. You cut like the boy I taught... and like the one I could not.' },
+      { say: 'kage', text: 'Where is Rem?' },
+      { say: 'takashi', text: 'In the Memory Core. Not a prisoner. Connected. Bound to it, body and mind, for ten years.' },
+      { say: 'takashi', text: 'He sealed it from the inside so that nobody could finish what I started. Not even me.' },
+      { say: 'kage', text: 'Ten years...' },
+      { say: 'takashi', text: 'The east lift under this fortress runs straight down to the Core. The way is open now. Take it.' },
+      { flag: 'act3.core_route' },
+      { say: 'narrator', text: 'For a heartbeat his outline doubles, like the faces in the City of Echoes. Then it settles.' },
+      { say: 'kage', text: 'Father. I don’t know if I can forgive you.' },
+      { say: 'takashi', text: 'Then do not decide today.' },
+      { say: 'narrator', text: 'Smoke, and he is gone. Only his kasa is left on the stone, the old straw hat he wore on the road.' }
+    ]
+  },
   // Stub; SAN-44 writes the real Epilogue.
   'epilogue.stub': {
     steps: [
