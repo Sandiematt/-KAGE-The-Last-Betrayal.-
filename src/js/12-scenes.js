@@ -215,6 +215,58 @@ const SCENES = {
       { say: 'narrator', text: 'They never did settle it. Somewhere in the ash, the question is still waiting.' }
     ]
   },
+  // ---- Act II: the City of Echoes (stages act2.stretch1..4), a district rebuilt from stored memories ----
+  // Familiar people, rebuilt from what others remembered of them, tell the same event two different ways, each sure of
+  // their own version. Nothing here says who erased Kage's memories or why; that is Akari's to tell.
+  'act2.stretch1.before': {
+    steps: [
+      { say: 'narrator', text: 'The City of Echoes. A district rebuilt from stored memories: every lantern lit, every door open, nobody quite where they should be.' },
+      { say: 'resident', name: 'Tea-seller', text: 'Kage! You came back. I remember the night you left Hoshimura. You carried your brother out of the fire on your back.' },
+      { say: 'resident', name: 'Lantern-keeper', text: 'No, no. Rem carried you. You were the one bleeding. I held the lantern for him myself.' },
+      { say: 'resident', name: 'Tea-seller', text: 'I remember it clearly.' },
+      { say: 'resident', name: 'Lantern-keeper', text: 'So do I.' },
+      { say: 'kage', text: 'You can’t both remember it.' },
+      { say: 'narrator', text: 'They smile at him, patient and certain, and go back to sweeping the same step.' }
+    ]
+  },
+  'act2.stretch2.before': {
+    steps: [
+      { say: 'narrator', text: 'Lantern Row. The same paper lantern swings on every corner, at the same angle, in no wind.' },
+      { say: 'resident', name: 'Fishmonger', text: 'The Tachibana brothers? They fought right here in the street. The younger one drew first.' },
+      { say: 'resident', name: 'Seamstress', text: 'No. They fought back to back, here, against the Order. Nobody drew on anybody.' },
+      { say: 'kage', text: 'Which is it?' },
+      { say: 'resident', name: 'Fishmonger', text: 'We both remember it. Isn’t that enough?' },
+      { say: 'kage', text: 'Someone built this street out of what people remember. And nobody remembers the same thing.' }
+    ]
+  },
+  // The one clue of the City of Echoes: a detail only Kage could have remembered, so the reconstruction used his
+  // memories too.
+  'act2.clue.cups': {
+    steps: [
+      { say: 'narrator', text: 'A table set in an empty tea house: two cups, still warm. One is chipped at the rim.' },
+      { say: 'kage', text: 'Rem always took the chipped one. He said it poured better. It didn’t.' },
+      { say: 'kage', text: 'Nobody else would remember that. Whoever built this street used my memories too.' },
+      { flag: 'act2.cups_found' }
+    ]
+  },
+  'act2.stretch3.before': {
+    steps: [
+      { say: 'narrator', text: 'A bridge over a dry canal. From the middle, both ends look like the side you came from.' },
+      { say: 'resident', name: 'Ferryman', text: 'Ten years ago the elder Tachibana boy crossed this bridge alone, and never came back.' },
+      { say: 'resident', name: 'Ferryman’s wife', text: 'No. Two boys crossed it. Only one came back, and he did not remember the other.' },
+      { say: 'kage', text: 'Which one came back?' },
+      { say: 'resident', name: 'Ferryman’s wife', text: 'You tell us. You are the one who keeps walking through.' }
+    ]
+  },
+  'act2.stretch4.before': {
+    steps: [
+      { say: 'narrator', text: 'The edge of the reconstruction. Houses stand half-built from memory, their backs left blank.' },
+      { say: 'resident', name: 'Schoolteacher', text: 'I remember you as a boy. Quiet. Your brother did all the talking.' },
+      { say: 'resident', name: 'Night watchman', text: 'No. You were the loud one. Rem never said a word to anybody but you.' },
+      { say: 'kage', text: 'Every memory here is real to someone. Just not the same someone.' },
+      { say: 'resident', name: 'Night watchman', text: 'Past the ward the street stops repeating. Someone waits there who remembers everything, and tells nothing.' }
+    ]
+  },
   // ---- Act II boss: Akari, the Memory Blade (stage act2.boss, the City of Echoes) ----
   // She steps out of a memory that should not have a door. She knows how to move through the reconstructed world.
   'act2.akari.before': {

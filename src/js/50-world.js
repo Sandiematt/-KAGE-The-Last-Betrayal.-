@@ -212,6 +212,53 @@ const ENVS = {
       ctx.stroke();
     }
   },
+  // The City of Echoes (Act II): a district rebuilt from stored memories. The rooftops' city layers under a violet-sepia
+  // memory wash, a pale violet moon, ghost buildings that keep half-loading in outline over the skyline, the road
+  // ruled in faint memory tiles, and violet flecks drifting up. Its streets repeat (stretch `loop`, Renderer.drawProp).
+  echoes: {
+    name: 'The City of Echoes', rim: 'rgba(201,189,255,0.75)', light: { x: 0.5, y: -0.86 }, moon: '#c9bdff', trail: '#c9bdff',
+    build() {
+      ENVS.rooftops.build.call(this);
+      const r = seeded(71);
+      this.ghosts = []; for (let i = 0; i < 7; i++) this.ghosts.push({ x: i * (LW / 7) + r() * 80, w: 70 + r() * 90, h: 120 + r() * 160, ph: r() * 6, tiers: r() < 0.5 ? 3 : 0 });
+      this.flecks = []; for (let i = 0; i < 46; i++) this.flecks.push({ x: r() * W, y: r() * H, s: 8 + r() * 18, ph: r() * 6, z: 0.4 + r() * 0.8 });
+    },
+    back(ctx, cx, t) {
+      ENVS.rooftops.back.call(this, ctx, cx, t);
+      // ghost buildings: outlines of a skyline that keeps loading in and out
+      const off = wrapX(-260 - cx * 0.3, LW) - LW;
+      ctx.lineWidth = 1.2;
+      for (let rep = off; rep < W; rep += LW) for (const g of this.ghosts) {
+        const x = g.x + rep, a = 0.1 + 0.12 * Math.max(0, Math.sin(t * 0.7 + g.ph));
+        if (x + g.w < -20 || x > W + 20) continue;
+        ctx.strokeStyle = `rgba(185,168,255,${a})`; ctx.setLineDash([6, 5]); ctx.lineDashOffset = -t * 12;
+        ctx.strokeRect(x, 470 - g.h, g.w, g.h);
+        for (let k = 0; k < g.tiers; k++) { const ty = 470 - g.h - k * 22; ctx.beginPath(); ctx.moveTo(x - 10 + k * 6, ty); ctx.quadraticCurveTo(x + g.w / 2, ty - 16, x + g.w + 10 - k * 6, ty); ctx.stroke(); }
+      }
+      ctx.setLineDash([]);
+      // the memory wash: violet over the night, warmer sepia low by the road
+      ctx.fillStyle = 'rgba(74,59,134,0.22)'; ctx.fillRect(0, 0, W, H);
+      const low = ctx.createLinearGradient(0, 360, 0, GROUND + 40); low.addColorStop(0, 'rgba(200,180,140,0)'); low.addColorStop(1, 'rgba(200,180,140,0.12)');
+      ctx.fillStyle = low; ctx.fillRect(0, 360, W, GROUND - 320);
+    },
+    floor(ctx, cx, t) {
+      ENVS.rooftops.floor.call(this, ctx, cx, t);
+      // faint memory tiles along the road, one now and then lit as if still being written
+      const off = wrapX(-cx, 160);
+      for (let x = off - 160, i = Math.floor(cx / 160); x < W + 160; x += 160, i++) {
+        const lit = Math.sin(t * 1.3 + i * 2.1) > 0.82;
+        ctx.fillStyle = lit ? 'rgba(185,168,255,0.16)' : 'rgba(185,168,255,0.04)';
+        ctx.fillRect(x + 4, GROUND + 3, 150, 6);
+      }
+    },
+    front(ctx, cx, t) {
+      ENVS.rooftops.front.call(this, ctx, cx, t);
+      for (const m of this.flecks) {
+        const x = wrapX(m.x + Math.sin(t * 0.6 + m.ph) * 20 - cx * m.z * 0.6, W), y = wrapX(m.y - t * m.s, H);
+        ctx.fillStyle = `rgba(201,189,255,${0.18 + 0.2 * Math.sin(t * 2 + m.ph)})`; ctx.fillRect(x, y, 2.2 * m.z, 2.2 * m.z);
+      }
+    }
+  },
   // Takashi's training yard in Hoshimura, as the brothers remember it (the Interlude spar): a low dusk sun, the dojo's
   // roof and veranda behind a wooden fence, a pine, a striking post and a rack of practice swords, packed warm earth.
   // Drawn in the memory filter by the fight renderer (Renderer.drawMemoryFilter).
@@ -544,9 +591,23 @@ const Renderer = {
     }
     if (s.memory) this.drawMemoryFilter(ctx, realT);
     if (s.fightFlash > 0) { ctx.fillStyle = `rgba(210,74,60,${s.fightFlash * 0.25})`; ctx.fillRect(0, 0, W, H); }
+    if (s.glitch > 0) this.drawGlitch(ctx, s.glitch, realT);
     // cinematic letterbox
     if (s.letterbox > 0.01) { const h = 70 * s.letterbox; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, h); ctx.fillRect(0, H - h, W, h); }
     fx.drawScreen(ctx, toScreen);
+  },
+  // The City of Echoes skips as Kage crosses a seam where its street starts over (StretchSession: `glitch` seconds):
+  // a few horizontal slices of the frame jump sideways, one ghosted in violet. Flat, brief, and off with reduceFlash.
+  drawGlitch(ctx, k, t) {
+    if (SaveManager.data.settings.reduceFlash) return;
+    const n = 6, c = ctx.canvas;
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
+    for (let i = 0; i < n; i++) {
+      const y = ((i * 131 + ((t * 40) | 0) * 37) % H), h = 10 + ((i * 53) % 34), dx = ((i % 2) ? 1 : -1) * (12 + (i * 17) % 30) * Math.min(1, k * 4);
+      ctx.drawImage(c, 0, y * c.height / H, c.width, h * c.height / H, dx, y, W, h);
+    }
+    ctx.fillStyle = `rgba(155,140,255,${0.12 * Math.min(1, k * 4)})`; ctx.fillRect(0, 0, W, H);
+    ctx.restore();
   },
   // the floor plane follows the camera, and its far edge sits FLOOR_DEPTH above the line the fighters stand on,
   // so they read as standing on the floor rather than balanced on its back edge
@@ -621,8 +682,11 @@ const Renderer = {
   // Stretch set dressing in world space: clue pickups, the encounter walls (left edge and gate) and the road's end.
   drawStretchProps(ctx, s, t) {
     const L = s.stretch, cam = s.cam, half = W / 2 / cam.zoom + 200, vl = cam.x - half, vr = cam.x + half;
-    // set dressing (stretch `props`): burnt houses, a roadside shrine, fallen beams
-    for (const pr of L.props || []) if (pr.x > vl - 300 && pr.x < vr + 300) this.drawProp(ctx, pr, t);
+    // set dressing (Logic.streetProps: the stretch's `props` and its repeating street block, if any)
+    // seams (where a repeating street starts over) tear through whatever stands on them, so they draw last
+    const street = s.street || L.props || [];
+    for (const pr of street) if (pr.type !== 'seam' && pr.x > vl - 300 && pr.x < vr + 300) this.drawProp(ctx, pr, t, s);
+    for (const pr of street) if (pr.type === 'seam' && pr.x > vl - 300 && pr.x < vr + 300) this.drawProp(ctx, pr, t, s);
     // the memory-ash trail (stretch `ashTrail`): a faint violet smear on the road once the way is clear
     const A = L.ashTrail;
     if (A && s.cleared >= L.encounters.length && A.to > vl && A.from < vr) {
@@ -676,7 +740,7 @@ const Renderer = {
     }
   },
   // One stretch prop, standing on the road at pr.x (world units, y = 0 is the ground).
-  drawProp(ctx, pr, t) {
+  drawProp(ctx, pr, t, s) {
     const x = pr.x, ink = '#0c0a0a';
     ctx.save(); ctx.fillStyle = ink; ctx.strokeStyle = 'rgba(214,120,96,0.22)'; ctx.lineWidth = 2;
     if (pr.type === 'house') {
@@ -718,6 +782,61 @@ const Renderer = {
       const ly = -186 + Math.sin(t * 1.5 + x) * 2, g = ctx.createRadialGradient(x + 99, ly, 0, x + 99, ly, 30);
       g.addColorStop(0, 'rgba(210,74,60,0.4)'); g.addColorStop(1, 'rgba(210,74,60,0)'); ctx.fillStyle = g; ctx.fillRect(x + 69, ly - 30, 60, 60);
       ctx.fillStyle = '#b8392d'; ctx.beginPath(); ctx.ellipse(x + 99, ly, 7, 10, 0, 0, TAU); ctx.fill();
+    } else if (pr.type === 'echo_house') {
+      // the City of Echoes: a whole townhouse, as somebody remembered it. Two storeys, warm paper windows, a noren
+      // over the door, a tiled roof (alt: a gabled one); every copy is the same house. `unfinished`: its far half is
+      // only an outline, the memory never filled in.
+      const w = 300, h = 250, unf = pr.unfinished;
+      ctx.fillRect(x - w / 2, -h, unf ? w / 2 : w, h);
+      if (unf) { ctx.save(); ctx.strokeStyle = 'rgba(185,168,255,0.45)'; ctx.setLineDash([7, 6]); ctx.lineDashOffset = -t * 14; ctx.strokeRect(x, -h, w / 2, h); ctx.beginPath(); ctx.moveTo(x, -h * 0.55); ctx.lineTo(x + w / 2, -h * 0.55); ctx.stroke(); ctx.restore(); }
+      ctx.fillStyle = ink; ctx.fillRect(x - w / 2 - 14, -h * 0.55, w + 28, 10);   // the eave between the storeys
+      ctx.beginPath();
+      if (pr.alt) { ctx.moveTo(x - w / 2 - 30, -h); ctx.lineTo(x, -h - 90); ctx.lineTo(x + w / 2 + 30, -h); }
+      else { ctx.moveTo(x - w / 2 - 36, -h + 4); ctx.quadraticCurveTo(x, -h - 60, x + w / 2 + 36, -h + 4); ctx.lineTo(x + w / 2 + 20, -h - 26); ctx.lineTo(x - w / 2 - 20, -h - 26); }
+      ctx.closePath(); ctx.fill(); ctx.strokeStyle = 'rgba(185,168,255,0.28)'; ctx.stroke();
+      const win = (wx, wy, ww, wh) => { ctx.fillStyle = 'rgba(214,178,120,0.42)'; ctx.fillRect(wx, wy, ww, wh); ctx.strokeStyle = 'rgba(12,10,10,0.9)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(wx + ww / 2, wy); ctx.lineTo(wx + ww / 2, wy + wh); ctx.moveTo(wx, wy + wh / 2); ctx.lineTo(wx + ww, wy + wh / 2); ctx.stroke(); };
+      win(x - 120, -h + 36, 70, 52); if (!unf) win(x + 50, -h + 36, 70, 52);
+      win(x - 120, -h * 0.42, 60, 46);
+      // the noren curtain over the door, split in three
+      ctx.fillStyle = '#4a3b86'; for (let i = 0; i < 3; i++) ctx.fillRect(x - 36 + i * 26, -h * 0.5, 22, 50 + Math.sin(t * 1.1 + i) * 2);
+      ctx.fillStyle = 'rgba(12,10,10,0.85)'; ctx.fillRect(x - 36, -h * 0.5 + 54, 74, h * 0.5 - 54);
+    } else if (pr.type === 'lantern_post') {
+      // a street lantern on a post. Every lantern in the City swings at exactly the same angle, in no wind.
+      ctx.fillRect(x - 4, -230, 8, 230); ctx.fillRect(x - 4, -230, 46, 6);
+      const sw = Math.sin(t * 1.2) * 0.18;
+      ctx.save(); ctx.translate(x + 38, -224); ctx.rotate(sw);
+      const g = ctx.createRadialGradient(0, 30, 0, 0, 30, 46); g.addColorStop(0, 'rgba(201,189,255,0.35)'); g.addColorStop(1, 'rgba(201,189,255,0)');
+      ctx.fillStyle = g; ctx.fillRect(-46, -16, 92, 92);
+      ctx.strokeStyle = 'rgba(58,52,43,0.9)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, 14); ctx.stroke();
+      ctx.fillStyle = '#d8c9a0'; ctx.beginPath(); ctx.ellipse(0, 32, 12, 18, 0, 0, TAU); ctx.fill();
+      ctx.fillStyle = ink; ctx.fillRect(-8, 12, 16, 4); ctx.fillRect(-8, 48, 16, 4);
+      ctx.restore();
+    } else if (pr.type === 'sign') {
+      // a hanging shop sign on a bracket post. Its board reads whatever the City remembers right now: the text only ever
+      // changes while the sign is off screen (Logic.signStep / signText; StretchSession.updateSigns keeps the state).
+      const text = Logic.signText(pr, s && s.signs ? s.signs[pr.id] : null);
+      ctx.fillRect(x - 5, -250, 10, 250); ctx.fillRect(x - 5, -250, 130, 7);
+      ctx.strokeStyle = 'rgba(58,52,43,0.9)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x - 4 + 18, -243); ctx.lineTo(x + 18, -226); ctx.moveTo(x + 114, -243); ctx.lineTo(x + 114, -226); ctx.stroke();
+      ctx.font = `600 22px ${FU}`;
+      const bw = Math.max(170, ctx.measureText(text).width + 34), bx = x + 66 - bw / 2;
+      ctx.fillStyle = '#1b1722'; ctx.fillRect(bx, -226, bw, 46);
+      ctx.strokeStyle = 'rgba(201,189,255,0.55)'; ctx.lineWidth = 2; ctx.strokeRect(bx + 3, -223, bw - 6, 40);
+      ctx.fillStyle = '#ece5d3'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(text, x + 66, -202);
+      // a thin violet scanline drifting over the board
+      const sy = -226 + wrapX(t * 30, 46); ctx.fillStyle = 'rgba(185,168,255,0.22)'; ctx.fillRect(bx, sy, bw, 2);
+    } else if (pr.type === 'seam') {
+      // where the street starts over: a vertical tear in the reconstruction, sliced and misregistered, flickering
+      const h = 470;
+      for (let y = 0; y > -h; y -= 18) {
+        const k = Math.sin(y * 0.37 + t * 9) * Math.sin(y * 0.11 - t * 3), dx = k * 14, on = k > -0.3;
+        if (!on) continue;
+        ctx.fillStyle = 'rgba(185,168,255,0.55)'; ctx.fillRect(x - 6 + dx, y - 14, 12, 12);
+        ctx.fillStyle = 'rgba(236,229,211,0.25)'; ctx.fillRect(x - 2 + dx * 1.6, y - 10, 3, 6);
+        ctx.fillStyle = 'rgba(210,74,60,0.2)'; ctx.fillRect(x + 4 - dx * 0.8, y - 13, 3, 10);
+      }
+      const g = ctx.createLinearGradient(x - 70, 0, x + 70, 0);
+      g.addColorStop(0, 'rgba(155,140,255,0)'); g.addColorStop(0.5, `rgba(155,140,255,${0.12 + 0.06 * Math.sin(t * 7)})`); g.addColorStop(1, 'rgba(155,140,255,0)');
+      ctx.fillStyle = g; ctx.fillRect(x - 70, -h, 140, h);
     } else if (pr.type === 'collapsed') {
       // a fallen house: beams in a heap across the road's edge
       ctx.save(); ctx.translate(x - 60, -8); ctx.rotate(-0.22); ctx.fillRect(-90, -9, 200, 16); ctx.restore();

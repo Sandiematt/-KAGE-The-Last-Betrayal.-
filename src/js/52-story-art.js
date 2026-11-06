@@ -155,6 +155,22 @@ const SPEAKERS = {
       storyLine(g, [44, 56, 50, 57, 56, 56], 'rgba(191,181,159,0.4)', 1);                                              // a thin mouth
     }
   },
+  // a resident of the City of Echoes (Act II): someone rebuilt from a stored memory, a pale face under a plain cloth
+  // cap with a faint violet doubled outline offset to one side (the memory not quite lining up), calm violet-white eyes
+  resident: {
+    name: 'Resident', accent: '#b9a8ff',
+    portrait(g) {
+      const K = STORY_INK;
+      storyBust(g, { bg: '#141020', glow: 'rgba(185,168,255,0.18)', rim: 'rgba(185,168,255,0.55)' });
+      g.beginPath(); g.arc(54, 44, 17, 0, Math.PI * 2); g.strokeStyle = 'rgba(185,168,255,0.45)'; g.lineWidth = 1.4; g.stroke();   // the doubled outline
+      storyPoly(g, [33, 40, 36, 28, 50, 24, 64, 28, 67, 40, 58, 36, 42, 36], '#2a2438');                                            // cloth cap
+      storyPoly(g, [38, 44, 62, 44, 60, 60, 50, 64, 40, 60], '#3e3652');                                                            // a pale, half-there face
+      storyPoly(g, [50, 44, 62, 44, 60, 60, 50, 64], '#332c45');
+      storyEyes(g, '#e6dcff', 49);
+      storyLine(g, [45, 57, 50, 58, 55, 57], 'rgba(230,220,255,0.45)', 1);                                                            // a patient smile
+      storyPoly(g, [66, 50, 72, 50, 72, 53, 66, 53], 'rgba(185,168,255,0.5)');                                                      // a glitch slice
+    }
+  },
   // an Order of Silence officer: slate hood, dark cloth mask over the mouth, the Order mark (a barred circle) on the chest
   order: {
     name: 'Order of Silence', accent: '#c4c8cc',

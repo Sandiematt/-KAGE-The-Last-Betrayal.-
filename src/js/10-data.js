@@ -259,6 +259,11 @@ const WEAPONS = {
   // Raikon's own Raikō no Tachi: the same broad odachi and red lightning groove, at enemy strength (the player's boss-tier
   // copy is raiko_no_tachi, granted when Raikon falls)
   raikon_tachi: { heft: 1.9, el: 'redline', enemy: 1, name: 'Raikō no Tachi', base: 'onikiri', len: 128, stats: [64, 40, 60], trail: '#ff4a3c' },
+  // Act II sub-boss arms (act2.sub1..4)
+  courier_kunai: { heft: 0.6, el: 'shade', enemy: 1, name: 'Courier Kunai', base: 'tsubame', len: 44, trail: '#b9a8d8' },
+  quiet_kodachi: { heft: 0.9, el: 'moon', enemy: 1, name: 'Quiet Kodachi', base: 'kagetsu', len: 66, trail: '#d6cce6' },
+  echo_crescents: { heft: 0.8, el: 'moon', enemy: 1, name: 'Echo Crescents', base: 'tsubame', len: 70, trail: '#c9bdff', crescent: 1 },
+  ledger_kusari: { heft: 1, el: 'shade', enemy: 1, name: 'Ledger Kusari', base: 'yamigama', len: 66, trail: '#b48ae6' },
   temple_staff: { heft: 1.1, el: 'shade', enemy: 1, name: 'Temple Staff', base: 'mizuchi', len: 180, trail: '#ece5d3', staff: 1, stance: 'staff' },
   // Shiden's war spear (Act I sub-boss): a long vanguard yari on the spear forms, with Raikon's red in its trail
   vanguard_yari: { heft: 1.3, el: 'redline', enemy: 1, name: 'Vanguard Yari', base: 'mizuchi', len: 176, trail: '#ff6a52' },
@@ -377,6 +382,11 @@ const HELMETS = {
     lore: 'The tall lacquered cap of the Archive Bureau\'s chief censor. Ink from ten thousand blacked-out names has soaked into its silk.' },
   hisame_zukin: { name: 'Hisame Zukin', tier: 'trophy', def: 0.18, hp: 34, exclusive: true, hint: 'Defeat Hisame, the Rain Courier', look: 'rain_hood', perks: { dash: 0.15, speed: 0.04 },
     lore: 'An Order courier\'s oiled rain hood with a storm-glass visor. It has run every roof in the outer districts and never once been caught.' },
+  // Act II sub-boss trophies
+  hakobi_gasa:  { name: 'Hakobi-gasa', tier: 'trophy', def: 0.18, hp: 34, exclusive: true, hint: 'Defeat Tsugumi, the Memory Courier', look: 'courier_hat', perks: { dash: 0.12, ammo: 2 },
+    lore: 'A memory courier\'s flat hat hung with glass vials, each one a stored memory on its way into the City of Echoes. One vial still rattles. Nobody knows whose it is.' },
+  utsushi_men:  { name: 'Utsushi-men', tier: 'trophy', def: 0.18, hp: 34, exclusive: true, hint: 'Defeat Utsushi, the Borrowed Face', look: 'borrowed_mask', perks: { rage: 0.2, speed: 0.03 },
+    lore: 'The blank mask a Hollow wore to pass as an intelligence operative. The face painted on it is never the same one twice.' },
   kasa:         { name: 'Kasa', tier: 'trophy', def: 0.2, hp: 40, exclusive: true, hint: 'Defeat Takashi', look: 'straw_kasa', perks: { ammo: 3, rage: 0.15 },
     lore: 'Takashi\'s battered straw hat. He wore it on the road out of Hoshimura and never told his sons where it led.' }
 };
@@ -409,6 +419,11 @@ const ARMORS = {
     lore: 'Half a cuirass from Raikon\'s thunder vanguard. The storm burned the other half off Garan the day he deserted, and he wore what was left like a confession.' },
   shiden_yoroi: { name: 'Shiden Yoroi', tier: 'trophy', def: 0.21, hp: 80, exclusive: true, hint: 'Defeat Shiden, the Last Lieutenant', look: 'vanguard_plate', perks: { dmg: 0.05, stunRes: 0.1 },
     lore: 'A lieutenant\'s plate of the thunder vanguard, laced in violet cord. Its echo still keeps the archive road, waiting for orders that stopped ten years ago.' },
+  // Act II sub-boss trophies
+  shirabe_do:   { name: 'Shirabe-dō', tier: 'trophy', def: 0.21, hp: 78, exclusive: true, hint: 'Defeat Sayo, the Quiet Hand', look: 'operative_vest', perks: { dash: 0.15, dmg: 0.03 },
+    lore: 'An intelligence operative\'s vest of lacquered strips, its lining stitched with pockets for message slips. Every slip is blank now; the memory that wrote them is gone.' },
+  kasane_haori: { name: 'Kasane Haori', tier: 'trophy', def: 0.21, hp: 80, exclusive: true, hint: 'Defeat Kasane, the Ledger Warden', look: 'ledger_coat', perks: { stunRes: 0.15, rage: 0.1 },
+    lore: 'A coat of pasted ledger pages, layer on layer: every memory the City of Echoes was rebuilt from, entered in a careful hand. Some entries contradict the ones beneath them.' },
   mei_en_garb:  { name: 'Mei-En Garb', tier: 'trophy', def: 0.21, hp: 80, exclusive: true, hint: 'Defeat Akari', look: 'mei_en', perks: { dash: 0.2, speed: 0.06 },
     lore: 'Akari\'s smoke-grey fighting garb. Even the Order\'s records cannot agree on what colour it is.' },
   kysmei_robe:  { name: 'Kysmei Robe', tier: 'trophy', def: 0.22, hp: 85, exclusive: true, hint: 'Defeat the Witness', look: 'robe', perks: { rage: 0.3 },
@@ -557,6 +572,46 @@ const ENEMIES = {
               { name: 'Vanguard', at: 1, abilities: ['vanguardBreak'] },
               { name: 'Hold the Line', at: 0.5, abilities: ['vanguardBreak', 'vanguardGuard'], aggressive: 1 }
             ] },
+  // ---- Act II sub-bosses (act2.sub1..4) ----
+  // Each is fought in the boss format (one bar, one or two phases; the stage has `format: 'boss'`) and borrows a
+  // REDUCED Akari move (AKARI_VARIANTS below: Twin Fang, Smoke Step or Blink), never False Opening or Petal Cross.
+  // Each wears the trophy it drops. `lore` is the sub-boss's tie to Act II.
+  tsugumi: { name: 'Tsugumi', title: 'the Memory Courier', type: 'sub', ai: 'agile', weapon: 'courier_kunai', helmet: 'hakobi_gasa', armor: 'hai_haori',
+            hp: 340, def: 0.05, dmg: 0.95, speed: 1.14, build: { scale: 0.94, w: 8.6, legs: 1.08, head: 0.98 }, eye: '#d8ccff', accent: '#a98ad8', body: '#1c1a20', defeat: 'finisher',
+            lore: 'A courier who carries stored memories, sealed in glass, from the Echo System into the City of Echoes so its streets can be rebuilt. She has delivered ten thousand lives and kept none of her own.',
+            taunt: 'Every memory on this street passed through my hands. Yours too. Shall I take it back?', defeatLine: 'Undelivered... after all this way...', win: 'Delivered.',
+            tip: 'Courier Step: smoke curls at her feet before she vanishes and steps out close by to cut. Watch for the second puff and block toward it.',
+            phases: [
+              { name: 'Delivery', at: 1, abilities: ['courierStep'] },
+              { name: 'Return to Sender', at: 0.5, abilities: ['courierStep', 'lunge'], berserk: 1 }
+            ] },
+  sayo: { name: 'Sayo', title: 'the Quiet Hand', type: 'sub', ai: 'defensive', weapon: 'quiet_kodachi', helmet: 'kasumi_men', armor: 'shirabe_do',
+            hp: 380, def: 0.08, dmg: 1, build: { scale: 1.0, w: 9.2, legs: 1.04 }, eye: '#e6dcff', accent: '#9b8cc9', body: '#1b1b22', defeat: 'finisher',
+            lore: 'An operative of the old intelligence corps, trained under Akari. The City rebuilt her from her teacher\'s memory of her, so she runs Akari\'s drills at half the speed and with none of her patience.',
+            taunt: 'You move like someone who was taught properly once. Then you forgot the lesson.', defeatLine: 'She said... I would never be quick enough...', win: 'Quiet, now.',
+            tip: 'Half Fang: she draws her kodachi low and glints before two quick cuts. Block the pair, then punish the pause after.',
+            phases: [
+              { name: 'Quiet Hand', at: 1, abilities: ['halfFang'] },
+              { name: 'Second Hand', at: 0.5, abilities: ['halfFang', 'counterStance'], aggressive: 1 }
+            ] },
+  utsushi: { name: 'Utsushi', title: 'the Borrowed Face', type: 'sub', family: 'hollow', ai: 'agile', weapon: 'echo_crescents', helmet: 'utsushi_men', armor: 'hollow_rags',
+            hp: 350, def: 0.05, dmg: 0.95, speed: 1.1, build: { scale: 1.02, w: 9.4, legs: 1.04 }, eye: '#ffffff', accent: '#c9bdff', defeat: 'finisher',
+            lore: 'A Hollow that copied an intelligence operative out of a stored memory and never gave the shape back. It has her stance, her mask and her blink, and none of her name.',
+            taunt: '...I remember you... no... she remembers you... which of us is talking...', defeatLine: '...give it back... the face... was mine...', win: '...now I am you...',
+            tip: 'Stolen Blink: a violet mark flares on the floor where it will land. Turn to the mark and strike as it arrives.',
+            phases: [
+              { name: 'Borrowed Face', at: 1, abilities: ['stolenBlink'] },
+              { name: 'Borrowed Blade', at: 0.5, abilities: ['stolenBlink', 'stolenFang'], berserk: 1 }
+            ] },
+  kasane: { name: 'Kasane', title: 'the Ledger Warden', type: 'sub', ai: 'boss', weapon: 'ledger_kusari', helmet: 'hachigane', armor: 'kasane_haori',
+            hp: 460, def: 0.12, dmg: 1.05, build: { scale: 1.1, w: 11 }, eye: '#e0ccff', accent: '#b48ae6', body: '#1e1b24', flashEyes: 1, noGrab: 1, defeat: 'finisher',
+            lore: 'Akari\'s field partner in the intelligence corps, who kept the ledger of every memory stored in the City of Echoes. His echo still balances the books, and guards the last street before the one where she waits.',
+            taunt: 'Every life in this city is entered in my ledger. Yours has two entries, and they disagree.', defeatLine: 'Strike the entry... she will know what it means...', win: 'Balanced.',
+            tip: 'Ledger Fang: his sickle glints twice before two quick cuts. From his second phase he Ledger Steps through smoke; turn as he reappears.',
+            phases: [
+              { name: 'The Ledger', at: 1, abilities: ['ledgerFang'] },
+              { name: 'Balanced Accounts', at: 0.5, abilities: ['ledgerFang', 'ledgerStep'], aggressive: 1 }
+            ] },
   // ---- the Interlude ----
   // Young Rem (interlude.spar): a memory, gifted, impulsive and competitive. A smaller build in plain training clothes
   // with a purple sash and headband, a bokken, and the family form (FAMILY_FORM) at his own fast, fluid tempo (`form`).
@@ -624,6 +679,23 @@ const AKARI_MOVES = {
   blink:        { label: 'BLINK', cd: 4.2, range: [80, 800], chance: 0.55, windup: 0.32, dist: 230 },
   falseOpening: { label: 'FALSE OPENING', cd: 9, range: [100, 520], chance: 0.6, windup: 0.4, dmg: 15, afterimages: 2, opacity: 0.5, hold: 1.8 },
   petalCross:   { label: 'PETAL CROSS', cd: 7, range: [120, 520], chance: 0.7, windup: 0.72, dmg: 24, dash: 1100, reach: 190 }
+};
+
+/* Act II's sub-bosses fight with reduced versions of Akari's moves: each AKARI_VARIANTS entry runs its `base` ability's
+   code (40-ai.js registers them as BOSS_ABILITIES next to hers) with these numbers merged over AKARI_MOVES[base]. A
+   reduced move winds up at least as long as Akari's, hits no harder and repositions no further; only Twin Fang, Smoke
+   Step and Blink are borrowed, never False Opening or Petal Cross. Logic.akariDerived(id) answers what a move is. */
+const AKARI_VARIANTS = {
+  // Tsugumi: a slower Smoke Step with a smaller puff and a shorter step
+  courierStep: { base: 'smokeStep', label: 'COURIER STEP', cd: 6.5, range: [140, 600], chance: 0.5, windup: 0.5, dmg: 7, dist: 120, smoke: { life: 0.4, radius: 38 } },
+  // Sayo: Twin Fang with one kodachi, a long tell and light cuts
+  halfFang:    { base: 'twinFang', label: 'HALF FANG', cd: 4, range: [0, 260], chance: 0.6, windup: 0.58, dmg: [5, 8], dash: 400 },
+  // Utsushi: one short Blink (never chained), and in its second phase a copied Twin Fang
+  stolenBlink: { base: 'blink', label: 'STOLEN BLINK', cd: 5.5, range: [120, 700], chance: 0.5, windup: 0.46, dist: 170 },
+  stolenFang:  { base: 'twinFang', label: 'STOLEN FANG', cd: 4.6, range: [0, 260], chance: 0.55, windup: 0.52, dmg: [5, 9], dash: 440 },
+  // Kasane: a sickle Twin Fang, then from his second phase a short Smoke Step
+  ledgerFang:  { base: 'twinFang', label: 'LEDGER FANG', cd: 3.8, range: [0, 280], chance: 0.6, windup: 0.5, dmg: [6, 10], dash: 460 },
+  ledgerStep:  { base: 'smokeStep', label: 'LEDGER STEP', cd: 6, range: [140, 640], chance: 0.5, windup: 0.44, dmg: 8, dist: 140, smoke: { life: 0.45, radius: 42 } }
 };
 
 /* ---------------- Final Flow ----------------
@@ -859,6 +931,70 @@ const CAMPAIGN = (function buildCampaign() {
     'act1.sub4': { foe: 'Shiden', foeTitle: 'the Last Lieutenant', enemy: 'shiden', format: 'boss', env: 'districts', reward: { armors: ['shiden_yoroi'] } }
   };
   for (const st of chapters[1].stages) if (ACT1[st.id]) Object.assign(st, ACT1[st.id]);
+  // Act II, the City of Echoes: four stretches through a district rebuilt from stored memories. Mostly Hollows, more of
+  // them each stretch. The reconstruction shows: each stretch's street block repeats (`loop`, expanded by
+  // Logic.streetProps, with a glitching `seam` where it starts over), its sign reads differently every time it comes
+  // back into view (Logic.signStep / signText), and in each `before` scene two residents remember the same event two
+  // different ways. One clue (two teacups). Each stretch ends in a sub-boss with a reduced Akari move and a trophy.
+  const S = 'hollow_shade', FL = 'hollow_flicker', WD = 'hollow_ward', MI = 'hollow_mimic', HU = 'hollow_husk';
+  const ACT2 = {
+    'act2.stretch1': { name: 'The Repeating Street', enemy: S, scenes: { before: 'act2.stretch1.before' },
+      stretch: { length: 5200, start: 160, env: 'echoes',
+        encounters: [
+          { x: 1100, gate: 1750, waves: [[S, S], [S, FL]] },
+          { x: 3000, gate: 3700, waves: [[FL, S], [S, FL, S, RU]] }],
+        clues: [],
+        loop: { from: 400, period: 1600, count: 3, block: [
+          { type: 'echo_house', dx: 0 },
+          { type: 'sign', dx: 300, id: 'teahouse', texts: ['TACHIBANA TEA HOUSE', 'TACHIBANA TEA HOUSE · CLOSED', 'NO TACHIBANAS HERE', 'WELCOME HOME'] },
+          { type: 'lantern_post', dx: 620 },
+          { type: 'echo_house', dx: 1000, alt: 1 },
+          { type: 'lantern_post', dx: 1300 }] } } },
+    'act2.sub1': { foe: 'Tsugumi', foeTitle: 'the Memory Courier', enemy: 'tsugumi', format: 'boss', env: 'echoes', reward: { helmets: ['hakobi_gasa'] } },
+    'act2.stretch2': { name: 'Lantern Row', enemy: MI, scenes: { before: 'act2.stretch2.before' },
+      stretch: { length: 5400, start: 160, env: 'echoes',
+        encounters: [
+          { x: 1000, gate: 1650, waves: [[S, MI], [FL, S]] },
+          { x: 2400, gate: 3050, waves: [[WD, S], [MI, FL]] },
+          { x: 3800, gate: 4500, waves: [[S, WD, FL, MI]] }],
+        clues: [{ id: 'cups', x: 3350, label: 'Two teacups, still warm', scene: 'act2.clue.cups' }],
+        loop: { from: 350, period: 1600, count: 3, block: [
+          { type: 'lantern_post', dx: 0 },
+          { type: 'echo_house', dx: 260, alt: 1 },
+          { type: 'sign', dx: 560, id: 'lanterns', texts: ['LANTERNS · REPAIRED', 'LANTERNS · REMEMBERED', 'LANTERNS · FORGOTTEN'] },
+          { type: 'lantern_post', dx: 800 },
+          { type: 'echo_house', dx: 1150 }] } } },
+    'act2.sub2': { foe: 'Sayo', foeTitle: 'the Quiet Hand', enemy: 'sayo', format: 'boss', env: 'echoes', reward: { armors: ['shirabe_do'] } },
+    'act2.stretch3': { name: 'The Two-Ended Bridge', enemy: FL, scenes: { before: 'act2.stretch3.before' },
+      stretch: { length: 5700, start: 160, env: 'echoes',
+        encounters: [
+          { x: 1100, gate: 1750, waves: [[FL, FL], [S, MI, S]] },
+          { x: 2600, gate: 3250, waves: [[WD, MI], [S, FL, RU]] },
+          { x: 4100, gate: 4800, waves: [[HU], [S, WD, MI, FL]] }],
+        clues: [],
+        loop: { from: 400, period: 1700, count: 3, block: [
+          { type: 'echo_house', dx: 0, alt: 1 },
+          { type: 'lantern_post', dx: 330 },
+          { type: 'sign', dx: 640, id: 'bridge', texts: ['HASHI BRIDGE → HOSHIMURA', 'HASHI BRIDGE → YOMI', 'HASHI BRIDGE → NOWHERE'] },
+          { type: 'shrine', dx: 980 },
+          { type: 'echo_house', dx: 1300 }] } } },
+    'act2.sub3': { foe: 'Utsushi', foeTitle: 'the Borrowed Face', enemy: 'utsushi', format: 'boss', env: 'echoes', reward: { helmets: ['utsushi_men'] } },
+    'act2.stretch4': { name: 'The Unfinished Ward', enemy: WD, scenes: { before: 'act2.stretch4.before' },
+      stretch: { length: 6000, start: 160, env: 'echoes',
+        encounters: [
+          { x: 1000, gate: 1650, waves: [[S, MI, FL], [WD, S]] },
+          { x: 2600, gate: 3300, waves: [[HU, S], [MI, FL, WD]] },
+          { x: 4200, gate: 5000, waves: [[HU, WD, S], [MI, FL, S, HU]] }],
+        clues: [],
+        loop: { from: 300, period: 1800, count: 3, block: [
+          { type: 'echo_house', dx: 0 },
+          { type: 'lantern_post', dx: 380 },
+          { type: 'echo_house', dx: 700, alt: 1, unfinished: 1 },
+          { type: 'sign', dx: 1050, id: 'ward', texts: ['WARD 9 · RESIDENTS ONLY', 'WARD 9 · NO RESIDENTS', 'WARD 9 · DO NOT REMEMBER'] },
+          { type: 'lantern_post', dx: 1400 }] } } },
+    'act2.sub4': { foe: 'Kasane', foeTitle: 'the Ledger Warden', enemy: 'kasane', format: 'boss', env: 'echoes', reward: { armors: ['kasane_haori'] } }
+  };
+  for (const st of chapters[3].stages) if (ACT2[st.id]) Object.assign(st, ACT2[st.id]);
   for (const ch of chapters) ch.stages.forEach((st, i) => { st.chapter = ch.id; st.pos = i; });
   return { chapters };
 })();

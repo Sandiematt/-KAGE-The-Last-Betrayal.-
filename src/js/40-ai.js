@@ -742,6 +742,13 @@ for (const id in RAIKON_VARIANTS) {
   BOSS_ABILITIES[id] = { id, cd: v.cd || base.cd, range: v.range || base.range, chance: v.chance || base.chance,
     run(f, w, ai, p) { base.run(f, w, ai, p, v); } };
 }
+/* ---- reduced Akari moves (AKARI_VARIANTS in 10-data.js): each runs its base ability's code with the variant's numbers
+   merged over Akari's (akariOpt), so Act II's sub-bosses fight with her own moves at reduced strength ---- */
+for (const id in AKARI_VARIANTS) {
+  const v = AKARI_VARIANTS[id], base = BOSS_ABILITIES[v.base];
+  BOSS_ABILITIES[id] = { id, cd: v.cd || base.cd, range: v.range || base.range, chance: v.chance || base.chance,
+    run(f, w, ai, p) { base.run(f, w, ai, p, v); } };
+}
 /* ---- Raikon's poses and shared effects (also used by the player's Thunder Swing rage art, 30-combat.js) ---- */
 const RAIKON_POSE = {
   // Thunder Swing: the odachi drawn far back at shoulder height, weight on the rear leg, ready to sweep flat

@@ -6,6 +6,7 @@ const SHAPE = {
   fists: 'none', tsubame: 'short', kagetsu: 'katana', shizuka: 'katana', onikiri: 'cleaver', mizuchi: 'spear',
   yamigama: 'sickle', iwakudaki: 'hammer', shinsen: 'shinsen', raiko_no_tachi: 'odachi', raikon_tachi: 'odachi', kagehira_yurei: 'short', akari_blades: 'short', mugen_no_ha: 'katana',
   shadow_daggers: 'short', hollow_crescents: 'crescent', mist_fans: 'fan',
+  courier_kunai: 'short', quiet_kodachi: 'katana', echo_crescents: 'crescent', ledger_kusari: 'sickle',
   sentinel_spear: 'spear', vanguard_yari: 'spear', sage_staff: 'staff', storm_orbs: 'none', iron_fists: 'none', chain_hook: 'hook',
   tyrant_cleaver: 'tyrant', cutter_blade: 'katana', temple_staff: 'staff', raider_cleaver: 'cleaver', bokken: 'bokken'
 };
@@ -1830,6 +1831,42 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
       }
       break;
     }
+    case 'courier_hat': {
+      // Tsugumi's Hakobi-gasa: a wide, very flat courier's hat tilted forward over the eyes, a cord under the jaw, and
+      // three small glass vials of stored memory hanging from its brim (pale violet, one swinging)
+      ctx.beginPath(); ctx.moveTo(-r * 2.1, -r * 0.55); ctx.quadraticCurveTo(-r * 0.2, -r * 1.45, r * 2.3, -r * 0.42);
+      ctx.lineTo(r * 2.2, -r * 0.26); ctx.quadraticCurveTo(0, -r * 0.62, -r * 2.0, -r * 0.38); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(-r * 0.05, -r * 0.95, r * 0.75, r * 0.28, -0.05, Math.PI, TAU); ctx.fill();   // crown
+      if (!flat) {
+        ctx.strokeStyle = 'rgba(169,138,216,0.7)'; ctx.lineWidth = Math.max(1, r * 0.08);
+        ctx.beginPath(); ctx.moveTo(-r * 2.0, -r * 0.42); ctx.quadraticCurveTo(0, -r * 0.66, r * 2.2, -r * 0.3); ctx.stroke();   // brim edge
+        ctx.strokeStyle = 'rgba(236,229,211,0.45)'; ctx.lineWidth = Math.max(1, r * 0.05);
+        ctx.beginPath(); ctx.moveTo(-r * 0.7, -r * 0.5); ctx.quadraticCurveTo(-r * 0.1, r * 1.2, r * 0.75, r * 0.6); ctx.stroke();   // chin cord
+        for (let i = 0; i < 3; i++) {
+          const vx = r * (-1.6 + i * 0.75), sw = i === 1 ? Math.sin(t * 3) * r * 0.12 : 0, vy = -r * 0.42 + r * 0.06 * i;
+          ctx.strokeStyle = 'rgba(236,229,211,0.4)'; ctx.beginPath(); ctx.moveTo(vx, vy); ctx.lineTo(vx + sw, vy + r * 0.45); ctx.stroke();
+          ctx.fillStyle = i === 1 ? 'rgba(201,189,255,0.9)' : 'rgba(155,140,255,0.7)';
+          ctx.fillRect(vx + sw - r * 0.1, vy + r * 0.45, r * 0.2, r * 0.32);
+        }
+      }
+      break;
+    }
+    case 'borrowed_mask': {
+      // Utsushi's Utsushi-men: a blank white oval mask over the Hollow's face, cel-shaded on its far half, with a face
+      // painted on it in thin violet strokes that slips between two expressions as the Hollow glitches
+      ctx.beginPath(); ctx.moveTo(-r * 0.9, -r * 0.4); ctx.lineTo(-r * 1.2, -r * 1.15); ctx.lineTo(-r * 0.35, -r * 0.9); ctx.lineTo(-r * 0.15, -r * 1.5); ctx.lineTo(r * 0.2, -r * 0.95); ctx.closePath(); ctx.fill();   // shards of the head behind
+      ctx.fillStyle = flat ? ink : '#ece6ff';
+      ctx.beginPath(); ctx.ellipse(r * 0.42, r * 0.05, r * 0.72, r * 1.02, 0, 0, TAU); ctx.fill();
+      if (!flat) {
+        ctx.fillStyle = '#c9bfe6'; ctx.beginPath(); ctx.ellipse(r * 0.42, r * 0.05, r * 0.72, r * 1.02, 0, Math.PI * 0.5, Math.PI * 1.5); ctx.fill();
+        const alt = ((t * 1.3) | 0) % 3 === 2;   // the painted face never stays the same
+        ctx.strokeStyle = '#7a5cc9'; ctx.lineWidth = Math.max(1, r * 0.09); ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(r * 0.1, -r * 0.2); ctx.lineTo(r * 0.38, alt ? -r * 0.32 : -r * 0.14); ctx.moveTo(r * 0.62, alt ? -r * 0.32 : -r * 0.14); ctx.lineTo(r * 0.92, -r * 0.2); ctx.stroke();   // brows
+        ctx.fillStyle = '#4a3b86'; ctx.fillRect(r * 0.2, -r * 0.08, r * 0.16, r * 0.1); ctx.fillRect(r * 0.66, -r * 0.08, r * 0.16, r * 0.1);   // eye slits
+        ctx.beginPath(); ctx.moveTo(r * 0.22, r * 0.55); ctx.quadraticCurveTo(r * 0.5, alt ? r * 0.35 : r * 0.78, r * 0.8, r * 0.55); ctx.stroke();   // smile, or not
+      }
+      break;
+    }
     case 'akari_mask': {
       // Akari: hair pulled back tight (a flat cap over the crown, its tail is cloth) and a half-mask over nose and mouth,
       // a muted violet-grey plate with a centre seam, cel-shaded on its lower edge; nothing else
@@ -2013,6 +2050,46 @@ function drawArmor(ctx, f, ink, opt, Ut) {
       if (flat) break;
       ctx.strokeStyle = 'rgba(214,168,255,0.5)'; ctx.lineWidth = 1.1 * s; ctx.stroke();
       bands(5, 'rgba(176,124,255,0.55)', Ut * 1.02, 0.14, 0.86);
+      break;
+    }
+    case 'operative_vest': {
+      // Sayo's Shirabe-dō: a close operative's vest of lacquered horizontal strips, a high wrapped collar, a diagonal
+      // strap of message-slip pockets (pale squares) across the chest, and a small shoulder guard
+      torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.02);
+      plate(Ut * 0.46, flat ? null : 'rgba(155,140,201,0.5)');
+      if (flat) break;
+      bands(4, 'rgba(155,140,201,0.45)', Ut * 0.98, 0.18, 0.78);
+      const ox = Math.cos(ang + Math.PI / 2), oy = Math.sin(ang + Math.PI / 2);
+      ctx.strokeStyle = '#2c2838'; ctx.lineWidth = 3.4 * s; ctx.lineCap = 'butt';
+      const a = [lerp(hx, nx, 0.9) - ox * Ut * 0.9, lerp(hy, ny, 0.9) - oy * Ut * 0.9], b = [lerp(hx, nx, 0.3) + ox * Ut * 0.9, lerp(hy, ny, 0.3) + oy * Ut * 0.9];
+      ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); ctx.lineCap = 'round';
+      ctx.fillStyle = 'rgba(236,229,211,0.55)';
+      for (let i = 1; i <= 3; i++) { const k = i / 4; ctx.fillRect(lerp(a[0], b[0], k) - 1.6 * s, lerp(a[1], b[1], k) - 1.6 * s, 3.2 * s, 3.2 * s); }
+      ctx.strokeStyle = 'rgba(200,190,230,0.6)'; ctx.lineWidth = 2.2 * s;
+      ctx.beginPath(); ctx.moveTo(lerp(hx, nx, 0.95) - ox * Ut * 0.6, lerp(hy, ny, 0.95) - oy * Ut * 0.6); ctx.lineTo(lerp(hx, nx, 0.95) + ox * Ut * 0.6, lerp(hy, ny, 0.95) + oy * Ut * 0.6); ctx.stroke();   // collar
+      break;
+    }
+    case 'ledger_coat': {
+      // Kasane's Haori: a long coat of pasted ledger pages, layered like scales down the torso and flaring past the
+      // hips; each page is a pale rectangle ruled with thin ink lines, a few struck through in violet
+      torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.12);
+      const ox = Math.cos(ang + Math.PI / 2), oy = Math.sin(ang + Math.PI / 2), ux = Math.cos(ang), uy = Math.sin(ang);
+      ctx.fillStyle = ink; ctx.beginPath();   // the coat's skirt past the hips
+      ctx.moveTo(hx - ox * Ut * 1.1, hy - oy * Ut * 1.1); ctx.lineTo(hx - ux * Ut * 1.5 - ox * Ut * 1.35, hy - uy * Ut * 1.5 - oy * Ut * 1.35);
+      ctx.lineTo(hx - ux * Ut * 1.5 + ox * Ut * 1.35, hy - uy * Ut * 1.5 + oy * Ut * 1.35); ctx.lineTo(hx + ox * Ut * 1.1, hy + oy * Ut * 1.1); ctx.fill();
+      plate(Ut * 0.6, flat ? null : 'rgba(180,140,230,0.5)');
+      if (flat) break;
+      for (let row = 0; row < 4; row++) for (let col = -1; col <= 1; col++) {
+        const u = 0.15 + row * 0.2, px = lerp(hx, nx, u) + ox * col * Ut * 0.62 + ux * 0, py = lerp(hy, ny, u) + oy * col * Ut * 0.62;
+        if (row === 3 && col !== 0) continue;
+        ctx.fillStyle = (row + col) % 2 ? 'rgba(214,206,186,0.32)' : 'rgba(214,206,186,0.22)';
+        ctx.save(); ctx.translate(px, py); ctx.rotate(ang + Math.PI / 2);
+        ctx.fillRect(-Ut * 0.28, -Ut * 0.16, Ut * 0.56, Ut * 0.32);
+        ctx.strokeStyle = 'rgba(20,18,24,0.6)'; ctx.lineWidth = 0.6 * s;
+        ctx.beginPath(); ctx.moveTo(-Ut * 0.22, -Ut * 0.04); ctx.lineTo(Ut * 0.22, -Ut * 0.04); ctx.moveTo(-Ut * 0.22, Ut * 0.07); ctx.lineTo(Ut * 0.14, Ut * 0.07); ctx.stroke();
+        if ((row * 3 + col) % 4 === 0) { ctx.strokeStyle = 'rgba(180,140,230,0.85)'; ctx.lineWidth = 1 * s; ctx.beginPath(); ctx.moveTo(-Ut * 0.26, Ut * 0.1); ctx.lineTo(Ut * 0.26, -Ut * 0.1); ctx.stroke(); }
+        ctx.restore();
+      }
       break;
     }
     case 'order_garb': case 'order_plate': {

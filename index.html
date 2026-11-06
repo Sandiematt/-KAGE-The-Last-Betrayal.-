@@ -1623,6 +1623,11 @@ const WEAPONS = {
   // Raikon's own Raikō no Tachi: the same broad odachi and red lightning groove, at enemy strength (the player's boss-tier
   // copy is raiko_no_tachi, granted when Raikon falls)
   raikon_tachi: { heft: 1.9, el: 'redline', enemy: 1, name: 'Raikō no Tachi', base: 'onikiri', len: 128, stats: [64, 40, 60], trail: '#ff4a3c' },
+  // Act II sub-boss arms (act2.sub1..4)
+  courier_kunai: { heft: 0.6, el: 'shade', enemy: 1, name: 'Courier Kunai', base: 'tsubame', len: 44, trail: '#b9a8d8' },
+  quiet_kodachi: { heft: 0.9, el: 'moon', enemy: 1, name: 'Quiet Kodachi', base: 'kagetsu', len: 66, trail: '#d6cce6' },
+  echo_crescents: { heft: 0.8, el: 'moon', enemy: 1, name: 'Echo Crescents', base: 'tsubame', len: 70, trail: '#c9bdff', crescent: 1 },
+  ledger_kusari: { heft: 1, el: 'shade', enemy: 1, name: 'Ledger Kusari', base: 'yamigama', len: 66, trail: '#b48ae6' },
   temple_staff: { heft: 1.1, el: 'shade', enemy: 1, name: 'Temple Staff', base: 'mizuchi', len: 180, trail: '#ece5d3', staff: 1, stance: 'staff' },
   // Shiden's war spear (Act I sub-boss): a long vanguard yari on the spear forms, with Raikon's red in its trail
   vanguard_yari: { heft: 1.3, el: 'redline', enemy: 1, name: 'Vanguard Yari', base: 'mizuchi', len: 176, trail: '#ff6a52' },
@@ -1741,6 +1746,11 @@ const HELMETS = {
     lore: 'The tall lacquered cap of the Archive Bureau\'s chief censor. Ink from ten thousand blacked-out names has soaked into its silk.' },
   hisame_zukin: { name: 'Hisame Zukin', tier: 'trophy', def: 0.18, hp: 34, exclusive: true, hint: 'Defeat Hisame, the Rain Courier', look: 'rain_hood', perks: { dash: 0.15, speed: 0.04 },
     lore: 'An Order courier\'s oiled rain hood with a storm-glass visor. It has run every roof in the outer districts and never once been caught.' },
+  // Act II sub-boss trophies
+  hakobi_gasa:  { name: 'Hakobi-gasa', tier: 'trophy', def: 0.18, hp: 34, exclusive: true, hint: 'Defeat Tsugumi, the Memory Courier', look: 'courier_hat', perks: { dash: 0.12, ammo: 2 },
+    lore: 'A memory courier\'s flat hat hung with glass vials, each one a stored memory on its way into the City of Echoes. One vial still rattles. Nobody knows whose it is.' },
+  utsushi_men:  { name: 'Utsushi-men', tier: 'trophy', def: 0.18, hp: 34, exclusive: true, hint: 'Defeat Utsushi, the Borrowed Face', look: 'borrowed_mask', perks: { rage: 0.2, speed: 0.03 },
+    lore: 'The blank mask a Hollow wore to pass as an intelligence operative. The face painted on it is never the same one twice.' },
   kasa:         { name: 'Kasa', tier: 'trophy', def: 0.2, hp: 40, exclusive: true, hint: 'Defeat Takashi', look: 'straw_kasa', perks: { ammo: 3, rage: 0.15 },
     lore: 'Takashi\'s battered straw hat. He wore it on the road out of Hoshimura and never told his sons where it led.' }
 };
@@ -1773,6 +1783,11 @@ const ARMORS = {
     lore: 'Half a cuirass from Raikon\'s thunder vanguard. The storm burned the other half off Garan the day he deserted, and he wore what was left like a confession.' },
   shiden_yoroi: { name: 'Shiden Yoroi', tier: 'trophy', def: 0.21, hp: 80, exclusive: true, hint: 'Defeat Shiden, the Last Lieutenant', look: 'vanguard_plate', perks: { dmg: 0.05, stunRes: 0.1 },
     lore: 'A lieutenant\'s plate of the thunder vanguard, laced in violet cord. Its echo still keeps the archive road, waiting for orders that stopped ten years ago.' },
+  // Act II sub-boss trophies
+  shirabe_do:   { name: 'Shirabe-dō', tier: 'trophy', def: 0.21, hp: 78, exclusive: true, hint: 'Defeat Sayo, the Quiet Hand', look: 'operative_vest', perks: { dash: 0.15, dmg: 0.03 },
+    lore: 'An intelligence operative\'s vest of lacquered strips, its lining stitched with pockets for message slips. Every slip is blank now; the memory that wrote them is gone.' },
+  kasane_haori: { name: 'Kasane Haori', tier: 'trophy', def: 0.21, hp: 80, exclusive: true, hint: 'Defeat Kasane, the Ledger Warden', look: 'ledger_coat', perks: { stunRes: 0.15, rage: 0.1 },
+    lore: 'A coat of pasted ledger pages, layer on layer: every memory the City of Echoes was rebuilt from, entered in a careful hand. Some entries contradict the ones beneath them.' },
   mei_en_garb:  { name: 'Mei-En Garb', tier: 'trophy', def: 0.21, hp: 80, exclusive: true, hint: 'Defeat Akari', look: 'mei_en', perks: { dash: 0.2, speed: 0.06 },
     lore: 'Akari\'s smoke-grey fighting garb. Even the Order\'s records cannot agree on what colour it is.' },
   kysmei_robe:  { name: 'Kysmei Robe', tier: 'trophy', def: 0.22, hp: 85, exclusive: true, hint: 'Defeat the Witness', look: 'robe', perks: { rage: 0.3 },
@@ -1921,6 +1936,46 @@ const ENEMIES = {
               { name: 'Vanguard', at: 1, abilities: ['vanguardBreak'] },
               { name: 'Hold the Line', at: 0.5, abilities: ['vanguardBreak', 'vanguardGuard'], aggressive: 1 }
             ] },
+  // ---- Act II sub-bosses (act2.sub1..4) ----
+  // Each is fought in the boss format (one bar, one or two phases; the stage has `format: 'boss'`) and borrows a
+  // REDUCED Akari move (AKARI_VARIANTS below: Twin Fang, Smoke Step or Blink), never False Opening or Petal Cross.
+  // Each wears the trophy it drops. `lore` is the sub-boss's tie to Act II.
+  tsugumi: { name: 'Tsugumi', title: 'the Memory Courier', type: 'sub', ai: 'agile', weapon: 'courier_kunai', helmet: 'hakobi_gasa', armor: 'hai_haori',
+            hp: 340, def: 0.05, dmg: 0.95, speed: 1.14, build: { scale: 0.94, w: 8.6, legs: 1.08, head: 0.98 }, eye: '#d8ccff', accent: '#a98ad8', body: '#1c1a20', defeat: 'finisher',
+            lore: 'A courier who carries stored memories, sealed in glass, from the Echo System into the City of Echoes so its streets can be rebuilt. She has delivered ten thousand lives and kept none of her own.',
+            taunt: 'Every memory on this street passed through my hands. Yours too. Shall I take it back?', defeatLine: 'Undelivered... after all this way...', win: 'Delivered.',
+            tip: 'Courier Step: smoke curls at her feet before she vanishes and steps out close by to cut. Watch for the second puff and block toward it.',
+            phases: [
+              { name: 'Delivery', at: 1, abilities: ['courierStep'] },
+              { name: 'Return to Sender', at: 0.5, abilities: ['courierStep', 'lunge'], berserk: 1 }
+            ] },
+  sayo: { name: 'Sayo', title: 'the Quiet Hand', type: 'sub', ai: 'defensive', weapon: 'quiet_kodachi', helmet: 'kasumi_men', armor: 'shirabe_do',
+            hp: 380, def: 0.08, dmg: 1, build: { scale: 1.0, w: 9.2, legs: 1.04 }, eye: '#e6dcff', accent: '#9b8cc9', body: '#1b1b22', defeat: 'finisher',
+            lore: 'An operative of the old intelligence corps, trained under Akari. The City rebuilt her from her teacher\'s memory of her, so she runs Akari\'s drills at half the speed and with none of her patience.',
+            taunt: 'You move like someone who was taught properly once. Then you forgot the lesson.', defeatLine: 'She said... I would never be quick enough...', win: 'Quiet, now.',
+            tip: 'Half Fang: she draws her kodachi low and glints before two quick cuts. Block the pair, then punish the pause after.',
+            phases: [
+              { name: 'Quiet Hand', at: 1, abilities: ['halfFang'] },
+              { name: 'Second Hand', at: 0.5, abilities: ['halfFang', 'counterStance'], aggressive: 1 }
+            ] },
+  utsushi: { name: 'Utsushi', title: 'the Borrowed Face', type: 'sub', family: 'hollow', ai: 'agile', weapon: 'echo_crescents', helmet: 'utsushi_men', armor: 'hollow_rags',
+            hp: 350, def: 0.05, dmg: 0.95, speed: 1.1, build: { scale: 1.02, w: 9.4, legs: 1.04 }, eye: '#ffffff', accent: '#c9bdff', defeat: 'finisher',
+            lore: 'A Hollow that copied an intelligence operative out of a stored memory and never gave the shape back. It has her stance, her mask and her blink, and none of her name.',
+            taunt: '...I remember you... no... she remembers you... which of us is talking...', defeatLine: '...give it back... the face... was mine...', win: '...now I am you...',
+            tip: 'Stolen Blink: a violet mark flares on the floor where it will land. Turn to the mark and strike as it arrives.',
+            phases: [
+              { name: 'Borrowed Face', at: 1, abilities: ['stolenBlink'] },
+              { name: 'Borrowed Blade', at: 0.5, abilities: ['stolenBlink', 'stolenFang'], berserk: 1 }
+            ] },
+  kasane: { name: 'Kasane', title: 'the Ledger Warden', type: 'sub', ai: 'boss', weapon: 'ledger_kusari', helmet: 'hachigane', armor: 'kasane_haori',
+            hp: 460, def: 0.12, dmg: 1.05, build: { scale: 1.1, w: 11 }, eye: '#e0ccff', accent: '#b48ae6', body: '#1e1b24', flashEyes: 1, noGrab: 1, defeat: 'finisher',
+            lore: 'Akari\'s field partner in the intelligence corps, who kept the ledger of every memory stored in the City of Echoes. His echo still balances the books, and guards the last street before the one where she waits.',
+            taunt: 'Every life in this city is entered in my ledger. Yours has two entries, and they disagree.', defeatLine: 'Strike the entry... she will know what it means...', win: 'Balanced.',
+            tip: 'Ledger Fang: his sickle glints twice before two quick cuts. From his second phase he Ledger Steps through smoke; turn as he reappears.',
+            phases: [
+              { name: 'The Ledger', at: 1, abilities: ['ledgerFang'] },
+              { name: 'Balanced Accounts', at: 0.5, abilities: ['ledgerFang', 'ledgerStep'], aggressive: 1 }
+            ] },
   // ---- the Interlude ----
   // Young Rem (interlude.spar): a memory, gifted, impulsive and competitive. A smaller build in plain training clothes
   // with a purple sash and headband, a bokken, and the family form (FAMILY_FORM) at his own fast, fluid tempo (`form`).
@@ -1988,6 +2043,23 @@ const AKARI_MOVES = {
   blink:        { label: 'BLINK', cd: 4.2, range: [80, 800], chance: 0.55, windup: 0.32, dist: 230 },
   falseOpening: { label: 'FALSE OPENING', cd: 9, range: [100, 520], chance: 0.6, windup: 0.4, dmg: 15, afterimages: 2, opacity: 0.5, hold: 1.8 },
   petalCross:   { label: 'PETAL CROSS', cd: 7, range: [120, 520], chance: 0.7, windup: 0.72, dmg: 24, dash: 1100, reach: 190 }
+};
+
+/* Act II's sub-bosses fight with reduced versions of Akari's moves: each AKARI_VARIANTS entry runs its `base` ability's
+   code (40-ai.js registers them as BOSS_ABILITIES next to hers) with these numbers merged over AKARI_MOVES[base]. A
+   reduced move winds up at least as long as Akari's, hits no harder and repositions no further; only Twin Fang, Smoke
+   Step and Blink are borrowed, never False Opening or Petal Cross. Logic.akariDerived(id) answers what a move is. */
+const AKARI_VARIANTS = {
+  // Tsugumi: a slower Smoke Step with a smaller puff and a shorter step
+  courierStep: { base: 'smokeStep', label: 'COURIER STEP', cd: 6.5, range: [140, 600], chance: 0.5, windup: 0.5, dmg: 7, dist: 120, smoke: { life: 0.4, radius: 38 } },
+  // Sayo: Twin Fang with one kodachi, a long tell and light cuts
+  halfFang:    { base: 'twinFang', label: 'HALF FANG', cd: 4, range: [0, 260], chance: 0.6, windup: 0.58, dmg: [5, 8], dash: 400 },
+  // Utsushi: one short Blink (never chained), and in its second phase a copied Twin Fang
+  stolenBlink: { base: 'blink', label: 'STOLEN BLINK', cd: 5.5, range: [120, 700], chance: 0.5, windup: 0.46, dist: 170 },
+  stolenFang:  { base: 'twinFang', label: 'STOLEN FANG', cd: 4.6, range: [0, 260], chance: 0.55, windup: 0.52, dmg: [5, 9], dash: 440 },
+  // Kasane: a sickle Twin Fang, then from his second phase a short Smoke Step
+  ledgerFang:  { base: 'twinFang', label: 'LEDGER FANG', cd: 3.8, range: [0, 280], chance: 0.6, windup: 0.5, dmg: [6, 10], dash: 460 },
+  ledgerStep:  { base: 'smokeStep', label: 'LEDGER STEP', cd: 6, range: [140, 640], chance: 0.5, windup: 0.44, dmg: 8, dist: 140, smoke: { life: 0.45, radius: 42 } }
 };
 
 /* ---------------- Final Flow ----------------
@@ -2223,6 +2295,70 @@ const CAMPAIGN = (function buildCampaign() {
     'act1.sub4': { foe: 'Shiden', foeTitle: 'the Last Lieutenant', enemy: 'shiden', format: 'boss', env: 'districts', reward: { armors: ['shiden_yoroi'] } }
   };
   for (const st of chapters[1].stages) if (ACT1[st.id]) Object.assign(st, ACT1[st.id]);
+  // Act II, the City of Echoes: four stretches through a district rebuilt from stored memories. Mostly Hollows, more of
+  // them each stretch. The reconstruction shows: each stretch's street block repeats (`loop`, expanded by
+  // Logic.streetProps, with a glitching `seam` where it starts over), its sign reads differently every time it comes
+  // back into view (Logic.signStep / signText), and in each `before` scene two residents remember the same event two
+  // different ways. One clue (two teacups). Each stretch ends in a sub-boss with a reduced Akari move and a trophy.
+  const S = 'hollow_shade', FL = 'hollow_flicker', WD = 'hollow_ward', MI = 'hollow_mimic', HU = 'hollow_husk';
+  const ACT2 = {
+    'act2.stretch1': { name: 'The Repeating Street', enemy: S, scenes: { before: 'act2.stretch1.before' },
+      stretch: { length: 5200, start: 160, env: 'echoes',
+        encounters: [
+          { x: 1100, gate: 1750, waves: [[S, S], [S, FL]] },
+          { x: 3000, gate: 3700, waves: [[FL, S], [S, FL, S, RU]] }],
+        clues: [],
+        loop: { from: 400, period: 1600, count: 3, block: [
+          { type: 'echo_house', dx: 0 },
+          { type: 'sign', dx: 300, id: 'teahouse', texts: ['TACHIBANA TEA HOUSE', 'TACHIBANA TEA HOUSE · CLOSED', 'NO TACHIBANAS HERE', 'WELCOME HOME'] },
+          { type: 'lantern_post', dx: 620 },
+          { type: 'echo_house', dx: 1000, alt: 1 },
+          { type: 'lantern_post', dx: 1300 }] } } },
+    'act2.sub1': { foe: 'Tsugumi', foeTitle: 'the Memory Courier', enemy: 'tsugumi', format: 'boss', env: 'echoes', reward: { helmets: ['hakobi_gasa'] } },
+    'act2.stretch2': { name: 'Lantern Row', enemy: MI, scenes: { before: 'act2.stretch2.before' },
+      stretch: { length: 5400, start: 160, env: 'echoes',
+        encounters: [
+          { x: 1000, gate: 1650, waves: [[S, MI], [FL, S]] },
+          { x: 2400, gate: 3050, waves: [[WD, S], [MI, FL]] },
+          { x: 3800, gate: 4500, waves: [[S, WD, FL, MI]] }],
+        clues: [{ id: 'cups', x: 3350, label: 'Two teacups, still warm', scene: 'act2.clue.cups' }],
+        loop: { from: 350, period: 1600, count: 3, block: [
+          { type: 'lantern_post', dx: 0 },
+          { type: 'echo_house', dx: 260, alt: 1 },
+          { type: 'sign', dx: 560, id: 'lanterns', texts: ['LANTERNS · REPAIRED', 'LANTERNS · REMEMBERED', 'LANTERNS · FORGOTTEN'] },
+          { type: 'lantern_post', dx: 800 },
+          { type: 'echo_house', dx: 1150 }] } } },
+    'act2.sub2': { foe: 'Sayo', foeTitle: 'the Quiet Hand', enemy: 'sayo', format: 'boss', env: 'echoes', reward: { armors: ['shirabe_do'] } },
+    'act2.stretch3': { name: 'The Two-Ended Bridge', enemy: FL, scenes: { before: 'act2.stretch3.before' },
+      stretch: { length: 5700, start: 160, env: 'echoes',
+        encounters: [
+          { x: 1100, gate: 1750, waves: [[FL, FL], [S, MI, S]] },
+          { x: 2600, gate: 3250, waves: [[WD, MI], [S, FL, RU]] },
+          { x: 4100, gate: 4800, waves: [[HU], [S, WD, MI, FL]] }],
+        clues: [],
+        loop: { from: 400, period: 1700, count: 3, block: [
+          { type: 'echo_house', dx: 0, alt: 1 },
+          { type: 'lantern_post', dx: 330 },
+          { type: 'sign', dx: 640, id: 'bridge', texts: ['HASHI BRIDGE → HOSHIMURA', 'HASHI BRIDGE → YOMI', 'HASHI BRIDGE → NOWHERE'] },
+          { type: 'shrine', dx: 980 },
+          { type: 'echo_house', dx: 1300 }] } } },
+    'act2.sub3': { foe: 'Utsushi', foeTitle: 'the Borrowed Face', enemy: 'utsushi', format: 'boss', env: 'echoes', reward: { helmets: ['utsushi_men'] } },
+    'act2.stretch4': { name: 'The Unfinished Ward', enemy: WD, scenes: { before: 'act2.stretch4.before' },
+      stretch: { length: 6000, start: 160, env: 'echoes',
+        encounters: [
+          { x: 1000, gate: 1650, waves: [[S, MI, FL], [WD, S]] },
+          { x: 2600, gate: 3300, waves: [[HU, S], [MI, FL, WD]] },
+          { x: 4200, gate: 5000, waves: [[HU, WD, S], [MI, FL, S, HU]] }],
+        clues: [],
+        loop: { from: 300, period: 1800, count: 3, block: [
+          { type: 'echo_house', dx: 0 },
+          { type: 'lantern_post', dx: 380 },
+          { type: 'echo_house', dx: 700, alt: 1, unfinished: 1 },
+          { type: 'sign', dx: 1050, id: 'ward', texts: ['WARD 9 · RESIDENTS ONLY', 'WARD 9 · NO RESIDENTS', 'WARD 9 · DO NOT REMEMBER'] },
+          { type: 'lantern_post', dx: 1400 }] } } },
+    'act2.sub4': { foe: 'Kasane', foeTitle: 'the Ledger Warden', enemy: 'kasane', format: 'boss', env: 'echoes', reward: { armors: ['kasane_haori'] } }
+  };
+  for (const st of chapters[3].stages) if (ACT2[st.id]) Object.assign(st, ACT2[st.id]);
   for (const ch of chapters) ch.stages.forEach((st, i) => { st.chapter = ch.id; st.pos = i; });
   return { chapters };
 })();
@@ -2474,6 +2610,58 @@ const SCENES = {
       { say: 'rem', name: 'Young Rem', text: 'This isn’t over. We settle it tomorrow.' },
       { say: 'kage', name: 'Young Kage', text: 'Tomorrow, then.' },
       { say: 'narrator', text: 'They never did settle it. Somewhere in the ash, the question is still waiting.' }
+    ]
+  },
+  // ---- Act II: the City of Echoes (stages act2.stretch1..4), a district rebuilt from stored memories ----
+  // Familiar people, rebuilt from what others remembered of them, tell the same event two different ways, each sure of
+  // their own version. Nothing here says who erased Kage's memories or why; that is Akari's to tell.
+  'act2.stretch1.before': {
+    steps: [
+      { say: 'narrator', text: 'The City of Echoes. A district rebuilt from stored memories: every lantern lit, every door open, nobody quite where they should be.' },
+      { say: 'resident', name: 'Tea-seller', text: 'Kage! You came back. I remember the night you left Hoshimura. You carried your brother out of the fire on your back.' },
+      { say: 'resident', name: 'Lantern-keeper', text: 'No, no. Rem carried you. You were the one bleeding. I held the lantern for him myself.' },
+      { say: 'resident', name: 'Tea-seller', text: 'I remember it clearly.' },
+      { say: 'resident', name: 'Lantern-keeper', text: 'So do I.' },
+      { say: 'kage', text: 'You can’t both remember it.' },
+      { say: 'narrator', text: 'They smile at him, patient and certain, and go back to sweeping the same step.' }
+    ]
+  },
+  'act2.stretch2.before': {
+    steps: [
+      { say: 'narrator', text: 'Lantern Row. The same paper lantern swings on every corner, at the same angle, in no wind.' },
+      { say: 'resident', name: 'Fishmonger', text: 'The Tachibana brothers? They fought right here in the street. The younger one drew first.' },
+      { say: 'resident', name: 'Seamstress', text: 'No. They fought back to back, here, against the Order. Nobody drew on anybody.' },
+      { say: 'kage', text: 'Which is it?' },
+      { say: 'resident', name: 'Fishmonger', text: 'We both remember it. Isn’t that enough?' },
+      { say: 'kage', text: 'Someone built this street out of what people remember. And nobody remembers the same thing.' }
+    ]
+  },
+  // The one clue of the City of Echoes: a detail only Kage could have remembered, so the reconstruction used his
+  // memories too.
+  'act2.clue.cups': {
+    steps: [
+      { say: 'narrator', text: 'A table set in an empty tea house: two cups, still warm. One is chipped at the rim.' },
+      { say: 'kage', text: 'Rem always took the chipped one. He said it poured better. It didn’t.' },
+      { say: 'kage', text: 'Nobody else would remember that. Whoever built this street used my memories too.' },
+      { flag: 'act2.cups_found' }
+    ]
+  },
+  'act2.stretch3.before': {
+    steps: [
+      { say: 'narrator', text: 'A bridge over a dry canal. From the middle, both ends look like the side you came from.' },
+      { say: 'resident', name: 'Ferryman', text: 'Ten years ago the elder Tachibana boy crossed this bridge alone, and never came back.' },
+      { say: 'resident', name: 'Ferryman’s wife', text: 'No. Two boys crossed it. Only one came back, and he did not remember the other.' },
+      { say: 'kage', text: 'Which one came back?' },
+      { say: 'resident', name: 'Ferryman’s wife', text: 'You tell us. You are the one who keeps walking through.' }
+    ]
+  },
+  'act2.stretch4.before': {
+    steps: [
+      { say: 'narrator', text: 'The edge of the reconstruction. Houses stand half-built from memory, their backs left blank.' },
+      { say: 'resident', name: 'Schoolteacher', text: 'I remember you as a boy. Quiet. Your brother did all the talking.' },
+      { say: 'resident', name: 'Night watchman', text: 'No. You were the loud one. Rem never said a word to anybody but you.' },
+      { say: 'kage', text: 'Every memory here is real to someone. Just not the same someone.' },
+      { say: 'resident', name: 'Night watchman', text: 'Past the ward the street stops repeating. Someone waits there who remembers everything, and tells nothing.' }
     ]
   },
   // ---- Act II boss: Akari, the Memory Blade (stage act2.boss, the City of Echoes) ----
@@ -2861,6 +3049,15 @@ const Logic = {
     if (!AKARI_ABILITIES.includes(id) || !AKARI_MOVES[id]) return null;
     return JSON.parse(JSON.stringify(Object.assign({ id }, AKARI_MOVES[id])));
   },
+  // Akari's moves and the reduced versions of them Act II's sub-bosses fight with (AKARI_ABILITIES and AKARI_VARIANTS
+  // in 10-data.js): the numbers the move runs with (Akari's, with a variant's overrides on top) plus { id, base,
+  // reduced }, where `base` is the Akari ability whose code runs. null for any other id.
+  akariDerived(id) {
+    if (AKARI_ABILITIES.includes(id)) return Object.assign(this.akariMove(id), { base: id, reduced: false });
+    const v = AKARI_VARIANTS[id];
+    if (!v || !AKARI_ABILITIES.includes(v.base)) return null;
+    return JSON.parse(JSON.stringify(Object.assign({}, AKARI_MOVES[v.base], v, { id, base: v.base, reduced: true })));
+  },
   // A weapon's grounded string as it plays at a level: [{ id, startup, active, recovery, dmg, reach }] with the
   // weapon's speed, damage and reach multipliers (weaponMul) applied, so two blades can be compared (Shinsen vs Kagetsu).
   weaponMoves(id, lvl) {
@@ -2917,6 +3114,30 @@ const Logic = {
      `cleared` below is how many of them are done. */
   // The stretch level of a stage, or null for any other stage.
   stretch(id) { const st = this.stage(id); return st && st.kind === 'stretch' && st.stretch ? st.stretch : null; },
+  // The City of Echoes (Act II) is rebuilt from stored memories, and it shows. Everything a stretch stands on its
+  // road, sorted by x: its hand-placed `props`, plus its `loop` ({ from, period, count, block: [{ type, dx, ... }] }),
+  // the same street block laid down `count` times, `period` apart, with a `seam` prop where each repeat begins.
+  // Every copy of a block item keeps its fields (a sign keeps its id, so all its copies are one sign) and gets `copy`.
+  streetProps(stretch) {
+    const out = (stretch.props || []).map(p => Object.assign({}, p)), L = stretch.loop;
+    if (L) for (let i = 0; i < L.count; i++) {
+      const x0 = L.from + i * L.period;
+      if (i > 0) out.push({ type: 'seam', x: x0, copy: i });
+      for (const b of L.block) out.push(Object.assign({}, b, { x: x0 + b.dx, copy: i }));
+    }
+    return out.sort((a, b) => a.x - b.x || (a.type === 'seam' ? -1 : b.type === 'seam' ? 1 : 0));
+  },
+  // A sign in the City of Echoes changes while nobody is looking. signStep(state, visible) advances its state by one
+  // frame (state null = never seen): it reads the next text each time it comes back into view after leaving it, and
+  // never while it is watched. signText(sign, state) is what it reads now (sign.texts, cycling).
+  signStep(state, visible) {
+    const s = state ? Object.assign({}, state) : { views: 0, seen: false, onScreen: false };
+    if (visible && !s.onScreen && s.seen) s.views++;
+    if (visible) s.seen = true;
+    s.onScreen = !!visible;
+    return s;
+  },
+  signText(sign, state) { const t = sign.texts || []; return t.length ? t[((state && state.views) || 0) % t.length] : ''; },
   // Index of the encounter Kage starts by standing at x, or -1 (the next uncleared one, once he crosses its trigger).
   encounterAt(stretch, cleared, x) {
     const e = stretch.encounters[cleared];
@@ -3180,6 +3401,7 @@ const SHAPE = {
   fists: 'none', tsubame: 'short', kagetsu: 'katana', shizuka: 'katana', onikiri: 'cleaver', mizuchi: 'spear',
   yamigama: 'sickle', iwakudaki: 'hammer', shinsen: 'shinsen', raiko_no_tachi: 'odachi', raikon_tachi: 'odachi', kagehira_yurei: 'short', akari_blades: 'short', mugen_no_ha: 'katana',
   shadow_daggers: 'short', hollow_crescents: 'crescent', mist_fans: 'fan',
+  courier_kunai: 'short', quiet_kodachi: 'katana', echo_crescents: 'crescent', ledger_kusari: 'sickle',
   sentinel_spear: 'spear', vanguard_yari: 'spear', sage_staff: 'staff', storm_orbs: 'none', iron_fists: 'none', chain_hook: 'hook',
   tyrant_cleaver: 'tyrant', cutter_blade: 'katana', temple_staff: 'staff', raider_cleaver: 'cleaver', bokken: 'bokken'
 };
@@ -5004,6 +5226,42 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
       }
       break;
     }
+    case 'courier_hat': {
+      // Tsugumi's Hakobi-gasa: a wide, very flat courier's hat tilted forward over the eyes, a cord under the jaw, and
+      // three small glass vials of stored memory hanging from its brim (pale violet, one swinging)
+      ctx.beginPath(); ctx.moveTo(-r * 2.1, -r * 0.55); ctx.quadraticCurveTo(-r * 0.2, -r * 1.45, r * 2.3, -r * 0.42);
+      ctx.lineTo(r * 2.2, -r * 0.26); ctx.quadraticCurveTo(0, -r * 0.62, -r * 2.0, -r * 0.38); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(-r * 0.05, -r * 0.95, r * 0.75, r * 0.28, -0.05, Math.PI, TAU); ctx.fill();   // crown
+      if (!flat) {
+        ctx.strokeStyle = 'rgba(169,138,216,0.7)'; ctx.lineWidth = Math.max(1, r * 0.08);
+        ctx.beginPath(); ctx.moveTo(-r * 2.0, -r * 0.42); ctx.quadraticCurveTo(0, -r * 0.66, r * 2.2, -r * 0.3); ctx.stroke();   // brim edge
+        ctx.strokeStyle = 'rgba(236,229,211,0.45)'; ctx.lineWidth = Math.max(1, r * 0.05);
+        ctx.beginPath(); ctx.moveTo(-r * 0.7, -r * 0.5); ctx.quadraticCurveTo(-r * 0.1, r * 1.2, r * 0.75, r * 0.6); ctx.stroke();   // chin cord
+        for (let i = 0; i < 3; i++) {
+          const vx = r * (-1.6 + i * 0.75), sw = i === 1 ? Math.sin(t * 3) * r * 0.12 : 0, vy = -r * 0.42 + r * 0.06 * i;
+          ctx.strokeStyle = 'rgba(236,229,211,0.4)'; ctx.beginPath(); ctx.moveTo(vx, vy); ctx.lineTo(vx + sw, vy + r * 0.45); ctx.stroke();
+          ctx.fillStyle = i === 1 ? 'rgba(201,189,255,0.9)' : 'rgba(155,140,255,0.7)';
+          ctx.fillRect(vx + sw - r * 0.1, vy + r * 0.45, r * 0.2, r * 0.32);
+        }
+      }
+      break;
+    }
+    case 'borrowed_mask': {
+      // Utsushi's Utsushi-men: a blank white oval mask over the Hollow's face, cel-shaded on its far half, with a face
+      // painted on it in thin violet strokes that slips between two expressions as the Hollow glitches
+      ctx.beginPath(); ctx.moveTo(-r * 0.9, -r * 0.4); ctx.lineTo(-r * 1.2, -r * 1.15); ctx.lineTo(-r * 0.35, -r * 0.9); ctx.lineTo(-r * 0.15, -r * 1.5); ctx.lineTo(r * 0.2, -r * 0.95); ctx.closePath(); ctx.fill();   // shards of the head behind
+      ctx.fillStyle = flat ? ink : '#ece6ff';
+      ctx.beginPath(); ctx.ellipse(r * 0.42, r * 0.05, r * 0.72, r * 1.02, 0, 0, TAU); ctx.fill();
+      if (!flat) {
+        ctx.fillStyle = '#c9bfe6'; ctx.beginPath(); ctx.ellipse(r * 0.42, r * 0.05, r * 0.72, r * 1.02, 0, Math.PI * 0.5, Math.PI * 1.5); ctx.fill();
+        const alt = ((t * 1.3) | 0) % 3 === 2;   // the painted face never stays the same
+        ctx.strokeStyle = '#7a5cc9'; ctx.lineWidth = Math.max(1, r * 0.09); ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(r * 0.1, -r * 0.2); ctx.lineTo(r * 0.38, alt ? -r * 0.32 : -r * 0.14); ctx.moveTo(r * 0.62, alt ? -r * 0.32 : -r * 0.14); ctx.lineTo(r * 0.92, -r * 0.2); ctx.stroke();   // brows
+        ctx.fillStyle = '#4a3b86'; ctx.fillRect(r * 0.2, -r * 0.08, r * 0.16, r * 0.1); ctx.fillRect(r * 0.66, -r * 0.08, r * 0.16, r * 0.1);   // eye slits
+        ctx.beginPath(); ctx.moveTo(r * 0.22, r * 0.55); ctx.quadraticCurveTo(r * 0.5, alt ? r * 0.35 : r * 0.78, r * 0.8, r * 0.55); ctx.stroke();   // smile, or not
+      }
+      break;
+    }
     case 'akari_mask': {
       // Akari: hair pulled back tight (a flat cap over the crown, its tail is cloth) and a half-mask over nose and mouth,
       // a muted violet-grey plate with a centre seam, cel-shaded on its lower edge; nothing else
@@ -5187,6 +5445,46 @@ function drawArmor(ctx, f, ink, opt, Ut) {
       if (flat) break;
       ctx.strokeStyle = 'rgba(214,168,255,0.5)'; ctx.lineWidth = 1.1 * s; ctx.stroke();
       bands(5, 'rgba(176,124,255,0.55)', Ut * 1.02, 0.14, 0.86);
+      break;
+    }
+    case 'operative_vest': {
+      // Sayo's Shirabe-dō: a close operative's vest of lacquered horizontal strips, a high wrapped collar, a diagonal
+      // strap of message-slip pockets (pale squares) across the chest, and a small shoulder guard
+      torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.02);
+      plate(Ut * 0.46, flat ? null : 'rgba(155,140,201,0.5)');
+      if (flat) break;
+      bands(4, 'rgba(155,140,201,0.45)', Ut * 0.98, 0.18, 0.78);
+      const ox = Math.cos(ang + Math.PI / 2), oy = Math.sin(ang + Math.PI / 2);
+      ctx.strokeStyle = '#2c2838'; ctx.lineWidth = 3.4 * s; ctx.lineCap = 'butt';
+      const a = [lerp(hx, nx, 0.9) - ox * Ut * 0.9, lerp(hy, ny, 0.9) - oy * Ut * 0.9], b = [lerp(hx, nx, 0.3) + ox * Ut * 0.9, lerp(hy, ny, 0.3) + oy * Ut * 0.9];
+      ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); ctx.lineCap = 'round';
+      ctx.fillStyle = 'rgba(236,229,211,0.55)';
+      for (let i = 1; i <= 3; i++) { const k = i / 4; ctx.fillRect(lerp(a[0], b[0], k) - 1.6 * s, lerp(a[1], b[1], k) - 1.6 * s, 3.2 * s, 3.2 * s); }
+      ctx.strokeStyle = 'rgba(200,190,230,0.6)'; ctx.lineWidth = 2.2 * s;
+      ctx.beginPath(); ctx.moveTo(lerp(hx, nx, 0.95) - ox * Ut * 0.6, lerp(hy, ny, 0.95) - oy * Ut * 0.6); ctx.lineTo(lerp(hx, nx, 0.95) + ox * Ut * 0.6, lerp(hy, ny, 0.95) + oy * Ut * 0.6); ctx.stroke();   // collar
+      break;
+    }
+    case 'ledger_coat': {
+      // Kasane's Haori: a long coat of pasted ledger pages, layered like scales down the torso and flaring past the
+      // hips; each page is a pale rectangle ruled with thin ink lines, a few struck through in violet
+      torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.12);
+      const ox = Math.cos(ang + Math.PI / 2), oy = Math.sin(ang + Math.PI / 2), ux = Math.cos(ang), uy = Math.sin(ang);
+      ctx.fillStyle = ink; ctx.beginPath();   // the coat's skirt past the hips
+      ctx.moveTo(hx - ox * Ut * 1.1, hy - oy * Ut * 1.1); ctx.lineTo(hx - ux * Ut * 1.5 - ox * Ut * 1.35, hy - uy * Ut * 1.5 - oy * Ut * 1.35);
+      ctx.lineTo(hx - ux * Ut * 1.5 + ox * Ut * 1.35, hy - uy * Ut * 1.5 + oy * Ut * 1.35); ctx.lineTo(hx + ox * Ut * 1.1, hy + oy * Ut * 1.1); ctx.fill();
+      plate(Ut * 0.6, flat ? null : 'rgba(180,140,230,0.5)');
+      if (flat) break;
+      for (let row = 0; row < 4; row++) for (let col = -1; col <= 1; col++) {
+        const u = 0.15 + row * 0.2, px = lerp(hx, nx, u) + ox * col * Ut * 0.62 + ux * 0, py = lerp(hy, ny, u) + oy * col * Ut * 0.62;
+        if (row === 3 && col !== 0) continue;
+        ctx.fillStyle = (row + col) % 2 ? 'rgba(214,206,186,0.32)' : 'rgba(214,206,186,0.22)';
+        ctx.save(); ctx.translate(px, py); ctx.rotate(ang + Math.PI / 2);
+        ctx.fillRect(-Ut * 0.28, -Ut * 0.16, Ut * 0.56, Ut * 0.32);
+        ctx.strokeStyle = 'rgba(20,18,24,0.6)'; ctx.lineWidth = 0.6 * s;
+        ctx.beginPath(); ctx.moveTo(-Ut * 0.22, -Ut * 0.04); ctx.lineTo(Ut * 0.22, -Ut * 0.04); ctx.moveTo(-Ut * 0.22, Ut * 0.07); ctx.lineTo(Ut * 0.14, Ut * 0.07); ctx.stroke();
+        if ((row * 3 + col) % 4 === 0) { ctx.strokeStyle = 'rgba(180,140,230,0.85)'; ctx.lineWidth = 1 * s; ctx.beginPath(); ctx.moveTo(-Ut * 0.26, Ut * 0.1); ctx.lineTo(Ut * 0.26, -Ut * 0.1); ctx.stroke(); }
+        ctx.restore();
+      }
       break;
     }
     case 'order_garb': case 'order_plate': {
@@ -7532,6 +7830,13 @@ for (const id in RAIKON_VARIANTS) {
   BOSS_ABILITIES[id] = { id, cd: v.cd || base.cd, range: v.range || base.range, chance: v.chance || base.chance,
     run(f, w, ai, p) { base.run(f, w, ai, p, v); } };
 }
+/* ---- reduced Akari moves (AKARI_VARIANTS in 10-data.js): each runs its base ability's code with the variant's numbers
+   merged over Akari's (akariOpt), so Act II's sub-bosses fight with her own moves at reduced strength ---- */
+for (const id in AKARI_VARIANTS) {
+  const v = AKARI_VARIANTS[id], base = BOSS_ABILITIES[v.base];
+  BOSS_ABILITIES[id] = { id, cd: v.cd || base.cd, range: v.range || base.range, chance: v.chance || base.chance,
+    run(f, w, ai, p) { base.run(f, w, ai, p, v); } };
+}
 /* ---- Raikon's poses and shared effects (also used by the player's Thunder Swing rage art, 30-combat.js) ---- */
 const RAIKON_POSE = {
   // Thunder Swing: the odachi drawn far back at shoulder height, weight on the rear leg, ready to sweep flat
@@ -7810,6 +8115,53 @@ const ENVS = {
         ctx.moveTo(x, y); ctx.lineTo(x - d.l * 0.25, y + d.l);
       }
       ctx.stroke();
+    }
+  },
+  // The City of Echoes (Act II): a district rebuilt from stored memories. The rooftops' city layers under a violet-sepia
+  // memory wash, a pale violet moon, ghost buildings that keep half-loading in outline over the skyline, the road
+  // ruled in faint memory tiles, and violet flecks drifting up. Its streets repeat (stretch `loop`, Renderer.drawProp).
+  echoes: {
+    name: 'The City of Echoes', rim: 'rgba(201,189,255,0.75)', light: { x: 0.5, y: -0.86 }, moon: '#c9bdff', trail: '#c9bdff',
+    build() {
+      ENVS.rooftops.build.call(this);
+      const r = seeded(71);
+      this.ghosts = []; for (let i = 0; i < 7; i++) this.ghosts.push({ x: i * (LW / 7) + r() * 80, w: 70 + r() * 90, h: 120 + r() * 160, ph: r() * 6, tiers: r() < 0.5 ? 3 : 0 });
+      this.flecks = []; for (let i = 0; i < 46; i++) this.flecks.push({ x: r() * W, y: r() * H, s: 8 + r() * 18, ph: r() * 6, z: 0.4 + r() * 0.8 });
+    },
+    back(ctx, cx, t) {
+      ENVS.rooftops.back.call(this, ctx, cx, t);
+      // ghost buildings: outlines of a skyline that keeps loading in and out
+      const off = wrapX(-260 - cx * 0.3, LW) - LW;
+      ctx.lineWidth = 1.2;
+      for (let rep = off; rep < W; rep += LW) for (const g of this.ghosts) {
+        const x = g.x + rep, a = 0.1 + 0.12 * Math.max(0, Math.sin(t * 0.7 + g.ph));
+        if (x + g.w < -20 || x > W + 20) continue;
+        ctx.strokeStyle = `rgba(185,168,255,${a})`; ctx.setLineDash([6, 5]); ctx.lineDashOffset = -t * 12;
+        ctx.strokeRect(x, 470 - g.h, g.w, g.h);
+        for (let k = 0; k < g.tiers; k++) { const ty = 470 - g.h - k * 22; ctx.beginPath(); ctx.moveTo(x - 10 + k * 6, ty); ctx.quadraticCurveTo(x + g.w / 2, ty - 16, x + g.w + 10 - k * 6, ty); ctx.stroke(); }
+      }
+      ctx.setLineDash([]);
+      // the memory wash: violet over the night, warmer sepia low by the road
+      ctx.fillStyle = 'rgba(74,59,134,0.22)'; ctx.fillRect(0, 0, W, H);
+      const low = ctx.createLinearGradient(0, 360, 0, GROUND + 40); low.addColorStop(0, 'rgba(200,180,140,0)'); low.addColorStop(1, 'rgba(200,180,140,0.12)');
+      ctx.fillStyle = low; ctx.fillRect(0, 360, W, GROUND - 320);
+    },
+    floor(ctx, cx, t) {
+      ENVS.rooftops.floor.call(this, ctx, cx, t);
+      // faint memory tiles along the road, one now and then lit as if still being written
+      const off = wrapX(-cx, 160);
+      for (let x = off - 160, i = Math.floor(cx / 160); x < W + 160; x += 160, i++) {
+        const lit = Math.sin(t * 1.3 + i * 2.1) > 0.82;
+        ctx.fillStyle = lit ? 'rgba(185,168,255,0.16)' : 'rgba(185,168,255,0.04)';
+        ctx.fillRect(x + 4, GROUND + 3, 150, 6);
+      }
+    },
+    front(ctx, cx, t) {
+      ENVS.rooftops.front.call(this, ctx, cx, t);
+      for (const m of this.flecks) {
+        const x = wrapX(m.x + Math.sin(t * 0.6 + m.ph) * 20 - cx * m.z * 0.6, W), y = wrapX(m.y - t * m.s, H);
+        ctx.fillStyle = `rgba(201,189,255,${0.18 + 0.2 * Math.sin(t * 2 + m.ph)})`; ctx.fillRect(x, y, 2.2 * m.z, 2.2 * m.z);
+      }
     }
   },
   // Takashi's training yard in Hoshimura, as the brothers remember it (the Interlude spar): a low dusk sun, the dojo's
@@ -8144,9 +8496,23 @@ const Renderer = {
     }
     if (s.memory) this.drawMemoryFilter(ctx, realT);
     if (s.fightFlash > 0) { ctx.fillStyle = `rgba(210,74,60,${s.fightFlash * 0.25})`; ctx.fillRect(0, 0, W, H); }
+    if (s.glitch > 0) this.drawGlitch(ctx, s.glitch, realT);
     // cinematic letterbox
     if (s.letterbox > 0.01) { const h = 70 * s.letterbox; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, h); ctx.fillRect(0, H - h, W, h); }
     fx.drawScreen(ctx, toScreen);
+  },
+  // The City of Echoes skips as Kage crosses a seam where its street starts over (StretchSession: `glitch` seconds):
+  // a few horizontal slices of the frame jump sideways, one ghosted in violet. Flat, brief, and off with reduceFlash.
+  drawGlitch(ctx, k, t) {
+    if (SaveManager.data.settings.reduceFlash) return;
+    const n = 6, c = ctx.canvas;
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
+    for (let i = 0; i < n; i++) {
+      const y = ((i * 131 + ((t * 40) | 0) * 37) % H), h = 10 + ((i * 53) % 34), dx = ((i % 2) ? 1 : -1) * (12 + (i * 17) % 30) * Math.min(1, k * 4);
+      ctx.drawImage(c, 0, y * c.height / H, c.width, h * c.height / H, dx, y, W, h);
+    }
+    ctx.fillStyle = `rgba(155,140,255,${0.12 * Math.min(1, k * 4)})`; ctx.fillRect(0, 0, W, H);
+    ctx.restore();
   },
   // the floor plane follows the camera, and its far edge sits FLOOR_DEPTH above the line the fighters stand on,
   // so they read as standing on the floor rather than balanced on its back edge
@@ -8221,8 +8587,11 @@ const Renderer = {
   // Stretch set dressing in world space: clue pickups, the encounter walls (left edge and gate) and the road's end.
   drawStretchProps(ctx, s, t) {
     const L = s.stretch, cam = s.cam, half = W / 2 / cam.zoom + 200, vl = cam.x - half, vr = cam.x + half;
-    // set dressing (stretch `props`): burnt houses, a roadside shrine, fallen beams
-    for (const pr of L.props || []) if (pr.x > vl - 300 && pr.x < vr + 300) this.drawProp(ctx, pr, t);
+    // set dressing (Logic.streetProps: the stretch's `props` and its repeating street block, if any)
+    // seams (where a repeating street starts over) tear through whatever stands on them, so they draw last
+    const street = s.street || L.props || [];
+    for (const pr of street) if (pr.type !== 'seam' && pr.x > vl - 300 && pr.x < vr + 300) this.drawProp(ctx, pr, t, s);
+    for (const pr of street) if (pr.type === 'seam' && pr.x > vl - 300 && pr.x < vr + 300) this.drawProp(ctx, pr, t, s);
     // the memory-ash trail (stretch `ashTrail`): a faint violet smear on the road once the way is clear
     const A = L.ashTrail;
     if (A && s.cleared >= L.encounters.length && A.to > vl && A.from < vr) {
@@ -8276,7 +8645,7 @@ const Renderer = {
     }
   },
   // One stretch prop, standing on the road at pr.x (world units, y = 0 is the ground).
-  drawProp(ctx, pr, t) {
+  drawProp(ctx, pr, t, s) {
     const x = pr.x, ink = '#0c0a0a';
     ctx.save(); ctx.fillStyle = ink; ctx.strokeStyle = 'rgba(214,120,96,0.22)'; ctx.lineWidth = 2;
     if (pr.type === 'house') {
@@ -8318,6 +8687,61 @@ const Renderer = {
       const ly = -186 + Math.sin(t * 1.5 + x) * 2, g = ctx.createRadialGradient(x + 99, ly, 0, x + 99, ly, 30);
       g.addColorStop(0, 'rgba(210,74,60,0.4)'); g.addColorStop(1, 'rgba(210,74,60,0)'); ctx.fillStyle = g; ctx.fillRect(x + 69, ly - 30, 60, 60);
       ctx.fillStyle = '#b8392d'; ctx.beginPath(); ctx.ellipse(x + 99, ly, 7, 10, 0, 0, TAU); ctx.fill();
+    } else if (pr.type === 'echo_house') {
+      // the City of Echoes: a whole townhouse, as somebody remembered it. Two storeys, warm paper windows, a noren
+      // over the door, a tiled roof (alt: a gabled one); every copy is the same house. `unfinished`: its far half is
+      // only an outline, the memory never filled in.
+      const w = 300, h = 250, unf = pr.unfinished;
+      ctx.fillRect(x - w / 2, -h, unf ? w / 2 : w, h);
+      if (unf) { ctx.save(); ctx.strokeStyle = 'rgba(185,168,255,0.45)'; ctx.setLineDash([7, 6]); ctx.lineDashOffset = -t * 14; ctx.strokeRect(x, -h, w / 2, h); ctx.beginPath(); ctx.moveTo(x, -h * 0.55); ctx.lineTo(x + w / 2, -h * 0.55); ctx.stroke(); ctx.restore(); }
+      ctx.fillStyle = ink; ctx.fillRect(x - w / 2 - 14, -h * 0.55, w + 28, 10);   // the eave between the storeys
+      ctx.beginPath();
+      if (pr.alt) { ctx.moveTo(x - w / 2 - 30, -h); ctx.lineTo(x, -h - 90); ctx.lineTo(x + w / 2 + 30, -h); }
+      else { ctx.moveTo(x - w / 2 - 36, -h + 4); ctx.quadraticCurveTo(x, -h - 60, x + w / 2 + 36, -h + 4); ctx.lineTo(x + w / 2 + 20, -h - 26); ctx.lineTo(x - w / 2 - 20, -h - 26); }
+      ctx.closePath(); ctx.fill(); ctx.strokeStyle = 'rgba(185,168,255,0.28)'; ctx.stroke();
+      const win = (wx, wy, ww, wh) => { ctx.fillStyle = 'rgba(214,178,120,0.42)'; ctx.fillRect(wx, wy, ww, wh); ctx.strokeStyle = 'rgba(12,10,10,0.9)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(wx + ww / 2, wy); ctx.lineTo(wx + ww / 2, wy + wh); ctx.moveTo(wx, wy + wh / 2); ctx.lineTo(wx + ww, wy + wh / 2); ctx.stroke(); };
+      win(x - 120, -h + 36, 70, 52); if (!unf) win(x + 50, -h + 36, 70, 52);
+      win(x - 120, -h * 0.42, 60, 46);
+      // the noren curtain over the door, split in three
+      ctx.fillStyle = '#4a3b86'; for (let i = 0; i < 3; i++) ctx.fillRect(x - 36 + i * 26, -h * 0.5, 22, 50 + Math.sin(t * 1.1 + i) * 2);
+      ctx.fillStyle = 'rgba(12,10,10,0.85)'; ctx.fillRect(x - 36, -h * 0.5 + 54, 74, h * 0.5 - 54);
+    } else if (pr.type === 'lantern_post') {
+      // a street lantern on a post. Every lantern in the City swings at exactly the same angle, in no wind.
+      ctx.fillRect(x - 4, -230, 8, 230); ctx.fillRect(x - 4, -230, 46, 6);
+      const sw = Math.sin(t * 1.2) * 0.18;
+      ctx.save(); ctx.translate(x + 38, -224); ctx.rotate(sw);
+      const g = ctx.createRadialGradient(0, 30, 0, 0, 30, 46); g.addColorStop(0, 'rgba(201,189,255,0.35)'); g.addColorStop(1, 'rgba(201,189,255,0)');
+      ctx.fillStyle = g; ctx.fillRect(-46, -16, 92, 92);
+      ctx.strokeStyle = 'rgba(58,52,43,0.9)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, 14); ctx.stroke();
+      ctx.fillStyle = '#d8c9a0'; ctx.beginPath(); ctx.ellipse(0, 32, 12, 18, 0, 0, TAU); ctx.fill();
+      ctx.fillStyle = ink; ctx.fillRect(-8, 12, 16, 4); ctx.fillRect(-8, 48, 16, 4);
+      ctx.restore();
+    } else if (pr.type === 'sign') {
+      // a hanging shop sign on a bracket post. Its board reads whatever the City remembers right now: the text only ever
+      // changes while the sign is off screen (Logic.signStep / signText; StretchSession.updateSigns keeps the state).
+      const text = Logic.signText(pr, s && s.signs ? s.signs[pr.id] : null);
+      ctx.fillRect(x - 5, -250, 10, 250); ctx.fillRect(x - 5, -250, 130, 7);
+      ctx.strokeStyle = 'rgba(58,52,43,0.9)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x - 4 + 18, -243); ctx.lineTo(x + 18, -226); ctx.moveTo(x + 114, -243); ctx.lineTo(x + 114, -226); ctx.stroke();
+      ctx.font = `600 22px ${FU}`;
+      const bw = Math.max(170, ctx.measureText(text).width + 34), bx = x + 66 - bw / 2;
+      ctx.fillStyle = '#1b1722'; ctx.fillRect(bx, -226, bw, 46);
+      ctx.strokeStyle = 'rgba(201,189,255,0.55)'; ctx.lineWidth = 2; ctx.strokeRect(bx + 3, -223, bw - 6, 40);
+      ctx.fillStyle = '#ece5d3'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(text, x + 66, -202);
+      // a thin violet scanline drifting over the board
+      const sy = -226 + wrapX(t * 30, 46); ctx.fillStyle = 'rgba(185,168,255,0.22)'; ctx.fillRect(bx, sy, bw, 2);
+    } else if (pr.type === 'seam') {
+      // where the street starts over: a vertical tear in the reconstruction, sliced and misregistered, flickering
+      const h = 470;
+      for (let y = 0; y > -h; y -= 18) {
+        const k = Math.sin(y * 0.37 + t * 9) * Math.sin(y * 0.11 - t * 3), dx = k * 14, on = k > -0.3;
+        if (!on) continue;
+        ctx.fillStyle = 'rgba(185,168,255,0.55)'; ctx.fillRect(x - 6 + dx, y - 14, 12, 12);
+        ctx.fillStyle = 'rgba(236,229,211,0.25)'; ctx.fillRect(x - 2 + dx * 1.6, y - 10, 3, 6);
+        ctx.fillStyle = 'rgba(210,74,60,0.2)'; ctx.fillRect(x + 4 - dx * 0.8, y - 13, 3, 10);
+      }
+      const g = ctx.createLinearGradient(x - 70, 0, x + 70, 0);
+      g.addColorStop(0, 'rgba(155,140,255,0)'); g.addColorStop(0.5, `rgba(155,140,255,${0.12 + 0.06 * Math.sin(t * 7)})`); g.addColorStop(1, 'rgba(155,140,255,0)');
+      ctx.fillStyle = g; ctx.fillRect(x - 70, -h, 140, h);
     } else if (pr.type === 'collapsed') {
       // a fallen house: beams in a heap across the road's edge
       ctx.save(); ctx.translate(x - 60, -8); ctx.rotate(-0.22); ctx.fillRect(-90, -9, 200, 16); ctx.restore();
@@ -8532,6 +8956,22 @@ const SPEAKERS = {
       storyPoly(g, [36, 76, 38, 48, 44, 50, 42, 78], K.ash2);                                                          // its lit fold
       storyEyes(g, K.boneDim, 47);
       storyLine(g, [44, 56, 50, 57, 56, 56], 'rgba(191,181,159,0.4)', 1);                                              // a thin mouth
+    }
+  },
+  // a resident of the City of Echoes (Act II): someone rebuilt from a stored memory, a pale face under a plain cloth
+  // cap with a faint violet doubled outline offset to one side (the memory not quite lining up), calm violet-white eyes
+  resident: {
+    name: 'Resident', accent: '#b9a8ff',
+    portrait(g) {
+      const K = STORY_INK;
+      storyBust(g, { bg: '#141020', glow: 'rgba(185,168,255,0.18)', rim: 'rgba(185,168,255,0.55)' });
+      g.beginPath(); g.arc(54, 44, 17, 0, Math.PI * 2); g.strokeStyle = 'rgba(185,168,255,0.45)'; g.lineWidth = 1.4; g.stroke();   // the doubled outline
+      storyPoly(g, [33, 40, 36, 28, 50, 24, 64, 28, 67, 40, 58, 36, 42, 36], '#2a2438');                                            // cloth cap
+      storyPoly(g, [38, 44, 62, 44, 60, 60, 50, 64, 40, 60], '#3e3652');                                                            // a pale, half-there face
+      storyPoly(g, [50, 44, 62, 44, 60, 60, 50, 64], '#332c45');
+      storyEyes(g, '#e6dcff', 49);
+      storyLine(g, [45, 57, 50, 58, 55, 57], 'rgba(230,220,255,0.45)', 1);                                                            // a patient smile
+      storyPoly(g, [66, 50, 72, 50, 72, 53, 66, 53], 'rgba(185,168,255,0.5)');                                                      // a glitch slice
     }
   },
   // an Order of Silence officer: slate hood, dark cloth mask over the mouth, the Order mark (a barred circle) on the chest
@@ -9701,6 +10141,11 @@ class StretchSession extends FightSession {
     this.tut = { done: 0, cur: null, walked: 0, showT: 0, cleared: null };
     // the title banner waits for the first simulated tick, so it never hangs frozen behind the opening scene
     this.bannerDue = true;
+    // the street as drawn (Logic.streetProps: props plus the City of Echoes' repeating block), each sign's state by id
+    // (Logic.signStep), the seams where the street starts over, and the screen glitch when Kage crosses one
+    this.street = Logic.streetProps(L);
+    this.signs = {}; this.seams = this.street.filter(pr => pr.type === 'seam').map(pr => pr.x);
+    this.glitch = 0; this.lastX = p.x;
   }
   roundTime() { return 0; }
   // the player targets the nearest live foe; with none around, nothing (he faces where he walks)
@@ -9757,6 +10202,7 @@ class StretchSession extends FightSession {
     super.simulate(dt, p, e);
     if (this.phase === 'fight') this.updateTutorial(dt);
     this.updateAshTrail(dt);
+    this.updateEchoes(dt);
     // fallen foes fade out once they have hit the floor, so a long stretch never piles up bodies
     for (const f of this.fighters) {
       if (f === p || f.alive || !f.visible || f.dissolve) continue;
@@ -9848,6 +10294,17 @@ class StretchSession extends FightSession {
       this.fx.part({ x: rand(l, r), y: rand(-6, 2), vx: rand(20, 70), vy: rand(-60, -20), life: rand(1.2, 2.2), size: rand(3, 6),
         color: cols[(Math.random() * cols.length) | 0], type: 'ash', grav: -18, drag: 0.6, rot: rand(0, TAU), vr: rand(-4, 4) });
     }
+  }
+  // The City of Echoes: a sign reads its next text when it comes back into view (any copy of it on screen counts as the
+  // sign being watched), and crossing a seam where the street starts over makes the frame skip.
+  updateEchoes(dt) {
+    const half = W / 2 / this.cam.zoom, vl = this.cam.x - half, vr = this.cam.x + half, seen = {};
+    for (const pr of this.street) if (pr.type === 'sign') seen[pr.id] = seen[pr.id] || (pr.x + 220 > vl && pr.x - 60 < vr);
+    for (const id in seen) this.signs[id] = Logic.signStep(this.signs[id] || null, seen[id]);
+    this.glitch = Math.max(0, this.glitch - dt);
+    const x = this.player.x;
+    for (const sx of this.seams) if ((this.lastX < sx) !== (x < sx)) { this.glitch = 0.3; AudioManager.play('teleport', { pitch: 0.6 }); this.fx.shake(0.15); }
+    this.lastX = x;
   }
   // Which input device the prompts name: the last one used (InputManager), else touch when the touch controls show.
   inputDevice() { return InputManager.lastDevice === 'pad' ? 'pad' : InputManager.lastDevice === 'touch' ? 'touch' : 'keyboard'; }

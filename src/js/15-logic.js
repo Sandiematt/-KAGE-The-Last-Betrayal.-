@@ -340,6 +340,15 @@ const Logic = {
     if (!AKARI_ABILITIES.includes(id) || !AKARI_MOVES[id]) return null;
     return JSON.parse(JSON.stringify(Object.assign({ id }, AKARI_MOVES[id])));
   },
+  // Akari's moves and the reduced versions of them Act II's sub-bosses fight with (AKARI_ABILITIES and AKARI_VARIANTS
+  // in 10-data.js): the numbers the move runs with (Akari's, with a variant's overrides on top) plus { id, base,
+  // reduced }, where `base` is the Akari ability whose code runs. null for any other id.
+  akariDerived(id) {
+    if (AKARI_ABILITIES.includes(id)) return Object.assign(this.akariMove(id), { base: id, reduced: false });
+    const v = AKARI_VARIANTS[id];
+    if (!v || !AKARI_ABILITIES.includes(v.base)) return null;
+    return JSON.parse(JSON.stringify(Object.assign({}, AKARI_MOVES[v.base], v, { id, base: v.base, reduced: true })));
+  },
   // A weapon's grounded string as it plays at a level: [{ id, startup, active, recovery, dmg, reach }] with the
   // weapon's speed, damage and reach multipliers (weaponMul) applied, so two blades can be compared (Shinsen vs Kagetsu).
   weaponMoves(id, lvl) {
@@ -396,6 +405,30 @@ const Logic = {
      `cleared` below is how many of them are done. */
   // The stretch level of a stage, or null for any other stage.
   stretch(id) { const st = this.stage(id); return st && st.kind === 'stretch' && st.stretch ? st.stretch : null; },
+  // The City of Echoes (Act II) is rebuilt from stored memories, and it shows. Everything a stretch stands on its
+  // road, sorted by x: its hand-placed `props`, plus its `loop` ({ from, period, count, block: [{ type, dx, ... }] }),
+  // the same street block laid down `count` times, `period` apart, with a `seam` prop where each repeat begins.
+  // Every copy of a block item keeps its fields (a sign keeps its id, so all its copies are one sign) and gets `copy`.
+  streetProps(stretch) {
+    const out = (stretch.props || []).map(p => Object.assign({}, p)), L = stretch.loop;
+    if (L) for (let i = 0; i < L.count; i++) {
+      const x0 = L.from + i * L.period;
+      if (i > 0) out.push({ type: 'seam', x: x0, copy: i });
+      for (const b of L.block) out.push(Object.assign({}, b, { x: x0 + b.dx, copy: i }));
+    }
+    return out.sort((a, b) => a.x - b.x || (a.type === 'seam' ? -1 : b.type === 'seam' ? 1 : 0));
+  },
+  // A sign in the City of Echoes changes while nobody is looking. signStep(state, visible) advances its state by one
+  // frame (state null = never seen): it reads the next text each time it comes back into view after leaving it, and
+  // never while it is watched. signText(sign, state) is what it reads now (sign.texts, cycling).
+  signStep(state, visible) {
+    const s = state ? Object.assign({}, state) : { views: 0, seen: false, onScreen: false };
+    if (visible && !s.onScreen && s.seen) s.views++;
+    if (visible) s.seen = true;
+    s.onScreen = !!visible;
+    return s;
+  },
+  signText(sign, state) { const t = sign.texts || []; return t.length ? t[((state && state.views) || 0) % t.length] : ''; },
   // Index of the encounter Kage starts by standing at x, or -1 (the next uncleared one, once he crosses its trigger).
   encounterAt(stretch, cleared, x) {
     const e = stretch.encounters[cleared];

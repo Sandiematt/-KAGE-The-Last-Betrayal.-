@@ -520,6 +520,11 @@ class StretchSession extends FightSession {
     this.tut = { done: 0, cur: null, walked: 0, showT: 0, cleared: null };
     // the title banner waits for the first simulated tick, so it never hangs frozen behind the opening scene
     this.bannerDue = true;
+    // the street as drawn (Logic.streetProps: props plus the City of Echoes' repeating block), each sign's state by id
+    // (Logic.signStep), the seams where the street starts over, and the screen glitch when Kage crosses one
+    this.street = Logic.streetProps(L);
+    this.signs = {}; this.seams = this.street.filter(pr => pr.type === 'seam').map(pr => pr.x);
+    this.glitch = 0; this.lastX = p.x;
   }
   roundTime() { return 0; }
   // the player targets the nearest live foe; with none around, nothing (he faces where he walks)
@@ -576,6 +581,7 @@ class StretchSession extends FightSession {
     super.simulate(dt, p, e);
     if (this.phase === 'fight') this.updateTutorial(dt);
     this.updateAshTrail(dt);
+    this.updateEchoes(dt);
     // fallen foes fade out once they have hit the floor, so a long stretch never piles up bodies
     for (const f of this.fighters) {
       if (f === p || f.alive || !f.visible || f.dissolve) continue;
@@ -667,6 +673,17 @@ class StretchSession extends FightSession {
       this.fx.part({ x: rand(l, r), y: rand(-6, 2), vx: rand(20, 70), vy: rand(-60, -20), life: rand(1.2, 2.2), size: rand(3, 6),
         color: cols[(Math.random() * cols.length) | 0], type: 'ash', grav: -18, drag: 0.6, rot: rand(0, TAU), vr: rand(-4, 4) });
     }
+  }
+  // The City of Echoes: a sign reads its next text when it comes back into view (any copy of it on screen counts as the
+  // sign being watched), and crossing a seam where the street starts over makes the frame skip.
+  updateEchoes(dt) {
+    const half = W / 2 / this.cam.zoom, vl = this.cam.x - half, vr = this.cam.x + half, seen = {};
+    for (const pr of this.street) if (pr.type === 'sign') seen[pr.id] = seen[pr.id] || (pr.x + 220 > vl && pr.x - 60 < vr);
+    for (const id in seen) this.signs[id] = Logic.signStep(this.signs[id] || null, seen[id]);
+    this.glitch = Math.max(0, this.glitch - dt);
+    const x = this.player.x;
+    for (const sx of this.seams) if ((this.lastX < sx) !== (x < sx)) { this.glitch = 0.3; AudioManager.play('teleport', { pitch: 0.6 }); this.fx.shake(0.15); }
+    this.lastX = x;
   }
   // Which input device the prompts name: the last one used (InputManager), else touch when the touch controls show.
   inputDevice() { return InputManager.lastDevice === 'pad' ? 'pad' : InputManager.lastDevice === 'touch' ? 'touch' : 'keyboard'; }
