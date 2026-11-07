@@ -19,6 +19,8 @@
                        iron kusazuri
      storm_mantle      Raiun Mantle: a storm-blue mantle over the shoulders with a lightning-cloud band, a glass clasp,
                        and a long blue streamer
+     raijin_kabuto     the Raijin Kabuto as gear on Kage: the faceted iron bowl, peak, stepped neck guard and red crest,
+                       now cel-shaded (Raikon's own jingasa is 27-anime-raikon.js)
    Drawing only: nothing here moves a joint or touches gameplay. */
 
 const GEAR_ACC = { ronin_hood: '#b02a31', sage_antlers: '#7fd0c8', hollow_crest: '#9b8cff', executioner: '#b02a31',
@@ -146,6 +148,20 @@ function drawGearHead(ctx, key, f, r, ink, flat) {
       fill([[0.04, -0.5], [0.86, -0.5], [1.34, -0.34, 1], [1.26, -0.22, 1], [0.76, -0.3], [0.04, -0.34]], SUB_IRON, { sd: r * 0.08, hd: r * 0.04, rim: true, detail: (g) => {
         g.strokeStyle = acc[2]; g.lineWidth = r * 0.03; g.beginPath(); g.moveTo(r * 0.1, -r * 0.36); g.lineTo(r * 1.24, -r * 0.27); g.stroke();
       } });
+      break;
+    }
+    case 'raijin_kabuto': {
+      // Raikon's Raijin Kabuto as gear (Raikon's own jingasa is 27-anime-raikon.js): an angular faceted bowl, a peak
+      // jutting over the brow, a stepped neck guard swept back, a short red lightning crest; dark iron, cel-shaded
+      const red = subTone('#d24a3c');
+      fill([[-0.4, -0.55, 1], [-1.7, -0.05, 1], [-1.55, 0.28, 1], [-1.95, 0.42, 1], [-1.75, 0.72, 1], [-0.85, 0.78, 1], [-0.3, 0.15, 1]], SUB_IRON, { sd: r * 0.2, hd: r * 0.05, rim: true, detail: (g) => {
+        g.strokeStyle = red[1]; g.lineWidth = Math.max(1, r * 0.08); g.beginPath(); g.moveTo(-r * 1.62, r * 0.3); g.lineTo(-r * 0.62, r * 0.28); g.stroke();   // the neck guard's step
+      } });
+      fill([[-1.15, -0.1, 1], [-0.98, -0.92, 1], [-0.3, -1.34, 1], [0.5, -1.24, 1], [1.1, -0.66, 1], [1.2, -0.18, 1]], SUB_IRON, { sd: r * 0.28, hd: r * 0.07, rim: true, detail: (g) => {
+        g.strokeStyle = red[1]; g.lineWidth = Math.max(1, r * 0.08); g.lineJoin = 'miter'; g.beginPath(); g.moveTo(-r * 0.98, -r * 0.92); g.lineTo(r * 1.1, -r * 0.66); g.stroke(); g.lineJoin = 'round';   // the facet ridge
+      } });
+      fill([[0.1, -0.42, 1], [1.62, -0.34, 1], [1.15, -0.08, 1], [0.1, -0.1, 1]], SUB_IRON, { sd: r * 0.08, hd: r * 0.04, rim: true });
+      fill([[0.12, -1.24, 1], [0.5, -1.86, 1], [0.36, -1.78, 1], [0.82, -2.36, 1], [0.62, -1.62, 1], [0.8, -1.68, 1], [0.56, -1.2, 1]], red, { sd: r * 0.08, hd: r * 0.04 });
       break;
     }
     case 'executioner': {

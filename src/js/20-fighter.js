@@ -1587,7 +1587,7 @@ function drawWeaponShape(ctx, sh, L, mode, s, ink, f) {
       ctx.lineTo(L * 0.2, (big ? 22 : 15) * s); ctx.lineTo(L * 0.04, 7 * s); ctx.closePath();
       ctx.fillStyle = steel; ctx.fill();
       if (edge) { ctx.strokeStyle = big && !art ? 'rgba(255,106,60,0.7)' : edge; ctx.lineWidth = art ? 2 : 1.3; ctx.beginPath(); ctx.moveTo(L * 0.2, (big ? 22 : 15) * s); ctx.lineTo(L * 0.98, (big ? 26 : 18) * s); ctx.stroke(); }
-      ctx.fillStyle = art ? C.void : 'rgba(236,229,211,0.2)'; ctx.beginPath(); ctx.arc(L * 0.8, -3 * s, 3 * s, 0, TAU); ctx.fill();
+      if (mode !== 'flat') { ctx.fillStyle = art ? C.void : 'rgba(236,229,211,0.2)'; ctx.beginPath(); ctx.arc(L * 0.8, -3 * s, 3 * s, 0, TAU); ctx.fill(); }   // flat passes: one clean silhouette
       break;
     }
     case 'odachi': {
@@ -1631,7 +1631,7 @@ function drawWeaponShape(ctx, sh, L, mode, s, ink, f) {
       ctx.beginPath(); ctx.moveTo(L * 0.82, -5 * s); ctx.quadraticCurveTo(L * 0.92, -9 * s, L, 0); ctx.quadraticCurveTo(L * 0.92, 9 * s, L * 0.82, 5 * s); ctx.closePath();
       ctx.fillStyle = steel; ctx.fill();
       if (edge) { ctx.strokeStyle = edge; ctx.lineWidth = 1.1; ctx.stroke(); }
-      ctx.strokeStyle = art ? C.emberBright : 'rgba(210,74,60,0.85)'; ctx.lineWidth = 2;
+      ctx.strokeStyle = art ? C.emberBright : mode === 'flat' ? ink : 'rgba(210,74,60,0.85)'; ctx.lineWidth = 2;   // the tassel (flat passes: the one colour)
       const sw = f ? Math.sin(f.time * 9) * 4 : 0;
       for (let i = -1; i <= 1; i++) { ctx.beginPath(); ctx.moveTo(L * 0.8, i * 2); ctx.quadraticCurveTo(L * 0.76, 10 * s, L * 0.74 + sw, (16 + i * 3) * s); ctx.stroke(); }
       ctx.fillStyle = art ? C.gold : dark; ctx.fillRect(L * 0.78, -4 * s, 3 * s, 8 * s);
@@ -1660,8 +1660,10 @@ function drawWeaponShape(ctx, sh, L, mode, s, ink, f) {
     case 'hammer': {
       line(-L * 0.08, 0, L * 0.84, 0, 5 * s, dark);
       ctx.fillStyle = steel; ctx.fillRect(L * 0.74, -24 * s, L * 0.28, 48 * s);
-      ctx.fillStyle = art ? C.goldDim : 'rgba(236,229,211,0.18)';
-      ctx.fillRect(L * 0.74, -24 * s, L * 0.04, 48 * s); ctx.fillRect(L * 0.98, -24 * s, L * 0.04, 48 * s);
+      if (mode !== 'flat') {   // the face bands (flat passes: one clean silhouette)
+        ctx.fillStyle = art ? C.goldDim : 'rgba(236,229,211,0.18)';
+        ctx.fillRect(L * 0.74, -24 * s, L * 0.04, 48 * s); ctx.fillRect(L * 0.98, -24 * s, L * 0.04, 48 * s);
+      }
       if (!art && mode !== 'flat') { ctx.strokeStyle = 'rgba(210,74,60,0.6)'; ctx.lineWidth = 1.4; ctx.strokeRect(L * 0.74, -24 * s, L * 0.28, 48 * s); }
       break;
     }
@@ -1671,7 +1673,6 @@ function drawWeaponShape(ctx, sh, L, mode, s, ink, f) {
 /* ---- helmets: local head frame, origin = head centre, +x = facing ---- */
 function drawHelmet(ctx, key, r, ink, opt, f) {
   const flat = !!opt.color;
-  const acc = (c) => (flat ? ink : c);
   ctx.fillStyle = ink; ctx.strokeStyle = ink;
   switch (key) {
     case 'topknot': // Kage's spiky hair over his black face (his red scarf is drawn with the body); anyone else adds a crimson hachimaki
@@ -1719,19 +1720,8 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
     case 'raijin_kabuto': {
       // Raikon himself (and his echo): the red-edged jingasa with its flame crest and tassels (27-anime-raikon.js)
       if (bossLook(f) === 'raikon') { drawRaikonHead(ctx, f, r, ink, flat); break; }
-      // Raikon's Raijin Kabuto: an angular faceted bowl, a peak jutting over the brow, a stepped neck guard swept back,
-      // and a short red lightning crest on the front
-      ctx.beginPath(); ctx.moveTo(-r * 1.15, -r * 0.1); ctx.lineTo(-r * 0.98, -r * 0.92); ctx.lineTo(-r * 0.3, -r * 1.34); ctx.lineTo(r * 0.5, -r * 1.24); ctx.lineTo(r * 1.1, -r * 0.66); ctx.lineTo(r * 1.2, -r * 0.18); ctx.closePath(); ctx.fill();
-      ctx.beginPath(); ctx.moveTo(-r * 0.4, -r * 0.55); ctx.lineTo(-r * 1.7, -r * 0.05); ctx.lineTo(-r * 1.55, r * 0.28); ctx.lineTo(-r * 1.95, r * 0.42); ctx.lineTo(-r * 1.75, r * 0.72); ctx.lineTo(-r * 0.85, r * 0.78); ctx.lineTo(-r * 0.3, r * 0.15); ctx.closePath(); ctx.fill();
-      ctx.beginPath(); ctx.moveTo(r * 0.1, -r * 0.42); ctx.lineTo(r * 1.62, -r * 0.34); ctx.lineTo(r * 1.15, -r * 0.08); ctx.lineTo(r * 0.1, -r * 0.1); ctx.closePath(); ctx.fill();
-      ctx.fillStyle = acc(C.emberBright);
-      ctx.beginPath(); ctx.moveTo(r * 0.12, -r * 1.24); ctx.lineTo(r * 0.5, -r * 1.86); ctx.lineTo(r * 0.36, -r * 1.78); ctx.lineTo(r * 0.82, -r * 2.36); ctx.lineTo(r * 0.62, -r * 1.62); ctx.lineTo(r * 0.8, -r * 1.68); ctx.lineTo(r * 0.56, -r * 1.2); ctx.closePath(); ctx.fill();
-      if (!flat) {
-        ctx.strokeStyle = 'rgba(255,74,60,0.45)'; ctx.lineWidth = Math.max(1, r * 0.08); ctx.lineJoin = 'miter';
-        ctx.beginPath(); ctx.moveTo(-r * 0.98, -r * 0.92); ctx.lineTo(r * 1.1, -r * 0.66); ctx.stroke();               // facet ridge
-        ctx.beginPath(); ctx.moveTo(-r * 1.62, r * 0.3); ctx.lineTo(-r * 0.62, r * 0.28); ctx.stroke();                // neck guard step
-        ctx.lineJoin = 'round';
-      }
+      // the Raijin Kabuto on anyone else (Kage): the faceted bowl, peak, stepped neck guard and red crest (29g-anime-gear.js)
+      drawGearHead(ctx, 'raijin_kabuto', f, r, ink, flat);
       break;
     }
     case 'akari_mask':

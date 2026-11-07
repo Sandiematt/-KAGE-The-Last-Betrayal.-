@@ -44,6 +44,7 @@ function makeRng(seed) {
   return rng;
 }
 
+// opts: { seed, exports: [extra top-level names to return], console: a console replacement }
 function loadSim(opts) {
   const o = opts || {};
   const files = fs.readdirSync(JS_DIR).filter(f => f.endsWith('.js') && f !== '90-main.js').sort();
@@ -62,9 +63,12 @@ function loadSim(opts) {
     performance: { now: () => 0 }, getComputedStyle: stub('getComputedStyle'), matchMedia: stub('matchMedia'), FontFace: stub('FontFace'),
     console: { log() {}, warn() {}, error: console.error, info() {} }
   };
+  if (o.console) globals.console = o.console;
   const names = Object.keys(globals);
+  // `exports`: further top-level names a test asks for (drawing internals such as ANIME_SKINS or drawHelmet)
+  const ex = EXPORTS.concat((o.exports || []).filter(n => !EXPORTS.includes(n)));
   // eslint-disable-next-line no-new-func
-  const mods = new Function(...names, `'use strict';\n${src}\nreturn { ${EXPORTS.join(', ')} };`)(...names.map(n => globals[n]));
+  const mods = new Function(...names, `'use strict';\n${src}\nreturn { ${ex.join(', ')} };`)(...names.map(n => globals[n]));
   mods.DEV.unlockAll = false;
   mods.rng = rng;
   return mods;
