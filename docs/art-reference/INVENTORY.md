@@ -55,16 +55,16 @@ Clones (`spawnClones`), Akari's False Opening decoy (`spawnDecoy`) and boss mini
 | Look key | Gear id(s) | Worn by | Owner |
 |---|---|---|---|
 | topknot | shiro_maki (default) | Kage, young Kage, hollow_kage | **02** |
-| ronin_hood | kuro_zukin | gear | **02** |
+| ronin_hood | kuro_zukin | gear | **02** → **13** (anime design, `29g-anime-gear.js`) |
 | straw_kasa | sugegasa, kasa | gear; Takashi | **02** baseline / **10** Takashi |
 | storm_band | hachigane | gear; Kasane | **02** / **06** |
 | veil | kasumi_men | gear; Sayo | **02** / **05** |
 | iron_kabuto | tetsu_kabuto | gear; Gonryu | **02** / **06** |
 | oni_mask | oni_menpo | gear; Moro | **02** / **06** |
 | sentinel_helm | hoshi_kabuto | gear; Shiden | **02** / **05** |
-| sage_antlers | shika_kabuto | gear | **02** |
-| hollow_crest | utsuro_kabuto | gear | **02** |
-| executioner | shikko_zukin | gear | **02** |
+| sage_antlers | shika_kabuto | gear | **02** → **13** (`29g`) |
+| hollow_crest | utsuro_kabuto | gear | **02** → **13** (`29g`) |
+| executioner | shikko_zukin | gear | **02** → **13** (`29g`) |
 | raijin_kabuto | raijin_kabuto | gear; Raikon, Hollow Raikon | **02** / **08** |
 | sumi_eboshi | sumi_eboshi | gear; Kuroe | **02** / **05** |
 | rain_hood | hisame_zukin | gear; Hisame | **02** / **05** |
@@ -78,7 +78,7 @@ Clones (`spawnClones`), Akari's False Opening decoy (`spawnDecoy`) and boss mini
 | headband | (enemy only) | young Rem, Hollow Rem | **07** |
 | akari_mask | (enemy only) | Akari, Hollow Akari | **09** |
 | witness_mask | (enemy only) | the Witness | **11** |
-| colossus, reaper_cowl, ashen_crown | none | unreferenced legacy cases | **13** (delete if still unreferenced) |
+| colossus, reaper_cowl, ashen_crown | none | unreferenced legacy cases | **13**: deleted |
 
 ## 3. Armour looks (`drawArmor` cases and capes)
 
@@ -89,11 +89,11 @@ Clones (`spawnClones`), Akari's False Opening decoy (`spawnDecoy`) and boss mini
 | shadow_cloak (cape) | hai_haori | gear; Tsugumi | **02** / **05** |
 | mist_shroud (cape) | kasumi_shroud | gear; Hisame | **02** / **05** |
 | robe (hip cloth) | soryo_e | gear; Kuroe | **02** / **05** |
-| lamellar | kozane_do | gear | **02** |
-| storm_mantle (ribbon) | raiun_mantle | gear | **02** |
-| executioner_garb | shikko_garb | gear | **02** |
+| lamellar | kozane_do | gear | **02** → **13** (`29g`) |
+| storm_mantle (mantle + streamer) | raiun_mantle | gear | **02** → **13** (`29g`) |
+| executioner_garb | shikko_garb | gear | **02** → **13** (`29g`) |
 | pauldrons | o_sode | gear; Soma | **02** / **06** |
-| colossus_plate | kurogane_do | gear | **02** |
+| colossus_plate | kurogane_do | gear | **02** → **13** (`29g`) |
 | tyrant (cape) | goka_yoroi, kurokumo_yoroi | gear; echo_warden | **02** / **06** |
 | half_do | ikazuchi_do | gear; Garan | **02** / **05** |
 | vanguard_plate | shiden_yoroi | gear; Shiden | **02** / **05** |
