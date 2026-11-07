@@ -66,6 +66,7 @@ function animeCloths(f) {
     f.cloths.push({ kind: 'coat', part: 'flap', c: new Cloth(7, 11.4 * s, { ph: 4.7, wind: 260, grav: 1250, stiff: 1.5, hang: 0.15 }), at: 'hip', dx: 1, dy: -3 });
   }
   if (sk.order) orderCloths(f, sk);   // the Order's hood tails and hat cords (22-anime-order.js)
+  if (sk.hollow) hollowCloths(f, sk);   // the Hollows' torn robes, cape and hood tails (23-anime-hollow.js)
 }
 
 /* ---- palette ---- */
@@ -77,7 +78,7 @@ function _hexRGB(h) {
 }
 function _mix(c, d, k) { return `rgb(${Math.round(c[0] + (d[0] - c[0]) * k)},${Math.round(c[1] + (d[1] - c[1]) * k)},${Math.round(c[2] + (d[2] - c[2]) * k)})`; }
 function animePalette(f, body) {
-  const hollow = f.hollow, key = (f.isPlayer ? 'P' : 'E') + body + (hollow ? 'h' : '');
+  const hollow = f.hollow, deep = hollow && !!animeSkin(f).hollow, key = (f.isPlayer ? 'P' : 'E') + body + (hollow ? 'h' : '') + (deep ? 'd' : '');
   let p = _palCache[key]; if (p) return p;
   const rgb = _hexRGB(body) || [3, 3, 3], lum = rgb[0] + rgb[1] + rgb[2];
   const acc = hollow ? '#7b5ad6' : ANIME.crimson, accHi = hollow ? '#b9a8ff' : ANIME.crimsonHi;
@@ -88,13 +89,14 @@ function animePalette(f, body) {
   } else {
     // a family colour (the Order slate, the Hollow violet): the same parts in that colour's own three tones
     // pulled far down so the family colour is only a tint in near-black cloth: a generic enemy reads as a dark samurai
-    const dk = [0, 0, 0], lt = [255, 255, 255]; void lt;
-    p = { fab: [_mix(rgb, dk, 0.86), _mix(rgb, dk, 0.72), _mix(rgb, dk, 0.52)], coat: [_mix(rgb, dk, 0.82), _mix(rgb, dk, 0.66), _mix(rgb, dk, 0.46)],
-      back: [_mix(rgb, dk, 0.92), _mix(rgb, dk, 0.84), _mix(rgb, dk, 0.72)], coatB: [_mix(rgb, dk, 0.9), _mix(rgb, dk, 0.8), _mix(rgb, dk, 0.66)], metal: [ANIME.metal0, ANIME.metal1, ANIME.metal2],
-      hair: [_mix(rgb, dk, 0.92), _mix(rgb, dk, 0.86), _mix(rgb, dk, 0.7)], boot: [_mix(rgb, dk, 0.92), _mix(rgb, dk, 0.84), _mix(rgb, dk, 0.66)] };
+    // (the Hollows of ticket 04 sit deeper still: near-black cloth with only a violet cast)
+    const dk = [0, 0, 0], m = deep ? (k) => _mix(rgb, dk, 1 - (1 - k) * 0.7) : (k) => _mix(rgb, dk, k);
+    p = { fab: [m(0.86), m(0.72), m(0.52)], coat: [m(0.82), m(0.66), m(0.46)],
+      back: [m(0.92), m(0.84), m(0.72)], coatB: [m(0.9), m(0.8), m(0.66)], metal: [ANIME.metal0, ANIME.metal1, ANIME.metal2],
+      hair: [m(0.92), m(0.86), m(0.7)], boot: [m(0.92), m(0.84), m(0.66)] };
     p.armor = _mix(rgb, dk, 0.5);
   }
-  p.acc = acc; p.accHi = accHi; p.rim = hollow ? 'rgba(150,120,240,0.5)' : ANIME.rim;
+  p.acc = acc; p.accHi = accHi; p.rim = deep ? 'rgba(118,88,206,0.36)' : hollow ? 'rgba(150,120,240,0.5)' : ANIME.rim;
   return (_palCache[key] = p);
 }
 
@@ -329,7 +331,7 @@ Fighter.prototype.drawCoatPanel = function (ctx, part, A, skin, U) {
 /* ---- the body ---- */
 Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   const sk = this.sk, s = this.scale, b = this.build, f = this.facing;
-  const skin = animeSkin(this), A = animeState(this, front, flat, opt), pal = A.pal, ord = skin.order;
+  const skin = animeSkin(this), A = animeState(this, front, flat, opt), pal = A.pal, ord = skin.order, hol = skin.hollow;
   const big = b.w >= 16 ? 1.45 : b.w >= 13 ? 1.2 : 1;
   const L = b.w * s * 0.42 * (b.w >= 13 ? 1.15 : 1), T = L * 1.25 * big;   // the old limb units: armour overlays are sized by them
   const U = s * clamp(b.w / 10, 0.9, 1.75) * (b.w >= 13 ? 1.08 : 1);       // clothing unit (px per design unit)
@@ -343,6 +345,7 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
 
   // --- 1. the coat's back panel, behind everything
   if (skin.coat) this.drawCoatPanel(ctx, 'back', A, skin, U);
+  if (hol) { this.hollowRobe(ctx, A, skin, U, 'cape'); this.hollowRobe(ctx, A, skin, U, 'back'); }   // 23-anime-hollow.js
   // --- 2. the far arm: sleeve, cuff, hand (then any off-hand weapon)
   this.animeArm(ctx, sk.shB, sk.bel, sk.bha, A, skin, U * slv, true);
   this.drawOffhand(ctx, front, flat ? Object.assign({}, opt, { color: front }) : opt);
@@ -356,10 +359,13 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   this.animeLeg(ctx, sk.hipF, sk.fkn, sk.fft, A, skin, U, false);
   if (ord) this.orderKusazuri(ctx, S, A, U, 'front');
   if (skin.coat) this.drawCoatPanel(ctx, 'flap', A, skin, U);
+  if (hol) this.hollowRobe(ctx, A, skin, U, 'flap');
   // --- 6. sash / obi and the saya at the hip
   if (skin.sash === 'kage') this.animeSash(ctx, S, A, U);
   else if (skin.sash === 'obi' && !akari) this.animeObi(ctx, S, A, U);
   else if (skin.sash === 'order') this.orderBelt(ctx, S, A, U);
+  else if (hol) this.hollowSash(ctx, S, A, U, skin.sash);
+  if (hol && hol.mantle) this.hollowMantle(ctx, S, A, U, hol.mantle);
   if (this.outfit === 'gi' && !flat && skin.sash !== 'kage' && !skin.noGiSash) this.drawSash(ctx, T);
   if (skin.saya && this.hasWeapon) this.animeSaya(ctx, S, A, U);
   // --- 7. neck, collar and scarf wrap
@@ -405,7 +411,9 @@ Fighter.prototype.animeArm = function (ctx, sh, el, ha, A, skin, U, far, noHand)
   // the Order's sode over the upper sleeve (22-anime-order.js)
   if (skin.order && skin.order.sode) this.orderSode(ctx, sh, el, A, U / (skin.sleeve || 1), far, skin.order.sode);
   // the kote: a dark lacquered forearm guard from under the sleeve to the wrist, two dark straps with crimson cord
-  if (skin.kote) {
+  const hol = skin.hollow, bare = hol && hol.bare;
+  if (skin.kote === 'wrap') this.hollowWrap(ctx, at(bare ? 0.02 : 0.3, 0), at(bare ? 0.92 : 0.9, 0), (bare ? 5.4 : 4.4) * U, (bare ? 4.6 : 3.6) * U, A, U, far);
+  else if (skin.kote) {
     const a = at(0.3, 0), b = at(0.9, 0);
     celFill(ctx, () => animeCapsule(ctx, a, b, 4.4 * U, 3.6 * U, 0.4 * U, 0.4), far ? [ANIME.metal0, ANIME.metal0, ANIME.metal1] : pal.metal, A, { sd: 2.2 * U, hd: far ? 0 : 0.8 * U, detail: far ? null : (g) => {
       const straps = () => { g.beginPath(); for (const k of [0.62, 0.84]) { const p = at(k, 5 * U), q = at(k + 0.05, -5 * U); g.moveTo(p.x, p.y); g.lineTo(q.x, q.y); } g.stroke(); };
@@ -415,15 +423,20 @@ Fighter.prototype.animeArm = function (ctx, sh, el, ha, A, skin, U, far, noHand)
   }
   // forearm sleeve: bunched at the elbow, flaring to the opening (a wide kimono sleeve on the gi, the coat sleeve on Kage)
   const u1 = skin.kote ? (gi ? 0.5 : 0.56) : 0.8, r0 = 6.2 * U, r1 = (gi ? 8.4 : 6.8) * U, m = at(u1, 0);
-  celFill(ctx, () => animeCapsule(ctx, el, m, r0, r1, 0.4 * U, 0.4), tone, A, { sd: 3.6 * U, hd: far ? 0 : 0.9 * U, rim: !far, detail: far ? null : (g) => {
+  if (bare) {
+    // the husk's sleeve is torn off at the elbow over a bare, bound forearm
+    const ux = el.x - sh.x, uy = el.y - sh.y, ul = Math.hypot(ux, uy) || 1, nx = -uy / ul * 6.6 * U, ny = ux / ul * 6.6 * U;
+    this.hollowCuff(ctx, { x: el.x + nx, y: el.y + ny }, { x: el.x - nx, y: el.y - ny }, ux / ul, uy / ul, A, tone, U, far, hol.fray);
+  } else celFill(ctx, () => animeCapsule(ctx, el, m, r0, r1, 0.4 * U, 0.4), tone, A, { sd: 3.6 * U, hd: far ? 0 : 0.9 * U, rim: !far, detail: far ? null : (g) => {
     animeFold(g, A, tone, () => {
       for (const [u, o0, o1] of [[0.04, 5.4, -3], [0.18, -5.6, 2.6], [u1 * 0.6, 6, -1]]) {
         const p = at(u, o0 * U), q = at(u + 0.1, o1 * U), c = at(u + 0.1, (o0 + o1) * 0.2 * U); g.moveTo(p.x, p.y); g.quadraticCurveTo(c.x, c.y, q.x, q.y);
       }
     });
   } });
-  // the sleeve opening: Kage's crimson cuff band, or the gi's dark inner lining
-  if (!far) {
+  // the sleeve opening: Kage's crimson cuff band, or the gi's dark inner lining (a Hollow's sleeve is torn into points)
+  if (hol && !bare) this.hollowCuff(ctx, at(u1, r1 * 0.98), at(u1, -r1 * 0.98), ex / fl, ey / fl, A, tone, U, far, hol.fray);
+  else if (!far && !hol) {
     celFill(ctx, () => { const p0 = at(u1 - 0.08, r1 * 0.96), p1 = at(u1 + 0.01, r1 * 1.02), p2 = at(u1 + 0.01, -r1 * 1.02), p3 = at(u1 - 0.08, -r1 * 0.96), pc = at(u1 + 0.05, 0); ctx.moveTo(p0.x, p0.y); ctx.lineTo(p1.x, p1.y); ctx.quadraticCurveTo(pc.x, pc.y, p2.x, p2.y); ctx.lineTo(p3.x, p3.y); ctx.closePath(); }, skin.cuff ? ['#4a0c10', ANIME.crimson, pal.accHi] : [pal.back[0], pal.back[1], tone[0]], A, { sd: 1.6 * U, hd: skin.cuff ? 0.7 * U : 0, detail: skin.cuff ? (g) => {
       g.strokeStyle = '#30080b'; g.lineWidth = 0.8 * A.s; g.beginPath(); const p = at(u1 - 0.05, r1), q = at(u1 - 0.05, -r1); g.moveTo(p.x, p.y); g.lineTo(q.x, q.y); g.stroke();
     } : null });
@@ -432,6 +445,7 @@ Fighter.prototype.animeArm = function (ctx, sh, el, ha, A, skin, U, far, noHand)
 };
 // a small dark glove closed round the grip, the fingers implied by one line
 Fighter.prototype.animeHand = function (ctx, el, ha, A, U, far) {
+  if (this.weaponId() === 'iron_fists' && this.hollow && animeSkin(this).hollow) { this.hollowFist(ctx, el, ha, A, U, far); return; }
   const pal = A.pal, glove = far ? [ANIME.cloth0, ANIME.cloth0, ANIME.cloth1] : [ANIME.cloth0, ANIME.cloth1, ANIME.cloth2];
   celFill(ctx, () => animeHandPath(ctx, el, ha, 2.9 * U), this.weaponId() === 'iron_fists' ? pal.metal : glove, A, { sd: 1.4 * U, hd: 0.6 * U, detail: (g) => {
     const dx = ha.x - el.x, dy = ha.y - el.y, l = Math.hypot(dx, dy) || 1, ux = dx / l, uy = dy / l;
@@ -442,16 +456,17 @@ Fighter.prototype.animeHand = function (ctx, el, ha, A, U, far) {
 // wide split hakama: a full thigh and a shin that stays wide to the ankle (bloused into Kage's tall boots), pleat
 // lines, then the boot (Kage) or tabi and straw sandal (everyone else)
 Fighter.prototype.animeLeg = function (ctx, hp, kn, ft, A, skin, U, far) {
-  const pal = A.pal, tone = far ? pal.back : pal.fab, f = this.facing, boot = skin.feet === 'boot';
+  const pal = A.pal, tone = far ? pal.back : pal.fab, f = this.facing, boot = skin.feet === 'boot', lw = (skin.hollow && skin.hollow.legW) || 1;
   const pleats = (g, a, b, os) => {
     const dx = b.x - a.x, dy = b.y - a.y, l = Math.hypot(dx, dy) || 1, nx = -dy / l, ny = dx / l;
     animeFold(g, A, tone, () => { for (const o of os) { g.moveTo(a.x + nx * o * U + dx * 0.12, a.y + ny * o * U + dy * 0.12); g.lineTo(b.x + nx * o * 1.1 * U, b.y + ny * o * 1.1 * U); } });
   };
-  const sun = skin.suneate, se = boot ? 0.62 : sun ? 0.66 : 0.9, shinEnd = { x: lerp(kn.x, ft.x, se), y: lerp(kn.y, ft.y, se) };
-  celFill(ctx, () => animeCapsule(ctx, kn, shinEnd, 9.8 * U, boot ? 8.4 * U : 10.6 * U, 1 * U, 0.5), tone, A, { sd: 4.4 * U, hd: far ? 0 : 0.8 * U, rim: !far, detail: far ? null : (g) => pleats(g, kn, shinEnd, [-3.6, 1, 5]) });
+  const sun = skin.suneate, se = boot ? 0.62 : sun ? 0.66 : skin.wrapShin ? 0.6 : 0.9, shinEnd = { x: lerp(kn.x, ft.x, se), y: lerp(kn.y, ft.y, se) };
+  celFill(ctx, () => animeCapsule(ctx, kn, shinEnd, 9.8 * U * lw, (boot ? 8.4 : 10.6) * U * lw, 1 * U, 0.5), tone, A, { sd: 4.4 * U, hd: far ? 0 : 0.8 * U, rim: !far, detail: far ? null : (g) => pleats(g, kn, shinEnd, [-3.6, 1, 5]) });
   // the thigh over the shin, so the knee is the thigh's fold, not a round pad
-  celFill(ctx, () => animeCapsule(ctx, hp, kn, 11.6 * U, 10 * U, 1.6 * U, 0.42), tone, A, { sd: 5 * U, hd: far ? 0 : 1 * U, rim: !far, detail: far ? null : (g) => pleats(g, hp, kn, [-4.2, 0.2, 4.4]) });
+  celFill(ctx, () => animeCapsule(ctx, hp, kn, 11.6 * U * lw, 10 * U * lw, 1.6 * U * lw, 0.42), tone, A, { sd: 5 * U, hd: far ? 0 : 1 * U, rim: !far, detail: far ? null : (g) => pleats(g, hp, kn, [-4.2, 0.2, 4.4]) });
   if (sun) this.orderSuneate(ctx, kn, ft, A, U, far);
+  if (skin.wrapShin) this.hollowWrap(ctx, { x: lerp(kn.x, ft.x, 0.4), y: lerp(kn.y, ft.y, 0.4) }, { x: lerp(kn.x, ft.x, 0.93), y: lerp(kn.y, ft.y, 0.93) }, 6 * U * lw, 4.6 * U * lw, A, U, far);
   const btone = far ? [pal.boot[0], pal.boot[0], pal.boot[1]] : pal.boot;
   if (boot) {
     const bt = { x: lerp(kn.x, ft.x, 0.42), y: lerp(kn.y, ft.y, 0.42) };

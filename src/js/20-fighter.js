@@ -179,8 +179,9 @@ class Fighter {
       this.cloths.push({ kind: 'scarf', c: new Cloth(10, 7 * sc, { ph: 12.5, wind: 1250, grav: 480, stiff: 1.85 }), at: 'neck', color: '#a8262c', rim: 'rgba(24,6,6,0.7)', w: 4.8 * sc, w1: 1.6 * sc, dy: 1, dx: 6 });
     } else if (this.helmet === 'topknot') {
       // two thin hachimaki tails of different length, out of phase so they never move as one strip
-      this.cloths.push({ kind: 'scarf', c: new Cloth(10, 7.6 * this.scale, { ph: 9, wind: 860, grav: 680, stiff: 1.75 }), at: 'head', color: C.emberBright, w: 3.4 * this.scale, w1: 1.3 * this.scale, dy: -8, dx: 16 });
-      this.cloths.push({ kind: 'scarf', c: new Cloth(8, 7 * this.scale, { ph: 12.5, wind: 740, grav: 760, stiff: 1.75 }), at: 'head', color: '#b8362b', w: 2.8 * this.scale, w1: 1.1 * this.scale, dy: -6, dx: 16 });
+      const hv = this.hollow;   // Hollow Kage's band is torn violet
+      this.cloths.push({ kind: 'scarf', c: new Cloth(10, 7.6 * this.scale, { ph: 9, wind: 860, grav: 680, stiff: 1.75 }), at: 'head', color: hv ? '#6a52c0' : C.emberBright, w: 3.4 * this.scale, w1: 1.3 * this.scale, dy: -8, dx: 16 });
+      this.cloths.push({ kind: 'scarf', c: new Cloth(8, 7 * this.scale, { ph: 12.5, wind: 740, grav: 760, stiff: 1.75 }), at: 'head', color: hv ? '#4b3a8e' : '#b8362b', w: 2.8 * this.scale, w1: 1.1 * this.scale, dy: -6, dx: 16 });
     }
     if (this.helmet === 'headband' && isRem(this)) {
       // Rem: the band's two long white tails stream back from the steel ring at its knot
@@ -1920,6 +1921,8 @@ Fighter.prototype.drawOffhand = function (ctx, ink, opt) {
 };
 Fighter.prototype.drawFistGear = function (ctx, ink, opt) {
   const sk = this.sk, s = this.scale;
+  // the Hollow husk's bandaged fists (the far one is drawn with its arm, behind the body): 23-anime-hollow.js
+  if (this.weaponId() === 'iron_fists' && this.hollow && this._A && animeSkin(this).hollow) { this.hollowFist(ctx, sk.fel, sk.fha, this._A, this._A.U, false); return; }
   if (this.weaponId() === 'iron_fists') {
     for (const h of [sk.fha, sk.bha]) {
       const gr = this.build.w * s * 0.48;
@@ -2183,6 +2186,7 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
   const t = f ? f.time : 0;
   switch (key) {
     case 'topknot': // Kage's spiky hair over his black face (his red scarf is drawn with the body); anyone else adds a crimson hachimaki
+      if (f && f.hollow && !f.isPlayer && animeSkin(f).hollow) { drawHollowHead(ctx, f, r, ink, flat); break; }   // Hollow Kage: the ronin (23-anime-hollow.js)
       drawKageHair(ctx, r, ink, flat, f);
       if (f && f.isPlayer) break;
       ctx.save(); ctx.beginPath(); ctx.arc(0, 0, r * 1.04, 0, TAU); ctx.clip();
@@ -2499,16 +2503,10 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
       // the Order of Silence: each soldier type's own hood or kabuto over a fox mask (22-anime-order.js)
       drawOrderHead(ctx, f, r, ink, flat);
       break;
-    case 'hollow_shard': {
-      // Hollow: the head breaks into a few jagged shards, with a pale crack across the face
-      ctx.beginPath(); ctx.moveTo(-r * 0.95, -r * 0.35); ctx.lineTo(-r * 1.3, -r * 1.25); ctx.lineTo(-r * 0.45, -r * 0.85); ctx.lineTo(-r * 0.2, -r * 1.75);
-      ctx.lineTo(r * 0.25, -r * 0.9); ctx.lineTo(r * 0.85, -r * 1.3); ctx.lineTo(r * 0.8, -r * 0.45); ctx.closePath(); ctx.fill();
-      if (!flat) {
-        ctx.strokeStyle = (f && f.family && f.family.trim) || '#b9a8ff'; ctx.lineWidth = Math.max(1, r * 0.08); ctx.lineJoin = 'miter';
-        ctx.beginPath(); ctx.moveTo(-r * 0.2, -r * 0.95); ctx.lineTo(r * 0.1, -r * 0.35); ctx.lineTo(-r * 0.1, r * 0.1); ctx.lineTo(r * 0.3, r * 0.75); ctx.stroke(); ctx.lineJoin = 'round';
-      }
+    case 'hollow_shard':
+      // the Hollows: each type's cowl, hood or hat with its cracked mask fragments (23-anime-hollow.js)
+      drawHollowHead(ctx, f, r, ink, flat);
       break;
-    }
     case 'executioner':
       ctx.beginPath(); ctx.moveTo(-r * 1.15, r * 0.9); ctx.lineTo(-r * 1.1, -r * 0.6); ctx.lineTo(-r * 0.2, -r * 2.9); ctx.lineTo(r * 1.15, -r * 0.5); ctx.lineTo(r * 1.15, r * 0.9); ctx.closePath(); ctx.fill();
       break;
@@ -2850,24 +2848,10 @@ function drawArmor(ctx, f, ink, opt, Ut) {
       // the Order's lacquered dō laced in crimson: full, light (hara-ate) or heavy per soldier type (22-anime-order.js)
       drawOrderArmor(ctx, f, ink, flat);
       break;
-    case 'hollow_rags': {
-      // Hollow: the torso frays into torn strips at the waist, with a pale crack across the chest
-      torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.02);
-      const ox = Math.cos(ang + Math.PI / 2), oy = Math.sin(ang + Math.PI / 2), ux = Math.cos(ang), uy = Math.sin(ang);
-      ctx.beginPath();
-      for (let i = -2; i <= 2; i++) {
-        const bx = hx + ox * i * Ut * 0.42 + ux * Ut * 0.2, by = hy + oy * i * Ut * 0.42 + uy * Ut * 0.2, L = Ut * (0.9 + ((i + 2) % 3) * 0.35);
-        ctx.moveTo(bx - ox * Ut * 0.22, by - oy * Ut * 0.22); ctx.lineTo(bx - ux * L + ox * Ut * 0.05, by - uy * L + oy * Ut * 0.05); ctx.lineTo(bx + ox * Ut * 0.22, by + oy * Ut * 0.22);
-      }
-      ctx.fill();
-      if (flat) break;
-      ctx.strokeStyle = (f.family && f.family.trim) || '#b9a8ff'; ctx.lineWidth = 1.3 * s; ctx.lineJoin = 'miter';
-      const cx = lerp(hx, nx, 0.7), cy = lerp(hy, ny, 0.7);
-      ctx.beginPath(); ctx.moveTo(cx - ox * Ut * 0.6, cy - oy * Ut * 0.6); ctx.lineTo(cx - ox * Ut * 0.1 - ux * Ut * 0.3, cy - oy * Ut * 0.1 - uy * Ut * 0.3);
-      ctx.lineTo(cx + ox * Ut * 0.2 + ux * Ut * 0.1, cy + oy * Ut * 0.2 + uy * Ut * 0.1); ctx.lineTo(cx + ox * Ut * 0.65 - ux * Ut * 0.35, cy + oy * Ut * 0.65 - uy * Ut * 0.35); ctx.stroke();
-      ctx.lineJoin = 'round';
+    case 'hollow_rags':
+      // the Hollows' torn robe over the gi: a rip, rope, wraps, a kesa, a mirror or a cracked chest per type (23-anime-hollow.js)
+      drawHollowArmor(ctx, f, ink, flat);
       break;
-    }
     case 'robe':
       torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.05);
       if (!flat) { ctx.strokeStyle = f.accent || C.gold; ctx.lineWidth = 2 * s; ctx.beginPath(); ctx.moveTo(lerp(hx, nx, 0.9) - fc * Ut * 0.3, lerp(hy, ny, 0.9)); ctx.lineTo(lerp(hx, nx, 0.3) + fc * Ut * 0.7, lerp(hy, ny, 0.3)); ctx.stroke(); }
