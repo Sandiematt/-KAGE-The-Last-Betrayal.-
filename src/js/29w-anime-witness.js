@@ -17,7 +17,7 @@
      halo      a great ring behind the shoulders: a glow, a dark band edged magenta and violet, a turning ring of notches,
                an inner dashed rune ring, four blades at the quarters (the top one tallest)
      core      the white-hot chest core in a violet bloom with its magenta ring, turning circuit ring and the rune cards
-               trailing back from it (drawn before the near arm, so the sword arm crosses in front of it)
+               trailing back from it (drawn over the near arm and under the blade, so it is never hidden)
      weapon    Mugen no Ha: obsidian memory shards edge-lit violet with a white core line, re-forming into whatever
                weapon it copies (drawShardWeapon)
    Its edge light is violet (skin.rimTint for the outline pass, witnessPal for the rim inside parts).
@@ -83,7 +83,7 @@ function witnessLayer(f, ctx, A, skin, U, layer) {
   if (layer === 'back') { _wtCollarBack(f, ctx, A, U); _wtTails(f, ctx, A, -1); }
   else if (layer === 'front') _wtTails(f, ctx, A, 1);
   else if (layer === 'waist') _wtBelt(f, ctx, A, A.S, U);
-  else if (layer === 'core') { if (!f.coreBroken) f.drawCore(ctx, A.flat ? { color: A.col } : A.opt); }
+  else if (layer === 'core') { if (!f.coreBroken) f.drawCore(ctx, A.flat ? { color: A.col } : A.opt); }   // over the near arm, under the blade
 }
 
 /* ---- the coat tails (cloth 'wcoat'): blade-shaped panels widening off the anchor to a point ---- */
@@ -207,19 +207,30 @@ function _wtKageRobe(f, ctx, A, S, U, P) {
   const at = (k, b) => [n.x + up[0] * k * hr + bk[0] * b * hr, n.y + up[1] * k * hr + bk[1] * b * hr];
   const col = [P(0.88, -9), at(1.35, 1.15), P(0.99, -4.6), at(1.6, 0.45), P(1.03, 0)];
   celFill(ctx, () => _poly(ctx, col), WT_COAT, A, { sd: 2.6 * U, hd: 0.8 * U, rim: true, detail: A.flat ? null : (g) => _strokePts(g, [col[0], col[1], col[2], col[3]], WT_EDGE, 1.1 * A.s) });
-  const plate = [P(1.04, 1.2), P(1.0, 9), P(0.78, 12.6), P(0.52, 11.2), P(0.36, 6.2), P(0.62, 4.6)];
-  celFill(ctx, () => _poly(ctx, plate), WT_ARMOR, A, { sd: 3 * U, hd: 1 * U, rim: true, detail: A.flat ? null : (g) => {
-    _strokePts(g, [plate[0], plate[5], plate[4]], WT_EDGE, 1.3 * A.s);
-    _strokePts(g, [plate[1], plate[2], plate[3]], 'rgba(150,110,240,0.6)', 0.9 * A.s);
-    const gem = P(0.8, 8);
-    for (const [u, w, ph] of [[0.46, 9.6, 1], [0.98, 7.4, 2]]) _wtVein(g, _wtJag(gem, P(u, w), 3, 1.1 * U, ph), 0.8 * A.s, WT_CRIM[1], 'rgba(255,40,90,0.9)');
-    const R = 2.6 * U;
+  // the robe over the coat's upper body, its hem broken into points, a violet crossed collar, crimson veins and a rune
+  // sigil on the back, a violet gem where the collar crosses
+  const pts = _hsp(S, U, WT_ROBE);
+  celFill(ctx, () => orderShape(ctx, 1, pts), WT_COAT, A, { sd: 5 * U, hd: 1 * U, rim: true, detail: A.flat ? null : (g) => {
+    g.lineJoin = 'miter';
+    _strokePts(g, pts.slice(5, 12), 'rgba(150,110,240,0.7)', 1 * A.s);
+    _strokePts(g, [P(1.07, 0.6), P(0.62, 7.4), P(0.42, 11)], WT_ARMOR[0], 2.6 * U);
+    _strokePts(g, [P(1.07, 0.6), P(0.62, 7.4), P(0.42, 11)], WT_EDGE, 1.2 * A.s);
+    _strokePts(g, [P(1.04, 4.8), P(0.74, 9.6)], WT_COAT[2], 0.9 * A.s);
+    for (const [a, b, ph] of [[P(0.34, -9.4), P(0.9, -11.2), 1], [P(0.4, -4), P(0.7, -9), 2]]) _wtVein(g, _wtJag(a, b, 5, 1.1 * U, ph), 0.8 * A.s, WT_CRIM[1], 'rgba(255,40,90,0.9)');
+    const c = P(0.66, -7.2), rr = 3.4 * U;
+    g.strokeStyle = 'rgba(190,150,255,0.85)'; g.lineWidth = 0.9 * A.s;
+    g.beginPath(); g.arc(c[0], c[1], rr, 0, TAU); g.stroke(); g.beginPath(); g.arc(c[0], c[1], rr * 0.6, 0, TAU); g.stroke();
+    g.beginPath(); g.moveTo(c[0], c[1] - rr * 0.55); g.lineTo(c[0] + rr * 0.45, c[1] + rr * 0.3); g.lineTo(c[0] - rr * 0.45, c[1] + rr * 0.3); g.closePath(); g.stroke();
+    const gem = P(0.62, 7.4), R = 2.2 * U;
     g.fillStyle = '#07040c'; g.beginPath(); _poly(g, [[gem[0], gem[1] - R * 1.4], [gem[0] + R, gem[1]], [gem[0], gem[1] + R * 1.4], [gem[0] - R, gem[1]]]); g.fill();
     g.save(); g.globalCompositeOperation = 'lighter'; g.fillStyle = 'rgba(167,123,255,0.35)'; g.beginPath(); g.arc(gem[0], gem[1], R * 1.9, 0, TAU); g.fill(); g.restore();
     g.fillStyle = '#b48aff'; g.beginPath(); g.arc(gem[0], gem[1], R * 0.62, 0, TAU); g.fill();
     g.fillStyle = '#ffffff'; g.beginPath(); g.arc(gem[0], gem[1], R * 0.3, 0, TAU); g.fill();
   } });
 }
+// the Kysmei Robe over Kage's coat [u, w(, sharp)]: shoulders to the ribs, the hem broken into points
+const WT_ROBE = [[1.09, 3.9], [1.03, 7], [0.95, 12.6], [0.82, 14], [0.6, 12.8], [0.36, 11.4, 1], [0.24, 7.6, 1], [0.32, 4, 1], [0.2, 0.4, 1], [0.3, -3.4, 1], [0.18, -7.4, 1], [0.3, -12, 1],
+  [0.55, -12.6], [0.8, -14.8], [0.97, -14], [1.09, -5.8]];
 
 /* ---- the waist: an armoured belt with a crimson gem, two jagged tassets over the thighs ---- */
 function _wtBelt(f, ctx, A, S, U) {
@@ -306,16 +317,18 @@ function witnessLeg(f, ctx, hp, kn, ft, A, U, far) {
 /* ---- the head (drawHelmet 'witness_mask'): the crown of spikes, the masked black face's markings and white eyes ---- */
 // the crown in head units (+x the face side): spikes swept up and back, a side spike framing the face, then the hairline
 // back across the brow (it stays behind the eyes)
-const WT_CROWN_PTS = [[0.6, -0.66, 1], [1.12, -1.32, 1], [0.5, -1.02, 1], [0.48, -2.3, 1], [0.12, -1.14, 1], [-0.16, -3.0, 1], [-0.36, -1.12, 1], [-0.96, -2.6, 1],
-  [-0.74, -0.98, 1], [-1.72, -2.08, 1], [-1.0, -0.72, 1], [-2.4, -1.3, 1], [-1.12, -0.32, 1], [-2.6, -0.34, 1], [-1.06, 0.08, 1], [-2.15, 0.6, 1], [-0.96, 0.44, 1],
-  [-1.4, 1.16, 1], [-0.58, 0.64, 1], [-0.12, 1.3, 1], [-0.06, 0.5, 1], [0.14, 1.02, 1], [0.08, 0.24, 1], [0.26, -0.42, 1]];
+const WT_CROWN_PTS = [[0.6, -0.66, 1], [1.0, -1.5, 1], [0.45, -1.05, 1], [0.3, -2.55, 1], [0.04, -1.16, 1], [-0.5, -3.15, 1], [-0.42, -1.1, 1], [-1.34, -2.85, 1],
+  [-0.82, -0.95, 1], [-2.15, -2.28, 1], [-1.06, -0.6, 1], [-2.8, -1.45, 1], [-1.16, -0.25, 1], [-2.75, -0.5, 1], [-1.1, 0.1, 1], [-2.2, 0.36, 1], [-1.0, 0.42, 1],
+  [-1.45, 0.98, 1], [-0.58, 0.64, 1], [-0.12, 1.3, 1], [-0.06, 0.5, 1], [0.14, 1.02, 1], [0.08, 0.24, 1], [0.26, -0.42, 1]];
 // the lit edges along the spikes (root, tip)
-const WT_CROWN_LIT = [[[0.62, -0.8], [1.12, -1.32]], [[0.2, -1.2], [0.48, -2.3]], [[-0.3, -1.25], [-0.16, -3.0]], [[-0.7, -1.1], [-0.96, -2.6]], [[-1.0, -0.86], [-1.72, -2.08]],
-  [[-1.1, -0.45], [-2.4, -1.3]], [[-1.06, -0.06], [-2.6, -0.34]], [[-1.0, 0.3], [-2.15, 0.6]], [[-0.7, 0.62], [-1.4, 1.16]], [[-0.1, 0.62], [-0.12, 1.3]]];
+const WT_CROWN_LIT = [[[0.62, -0.8], [1.0, -1.5]], [[0.18, -1.2], [0.3, -2.55]], [[-0.3, -1.25], [-0.5, -3.15]], [[-0.7, -1.1], [-1.34, -2.85]], [[-1.0, -0.8], [-2.15, -2.28]],
+  [[-1.12, -0.45], [-2.8, -1.45]], [[-1.12, -0.08], [-2.75, -0.5]], [[-1.04, 0.28], [-2.2, 0.36]], [[-0.7, 0.62], [-1.45, 0.98]], [[-0.1, 0.62], [-0.12, 1.3]]];
+// the mask plate (head units): brow, cheek, the pointed chin, back along the jaw
+const WT_MASK = [[0.14, -0.94, 1], [0.72, -0.88, 1], [1.0, -0.4, 1], [1.04, 0.2, 1], [0.86, 0.56, 1], [0.58, 1.1, 1], [0.32, 0.84, 1], [0.04, 0.52, 1], [0.0, -0.3, 1]];
 function drawWitnessHead(ctx, f, r, ink, flat) {
   if (f && f.kageFrame) { drawKageHair(ctx, r, ink, flat, f); return; }   // the flicker: Kage's own hair (drawEyes adds his eyes)
   const A = f && f._A;
-  if (flat || !A || A.flat) { ctx.fillStyle = flat ? ink : WT_CROWN[1]; ctx.beginPath(); orderShape(ctx, r, WT_CROWN_PTS); ctx.fill(); return; }
+  if (flat || !A || A.flat) { ctx.fillStyle = flat ? ink : WT_CROWN[1]; ctx.beginPath(); orderShape(ctx, r, WT_CROWN_PTS); orderShape(ctx, r, WT_MASK); ctx.fill(); return; }
   const sv = _headLight(A, f), t = f.time || 0, fade = f.witFade();
   celFill(ctx, () => orderShape(ctx, r, WT_CROWN_PTS), WT_CROWN, A, { sd: r * 0.3, hd: r * 0.07, rim: true, detail: (g) => {
     g.lineCap = 'round';
@@ -329,6 +342,10 @@ function drawWitnessHead(ctx, f, r, ink, flat) {
   // violet edge light along the crown's top and back, additive
   ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha *= 0.5 * fade; ctx.strokeStyle = '#7c4fe0'; ctx.lineWidth = Math.max(1, r * 0.08); ctx.lineJoin = 'miter';
   ctx.beginPath(); for (let i = 1; i <= 17; i++) { const p = WT_CROWN_PTS[i]; i === 1 ? ctx.moveTo(p[0] * r, p[1] * r) : ctx.lineTo(p[0] * r, p[1] * r); } ctx.stroke(); ctx.restore();
+  // the mask: a black plate over the face, angular at the cheek, its chin jutting to a point, rimmed lavender
+  celFill(ctx, () => orderShape(ctx, r, WT_MASK), [ANIME.face, ANIME.face, '#15111f'], A, { sd: r * 0.12, hd: r * 0.05, detail: (g) => {
+    g.strokeStyle = 'rgba(150,118,236,0.7)'; g.lineWidth = Math.max(0.8, r * 0.045); g.lineJoin = 'miter'; g.beginPath(); orderShape(g, r, WT_MASK); g.stroke();
+  } });
   A.lx = sv[0]; A.ly = sv[1];
   if (f.eye === 'rgba(0,0,0,0)') return;
   // the mask's markings on the black face: the seam of the mask plate, sharp brow marks, violet tear lines
@@ -337,7 +354,7 @@ function drawWitnessHead(ctx, f, r, ink, flat) {
   ctx.save(); ctx.lineCap = 'round';
   ctx.strokeStyle = 'rgba(120,92,200,0.55)'; ctx.lineWidth = Math.max(0.7, r * 0.035);
   ctx.beginPath(); ctx.moveTo(rf * 0.32, -rf * 0.92); ctx.quadraticCurveTo(rf * 0.18, rf * 0.2, rf * 0.42, rf * 1.02); ctx.stroke();
-  ctx.strokeStyle = 'rgba(214,198,255,0.85)'; ctx.lineWidth = Math.max(0.8, r * 0.05);
+  ctx.strokeStyle = 'rgba(226,212,255,0.95)'; ctx.lineWidth = Math.max(1, r * 0.065);
   ctx.beginPath(); ctx.moveTo(rf * 0.86, ey - rf * 0.3); ctx.lineTo(rf * 0.5, ey - rf * 0.3); ctx.lineTo(rf * 0.2, ey - rf * 0.5); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(rf * 1.0, ey - rf * 0.26); ctx.lineTo(rf * 0.88, ey - rf * 0.36); ctx.stroke();
   ctx.strokeStyle = 'rgba(167,123,255,0.9)'; ctx.lineWidth = Math.max(0.8, r * 0.045);
@@ -353,7 +370,7 @@ function drawWitnessHead(ctx, f, r, ink, flat) {
   eye(rf * 0.5, ey, rf * 0.62, rf * 0.34 * squint); ctx.fill();
   ctx.globalCompositeOperation = 'source-over';
   ctx.fillStyle = hot ? '#ffffff' : ANIME.eye;
-  eye(rf * 0.5, ey, rf * 0.44, rf * 0.22 * squint); ctx.fill();
+  eye(rf * 0.5, ey, rf * 0.5, rf * 0.25 * squint); ctx.fill();
   eye(rf * 0.9, ey - rf * 0.03, rf * 0.16, rf * 0.18 * squint); ctx.fill();
   if (hot) { ctx.strokeStyle = '#a77bff'; ctx.lineWidth = 2; const fl = r * (1 + 0.3 * Math.sin(t * 50)), ex = rf * 0.5; ctx.beginPath(); ctx.moveTo(ex - fl, ey); ctx.lineTo(ex + fl, ey); ctx.moveTo(ex, ey - fl * 0.5); ctx.lineTo(ex, ey + fl * 0.5); ctx.stroke(); }
   ctx.restore();
@@ -467,11 +484,12 @@ Fighter.prototype.drawKysmei = function (ctx, depth, opt) {
   const spread = 1 + (this.dissolve ? this.dissolve * 2.4 : 0) + (this.shardMorph > 0 ? this.shardMorph : 0), U = 15 * s;
   ctx.save(); ctx.lineJoin = 'miter';
   for (const d of KYSMEI_SHARDS) {
-    if (d.depth !== depth) continue;
+    // the shards over the middle of the body drift behind it, so the robe's chest plate stays clear
+    if ((d.depth > 0 && Math.abs(d.side) > 0.62 ? 1 : -1) !== depth) continue;
     const dx = Math.sin(t * d.rate + d.ph) * 4 * s, dy = Math.cos(t * d.rate * 0.8 + d.ph) * 5 * s;
     const ox = lerp(hx, nx, d.u) + px * d.side * U * spread + dx * spread - this.facing * (d.u < 0 ? -d.u * 10 * s : 0);
     const oy = lerp(hy, ny, d.u) + py * d.side * U * spread + dy + (d.u < 0 ? Math.abs(d.side) * 2 * s : 0);
-    const z = d.sz * U * (d.u < 0 ? 1.15 : 0.9), rot = d.rot + Math.sin(t * d.rate * 0.6 + d.ph) * 0.35;
+    const z = d.sz * U * (d.u < 0 ? 1.05 : 0.8) * (depth > 0 ? 0.8 : 1), rot = d.rot + Math.sin(t * d.rate * 0.6 + d.ph) * 0.35;
     ctx.save(); ctx.translate(ox, oy); ctx.rotate(rot);
     const pts = d.kind === 0 ? [[0, -z], [z * 0.55, z * 0.7], [-z * 0.5, z * 0.5]] : d.kind === 1 ? [[-z * 0.4, -z * 0.8], [z * 0.45, -z * 0.6], [z * 0.3, z * 0.9], [-z * 0.5, z * 0.6]]
       : d.kind === 2 ? [[0, -z * 1.1], [z * 0.3, 0], [0, z * 1.1], [-z * 0.3, 0]] : [[-z * 0.6, -z * 0.3], [z * 0.7, -z * 0.5], [z * 0.2, z * 0.7]];

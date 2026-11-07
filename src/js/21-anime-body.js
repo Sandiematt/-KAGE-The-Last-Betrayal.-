@@ -412,9 +412,9 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   drawHelmet(ctx, this.helmet, hr, flat ? front : this.isPlayer ? pal.metal[1] : (pal.armor || front), ov, this);
   if (!flat && !opt.noEyes) drawEyes(ctx, this, hr, opt);
   ctx.restore();
-  witnessLayer(this, ctx, A, skin, U, 'core');   // the Witness's chest core and rune cards, under the near arm (29w-anime-witness.js)
   // --- 9. the near arm, the weapon in its hand, and the hands closed over the grip
   this.animeArm(ctx, sk.shF, sk.fel, sk.fha, A, skin, U * slv, false, true);
+  witnessLayer(this, ctx, A, skin, U, 'core');   // the Witness's chest core and rune cards, over the near arm (29w-anime-witness.js)
   takashiLayer(this, ctx, A, skin, U, 'over');   // the Shinsei Yoroi's gold clasp and tassel at the throat (29-anime-takashi.js)
   if (this.weaponId() === 'iron_fists' || this.weaponId() === 'storm_orbs') this.drawFistGear(ctx, front, ov);
   this.drawMainWeapon(ctx, front, flat ? Object.assign({}, opt, { color: front }) : opt);

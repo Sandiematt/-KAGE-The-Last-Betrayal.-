@@ -214,16 +214,16 @@ class Fighter {
       this.cloths.push({ kind: 'scarf', c: new Cloth(9, 6.4 * this.scale, { ph: 3.2, wind: 520, grav: 900, stiff: 1.8 }), at: 'head', color: this.def.hair, rim: 'rgba(236,229,211,0.45)', w: 5.4 * this.scale, w1: 2.4 * this.scale, dy: 4, dx: 14 });
       this.cloths.push({ kind: 'scarf', c: new Cloth(2, 3 * this.scale, { ph: 6, wind: 760, grav: 760, stiff: 1.9 }), at: 'head', color: '#c9a45c', w: 2.2 * this.scale, w1: 1.2 * this.scale, dy: 5, dx: 15 });
     }
-    // the Witness: long violet hair streaming back off the spiked crown (lavender strands of different length, two dark
+    // the Witness: long violet strands streaming back off the spiked crown (violet strands of different length, two dark
     // ones underneath for depth), and its long tattered coat: blade-shaped tails (kind 'wcoat', drawn by
     // the Witness's own layer inside the body, 29w-anime-witness.js) from the upper back and the waist, violet fading out of black
     // with crimson veins and glowing rune circles. `depth` -1 hangs behind the body, +1 in front of it.
     if (this.def && this.def.witness) {
       const sc = this.scale;
       [[12, 7.6, 2.2, 6.4, -12, 8, '#140c22'], [10, 7.4, 6.6, 5.4, -4, 10, '#140c22'],
-       [14, 8, 3.6, 6.8, -16, 6, '#8d5fe8'], [12, 7.6, 5.1, 6, -8, 9, '#a27af2'], [16, 8.2, 1.4, 7.2, -1, 11, '#7c4fe0'], [10, 7, 7.7, 4.6, -18, 3, '#b896ff']]
+       [14, 8, 3.6, 5.2, -16, 6, '#5a34b8'], [12, 7.6, 5.1, 4.4, -8, 9, '#6c44d2'], [16, 8.2, 1.4, 5.6, -1, 11, '#4e2ca4'], [10, 7, 7.7, 3.4, -18, 3, '#7d56e6']]
         .forEach(([n, seg, ph, w, dy, dx, color], i) =>
-          this.cloths.push({ kind: 'scarf', witness: true, c: new Cloth(n, seg * sc, { ph, wind: 900 + i * 90, grav: 380 + i * 40, stiff: 1.88 }), at: 'head', color, rim: color === '#140c22' ? 'rgba(167,123,255,0.55)' : 'rgba(232,220,255,0.75)', w: w * sc, w1: 0.8 * sc, dy, dx }));
+          this.cloths.push({ kind: 'scarf', witness: true, c: new Cloth(n, seg * sc, { ph, wind: 900 + i * 90, grav: 380 + i * 40, stiff: 1.88 }), at: 'head', color, rim: color === '#140c22' ? 'rgba(120,80,220,0.6)' : 'rgba(176,138,255,0.8)', w: w * sc, w1: 0.7 * sc, dy, dx }));
       // [links, link length, phase, max width, dy, dx (back from the anchor), anchor, depth, rune circle]
       [[9, 13.6, 1.1, 30, 12, 8, 'neck', -1, 1], [9, 12.8, 4.2, 24, 20, 4, 'neck', -1, 0],
        [8, 13, 2.6, 28, -2, 10, 'hip', -1, 1], [8, 12.2, 5.6, 24, 0, 16, 'hip', -1, 1], [7, 12.4, 3.3, 20, 3, 4, 'hip', -1, 0],
