@@ -184,10 +184,7 @@ class Fighter {
       this.cloths.push({ kind: 'scarf', c: new Cloth(8, 7 * this.scale, { ph: 12.5, wind: 740, grav: 760, stiff: 1.75 }), at: 'head', color: hv ? '#4b3a8e' : '#b8362b', w: 2.8 * this.scale, w1: 1.1 * this.scale, dy: -6, dx: 16 });
     }
     if (this.helmet === 'headband' && isRem(this)) {
-      // Rem: the band's two long white tails stream back from the steel ring at its knot
-      const sc = this.scale;
-      this.cloths.push({ kind: 'scarf', c: new Cloth(11, 7.4 * sc, { ph: 9, wind: 950, grav: 520, stiff: 1.8 }), at: 'head', color: '#efe7da', rim: 'rgba(20,14,12,0.6)', w: 5 * sc, w1: 1.4 * sc, dy: -7, dx: 15 });
-      this.cloths.push({ kind: 'scarf', c: new Cloth(9, 6.8 * sc, { ph: 12.5, wind: 820, grav: 600, stiff: 1.8 }), at: 'head', color: '#d9cfc0', rim: 'rgba(20,14,12,0.6)', w: 4 * sc, w1: 1.1 * sc, dy: -4, dx: 15 });
+      // Rem: the band's two long tails come from the anime body (remCloths, 26-anime-rem.js)
     } else if (this.helmet === 'headband') {
       // two short tails of the training band, knotted at the back of the head
       const hc = headbandColor(this);
@@ -247,11 +244,7 @@ class Fighter {
        [6, 11, 0.4, 16, -1, -4, 'hip', 1, 0]].forEach(([n, seg, ph, w, dy, dx, at, depth, rune], i) =>
         this.cloths.push({ kind: 'wcoat', witness: true, c: new Cloth(n, seg * sc, { ph, wind: depth < 0 ? 1500 + i * 180 : 420, grav: 1000, stiff: 1.96 }), at, w: w * sc, dy, dx, depth, rune }));
     }
-    // Hollow Rem's worn travel coat (the Core): long split coat tails hanging from the waist, dark with a purple edge
-    if (this.armor === 'travel_coat') {
-      this.cloths.push({ kind: 'robe', c: new Cloth(6, 10.4 * this.scale, { ph: 3.6, wind: 320, grav: 1100 }), at: 'hip', color: '#2a2340', w0: 22 * this.scale, w1: 34 * this.scale });
-      this.cloths.push({ kind: 'belt', c: new Cloth(6, 9.6 * this.scale, { ph: 5.4, wind: 300, grav: 1150, stiff: 1.7 }), at: 'hip', color: '#2a2338', rim: 'rgba(169,112,255,0.75)', w: 7 * this.scale, w1: 4.6 * this.scale, dy: -2, dx: -8 });
-    }
+    // Rem's travel coat is the anime body's own coat panels (ANIME_SKINS.rem / hollow_rem, 26-anime-rem.js)
     // the Shinsei Yoroi's layered robe skirts, hanging from the waist guard
     if (this.armor === 'shinsei') this.cloths.push({ kind: 'robe', c: new Cloth(6, 9.4 * this.scale, { ph: 3, wind: 180, grav: 1250 }), at: 'hip', color: '#1f1b15', w0: 24 * this.scale, w1: 36 * this.scale });
     // the Mei-En Garb's split cloth panels: a front and a back panel hanging from the waist, muted violet over charcoal
@@ -1548,31 +1541,7 @@ function drawTakashiBeard(ctx, r, ink, flat) {
 /* ---- Rem ---- */
 // Rem (young Rem in the spar, Hollow Rem in the Core): his own hairstyle and band from his key art
 function isRem(f) { const d = f && f.def; return !!d && (d.id === 'young_rem' || d.id === 'rem' || d.echoOf === 'rem'); }
-// Big swept hair: two tall spikes rising off the crown, more fanning back past the nape, a jagged fringe falling over
-// the brow; a white band across the forehead under the fringe with a steel ring at its knot (the tails are cloth)
-const REM_HAIR = [[0.98, -0.34], [0.72, -0.72], [1.2, -1.02], [0.46, -1.08], [0.42, -2.0], [0.0, -1.3], [-0.42, -2.25], [-0.55, -1.32], [-1.45, -1.8],
-  [-0.98, -0.92], [-2.0, -1.0], [-1.08, -0.46], [-1.7, -0.06], [-0.96, 0.14]];
-function drawRemHair(ctx, r, ink, flat) {
-  ctx.fillStyle = ink; ctx.beginPath(); ctx.moveTo(REM_HAIR[0][0] * r, REM_HAIR[0][1] * r);
-  for (let i = 1; i < REM_HAIR.length; i++) {
-    const p = REM_HAIR[i], q = REM_HAIR[i - 1];
-    ctx.quadraticCurveTo((p[0] + q[0]) / 2 * r - 0.12 * r, (p[1] + q[1]) / 2 * r - 0.06 * r, p[0] * r, p[1] * r);
-  }
-  ctx.arc(0, 0, r, Math.PI * 0.95, Math.PI * 1.85, false); ctx.closePath(); ctx.fill();
-  if (flat) return;
-  // the band, clipped to the head
-  ctx.save(); akariHeadPath(ctx, r * 1.04); ctx.clip();
-  ctx.fillStyle = '#efe7da'; ctx.beginPath(); ctx.moveTo(-r * 1.2, -r * 0.5); ctx.lineTo(r * 1.2, -r * 0.44); ctx.lineTo(r * 1.2, -r * 0.2); ctx.lineTo(-r * 1.2, -r * 0.26); ctx.closePath(); ctx.fill();
-  ctx.restore();
-  // a fringe spike falling over the band at the front, with pale strand lines through the hair
-  ctx.fillStyle = ink; ctx.beginPath(); ctx.moveTo(r * 0.3, -r * 0.62); ctx.lineTo(r * 0.98, -r * 0.6); ctx.lineTo(r * 0.86, -r * 0.08); ctx.lineTo(r * 0.62, -r * 0.42); ctx.closePath(); ctx.fill();
-  ctx.strokeStyle = 'rgba(236,229,211,0.55)'; ctx.lineWidth = Math.max(0.8, r * 0.05);
-  ctx.beginPath(); ctx.moveTo(-r * 0.1, -r * 0.95); ctx.quadraticCurveTo(r * 0.1, -r * 1.4, r * 0.35, -r * 1.75); ctx.moveTo(-r * 0.6, -r * 0.9); ctx.quadraticCurveTo(-r * 1.0, -r * 1.2, -r * 1.3, -r * 1.6); ctx.stroke();
-  // the ring at the knot
-  ctx.fillStyle = '#efe7da'; ctx.beginPath(); ctx.arc(-r * 0.92, -r * 0.36, r * 0.27, 0, TAU); ctx.fill();
-  ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(-r * 0.92, -r * 0.36, r * 0.14, 0, TAU); ctx.fill();
-  ctx.strokeStyle = '#1a1210'; ctx.lineWidth = Math.max(0.8, r * 0.05); ctx.beginPath(); ctx.arc(-r * 0.92, -r * 0.36, r * 0.27, 0, TAU); ctx.stroke();
-}
+// his head, hair, band and coat: 26-anime-rem.js
 
 /* ---- Akari ---- */
 // Her long front sash (cloth kind 'asash'): a straight violet panel from the belt, widening slightly, cut in a V at the
@@ -2235,8 +2204,8 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
       if (hot) { ctx.strokeStyle = '#a77bff'; ctx.lineWidth = 2; const fl = r * (1 + 0.3 * Math.sin(t * 50)); ctx.beginPath(); ctx.moveTo(ex - fl, ey); ctx.lineTo(ex + fl, ey); ctx.moveTo(ex, ey - fl * 0.5); ctx.lineTo(ex, ey + fl * 0.5); ctx.stroke(); }
       break;
     }
-    case 'headband': { // the Interlude's young brothers: a plain cloth training band (Kage pale, Rem in his purple accent)
-      if (isRem(f)) { drawRemHair(ctx, r, ink, flat); break; }
+    case 'headband': { // the Interlude's young brothers: Rem's white band and ring (26-anime-rem.js); young Kage's short crimson band
+      if (isRem(f)) { drawRemHead(ctx, f, r, ink, flat); break; }
       drawKageHair(ctx, r, ink, flat, f);
       ctx.save(); ctx.beginPath(); ctx.arc(0, 0, r * 1.04, 0, TAU); ctx.clip();
       ctx.fillStyle = flat ? ink : headbandColor(f);
@@ -2413,23 +2382,10 @@ function drawArmor(ctx, f, ink, opt, Ut) {
   ctx.fillStyle = ink;
   switch (f.armor) {
     case 'training': break;   // the Interlude's plain training clothes: just the gi and its obi
-    case 'travel_coat': {
-      // Hollow Rem (the Core): a worn dark travel coat, open at the throat with a high turned-up collar, a patched
-      // shoulder and a purple accent along the front edge (its tails are cloth, hanging from the waist)
-      const ox = Math.cos(ang + Math.PI / 2), oy = Math.sin(ang + Math.PI / 2), Q = (u, w) => [lerp(hx, nx, u) + ox * w * Ut, lerp(hy, ny, u) + oy * w * Ut];
-      ctx.fillStyle = flat ? ink : '#2a2340';
-      torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.08);
-      if (flat) break;
-      const c0 = Q(1.02, -0.9), c1 = Q(1.18, -0.55), c2 = Q(0.86, -0.15);
-      ctx.fillStyle = '#3a3156'; ctx.beginPath(); ctx.moveTo(c0[0], c0[1]); ctx.lineTo(c1[0], c1[1]); ctx.lineTo(c2[0], c2[1]); ctx.closePath(); ctx.fill();
-      ctx.strokeStyle = '#a970ff'; ctx.lineWidth = 1.8 * s;
-      const a = Q(0.98, 0.35), b = Q(0.5, 0.7), c = Q(0.06, 0.8);
-      ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.lineTo(c[0], c[1]); ctx.stroke();
-      ctx.strokeStyle = 'rgba(236,229,211,0.18)'; ctx.lineWidth = 1 * s; ctx.setLineDash([2 * s, 2.5 * s]);
-      const p0 = Q(0.86, -0.7), p1 = Q(0.7, -0.2); ctx.strokeRect(Math.min(p0[0], p1[0]), Math.min(p0[1], p1[1]), Math.abs(p1[0] - p0[0]) + 3 * s, Math.abs(p1[1] - p0[1]) + 3 * s);
-      ctx.setLineDash([]);
+    case 'travel_coat':
+      // Rem's worn travel coat, wrapped shut under a violet collar band (26-anime-rem.js)
+      drawRemCoat(ctx, f, ink, flat);
       break;
-    }
     case 'tachibana': {
       // Kage's starting Tachibana Yoroi: a compact dark-metal shoulder guard of three lames laced in crimson, and the
       // small family crest, half-hidden behind the near arm
@@ -2632,8 +2588,9 @@ function makeFighterFromEnemy(id, extra) {
   const d = ENEMIES[id];
   return new Fighter(Object.assign({ def: d, name: d.name, title: d.title, weapon: d.weapon, helmet: d.helmet, armor: d.armor, build: d.build, eye: d.eye, accent: d.accent, hp: d.hp, facing: -1 }, extra || {}));
 }
-// the training headband's colour: pale cloth for young Kage, the accent (Rem's purple) for anyone else
-function headbandColor(f) { return f && !f.isPlayer ? (f.accent || '#9a6bff') : '#d9cfb8'; }
+// the training headband's colour: crimson for young Kage (his colour long before the scarf; Rem's band is white), the
+// accent for anyone else
+function headbandColor(f) { return f && !f.isPlayer ? (f.accent || '#9a6bff') : ANIME.crimsonHi; }
 // Young Kage for the Interlude spar: a smaller build in plain training clothes with a pale headband and a bokken. None
 // of the player's gear applies (Logic.youngKage); no face-wrap yet, that comes later in his life.
 function makeYoungKage(extra) {

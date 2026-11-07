@@ -61,14 +61,16 @@ function animeSkin(f) {
 function animeCloths(f) {
   const sk = animeSkin(f), s = f.scale;
   if (sk.coat) {
-    // to mid-calf: the back panel ~84 px from the waist, the near flap a little shorter
-    f.cloths.push({ kind: 'coat', part: 'back', c: new Cloth(8, 12 * s, { ph: 2.2, wind: 1150, grav: 1000, stiff: 1.5, hang: 0.55 }), at: 'hip', dx: 6, dy: -4 });
-    f.cloths.push({ kind: 'coat', part: 'flap', c: new Cloth(7, 11.4 * s, { ph: 4.7, wind: 260, grav: 1250, stiff: 1.5, hang: 0.15 }), at: 'hip', dx: 1, dy: -3 });
+    // to mid-calf: the back panel ~84 px from the waist, the near flap a little shorter (`len` cuts a shorter coat: Rem's)
+    const k = sk.coat.len || 1;
+    f.cloths.push({ kind: 'coat', part: 'back', c: new Cloth(8, 12 * s * k, { ph: 2.2, wind: 1150, grav: 1000, stiff: 1.5, hang: 0.55 }), at: 'hip', dx: 6, dy: -4 });
+    f.cloths.push({ kind: 'coat', part: 'flap', c: new Cloth(7, 11.4 * s * k, { ph: 4.7, wind: 260, grav: 1250, stiff: 1.5, hang: 0.15 }), at: 'hip', dx: 1, dy: -3 });
   }
   if (sk.order) orderCloths(f, sk);   // the Order's hood tails and hat cords (22-anime-order.js)
   if (sk.hollow) hollowCloths(f, sk);   // the Hollows' torn robes, cape and hood tails (23-anime-hollow.js)
   subCloths(f, sk);   // the sub-bosses' robes, capes, hood tails and cords, by look (24-anime-subs-a.js)
   subBCloths(f, sk);   // the later sub-bosses' haori skirts, capes, band tails and hair (25-anime-subs-b.js)
+  remCloths(f, sk);   // Rem's headband tails (26-anime-rem.js)
 }
 
 /* ---- palette ---- */
@@ -375,6 +377,7 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   if (hol && hol.mantle) this.hollowMantle(ctx, S, A, U, hol.mantle);
   subLayer(this, ctx, A, skin, U, 'waist');
   subBLayer(this, ctx, A, skin, U, 'waist');
+  remLayer(this, ctx, A, skin, U, 'waist');   // young Rem's tasuki (26-anime-rem.js)
   if (this.outfit === 'gi' && !flat && skin.sash !== 'kage' && !skin.noGiSash) this.drawSash(ctx, T);
   if (skin.saya && this.hasWeapon) this.animeSaya(ctx, S, A, U);
   // --- 7. neck, collar and scarf wrap
@@ -383,7 +386,7 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   ctx.save(); ctx.translate(sk.head.x, sk.head.y); ctx.rotate(this.headRot); ctx.scale(f, 1);
   const takashi = bossLook(this) === 'takashi';
   ctx.fillStyle = flat ? front : ANIME.face; ctx.beginPath();
-  if (akari || isRem(this)) akariHeadPath(ctx, hr); else if (takashi) takashiHeadPath(ctx, hr); else animeHeadPath(ctx, hr * 0.9);
+  if (akari) akariHeadPath(ctx, hr); else if (takashi) takashiHeadPath(ctx, hr); else animeHeadPath(ctx, hr * 0.9);
   ctx.fill();
   if (takashi) drawTakashiBeard(ctx, hr, front, flat);
   drawHelmet(ctx, this.helmet, hr, flat ? front : this.isPlayer ? pal.metal[1] : (pal.armor || front), ov, this);
@@ -513,6 +516,7 @@ Fighter.prototype.animeTorsoDraw = function (ctx, S, A, skin, U, tone) {
   celFill(ctx, () => animeTorso(ctx, S, coat ? ANIME_TORSO.coat : ANIME_TORSO.gi, U), tone, A, { sd: 7.5 * U, hd: 1 * U, rim: true, detail: (g) => {
     const line = (pts, col, w) => { g.strokeStyle = col; g.lineWidth = w; g.beginPath(); pts.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.stroke(); };
     const poly = (pts, col) => { g.fillStyle = col; g.beginPath(); pts.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.closePath(); g.fill(); };
+    if (coat && skin.rem) return;   // Rem's travel coat is wrapped shut: its front is drawArmor 'travel_coat' (26-anime-rem.js)
     if (coat) {
       // the open front: the black inner kimono between the coat's lapel and the chest, its own crossed collar
       poly([P(1.06, 1.2), P(1.06, 12), P(0.1, 12), P(0.12, 5.6), P(0.62, 4.2)], pal.fab[1]);
