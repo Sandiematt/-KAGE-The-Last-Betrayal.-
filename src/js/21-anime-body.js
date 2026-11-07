@@ -74,6 +74,7 @@ function animeCloths(f) {
   remCloths(f, sk);   // Rem's headband tails (26-anime-rem.js)
   raikonCloths(f, sk);   // Raikon's cloak and coat skirts (27-anime-raikon.js)
   akariCloths(f, sk);   // Akari's ponytail, bead strings, sash and tail; the Mei-En Garb's sash on Kage (28-anime-akari.js)
+  takashiCloths(f, sk);   // Takashi's cape, robe skirts and hat ribbon (29-anime-takashi.js)
 }
 
 /* ---- palette ---- */
@@ -145,6 +146,7 @@ function animeState(f, front, flat, opt) {
   A.pal = animePalette(f, flat ? C.ink : front);
   const sk = animeSkin(f); if (sk.acc && !flat) A.pal = subAccPal(A.pal, sk.acc);   // a sub-boss's own accent (24-anime-subs-a.js)
   if (sk.akari && !flat && !f.hollow) A.pal = akariPal(A.pal);   // Akari's violet rim light (28-anime-akari.js)
+  if (sk.takashi && !flat && !f.hollow) A.pal = takashiPal(A.pal);   // Takashi's plum-black robes and gold rim light (29-anime-takashi.js)
   return A;
 }
 
@@ -359,6 +361,7 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   subBLayer(this, ctx, A, skin, U, 'back');   // 25-anime-subs-b.js
   raikonLayer(this, ctx, A, skin, U, 'back');   // Raikon's cloak and coat skirt (27-anime-raikon.js)
   akariLayer(this, ctx, A, skin, U, 'back');   // Akari's ponytail, bead strings and back tail (28-anime-akari.js)
+  takashiLayer(this, ctx, A, skin, U, 'back');   // Takashi's long cape, hat ribbon and back robe skirt (29-anime-takashi.js)
   // --- 2. the far arm: sleeve, cuff, hand (then any off-hand weapon)
   this.animeArm(ctx, sk.shB, sk.bel, sk.bha, A, skin, U * slv, true);
   this.drawOffhand(ctx, front, flat ? Object.assign({}, opt, { color: front }) : opt);
@@ -375,6 +378,7 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   subBLayer(this, ctx, A, skin, U, 'front');
   raikonLayer(this, ctx, A, skin, U, 'front');
   akariLayer(this, ctx, A, skin, U, 'front');   // her violet sash (and the Mei-En Garb's on Kage)
+  takashiLayer(this, ctx, A, skin, U, 'front');   // Takashi's front robe skirt
   if (skin.coat) this.drawCoatPanel(ctx, 'flap', A, skin, U);
   if (hol) this.hollowRobe(ctx, A, skin, U, 'flap');
   if (!akari) akariLayer(this, ctx, A, skin, U, 'gear');   // the Mei-En Garb's violet sash, over Kage's coat (28-anime-akari.js)
@@ -384,6 +388,7 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   else if (skin.sash === 'order') this.orderBelt(ctx, S, A, U);
   else if (skin.sash === 'raikon') raikonLayer(this, ctx, A, skin, U, 'waist');   // his red obi and ring (27-anime-raikon.js)
   else if (skin.sash === 'akari') akariLayer(this, ctx, A, skin, U, 'waist');   // her belts, buckle and pouch (28-anime-akari.js)
+  else if (skin.sash === 'takashi') takashiLayer(this, ctx, A, skin, U, 'waist');   // his gold-corded obi and tassels (29-anime-takashi.js)
   else if (hol) this.hollowSash(ctx, S, A, U, skin.sash);
   if (hol && hol.mantle) this.hollowMantle(ctx, S, A, U, hol.mantle);
   subLayer(this, ctx, A, skin, U, 'waist');
@@ -395,11 +400,9 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   this.animeNeck(ctx, S, A, skin, U, hr);
   // --- 8. the head: black face, hair or helmet, white eyes
   ctx.save(); ctx.translate(sk.head.x, sk.head.y); ctx.rotate(this.headRot); ctx.scale(f, 1);
-  const takashi = bossLook(this) === 'takashi';
   ctx.fillStyle = flat ? front : ANIME.face; ctx.beginPath();
-  if (akari) animeHeadPath(ctx, hr * 0.86); else if (takashi) takashiHeadPath(ctx, hr); else animeHeadPath(ctx, hr * 0.9);
+  animeHeadPath(ctx, hr * (akari ? 0.86 : 0.9));   // Takashi's hair and beard are drawn with his kasa (29-anime-takashi.js)
   ctx.fill();
-  if (takashi) drawTakashiBeard(ctx, hr, front, flat);
   drawHelmet(ctx, this.helmet, hr, flat ? front : this.isPlayer ? pal.metal[1] : (pal.armor || front), ov, this);
   if (!flat && !opt.noEyes) drawEyes(ctx, this, hr, opt);
   ctx.restore();
@@ -438,7 +441,7 @@ Fighter.prototype.animeArm = function (ctx, sh, el, ha, A, skin, U, far, noHand)
   } });
   // the Order's sode over the upper sleeve (22-anime-order.js)
   if (skin.order && skin.order.sode) this.orderSode(ctx, sh, el, A, U / (skin.sleeve || 1), far, skin.order.sode);
-  else { subSode(this, ctx, sh, el, A, U / (skin.sleeve || 1), far); subBSode(this, ctx, sh, el, A, U / (skin.sleeve || 1), far); raikonSode(this, ctx, sh, el, A, U / (skin.sleeve || 1), far); }   // 24- / 25-anime-subs-*.js
+  else { subSode(this, ctx, sh, el, A, U / (skin.sleeve || 1), far); subBSode(this, ctx, sh, el, A, U / (skin.sleeve || 1), far); raikonSode(this, ctx, sh, el, A, U / (skin.sleeve || 1), far); takashiSode(this, ctx, sh, el, A, U / (skin.sleeve || 1), far); }   // 24- / 25-anime-subs-*.js, 27-, 29-
   // the kote: a dark lacquered forearm guard from under the sleeve to the wrist, two dark straps with crimson cord
   const hol = skin.hollow, bare = hol && hol.bare;
   if (skin.kote === 'wrap') this.hollowWrap(ctx, at(bare ? 0.02 : 0.3, 0), at(bare ? 0.92 : 0.9, 0), (bare ? 5.4 : 4.4) * U, (bare ? 4.6 : 3.6) * U, A, U, far);
@@ -466,7 +469,7 @@ Fighter.prototype.animeArm = function (ctx, sh, el, ha, A, skin, U, far, noHand)
   // the sleeve opening: Kage's crimson cuff band, or the gi's dark inner lining (a Hollow's sleeve is torn into points)
   if (hol && !bare) this.hollowCuff(ctx, at(u1, r1 * 0.98), at(u1, -r1 * 0.98), ex / fl, ey / fl, A, tone, U, far, hol.fray);
   else if (!far && !hol) {
-    celFill(ctx, () => { const p0 = at(u1 - 0.08, r1 * 0.96), p1 = at(u1 + 0.01, r1 * 1.02), p2 = at(u1 + 0.01, -r1 * 1.02), p3 = at(u1 - 0.08, -r1 * 0.96), pc = at(u1 + 0.05, 0); ctx.moveTo(p0.x, p0.y); ctx.lineTo(p1.x, p1.y); ctx.quadraticCurveTo(pc.x, pc.y, p2.x, p2.y); ctx.lineTo(p3.x, p3.y); ctx.closePath(); }, skin.cuff ? ['#4a0c10', ANIME.crimson, pal.accHi] : [pal.back[0], pal.back[1], tone[0]], A, { sd: 1.6 * U, hd: skin.cuff ? 0.7 * U : 0, detail: skin.cuff ? (g) => {
+    celFill(ctx, () => { const p0 = at(u1 - 0.08, r1 * 0.96), p1 = at(u1 + 0.01, r1 * 1.02), p2 = at(u1 + 0.01, -r1 * 1.02), p3 = at(u1 - 0.08, -r1 * 0.96), pc = at(u1 + 0.05, 0); ctx.moveTo(p0.x, p0.y); ctx.lineTo(p1.x, p1.y); ctx.quadraticCurveTo(pc.x, pc.y, p2.x, p2.y); ctx.lineTo(p3.x, p3.y); ctx.closePath(); }, skin.cuff ? (skin.cuffTone || ['#4a0c10', ANIME.crimson, pal.accHi]) : [pal.back[0], pal.back[1], tone[0]], A, { sd: 1.6 * U, hd: skin.cuff ? 0.7 * U : 0, detail: skin.cuff ? (g) => {
       g.strokeStyle = '#30080b'; g.lineWidth = 0.8 * A.s; g.beginPath(); const p = at(u1 - 0.05, r1), q = at(u1 - 0.05, -r1); g.moveTo(p.x, p.y); g.lineTo(q.x, q.y); g.stroke();
     } : null });
   }

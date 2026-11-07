@@ -208,11 +208,11 @@ class Fighter {
     }
     // Raikon's tattered cloak and long coat skirts: raikonCloths (27-anime-raikon.js)
     // Akari's ponytail, bead strings, sash and back tail: akariCloths (28-anime-akari.js)
-    // Takashi: long hair tied back at the nape, hanging below the brim of his Kasa (`hair` on his ENEMIES entry)
-    if (this.def && this.def.hair) {
-      const tk = bossLook(this) === 'takashi';   // his key art: white hair, tied with a red cord
-      this.cloths.push({ kind: 'scarf', c: new Cloth(9, 6.4 * this.scale, { ph: 3.2, wind: 520, grav: 900, stiff: 1.8 }), at: 'head', color: tk ? '#e4ded4' : this.def.hair, rim: 'rgba(236,229,211,0.45)', w: 5.4 * this.scale, w1: 2.4 * this.scale, dy: 4, dx: 14 });
-      this.cloths.push({ kind: 'scarf', c: new Cloth(tk ? 7 : 2, (tk ? 5.6 : 3) * this.scale, { ph: 6, wind: 760, grav: 760, stiff: 1.9 }), at: 'head', color: tk ? '#9e1626' : '#c9a45c', w: 2.2 * this.scale, w1: 1.2 * this.scale, dy: 5, dx: 15 });
+    // long hair tied back at the nape (`hair` on an ENEMIES entry). Takashi's white hair, beard and the red ribbon from
+    // his kasa are his own (29-anime-takashi.js)
+    if (this.def && this.def.hair && bossLook(this) !== 'takashi') {
+      this.cloths.push({ kind: 'scarf', c: new Cloth(9, 6.4 * this.scale, { ph: 3.2, wind: 520, grav: 900, stiff: 1.8 }), at: 'head', color: this.def.hair, rim: 'rgba(236,229,211,0.45)', w: 5.4 * this.scale, w1: 2.4 * this.scale, dy: 4, dx: 14 });
+      this.cloths.push({ kind: 'scarf', c: new Cloth(2, 3 * this.scale, { ph: 6, wind: 760, grav: 760, stiff: 1.9 }), at: 'head', color: '#c9a45c', w: 2.2 * this.scale, w1: 1.2 * this.scale, dy: 5, dx: 15 });
     }
     // the Witness: long violet hair streaming back off the spiked crown (lavender strands of different length, two dark
     // ones underneath for depth), and its long tattered coat: blade-shaped tails (kind 'wcoat', drawn by
@@ -231,8 +231,7 @@ class Fighter {
         this.cloths.push({ kind: 'wcoat', witness: true, c: new Cloth(n, seg * sc, { ph, wind: depth < 0 ? 1500 + i * 180 : 420, grav: 1000, stiff: 1.96 }), at, w: w * sc, dy, dx, depth, rune }));
     }
     // Rem's travel coat is the anime body's own coat panels (ANIME_SKINS.rem / hollow_rem, 26-anime-rem.js)
-    // the Shinsei Yoroi's layered robe skirts, hanging from the waist guard
-    if (this.armor === 'shinsei') this.cloths.push({ kind: 'robe', c: new Cloth(6, 9.4 * this.scale, { ph: 3, wind: 180, grav: 1250 }), at: 'hip', color: '#1f1b15', w0: 24 * this.scale, w1: 36 * this.scale });
+    // the Shinsei Yoroi's robes, capelet and cape: Takashi's cloth and drawShinsei (29-anime-takashi.js)
     // the Mei-En Garb's sash (on Akari, and on Kage when he wears it): akariCloths (28-anime-akari.js)
     animeCloths(this);   // the anime body's own cloth (Kage's coat panels: 21-anime-body.js)
   }
@@ -1375,32 +1374,7 @@ function bossLook(f) { const d = f && f.def; return d ? d.echoOf || d.id || null
 
 /* ---- Raikon: 27-anime-raikon.js (cloak, coat, fur, sode, jingasa) ---- */
 
-/* ---- Takashi ---- */
-// His head: a rounded crown over a broad, square jaw (instead of a ball); local head coords, left open to fill
-function takashiHeadPath(ctx, r) {
-  ctx.beginPath(); ctx.moveTo(-r * 0.95, r * 0.12);
-  ctx.bezierCurveTo(-r * 1.02, -r * 0.8, -r * 0.4, -r * 1.06, r * 0.12, -r * 1.02);
-  ctx.bezierCurveTo(r * 0.72, -r * 0.96, r * 1.0, -r * 0.55, r * 0.98, -r * 0.12);
-  ctx.lineTo(r * 1.0, r * 0.5); ctx.quadraticCurveTo(r * 0.96, r * 0.86, r * 0.68, r * 0.96);
-  ctx.lineTo(r * 0.12, r * 0.96); ctx.quadraticCurveTo(-r * 0.4, r * 0.86, -r * 0.7, r * 0.6); ctx.quadraticCurveTo(-r * 0.92, r * 0.42, -r * 0.95, r * 0.12);
-  ctx.closePath();
-}
-// His beard and moustache: a full beard along the jaw drawn to a point below the chin, iron-grey with pale strands;
-// in a flat pass (the white outline, an impact frame) just its shape, so the outline follows it
-function drawTakashiBeard(ctx, r, ink, flat) {
-  ctx.fillStyle = flat ? ink : '#e6e0d6';
-  ctx.beginPath(); ctx.moveTo(r * 0.18, r * 0.12);
-  for (const [x, y] of [[r * 0.36, r * 0.6], [r * 0.98, r * 0.58], [r * 1.06, r * 0.92], [r * 0.9, r * 1.38], [r * 0.66, r * 1.95], [r * 0.46, r * 1.4], [r * 0.08, r * 1.02], [-r * 0.06, r * 0.5]]) ctx.lineTo(x, y);
-  ctx.closePath(); ctx.fill();
-  if (flat) return;
-  ctx.strokeStyle = 'rgba(120,112,100,0.7)'; ctx.lineWidth = Math.max(0.8, r * 0.05);
-  ctx.beginPath();
-  for (const [x0, y0, x1, y1] of [[r * 0.9, r * 0.75, r * 0.74, r * 1.5], [r * 0.62, r * 0.78, r * 0.6, r * 1.55], [r * 0.34, r * 0.8, r * 0.46, r * 1.25], [r * 0.08, r * 0.6, r * 0.14, r * 0.95]]) { ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); }
-  ctx.stroke();
-  // the moustache, drooping past the corners of the mouth
-  ctx.strokeStyle = '#f4f0e8'; ctx.lineWidth = Math.max(1, r * 0.14); ctx.lineCap = 'round';
-  ctx.beginPath(); ctx.moveTo(r * 1.02, r * 0.44); ctx.quadraticCurveTo(r * 0.66, r * 0.44, r * 0.4, r * 0.72); ctx.stroke();
-}
+/* ---- Takashi: 29-anime-takashi.js (kasa, hair, beard, robes, capelet, cape, obi, gold-wrapped blade) ---- */
 
 /* ---- Rem ---- */
 // Rem (young Rem in the spar, Hollow Rem in the Core): his own hairstyle and band from his key art
@@ -2040,9 +2014,8 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
       ctx.beginPath(); ctx.arc(0, -r * 0.05, r * 1.18, -Math.PI * 0.45, Math.PI * 0.2); ctx.stroke();
       break;
     case 'straw_kasa':
-      ctx.beginPath(); ctx.moveTo(-r * 2.1, -r * 0.45); ctx.lineTo(r * 0.1, -r * 1.55); ctx.lineTo(r * 2.1, -r * 0.45); ctx.closePath(); ctx.fill();
-      ctx.strokeStyle = acc('rgba(201,164,92,0.5)'); ctx.lineWidth = 1;
-      for (let i = -3; i <= 3; i++) { ctx.beginPath(); ctx.moveTo(r * 0.1, -r * 1.5); ctx.lineTo(i * r * 0.62, -r * 0.5); ctx.stroke(); }
+      // Takashi's gold-rimmed kasa with his white hair and beard; the Kasa or the plain Sugegasa on Kage (29-anime-takashi.js)
+      drawStrawKasa(ctx, f, r, ink, flat);
       break;
     case 'oni':   // Garan's oni (24-anime-subs-a.js); the Echo placeholders' violet oni (25-anime-subs-b.js)
       if (f && /^echo_/.test(animeSkin(f).sub || '')) drawSubBHead(ctx, 'oni_echo', f, r, ink, flat); else drawSubHead(ctx, 'oni', f, r, ink, flat);
@@ -2216,35 +2189,10 @@ function drawArmor(ctx, f, ink, opt, Ut) {
       ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.lineTo(c[0], c[1]); ctx.stroke();
       break;
     }
-    case 'shinsei': {
-      // the Shinsei Yoroi (Takashi): layered dark robes with a crossed collar, a practical waist guard of small plates
-      // edged in muted gold, one small shoulder guard, and the Tachibana crest (a ring around a dot) small on the chest
-      const ox = Math.cos(ang + Math.PI / 2), oy = Math.sin(ang + Math.PI / 2);
-      const Q = (u, w) => [lerp(hx, nx, u) + ox * w * Ut, lerp(hy, ny, u) + oy * w * Ut];
-      ctx.fillStyle = flat ? ink : '#221e18';
-      torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.08);
-      if (!flat) {
-        // the inner robe's crossed collar, a lighter layer showing in a V down to mid-chest
-        ctx.strokeStyle = '#4a4232'; ctx.lineWidth = 2.2 * s;
-        const a = Q(0.95, -0.7), b = Q(0.55, 0.15), c = Q(0.95, 0.7);
-        ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.lineTo(c[0], c[1]); ctx.stroke();
-        ctx.strokeStyle = 'rgba(236,229,211,0.28)'; ctx.lineWidth = 0.9 * s;
-        ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke();
-      }
-      // waist guard: a band of three small plates over the hips
-      ctx.fillStyle = flat ? ink : '#15130f';
-      for (let i = -1; i <= 1; i++) {
-        const pts = [Q(0.3, i * 0.72 - 0.38), Q(0.3, i * 0.72 + 0.38), Q(0.04, i * 0.72 + 0.42), Q(0.04, i * 0.72 - 0.42)];
-        ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]); for (const q of pts.slice(1)) ctx.lineTo(q[0], q[1]); ctx.closePath(); ctx.fill();
-        if (!flat) { ctx.strokeStyle = 'rgba(217,176,85,0.55)'; ctx.lineWidth = 1 * s; ctx.stroke(); }
-      }
-      plate(Ut * 0.5, flat ? null : 'rgba(217,176,85,0.4)');
-      if (flat) break;
-      const cr = Q(0.7, 0.42);   // the family crest, restrained: small, gold, on the front of the chest
-      ctx.strokeStyle = '#d9b055'; ctx.lineWidth = 0.9 * s; ctx.beginPath(); ctx.arc(cr[0], cr[1], 3.2 * s, 0, TAU); ctx.stroke();
-      ctx.fillStyle = '#d9b055'; ctx.beginPath(); ctx.arc(cr[0], cr[1], 1.2 * s, 0, TAU); ctx.fill();
+    case 'shinsei':
+      // the Shinsei Yoroi: Takashi's robe torso, capelet, gold clasp and cords; the capelet over Kage's coat (29-anime-takashi.js)
+      drawShinsei(ctx, f, ink, flat);
       break;
-    }
     case 'raikon_plate':
       // Raikon's armoured coat, breastplate, crossed cords and white fur mantle (27-anime-raikon.js); enemy-only
       drawRaikonArmor(ctx, f, ink, flat);
