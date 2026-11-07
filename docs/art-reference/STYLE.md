@@ -119,6 +119,7 @@ Keep the existing skeleton (`BODY` in `20-fighter.js`); the art dresses it.
 - Swept, spiky black hair. Its spikes are shorter and swept further back than Kage's, so their silhouettes differ.
 - A white headband with a silver ring at the knot and long white tails. Black face and white eyes.
 - As young Rem, a training gi. As adult Rem, a worn travel coat with a violet collar band. Hollow Rem uses the Hollow treatment on top.
+- As built (ticket 07, `26-anime-rem.js`): the hair is a back-swept wedge (no forward points, crown at 1.56 head radii against Kage's 1.8, long points laid back past the nape) with two fringe locks over the band; the off-white band carries its silver ring at the temple. Accent violet (`#8a5cd6`) where Kage's is crimson. Young Rem: gi with a violet tasuki cord and bound forearms. Adult Rem: knee-length coat wrapped shut under the violet collar band, a mended patch, kyahan leggings and sandals (Kage: long open coat, tall boots, red scarf). Hollow Rem: that coat torn at the hem, the band ashen and torn, a cracked cheek shard. Young Kage's training band is crimson so the boys differ too.
 
 ## Hollow treatment (tickets 04, 07 to 11)
 

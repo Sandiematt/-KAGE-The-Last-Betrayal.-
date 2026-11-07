@@ -21,7 +21,7 @@
 
 const REM_ACC = '#8a5cd6';
 const REM_BAND = ['#a59e92', '#e4ded2', '#f6f2ea'];        // the headband: off-white cloth, never pure white
-const REM_BAND_H = ['#3a3448', '#6c6484', '#968eae'];      // Hollow Rem's: ash, with only a violet cast
+const REM_BAND_H = ['#4a4460', '#8a82a4', '#b4acca'];      // Hollow Rem's: ash, with only a violet cast
 const REM_RING = ['#4a4c52', ANIME.silver, ANIME.silverHi];
 const REM_TASUKI = ['#2c1a4c', '#6a44b0', '#9a74e0'];
 
@@ -154,4 +154,7 @@ function drawRemCoat(ctx, f, ink, flat) {
     line(pts.slice(2).concat([pts[0]]), pal.acc, 0.9 * A.s);
   }
   ctx.restore();
+  // the collar band folded round the base of the neck, so the violet still reads when the near arm covers the chest
+  const c0 = { x: spX(S, 0.9, -6.4 * U), y: spY(S, 0.9, -6.4 * U) }, c1 = { x: spX(S, 1.02, 5.2 * U), y: spY(S, 1.02, 5.2 * U) };
+  celFill(ctx, () => animeCapsule(ctx, c0, c1, 2.6 * U, 2.2 * U, 0.4 * U, 0.5), [acc[0], acc[1], acc[2]], A, { sd: 1.2 * U, hd: 0.6 * U, rim: true });
 }
