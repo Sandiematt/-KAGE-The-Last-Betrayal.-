@@ -7016,6 +7016,7 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   ctx.restore();
   // --- 9. the near arm, the weapon in its hand, and the hands closed over the grip
   this.animeArm(ctx, sk.shF, sk.fel, sk.fha, A, skin, U * slv, false, true);
+  takashiLayer(this, ctx, A, skin, U, 'over');   // the Shinsei Yoroi's gold clasp and tassel at the throat (29-anime-takashi.js)
   if (this.weaponId() === 'iron_fists' || this.weaponId() === 'storm_orbs') this.drawFistGear(ctx, front, ov);
   this.drawMainWeapon(ctx, front, flat ? Object.assign({}, opt, { color: front }) : opt);
   const grip = this.shape() !== 'none' && this.weaponId() !== 'iron_fists';
@@ -10555,7 +10556,7 @@ function _akRibbons(f, ctx, A) {
 const TK_GOLD = ['#6e4f1c', '#d0a443', '#f4da8e'];            // trim, ribs, cords, embroidery (TAKASHI_GOLD family)
 const TK_GOLD_H = ['#2b2541', '#6a5f98', '#ada2d6'];          // the echo's: gold gone to ash-violet
 const TK_ROBE = ['#070407', '#120a10', '#26151f'];            // plum-black robe
-const TK_CAPE = ['#060306', '#0f080d', '#22121c'];            // the capelet and the long cape, a shade deeper
+const TK_CAPE = ['#060306', '#110910', '#2e1726'];            // the capelet and the long cape, a shade deeper
 const TK_INNER = ['#040303', '#0a0808', '#1a1615'];           // the inner kimono under the collar
 const TK_STRAW = ['#0c0806', '#1b130d', '#3a2919'];           // the kasa: dark lacquered straw
 const TK_STRAW_H = ['#07060b', '#110e18', '#272236'];
@@ -10586,7 +10587,7 @@ function takashiCloths(f, sk) {
   const s = f.scale, hol = sk.takashi === 'hollow';
   f.cloths.push({ kind: 'tcape', c: new Cloth(10, 13.4 * s, { ph: 1.6, wind: 820, grav: 1100, stiff: 1.93, hang: 0.4 }), at: 'neck', dx: 7, dy: 3, w: 46 });
   f.cloths.push({ kind: 'tcape', far: 1, c: new Cloth(9, 12.6 * s, { ph: 4.3, wind: 1000, grav: 1050, stiff: 1.93, hang: 0.5 }), at: 'neck', dx: 11, dy: 8, w: 34 });
-  f.cloths.push({ kind: 'trobe', part: 'back', c: new Cloth(8, 12.8 * s, { ph: 2.2, wind: 700, grav: 1150, stiff: 1.5, hang: 0.4 }), at: 'hip', dx: 5, dy: -4 });
+  f.cloths.push({ kind: 'trobe', part: 'back', c: new Cloth(8, 12.8 * s, { ph: 2.2, wind: 340, grav: 1400, stiff: 1.5, hang: 0.3 }), at: 'hip', dx: 5, dy: -4 });
   f.cloths.push({ kind: 'trobe', part: 'flap', c: new Cloth(8, 12.2 * s, { ph: 4.7, wind: 220, grav: 1300, stiff: 1.5, hang: 0.12 }), at: 'hip', dx: 0, dy: -3 });
   f.cloths.push({ kind: 'tribbon', c: new Cloth(11, 7 * s, { ph: 3.1, wind: 1150, grav: 420, stiff: 1.86, hang: 0.6 }), at: 'head', dx: 16, dy: -9, w: 4.4 });
   if (!hol) f.cloths.push({ kind: 'tribbon', c: new Cloth(9, 6.6 * s, { ph: 6.4, wind: 1300, grav: 360, stiff: 1.86, hang: 0.7 }), at: 'head', dx: 17, dy: -7, w: 3.4 });   // the echo lost one
@@ -10708,6 +10709,7 @@ function _tkRibbons(f, ctx, A) {
 
 /* ---- layers called from the body (21-anime-body.js) ---- */
 function takashiLayer(f, ctx, A, skin, U, layer) {
+  if (layer === 'over') { takashiClasp(f, ctx, A); return; }   // also Kage in the Shinsei Yoroi
   if (!skin.takashi) return;
   if (layer === 'back') { _tkCape(f, ctx, A, U); _tkRibbons(f, ctx, A); _tkSkirt(f, ctx, A, U, 'back'); }
   else if (layer === 'front') _tkSkirt(f, ctx, A, U, 'flap');
@@ -10803,22 +10805,39 @@ function drawShinsei(ctx, f, ink, flat) {
     if (hol) { _tear(g, A, P(0.6, -9)[0], P(0.6, -9)[1], 3.4 * U, 3 * U, 0.3); hollowCrack(g, A, 1, [P(0.98, 2), P(0.86, -1), P(0.78, 2), P(0.66, 0)], 0.8 * U); }
   } });
   if (A.flat) { void ink; void flat; return; }
-  // the cords swagged from the clasp across the capelet, the tassel hanging under the clasp
-  const cl0 = P(0.86, 7.4), clasp = { x: cl0[0], y: cl0[1] };
-  for (const [u1, w1, sag] of [[0.62, -9, 5], [0.7, 13, 3]]) {
-    const e = P(u1, w1), m = P((0.86 + u1) / 2 - sag * 0.03, (7.4 + w1) / 2);
+  // the cords swagged from the clasp across the capelet (the clasp itself is drawn over the near arm: takashiClasp)
+  const cl0 = P(TK_CLASP[0], TK_CLASP[1]), clasp = { x: cl0[0], y: cl0[1] };
+  for (const [u1, w1, sag] of [[0.62, -9, 5], [0.66, 14, 3]]) {
+    const e = P(u1, w1), m = P((TK_CLASP[0] + u1) / 2 - sag * 0.03, (TK_CLASP[1] + w1) / 2);
     ctx.strokeStyle = gold[0]; ctx.lineWidth = 1.9 * U; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(clasp.x, clasp.y); ctx.quadraticCurveTo(m[0], m[1], e[0], e[1]); ctx.stroke();
     ctx.strokeStyle = gold[1]; ctx.lineWidth = 1.1 * U; ctx.beginPath(); ctx.moveTo(clasp.x, clasp.y); ctx.quadraticCurveTo(m[0], m[1], e[0], e[1]); ctx.stroke();
   }
-  _tkTassel(ctx, A, clasp, 7 * U, -S.ux, -S.uy, 2.2 * U, gold);
-  // the clasp: a gold disc, a dark ring and a gold dot (the Tachibana mark), a soft glow
-  const R = 3.4 * U;
+  void tk;
+}
+// the clasp at the throat, the tassel under it: drawn after the near arm so the sleeve never hides it
+const TK_CLASP = [0.8, 8.6];
+function takashiClasp(f, ctx, A) {
+  if (A.flat || !A.S) return;
+  if (f.armor === 'shinsei') _tkClaspDraw(f, ctx, A);
+  if (animeSkin(f).takashi && f.helmet === 'straw_kasa') {
+    // the beard, in the head's frame as silhouette() sets it, with the light turned into it
+    const sk = f.sk, r0 = BODY.head * f.scale * f.build.head;
+    ctx.save(); ctx.translate(sk.head.x, sk.head.y); ctx.rotate(f.headRot || 0); ctx.scale(f.facing, 1);
+    const sv = _headLight(A, f); _tkBeard(ctx, f, r0, A); A.lx = sv[0]; A.ly = sv[1];
+    ctx.restore();
+  }
+}
+function _tkClaspDraw(f, ctx, A) {
+  const S = A.S, U = A.U, gold = _tkG(f), hol = _tkH(f);
+  const clasp = { x: spX(S, TK_CLASP[0], TK_CLASP[1] * U), y: spY(S, TK_CLASP[0], TK_CLASP[1] * U) };
+  _tkTassel(ctx, A, clasp, 6 * U, -S.ux, -S.uy, 2.2 * U, gold);
+  // a gold disc, a dark ring and a gold dot (the Tachibana mark), a soft glow
+  const R = 3.6 * U;
   if (!hol) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(240,190,80,0.16)'; ctx.beginPath(); ctx.arc(clasp.x, clasp.y, R * 2, 0, TAU); ctx.fill(); ctx.restore(); }
   celFill(ctx, () => { ctx.moveTo(clasp.x + R, clasp.y); ctx.arc(clasp.x, clasp.y, R, 0, TAU); }, gold, A, { sd: R * 0.32, hd: R * 0.16, detail: (g) => {
     g.strokeStyle = gold[0]; g.lineWidth = 0.9 * U; g.beginPath(); g.arc(clasp.x, clasp.y, R * 0.62, 0, TAU); g.stroke();
     g.fillStyle = gold[0]; g.beginPath(); g.arc(clasp.x, clasp.y, R * 0.22, 0, TAU); g.fill();
   } });
-  void tk;
 }
 
 /* ---- the blade (SUB_WEAPON_ART): the katana with a gold tsuka wrapped in black diamonds and gold fittings ---- */
@@ -10852,11 +10871,11 @@ const TK_HAT_H = [[-1.86, -0.66, 1], [-2.1, -0.5, 1], [-1.64, -0.42, 1], [-1.9, 
 const TK_BRIM = [[-2.36, -0.52, 1], [-1.2, -0.44], [0, -0.32], [1.1, -0.21], [2.42, -0.13, 1], [2.38, 0.0, 1], [1.1, -0.08], [0, -0.18], [-1.2, -0.3], [-2.3, -0.4, 1]];
 const TK_BRIM_H = [[-1.6, -0.46, 1], [-1.2, -0.43], [0, -0.32], [1.1, -0.21], [2.42, -0.13, 1], [2.38, 0.0, 1], [1.1, -0.08], [0, -0.18], [-1.2, -0.29, 1], [-1.44, -0.3, 1], [-1.36, -0.4, 1]];
 // white hair swept back behind the face in spiky locks, a few falling past the temple
-const TK_HAIRP = [[0.24, -0.5, 1], [0.12, -0.08], [0.2, 0.3, 1], [-0.04, 0.06], [-0.06, 0.62, 1], [-0.28, 0.3], [-0.44, 0.92, 1], [-0.58, 0.5], [-0.98, 0.9, 1],
-  [-0.86, 0.38], [-1.46, 0.56, 1], [-1.02, 0.12], [-1.66, 0.04, 1], [-1.04, -0.18], [-1.5, -0.44, 1], [-0.9, -0.5, 1]];
+const TK_HAIRP = [[0.24, -0.5, 1], [0.1, -0.1], [0.22, 0.34, 1], [-0.04, 0.08], [-0.02, 0.66, 1], [-0.26, 0.32], [-0.4, 0.86, 1], [-0.56, 0.46], [-0.92, 0.96, 1],
+  [-0.8, 0.42], [-1.5, 0.66, 1], [-1.04, 0.2], [-1.76, 0.12, 1], [-1.08, -0.1], [-1.6, -0.36, 1], [-1.0, -0.42], [-1.2, -0.62, 1], [-0.6, -0.56, 1]];
 // the moustache: drooping wings from under the nose, and the long beard to a point, split at the end
-const TK_MOUST = [[0.96, 0.3, 1], [1.12, 0.52], [1.08, 0.9, 1], [0.94, 0.58], [0.66, 0.5], [0.36, 0.66], [0.1, 0.98, 1], [0.24, 0.5], [0.62, 0.3]];
-const TK_BEARD = [[0.9, 0.5], [1.0, 0.72, 1], [0.94, 1.12], [0.98, 1.52, 1], [0.82, 1.34], [0.68, 2.12, 1], [0.56, 1.52], [0.4, 1.7, 1], [0.36, 1.12], [0.2, 0.82, 1], [0.44, 0.62]];
+const TK_MOUST = [[0.92, 0.32, 1], [1.16, 0.44], [1.3, 0.8, 1], [1.04, 0.56], [0.78, 0.5], [0.5, 0.58], [0.22, 0.9, 1], [0.32, 0.48], [0.64, 0.36]];
+const TK_BEARD = [[0.82, 0.56], [0.94, 0.84], [0.88, 1.2], [0.92, 1.46, 1], [0.78, 1.36], [0.66, 1.96, 1], [0.58, 1.46], [0.44, 1.6, 1], [0.44, 1.16], [0.36, 0.86], [0.5, 0.62]];
 function _tkHat(ctx, f, r, A, hat, brim, straw, gold, hol) {
   celFill(ctx, () => orderShape(ctx, r, hat), straw, A, { sd: r * 0.24, hd: r * 0.05, rim: true, detail: (g) => {
     // the ribs from the apex, gold, the lit ones brighter; a fine woven ring round the crown
@@ -10882,6 +10901,19 @@ function _tkHat(ctx, f, r, A, hat, brim, straw, gold, hol) {
     ctx.beginPath(); ctx.moveTo(-2.3 * r, -0.46 * r); ctx.quadraticCurveTo(0, -0.22 * r, 2.38 * r, -0.07 * r); ctx.stroke(); ctx.restore();
   }
 }
+// the beard and moustache (head frame): drawn after the near arm (takashiClasp), since they hang in front of the chest
+function _tkBeard(ctx, f, r0, A) {
+  const hc = _tkH(f) ? TK_HAIR_H : TK_HAIR;
+  // the beard, then the moustache over it
+  celFill(ctx, () => orderShape(ctx, r0, TK_BEARD), hc, A, { sd: r0 * 0.18, hd: r0 * 0.05, rim: true, detail: (g) => {
+    g.lineCap = 'round'; g.strokeStyle = hc[0]; g.lineWidth = Math.max(0.7, r0 * 0.045); g.beginPath();
+    for (const [x0, y0, x1, y1] of [[0.78, 0.74, 0.84, 1.3], [0.64, 0.74, 0.66, 1.76], [0.5, 0.8, 0.5, 1.4]]) { g.moveTo(x0 * r0, y0 * r0); g.quadraticCurveTo((x0 + x1) * 0.5 * r0 + 0.05 * r0, (y0 + y1) * 0.5 * r0, x1 * r0, y1 * r0); }
+    g.stroke();
+  } });
+  celFill(ctx, () => orderShape(ctx, r0, TK_MOUST), hc, A, { sd: r0 * 0.1, hd: r0 * 0.05, detail: (g) => {
+    g.strokeStyle = hc[0]; g.lineWidth = Math.max(0.6, r0 * 0.035); g.beginPath(); g.moveTo(1.18 * r0, 0.66 * r0); g.quadraticCurveTo(0.8 * r0, 0.44 * r0, 0.3 * r0, 0.8 * r0); g.stroke();
+  } });
+}
 function drawStrawKasa(ctx, f, r, ink, flat) {
   const A = f && f._A, tk = !!(f && animeSkin(f).takashi), hol = tk && _tkH(f), r0 = r;
   const kage = !tk && f && f.isPlayer, kasaGear = !tk && f && f.helmetId === 'kasa';
@@ -10890,7 +10922,7 @@ function drawStrawKasa(ctx, f, r, ink, flat) {
   if (flat || !A || A.flat) {
     if (kage) { ctx.save(); ctx.beginPath(); ctx.rect(-4 * r0, -0.36 * r0, 8 * r0, 6 * r0); ctx.clip(); drawKageHair(ctx, r0, ink, flat, f); ctx.restore(); }
     ctx.fillStyle = flat ? ink : (A ? TK_STRAW[1] : ink);
-    if (tk) for (const pts of [TK_HAIRP, TK_MOUST, TK_BEARD]) { ctx.beginPath(); orderShape(ctx, r0, pts); ctx.fill(); }
+    if (tk) for (const pts of [TK_HAIRP, TK_MOUST, TK_BEARD]) { ctx.beginPath(); orderShape(ctx, r0, pts); ctx.fill(); }   // (flat: the beard stays in the head pass)
     for (const pts of [hat, brim]) { ctx.beginPath(); orderShape(ctx, r, pts); ctx.fill(); }
     if (!flat && !A) {   // the gear shop's icon: ribs and the rim in gold on the plain shape
       ctx.strokeStyle = kasaGear ? 'rgba(208,164,67,0.8)' : 'rgba(201,164,92,0.5)'; ctx.lineWidth = 1;
@@ -10905,19 +10937,10 @@ function drawStrawKasa(ctx, f, r, ink, flat) {
     // the hair behind the face, combed back in locks
     celFill(ctx, () => orderShape(ctx, r0, TK_HAIRP), hc, A, { sd: r0 * 0.24, hd: r0 * 0.06, rim: true, detail: (g) => {
       g.lineCap = 'round'; g.strokeStyle = hc[0]; g.lineWidth = Math.max(0.7, r0 * 0.045); g.beginPath();
-      for (const [x0, y0, x1, y1] of [[-0.3, -0.36, -1.3, 0.0], [-0.24, -0.2, -1.2, 0.46], [-0.2, 0.0, -0.84, 0.76], [-0.1, 0.1, -0.4, 0.8], [0.06, -0.3, 0.0, 0.46]]) {
+      for (const [x0, y0, x1, y1] of [[-0.5, -0.3, -1.1, -0.06], [-0.4, 0.04, -0.86, 0.44], [-0.12, 0.08, -0.3, 0.56]]) {
         g.moveTo(x0 * r0, y0 * r0); g.quadraticCurveTo((x0 + x1) * 0.5 * r0, (y0 + y1) * 0.5 * r0 - 0.08 * r0, x1 * r0, y1 * r0);
       }
       g.stroke();
-    } });
-    // the beard, then the moustache over it
-    celFill(ctx, () => orderShape(ctx, r0, TK_BEARD), hc, A, { sd: r0 * 0.18, hd: r0 * 0.05, rim: true, detail: (g) => {
-      g.lineCap = 'round'; g.strokeStyle = hc[0]; g.lineWidth = Math.max(0.7, r0 * 0.045); g.beginPath();
-      for (const [x0, y0, x1, y1] of [[0.84, 0.7, 0.86, 1.36], [0.64, 0.7, 0.66, 1.84], [0.46, 0.76, 0.46, 1.5]]) { g.moveTo(x0 * r0, y0 * r0); g.quadraticCurveTo((x0 + x1) * 0.5 * r0 + 0.05 * r0, (y0 + y1) * 0.5 * r0, x1 * r0, y1 * r0); }
-      g.stroke();
-    } });
-    celFill(ctx, () => orderShape(ctx, r0, TK_MOUST), hc, A, { sd: r0 * 0.1, hd: r0 * 0.05, detail: (g) => {
-      g.strokeStyle = hc[0]; g.lineWidth = Math.max(0.6, r0 * 0.035); g.beginPath(); g.moveTo(0.9 * r0, 0.42 * r0); g.quadraticCurveTo(0.5 * r0, 0.5 * r0, 0.2 * r0, 0.84 * r0); g.stroke();
     } });
   } else if (kage) {
     // Kage keeps his hair under the hat: only what shows below the brim

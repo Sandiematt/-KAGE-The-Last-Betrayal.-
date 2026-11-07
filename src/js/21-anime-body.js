@@ -408,6 +408,7 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   ctx.restore();
   // --- 9. the near arm, the weapon in its hand, and the hands closed over the grip
   this.animeArm(ctx, sk.shF, sk.fel, sk.fha, A, skin, U * slv, false, true);
+  takashiLayer(this, ctx, A, skin, U, 'over');   // the Shinsei Yoroi's gold clasp and tassel at the throat (29-anime-takashi.js)
   if (this.weaponId() === 'iron_fists' || this.weaponId() === 'storm_orbs') this.drawFistGear(ctx, front, ov);
   this.drawMainWeapon(ctx, front, flat ? Object.assign({}, opt, { color: front }) : opt);
   const grip = this.shape() !== 'none' && this.weaponId() !== 'iron_fists';
