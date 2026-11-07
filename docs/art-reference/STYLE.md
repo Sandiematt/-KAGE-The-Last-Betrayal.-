@@ -96,6 +96,7 @@ Keep the existing skeleton (`BODY` in `20-fighter.js`); the art dresses it.
 - A white fur mantle over one shoulder, and a dark armoured coat with a red cloud crest (mitsudomoe-like) on the shoulder plate.
 - Red cords cross the chest, with a ring belt (a silver ring at the obi). Dark gauntlets, and a crimson-lit tachi.
 - The eyes are white, with a faint red rim (see above).
+- As built (ticket 08, `27-anime-raikon.js`): the jingasa is drawn about 1.2× the head and 6 head radii across, ribbed, with the red band and a red glow under the brim; the flame crest leans back; the eye rim light is an additive red wash clipped to the face. The fur is a fan of curled tufts rooted on the back shoulder. The coat is an armoured front (three laced lames, crossed collar piped red, crossed red cords) with long split skirts torn at the hem over a red band; the round sode carries the mitsudomoe. The cloak (`rcloak` cloth) is now drawn inside the body, so the flat passes include it. Hollow Raikon: deep violet-black palette, ash fur, the crest burnt to stubs, the brim broken at the back, violet cracks, a mask shard on the cheek, one tassel and one ring cord gone, more and longer tears.
 
 **Akari (ticket 09), from `boss_akari.webp` and `face_akari.webp`.**
 - A long black high ponytail with a violet sheen, a violet sakura ornament at its root and short violet ribbons. Side bangs frame the face.
