@@ -383,8 +383,9 @@ const SPECIALS = {
    Sub-boss trophies (tier 'trophy', one per act sub-boss) are each worn by the sub-boss that drops it; Act I's four
    are in (Sumi Eboshi, Ikazuchi-dō, Hisame Zukin, Shiden Yoroi), Acts II and III add theirs. */
 const HELMETS = {
-  shiro_maki:   { name: 'White Face-Wrap', tier: 'starter', def: 0.01, hp: 4, price: 0, look: 'topknot', perks: {},
-    lore: 'Rem tore it from his own sleeve the night Hoshimura emptied. Kage has never untied it.' },
+  // the id is the old face-wrap's (saves store it); the look is Kage's bare spiky hair and his red scarf
+  shiro_maki:   { name: 'Crimson Scarf', tier: 'starter', def: 0.01, hp: 4, price: 0, look: 'topknot', perks: {},
+    lore: 'Rem tore it from his own sleeve the night Hoshimura emptied. Kage winds it twice round his throat and has never untied it.' },
   kuro_zukin:   { name: 'Kuro Zukin', tier: 'common', def: 0.04, hp: 8, price: 300, look: 'ronin_hood', perks: { dash: 0.12 },
     lore: 'An outer-district smuggler\'s hood, dyed with ash so the Order\'s lanterns slide right off it.' },
   sugegasa:     { name: 'Sugegasa', tier: 'common', def: 0.05, hp: 8, price: 450, look: 'straw_kasa', perks: { ammo: 2 },

@@ -1,0 +1,253 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Raikon_Blade_Charge",
+  "role": "boss wind-up tell: Raikon's blade tip charging before Thunder Swing and Storm Break",
+  "style": "stylized anime combat, dark storm stage, one red element",
+  "dominant_shape": "short red arcs jumping inward onto one point that heats to white, then a star glint",
+  "palette": {
+    "core": [
+      255,
+      236,
+      228
+    ],
+    "body": [
+      255,
+      40,
+      28
+    ],
+    "dark": [
+      26,
+      4,
+      8
+    ],
+    "matter": [
+      150,
+      8,
+      12
+    ]
+  },
+  "delivery": {
+    "kind": "self"
+  },
+  "anchor": "caster",
+  "beats": [
+    {
+      "frame": 6,
+      "name": "gather",
+      "expect": "Red motes and long red arcs reach in from about a metre out; the tip is only a dim red glow"
+    },
+    {
+      "frame": 24,
+      "name": "tighten",
+      "expect": "Arcs are shorter and paler, a broken red crackle ring circles the tip, the core is turning white"
+    },
+    {
+      "frame": 36,
+      "name": "glint",
+      "expect": "One white star glint with a cross, a thin red ring and short sparks: the brightest frame"
+    },
+    {
+      "frame": 44,
+      "name": "clear",
+      "expect": "Only the last sparks and the ring's fading edge"
+    }
+  ],
+  "acceptance": [
+    "The build visibly tightens: arcs at f6 are long and red, by f30 they are short and near white",
+    "Nothing before f36 is as bright as the glint",
+    "Motion is inward until the glint, outward only after it"
+  ],
+  "avoid": [
+    "A glowing ball that only grows",
+    "Arcs that fire outward like a hit",
+    "A long white hold after the glint"
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Backing",
+      "role": "dark backing under the hot core",
+      "primitive": "shadow",
+      "exit": "gone by absolute f38"
+    },
+    {
+      "name": "1:Aura",
+      "role": "red light swelling as the charge builds",
+      "primitive": "glow",
+      "exit": "gone by absolute f38"
+    },
+    {
+      "name": "2:Gathering motes",
+      "role": "inward motion",
+      "primitive": "motes travelling inward",
+      "exit": "gone by absolute f42.5"
+    },
+    {
+      "name": "3:Inward arc 1a",
+      "role": "the charge itself: arcs re-struck inward, shorter and hotter over time",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f6"
+    },
+    {
+      "name": "4:Inward arc 1b",
+      "role": "the charge itself: arcs re-struck inward, shorter and hotter over time",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f7"
+    },
+    {
+      "name": "5:Inward arc 2a",
+      "role": "the charge itself: arcs re-struck inward, shorter and hotter over time",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f9"
+    },
+    {
+      "name": "6:Inward arc 2b",
+      "role": "the charge itself: arcs re-struck inward, shorter and hotter over time",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f10"
+    },
+    {
+      "name": "7:Inward arc 3a",
+      "role": "the charge itself: arcs re-struck inward, shorter and hotter over time",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f12"
+    },
+    {
+      "name": "8:Inward arc 3b",
+      "role": "the charge itself: arcs re-struck inward, shorter and hotter over time",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f13"
+    },
+    {
+      "name": "9:Inward arc 4a",
+      "role": "the charge itself: arcs re-struck inward, shorter and hotter over time",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f15"
+    },
+    {
+      "name": "10:Inward arc 4b",
+      "role": "the charge itself: arcs re-struck inward, shorter and hotter over time",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f16"
+    },
+    {
+      "name": "11:Inward arc 5a",
+      "role": "the charge itself: arcs re-struck inward, shorter and hotter over time",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f18"
+    },
+    {
+      "name": "12:Inward arc 5b",
+      "role": "the charge itself: arcs re-struck inward, shorter and hotter over time",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f19"
+    },
+    {
+      "name": "13:Inward arc 6a",
+      "role": "the charge itself: arcs re-struck inward, shorter and hotter over time",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f21"
+    },
+    {
+      "name": "14:Inward arc 6b",
+      "role": "the charge itself: arcs re-struck inward, shorter and hotter over time",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f22"
+    },
+    {
+      "name": "15:Inward arc 7a",
+      "role": "the charge itself: arcs re-struck inward, shorter and hotter over time",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f24"
+    },
+    {
+      "name": "16:Inward arc 7b",
+      "role": "the charge itself: arcs re-struck inward, shorter and hotter over time",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f25"
+    },
+    {
+      "name": "17:Inward arc 8a",
+      "role": "the charge itself: arcs re-struck inward, shorter and hotter over time",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f27"
+    },
+    {
+      "name": "18:Inward arc 8b",
+      "role": "the charge itself: arcs re-struck inward, shorter and hotter over time",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f28"
+    },
+    {
+      "name": "19:Inward arc 9a",
+      "role": "the charge itself: arcs re-struck inward, shorter and hotter over time",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f30"
+    },
+    {
+      "name": "20:Inward arc 9b",
+      "role": "the charge itself: arcs re-struck inward, shorter and hotter over time",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f31"
+    },
+    {
+      "name": "21:Inward arc 10a",
+      "role": "the charge itself: arcs re-struck inward, shorter and hotter over time",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f33"
+    },
+    {
+      "name": "22:Inward arc 10b",
+      "role": "the charge itself: arcs re-struck inward, shorter and hotter over time",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f34"
+    },
+    {
+      "name": "23:Inward arc 11a",
+      "role": "the charge itself: arcs re-struck inward, shorter and hotter over time",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f36"
+    },
+    {
+      "name": "24:Inward arc 11b",
+      "role": "the charge itself: arcs re-struck inward, shorter and hotter over time",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f37"
+    },
+    {
+      "name": "25:Crackle",
+      "role": "volume: broken red strokes circling the tip",
+      "primitive": "wisps",
+      "exit": "gone by absolute f39"
+    },
+    {
+      "name": "26:Core",
+      "role": "hot core heating to white",
+      "primitive": "glow",
+      "exit": "gone by absolute f38"
+    },
+    {
+      "name": "27:Glint",
+      "role": "release: the one bright frame",
+      "primitive": "flash",
+      "exit": "gone by absolute f41"
+    },
+    {
+      "name": "28:Glint cross",
+      "role": "release accent",
+      "primitive": "flash",
+      "exit": "gone by absolute f40"
+    },
+    {
+      "name": "29:Release ring",
+      "role": "release wave",
+      "primitive": "shock_ring",
+      "exit": "gone by absolute f45"
+    },
+    {
+      "name": "30:Release sparks",
+      "role": "release secondary",
+      "primitive": "radial_sparks",
+      "exit": "gone by absolute f45"
+    }
+  ]
+}

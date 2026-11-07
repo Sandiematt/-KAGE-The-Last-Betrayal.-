@@ -1,0 +1,591 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Raikon_Sky_Strike",
+  "role": "boss skill: red lightning called down onto the slam point (Storm Break), the wave source (Thunder Swing) and phase changes",
+  "style": "stylized anime combat, dark storm stage, one red element",
+  "dominant_shape": "a tall jagged sky-to-ground bolt re-struck on different paths, then cooling ground cracks",
+  "palette": {
+    "core": [
+      255,
+      236,
+      228
+    ],
+    "body": [
+      255,
+      40,
+      28
+    ],
+    "dark": [
+      26,
+      4,
+      8
+    ],
+    "matter": [
+      104,
+      86,
+      88
+    ],
+    "accent": [
+      150,
+      8,
+      12
+    ]
+  },
+  "delivery": {
+    "kind": "targeted"
+  },
+  "anchor": "ground",
+  "beats": [
+    {
+      "frame": 6,
+      "name": "leader",
+      "expect": "A dim red leader is half way down over a tightening red ground mark; nothing is white yet"
+    },
+    {
+      "frame": 10,
+      "name": "contact",
+      "expect": "The full red bolt with a white core and three forks connects sky to ground with a white star at the foot"
+    },
+    {
+      "frame": 14,
+      "name": "dark frame",
+      "expect": "The bolt is gone; only ground bloom, cracks and sparks remain lit"
+    },
+    {
+      "frame": 16,
+      "name": "return stroke",
+      "expect": "A second bolt on a visibly different path, slightly thinner"
+    },
+    {
+      "frame": 21,
+      "name": "after-flicker",
+      "expect": "A third, thin, pale flicker on a third path"
+    },
+    {
+      "frame": 30,
+      "name": "channel cools",
+      "expect": "A deep red channel erodes from the sky while red arcs crawl along the cracks"
+    },
+    {
+      "frame": 50,
+      "name": "residue",
+      "expect": "Deep red cracks eroding in pieces on a dark scorch, sparse arcs still crawling, debris landed, embers rising"
+    },
+    {
+      "frame": 66,
+      "name": "exit",
+      "expect": "Cracks broken into dim deep-red pieces, one last small arc, embers and a trickle of ash still rising"
+    }
+  ],
+  "acceptance": [
+    "Before f10 the viewer can tell where the strike will land from the ground mark and leader",
+    "The main strike, the return stroke and the after-flicker are on three visibly different paths with dark frames between them",
+    "The bolt never slides or scales; it is struck whole on its frame",
+    "After the flashes the burnt channel and the cracks keep red value while the effect cools to deep red and ash"
+  ],
+  "avoid": [
+    "A white blob at the foot that lasts more than four frames",
+    "A bolt that grows downward like a projectile at contact",
+    "A static dark circle hanging after the cracks are out"
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Scorch",
+      "role": "dark ground footprint",
+      "primitive": "decal T_SoftCircle Blend",
+      "exit": "gone by absolute f73"
+    },
+    {
+      "name": "1:Cracks",
+      "role": "ground residue, cools white to red to deep",
+      "primitive": "decal T_Crack01",
+      "exit": "gone by absolute f72"
+    },
+    {
+      "name": "2:Ground mark",
+      "role": "anticipation: where it will land",
+      "primitive": "ground shock_ring shrinking",
+      "exit": "gone by absolute f10"
+    },
+    {
+      "name": "3:Leader 1",
+      "role": "anticipation: stepped leader steps down",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f10"
+    },
+    {
+      "name": "4:Leader 2",
+      "role": "anticipation: stepped leader steps down",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f10"
+    },
+    {
+      "name": "5:Leader 3",
+      "role": "anticipation: stepped leader steps down",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f10"
+    },
+    {
+      "name": "6:Leader 4",
+      "role": "anticipation: stepped leader steps down",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f10"
+    },
+    {
+      "name": "7:Leader 5",
+      "role": "anticipation: stepped leader steps down",
+      "primitive": "strand segments T_ArcStrand01",
+      "exit": "gone by absolute f10"
+    },
+    {
+      "name": "8:Sky lit",
+      "role": "the cloud base lit at contact",
+      "primitive": "glow",
+      "exit": "gone by absolute f18"
+    },
+    {
+      "name": "9:Main backing 1",
+      "role": "dark backing behind the bolt",
+      "primitive": "Blend strand segments",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "10:Main backing 2",
+      "role": "dark backing behind the bolt",
+      "primitive": "Blend strand segments",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "11:Main backing 3",
+      "role": "dark backing behind the bolt",
+      "primitive": "Blend strand segments",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "12:Main backing 4",
+      "role": "dark backing behind the bolt",
+      "primitive": "Blend strand segments",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "13:Main backing 5",
+      "role": "dark backing behind the bolt",
+      "primitive": "Blend strand segments",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "14:Main backing 6",
+      "role": "dark backing behind the bolt",
+      "primitive": "Blend strand segments",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "15:Main body 1",
+      "role": "saturated red body of the strike",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "16:Main body 2",
+      "role": "saturated red body of the strike",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "17:Main body 3",
+      "role": "saturated red body of the strike",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "18:Main body 4",
+      "role": "saturated red body of the strike",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "19:Main body 5",
+      "role": "saturated red body of the strike",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "20:Main body 6",
+      "role": "saturated red body of the strike",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "21:Fork 1 1",
+      "role": "branches off the upper channel",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f13"
+    },
+    {
+      "name": "22:Fork 1 2",
+      "role": "branches off the upper channel",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f13"
+    },
+    {
+      "name": "23:Fork 1 3",
+      "role": "branches off the upper channel",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f13"
+    },
+    {
+      "name": "24:Fork 2 1",
+      "role": "branches off the upper channel",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f13"
+    },
+    {
+      "name": "25:Fork 2 2",
+      "role": "branches off the upper channel",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f13"
+    },
+    {
+      "name": "26:Fork 2 3",
+      "role": "branches off the upper channel",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f13"
+    },
+    {
+      "name": "27:Fork 3 1",
+      "role": "branches off the upper channel",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f13"
+    },
+    {
+      "name": "28:Fork 3 2",
+      "role": "branches off the upper channel",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f13"
+    },
+    {
+      "name": "29:Main core 1",
+      "role": "white-hot core of the strike",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "30:Main core 2",
+      "role": "white-hot core of the strike",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "31:Main core 3",
+      "role": "white-hot core of the strike",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "32:Main core 4",
+      "role": "white-hot core of the strike",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "33:Main core 5",
+      "role": "white-hot core of the strike",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "34:Main core 6",
+      "role": "white-hot core of the strike",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "35:Return body 1",
+      "role": "return stroke body, different path",
+      "primitive": "mirrored strand segments",
+      "exit": "gone by absolute f19"
+    },
+    {
+      "name": "36:Return body 2",
+      "role": "return stroke body, different path",
+      "primitive": "mirrored strand segments",
+      "exit": "gone by absolute f19"
+    },
+    {
+      "name": "37:Return body 3",
+      "role": "return stroke body, different path",
+      "primitive": "mirrored strand segments",
+      "exit": "gone by absolute f19"
+    },
+    {
+      "name": "38:Return body 4",
+      "role": "return stroke body, different path",
+      "primitive": "mirrored strand segments",
+      "exit": "gone by absolute f19"
+    },
+    {
+      "name": "39:Return body 5",
+      "role": "return stroke body, different path",
+      "primitive": "mirrored strand segments",
+      "exit": "gone by absolute f19"
+    },
+    {
+      "name": "40:Return body 6",
+      "role": "return stroke body, different path",
+      "primitive": "mirrored strand segments",
+      "exit": "gone by absolute f19"
+    },
+    {
+      "name": "41:Return core 1",
+      "role": "return stroke core",
+      "primitive": "mirrored strand segments",
+      "exit": "gone by absolute f19"
+    },
+    {
+      "name": "42:Return core 2",
+      "role": "return stroke core",
+      "primitive": "mirrored strand segments",
+      "exit": "gone by absolute f19"
+    },
+    {
+      "name": "43:Return core 3",
+      "role": "return stroke core",
+      "primitive": "mirrored strand segments",
+      "exit": "gone by absolute f19"
+    },
+    {
+      "name": "44:Return core 4",
+      "role": "return stroke core",
+      "primitive": "mirrored strand segments",
+      "exit": "gone by absolute f19"
+    },
+    {
+      "name": "45:Return core 5",
+      "role": "return stroke core",
+      "primitive": "mirrored strand segments",
+      "exit": "gone by absolute f19"
+    },
+    {
+      "name": "46:Return core 6",
+      "role": "return stroke core",
+      "primitive": "mirrored strand segments",
+      "exit": "gone by absolute f19"
+    },
+    {
+      "name": "47:After flicker 1",
+      "role": "third, thin flicker",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f23"
+    },
+    {
+      "name": "48:After flicker 2",
+      "role": "third, thin flicker",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f23"
+    },
+    {
+      "name": "49:After flicker 3",
+      "role": "third, thin flicker",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f23"
+    },
+    {
+      "name": "50:After flicker 4",
+      "role": "third, thin flicker",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f23"
+    },
+    {
+      "name": "51:After flicker 5",
+      "role": "third, thin flicker",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f23"
+    },
+    {
+      "name": "52:Burnt channel 1",
+      "role": "body after the flashes: the channel cools and erodes",
+      "primitive": "strand segments + noise dissolve",
+      "exit": "gone by absolute f39"
+    },
+    {
+      "name": "53:Burnt channel 2",
+      "role": "body after the flashes: the channel cools and erodes",
+      "primitive": "strand segments + noise dissolve",
+      "exit": "gone by absolute f39"
+    },
+    {
+      "name": "54:Burnt channel 3",
+      "role": "body after the flashes: the channel cools and erodes",
+      "primitive": "strand segments + noise dissolve",
+      "exit": "gone by absolute f39"
+    },
+    {
+      "name": "55:Burnt channel 4",
+      "role": "body after the flashes: the channel cools and erodes",
+      "primitive": "strand segments + noise dissolve",
+      "exit": "gone by absolute f39"
+    },
+    {
+      "name": "56:Burnt channel 5",
+      "role": "body after the flashes: the channel cools and erodes",
+      "primitive": "strand segments + noise dissolve",
+      "exit": "gone by absolute f39"
+    },
+    {
+      "name": "57:Burnt channel 6",
+      "role": "body after the flashes: the channel cools and erodes",
+      "primitive": "strand segments + noise dissolve",
+      "exit": "gone by absolute f39"
+    },
+    {
+      "name": "58:Ground bloom",
+      "role": "contact light at the foot",
+      "primitive": "glow",
+      "exit": "gone by absolute f28"
+    },
+    {
+      "name": "59:Ground shock",
+      "role": "shock wave along the floor",
+      "primitive": "ground shock_ring",
+      "exit": "gone by absolute f26"
+    },
+    {
+      "name": "60:Shock haze",
+      "role": "refraction of the shock",
+      "primitive": "distortion_ring",
+      "exit": "gone by absolute f24"
+    },
+    {
+      "name": "61:Crawl 1",
+      "role": "secondary: arcs crawling between the cracks, re-struck",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f17"
+    },
+    {
+      "name": "62:Crawl 2",
+      "role": "secondary: arcs crawling between the cracks, re-struck",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f20"
+    },
+    {
+      "name": "63:Crawl 3",
+      "role": "secondary: arcs crawling between the cracks, re-struck",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f23"
+    },
+    {
+      "name": "64:Crawl 4",
+      "role": "secondary: arcs crawling between the cracks, re-struck",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f26"
+    },
+    {
+      "name": "65:Crawl 5",
+      "role": "secondary: arcs crawling between the cracks, re-struck",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f29"
+    },
+    {
+      "name": "66:Crawl 6",
+      "role": "secondary: arcs crawling between the cracks, re-struck",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f32"
+    },
+    {
+      "name": "67:Crawl 7",
+      "role": "secondary: arcs crawling between the cracks, re-struck",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f36"
+    },
+    {
+      "name": "68:Crawl 8",
+      "role": "secondary: arcs crawling between the cracks, re-struck",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f40"
+    },
+    {
+      "name": "69:Crawl 9",
+      "role": "secondary: arcs crawling between the cracks, re-struck",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f44"
+    },
+    {
+      "name": "70:Crawl 10",
+      "role": "secondary: arcs crawling between the cracks, re-struck",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f49"
+    },
+    {
+      "name": "71:Crawl 11",
+      "role": "secondary: arcs crawling between the cracks, re-struck",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f54"
+    },
+    {
+      "name": "72:Crawl 12",
+      "role": "secondary: arcs crawling between the cracks, re-struck",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f59"
+    },
+    {
+      "name": "73:Crawl 13",
+      "role": "secondary: arcs crawling between the cracks, re-struck",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f64"
+    },
+    {
+      "name": "74:Crawl 14",
+      "role": "secondary: arcs crawling between the cracks, re-struck",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f69"
+    },
+    {
+      "name": "75:Contact star",
+      "role": "contact flash",
+      "primitive": "flash",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "76:Sparks streaks",
+      "role": "secondary: sparks thrown up, falling, bouncing",
+      "primitive": "spark_burst",
+      "exit": "gone by absolute f20"
+    },
+    {
+      "name": "77:Sparks",
+      "role": "secondary: sparks thrown up, falling, bouncing",
+      "primitive": "spark_burst",
+      "exit": "gone by absolute f30"
+    },
+    {
+      "name": "78:Sparks heavy",
+      "role": "secondary: sparks thrown up, falling, bouncing",
+      "primitive": "spark_burst",
+      "exit": "gone by absolute f38"
+    },
+    {
+      "name": "79:Debris",
+      "role": "matter: rooftop chunks that land",
+      "primitive": "debris",
+      "exit": "gone by absolute f54"
+    },
+    {
+      "name": "80:Embers",
+      "role": "dissipation: embers rising",
+      "primitive": "motes",
+      "exit": "gone by absolute f74"
+    },
+    {
+      "name": "81:Ash",
+      "role": "dissipation: ash rising off the scorch, then a thin trickle to the end",
+      "primitive": "smoke",
+      "exit": "gone by absolute f68"
+    },
+    {
+      "name": "82:Ash trickle",
+      "role": "dissipation: ash rising off the scorch, then a thin trickle to the end",
+      "primitive": "smoke",
+      "exit": "gone by absolute f74"
+    }
+  ]
+}

@@ -1,0 +1,148 @@
+[
+  {
+    "id": "VFX_Raikon_Sky_Strike",
+    "name": "Raikon Sky Strike",
+    "category": "boss",
+    "element": "lightning",
+    "duration": 1.25,
+    "loop": false,
+    "attach": "ground",
+    "peak": 0.16666666666666666,
+    "impact": 1.0,
+    "light": [
+      1,
+      0.22,
+      0.16
+    ],
+    "seed": 1729,
+    "design": "A dim red leader steps down over a tightening ground mark, then a red bolt with a white core strikes from the sky with forks, goes dark, re-strikes on another path and flickers once; the burnt channel cools and erodes while red cracks cool, arcs crawl between them, sparks fall, debris lands and ash rises off the scorch.",
+    "delivery": {
+      "kind": "targeted"
+    },
+    "screen": {
+      "shake": 0.6,
+      "flash_frames": 1,
+      "flash": "white",
+      "hitstop": 0
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Raikon_Sky_Strike.py",
+    "file": "res://effects/VFX_Raikon_Sky_Strike.efkefc",
+    "runtime": "exports/VFX_Raikon_Sky_Strike.efk",
+    "preview": "previews/VFX_Raikon_Sky_Strike.png",
+    "particle_budget": 121,
+    "layers": 83
+  },
+  {
+    "id": "VFX_Raikon_Blade_Charge",
+    "name": "Raikon Blade Charge",
+    "category": "element",
+    "element": "lightning",
+    "duration": 0.75,
+    "loop": false,
+    "attach": "caster",
+    "peak": 0.6,
+    "impact": 0.35,
+    "light": [
+      1,
+      0.22,
+      0.16
+    ],
+    "seed": 1729,
+    "design": "Red motes and arcs are pulled in from the air onto the blade tip, the arcs jumping shorter and hotter while a crackling ring tightens and the core heats to white, then one star glint marks the release.",
+    "delivery": {
+      "kind": "self"
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Raikon_Blade_Charge.py",
+    "file": "res://effects/VFX_Raikon_Blade_Charge.efkefc",
+    "runtime": "exports/VFX_Raikon_Blade_Charge.efk",
+    "preview": "previews/VFX_Raikon_Blade_Charge.png",
+    "particle_budget": 58,
+    "layers": 31
+  },
+  {
+    "id": "VFX_Raikon_Thunder_Wave",
+    "name": "Raikon Thunder Wave",
+    "category": "boss",
+    "element": "lightning",
+    "duration": 1.6,
+    "loop": false,
+    "attach": "caster_ground",
+    "peak": 0.03333333333333333,
+    "impact": 0.3,
+    "light": [
+      1,
+      0.22,
+      0.16
+    ],
+    "seed": 1729,
+    "design": "A red lightning wave tears out of the floor in a flare and races along the ground toward the target: short white-cored bolts rear up and lean forward at its front while arcs re-strike on the floor behind it and a scorched streak cools to deep red in its wake, with sparks, embers and dust shed behind, until it thins out and dies.",
+    "delivery": {
+      "kind": "self"
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Raikon_Thunder_Wave.py",
+    "file": "res://effects/VFX_Raikon_Thunder_Wave.efkefc",
+    "runtime": "exports/VFX_Raikon_Thunder_Wave.efk",
+    "preview": "previews/VFX_Raikon_Thunder_Wave.png",
+    "particle_budget": 211,
+    "layers": 131
+  },
+  {
+    "id": "VFX_Raikon_Redline_Guard",
+    "name": "Raikon Redline Guard",
+    "category": "status",
+    "element": "lightning",
+    "duration": 1.3,
+    "loop": false,
+    "attach": "caster_ground",
+    "peak": 0.03333333333333333,
+    "impact": 0,
+    "light": [
+      1,
+      0.22,
+      0.16
+    ],
+    "seed": 1729,
+    "design": "A red line is cut across his chest as the stance opens; a crescent barrier of red lightning stands in front of him, lit point by point and kept crackling, over a slowly turning red guard ring, then it breaks from the top down, each point throwing sparks that fall and land.",
+    "delivery": {
+      "kind": "self"
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Raikon_Redline_Guard.py",
+    "file": "res://effects/VFX_Raikon_Redline_Guard.efkefc",
+    "runtime": "exports/VFX_Raikon_Redline_Guard.efk",
+    "preview": "previews/VFX_Raikon_Redline_Guard.png",
+    "particle_budget": 147,
+    "layers": 40
+  },
+  {
+    "id": "VFX_Raikon_Storm_Mantle",
+    "name": "Raikon Storm Mantle",
+    "category": "status",
+    "element": "lightning",
+    "duration": 1.0,
+    "loop": true,
+    "attach": "caster_ground",
+    "peak": 0,
+    "impact": 0,
+    "light": [
+      1,
+      0.22,
+      0.16
+    ],
+    "seed": 1729,
+    "design": "Hard red ribbons orbiting him at three heights inside a faint red mantle, short red arcs jumping between points on his body at uneven times, embers rising off him and a few arcs at his feet.",
+    "delivery": {
+      "kind": "self"
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Raikon_Storm_Mantle.py",
+    "file": "res://effects/VFX_Raikon_Storm_Mantle.efkefc",
+    "runtime": "exports/VFX_Raikon_Storm_Mantle.efk",
+    "preview": "previews/VFX_Raikon_Storm_Mantle.png",
+    "particle_budget": 55,
+    "layers": 30
+  }
+]

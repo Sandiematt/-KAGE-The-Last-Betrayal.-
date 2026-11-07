@@ -1,0 +1,1718 @@
+{
+  "id": "VFX_Raikon_Redline_Guard",
+  "name": "Raikon Redline Guard",
+  "category": "status",
+  "element": "lightning",
+  "duration": 1.3,
+  "loop": false,
+  "attach": "caster_ground",
+  "peak": 0.03333333333333333,
+  "impact": 0,
+  "light": [
+    1,
+    0.22,
+    0.16
+  ],
+  "seed": 1729,
+  "layers": [
+    {
+      "name": "Guard ring",
+      "renderer": "Ring",
+      "color": [
+        255,
+        40,
+        28,
+        200
+      ],
+      "life": 50,
+      "delay": 0,
+      "billboard": "Fixed",
+      "rotation": [
+        -90,
+        0,
+        0
+      ],
+      "ring": {
+        "vertices": 96,
+        "outer": [
+          1.25,
+          0
+        ],
+        "inner": [
+          1.05,
+          0
+        ],
+        "center_ratio": 0.3,
+        "outer_color": [
+          150,
+          8,
+          12,
+          0
+        ],
+        "center_color": [
+          255,
+          40,
+          28,
+          200
+        ],
+        "inner_color": [
+          255,
+          40,
+          28,
+          0
+        ]
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+      "alpha_scroll": [
+        -0.04,
+        0
+      ],
+      "fade_in": 0,
+      "fade_out": 12,
+      "position": [
+        0,
+        0.05,
+        0
+      ],
+      "size": 1,
+      "size_curve": [
+        [
+          0,
+          0.35
+        ],
+        [
+          12,
+          1
+        ],
+        [
+          100,
+          1
+        ]
+      ],
+      "emissive": 1.4,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Raise",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        255,
+        40,
+        28,
+        180
+      ],
+      "life": 10,
+      "delay": 0,
+      "size": 2.2,
+      "size_curve": [
+        [
+          0,
+          0.25
+        ],
+        [
+          18,
+          1
+        ],
+        [
+          100,
+          1.25
+        ]
+      ],
+      "billboard": "Billboard",
+      "fade_in": 0,
+      "fade_out": 8.0,
+      "position": [
+        0.0,
+        1.1,
+        0.0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Redline",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "life": 12,
+      "delay": 1,
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale_start": [
+        1.19,
+        0.625,
+        1
+      ],
+      "scale_end": [
+        3.9099999999999997,
+        0.09375,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 8.399999999999999,
+      "emissive": 2.4,
+      "position": [
+        0.35,
+        1.25,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Barrier",
+      "renderer": "Ring",
+      "color": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "life": 48,
+      "delay": 2,
+      "billboard": "Fixed",
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "ring": {
+        "vertices": 96,
+        "outer": [
+          1.23,
+          0
+        ],
+        "inner": [
+          1.03,
+          0
+        ],
+        "center_ratio": 0.3,
+        "outer_color": [
+          150,
+          8,
+          12,
+          0
+        ],
+        "center_color": [
+          255,
+          40,
+          28,
+          255
+        ],
+        "inner_color": [
+          255,
+          40,
+          28,
+          0
+        ],
+        "angle_start": 205,
+        "angle_end": 335
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+      "alpha_scroll": [
+        0.06,
+        0
+      ],
+      "fade_in": 4,
+      "fade_out": 8,
+      "position": [
+        0.0,
+        1.1,
+        0.0
+      ],
+      "emissive": 1.8,
+      "cutoff": {
+        "start": 0,
+        "end": 0.95,
+        "easing": "EaseInQuintic"
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Barrier arc node 1",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "delay": 2,
+      "life": 42,
+      "size": 0.35,
+      "size_curve": [
+        [
+          0,
+          1.8
+        ],
+        [
+          12,
+          1
+        ],
+        [
+          100,
+          1.1
+        ]
+      ],
+      "billboard": "Billboard",
+      "position": [
+        0.4860110010018041,
+        0.05774604490785262,
+        0.0
+      ],
+      "fade_in": 0,
+      "fade_out": 6,
+      "emissive": 2.0,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Barrier arc node 1 spark",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "delay": 2,
+      "life": 5,
+      "size": 0.385,
+      "size_curve": [
+        [
+          0,
+          1.4
+        ],
+        [
+          100,
+          0.4
+        ]
+      ],
+      "billboard": "Billboard",
+      "position": [
+        0.4860110010018041,
+        0.05774604490785262,
+        0.0
+      ],
+      "fade_in": 0,
+      "fade_out": 4,
+      "emissive": 1.4,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Barrier arc arc 1a",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+      "color": [
+        255,
+        236,
+        228,
+        255
+      ],
+      "color_end": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "count": 7,
+      "interval": 6,
+      "delay": 2,
+      "life": 4,
+      "billboard": "DirectionalBillboard",
+      "pivot": "bottom",
+      "position": [
+        0.4860110010018041,
+        0.05774604490785262,
+        0.0
+      ],
+      "velocity": [
+        7.880107536067223e-05,
+        6.156614753256581e-05,
+        0.0
+      ],
+      "scale_start": [
+        0.32,
+        0.5173874249908891,
+        1
+      ],
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 2.6,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Barrier arc arc 1b",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+      "color": [
+        255,
+        236,
+        228,
+        255
+      ],
+      "color_end": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "count": 7,
+      "interval": 6,
+      "delay": 5,
+      "life": 4,
+      "billboard": "DirectionalBillboard",
+      "pivot": "bottom",
+      "position": [
+        0.4860110010018041,
+        0.05774604490785262,
+        0.0
+      ],
+      "velocity": [
+        7.880107536067223e-05,
+        6.156614753256581e-05,
+        0.0
+      ],
+      "scale_start": [
+        -0.32,
+        0.5173874249908891,
+        1
+      ],
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 2.6,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Barrier arc node 2",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "delay": 4,
+      "life": 40,
+      "size": 0.35,
+      "size_curve": [
+        [
+          0,
+          1.8
+        ],
+        [
+          12,
+          1
+        ],
+        [
+          100,
+          1.1
+        ]
+      ],
+      "billboard": "Billboard",
+      "position": [
+        0.8937178556755161,
+        0.3762815502926866,
+        0.0
+      ],
+      "fade_in": 0,
+      "fade_out": 6,
+      "emissive": 2.0,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Barrier arc node 2 spark",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "delay": 4,
+      "life": 5,
+      "size": 0.385,
+      "size_curve": [
+        [
+          0,
+          1.4
+        ],
+        [
+          100,
+          0.4
+        ]
+      ],
+      "billboard": "Billboard",
+      "position": [
+        0.8937178556755161,
+        0.3762815502926866,
+        0.0
+      ],
+      "fade_in": 0,
+      "fade_out": 4,
+      "emissive": 1.4,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Barrier arc arc 2a",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+      "color": [
+        255,
+        236,
+        228,
+        255
+      ],
+      "color_end": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "count": 7,
+      "interval": 6,
+      "delay": 4,
+      "life": 4,
+      "billboard": "DirectionalBillboard",
+      "pivot": "bottom",
+      "position": [
+        0.8937178556755161,
+        0.3762815502926866,
+        0.0
+      ],
+      "velocity": [
+        4.383711467890776e-05,
+        8.98794046299167e-05,
+        0.0
+      ],
+      "scale_start": [
+        0.32,
+        0.5173874249908896,
+        1
+      ],
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 2.6,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Barrier arc arc 2b",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+      "color": [
+        255,
+        236,
+        228,
+        255
+      ],
+      "color_end": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "count": 6,
+      "interval": 6,
+      "delay": 7,
+      "life": 4,
+      "billboard": "DirectionalBillboard",
+      "pivot": "bottom",
+      "position": [
+        0.8937178556755161,
+        0.3762815502926866,
+        0.0
+      ],
+      "velocity": [
+        4.383711467890776e-05,
+        8.98794046299167e-05,
+        0.0
+      ],
+      "scale_start": [
+        -0.32,
+        0.5173874249908896,
+        1
+      ],
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 2.6,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Barrier arc node 3",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "delay": 6,
+      "life": 38,
+      "size": 0.35,
+      "size_curve": [
+        [
+          0,
+          1.8
+        ],
+        [
+          12,
+          1
+        ],
+        [
+          100,
+          1.1
+        ]
+      ],
+      "billboard": "Billboard",
+      "position": [
+        1.1205255745030203,
+        0.841306287504555,
+        0.0
+      ],
+      "fade_in": 0,
+      "fade_out": 6,
+      "emissive": 2.0,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Barrier arc node 3 spark",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "delay": 6,
+      "life": 5,
+      "size": 0.385,
+      "size_curve": [
+        [
+          0,
+          1.4
+        ],
+        [
+          100,
+          0.4
+        ]
+      ],
+      "billboard": "Billboard",
+      "position": [
+        1.1205255745030203,
+        0.841306287504555,
+        0.0
+      ],
+      "fade_in": 0,
+      "fade_out": 4,
+      "emissive": 1.4,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Barrier arc arc 3a",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+      "color": [
+        255,
+        236,
+        228,
+        255
+      ],
+      "color_end": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "count": 6,
+      "interval": 6,
+      "delay": 6,
+      "life": 4,
+      "billboard": "DirectionalBillboard",
+      "pivot": "bottom",
+      "position": [
+        1.1205255745030203,
+        0.841306287504555,
+        0.0
+      ],
+      "velocity": [
+        4.2916505929563544e-20,
+        0.0001,
+        0.0
+      ],
+      "scale_start": [
+        0.32,
+        0.5173874249908897,
+        1
+      ],
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 2.6,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Barrier arc arc 3b",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+      "color": [
+        255,
+        236,
+        228,
+        255
+      ],
+      "color_end": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "count": 6,
+      "interval": 6,
+      "delay": 9,
+      "life": 4,
+      "billboard": "DirectionalBillboard",
+      "pivot": "bottom",
+      "position": [
+        1.1205255745030203,
+        0.841306287504555,
+        0.0
+      ],
+      "velocity": [
+        4.2916505929563544e-20,
+        0.0001,
+        0.0
+      ],
+      "scale_start": [
+        -0.32,
+        0.5173874249908897,
+        1
+      ],
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 2.6,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Barrier arc node 4",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "delay": 8,
+      "life": 36,
+      "size": 0.35,
+      "size_curve": [
+        [
+          0,
+          1.8
+        ],
+        [
+          12,
+          1
+        ],
+        [
+          100,
+          1.1
+        ]
+      ],
+      "billboard": "Billboard",
+      "position": [
+        1.1205255745030205,
+        1.3586937124954448,
+        0.0
+      ],
+      "fade_in": 0,
+      "fade_out": 6,
+      "emissive": 2.0,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Barrier arc node 4 spark",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "delay": 8,
+      "life": 5,
+      "size": 0.385,
+      "size_curve": [
+        [
+          0,
+          1.4
+        ],
+        [
+          100,
+          0.4
+        ]
+      ],
+      "billboard": "Billboard",
+      "position": [
+        1.1205255745030205,
+        1.3586937124954448,
+        0.0
+      ],
+      "fade_in": 0,
+      "fade_out": 4,
+      "emissive": 1.4,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Barrier arc arc 4a",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+      "color": [
+        255,
+        236,
+        228,
+        255
+      ],
+      "color_end": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "count": 6,
+      "interval": 6,
+      "delay": 8,
+      "life": 4,
+      "billboard": "DirectionalBillboard",
+      "pivot": "bottom",
+      "position": [
+        1.1205255745030205,
+        1.3586937124954448,
+        0.0
+      ],
+      "velocity": [
+        -4.383711467890776e-05,
+        8.987940462991667e-05,
+        0.0
+      ],
+      "scale_start": [
+        0.32,
+        0.5173874249908896,
+        1
+      ],
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 2.6,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Barrier arc arc 4b",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+      "color": [
+        255,
+        236,
+        228,
+        255
+      ],
+      "color_end": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "count": 6,
+      "interval": 6,
+      "delay": 11,
+      "life": 4,
+      "billboard": "DirectionalBillboard",
+      "pivot": "bottom",
+      "position": [
+        1.1205255745030205,
+        1.3586937124954448,
+        0.0
+      ],
+      "velocity": [
+        -4.383711467890776e-05,
+        8.987940462991667e-05,
+        0.0
+      ],
+      "scale_start": [
+        -0.32,
+        0.5173874249908896,
+        1
+      ],
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 2.6,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Barrier arc node 5",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "delay": 10,
+      "life": 34,
+      "size": 0.35,
+      "size_curve": [
+        [
+          0,
+          1.8
+        ],
+        [
+          12,
+          1
+        ],
+        [
+          100,
+          1.1
+        ]
+      ],
+      "billboard": "Billboard",
+      "position": [
+        0.8937178556755163,
+        1.8237184497073131,
+        0.0
+      ],
+      "fade_in": 0,
+      "fade_out": 6,
+      "emissive": 2.0,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Barrier arc node 5 spark",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "delay": 10,
+      "life": 5,
+      "size": 0.385,
+      "size_curve": [
+        [
+          0,
+          1.4
+        ],
+        [
+          100,
+          0.4
+        ]
+      ],
+      "billboard": "Billboard",
+      "position": [
+        0.8937178556755163,
+        1.8237184497073131,
+        0.0
+      ],
+      "fade_in": 0,
+      "fade_out": 4,
+      "emissive": 1.4,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Barrier arc arc 5a",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+      "color": [
+        255,
+        236,
+        228,
+        255
+      ],
+      "color_end": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "count": 6,
+      "interval": 6,
+      "delay": 10,
+      "life": 4,
+      "billboard": "DirectionalBillboard",
+      "pivot": "bottom",
+      "position": [
+        0.8937178556755163,
+        1.8237184497073131,
+        0.0
+      ],
+      "velocity": [
+        -7.880107536067218e-05,
+        6.156614753256585e-05,
+        0.0
+      ],
+      "scale_start": [
+        0.32,
+        0.5173874249908897,
+        1
+      ],
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 2.6,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Barrier arc arc 5b",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+      "color": [
+        255,
+        236,
+        228,
+        255
+      ],
+      "color_end": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "count": 5,
+      "interval": 6,
+      "delay": 13,
+      "life": 4,
+      "billboard": "DirectionalBillboard",
+      "pivot": "bottom",
+      "position": [
+        0.8937178556755163,
+        1.8237184497073131,
+        0.0
+      ],
+      "velocity": [
+        -7.880107536067218e-05,
+        6.156614753256585e-05,
+        0.0
+      ],
+      "scale_start": [
+        -0.32,
+        0.5173874249908897,
+        1
+      ],
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 2.6,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Barrier arc node 6",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "delay": 12,
+      "life": 32,
+      "size": 0.35,
+      "size_curve": [
+        [
+          0,
+          1.8
+        ],
+        [
+          12,
+          1
+        ],
+        [
+          100,
+          1.1
+        ]
+      ],
+      "billboard": "Billboard",
+      "position": [
+        0.48601100100180405,
+        2.1422539550921478,
+        0.0
+      ],
+      "fade_in": 0,
+      "fade_out": 6,
+      "emissive": 2.0,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Barrier arc node 6 spark",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "delay": 12,
+      "life": 5,
+      "size": 0.385,
+      "size_curve": [
+        [
+          0,
+          1.4
+        ],
+        [
+          100,
+          0.4
+        ]
+      ],
+      "billboard": "Billboard",
+      "position": [
+        0.48601100100180405,
+        2.1422539550921478,
+        0.0
+      ],
+      "fade_in": 0,
+      "fade_out": 4,
+      "emissive": 1.4,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Break 1",
+      "renderer": "None",
+      "life": 66,
+      "position": [
+        0.48601100100180405,
+        2.1422539550921478,
+        0.0
+      ],
+      "children": [
+        {
+          "name": "Break sparks 1",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Spark01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "count": 9,
+          "life": [
+            20,
+            22
+          ],
+          "delay": 44,
+          "billboard": "DirectionalBillboard",
+          "spawn": {
+            "shape": "Sphere",
+            "radius": [
+              0,
+              0.08
+            ],
+            "rot_x": [
+              -90,
+              90
+            ]
+          },
+          "travel": {
+            "end": [
+              0,
+              [
+                0.4,
+                0.8
+              ],
+              0
+            ],
+            "easing": "EaseOutQuartic"
+          },
+          "scale_start": [
+            0.12,
+            [
+              0.4,
+              0.75
+            ],
+            1
+          ],
+          "scale_end": [
+            0.036,
+            0.08000000000000002,
+            1
+          ],
+          "easing": "EaseInQuadratic",
+          "forces": [
+            {
+              "type": "Gravity",
+              "gravity": [
+                0,
+                -0.005,
+                0
+              ]
+            }
+          ],
+          "fade_in": 0,
+          "fade_out": 5,
+          "emissive": 2.2,
+          "collide": {
+            "height": 0.02,
+            "bounce": [
+              0.2,
+              0.35
+            ],
+            "friction": 0.5,
+            "reduction": 0.3
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        }
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Break 2",
+      "renderer": "None",
+      "life": 68,
+      "position": [
+        0.8937178556755163,
+        1.8237184497073131,
+        0.0
+      ],
+      "children": [
+        {
+          "name": "Break sparks 2",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Spark01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "count": 9,
+          "life": [
+            20,
+            22
+          ],
+          "delay": 46,
+          "billboard": "DirectionalBillboard",
+          "spawn": {
+            "shape": "Sphere",
+            "radius": [
+              0,
+              0.08
+            ],
+            "rot_x": [
+              -90,
+              90
+            ]
+          },
+          "travel": {
+            "end": [
+              0,
+              [
+                0.4,
+                0.8
+              ],
+              0
+            ],
+            "easing": "EaseOutQuartic"
+          },
+          "scale_start": [
+            0.12,
+            [
+              0.4,
+              0.75
+            ],
+            1
+          ],
+          "scale_end": [
+            0.036,
+            0.08000000000000002,
+            1
+          ],
+          "easing": "EaseInQuadratic",
+          "forces": [
+            {
+              "type": "Gravity",
+              "gravity": [
+                0,
+                -0.005,
+                0
+              ]
+            }
+          ],
+          "fade_in": 0,
+          "fade_out": 5,
+          "emissive": 2.2,
+          "collide": {
+            "height": 0.02,
+            "bounce": [
+              0.2,
+              0.35
+            ],
+            "friction": 0.5,
+            "reduction": 0.3
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        }
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Break 3",
+      "renderer": "None",
+      "life": 70,
+      "position": [
+        1.1205255745030205,
+        1.3586937124954448,
+        0.0
+      ],
+      "children": [
+        {
+          "name": "Break sparks 3",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Spark01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "count": 9,
+          "life": [
+            20,
+            22
+          ],
+          "delay": 48,
+          "billboard": "DirectionalBillboard",
+          "spawn": {
+            "shape": "Sphere",
+            "radius": [
+              0,
+              0.08
+            ],
+            "rot_x": [
+              -90,
+              90
+            ]
+          },
+          "travel": {
+            "end": [
+              0,
+              [
+                0.4,
+                0.8
+              ],
+              0
+            ],
+            "easing": "EaseOutQuartic"
+          },
+          "scale_start": [
+            0.12,
+            [
+              0.4,
+              0.75
+            ],
+            1
+          ],
+          "scale_end": [
+            0.036,
+            0.08000000000000002,
+            1
+          ],
+          "easing": "EaseInQuadratic",
+          "forces": [
+            {
+              "type": "Gravity",
+              "gravity": [
+                0,
+                -0.005,
+                0
+              ]
+            }
+          ],
+          "fade_in": 0,
+          "fade_out": 5,
+          "emissive": 2.2,
+          "collide": {
+            "height": 0.02,
+            "bounce": [
+              0.2,
+              0.35
+            ],
+            "friction": 0.5,
+            "reduction": 0.3
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        }
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Break 4",
+      "renderer": "None",
+      "life": 72,
+      "position": [
+        1.1205255745030203,
+        0.841306287504555,
+        0.0
+      ],
+      "children": [
+        {
+          "name": "Break sparks 4",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Spark01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "count": 9,
+          "life": [
+            20,
+            22
+          ],
+          "delay": 50,
+          "billboard": "DirectionalBillboard",
+          "spawn": {
+            "shape": "Sphere",
+            "radius": [
+              0,
+              0.08
+            ],
+            "rot_x": [
+              -90,
+              90
+            ]
+          },
+          "travel": {
+            "end": [
+              0,
+              [
+                0.4,
+                0.8
+              ],
+              0
+            ],
+            "easing": "EaseOutQuartic"
+          },
+          "scale_start": [
+            0.12,
+            [
+              0.4,
+              0.75
+            ],
+            1
+          ],
+          "scale_end": [
+            0.036,
+            0.08000000000000002,
+            1
+          ],
+          "easing": "EaseInQuadratic",
+          "forces": [
+            {
+              "type": "Gravity",
+              "gravity": [
+                0,
+                -0.005,
+                0
+              ]
+            }
+          ],
+          "fade_in": 0,
+          "fade_out": 5,
+          "emissive": 2.2,
+          "collide": {
+            "height": 0.02,
+            "bounce": [
+              0.2,
+              0.35
+            ],
+            "friction": 0.5,
+            "reduction": 0.3
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        }
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Break 5",
+      "renderer": "None",
+      "life": 74,
+      "position": [
+        0.8937178556755161,
+        0.3762815502926866,
+        0.0
+      ],
+      "children": [
+        {
+          "name": "Break sparks 5",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Spark01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "count": 9,
+          "life": [
+            20,
+            22
+          ],
+          "delay": 52,
+          "billboard": "DirectionalBillboard",
+          "spawn": {
+            "shape": "Sphere",
+            "radius": [
+              0,
+              0.08
+            ],
+            "rot_x": [
+              -90,
+              90
+            ]
+          },
+          "travel": {
+            "end": [
+              0,
+              [
+                0.4,
+                0.8
+              ],
+              0
+            ],
+            "easing": "EaseOutQuartic"
+          },
+          "scale_start": [
+            0.12,
+            [
+              0.4,
+              0.75
+            ],
+            1
+          ],
+          "scale_end": [
+            0.036,
+            0.08000000000000002,
+            1
+          ],
+          "easing": "EaseInQuadratic",
+          "forces": [
+            {
+              "type": "Gravity",
+              "gravity": [
+                0,
+                -0.005,
+                0
+              ]
+            }
+          ],
+          "fade_in": 0,
+          "fade_out": 5,
+          "emissive": 2.2,
+          "collide": {
+            "height": 0.02,
+            "bounce": [
+              0.2,
+              0.35
+            ],
+            "friction": 0.5,
+            "reduction": 0.3
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        }
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Break 6",
+      "renderer": "None",
+      "life": 76,
+      "position": [
+        0.4860110010018041,
+        0.05774604490785262,
+        0.0
+      ],
+      "children": [
+        {
+          "name": "Break sparks 6",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Spark01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "count": 9,
+          "life": [
+            20,
+            22
+          ],
+          "delay": 54,
+          "billboard": "DirectionalBillboard",
+          "spawn": {
+            "shape": "Sphere",
+            "radius": [
+              0,
+              0.08
+            ],
+            "rot_x": [
+              -90,
+              90
+            ]
+          },
+          "travel": {
+            "end": [
+              0,
+              [
+                0.4,
+                0.8
+              ],
+              0
+            ],
+            "easing": "EaseOutQuartic"
+          },
+          "scale_start": [
+            0.12,
+            [
+              0.4,
+              0.75
+            ],
+            1
+          ],
+          "scale_end": [
+            0.036,
+            0.08000000000000002,
+            1
+          ],
+          "easing": "EaseInQuadratic",
+          "forces": [
+            {
+              "type": "Gravity",
+              "gravity": [
+                0,
+                -0.005,
+                0
+              ]
+            }
+          ],
+          "fade_in": 0,
+          "fade_out": 5,
+          "emissive": 2.2,
+          "collide": {
+            "height": 0.02,
+            "bounce": [
+              0.2,
+              0.35
+            ],
+            "friction": 0.5,
+            "reduction": 0.3
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        }
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Break embers",
+      "renderer": "None",
+      "life": 66,
+      "position": [
+        1.132528915964039,
+        0.9003045956830302,
+        0.0
+      ],
+      "children": [
+        {
+          "name": "Break embers",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+          "color": [
+            255,
+            90,
+            64,
+            255
+          ],
+          "color_end": [
+            150,
+            8,
+            12,
+            0
+          ],
+          "count": 8,
+          "life": [
+            14,
+            18
+          ],
+          "delay": 48,
+          "interval": 0,
+          "billboard": "Billboard",
+          "spawn": {
+            "shape": "Sphere",
+            "radius": [
+              0,
+              0.6
+            ],
+            "rot_x": [
+              -90,
+              90
+            ]
+          },
+          "travel": {
+            "end": [
+              0,
+              [
+                0.2,
+                0.5
+              ],
+              0
+            ],
+            "easing": "EaseOutCubic"
+          },
+          "size": [
+            0.06,
+            0.1
+          ],
+          "size_end": 0,
+          "easing": "EaseInCubic",
+          "forces": [
+            {
+              "type": "Turbulence",
+              "power": 0.003,
+              "scale": 5
+            }
+          ],
+          "fade_in": 1,
+          "fade_out": 6,
+          "emissive": 1.5,
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        }
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    }
+  ],
+  "design": "A red line is cut across his chest as the stance opens; a crescent barrier of red lightning stands in front of him, lit point by point and kept crackling, over a slowly turning red guard ring, then it breaks from the top down, each point throwing sparks that fall and land.",
+  "delivery": {
+    "kind": "self"
+  }
+}

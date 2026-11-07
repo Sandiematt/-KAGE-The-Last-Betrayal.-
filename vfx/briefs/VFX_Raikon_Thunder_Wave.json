@@ -1,0 +1,864 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Raikon_Thunder_Wave",
+  "role": "boss hazard body: Thunder Swing's travelling ground wave, one whole wave life, carried along the floor by the game",
+  "style": "stylized anime combat, dark storm stage, one red element",
+  "dominant_shape": "a travelling front of rearing bolts racing along the floor, leaving a cooling scorched wake",
+  "palette": {
+    "core": [
+      255,
+      236,
+      228
+    ],
+    "body": [
+      255,
+      40,
+      28
+    ],
+    "dark": [
+      26,
+      4,
+      8
+    ],
+    "matter": [
+      150,
+      128,
+      126
+    ],
+    "accent": [
+      150,
+      8,
+      12
+    ]
+  },
+  "delivery": {
+    "kind": "self"
+  },
+  "anchor": "caster_ground",
+  "beats": [
+    {
+      "frame": 2,
+      "name": "birth",
+      "expect": "A tall white-cored bolt and a red bloom tear out of the floor at the caster: the brightest moment"
+    },
+    {
+      "frame": 24,
+      "name": "travel",
+      "expect": "The front with a rearing bolt is about 1.7 m toward the target, a red scorched streak and arcs behind it"
+    },
+    {
+      "frame": 50,
+      "name": "travel",
+      "expect": "The front is most of the way to the target and slowing; the wake behind it cools"
+    },
+    {
+      "frame": 80,
+      "name": "arrives",
+      "expect": "The front has stopped at the target feet; last bolts there, nothing past the target"
+    },
+    {
+      "frame": 92,
+      "name": "collapse",
+      "expect": "A scorch mark under the target cooling to deep red, last embers"
+    }
+  ],
+  "acceptance": [
+    "The front visibly travels from the caster toward the target",
+    "The wake stays where the front passed and cools, so the path draws itself",
+    "The front is hotter and taller than the wake",
+    "The wave thins out over f66-f90 instead of switching off"
+  ],
+  "avoid": [
+    "A symmetric blob that reads as standing still",
+    "A solid glowing tube along the floor",
+    "Bolts tall enough to read as a sky strike"
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Birth bloom",
+      "role": "birth flare light, stays where the wave was born",
+      "primitive": "glow",
+      "exit": "gone by absolute f12"
+    },
+    {
+      "name": "1:Birth bolt 1",
+      "role": "birth: the wave tears out of the floor",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f4"
+    },
+    {
+      "name": "2:Birth bolt 2",
+      "role": "birth: the wave tears out of the floor",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f4"
+    },
+    {
+      "name": "3:Birth bolt 3",
+      "role": "birth: the wave tears out of the floor",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f4"
+    },
+    {
+      "name": "4:Wave front",
+      "role": "the travelling front: launched fast, braking to rest at the target by f76",
+      "primitive": "renderer None + velocity + braking force",
+      "exit": "gone by absolute f96"
+    },
+    {
+      "name": "4:Wave front/0:Ground band",
+      "role": "red floor light under the front, cross-faded",
+      "primitive": "glow sprite",
+      "exit": "gone by absolute f90"
+    },
+    {
+      "name": "4:Wave front/1:Head glow 1",
+      "role": "contact light at the leading edge",
+      "primitive": "glow",
+      "exit": "gone by absolute f9"
+    },
+    {
+      "name": "4:Wave front/2:Head bolt 1",
+      "role": "leading edge: bolts rearing up and leaning into the travel",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f7"
+    },
+    {
+      "name": "4:Wave front/3:Head glow 2",
+      "role": "contact light at the leading edge",
+      "primitive": "glow",
+      "exit": "gone by absolute f13"
+    },
+    {
+      "name": "4:Wave front/4:Head bolt 2",
+      "role": "leading edge: bolts rearing up and leaning into the travel",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f11"
+    },
+    {
+      "name": "4:Wave front/5:Head glow 3",
+      "role": "contact light at the leading edge",
+      "primitive": "glow",
+      "exit": "gone by absolute f17"
+    },
+    {
+      "name": "4:Wave front/6:Head bolt 3",
+      "role": "leading edge: bolts rearing up and leaning into the travel",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f15"
+    },
+    {
+      "name": "4:Wave front/7:Head glow 4",
+      "role": "contact light at the leading edge",
+      "primitive": "glow",
+      "exit": "gone by absolute f21"
+    },
+    {
+      "name": "4:Wave front/8:Head bolt 4",
+      "role": "leading edge: bolts rearing up and leaning into the travel",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f19"
+    },
+    {
+      "name": "4:Wave front/9:Head glow 5",
+      "role": "contact light at the leading edge",
+      "primitive": "glow",
+      "exit": "gone by absolute f25"
+    },
+    {
+      "name": "4:Wave front/10:Head bolt 5",
+      "role": "leading edge: bolts rearing up and leaning into the travel",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f23"
+    },
+    {
+      "name": "4:Wave front/11:Head glow 6",
+      "role": "contact light at the leading edge",
+      "primitive": "glow",
+      "exit": "gone by absolute f29"
+    },
+    {
+      "name": "4:Wave front/12:Head bolt 6",
+      "role": "leading edge: bolts rearing up and leaning into the travel",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f27"
+    },
+    {
+      "name": "4:Wave front/13:Head glow 7",
+      "role": "contact light at the leading edge",
+      "primitive": "glow",
+      "exit": "gone by absolute f33"
+    },
+    {
+      "name": "4:Wave front/14:Head bolt 7",
+      "role": "leading edge: bolts rearing up and leaning into the travel",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f31"
+    },
+    {
+      "name": "4:Wave front/15:Head glow 8",
+      "role": "contact light at the leading edge",
+      "primitive": "glow",
+      "exit": "gone by absolute f37"
+    },
+    {
+      "name": "4:Wave front/16:Head bolt 8",
+      "role": "leading edge: bolts rearing up and leaning into the travel",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f35"
+    },
+    {
+      "name": "4:Wave front/17:Head glow 9",
+      "role": "contact light at the leading edge",
+      "primitive": "glow",
+      "exit": "gone by absolute f41"
+    },
+    {
+      "name": "4:Wave front/18:Head bolt 9",
+      "role": "leading edge: bolts rearing up and leaning into the travel",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f39"
+    },
+    {
+      "name": "4:Wave front/19:Head glow 10",
+      "role": "contact light at the leading edge",
+      "primitive": "glow",
+      "exit": "gone by absolute f45"
+    },
+    {
+      "name": "4:Wave front/20:Head bolt 10",
+      "role": "leading edge: bolts rearing up and leaning into the travel",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f43"
+    },
+    {
+      "name": "4:Wave front/21:Head glow 11",
+      "role": "contact light at the leading edge",
+      "primitive": "glow",
+      "exit": "gone by absolute f49"
+    },
+    {
+      "name": "4:Wave front/22:Head bolt 11",
+      "role": "leading edge: bolts rearing up and leaning into the travel",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f47"
+    },
+    {
+      "name": "4:Wave front/23:Head glow 12",
+      "role": "contact light at the leading edge",
+      "primitive": "glow",
+      "exit": "gone by absolute f53"
+    },
+    {
+      "name": "4:Wave front/24:Head bolt 12",
+      "role": "leading edge: bolts rearing up and leaning into the travel",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f51"
+    },
+    {
+      "name": "4:Wave front/25:Head glow 13",
+      "role": "contact light at the leading edge",
+      "primitive": "glow",
+      "exit": "gone by absolute f57"
+    },
+    {
+      "name": "4:Wave front/26:Head bolt 13",
+      "role": "leading edge: bolts rearing up and leaning into the travel",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f55"
+    },
+    {
+      "name": "4:Wave front/27:Head glow 14",
+      "role": "contact light at the leading edge",
+      "primitive": "glow",
+      "exit": "gone by absolute f61"
+    },
+    {
+      "name": "4:Wave front/28:Head bolt 14",
+      "role": "leading edge: bolts rearing up and leaning into the travel",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f59"
+    },
+    {
+      "name": "4:Wave front/29:Head glow 15",
+      "role": "contact light at the leading edge",
+      "primitive": "glow",
+      "exit": "gone by absolute f65"
+    },
+    {
+      "name": "4:Wave front/30:Head bolt 15",
+      "role": "leading edge: bolts rearing up and leaning into the travel",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f63"
+    },
+    {
+      "name": "4:Wave front/31:Head glow 16",
+      "role": "contact light at the leading edge",
+      "primitive": "glow",
+      "exit": "gone by absolute f69"
+    },
+    {
+      "name": "4:Wave front/32:Head bolt 16",
+      "role": "leading edge: bolts rearing up and leaning into the travel",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f67"
+    },
+    {
+      "name": "4:Wave front/33:Head glow 17",
+      "role": "contact light at the leading edge",
+      "primitive": "glow",
+      "exit": "gone by absolute f73"
+    },
+    {
+      "name": "4:Wave front/34:Head bolt 17",
+      "role": "leading edge: bolts rearing up and leaning into the travel",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f71"
+    },
+    {
+      "name": "4:Wave front/35:Head glow 18",
+      "role": "contact light at the leading edge",
+      "primitive": "glow",
+      "exit": "gone by absolute f77"
+    },
+    {
+      "name": "4:Wave front/36:Head bolt 18",
+      "role": "leading edge: bolts rearing up and leaning into the travel",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f75"
+    },
+    {
+      "name": "4:Wave front/37:Head glow 19",
+      "role": "contact light at the leading edge",
+      "primitive": "glow",
+      "exit": "gone by absolute f81"
+    },
+    {
+      "name": "4:Wave front/38:Head bolt 19",
+      "role": "leading edge: bolts rearing up and leaning into the travel",
+      "primitive": "strand segments",
+      "exit": "gone by absolute f79"
+    },
+    {
+      "name": "4:Wave front/39:Spit",
+      "role": "pivot at the front for spat sparks",
+      "primitive": "renderer None",
+      "exit": "gone by absolute f81"
+    },
+    {
+      "name": "4:Wave front/39:Spit/0:Spit sparks",
+      "role": "pivot at the front for spat sparks",
+      "primitive": "renderer None",
+      "exit": "gone by absolute f81"
+    },
+    {
+      "name": "4:Wave front/40:Crawl 1",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f3"
+    },
+    {
+      "name": "4:Wave front/41:Crawl 2",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f3"
+    },
+    {
+      "name": "4:Wave front/42:Crawl 3",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f5"
+    },
+    {
+      "name": "4:Wave front/43:Crawl 4",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f5"
+    },
+    {
+      "name": "4:Wave front/44:Crawl 5",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f7"
+    },
+    {
+      "name": "4:Wave front/45:Crawl 6",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f7"
+    },
+    {
+      "name": "4:Wave front/46:Crawl 7",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f9"
+    },
+    {
+      "name": "4:Wave front/47:Crawl 8",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f9"
+    },
+    {
+      "name": "4:Wave front/48:Crawl 9",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f11"
+    },
+    {
+      "name": "4:Wave front/49:Crawl 10",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f11"
+    },
+    {
+      "name": "4:Wave front/50:Crawl 11",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f13"
+    },
+    {
+      "name": "4:Wave front/51:Crawl 12",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f13"
+    },
+    {
+      "name": "4:Wave front/52:Crawl 13",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f15"
+    },
+    {
+      "name": "4:Wave front/53:Crawl 14",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f15"
+    },
+    {
+      "name": "4:Wave front/54:Crawl 15",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f17"
+    },
+    {
+      "name": "4:Wave front/55:Crawl 16",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f17"
+    },
+    {
+      "name": "4:Wave front/56:Crawl 17",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f19"
+    },
+    {
+      "name": "4:Wave front/57:Crawl 18",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f19"
+    },
+    {
+      "name": "4:Wave front/58:Crawl 19",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f21"
+    },
+    {
+      "name": "4:Wave front/59:Crawl 20",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f21"
+    },
+    {
+      "name": "4:Wave front/60:Crawl 21",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f23"
+    },
+    {
+      "name": "4:Wave front/61:Crawl 22",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f23"
+    },
+    {
+      "name": "4:Wave front/62:Crawl 23",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f25"
+    },
+    {
+      "name": "4:Wave front/63:Crawl 24",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f25"
+    },
+    {
+      "name": "4:Wave front/64:Crawl 25",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f27"
+    },
+    {
+      "name": "4:Wave front/65:Crawl 26",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f27"
+    },
+    {
+      "name": "4:Wave front/66:Crawl 27",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f29"
+    },
+    {
+      "name": "4:Wave front/67:Crawl 28",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f29"
+    },
+    {
+      "name": "4:Wave front/68:Crawl 29",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f31"
+    },
+    {
+      "name": "4:Wave front/69:Crawl 30",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f31"
+    },
+    {
+      "name": "4:Wave front/70:Crawl 31",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f33"
+    },
+    {
+      "name": "4:Wave front/71:Crawl 32",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f33"
+    },
+    {
+      "name": "4:Wave front/72:Crawl 33",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f35"
+    },
+    {
+      "name": "4:Wave front/73:Crawl 34",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f35"
+    },
+    {
+      "name": "4:Wave front/74:Crawl 35",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f37"
+    },
+    {
+      "name": "4:Wave front/75:Crawl 36",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f37"
+    },
+    {
+      "name": "4:Wave front/76:Crawl 37",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f39"
+    },
+    {
+      "name": "4:Wave front/77:Crawl 38",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f39"
+    },
+    {
+      "name": "4:Wave front/78:Crawl 39",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f41"
+    },
+    {
+      "name": "4:Wave front/79:Crawl 40",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f41"
+    },
+    {
+      "name": "4:Wave front/80:Crawl 41",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f43"
+    },
+    {
+      "name": "4:Wave front/81:Crawl 42",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f43"
+    },
+    {
+      "name": "4:Wave front/82:Crawl 43",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f45"
+    },
+    {
+      "name": "4:Wave front/83:Crawl 44",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f45"
+    },
+    {
+      "name": "4:Wave front/84:Crawl 45",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f47"
+    },
+    {
+      "name": "4:Wave front/85:Crawl 46",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f47"
+    },
+    {
+      "name": "4:Wave front/86:Crawl 47",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f49"
+    },
+    {
+      "name": "4:Wave front/87:Crawl 48",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f49"
+    },
+    {
+      "name": "4:Wave front/88:Crawl 49",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f51"
+    },
+    {
+      "name": "4:Wave front/89:Crawl 50",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f51"
+    },
+    {
+      "name": "4:Wave front/90:Crawl 51",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f53"
+    },
+    {
+      "name": "4:Wave front/91:Crawl 52",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f53"
+    },
+    {
+      "name": "4:Wave front/92:Crawl 53",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f55"
+    },
+    {
+      "name": "4:Wave front/93:Crawl 54",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f55"
+    },
+    {
+      "name": "4:Wave front/94:Crawl 55",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f57"
+    },
+    {
+      "name": "4:Wave front/95:Crawl 56",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f57"
+    },
+    {
+      "name": "4:Wave front/96:Crawl 57",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f59"
+    },
+    {
+      "name": "4:Wave front/97:Crawl 58",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f59"
+    },
+    {
+      "name": "4:Wave front/98:Crawl 59",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f61"
+    },
+    {
+      "name": "4:Wave front/99:Crawl 60",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f61"
+    },
+    {
+      "name": "4:Wave front/100:Crawl 61",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f63"
+    },
+    {
+      "name": "4:Wave front/101:Crawl 62",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f63"
+    },
+    {
+      "name": "4:Wave front/102:Crawl 63",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f65"
+    },
+    {
+      "name": "4:Wave front/103:Crawl 64",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f65"
+    },
+    {
+      "name": "4:Wave front/104:Crawl 65",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f67"
+    },
+    {
+      "name": "4:Wave front/105:Crawl 66",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f67"
+    },
+    {
+      "name": "4:Wave front/106:Crawl 67",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f69"
+    },
+    {
+      "name": "4:Wave front/107:Crawl 68",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f69"
+    },
+    {
+      "name": "4:Wave front/108:Crawl 69",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f71"
+    },
+    {
+      "name": "4:Wave front/109:Crawl 71",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f73"
+    },
+    {
+      "name": "4:Wave front/110:Crawl 73",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f75"
+    },
+    {
+      "name": "4:Wave front/111:Crawl 75",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f77"
+    },
+    {
+      "name": "4:Wave front/112:Crawl 77",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f79"
+    },
+    {
+      "name": "4:Wave front/113:Crawl 79",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f81"
+    },
+    {
+      "name": "4:Wave front/114:Crawl 81",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f83"
+    },
+    {
+      "name": "4:Wave front/115:Crawl 83",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f85"
+    },
+    {
+      "name": "4:Wave front/116:Crawl 85",
+      "role": "wake: arcs re-struck on the floor behind the front, left where struck",
+      "primitive": "strand segments, TRAIL",
+      "exit": "gone by absolute f87"
+    },
+    {
+      "name": "4:Wave front/117:Scorch streak",
+      "role": "wake: scorched floor streak cooling red to deep where the front passed",
+      "primitive": "glow sprite, TRAIL",
+      "exit": "gone by absolute f96"
+    },
+    {
+      "name": "4:Wave front/118:Final strike",
+      "role": "end: last strike where the front dies",
+      "primitive": "strand segment",
+      "exit": "gone by absolute f87"
+    },
+    {
+      "name": "4:Wave front/119:Final patch",
+      "role": "end: scorch patch left behind",
+      "primitive": "glow, TRAIL",
+      "exit": "gone by absolute f96"
+    },
+    {
+      "name": "4:Wave front/120:Final scorch",
+      "role": "end: flat scorch mark under the target cooling to deep red",
+      "primitive": "decal T_Crack01, TRAIL",
+      "exit": "gone by absolute f96"
+    },
+    {
+      "name": "4:Wave front/121:Final embers",
+      "role": "end: embers left where it died",
+      "primitive": "motes, TRAIL",
+      "exit": "gone by absolute f96"
+    },
+    {
+      "name": "4:Wave front/121:Final embers/0:Final embers",
+      "role": "end: embers left where it died",
+      "primitive": "motes, TRAIL",
+      "exit": "gone by absolute f96"
+    },
+    {
+      "name": "4:Wave front/122:Wake embers",
+      "role": "secondary: embers shed behind into the wake",
+      "primitive": "motes + spray, TRAIL",
+      "exit": "gone by absolute f93"
+    },
+    {
+      "name": "4:Wave front/123:Wake dust",
+      "role": "matter: dust kicked up behind",
+      "primitive": "smoke, TRAIL",
+      "exit": "gone by absolute f90"
+    }
+  ]
+}

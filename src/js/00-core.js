@@ -265,6 +265,17 @@ const AudioManager = {
         this.tone({ type: 'sine', f0: 70, f1: 25, dur: 0.6, vol: 0.9 });
         this.burst({ f0: 1500, f1: 80, dur: 0.5, vol: 0.5 });
         break;
+      // red lightning (36-storm.js): a hard crack, a body of torn air and a low roll that outlasts it
+      case 'thunder':
+        this.burst({ filter: 'bandpass', f0: 3400 * p, f1: 700, dur: 0.22, vol: 0.5, q: 0.7 });
+        this.burst({ f0: 1400 * p, f1: 110, dur: 1.4, vol: 0.55, attack: 0.01, rate: 0.7 });
+        this.tone({ type: 'sine', f0: 62 * p, f1: 26, dur: 0.9, vol: 0.75 });
+        this.burst({ f0: 320, f1: 60, dur: 2.2, vol: 0.32, attack: 0.2, rate: 0.5, delay: 0.18 });
+        break;
+      // distant thunder: only the roll
+      case 'rumble':
+        this.burst({ f0: 260 * p, f1: 55, dur: 2.4, vol: 0.26, attack: 0.3, rate: 0.5 });
+        break;
       case 'quake':
         this.tone({ type: 'sine', f0: 45, f1: 25, dur: 1.2, vol: 0.9 });
         this.burst({ f0: 400, f1: 60, dur: 1.1, vol: 0.5, attack: 0.05 });

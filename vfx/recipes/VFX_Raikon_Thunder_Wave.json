@@ -1,0 +1,5614 @@
+{
+  "id": "VFX_Raikon_Thunder_Wave",
+  "name": "Raikon Thunder Wave",
+  "category": "boss",
+  "element": "lightning",
+  "duration": 1.6,
+  "loop": false,
+  "attach": "caster_ground",
+  "peak": 0.03333333333333333,
+  "impact": 0.3,
+  "light": [
+    1,
+    0.22,
+    0.16
+  ],
+  "seed": 1729,
+  "layers": [
+    {
+      "name": "Birth bloom",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        255,
+        40,
+        28,
+        210
+      ],
+      "life": 12,
+      "delay": 0,
+      "size": 2.2,
+      "size_curve": [
+        [
+          0,
+          0.25
+        ],
+        [
+          18,
+          1
+        ],
+        [
+          100,
+          1.25
+        ]
+      ],
+      "billboard": "Billboard",
+      "fade_in": 0,
+      "fade_out": 9.600000000000001,
+      "position": [
+        0.2,
+        0.35,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Birth bolt 1",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+      "color": [
+        255,
+        236,
+        228,
+        255
+      ],
+      "life": 4,
+      "delay": 0,
+      "billboard": "DirectionalBillboard",
+      "pivot": "bottom",
+      "position": [
+        0.3,
+        0.03,
+        0
+      ],
+      "velocity": [
+        2.936586263730311e-05,
+        9.559103572807988e-05,
+        0.0
+      ],
+      "scale_start": [
+        0.6,
+        0.6375538367492611,
+        1
+      ],
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 2.6,
+      "color_end": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Birth bolt 2",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+      "color": [
+        255,
+        236,
+        228,
+        255
+      ],
+      "life": 4,
+      "delay": 0,
+      "billboard": "DirectionalBillboard",
+      "pivot": "bottom",
+      "position": [
+        0.4872231839386437,
+        0.6394443158727303,
+        0.0
+      ],
+      "velocity": [
+        -5.945401963006958e-06,
+        9.982310451743261e-05,
+        0.0
+      ],
+      "scale_start": [
+        -0.6,
+        0.6407000620781801,
+        1
+      ],
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 2.6,
+      "color_end": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Birth bolt 3",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+      "color": [
+        255,
+        236,
+        228,
+        255
+      ],
+      "life": 4,
+      "delay": 0,
+      "billboard": "DirectionalBillboard",
+      "pivot": "bottom",
+      "position": [
+        0.4491309898708608,
+        1.2790110084842876,
+        0.0
+      ],
+      "velocity": [
+        1.6033149050069986e-05,
+        9.870632265229133e-05,
+        0.0
+      ],
+      "scale_start": [
+        0.6,
+        0.6291278763400441,
+        1
+      ],
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 2.6,
+      "color_end": [
+        255,
+        40,
+        28,
+        255
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Wave front",
+      "renderer": "None",
+      "life": 94,
+      "velocity": [
+        0.158,
+        0,
+        0
+      ],
+      "forces": [
+        {
+          "type": "Gravity",
+          "gravity": [
+            -0.0020789473684210526,
+            0,
+            0
+          ]
+        }
+      ],
+      "children": [
+        {
+          "name": "Ground band",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+          "color": [
+            255,
+            40,
+            28,
+            110
+          ],
+          "billboard": "Billboard",
+          "scale_start": [
+            2.0,
+            0.7,
+            1
+          ],
+          "position": [
+            0.1,
+            0.16,
+            0
+          ],
+          "count": 5,
+          "interval": 15,
+          "life": 30,
+          "fade_in": 15,
+          "fade_out": 15,
+          "emissive": 1.2,
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head glow 1",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+          "color": [
+            255,
+            40,
+            28,
+            200
+          ],
+          "billboard": "Billboard",
+          "size": 1.0,
+          "position": [
+            0.4869940393800946,
+            0.35,
+            0
+          ],
+          "delay": 4,
+          "life": 5,
+          "size_curve": [
+            [
+              0,
+              1.3
+            ],
+            [
+              100,
+              0.6
+            ]
+          ],
+          "fade_in": 0,
+          "fade_out": 4,
+          "emissive": 1.6,
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head bolt 1",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "life": 3,
+          "delay": 4,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.4869940393800946,
+            0.03,
+            0.00409323144061631
+          ],
+          "velocity": [
+            1.8057197362936364e-05,
+            9.833560292312889e-05,
+            -2.0116712307658315e-06
+          ],
+          "scale_start": [
+            -0.5,
+            1.2619506839474426,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.4,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head glow 2",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+          "color": [
+            255,
+            40,
+            28,
+            200
+          ],
+          "billboard": "Billboard",
+          "size": 1.0,
+          "position": [
+            0.5988859279842647,
+            0.35,
+            0
+          ],
+          "delay": 8,
+          "life": 5,
+          "size_curve": [
+            [
+              0,
+              1.3
+            ],
+            [
+              100,
+              0.6
+            ]
+          ],
+          "fade_in": 0,
+          "fade_out": 4,
+          "emissive": 1.6,
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head bolt 2",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "life": 3,
+          "delay": 8,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.5988859279842647,
+            0.03,
+            -0.07034804136306108
+          ],
+          "velocity": [
+            1.7247111365163022e-05,
+            9.847362806359175e-05,
+            2.341308512576291e-06
+          ],
+          "scale_start": [
+            0.5,
+            0.9582453556554019,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.4,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head glow 3",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+          "color": [
+            255,
+            40,
+            28,
+            200
+          ],
+          "billboard": "Billboard",
+          "size": 1.0,
+          "position": [
+            0.3645784552306137,
+            0.35,
+            0
+          ],
+          "delay": 12,
+          "life": 5,
+          "size_curve": [
+            [
+              0,
+              1.3
+            ],
+            [
+              100,
+              0.6
+            ]
+          ],
+          "fade_in": 0,
+          "fade_out": 4,
+          "emissive": 1.6,
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head bolt 3",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "life": 3,
+          "delay": 12,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.3645784552306137,
+            0.03,
+            -0.07847121242687086
+          ],
+          "velocity": [
+            1.9109669110415725e-05,
+            9.806348218230622e-05,
+            4.286491429005082e-06
+          ],
+          "scale_start": [
+            -0.5,
+            0.9491265105969939,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.4,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head glow 4",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+          "color": [
+            255,
+            40,
+            28,
+            200
+          ],
+          "billboard": "Billboard",
+          "size": 1.0,
+          "position": [
+            0.4492340055567118,
+            0.35,
+            0
+          ],
+          "delay": 16,
+          "life": 5,
+          "size_curve": [
+            [
+              0,
+              1.3
+            ],
+            [
+              100,
+              0.6
+            ]
+          ],
+          "fade_in": 0,
+          "fade_out": 4,
+          "emissive": 1.6,
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head bolt 4",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "life": 3,
+          "delay": 16,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.4492340055567118,
+            0.03,
+            -0.08584245604216999
+          ],
+          "velocity": [
+            1.6580348874457386e-05,
+            9.806778280063633e-05,
+            1.038277456985835e-05
+          ],
+          "scale_start": [
+            0.5,
+            0.9085333991029073,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.4,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head glow 5",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+          "color": [
+            255,
+            40,
+            28,
+            200
+          ],
+          "billboard": "Billboard",
+          "size": 1.0,
+          "position": [
+            0.3859966349090123,
+            0.35,
+            0
+          ],
+          "delay": 20,
+          "life": 5,
+          "size_curve": [
+            [
+              0,
+              1.3
+            ],
+            [
+              100,
+              0.6
+            ]
+          ],
+          "fade_in": 0,
+          "fade_out": 4,
+          "emissive": 1.6,
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head bolt 5",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "life": 3,
+          "delay": 20,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.3859966349090123,
+            0.03,
+            0.06061190679444592
+          ],
+          "velocity": [
+            1.6484759721424805e-05,
+            9.797149290930186e-05,
+            -1.1394703771906779e-05
+          ],
+          "scale_start": [
+            -0.5,
+            1.2351371902258568,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.4,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head glow 6",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+          "color": [
+            255,
+            40,
+            28,
+            200
+          ],
+          "billboard": "Billboard",
+          "size": 1.0,
+          "position": [
+            0.5047982096531463,
+            0.35,
+            0
+          ],
+          "delay": 24,
+          "life": 5,
+          "size_curve": [
+            [
+              0,
+              1.3
+            ],
+            [
+              100,
+              0.6
+            ]
+          ],
+          "fade_in": 0,
+          "fade_out": 4,
+          "emissive": 1.6,
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head bolt 6",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "life": 3,
+          "delay": 24,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.5047982096531463,
+            0.03,
+            -0.020787333786038545
+          ],
+          "velocity": [
+            2.1134851252171083e-05,
+            9.77287868174846e-05,
+            -1.5499321698864292e-06
+          ],
+          "scale_start": [
+            0.5,
+            1.2518296032791996,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.4,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head glow 7",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+          "color": [
+            255,
+            40,
+            28,
+            200
+          ],
+          "billboard": "Billboard",
+          "size": 1.0,
+          "position": [
+            0.5702127160564462,
+            0.35,
+            0
+          ],
+          "delay": 28,
+          "life": 5,
+          "size_curve": [
+            [
+              0,
+              1.3
+            ],
+            [
+              100,
+              0.6
+            ]
+          ],
+          "fade_in": 0,
+          "fade_out": 4,
+          "emissive": 1.6,
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head bolt 7",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "life": 3,
+          "delay": 28,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.5702127160564462,
+            0.03,
+            0.058392604644705054
+          ],
+          "velocity": [
+            2.5654890249571688e-05,
+            9.628078349080576e-05,
+            -8.475690926350424e-06
+          ],
+          "scale_start": [
+            -0.5,
+            1.3193537418401957,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.4,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head glow 8",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+          "color": [
+            255,
+            40,
+            28,
+            200
+          ],
+          "billboard": "Billboard",
+          "size": 1.0,
+          "position": [
+            0.44083817639805123,
+            0.35,
+            0
+          ],
+          "delay": 32,
+          "life": 5,
+          "size_curve": [
+            [
+              0,
+              1.3
+            ],
+            [
+              100,
+              0.6
+            ]
+          ],
+          "fade_in": 0,
+          "fade_out": 4,
+          "emissive": 1.6,
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head bolt 8",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "life": 3,
+          "delay": 32,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.44083817639805123,
+            0.03,
+            0.060294847499320514
+          ],
+          "velocity": [
+            1.6036263331222757e-05,
+            9.811740109198053e-05,
+            -1.0761684873991604e-05
+          ],
+          "scale_start": [
+            0.5,
+            1.2320203439503752,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.4,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head glow 9",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+          "color": [
+            255,
+            40,
+            28,
+            200
+          ],
+          "billboard": "Billboard",
+          "size": 1.0,
+          "position": [
+            0.4692110588599442,
+            0.35,
+            0
+          ],
+          "delay": 36,
+          "life": 5,
+          "size_curve": [
+            [
+              0,
+              1.3
+            ],
+            [
+              100,
+              0.6
+            ]
+          ],
+          "fade_in": 0,
+          "fade_out": 4,
+          "emissive": 1.6,
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head bolt 9",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "life": 3,
+          "delay": 36,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.4692110588599442,
+            0.03,
+            0.04107197144339886
+          ],
+          "velocity": [
+            1.2104900928249072e-05,
+            9.90849973834255e-05,
+            -5.969477954045932e-06
+          ],
+          "scale_start": [
+            -0.5,
+            0.8404754880110309,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.4,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head glow 10",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+          "color": [
+            255,
+            40,
+            28,
+            200
+          ],
+          "billboard": "Billboard",
+          "size": 1.0,
+          "position": [
+            0.4179140635426824,
+            0.35,
+            0
+          ],
+          "delay": 40,
+          "life": 5,
+          "size_curve": [
+            [
+              0,
+              1.3
+            ],
+            [
+              100,
+              0.6
+            ]
+          ],
+          "fade_in": 0,
+          "fade_out": 4,
+          "emissive": 1.6,
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head bolt 10",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "life": 3,
+          "delay": 40,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.4179140635426824,
+            0.03,
+            -0.003961316012460497
+          ],
+          "velocity": [
+            2.5813090467319594e-05,
+            9.657734934879965e-05,
+            -2.5495005953880093e-06
+          ],
+          "scale_start": [
+            0.5,
+            0.8717150024021679,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.4,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head glow 11",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+          "color": [
+            255,
+            40,
+            28,
+            200
+          ],
+          "billboard": "Billboard",
+          "size": 1.0,
+          "position": [
+            0.5636955990619518,
+            0.35,
+            0
+          ],
+          "delay": 44,
+          "life": 5,
+          "size_curve": [
+            [
+              0,
+              1.3
+            ],
+            [
+              100,
+              0.6
+            ]
+          ],
+          "fade_in": 0,
+          "fade_out": 4,
+          "emissive": 1.6,
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head bolt 11",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "life": 3,
+          "delay": 44,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.5636955990619518,
+            0.03,
+            0.07810694426725334
+          ],
+          "velocity": [
+            1.2296288378055619e-05,
+            9.836077290069638e-05,
+            -1.3189376274158236e-05
+          ],
+          "scale_start": [
+            -0.5,
+            1.3111345738005042,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.4,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head glow 12",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+          "color": [
+            255,
+            40,
+            28,
+            200
+          ],
+          "billboard": "Billboard",
+          "size": 1.0,
+          "position": [
+            0.3818140734592864,
+            0.35,
+            0
+          ],
+          "delay": 48,
+          "life": 5,
+          "size_curve": [
+            [
+              0,
+              1.3
+            ],
+            [
+              100,
+              0.6
+            ]
+          ],
+          "fade_in": 0,
+          "fade_out": 4,
+          "emissive": 1.6,
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head bolt 12",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "life": 3,
+          "delay": 48,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.3818140734592864,
+            0.03,
+            0.041046183783460255
+          ],
+          "velocity": [
+            1.9222790861062416e-05,
+            9.72184550332953e-05,
+            -1.3381192489871652e-05
+          ],
+          "scale_start": [
+            0.5,
+            0.862176737109338,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.4,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head glow 13",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+          "color": [
+            255,
+            40,
+            28,
+            200
+          ],
+          "billboard": "Billboard",
+          "size": 1.0,
+          "position": [
+            0.34929775638309746,
+            0.35,
+            0
+          ],
+          "delay": 52,
+          "life": 5,
+          "size_curve": [
+            [
+              0,
+              1.3
+            ],
+            [
+              100,
+              0.6
+            ]
+          ],
+          "fade_in": 0,
+          "fade_out": 4,
+          "emissive": 1.6,
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head bolt 13",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "life": 3,
+          "delay": 52,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.34929775638309746,
+            0.03,
+            0.04707991953349944
+          ],
+          "velocity": [
+            2.0731336130458857e-05,
+            9.746926590439797e-05,
+            -8.363845186497354e-06
+          ],
+          "scale_start": [
+            -0.5,
+            1.0383313980932676,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.4,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head glow 14",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+          "color": [
+            255,
+            40,
+            28,
+            200
+          ],
+          "billboard": "Billboard",
+          "size": 1.0,
+          "position": [
+            0.4870795243823955,
+            0.35,
+            0
+          ],
+          "delay": 56,
+          "life": 5,
+          "size_curve": [
+            [
+              0,
+              1.3
+            ],
+            [
+              100,
+              0.6
+            ]
+          ],
+          "fade_in": 0,
+          "fade_out": 4,
+          "emissive": 1.6,
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head bolt 14",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "life": 3,
+          "delay": 56,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.4870795243823955,
+            0.03,
+            -0.058158787621142266
+          ],
+          "velocity": [
+            3.2012773721630864e-05,
+            9.387092382851994e-05,
+            1.2784051714064244e-05
+          ],
+          "scale_start": [
+            0.5,
+            0.8492470088385418,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.4,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head glow 15",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+          "color": [
+            255,
+            40,
+            28,
+            200
+          ],
+          "billboard": "Billboard",
+          "size": 1.0,
+          "position": [
+            0.2854581230285757,
+            0.35,
+            0
+          ],
+          "delay": 60,
+          "life": 5,
+          "size_curve": [
+            [
+              0,
+              1.3
+            ],
+            [
+              100,
+              0.6
+            ]
+          ],
+          "fade_in": 0,
+          "fade_out": 4,
+          "emissive": 1.6,
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head bolt 15",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "life": 3,
+          "delay": 60,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.2854581230285757,
+            0.03,
+            0.0011592767405975285
+          ],
+          "velocity": [
+            3.080139364004925e-05,
+            9.445010732858789e-05,
+            -1.1421531221730358e-05
+          ],
+          "scale_start": [
+            -0.5,
+            0.857469393117626,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.4,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head glow 16",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+          "color": [
+            255,
+            40,
+            28,
+            200
+          ],
+          "billboard": "Billboard",
+          "size": 1.0,
+          "position": [
+            0.40287163203309817,
+            0.35,
+            0
+          ],
+          "delay": 64,
+          "life": 5,
+          "size_curve": [
+            [
+              0,
+              1.3
+            ],
+            [
+              100,
+              0.6
+            ]
+          ],
+          "fade_in": 0,
+          "fade_out": 4,
+          "emissive": 1.6,
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head bolt 16",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "life": 3,
+          "delay": 64,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.40287163203309817,
+            0.03,
+            -0.08297898601536052
+          ],
+          "velocity": [
+            1.5084397868949756e-05,
+            9.876473159538431e-05,
+            4.241312747596132e-06
+          ],
+          "scale_start": [
+            0.5,
+            0.9465726386175667,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.4,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head glow 17",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+          "color": [
+            255,
+            40,
+            28,
+            200
+          ],
+          "billboard": "Billboard",
+          "size": 1.0,
+          "position": [
+            0.41346398734357226,
+            0.35,
+            0
+          ],
+          "delay": 68,
+          "life": 5,
+          "size_curve": [
+            [
+              0,
+              1.3
+            ],
+            [
+              100,
+              0.6
+            ]
+          ],
+          "fade_in": 0,
+          "fade_out": 4,
+          "emissive": 1.6,
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head bolt 17",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "life": 3,
+          "delay": 68,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.41346398734357226,
+            0.03,
+            0.024068690046174443
+          ],
+          "velocity": [
+            5.4597402630558626e-05,
+            8.375201245165452e-05,
+            2.1734848273170387e-06
+          ],
+          "scale_start": [
+            -0.5,
+            0.5855382984689277,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.4,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head glow 18",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+          "color": [
+            255,
+            40,
+            28,
+            200
+          ],
+          "billboard": "Billboard",
+          "size": 1.0,
+          "position": [
+            0.2737916473306434,
+            0.35,
+            0
+          ],
+          "delay": 72,
+          "life": 5,
+          "size_curve": [
+            [
+              0,
+              1.3
+            ],
+            [
+              100,
+              0.6
+            ]
+          ],
+          "fade_in": 0,
+          "fade_out": 4,
+          "emissive": 1.6,
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head bolt 18",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "life": 3,
+          "delay": 72,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.2737916473306434,
+            0.03,
+            0.026773543884154954
+          ],
+          "velocity": [
+            1.4749555339076268e-05,
+            9.86443999370033e-05,
+            -7.192564102465105e-06
+          ],
+          "scale_start": [
+            0.5,
+            0.6928507818222824,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.4,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head glow 19",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+          "color": [
+            255,
+            40,
+            28,
+            200
+          ],
+          "billboard": "Billboard",
+          "size": 1.0,
+          "position": [
+            0.4783920928941675,
+            0.35,
+            0
+          ],
+          "delay": 76,
+          "life": 5,
+          "size_curve": [
+            [
+              0,
+              1.3
+            ],
+            [
+              100,
+              0.6
+            ]
+          ],
+          "fade_in": 0,
+          "fade_out": 4,
+          "emissive": 1.6,
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Head bolt 19",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "life": 3,
+          "delay": 76,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.4783920928941675,
+            0.03,
+            0.08579072958128303
+          ],
+          "velocity": [
+            2.9164235247534466e-05,
+            9.530195419670409e-05,
+            -8.184430873053062e-06
+          ],
+          "scale_start": [
+            -0.5,
+            0.8310962161528156,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.4,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Spit",
+          "renderer": "None",
+          "life": 81,
+          "position": [
+            0.4,
+            0.08,
+            0
+          ],
+          "children": [
+            {
+              "name": "Spit sparks",
+              "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Spark01.png",
+              "color": [
+                255,
+                236,
+                228,
+                255
+              ],
+              "color_end": [
+                255,
+                40,
+                28,
+                255
+              ],
+              "count": 24,
+              "life": [
+                8,
+                12
+              ],
+              "delay": 0,
+              "billboard": "DirectionalBillboard",
+              "spawn": {
+                "shape": "Sphere",
+                "radius": [
+                  0,
+                  0.08
+                ],
+                "rot_x": [
+                  0,
+                  90
+                ]
+              },
+              "travel": {
+                "end": [
+                  0,
+                  [
+                    0.5,
+                    1.2
+                  ],
+                  0
+                ],
+                "easing": "EaseOutQuartic"
+              },
+              "scale_start": [
+                0.06,
+                [
+                  0.35,
+                  0.7
+                ],
+                1
+              ],
+              "scale_end": [
+                0.018,
+                0.06999999999999999,
+                1
+              ],
+              "easing": "EaseInQuadratic",
+              "forces": [
+                {
+                  "type": "Gravity",
+                  "gravity": [
+                    0,
+                    -0.002,
+                    0
+                  ]
+                }
+              ],
+              "fade_in": 0,
+              "fade_out": 5,
+              "emissive": 1.5,
+              "interval": 3,
+              "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+            }
+          ],
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 1",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "life": 3,
+          "delay": 0,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.38562658870330857,
+            0.048956395713875944,
+            0.003657154194821599
+          ],
+          "velocity": [
+            8.809334193580825e-05,
+            4.1887177500282424e-05,
+            -2.2023339157371288e-05
+          ],
+          "scale_start": [
+            0.37501625202864325,
+            0.5422596789682576,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.3584687669053603,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 2",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "life": 3,
+          "delay": 0,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.794521456170852,
+            0.07713514262391741,
+            0.10068076998862624
+          ],
+          "velocity": [
+            9.01773779186524e-05,
+            4.306610136378398e-05,
+            3.6539601859937466e-06
+          ],
+          "scale_start": [
+            -0.28364995178032115,
+            0.5668266720899013,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.597082931502676,
+          "color_end": [
+            150,
+            8,
+            12,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 3",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            120,
+            100,
+            255
+          ],
+          "life": 3,
+          "delay": 2,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.22870364546074784,
+            0.0945001086239016,
+            0.0951658396583856
+          ],
+          "velocity": [
+            -9.131716021761717e-05,
+            2.950334586665222e-05,
+            -2.8119901003786086e-05
+          ],
+          "scale_start": [
+            0.3274552016417486,
+            0.6435968384225887,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.9621266803479047,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 4",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            120,
+            100,
+            255
+          ],
+          "life": 3,
+          "delay": 2,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.31769789396035686,
+            0.06863244909302385,
+            -0.008617925835654683
+          ],
+          "velocity": [
+            9.926593608235279e-05,
+            1.1978347429980523e-05,
+            -1.6712649523429769e-06
+          ],
+          "scale_start": [
+            -0.320565324338553,
+            0.4816468861305521,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.9047110361546085,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 5",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "life": 3,
+          "delay": 4,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.341564625720852,
+            0.0761658828942876,
+            0.14740709692535564
+          ],
+          "velocity": [
+            9.296725072997313e-05,
+            3.484505153497504e-05,
+            -1.1954608953673402e-05
+          ],
+          "scale_start": [
+            0.3716050032816144,
+            0.6101378572673155,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.330041694013453,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 6",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "life": 3,
+          "delay": 4,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.5891072942123641,
+            0.046837072521984324,
+            0.14399874163200127
+          ],
+          "velocity": [
+            -9.867554603516801e-05,
+            1.0134174584119417e-05,
+            -1.2666298597460355e-05
+          ],
+          "scale_start": [
+            -0.2995529836738815,
+            0.6072956530852391,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.7296081972823458,
+          "color_end": [
+            150,
+            8,
+            12,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 7",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            120,
+            100,
+            255
+          ],
+          "life": 3,
+          "delay": 6,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.2802964505023199,
+            0.06718448322688443,
+            -0.18369672932699754
+          ],
+          "velocity": [
+            9.410282074930886e-05,
+            2.2094223470143417e-05,
+            2.562234213093742e-05
+          ],
+          "scale_start": [
+            0.3234609199611107,
+            0.6512332268887442,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.9288409996759226,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 8",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "life": 3,
+          "delay": 6,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.03304192996777222,
+            0.034045283694711645,
+            -0.09519577540674727
+          ],
+          "velocity": [
+            8.308679579338813e-05,
+            2.7739939469571395e-05,
+            4.823981885343617e-05
+          ],
+          "scale_start": [
+            -0.3477193752233114,
+            0.5894416882939308,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.130994793527595,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 9",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "life": 3,
+          "delay": 8,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.8432930839930353,
+            0.0897515780802677,
+            0.021788367947565945
+          ],
+          "velocity": [
+            -9.653648369234098e-05,
+            2.2023410929966614e-06,
+            -2.5997250047427752e-05
+          ],
+          "scale_start": [
+            0.27987408381989404,
+            0.7970561454294474,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.5656173651657836,
+          "color_end": [
+            150,
+            8,
+            12,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 10",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            120,
+            100,
+            255
+          ],
+          "life": 3,
+          "delay": 8,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.4242623308874738,
+            0.09442863577183465,
+            -0.14397439177882296
+          ],
+          "velocity": [
+            -8.651504394049054e-05,
+            2.972416308878811e-05,
+            4.0393332378576035e-05
+          ],
+          "scale_start": [
+            -0.3123151743829053,
+            0.6888901157403838,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.8359597865242105,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 11",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "life": 3,
+          "delay": 10,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.6704207349842429,
+            0.04335770884514896,
+            -0.08434676789774082
+          ],
+          "velocity": [
+            9.701418281222342e-05,
+            1.0191128447515637e-05,
+            2.2008844454962408e-05
+          ],
+          "scale_start": [
+            0.29325774954960704,
+            0.7372834860903282,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.6771479129133917,
+          "color_end": [
+            150,
+            8,
+            12,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 12",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "life": 3,
+          "delay": 10,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.6185393709821823,
+            0.06650568516615982,
+            -0.11006477071695087
+          ],
+          "velocity": [
+            9.636448694811886e-05,
+            2.666744011059607e-05,
+            1.653267423499744e-06
+          ],
+          "scale_start": [
+            -0.2972743712787988,
+            0.8120148712347973,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.7106197606566567,
+          "color_end": [
+            150,
+            8,
+            12,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 13",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "life": 3,
+          "delay": 12,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.563042820145085,
+            0.11327929049961119,
+            -0.11158315969956895
+          ],
+          "velocity": [
+            9.327424429260386e-05,
+            -2.2013613078093804e-06,
+            3.5987072123696534e-05
+          ],
+          "scale_start": [
+            0.30157087844038055,
+            0.6983250935282855,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.7464239870031708,
+          "color_end": [
+            150,
+            8,
+            12,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 14",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            120,
+            100,
+            255
+          ],
+          "life": 3,
+          "delay": 12,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.4208328016744376,
+            0.11729864952809974,
+            0.045890009593283126
+          ],
+          "velocity": [
+            9.820337131902866e-05,
+            1.7377687232607623e-05,
+            -7.356211526502478e-06
+          ],
+          "scale_start": [
+            -0.31258068632197905,
+            0.6842658209500437,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.8381723860164918,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 15",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "life": 3,
+          "delay": 14,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.365527692384394,
+            0.07077638651782778,
+            0.010175408201349517
+          ],
+          "velocity": [
+            9.118217533138497e-05,
+            4.0984057567684966e-05,
+            2.473444384912615e-06
+          ],
+          "scale_start": [
+            0.37346020844266276,
+            0.5065732553830363,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.3455017370221896,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 16",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "life": 3,
+          "delay": 14,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.9404120056220311,
+            0.06597325785107613,
+            0.05358837287516377
+          ],
+          "velocity": [
+            9.703564093821702e-05,
+            7.775877553648127e-06,
+            -2.2882747124855772e-05
+          ],
+          "scale_start": [
+            -0.272355199564746,
+            0.7829147287189827,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.502959996372883,
+          "color_end": [
+            150,
+            8,
+            12,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 17",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            120,
+            100,
+            255
+          ],
+          "life": 3,
+          "delay": 16,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.15751784637509036,
+            0.037739207857283595,
+            0.10266186118637194
+          ],
+          "velocity": [
+            9.397674765326643e-05,
+            3.128778528649562e-05,
+            1.3763916316965625e-05
+          ],
+          "scale_start": [
+            0.3329663602806382,
+            0.6889611208862748,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.0080530023386514,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 18",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "life": 3,
+          "delay": 16,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -1.0968819696850647,
+            0.05178221460972134,
+            0.1376900760507344
+          ],
+          "velocity": [
+            9.388361765293357e-05,
+            3.351103178563175e-05,
+            -7.929507239429255e-06
+          ],
+          "scale_start": [
+            -0.26024139589534984,
+            0.5195456694809923,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.4020116324612486,
+          "color_end": [
+            150,
+            8,
+            12,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 19",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            120,
+            100,
+            255
+          ],
+          "life": 3,
+          "delay": 18,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.48480974616590533,
+            0.11701262363665751,
+            -0.030693606125059697
+          ],
+          "velocity": [
+            9.478272956877215e-05,
+            3.0593374938757732e-06,
+            3.1731287865316374e-05
+          ],
+          "scale_start": [
+            0.30762763255489767,
+            0.4850930397547854,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.7968969379574804,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 20",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "life": 3,
+          "delay": 18,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.6832425605856915,
+            0.10059323206175683,
+            -0.004095271429469666
+          ],
+          "velocity": [
+            9.828107619059094e-05,
+            7.394912545867731e-06,
+            -1.6915830788294963e-05
+          ],
+          "scale_start": [
+            -0.2922650920836884,
+            0.7317791773949721,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.66887576736407,
+          "color_end": [
+            150,
+            8,
+            12,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 21",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "life": 3,
+          "delay": 20,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.9906072441951543,
+            0.11377288585450908,
+            -0.189598968262918
+          ],
+          "velocity": [
+            -9.236346680189973e-05,
+            3.8031815443684096e-05,
+            4.750896167242904e-06
+          ],
+          "scale_start": [
+            0.2684691165784397,
+            0.5225135272706818,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.4705759714869973,
+          "color_end": [
+            150,
+            8,
+            12,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 22",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            120,
+            100,
+            255
+          ],
+          "life": 3,
+          "delay": 20,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.38963908443058703,
+            0.11716573255635773,
+            -0.16252934688473825
+          ],
+          "velocity": [
+            8.649749140833237e-05,
+            7.787054473407432e-06,
+            4.957363979670703e-05
+          ],
+          "scale_start": [
+            -0.31499568378601905,
+            0.7184604150353058,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.8582973648834922,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 23",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "life": 3,
+          "delay": 22,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.6640887963408242,
+            0.04336207673520792,
+            0.18650628509818334
+          ],
+          "velocity": [
+            7.157226826642333e-05,
+            4.747169160930711e-05,
+            -5.1223519119150465e-05
+          ],
+          "scale_start": [
+            0.2937479641542588,
+            0.6637312544299855,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.6812330346188231,
+          "color_end": [
+            150,
+            8,
+            12,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 24",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "life": 3,
+          "delay": 22,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.579237984063881,
+            0.061681465154033534,
+            0.08665466197653626
+          ],
+          "velocity": [
+            -9.027930892021773e-05,
+            4.2851850427674286e-05,
+            3.6558577395909238e-06
+          ],
+          "scale_start": [
+            -0.3003170592982802,
+            0.7311244915176478,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.7359754941523349,
+          "color_end": [
+            150,
+            8,
+            12,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 25",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "life": 3,
+          "delay": 24,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.7764290891348847,
+            0.08363659579609134,
+            -0.09139147771943362
+          ],
+          "velocity": [
+            9.888740548355091e-05,
+            2.442518412589808e-07,
+            1.4873512623782915e-05
+          ],
+          "scale_start": [
+            0.2850506511637509,
+            0.7166420383129415,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.6087554263645905,
+          "color_end": [
+            150,
+            8,
+            12,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 26",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "life": 3,
+          "delay": 24,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.15806335666041993,
+            0.03226021639526044,
+            0.08785822626298695
+          ],
+          "velocity": [
+            -9.049037026837874e-05,
+            3.078079027105025e-05,
+            -2.9394486540528888e-05
+          ],
+          "scale_start": [
+            -0.3573984534188712,
+            0.7386753365521062,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.2116537784905934,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 27",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "life": 3,
+          "delay": 26,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.8414019392068028,
+            0.0644930169381479,
+            0.08640761236739486
+          ],
+          "velocity": [
+            8.958130626893981e-05,
+            1.6923200949023667e-05,
+            -4.1094949042301645e-05
+          ],
+          "scale_start": [
+            0.2800204950291508,
+            0.5370745282916577,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.5668374585762561,
+          "color_end": [
+            150,
+            8,
+            12,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 28",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            120,
+            100,
+            255
+          ],
+          "life": 3,
+          "delay": 26,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.3441943930747745,
+            0.11146179881320666,
+            -0.03375046489512079
+          ],
+          "velocity": [
+            -9.828788851847975e-05,
+            1.800843207582818e-05,
+            -3.897094398289358e-06
+          ],
+          "scale_start": [
+            -0.3185139824716304,
+            0.7036216453484604,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.8876165205969198,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 29",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "life": 3,
+          "delay": 28,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.8066573691216276,
+            0.07693743343409688,
+            0.052439944914778436
+          ],
+          "velocity": [
+            9.28408674089172e-05,
+            3.5684015396825185e-05,
+            1.0354920758702072e-05
+          ],
+          "scale_start": [
+            0.28271039722929336,
+            0.7717345056881602,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.589253310244111,
+          "color_end": [
+            150,
+            8,
+            12,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 30",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "life": 3,
+          "delay": 28,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -1.0356051786404625,
+            0.05366095182322057,
+            -0.07701824354641658
+          ],
+          "velocity": [
+            9.409641030198461e-05,
+            1.0134544454468753e-05,
+            3.2297934562150615e-05
+          ],
+          "scale_start": [
+            -0.26498540552460936,
+            0.8125337015964477,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.4415450460384112,
+          "color_end": [
+            150,
+            8,
+            12,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 31",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "life": 3,
+          "delay": 30,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.28952568122266054,
+            0.03592846559286138,
+            0.05194768430320751
+          ],
+          "velocity": [
+            9.125185548972894e-05,
+            4.0900107449829245e-05,
+            -5.292261086238862e-07
+          ],
+          "scale_start": [
+            0.36757618177207696,
+            0.7399045638032652,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.2964681814339745,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 32",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            120,
+            100,
+            255
+          ],
+          "life": 3,
+          "delay": 30,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.054931100516312004,
+            0.0822729212266578,
+            0.008159172196315317
+          ],
+          "velocity": [
+            -9.88348552063322e-05,
+            9.427218311818943e-06,
+            1.1949851515590349e-05
+          ],
+          "scale_start": [
+            -0.34090855996002745,
+            0.8625863568865398,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.0742379996668956,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 33",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "life": 3,
+          "delay": 32,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.30976788151184276,
+            0.06492739638600689,
+            0.02938662563383146
+          ],
+          "velocity": [
+            8.77876337248427e-05,
+            4.7849851173247975e-05,
+            -1.9295356153437764e-06
+          ],
+          "scale_start": [
+            0.3691433198589814,
+            0.5608440799657394,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.3095276654915113,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 34",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            120,
+            100,
+            255
+          ],
+          "life": 3,
+          "delay": 32,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.2686457608363685,
+            0.06566312457173563,
+            -0.18095809608136212
+          ],
+          "velocity": [
+            -9.153766317026702e-05,
+            9.136324128602866e-06,
+            3.920948613210646e-05
+          ],
+          "scale_start": [
+            -0.32436290883847474,
+            0.8630935760963628,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.9363575736539558,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 35",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "life": 3,
+          "delay": 34,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.9519693445117445,
+            0.037310890301690984,
+            -0.0602238962982983
+          ],
+          "velocity": [
+            9.434528069871517e-05,
+            2.807816928694329e-05,
+            -1.762340544203645e-05
+          ],
+          "scale_start": [
+            0.27146043784425206,
+            0.5466511229625812,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.4955036487021003,
+          "color_end": [
+            150,
+            8,
+            12,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 36",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            120,
+            100,
+            255
+          ],
+          "life": 3,
+          "delay": 34,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.18047353120345344,
+            0.11846642653238831,
+            -0.18319551305531726
+          ],
+          "velocity": [
+            9.4766049267652e-05,
+            2.583152600924057e-05,
+            1.8765078476651302e-05
+          ],
+          "scale_start": [
+            -0.3311891459713455,
+            0.9388035658841671,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.9932428830945461,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 37",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "life": 3,
+          "delay": 36,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.5828460622187969,
+            0.10967612281026519,
+            -0.139652553409771
+          ],
+          "velocity": [
+            9.29145279323996e-05,
+            3.558166228854143e-05,
+            1.0041703435350189e-05
+          ],
+          "scale_start": [
+            0.30003772421531893,
+            0.617233275535379,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.7336477017943246,
+          "color_end": [
+            150,
+            8,
+            12,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 38",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            120,
+            100,
+            255
+          ],
+          "life": 3,
+          "delay": 36,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.3440746031782368,
+            0.056194175618359134,
+            0.0461844263265169
+          ],
+          "velocity": [
+            9.36533535327168e-05,
+            3.3379416995162636e-05,
+            1.0717457400848838e-05
+          ],
+          "scale_start": [
+            -0.3185232565281365,
+            0.6731059384408526,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.8876938044011375,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 39",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            120,
+            100,
+            255
+          ],
+          "life": 3,
+          "delay": 38,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.2462396729076125,
+            0.0481750515307982,
+            -0.1334300667252168
+          ],
+          "velocity": [
+            9.133798147956327e-05,
+            3.969915941827829e-05,
+            -9.019416872563602e-06
+          ],
+          "scale_start": [
+            0.3260975737103784,
+            0.5860353096293751,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.9508131142531533,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 40",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "life": 3,
+          "delay": 38,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.6473504063403892,
+            0.036682920467906846,
+            0.009780051485336033
+          ],
+          "velocity": [
+            9.31817637074116e-05,
+            3.628967569540041e-05,
+            4.672796793964814e-07
+          ],
+          "scale_start": [
+            -0.29504383950913116,
+            0.6478710174672822,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.6920319959094263,
+          "color_end": [
+            150,
+            8,
+            12,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 41",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            120,
+            100,
+            255
+          ],
+          "life": 3,
+          "delay": 40,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.47015768845698425,
+            0.07333309144382989,
+            0.10217757543527795
+          ],
+          "velocity": [
+            -9.278122203102152e-05,
+            2.17707273529289e-05,
+            -3.0293238007098567e-05
+          ],
+          "scale_start": [
+            0.3087619854097819,
+            0.5173947977648387,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.8063498784148488,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 42",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "life": 3,
+          "delay": 40,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.7959450159464463,
+            0.04361776219049903,
+            -0.05620615792622058
+          ],
+          "velocity": [
+            -9.86024716193582e-05,
+            1.6629219020470125e-05,
+            -1.0107746152806549e-06
+          ],
+          "scale_start": [
+            -0.2835397407009203,
+            0.8975650551043098,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.5961645058410023,
+          "color_end": [
+            150,
+            8,
+            12,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 43",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "life": 3,
+          "delay": 42,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.5915321003839008,
+            0.11532259331767583,
+            0.0006991417216434814
+          ],
+          "velocity": [
+            9.397040595605838e-05,
+            2.2735434819768965e-05,
+            2.55472661552978e-05
+          ],
+          "scale_start": [
+            0.29936525674447223,
+            0.6825923843340767,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.728043806203935,
+          "color_end": [
+            150,
+            8,
+            12,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 44",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            120,
+            100,
+            255
+          ],
+          "life": 3,
+          "delay": 42,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.09308850780589539,
+            0.0697959887543992,
+            -0.1685238649785415
+          ],
+          "velocity": [
+            -9.558909209036357e-05,
+            7.120724757690212e-06,
+            2.8495977826093517e-05
+          ],
+          "scale_start": [
+            -0.33795443810535003,
+            0.7046486158839946,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.0496203175445835,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 45",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "life": 3,
+          "delay": 44,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.7702817334464593,
+            0.04200220845238874,
+            0.04776868767838938
+          ],
+          "velocity": [
+            8.928824412219123e-05,
+            4.028724165773435e-05,
+            -2.011336921520848e-05
+          ],
+          "scale_start": [
+            0.28552657547511284,
+            0.707815380377607,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.612721462292607,
+          "color_end": [
+            150,
+            8,
+            12,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 46",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "life": 3,
+          "delay": 44,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.17713797296741252,
+            0.09061536890479596,
+            -0.07393498368079668
+          ],
+          "velocity": [
+            -9.485134057936087e-05,
+            3.143761713552867e-05,
+            -3.859976572209257e-06
+          ],
+          "scale_start": [
+            -0.3588751979071545,
+            0.736928147469659,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.223959982559621,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 47",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            120,
+            100,
+            255
+          ],
+          "life": 3,
+          "delay": 46,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.3428876536986083,
+            0.08972225772207752,
+            -0.131376680895057
+          ],
+          "velocity": [
+            9.131518976386336e-05,
+            1.8970638329262854e-05,
+            3.6078400737420836e-05
+          ],
+          "scale_start": [
+            0.3186151493910755,
+            0.8691982563655009,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.8884595782589624,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 48",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "life": 3,
+          "delay": 46,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.6097064232571656,
+            0.05512317544480258,
+            0.18867766783560164
+          ],
+          "velocity": [
+            8.943589731415318e-05,
+            1.675251129601119e-05,
+            -4.147979793693871e-05
+          ],
+          "scale_start": [
+            -0.29795821239299364,
+            0.812925093775128,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.7163184366082802,
+          "color_end": [
+            150,
+            8,
+            12,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 49",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "life": 3,
+          "delay": 48,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.40108985664637764,
+            0.0768220091428463,
+            0.15537663738923113
+          ],
+          "velocity": [
+            9.027531487355426e-05,
+            2.7662626291507137e-05,
+            -3.294156388420338e-05
+          ],
+          "scale_start": [
+            0.37621340825649374,
+            0.9391938320906196,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.3684450688041148,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 50",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            120,
+            100,
+            255
+          ],
+          "life": 3,
+          "delay": 48,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.41474679937956505,
+            0.03299761149866005,
+            -0.05828186495859433
+          ],
+          "velocity": [
+            -9.152396002883137e-05,
+            3.999733948736178e-05,
+            -4.855674471544369e-06
+          ],
+          "scale_start": [
+            -0.31305186069319496,
+            0.7781073694159881,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.842098839109958,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 51",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "life": 3,
+          "delay": 50,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.883362693277887,
+            0.03648553671554573,
+            0.047000245767059606
+          ],
+          "velocity": [
+            9.037042248902786e-05,
+            4.118498471218446e-05,
+            -1.1704006724696514e-05
+          ],
+          "scale_start": [
+            0.27677192052042165,
+            0.6804583901378471,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.539766004336847,
+          "color_end": [
+            150,
+            8,
+            12,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 52",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "life": 3,
+          "delay": 50,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.12927976919196582,
+            0.06955831435527543,
+            -0.01081600648351505
+          ],
+          "velocity": [
+            9.843696655885093e-05,
+            1.7344038336214244e-05,
+            3.057441558492087e-06
+          ],
+          "scale_start": [
+            -0.35517004664711993,
+            0.5608074175066564,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.193083722059333,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 53",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "life": 3,
+          "delay": 52,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.7303120976426675,
+            0.04074759365880945,
+            -0.02000560803294832
+          ],
+          "velocity": [
+            8.939947000580088e-05,
+            3.2664474129067066e-05,
+            3.06719235222282e-05
+          ],
+          "scale_start": [
+            0.2886209988921806,
+            0.5380891311509941,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.6385083241015048,
+          "color_end": [
+            150,
+            8,
+            12,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 54",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            120,
+            100,
+            255
+          ],
+          "life": 3,
+          "delay": 52,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.17414281121118724,
+            0.10746285087668551,
+            -0.09482583136931395
+          ],
+          "velocity": [
+            9.64635670596393e-05,
+            1.113877779550018e-05,
+            2.388949265582976e-05
+          ],
+          "scale_start": [
+            -0.33167926622881133,
+            0.8326773284321183,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.9973272185734277,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 55",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "life": 3,
+          "delay": 54,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.4094430060920098,
+            0.08319269154093509,
+            0.10265250835701012
+          ],
+          "velocity": [
+            9.432446829330396e-05,
+            1.13170395494184e-05,
+            -3.1222096294489865e-05
+          ],
+          "scale_start": [
+            0.37686010369744594,
+            0.5298002736208998,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.373834197478716,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 56",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            120,
+            100,
+            255
+          ],
+          "life": 3,
+          "delay": 54,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.28273896359545836,
+            0.10105065719301307,
+            0.07122010035375781
+          ],
+          "velocity": [
+            9.399106419174701e-05,
+            3.3295120376870146e-05,
+            -7.5574341672701245e-06
+          ],
+          "scale_start": [
+            -0.32327182217325484,
+            0.7747292946743635,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.9272651847771236,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 57",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "life": 3,
+          "delay": 56,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.6374706653776916,
+            0.09848463707968276,
+            0.14689319931902733
+          ],
+          "velocity": [
+            9.662986498910271e-05,
+            2.41814953379898e-05,
+            8.827484092682405e-06
+          ],
+          "scale_start": [
+            0.2958087226804368,
+            0.5383663297615324,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.698406022336973,
+          "color_end": [
+            150,
+            8,
+            12,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 58",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "life": 3,
+          "delay": 56,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.43207948187556733,
+            0.07830130496855278,
+            -0.15547286085905718
+          ],
+          "velocity": [
+            -9.883084695048785e-05,
+            4.830750595474381e-06,
+            1.4461242675979547e-05
+          ],
+          "scale_start": [
+            -0.37861260504843103,
+            0.8365595601483834,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.3884383754035916,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 59",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            120,
+            100,
+            255
+          ],
+          "life": 3,
+          "delay": 58,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.130419233906087,
+            0.1107889951602947,
+            -0.03446546637119252
+          ],
+          "velocity": [
+            -9.70731389984594e-05,
+            1.9275807049500018e-05,
+            -1.4326512052004362e-05
+          ],
+          "scale_start": [
+            0.33506431737501263,
+            0.8991995898652969,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.025535978125105,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 60",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            120,
+            100,
+            255
+          ],
+          "life": 3,
+          "delay": 58,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.3068284647658126,
+            0.07990240498237752,
+            0.17363508735593164
+          ],
+          "velocity": [
+            9.396321346132718e-05,
+            2.8865231582926994e-05,
+            -1.8376967151438707e-05
+          ],
+          "scale_start": [
+            -0.32140682853425967,
+            0.7415170087211282,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.9117235711188305,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 61",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "life": 3,
+          "delay": 60,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.565158631580725,
+            0.0458786042238673,
+            -0.02663261023545571
+          ],
+          "velocity": [
+            9.675348083645906e-05,
+            2.5244228569533686e-05,
+            -1.221830576672047e-06
+          ],
+          "scale_start": [
+            0.30140707368407293,
+            0.9264100750231639,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.7450589473672742,
+          "color_end": [
+            150,
+            8,
+            12,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 62",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            120,
+            100,
+            255
+          ],
+          "life": 3,
+          "delay": 60,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.4218243928490578,
+            0.11985154898133323,
+            0.0486672713684507
+          ],
+          "velocity": [
+            9.86726038775741e-05,
+            1.551878874173121e-05,
+            4.783768389968624e-06
+          ],
+          "scale_start": [
+            -0.31250391797297616,
+            0.6568811241380516,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.8375326497748015,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 63",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            120,
+            100,
+            255
+          ],
+          "life": 3,
+          "delay": 62,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.19630405821580943,
+            0.05037003753625001,
+            0.17592186167094848
+          ],
+          "velocity": [
+            9.219084804246002e-05,
+            3.257764050954834e-05,
+            -2.0965325564910236e-05
+          ],
+          "scale_start": [
+            0.3299635567832922,
+            0.5410397124521173,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.983029639860768,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 64",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "life": 3,
+          "delay": 62,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.015593385062697251,
+            0.043581182056301855,
+            0.15806809475594835
+          ],
+          "velocity": [
+            8.804924975650287e-05,
+            2.4222471404154684e-05,
+            -4.075047848052693e-05
+          ],
+          "scale_start": [
+            -0.34636852013388625,
+            0.6947811498586545,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.119737667782385,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 65",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            120,
+            100,
+            255
+          ],
+          "life": 3,
+          "delay": 64,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.17870659229780828,
+            0.058141825395336424,
+            0.1802318765446453
+          ],
+          "velocity": [
+            8.974450704518172e-05,
+            3.306722334839734e-05,
+            -2.9197297738738393e-05
+          ],
+          "scale_start": [
+            0.33132594124146003,
+            0.8919002304251409,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.9943828436788333,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 66",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "life": 3,
+          "delay": 64,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.1133604458341384,
+            0.05039701566230162,
+            -0.0010405068629162906
+          ],
+          "velocity": [
+            -9.831412681261307e-05,
+            1.7238959233585913e-05,
+            -6.095141804437293e-06
+          ],
+          "scale_start": [
+            -0.35393758290328814,
+            0.913599938460393,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.1828131908607347,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 67",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            120,
+            100,
+            255
+          ],
+          "life": 3,
+          "delay": 66,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.22522332431838965,
+            0.07773141530824709,
+            -0.15115465339463374
+          ],
+          "velocity": [
+            9.843593828884032e-05,
+            1.6615008448052353e-05,
+            -5.857264503739771e-06
+          ],
+          "scale_start": [
+            0.32772464585922145,
+            0.6763505617314786,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.9643720488268452,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 68",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            120,
+            100,
+            255
+          ],
+          "life": 3,
+          "delay": 66,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.21117765158743196,
+            0.11746831527123103,
+            0.11684681293648452
+          ],
+          "velocity": [
+            9.075855865845733e-05,
+            1.0123679621138302e-05,
+            -4.07479464656553e-05
+          ],
+          "scale_start": [
+            -0.3288120527803279,
+            0.6924327674205992,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.9734337731693987,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 69",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            120,
+            100,
+            255
+          ],
+          "life": 3,
+          "delay": 68,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.3321850239319277,
+            0.034813426156456856,
+            0.07300032917021387
+          ],
+          "velocity": [
+            8.384866569635355e-05,
+            5.05436866628956e-05,
+            -2.0365092670159255e-05
+          ],
+          "scale_start": [
+            0.3543953365374731,
+            0.6253119458807802,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.220701878553016,
+          "color_end": [
+            150,
+            8,
+            12,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 71",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            120,
+            100,
+            255
+          ],
+          "life": 3,
+          "delay": 70,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.21018831885577272,
+            0.05674440748614758,
+            -0.06422390314177595
+          ],
+          "velocity": [
+            9.312815583881949e-05,
+            3.607213518940982e-05,
+            5.093883875540801e-06
+          ],
+          "scale_start": [
+            0.3293064735307584,
+            0.815279202688182,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.0457020942378015,
+          "color_end": [
+            150,
+            8,
+            12,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 73",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            120,
+            100,
+            255
+          ],
+          "life": 3,
+          "delay": 72,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.5230086098151768,
+            0.039464288392615746,
+            -0.07310394422447636
+          ],
+          "velocity": [
+            9.251640267366693e-05,
+            2.126043742826983e-05,
+            3.1443743999125475e-05
+          ],
+          "scale_start": [
+            0.264047594352186,
+            0.5489301928328238,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.5359521751571052,
+          "color_end": [
+            150,
+            8,
+            12,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 75",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            120,
+            100,
+            255
+          ],
+          "life": 3,
+          "delay": 74,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.6215815609863395,
+            0.09701975055108059,
+            0.024823096736601657
+          ],
+          "velocity": [
+            9.423402289998676e-05,
+            2.468567058106039e-05,
+            2.259572074637454e-05
+          ],
+          "scale_start": [
+            0.24423194077735702,
+            0.6090542389861936,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.4048958027742715,
+          "color_end": [
+            150,
+            8,
+            12,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 77",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            120,
+            100,
+            255
+          ],
+          "life": 3,
+          "delay": 76,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.033276867408755795,
+            0.07942819933241083,
+            -0.19841773066033042
+          ],
+          "velocity": [
+            -9.51192906510987e-05,
+            2.271396150339307e-05,
+            2.089010528585684e-05
+          ],
+          "scale_start": [
+            0.2704625497221043,
+            0.3755275465102627,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.6575582847212396,
+          "color_end": [
+            150,
+            8,
+            12,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 79",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            120,
+            100,
+            255
+          ],
+          "life": 3,
+          "delay": 78,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.060669046239260505,
+            0.09138154569098333,
+            0.052316764902471224
+          ],
+          "velocity": [
+            -8.908080516590593e-05,
+            4.5156249833783204e-05,
+            5.052054230000095e-06
+          ],
+          "scale_start": [
+            0.2496738433963087,
+            0.5228123525991426,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.5183931394136831,
+          "color_end": [
+            150,
+            8,
+            12,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 81",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            120,
+            100,
+            255
+          ],
+          "life": 3,
+          "delay": 80,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -1.0172549669281494,
+            0.047071478475039646,
+            0.12987191085621486
+          ],
+          "velocity": [
+            -9.792270489692623e-05,
+            1.987640316741735e-05,
+            -4.009047617050567e-06
+          ],
+          "scale_start": [
+            0.1835241795416098,
+            0.38167146091201876,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.0012200146986003,
+          "color_end": [
+            150,
+            8,
+            12,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 83",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            120,
+            100,
+            255
+          ],
+          "life": 3,
+          "delay": 82,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.6604128424846618,
+            0.11562437991436003,
+            0.06465754970819482
+          ],
+          "velocity": [
+            9.531501348659288e-05,
+            6.874830775418196e-06,
+            2.9458189113724848e-05
+          ],
+          "scale_start": [
+            0.18948764599503046,
+            0.39370634975081614,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.08498964255118,
+          "color_end": [
+            150,
+            8,
+            12,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Crawl 85",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            120,
+            100,
+            255
+          ],
+          "life": 3,
+          "delay": 84,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            -0.5131269863344154,
+            0.11487518895126761,
+            -0.028049770849745803
+          ],
+          "velocity": [
+            8.79092164351961e-05,
+            4.19531927993352e-05,
+            2.2625191263095596e-05
+          ],
+          "scale_start": [
+            0.1832611980541433,
+            0.3506114504027152,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.067176650451194,
+          "color_end": [
+            150,
+            8,
+            12,
+            255
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Scorch streak",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+          "color": [
+            255,
+            40,
+            28,
+            220
+          ],
+          "billboard": "Billboard",
+          "scale_start": [
+            1.2,
+            0.34,
+            1
+          ],
+          "position": [
+            0,
+            0.07,
+            0
+          ],
+          "count": 18,
+          "interval": 4,
+          "life": 28,
+          "fade_in": 0,
+          "fade_out": 12,
+          "emissive": 1.8,
+          "color_curve": {
+            "R": [
+              [
+                0,
+                255
+              ],
+              [
+                30,
+                210
+              ],
+              [
+                70,
+                150
+              ],
+              [
+                100,
+                70
+              ]
+            ],
+            "G": [
+              [
+                0,
+                40
+              ],
+              [
+                30,
+                20
+              ],
+              [
+                70,
+                8
+              ],
+              [
+                100,
+                6
+              ]
+            ],
+            "B": [
+              [
+                0,
+                28
+              ],
+              [
+                30,
+                14
+              ],
+              [
+                70,
+                12
+              ],
+              [
+                100,
+                10
+              ]
+            ],
+            "A": [
+              [
+                0,
+                220
+              ],
+              [
+                30,
+                200
+              ],
+              [
+                70,
+                150
+              ],
+              [
+                100,
+                0
+              ]
+            ]
+          },
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Final strike",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ArcStrand01.png",
+          "color": [
+            255,
+            236,
+            228,
+            255
+          ],
+          "life": 3,
+          "delay": 84,
+          "billboard": "DirectionalBillboard",
+          "pivot": "bottom",
+          "position": [
+            0.4,
+            0.03,
+            0
+          ],
+          "velocity": [
+            2.0139461803376404e-05,
+            9.795101877096708e-05,
+            0.0
+          ],
+          "scale_start": [
+            0.55,
+            1.0923827168167757,
+            1
+          ],
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 2.4,
+          "color_end": [
+            255,
+            40,
+            28,
+            255
+          ],
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Final patch",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+          "color": [
+            255,
+            40,
+            28,
+            200
+          ],
+          "life": 12,
+          "delay": 84,
+          "size": 1.4,
+          "size_curve": [
+            [
+              0,
+              0.25
+            ],
+            [
+              18,
+              1
+            ],
+            [
+              100,
+              1.25
+            ]
+          ],
+          "billboard": "Billboard",
+          "fade_in": 0,
+          "fade_out": 9.600000000000001,
+          "position": [
+            0.3,
+            0.15,
+            0
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Final scorch",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Crack01.png",
+          "color": [
+            255,
+            60,
+            40,
+            255
+          ],
+          "life": 12,
+          "delay": 84,
+          "size": 1.4,
+          "billboard": "Fixed",
+          "rotation": [
+            -90,
+            0,
+            0
+          ],
+          "spin": [
+            0,
+            0,
+            0
+          ],
+          "position": [
+            0.3,
+            0.05,
+            0
+          ],
+          "z_test": true,
+          "fade_in": 0,
+          "fade_out": 8,
+          "emissive": 1.8,
+          "color_curve": {
+            "R": [
+              [
+                0,
+                255
+              ],
+              [
+                50,
+                150
+              ],
+              [
+                100,
+                70
+              ]
+            ],
+            "G": [
+              [
+                0,
+                60
+              ],
+              [
+                50,
+                8
+              ],
+              [
+                100,
+                6
+              ]
+            ],
+            "B": [
+              [
+                0,
+                40
+              ],
+              [
+                50,
+                12
+              ],
+              [
+                100,
+                10
+              ]
+            ],
+            "A": [
+              [
+                0,
+                255
+              ],
+              [
+                50,
+                255
+              ],
+              [
+                100,
+                0
+              ]
+            ]
+          },
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Final embers",
+          "renderer": "None",
+          "life": 96,
+          "position": [
+            0.3,
+            0.2,
+            0
+          ],
+          "children": [
+            {
+              "name": "Final embers",
+              "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+              "color": [
+                255,
+                110,
+                80,
+                255
+              ],
+              "color_end": [
+                150,
+                8,
+                12,
+                0
+              ],
+              "count": 8,
+              "life": [
+                9,
+                12
+              ],
+              "delay": 84,
+              "interval": 0,
+              "billboard": "Billboard",
+              "spawn": {
+                "shape": "Sphere",
+                "radius": [
+                  0,
+                  0.3
+                ],
+                "rot_x": [
+                  0,
+                  90
+                ]
+              },
+              "travel": {
+                "end": [
+                  0,
+                  [
+                    0.3,
+                    0.7
+                  ],
+                  0
+                ],
+                "easing": "EaseOutCubic"
+              },
+              "size": [
+                0.06,
+                0.1
+              ],
+              "size_end": 0,
+              "easing": "EaseInCubic",
+              "forces": [
+                {
+                  "type": "Turbulence",
+                  "power": 0.003,
+                  "scale": 5
+                },
+                {
+                  "type": "Gravity",
+                  "gravity": [
+                    0,
+                    0.001,
+                    0
+                  ]
+                }
+              ],
+              "fade_in": 1,
+              "fade_out": 6,
+              "emissive": 1.5,
+              "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+            }
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Wake embers",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+          "color": [
+            255,
+            96,
+            66,
+            255
+          ],
+          "color_end": [
+            150,
+            8,
+            12,
+            0
+          ],
+          "count": 24,
+          "life": [
+            18,
+            24
+          ],
+          "delay": 0,
+          "interval": 3,
+          "billboard": "Billboard",
+          "spawn": {
+            "shape": "Sphere",
+            "radius": [
+              0,
+              0.1
+            ],
+            "rotate": false
+          },
+          "travel": {
+            "end": [
+              [
+                -0.9,
+                -0.2
+              ],
+              [
+                0.1,
+                0.55
+              ],
+              [
+                -0.2,
+                0.2
+              ]
+            ],
+            "easing": "EaseOutCubic"
+          },
+          "size": [
+            0.06,
+            0.11
+          ],
+          "size_end": 0,
+          "easing": "EaseInCubic",
+          "forces": [
+            {
+              "type": "Turbulence",
+              "power": 0.001,
+              "scale": 5
+            }
+          ],
+          "fade_in": 1,
+          "fade_out": 6,
+          "emissive": 1.5,
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Wake dust",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_SmokeSheet01.png",
+          "color": [
+            150,
+            128,
+            126,
+            150
+          ],
+          "color_end": [
+            150,
+            128,
+            126,
+            0
+          ],
+          "count": 7,
+          "life": [
+            26,
+            28
+          ],
+          "delay": 2,
+          "interval": 10,
+          "blend": "Blend",
+          "billboard": "RotatedBillboard",
+          "spawn": {
+            "shape": "Sphere",
+            "radius": [
+              0,
+              0.15
+            ]
+          },
+          "velocity": [
+            0,
+            [
+              0.005,
+              0.02
+            ],
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            [
+              -180,
+              180
+            ]
+          ],
+          "spin": [
+            0,
+            0,
+            [
+              -0.6,
+              0.6
+            ]
+          ],
+          "size": [
+            0.4,
+            0.6
+          ],
+          "size_end": [
+            0.76,
+            1.14
+          ],
+          "easing": "EaseOutCubic",
+          "forces": [
+            {
+              "type": "Gravity",
+              "gravity": [
+                0,
+                0.0004,
+                0
+              ]
+            }
+          ],
+          "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseTile01.png",
+          "fade_in": 2,
+          "fade_out": 10,
+          "flipbook": {
+            "x": 4,
+            "y": 4,
+            "frame_length": 2,
+            "loop": "Once"
+          },
+          "cutoff": {
+            "start": 0,
+            "end": 0.3,
+            "easing": "EaseInCubic"
+          },
+          "position": [
+            -0.2,
+            0.12,
+            0
+          ],
+          "inherit": {
+            "location": "WhenCreating",
+            "rotation": "WhenCreating",
+            "scale": "WhenCreating"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Alpha.vfxmat.json"
+        }
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    }
+  ],
+  "design": "A red lightning wave tears out of the floor in a flare and races along the ground toward the target: short white-cored bolts rear up and lean forward at its front while arcs re-strike on the floor behind it and a scorched streak cools to deep red in its wake, with sparks, embers and dust shed behind, until it thins out and dies.",
+  "delivery": {
+    "kind": "self"
+  }
+}

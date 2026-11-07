@@ -408,6 +408,7 @@ class AIController {
     if (!chance(a.chance * (this.phaseData && this.phaseData.aggressive ? 1.3 : 1))) return false;
     this.cds[a.id] = a.cd * (this.phaseData && this.phaseData.berserk ? 0.7 : 1);
     a.run(this.f, this.world, this, p);
+    if (this.world.storm) StormDirector.ability(this.world, this.f, a);   // cosmetic: the sky answers the wind-up
     return true;
   }
 }
@@ -645,6 +646,7 @@ const BOSS_ABILITIES = {
             if (shock > 0) WeaponSystem.spawn(w, 'shock', f, { x: gx, lifeMul: o.shockLife || 0.6, dmgMul: shock });
             for (let i = 0; i < (o.dmg && o.dmg < 1 ? 2 : 3); i++) w.fx.lightning(gx, 0, gx + rand(-90, 90), -rand(60, 150), { w: 2.2, branches: 2, dur: 0.14, color: o.tint });
             w.fx.groundShards(gx, 7, 1.1); w.fx.dust(gx, 0, 18); w.fx.shake(0.7); AudioManager.play('slam');
+            StormDirector.groundStrike(w, gx, o.dmg && o.dmg < 1 ? 0.9 : 1.35, o.tint);   // the sky strikes where the blade does
           }
           if (!this.tell && t > W + 0.3) { this.tell = 1; w.fx.popText(f, 'OPENING', C.gold); }
         },
@@ -674,7 +676,7 @@ const BOSS_ABILITIES = {
           if (k > P2 + 0.2) f.vx = damp(f.vx, 0, 14, dt);
         },
         // Combat.applyHit calls this when a blow lands on the guard: switch to the punish
-        onCounter(f) { f.counterStance = false; this.charge = false; this.punish = this.t; this.dur = this.t + P2 + 0.55; f.telegraph = P2; },
+        onCounter(f) { f.counterStance = false; this.charge = false; this.punish = this.t; this.dur = this.t + P2 + 0.55; f.telegraph = P2; if (f._redlineFx) { f._redlineFx.stop = true; f._redlineFx = null; } },
         end(f) { f.counterStance = false; f.redline = false; } });
     } },
   /* ---- Takashi, the Master's Flow (Act III boss). Numbers come from TAKASHI_MOVES (10-data.js); `o` (optional)
@@ -1072,6 +1074,7 @@ function raikonRelease(f, w, o) {
   if (o.wave !== false) WeaponSystem.spawn(w, 'thunderwave', f, { x: f.x + f.facing * 110 * f.scale, tint: o.tint, dmgMul: o.tint ? o.dmg || 1 : 1 });
   w.fx.lightning(f.sk.wt.x, f.sk.wt.y, f.x + f.facing * 120 * f.scale, o.wave === false ? f.sk.wt.y + 60 : 0, { w: o.wave === false ? 1.8 : 2.6, branches: o.wave === false ? 2 : 4, dur: 0.16, color: o.tint });
   w.fx.shake(o.wave === false ? 0.25 : 0.45); w.fx.dust(f.x + f.facing * 80, 0, 10);
+  if (o.wave !== false) StormDirector.groundStrike(w, f.x + f.facing * 110 * f.scale, 1.15, o.tint);   // the wave's source
 }
 /* ---- Akari's poses and helpers (the player's Smoke Step rage art, 30-combat.js, uses them too) ---- */
 const AKARI_VIOLET = '#b48ae6';

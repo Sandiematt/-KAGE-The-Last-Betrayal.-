@@ -8,7 +8,7 @@ const { loadLogic } = require('./helpers/load-logic');
 const { Logic, WEAPONS, HELMETS, ARMORS, CAMPAIGN } = loadLogic();
 const KINDS = ['weapons', 'helmets', 'armors'];
 
-test('a new save owns and wears Kagetsu, the White Face-Wrap and the Tachibana Yoroi', () => {
+test('a new save owns and wears Kagetsu, the Crimson Scarf and the Tachibana Yoroi', () => {
   const s = Logic.defaultSave();
   assert.deepEqual(s.equipped, { weapon: 'kagetsu', helmet: 'shiro_maki', armor: 'tachibana_yoroi' });
   assert.equal(s.owned.weapons.kagetsu, 1);
@@ -16,7 +16,7 @@ test('a new save owns and wears Kagetsu, the White Face-Wrap and the Tachibana Y
   assert.equal(s.owned.armors.tachibana_yoroi, 1);
   assert.equal(WEAPONS.kagetsu.name, 'Kagetsu');
   assert.equal(ARMORS.tachibana_yoroi.name, 'Tachibana Yoroi');
-  assert.equal(HELMETS.shiro_maki.name, 'White Face-Wrap');
+  assert.equal(HELMETS.shiro_maki.name, 'Crimson Scarf');
 });
 
 test('upgrading Kagetsu raises its effective stats level by level', () => {
@@ -72,7 +72,7 @@ test('armour and helmets add defence and health that grow with each upgrade', ()
 test('better gear noticeably raises Kage\'s health, defence and damage', () => {
   const s = Logic.defaultSave();
   const start = Logic.playerCombatStats(s);
-  assert.equal(start.hp, 232, '220 base + 8 from the Tachibana Yoroi + 4 from the face-wrap');
+  assert.equal(start.hp, 232, '220 base + 8 from the Tachibana Yoroi + 4 from the Crimson Scarf');
   assert.ok(Math.abs(start.defense - 0.03) < 1e-9);
   assert.equal(start.weaponDmg, 1);
   s.owned.armors.kurogane_do = 5; s.owned.helmets.shika_kabuto = 5; s.owned.weapons.iwakudaki = 8;

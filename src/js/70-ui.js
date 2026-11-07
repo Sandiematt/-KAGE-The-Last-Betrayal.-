@@ -62,6 +62,30 @@ function drawPortrait(cv, f, enemy) {
   g.restore();
 }
 function gearName(kind, id) { return gearTable(kind)[id].name; }
+// Front-view key art of the story bosses for the HUD boss card (src/img/boss_*.webp, inlined by the build). The
+// Witness's is cut from its character sheet; Raikon's, Akari's and Takashi's were painted to match it.
+const BOSS_ART = {
+  raikon: '__IMG(boss_raikon.webp)__', akari: '__IMG(boss_akari.webp)__',
+  takashi: '__IMG(boss_takashi.webp)__', witness: '__IMG(boss_witness.webp)__'
+};
+// The art for a boss definition: its own, or its original's for a Core echo (`echoOf`); null when it has none. An
+// image missing from src/img stays an unreplaced __IMG token in the build, which counts as no art.
+const hasBossArt = id => typeof BOSS_ART[id] === 'string' && BOSS_ART[id].startsWith('data:');
+function bossArtFor(def) {
+  if (!def) return null;
+  const id = hasBossArt(def.id) ? def.id : def.echoOf && hasBossArt(def.echoOf) ? def.echoOf : null;
+  return id ? { id, src: BOSS_ART[id], echo: id !== def.id } : null;
+}
+// The animated portrait card's markup (styles: .bb-art in styles.css). The HUD builds it once and fills it per foe
+// (UIManager.hud.bossArt); the campaign's stage card shows it filled for a boss stage (`cls` places and sizes it).
+function bossArtHTML(art, def, cls) {
+  const acc = art ? (art.echo ? '#9b8cff' : (def && def.accent) || '#c8232f') : '#c8232f';
+  return `<div class="bb-art ${cls || ''} ${art ? '' : 'gone'} ${art && art.echo ? 'echo' : ''}" ${art ? `data-who="${art.id}" style="--bb-acc:${acc}"` : ''} aria-hidden="true">
+    <div class="bba-card"><i class="bba-aura"></i><img class="bba-img" alt="" draggable="false" ${art ? `src="${art.src}"` : ''}><i class="bba-shine"></i>
+      <span class="bba-motes"><i></i><i></i><i></i><i></i><i></i><i></i></span></div>
+    <i class="bba-hit"></i><i class="bba-frame"></i>
+  </div>`;
+}
 
 const MENU_IC = {
   rush: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18l3-9 5 5 5-5 3 9z"/><path d="M4 21h16"/><circle cx="7" cy="6" r="1.3" fill="currentColor"/><circle cx="12" cy="4.5" r="1.3" fill="currentColor"/><circle cx="17" cy="6" r="1.3" fill="currentColor"/></svg>',
@@ -384,6 +408,8 @@ const UIManager = {
     const dl = combat ? clamp(ch.diff + save.ng + (foe.type === 'boss' ? 1 : foe.type === 'sub' ? 0.5 : 0), 0, 4) | 0 : 0;
     const prog = Logic.chapterProgress(save, ch.id);
     const action = !unlocked ? 'Locked' : combat ? (selDone ? 'Replay' : 'Fight') : (selDone ? 'Replay scene' : 'Play scene');
+    // a main boss (or a Core echo of one) with key art shows its portrait over the stage card; a silhouette while locked
+    const art = combat && (sel.kind === 'boss' || sel.kind === 'echo') ? bossArtFor(foe) : null;
     el.innerHTML = `
       ${this.mapSVG('plain')}
       <div class="topbar">
@@ -415,6 +441,7 @@ const UIManager = {
           </div>
         </section>
         <div class="stage-card" key="${sel.id}">
+          ${art ? bossArtHTML(art, foe, 'sc-art' + (unlocked ? '' : ' locked')) : ''}
           <div><div class="eyebrow">${esc(ch.name)} · ${KIND[sel.kind]}</div>
             <div class="name disp">${esc(sel.name)}</div>
             <div class="foe">${combat ? `${esc(cfg.foeName)}${cfg.foeTitle ? `, ${esc(cfg.foeTitle)}` : ''}` : 'No combat · the story continues'}</div></div>
@@ -536,7 +563,7 @@ const UIManager = {
     if (kind === 'helmets') {
       const { g, w, h } = prepCanvas(cv);
       const r = h * 0.2;
-      g.save(); g.translate(w / 2, h * 0.62); g.fillStyle = owned ? '#2a2620' : '#1a1814'; g.beginPath(); g.arc(0, 0, r, 0, TAU); g.fill();
+      g.save(); g.translate(w / 2, h * 0.62); drawAnimeHead(g, r, owned ? '#2a2620' : '#1a1814');
       drawHelmet(g, gearLook('helmets', id), r, owned ? '#2a2620' : '#1a1814', {}, f);
       g.restore();
     } else drawFighterInto(cv, f, { fit: 1.2, tall: 1.05, color: owned ? null : '#1a1814', rim: owned ? 'rgba(236,229,211,0.25)' : null, ground: 1.15 });
@@ -669,6 +696,7 @@ const UIManager = {
         </div>
       </div>
       <div class="boss-bar ${bossy ? '' : 'gone'}" data-boss>
+        ${bossArtHTML(null, null, '').replace('class="bb-art', 'data-bart class="bb-art')}
         <div class="bb-top"><span class="bb-phases" data-phases></span><span class="bb-title" data-btitle></span></div>
         <b class="bb-name" data-bname></b>
         <div class="bb-track"><i class="hb-chip"></i><i class="hb-fill"></i><i class="hb-gloss"></i><span data-bdivs></span></div>
@@ -678,7 +706,7 @@ const UIManager = {
       <button class="hud-btn hud-pause" data-a="pause" aria-label="Pause">${ICON.pause}</button>
       <div class="hud-wave" data-wave></div>
       <div class="combo" data-combo><b>0</b><span>Hits</span></div>
-      <div class="dialogue" data-dlg><div class="who"></div><div class="line"></div></div>
+      <div class="dialogue" data-dlg><div class="who"></div><div class="line"></div><img class="dlg-face" alt="" draggable="false"></div>
       <div class="skip-hint" data-skip>Press J or tap to skip</div>`;
     this.hud.reset();
     this.updateTouch();
@@ -694,7 +722,7 @@ const UIManager = {
       this.el = {
         pp: $('[data-pp]', r), ep: $('[data-ep]', r), boss: $('[data-boss]', r),
         php: $('[data-php]', r), ehp: $('[data-ehp]', r), rage: $('[data-rage]', r), rageFill: $('.rb-fill', r), kunai: $('[data-kunai]', r),
-        ename: $('[data-ename]', r), etitle: $('[data-etitle]', r), bname: $('[data-bname]', r), btitle: $('[data-btitle]', r), bdivs: $('[data-bdivs]', r),
+        ename: $('[data-ename]', r), etitle: $('[data-etitle]', r), bname: $('[data-bname]', r), btitle: $('[data-btitle]', r), bdivs: $('[data-bdivs]', r), bart: $('[data-bart]', r),
         road: $('[data-road]', r), rdFill: $('.rd-fill', r), rdKage: $('.rd-kage', r), rdMarks: $('[data-rdmarks]', r), rdInfo: $('[data-rdinfo]', r),
         phases: $('[data-phases]', r), timer: $('[data-timer]', r), pips: $('[data-pips]', r), combo: $('[data-combo]', r), dlg: $('[data-dlg]', r), skip: $('[data-skip]', r), wave: $('[data-wave]', r),
         pBar: bar($('[data-pp] .hbar-in', r)), eBar: bar($('[data-ep] .hbar-in', r)), bBar: bar($('[data-boss] .bb-track', r))
@@ -702,6 +730,17 @@ const UIManager = {
       return this.el;
     },
     set(k, v, fn) { if (this.cache[k] !== v) { this.cache[k] = v; fn(v); } },
+    // the boss bar's portrait card: the boss's front-view key art (BOSS_ART), tinted in its accent; a Core echo
+    // (`echoOf`) shows its original's art as a violet, glitching memory. Bosses without art have no card.
+    bossArt(e, en) {
+      const a = e.bart; if (!a) return;
+      const art = en && bossArtFor(en.def);
+      a.classList.toggle('gone', !art); e.boss.classList.toggle('has-art', !!art);
+      if (!art) return;
+      const img = $('.bba-img', a); if (img.getAttribute('src') !== art.src) img.setAttribute('src', art.src);
+      a.dataset.who = art.id; a.classList.toggle('echo', art.echo); a.classList.remove('low', 'phase');
+      a.style.setProperty('--bb-acc', art.echo ? '#9b8cff' : (en.def.accent || '#c8232f'));
+    },
     portraits(s) {
       const pc = $('#scr-hud canvas[data-portrait="p"]'), ec = $('#scr-hud canvas[data-portrait="e"]');
       if (pc) drawPortrait(pc, s.player, false);
@@ -748,7 +787,14 @@ const UIManager = {
         : s.mode === 'bossrush' ? `<span>Boss Rush</span><span>${esc(s.rushLabel())}</span><span class="muted">Best ${SaveManager.data.bossRushBest.bosses}</span>` : ''; });
       this.set('combo', s.combo >= 2 ? s.combo : 0, v => { e.combo.classList.toggle('on', v >= 2); if (v >= 2) { e.combo.firstChild.textContent = v; e.combo.classList.remove('bump'); void e.combo.offsetWidth; e.combo.classList.add('bump'); } });
       const dl = s.dialogue;
-      this.set('dlg', dl ? dl.text : '', () => { e.dlg.classList.toggle('on', !!dl); if (dl) { e.dlg.children[0].textContent = `${dl.name} · ${dl.title}`; e.dlg.children[1].textContent = dl.text; } });
+      this.set('dlg', dl ? dl.text : '', () => {
+        e.dlg.classList.toggle('on', !!dl);
+        if (!dl) return;
+        e.dlg.children[0].textContent = `${dl.name} · ${dl.title}`; e.dlg.children[1].textContent = dl.text;
+        // a boss (or its Core echo) speaks with its painted face
+        const d = dl.id && ENEMIES[dl.id], img = speakerFace(dl.id) || (d && d.echoOf ? speakerFace(d.echoOf) : null), fc = e.dlg.children[2];
+        e.dlg.classList.toggle('has-face', !!img); if (img) { fc.src = img.src; fc.classList.toggle('echo', !speakerFace(dl.id)); }
+      });
       this.set('skip', s.phase === 'intro' || s.phase === 'outro', v => e.skip.style.display = v ? 'block' : 'none');
     },
     // arena: the opponent's panel or boss bar, its phases, the round clock and pips
@@ -761,11 +807,16 @@ const UIManager = {
         e.bdivs.innerHTML = en.ai && en.ai.phases ? Logic.bossPhases(en.def.id).slice(1).map(p => `<i class="bb-div" style="left:${(p.at * 100).toFixed(1)}%"></i>`).join('') : '';
         this.bars.e = { v: 1, chip: 1, delay: 0, target: clamp(en.hp / en.maxHp, 0, 1) };
         const ec = $('#scr-hud canvas[data-portrait="e"]'); if (ec && ec.clientWidth) drawPortrait(ec, en, true);
+        this.bossArt(e, bossy ? en : null);
       });
       this.animBar(this.bars.e, clamp(en.hp / en.maxHp, 0, 1), dt, bossy ? e.bBar : e.eBar, 'e');
       this.set('ehpv', Math.ceil(Math.max(0, en.hp)), v => e.ehp.textContent = v);
+      this.set('blow', bossy && en.hp < en.maxHp * 0.25, v => e.bart.classList.toggle('low', v));
       const ph = en.ai && en.ai.phases ? en.ai.phase : -1;
-      this.set('phase', ph + ':' + en.uid, () => { e.phases.innerHTML = ph < 0 ? '' : Logic.bossPhases(en.def.id).map((_, i) => i).map(i => `<i class="${i < ph ? 'done' : i === ph ? 'on' : ''}"></i>`).join('') + `<em>Phase ${ROMAN[ph]}</em>`; });
+      // a new phase (not the first) shakes the portrait with a glitch
+      const pk = ph + ':' + en.uid;
+      if (this.cache.phase !== pk && ph > 0 && this.cache.phase && this.cache.phase.endsWith(':' + en.uid)) { const a = e.bart; a.classList.remove('phase'); void a.offsetWidth; a.classList.add('phase'); }
+      this.set('phase', pk, () => { e.phases.innerHTML = ph < 0 ? '' : Logic.bossPhases(en.def.id).map((_, i) => i).map(i => `<i class="${i < ph ? 'done' : i === ph ? 'on' : ''}"></i>`).join('') + `<em>Phase ${ROMAN[ph]}</em>`; });
       this.set('timer', Math.max(0, Math.ceil(s.timer)), v => { e.timer.textContent = v; e.timer.classList.toggle('urgent', v <= 10); });
       // Echo Trials changes format per wave: a boss echo has no clock (Logic.fightFormat)
       if (!s.isStretch) this.set('clock', !!(s.format && s.format.timer), v => { const c = e.timer.closest('.clock'); if (c) c.classList.toggle('gone', !v); });
@@ -793,9 +844,10 @@ const UIManager = {
     const player = makePlayerFighter(save, {});
     const foe = makeFighterFromEnemy(r.enemyId, {});
     const env = r.mode === 'trials' ? 'core' : r.env;
+    // a win: Kage stands in victory and the beaten foe kneels before him (a standing 'dead' pose read as arms raised)
     if (r.win) {
       player.x = -170; poseFighter(player, 'victory', 50);
-      foe.x = -400; foe.facing = 1; poseFighter(foe, 'dead', 50);
+      foe.x = -400; foe.facing = 1; poseFighter(foe, 'kneel', 50);
       Game.setTableau(env, { fighters: [foe, player], zoom: 1.2, ground: 610, camEase: 0.04, tint: 'rgba(20,14,6,0.35)', sun: { x: 470, y: 270, r: 130, c: 'rgba(201,164,92,0.75)' }, lights: [{ x: 470, y: 330, r: 520, c: 'rgba(201,164,92,0.2)' }] });
     } else {
       player.x = -400; poseFighter(player, 'kneel', 50);
@@ -972,7 +1024,7 @@ const UIManager = {
   showBossRushResult(r) {
     const save = SaveManager.data, el = $('#scr-result');
     const player = makePlayerFighter(save, {}), foe = makeFighterFromEnemy(r.lastEnemyId, {});
-    if (r.cleared) { player.x = -170; poseFighter(player, 'victory', 50); foe.x = -400; foe.facing = 1; poseFighter(foe, 'dead', 50); }
+    if (r.cleared) { player.x = -170; poseFighter(player, 'victory', 50); foe.x = -400; foe.facing = 1; poseFighter(foe, 'kneel', 50); }
     else { player.x = -400; poseFighter(player, 'kneel', 50); foe.x = -120; foe.facing = -1; foe.scale *= 1.3; poseFighter(foe, 'taunt', 50); }
     Game.setTableau(r.env, { fighters: [foe, player], zoom: 1.2, ground: 610, camEase: 0.04, tint: r.cleared ? 'rgba(20,14,6,0.35)' : 'rgba(30,6,4,0.45)', lights: [{ x: 470, y: 330, r: 520, c: r.cleared ? 'rgba(201,164,92,0.2)' : 'rgba(163,48,42,0.35)' }] });
     const title = r.newBest ? 'New Record' : r.cleared ? 'Rush Complete' : 'Fallen';
