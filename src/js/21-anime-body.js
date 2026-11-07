@@ -68,6 +68,7 @@ function animeCloths(f) {
   if (sk.order) orderCloths(f, sk);   // the Order's hood tails and hat cords (22-anime-order.js)
   if (sk.hollow) hollowCloths(f, sk);   // the Hollows' torn robes, cape and hood tails (23-anime-hollow.js)
   subCloths(f, sk);   // the sub-bosses' robes, capes, hood tails and cords, by look (24-anime-subs-a.js)
+  subBCloths(f, sk);   // the later sub-bosses' haori skirts, capes, band tails and hair (25-anime-subs-b.js)
 }
 
 /* ---- palette ---- */
@@ -349,6 +350,7 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   if (skin.coat) this.drawCoatPanel(ctx, 'back', A, skin, U);
   if (hol) { this.hollowRobe(ctx, A, skin, U, 'cape'); this.hollowRobe(ctx, A, skin, U, 'back'); }   // 23-anime-hollow.js
   subLayer(this, ctx, A, skin, U, 'back');   // capes, banners, robes behind the body (24-anime-subs-a.js)
+  subBLayer(this, ctx, A, skin, U, 'back');   // 25-anime-subs-b.js
   // --- 2. the far arm: sleeve, cuff, hand (then any off-hand weapon)
   this.animeArm(ctx, sk.shB, sk.bel, sk.bha, A, skin, U * slv, true);
   this.drawOffhand(ctx, front, flat ? Object.assign({}, opt, { color: front }) : opt);
@@ -362,6 +364,7 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   this.animeLeg(ctx, sk.hipF, sk.fkn, sk.fft, A, skin, U, false);
   if (ord) this.orderKusazuri(ctx, S, A, U, 'front');
   subLayer(this, ctx, A, skin, U, 'front');
+  subBLayer(this, ctx, A, skin, U, 'front');
   if (skin.coat) this.drawCoatPanel(ctx, 'flap', A, skin, U);
   if (hol) this.hollowRobe(ctx, A, skin, U, 'flap');
   // --- 6. sash / obi and the saya at the hip
@@ -371,6 +374,7 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   else if (hol) this.hollowSash(ctx, S, A, U, skin.sash);
   if (hol && hol.mantle) this.hollowMantle(ctx, S, A, U, hol.mantle);
   subLayer(this, ctx, A, skin, U, 'waist');
+  subBLayer(this, ctx, A, skin, U, 'waist');
   if (this.outfit === 'gi' && !flat && skin.sash !== 'kage' && !skin.noGiSash) this.drawSash(ctx, T);
   if (skin.saya && this.hasWeapon) this.animeSaya(ctx, S, A, U);
   // --- 7. neck, collar and scarf wrap
@@ -415,7 +419,7 @@ Fighter.prototype.animeArm = function (ctx, sh, el, ha, A, skin, U, far, noHand)
   } });
   // the Order's sode over the upper sleeve (22-anime-order.js)
   if (skin.order && skin.order.sode) this.orderSode(ctx, sh, el, A, U / (skin.sleeve || 1), far, skin.order.sode);
-  else subSode(this, ctx, sh, el, A, U / (skin.sleeve || 1), far);   // 24-anime-subs-a.js
+  else { subSode(this, ctx, sh, el, A, U / (skin.sleeve || 1), far); subBSode(this, ctx, sh, el, A, U / (skin.sleeve || 1), far); }   // 24- / 25-anime-subs-*.js
   // the kote: a dark lacquered forearm guard from under the sleeve to the wrist, two dark straps with crimson cord
   const hol = skin.hollow, bare = hol && hol.bare;
   if (skin.kote === 'wrap') this.hollowWrap(ctx, at(bare ? 0.02 : 0.3, 0), at(bare ? 0.92 : 0.9, 0), (bare ? 5.4 : 4.4) * U, (bare ? 4.6 : 3.6) * U, A, U, far);

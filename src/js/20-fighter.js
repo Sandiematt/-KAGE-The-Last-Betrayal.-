@@ -198,10 +198,9 @@ class Fighter {
       this.cloths.push({ kind: 'scarf', c: new Cloth(9, 7 * this.scale, { ph: 0, wind: 560 }), at: 'neck', color: C.emberBright, w: 5.5 * this.scale });
       this.cloths.push({ kind: 'scarf', c: new Cloth(8, 6.5 * this.scale, { ph: 2, wind: 480 }), at: 'neck', color: C.emberBright, w: 3.6 * this.scale, dy: 4 });
     }
-    const cape = { cloak: [C.ink, '#9b8cff'], tyrant: ['#050404', C.emberBright] }[this.armor];   // shadow_cloak, mist_shroud, robe: 24-anime-subs-a.js
-    if (cape) this.cloths.push({ kind: 'cape', c: new Cloth(9, 11 * this.scale, { ph: 1, wind: 380, grav: 900 }), at: 'sh', color: cape[0], edge: cape[1], w0: 14 * this.scale, w1: 30 * this.scale });
-    if (this.armor === 'storm_mantle' || this.helmet === 'storm_band') {
-      this.cloths.push({ kind: 'ribbon', c: new Cloth(10, 8 * this.scale, { ph: 4, wind: 700 }), at: this.helmet === 'storm_band' ? 'head' : 'sh', color: '#7fb8ff', w: 3 * this.scale });
+    // capes (cloak, tyrant), robes and hood tails of the sub-boss looks: 24- / 25-anime-subs-*.js
+    if (this.armor === 'storm_mantle') {
+      this.cloths.push({ kind: 'ribbon', c: new Cloth(10, 8 * this.scale, { ph: 4, wind: 700 }), at: 'sh', color: '#7fb8ff', w: 3 * this.scale });
     }
     // Raikon: a long dark scarf from the neck, two tails of different length, edged pale so it reads on the dark arena
     if (this.def && this.def.longScarf) {
@@ -1942,6 +1941,7 @@ function twinShape(w, sh, offhand) { return w && w.twin && sh === 'short' ? (off
 function drawWeaponShape(ctx, sh, L, mode, s, ink, f) {
   if (f && f.def && f.def.mirrorWeapon && mode !== 'art') return drawShardWeapon(ctx, sh, L, mode, s, ink, f);
   if (mode === 'ink' && f && SUB_WEAPON_ART[f.weaponId()] && SUB_WEAPON_ART[f.weaponId()](ctx, sh, L, s, f)) return;   // 24-anime-subs-a.js
+  if ((mode === 'flat' || mode === 'rim') && f && SUBB_WEAPON_FLAT[f.weaponId()] && SUBB_WEAPON_FLAT[f.weaponId()](ctx, L, s, ink, mode === 'rim')) return;   // 25-anime-subs-b.js
   const rim = mode === 'rim'; if (rim) mode = 'flat';   // outline pass: the steel stays thin, only the hilt gets the white edge
   const art = mode === 'art';
   const steel = art ? C.bone : mode === 'flat' ? ink : ANIME.silver;   // muted silver (STYLE.md), never pure white
@@ -2256,21 +2256,12 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
       ctx.strokeStyle = acc('rgba(201,164,92,0.5)'); ctx.lineWidth = 1;
       for (let i = -3; i <= 3; i++) { ctx.beginPath(); ctx.moveTo(r * 0.1, -r * 1.5); ctx.lineTo(i * r * 0.62, -r * 0.5); ctx.stroke(); }
       break;
-    case 'iron_kabuto':
-      ctx.beginPath(); ctx.arc(0, -r * 0.1, r * 1.16, Math.PI, TAU); ctx.fill();
-      ctx.beginPath(); ctx.moveTo(-r * 1.2, -r * 0.2); ctx.lineTo(-r * 1.7, r * 0.7); ctx.lineTo(-r * 0.6, r * 0.5); ctx.closePath(); ctx.fill();
-      ctx.strokeStyle = acc(C.gold); ctx.lineWidth = 2.4;
-      ctx.beginPath(); ctx.moveTo(r * 0.3, -r * 1.1); ctx.quadraticCurveTo(r * 1.3, -r * 1.9, r * 0.9, -r * 2.5); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(r * 0.1, -r * 1.15); ctx.quadraticCurveTo(-r * 0.6, -r * 2.1, -r * 0.1, -r * 2.6); ctx.stroke();
-      ctx.strokeStyle = acc('rgba(201,164,92,0.4)'); ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(0, -r * 0.1, r * 1.16, Math.PI * 1.05, Math.PI * 1.95); ctx.stroke();
+    case 'oni':   // Garan's oni (24-anime-subs-a.js); the Echo placeholders' violet oni (25-anime-subs-b.js)
+      if (f && /^echo_/.test(animeSkin(f).sub || '')) drawSubBHead(ctx, 'oni_echo', f, r, ink, flat); else drawSubHead(ctx, 'oni', f, r, ink, flat);
       break;
-    case 'oni': drawSubHead(ctx, 'oni', f, r, ink, flat); break;   // Garan's oni (24-anime-subs-a.js)
-    case 'oni_mask':
-      ctx.beginPath(); ctx.moveTo(r * 0.0, -r * 0.8); ctx.quadraticCurveTo(r * 0.6, -r * 1.6, r * 0.2, -r * 2.0); ctx.quadraticCurveTo(r * 0.5, -r * 1.3, r * 0.5, -r * 0.7); ctx.fill();
-      ctx.beginPath(); ctx.moveTo(-r * 0.6, -r * 0.7); ctx.quadraticCurveTo(-r * 0.6, -r * 1.6, -r * 1.1, -r * 1.9); ctx.quadraticCurveTo(-r * 0.3, -r * 1.3, -r * 0.2, -r * 0.8); ctx.fill();
-      ctx.strokeStyle = acc(C.emberBright); ctx.lineWidth = 1.6;
-      ctx.beginPath(); ctx.moveTo(r * 0.3, r * 0.45); ctx.lineTo(r * 1.0, r * 0.45); ctx.stroke();
-      for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.moveTo(r * (0.4 + i * 0.22), r * 0.45); ctx.lineTo(r * (0.5 + i * 0.22), r * 0.68); ctx.stroke(); }
+    case 'iron_kabuto': case 'oni_mask': case 'storm_band': case 'disciple_wrap': case 'blademaster_kabuto':
+      // the Act II / III sub-bosses' heads, also gear (25-anime-subs-b.js)
+      drawSubBHead(ctx, key, f, r, ink, flat);
       break;
     case 'hollow_crest':
       ctx.fillStyle = ink;
@@ -2306,9 +2297,6 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
       }
       break;
     }
-    case 'storm_band':
-      ctx.strokeStyle = acc('#7fb8ff'); ctx.lineWidth = 2.6; ctx.beginPath(); ctx.arc(0, 0, r * 1.02, Math.PI * 1.05, Math.PI * 1.95); ctx.stroke();
-      break;
     case 'raijin_kabuto': {
       if (bossLook(f) === 'raikon') {
         // Raikon himself, the Storm King: a wide black kasa edged in red, a jagged red crest flaring off its crown, and
@@ -2344,48 +2332,6 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
         ctx.beginPath(); ctx.moveTo(-r * 0.98, -r * 0.92); ctx.lineTo(r * 1.1, -r * 0.66); ctx.stroke();               // facet ridge
         ctx.beginPath(); ctx.moveTo(-r * 1.62, r * 0.3); ctx.lineTo(-r * 0.62, r * 0.28); ctx.stroke();                // neck guard step
         ctx.lineJoin = 'round';
-      }
-      break;
-    }
-    case 'disciple_wrap': {
-      // Shizune's Deshi Tenugui: a pale cotton head cloth pulled tight over the crown, knotted at the back with two long
-      // tails that trail in the wind, and the small ring-and-dot of the Tachibana school on the front, half unpicked
-      ctx.save(); ctx.beginPath(); ctx.arc(0, 0, r * 1.06, 0, TAU); ctx.clip();
-      ctx.fillStyle = flat ? ink : '#d9cfb4';
-      ctx.beginPath(); ctx.arc(0, -r * 0.05, r * 1.1, Math.PI * 1.02, Math.PI * 1.98); ctx.lineTo(r * 1.1, -r * 0.22); ctx.lineTo(-r * 1.1, -r * 0.3); ctx.closePath(); ctx.fill();
-      if (!flat) { ctx.fillStyle = '#b9ad90'; ctx.fillRect(-r * 1.1, -r * 0.42, r * 2.2, r * 0.14); }   // the folded hem
-      ctx.restore();
-      const sw = Math.sin(t * 3.2) * r * 0.25;
-      ctx.fillStyle = flat ? ink : '#cfc4a6';
-      ctx.beginPath(); ctx.ellipse(-r * 1.02, -r * 0.4, r * 0.2, r * 0.16, 0.3, 0, TAU); ctx.fill();   // the knot
-      for (const [k, len] of [[0, 1.9], [1, 1.5]]) {
-        ctx.beginPath(); ctx.moveTo(-r * 1.0, -r * (0.48 - k * 0.12));
-        ctx.quadraticCurveTo(-r * 1.6, -r * (0.6 - k * 0.3) + sw, -r * (1 + len), -r * (0.2 - k * 0.4) + sw * 1.4);
-        ctx.lineTo(-r * (0.95 + len), r * (0.02 + k * 0.4) + sw * 1.4); ctx.quadraticCurveTo(-r * 1.5, -r * (0.3 - k * 0.3) + sw, -r * 1.0, -r * (0.3 - k * 0.12)); ctx.closePath(); ctx.fill();
-      }
-      if (!flat) {
-        ctx.strokeStyle = 'rgba(122,96,48,0.75)'; ctx.lineWidth = Math.max(0.8, r * 0.07);
-        ctx.beginPath(); ctx.arc(r * 0.45, -r * 0.62, r * 0.17, Math.PI * 0.1, Math.PI * 1.55); ctx.stroke();   // the ring, half unpicked
-        ctx.fillStyle = 'rgba(122,96,48,0.85)'; ctx.beginPath(); ctx.arc(r * 0.45, -r * 0.62, r * 0.05, 0, TAU); ctx.fill();
-      }
-      break;
-    }
-    case 'blademaster_kabuto': {
-      // Soma's Mokushi Kabuto: a tall rounded iron bowl, a wide flared neck guard of three lames swept back, a single
-      // straight pale-gold blade crest laid flat across the brow, and an iron mouth-guard with no opening at all
-      ctx.beginPath(); ctx.ellipse(0, -r * 0.35, r * 1.18, r * 1.05, 0, Math.PI, TAU); ctx.fill();
-      for (let i = 0; i < 3; i++) {
-        ctx.beginPath(); ctx.moveTo(-r * (0.3 + i * 0.1), -r * (0.45 - i * 0.32)); ctx.lineTo(-r * (1.55 + i * 0.22), -r * (0.1 - i * 0.36));
-        ctx.lineTo(-r * (1.45 + i * 0.22), r * (0.16 + i * 0.36)); ctx.lineTo(-r * (0.4 + i * 0.1), -r * (0.18 - i * 0.32)); ctx.closePath(); ctx.fill();
-      }
-      ctx.fillStyle = flat ? ink : '#2a2a30';   // the closed mouth-guard
-      ctx.beginPath(); ctx.moveTo(r * 0.1, r * 0.05); ctx.lineTo(r * 1.12, r * 0.0); ctx.lineTo(r * 1.0, r * 0.62); ctx.quadraticCurveTo(r * 0.5, r * 0.98, r * 0.05, r * 0.7); ctx.closePath(); ctx.fill();
-      ctx.fillStyle = acc('#e8c25c');
-      ctx.beginPath(); ctx.moveTo(-r * 0.6, -r * 1.42); ctx.lineTo(r * 1.9, -r * 1.56); ctx.lineTo(r * 1.95, -r * 1.48); ctx.lineTo(-r * 0.6, -r * 1.3); ctx.closePath(); ctx.fill();   // the blade crest
-      if (!flat) {
-        ctx.strokeStyle = 'rgba(232,194,92,0.35)'; ctx.lineWidth = Math.max(1, r * 0.07);
-        ctx.beginPath(); ctx.ellipse(0, -r * 0.35, r * 1.18, r * 1.05, 0, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke();
-        ctx.strokeStyle = 'rgba(236,229,211,0.18)'; ctx.beginPath(); ctx.moveTo(r * 0.25, r * 0.36); ctx.lineTo(r * 1.02, r * 0.32); ctx.stroke();   // a seam where a mouth should be
       }
       break;
     }
@@ -2503,17 +2449,21 @@ function drawArmor(ctx, f, ink, opt, Ut) {
       }
       break;
     }
-    case 'jerkin': case 'executioner_garb':
+    case 'jerkin': case 'gate_plate': case 'conduit_harness': case 'ledger_coat': case 'pauldrons': case 'tyrant': case 'cloak':
+      // the Act II / III sub-bosses' armour, also gear (25-anime-subs-b.js)
+      drawSubBArmor(ctx, f, f.armor);
+      break;
+    case 'executioner_garb':
       torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.07);
       if (!flat) bands(2, 'rgba(160,151,133,0.28)', Ut * 0.95, 0.25, 0.75);
-      if (f.armor === 'executioner_garb' && !flat) { ctx.strokeStyle = 'rgba(160,151,133,0.55)'; ctx.setLineDash([3 * s, 3 * s]); ctx.beginPath(); ctx.moveTo(lerp(hx, nx, 0.85) - fc * Ut, lerp(hy, ny, 0.85)); ctx.lineTo(lerp(hx, nx, 0.25) + fc * Ut, lerp(hy, ny, 0.25)); ctx.stroke(); ctx.setLineDash([]); }
+      if (!flat) { ctx.strokeStyle = 'rgba(160,151,133,0.55)'; ctx.setLineDash([3 * s, 3 * s]); ctx.beginPath(); ctx.moveTo(lerp(hx, nx, 0.85) - fc * Ut, lerp(hy, ny, 0.85)); ctx.lineTo(lerp(hx, nx, 0.25) + fc * Ut, lerp(hy, ny, 0.25)); ctx.stroke(); ctx.setLineDash([]); }
       break;
     case 'lamellar':
       torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.12);
       if (!flat) bands(5, 'rgba(125,102,56,0.6)', Ut * 1.05, 0.12, 0.86);
       plate(Ut * 0.55, 'rgba(201,164,92,0.4)');
       break;
-    case 'pauldrons': case 'colossus_plate': case 'tyrant': {
+    case 'colossus_plate': {
       const big = f.armor === 'colossus_plate' ? 1.2 : 1.14;
       torsoShape(ctx, sk.hip, sk.neck, fc, Ut * big);
       if (!flat) bands(f.armor === 'colossus_plate' ? 3 : 2, f.armor === 'tyrant' ? 'rgba(210,74,60,0.4)' : 'rgba(125,102,56,0.6)', Ut * big * 0.9, 0.2, 0.8);
@@ -2665,69 +2615,6 @@ function drawArmor(ctx, f, ink, opt, Ut) {
       // the Act I / II sub-bosses' armour (24-anime-subs-a.js)
       drawSubArmor(ctx, f, f.armor);
       break;
-    case 'gate_plate': {
-      // Gonryu's Tetsumon-do: a broad, flat-fronted cuirass like a piece of the Fortress door, an iron bar strapped
-      // across the chest, rows of round gate studs, and one huge square shoulder plate
-      torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.22);
-      const ox = Math.cos(ang + Math.PI / 2), oy = Math.sin(ang + Math.PI / 2);
-      ctx.fillStyle = ink; ctx.beginPath();   // the square shoulder plate
-      const sx = sk.sh.x - fc * Ut * 0.1, sy = sk.sh.y + Ut * 0.1;
-      ctx.moveTo(sx - ox * Ut * 0.95, sy - oy * Ut * 0.95); ctx.lineTo(sx + ox * Ut * 0.95, sy + oy * Ut * 0.95);
-      ctx.lineTo(sx + ox * Ut * 0.95 - Math.cos(ang) * Ut * 0.85, sy + oy * Ut * 0.95 - Math.sin(ang) * Ut * 0.85);
-      ctx.lineTo(sx - ox * Ut * 0.95 - Math.cos(ang) * Ut * 0.85, sy - oy * Ut * 0.95 - Math.sin(ang) * Ut * 0.85); ctx.closePath(); ctx.fill();
-      if (flat) break;
-      ctx.strokeStyle = 'rgba(201,164,92,0.4)'; ctx.lineWidth = 1.2 * s; ctx.stroke();
-      ctx.strokeStyle = '#3a3d44'; ctx.lineWidth = 4 * s; ctx.lineCap = 'butt';   // the iron bar
-      const bx = lerp(hx, nx, 0.62), by = lerp(hy, ny, 0.62);
-      ctx.beginPath(); ctx.moveTo(bx - ox * Ut * 1.1, by - oy * Ut * 1.1); ctx.lineTo(bx + ox * Ut * 1.1, by + oy * Ut * 1.1); ctx.stroke(); ctx.lineCap = 'round';
-      ctx.fillStyle = 'rgba(214,196,150,0.55)';   // gate studs
-      for (const u of [0.25, 0.42, 0.8]) for (const k of [-0.7, 0, 0.7]) { ctx.beginPath(); ctx.arc(lerp(hx, nx, u) + ox * k * Ut, lerp(hy, ny, u) + oy * k * Ut, 1.5 * s, 0, TAU); ctx.fill(); }
-      break;
-    }
-    case 'conduit_harness': {
-      // Moro's Kudamaki-do: a dark leather harness crossed over the chest, coiled with glass tubes of violet memory light
-      // that pulse as if something were flowing through them, and a small canister strapped on the back
-      torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.04);
-      const ox = Math.cos(ang + Math.PI / 2), oy = Math.sin(ang + Math.PI / 2);
-      plate(Ut * 0.5, flat ? null : 'rgba(155,124,255,0.5)');
-      ctx.fillStyle = ink; ctx.save(); ctx.translate(lerp(hx, nx, 0.6) - ox * fc * Ut * 1.05, lerp(hy, ny, 0.6) - oy * fc * Ut * 1.05); ctx.rotate(ang + Math.PI / 2);
-      ctx.fillRect(-Ut * 0.5, -Ut * 0.3, Ut * 1.0, Ut * 0.6); ctx.restore();   // the canister
-      if (flat) break;
-      const ft = f.time || 0, glow = 0.45 + 0.35 * Math.sin(ft * 5);
-      ctx.lineCap = 'round';
-      for (const [u0, u1, sgn] of [[0.15, 0.9, 1], [0.15, 0.9, -1]]) {
-        ctx.strokeStyle = '#2a2433'; ctx.lineWidth = 3.4 * s;
-        const a = [lerp(hx, nx, u1) - ox * sgn * Ut * 0.85, lerp(hy, ny, u1) - oy * sgn * Ut * 0.85], b = [lerp(hx, nx, u0) + ox * sgn * Ut * 0.85, lerp(hy, ny, u0) + oy * sgn * Ut * 0.85];
-        ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke();
-        ctx.strokeStyle = `rgba(185,150,255,${glow})`; ctx.lineWidth = 1.5 * s;
-        ctx.beginPath(); for (let k = 0; k <= 8; k++) { const q = k / 8, w = Math.sin(q * Math.PI * 4 + ft * 6) * 1.6 * s; ctx.lineTo(lerp(a[0], b[0], q) + ox * w, lerp(a[1], b[1], q) + oy * w); } ctx.stroke();
-      }
-      ctx.fillStyle = `rgba(201,189,255,${glow})`; ctx.beginPath(); ctx.arc(lerp(hx, nx, 0.55), lerp(hy, ny, 0.55), 2.2 * s, 0, TAU); ctx.fill();   // where the tubes cross
-      break;
-    }
-    case 'ledger_coat': {
-      // Kasane's Haori: a long coat of pasted ledger pages, layered like scales down the torso and flaring past the
-      // hips; each page is a pale rectangle ruled with thin ink lines, a few struck through in violet
-      torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.12);
-      const ox = Math.cos(ang + Math.PI / 2), oy = Math.sin(ang + Math.PI / 2), ux = Math.cos(ang), uy = Math.sin(ang);
-      ctx.fillStyle = ink; ctx.beginPath();   // the coat's skirt past the hips
-      ctx.moveTo(hx - ox * Ut * 1.1, hy - oy * Ut * 1.1); ctx.lineTo(hx - ux * Ut * 1.5 - ox * Ut * 1.35, hy - uy * Ut * 1.5 - oy * Ut * 1.35);
-      ctx.lineTo(hx - ux * Ut * 1.5 + ox * Ut * 1.35, hy - uy * Ut * 1.5 + oy * Ut * 1.35); ctx.lineTo(hx + ox * Ut * 1.1, hy + oy * Ut * 1.1); ctx.fill();
-      plate(Ut * 0.6, flat ? null : 'rgba(180,140,230,0.5)');
-      if (flat) break;
-      for (let row = 0; row < 4; row++) for (let col = -1; col <= 1; col++) {
-        const u = 0.15 + row * 0.2, px = lerp(hx, nx, u) + ox * col * Ut * 0.62 + ux * 0, py = lerp(hy, ny, u) + oy * col * Ut * 0.62;
-        if (row === 3 && col !== 0) continue;
-        ctx.fillStyle = (row + col) % 2 ? 'rgba(214,206,186,0.32)' : 'rgba(214,206,186,0.22)';
-        ctx.save(); ctx.translate(px, py); ctx.rotate(ang + Math.PI / 2);
-        ctx.fillRect(-Ut * 0.28, -Ut * 0.16, Ut * 0.56, Ut * 0.32);
-        ctx.strokeStyle = 'rgba(20,18,24,0.6)'; ctx.lineWidth = 0.6 * s;
-        ctx.beginPath(); ctx.moveTo(-Ut * 0.22, -Ut * 0.04); ctx.lineTo(Ut * 0.22, -Ut * 0.04); ctx.moveTo(-Ut * 0.22, Ut * 0.07); ctx.lineTo(Ut * 0.14, Ut * 0.07); ctx.stroke();
-        if ((row * 3 + col) % 4 === 0) { ctx.strokeStyle = 'rgba(180,140,230,0.85)'; ctx.lineWidth = 1 * s; ctx.beginPath(); ctx.moveTo(-Ut * 0.26, Ut * 0.1); ctx.lineTo(Ut * 0.26, -Ut * 0.1); ctx.stroke(); }
-        ctx.restore();
-      }
-      break;
-    }
     case 'order_garb': case 'order_plate':
       // the Order's lacquered dō laced in crimson: full, light (hara-ate) or heavy per soldier type (22-anime-order.js)
       drawOrderArmor(ctx, f, ink, flat);
