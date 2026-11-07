@@ -198,13 +198,11 @@ class Fighter {
       this.cloths.push({ kind: 'scarf', c: new Cloth(9, 7 * this.scale, { ph: 0, wind: 560 }), at: 'neck', color: C.emberBright, w: 5.5 * this.scale });
       this.cloths.push({ kind: 'scarf', c: new Cloth(8, 6.5 * this.scale, { ph: 2, wind: 480 }), at: 'neck', color: C.emberBright, w: 3.6 * this.scale, dy: 4 });
     }
-    const cape = { cloak: [C.ink, '#9b8cff'], shadow_cloak: [C.ink, '#3a342b'], mist_shroud: ['rgba(150,160,165,0.55)', null], tyrant: ['#050404', C.emberBright] }[this.armor];
+    const cape = { cloak: [C.ink, '#9b8cff'], tyrant: ['#050404', C.emberBright] }[this.armor];   // shadow_cloak, mist_shroud, robe: 24-anime-subs-a.js
     if (cape) this.cloths.push({ kind: 'cape', c: new Cloth(9, 11 * this.scale, { ph: 1, wind: 380, grav: 900 }), at: 'sh', color: cape[0], edge: cape[1], w0: 14 * this.scale, w1: 30 * this.scale });
-    if (this.armor === 'robe') this.cloths.push({ kind: 'robe', c: new Cloth(6, 10 * this.scale, { ph: 3, wind: 200, grav: 1200 }), at: 'hip', color: C.ink, w0: 26 * this.scale, w1: 40 * this.scale });
     if (this.armor === 'storm_mantle' || this.helmet === 'storm_band') {
       this.cloths.push({ kind: 'ribbon', c: new Cloth(10, 8 * this.scale, { ph: 4, wind: 700 }), at: this.helmet === 'storm_band' ? 'head' : 'sh', color: '#7fb8ff', w: 3 * this.scale });
     }
-    if (this.helmet === 'veil') this.cloths.push({ kind: 'cape', c: new Cloth(8, 10 * this.scale, { ph: 5, wind: 420, grav: 600 }), at: 'head', color: 'rgba(160,170,176,0.5)', w0: 18 * this.scale, w1: 30 * this.scale });
     // Raikon: a long dark scarf from the neck, two tails of different length, edged pale so it reads on the dark arena
     if (this.def && this.def.longScarf) {
       const sc = bossLook(this) === 'raikon' ? '#9e1018' : this.def.longScarf, rim = bossLook(this) === 'raikon' ? 'rgba(255,90,80,0.55)' : 'rgba(236,229,211,0.5)';
@@ -266,8 +264,6 @@ class Fighter {
       this.cloths.push({ kind: 'belt', c: new Cloth(5, 7.4 * this.scale, { ph: 2, wind: 190, grav: 1300, stiff: 1.7 }), at: 'hip', color: '#2b2733', rim: 'rgba(200,170,250,0.6)', w: 8 * this.scale, w1: 5.4 * this.scale, dy: -4, dx: 7 });
       this.cloths.push({ kind: 'belt', c: new Cloth(5, 6.8 * this.scale, { ph: 5, wind: 170, grav: 1300, stiff: 1.7 }), at: 'hip', color: '#5c4d78', rim: 'rgba(236,229,211,0.4)', w: 7 * this.scale, w1: 4.6 * this.scale, dy: -4, dx: -6 });
     }
-    if (this.helmet === 'rain_hood') this.cloths.push({ kind: 'scarf', c: new Cloth(9, 7.4 * this.scale, { ph: 3.5, wind: 820, grav: 640, stiff: 1.7 }), at: 'head', color: '#7fb8ff', w: 3 * this.scale, w1: 1.2 * this.scale, dy: 2, dx: 15 });
-    if (this.helmet === 'sentinel_helm') this.cloths.push({ kind: 'scarf', c: new Cloth(6, 7 * this.scale, { ph: 6, wind: 600 }), at: 'head', color: C.ember, w: 6 * this.scale, dy: -14 });
     animeCloths(this);   // the anime body's own cloth (Kage's coat panels: 21-anime-body.js)
   }
 
@@ -1923,6 +1919,7 @@ Fighter.prototype.drawFistGear = function (ctx, ink, opt) {
   const sk = this.sk, s = this.scale;
   // the Hollow husk's bandaged fists (the far one is drawn with its arm, behind the body): 23-anime-hollow.js
   if (this.weaponId() === 'iron_fists' && this.hollow && this._A && animeSkin(this).hollow) { this.hollowFist(ctx, sk.fel, sk.fha, this._A, this._A.U, false); return; }
+  if (this.weaponId() === 'iron_fists' && this._A && this._A.U) { this.subFist(ctx, sk.fel, sk.fha, this._A, this._A.U, false); return; }   // the far tekko is drawn with its arm
   if (this.weaponId() === 'iron_fists') {
     for (const h of [sk.fha, sk.bha]) {
       const gr = this.build.w * s * 0.48;
@@ -1944,6 +1941,7 @@ function twinShape(w, sh, offhand) { return w && w.twin && sh === 'short' ? (off
 /* ---- weapon art: origin at the grip, +x along the blade ---- */
 function drawWeaponShape(ctx, sh, L, mode, s, ink, f) {
   if (f && f.def && f.def.mirrorWeapon && mode !== 'art') return drawShardWeapon(ctx, sh, L, mode, s, ink, f);
+  if (mode === 'ink' && f && SUB_WEAPON_ART[f.weaponId()] && SUB_WEAPON_ART[f.weaponId()](ctx, sh, L, s, f)) return;   // 24-anime-subs-a.js
   const rim = mode === 'rim'; if (rim) mode = 'flat';   // outline pass: the steel stays thin, only the hilt gets the white edge
   const art = mode === 'art';
   const steel = art ? C.bone : mode === 'flat' ? ink : ANIME.silver;   // muted silver (STYLE.md), never pure white
@@ -2265,7 +2263,8 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
       ctx.beginPath(); ctx.moveTo(r * 0.1, -r * 1.15); ctx.quadraticCurveTo(-r * 0.6, -r * 2.1, -r * 0.1, -r * 2.6); ctx.stroke();
       ctx.strokeStyle = acc('rgba(201,164,92,0.4)'); ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(0, -r * 0.1, r * 1.16, Math.PI * 1.05, Math.PI * 1.95); ctx.stroke();
       break;
-    case 'oni': case 'oni_mask':
+    case 'oni': drawSubHead(ctx, 'oni', f, r, ink, flat); break;   // Garan's oni (24-anime-subs-a.js)
+    case 'oni_mask':
       ctx.beginPath(); ctx.moveTo(r * 0.0, -r * 0.8); ctx.quadraticCurveTo(r * 0.6, -r * 1.6, r * 0.2, -r * 2.0); ctx.quadraticCurveTo(r * 0.5, -r * 1.3, r * 0.5, -r * 0.7); ctx.fill();
       ctx.beginPath(); ctx.moveTo(-r * 0.6, -r * 0.7); ctx.quadraticCurveTo(-r * 0.6, -r * 1.6, -r * 1.1, -r * 1.9); ctx.quadraticCurveTo(-r * 0.3, -r * 1.3, -r * 0.2, -r * 0.8); ctx.fill();
       ctx.strokeStyle = acc(C.emberBright); ctx.lineWidth = 1.6;
@@ -2278,10 +2277,9 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
       ctx.strokeStyle = acc('#9b8cff'); ctx.lineWidth = 1.4; ctx.stroke();
       ctx.fillStyle = ink; ctx.beginPath(); ctx.moveTo(r * 0.2, -r * 0.85); ctx.lineTo(r * 0.55, -r * 1.65); ctx.lineTo(r * 0.6, -r * 0.7); ctx.fill();
       break;
-    case 'sentinel_helm':
-      ctx.beginPath(); ctx.arc(0, -r * 0.05, r * 1.15, Math.PI * 0.9, Math.PI * 2.1); ctx.lineTo(r * 1.1, r * 0.6); ctx.lineTo(r * 0.75, r * 0.6); ctx.lineTo(r * 0.8, -r * 0.1); ctx.lineTo(-r * 1.1, r * 0.8); ctx.closePath(); ctx.fill();
-      ctx.strokeStyle = acc(C.gold); ctx.lineWidth = 1.8; ctx.beginPath(); ctx.moveTo(r * 1.0, -r * 0.4); ctx.lineTo(r * 1.0, r * 0.6); ctx.stroke();
-      ctx.beginPath(); ctx.arc(0, -r * 0.05, r * 1.15, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke();
+    case 'sentinel_helm': case 'veil': case 'sumi_eboshi': case 'rain_hood': case 'courier_hat': case 'borrowed_mask':
+      // the Act I / II sub-bosses' heads (24-anime-subs-a.js)
+      drawSubHead(ctx, key, f, r, ink, flat);
       break;
     case 'sage_antlers': {
       ctx.lineWidth = r * 0.24; ctx.lineCap = 'round';
@@ -2307,10 +2305,6 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
       }
       break;
     }
-    case 'veil':
-      ctx.beginPath(); ctx.arc(0, -r * 0.15, r * 1.12, Math.PI * 0.85, Math.PI * 2.05); ctx.closePath(); ctx.fill();
-      ctx.strokeStyle = acc('rgba(185,196,201,0.6)'); ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(-r * 0.2, r * 0.25); ctx.lineTo(r * 1.15, r * 0.25); ctx.stroke();
-      break;
     case 'storm_band':
       ctx.strokeStyle = acc('#7fb8ff'); ctx.lineWidth = 2.6; ctx.beginPath(); ctx.arc(0, 0, r * 1.02, Math.PI * 1.05, Math.PI * 1.95); ctx.stroke();
       break;
@@ -2349,32 +2343,6 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
         ctx.beginPath(); ctx.moveTo(-r * 0.98, -r * 0.92); ctx.lineTo(r * 1.1, -r * 0.66); ctx.stroke();               // facet ridge
         ctx.beginPath(); ctx.moveTo(-r * 1.62, r * 0.3); ctx.lineTo(-r * 0.62, r * 0.28); ctx.stroke();                // neck guard step
         ctx.lineJoin = 'round';
-      }
-      break;
-    }
-    case 'sumi_eboshi': {
-      // Kuroe's Sumi Eboshi: a tall lacquered court cap leaning back off the crown, a pale brush stroke of ink across
-      // it, and a thin cord under the jaw
-      ctx.beginPath(); ctx.moveTo(-r * 1.0, -r * 0.35); ctx.quadraticCurveTo(-r * 1.15, -r * 1.3, -r * 1.05, -r * 2.5);
-      ctx.quadraticCurveTo(-r * 0.6, -r * 3.05, r * 0.05, -r * 2.6); ctx.quadraticCurveTo(r * 0.75, -r * 1.4, r * 1.0, -r * 0.5); ctx.closePath(); ctx.fill();
-      ctx.beginPath(); ctx.moveTo(-r * 0.75, -r * 2.55); ctx.lineTo(-r * 1.6, -r * 2.95); ctx.lineTo(-r * 1.0, -r * 2.25); ctx.closePath(); ctx.fill();   // the folded tip
-      if (!flat) {
-        ctx.strokeStyle = 'rgba(236,229,211,0.75)'; ctx.lineWidth = Math.max(1.2, r * 0.16); ctx.lineCap = 'round';
-        ctx.beginPath(); ctx.moveTo(-r * 0.8, -r * 1.35); ctx.quadraticCurveTo(-r * 0.2, -r * 1.75, r * 0.45, -r * 1.25); ctx.stroke();
-        ctx.strokeStyle = acc(C.gold); ctx.lineWidth = Math.max(1, r * 0.07);
-        ctx.beginPath(); ctx.moveTo(-r * 0.9, -r * 0.4); ctx.quadraticCurveTo(-r * 0.2, r * 1.2, r * 0.7, r * 0.75); ctx.stroke();
-      }
-      break;
-    }
-    case 'rain_hood': {
-      // Hisame's rain hood: a close oiled hood with a stiff visor jutting over the eyes, a pale storm-glass slit under
-      // it, and the hood's long tail (its cloth) streaming back
-      ctx.beginPath(); ctx.arc(0, -r * 0.08, r * 1.14, Math.PI * 0.7, Math.PI * 2.02); ctx.lineTo(-r * 1.5, r * 0.6); ctx.closePath(); ctx.fill();
-      ctx.beginPath(); ctx.moveTo(-r * 0.2, -r * 0.62); ctx.lineTo(r * 1.85, -r * 0.42); ctx.lineTo(r * 1.7, -r * 0.2); ctx.lineTo(r * 0.3, -r * 0.24); ctx.closePath(); ctx.fill();
-      if (!flat) {
-        ctx.fillStyle = 'rgba(159,212,255,0.85)'; ctx.fillRect(r * 0.2, -r * 0.16, r * 0.95, r * 0.13);
-        ctx.strokeStyle = 'rgba(127,184,255,0.55)'; ctx.lineWidth = Math.max(1, r * 0.07);
-        ctx.beginPath(); ctx.arc(0, -r * 0.08, r * 1.14, Math.PI * 1.15, Math.PI * 1.85); ctx.stroke();
       }
       break;
     }
@@ -2417,42 +2385,6 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
         ctx.strokeStyle = 'rgba(232,194,92,0.35)'; ctx.lineWidth = Math.max(1, r * 0.07);
         ctx.beginPath(); ctx.ellipse(0, -r * 0.35, r * 1.18, r * 1.05, 0, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke();
         ctx.strokeStyle = 'rgba(236,229,211,0.18)'; ctx.beginPath(); ctx.moveTo(r * 0.25, r * 0.36); ctx.lineTo(r * 1.02, r * 0.32); ctx.stroke();   // a seam where a mouth should be
-      }
-      break;
-    }
-    case 'courier_hat': {
-      // Tsugumi's Hakobi-gasa: a wide, very flat courier's hat tilted forward over the eyes, a cord under the jaw, and
-      // three small glass vials of stored memory hanging from its brim (pale violet, one swinging)
-      ctx.beginPath(); ctx.moveTo(-r * 2.1, -r * 0.55); ctx.quadraticCurveTo(-r * 0.2, -r * 1.45, r * 2.3, -r * 0.42);
-      ctx.lineTo(r * 2.2, -r * 0.26); ctx.quadraticCurveTo(0, -r * 0.62, -r * 2.0, -r * 0.38); ctx.closePath(); ctx.fill();
-      ctx.beginPath(); ctx.ellipse(-r * 0.05, -r * 0.95, r * 0.75, r * 0.28, -0.05, Math.PI, TAU); ctx.fill();   // crown
-      if (!flat) {
-        ctx.strokeStyle = 'rgba(169,138,216,0.7)'; ctx.lineWidth = Math.max(1, r * 0.08);
-        ctx.beginPath(); ctx.moveTo(-r * 2.0, -r * 0.42); ctx.quadraticCurveTo(0, -r * 0.66, r * 2.2, -r * 0.3); ctx.stroke();   // brim edge
-        ctx.strokeStyle = 'rgba(236,229,211,0.45)'; ctx.lineWidth = Math.max(1, r * 0.05);
-        ctx.beginPath(); ctx.moveTo(-r * 0.7, -r * 0.5); ctx.quadraticCurveTo(-r * 0.1, r * 1.2, r * 0.75, r * 0.6); ctx.stroke();   // chin cord
-        for (let i = 0; i < 3; i++) {
-          const vx = r * (-1.6 + i * 0.75), sw = i === 1 ? Math.sin(t * 3) * r * 0.12 : 0, vy = -r * 0.42 + r * 0.06 * i;
-          ctx.strokeStyle = 'rgba(236,229,211,0.4)'; ctx.beginPath(); ctx.moveTo(vx, vy); ctx.lineTo(vx + sw, vy + r * 0.45); ctx.stroke();
-          ctx.fillStyle = i === 1 ? 'rgba(201,189,255,0.9)' : 'rgba(155,140,255,0.7)';
-          ctx.fillRect(vx + sw - r * 0.1, vy + r * 0.45, r * 0.2, r * 0.32);
-        }
-      }
-      break;
-    }
-    case 'borrowed_mask': {
-      // Utsushi's Utsushi-men: a blank white oval mask over the Hollow's face, cel-shaded on its far half, with a face
-      // painted on it in thin violet strokes that slips between two expressions as the Hollow glitches
-      ctx.beginPath(); ctx.moveTo(-r * 0.9, -r * 0.4); ctx.lineTo(-r * 1.2, -r * 1.15); ctx.lineTo(-r * 0.35, -r * 0.9); ctx.lineTo(-r * 0.15, -r * 1.5); ctx.lineTo(r * 0.2, -r * 0.95); ctx.closePath(); ctx.fill();   // shards of the head behind
-      ctx.fillStyle = flat ? ink : '#ece6ff';
-      ctx.beginPath(); ctx.ellipse(r * 0.42, r * 0.05, r * 0.72, r * 1.02, 0, 0, TAU); ctx.fill();
-      if (!flat) {
-        ctx.fillStyle = '#c9bfe6'; ctx.beginPath(); ctx.ellipse(r * 0.42, r * 0.05, r * 0.72, r * 1.02, 0, Math.PI * 0.5, Math.PI * 1.5); ctx.fill();
-        const alt = ((t * 1.3) | 0) % 3 === 2;   // the painted face never stays the same
-        ctx.strokeStyle = '#7a5cc9'; ctx.lineWidth = Math.max(1, r * 0.09); ctx.lineCap = 'round';
-        ctx.beginPath(); ctx.moveTo(r * 0.1, -r * 0.2); ctx.lineTo(r * 0.38, alt ? -r * 0.32 : -r * 0.14); ctx.moveTo(r * 0.62, alt ? -r * 0.32 : -r * 0.14); ctx.lineTo(r * 0.92, -r * 0.2); ctx.stroke();   // brows
-        ctx.fillStyle = '#4a3b86'; ctx.fillRect(r * 0.2, -r * 0.08, r * 0.16, r * 0.1); ctx.fillRect(r * 0.66, -r * 0.08, r * 0.16, r * 0.1);   // eye slits
-        ctx.beginPath(); ctx.moveTo(r * 0.22, r * 0.55); ctx.quadraticCurveTo(r * 0.5, alt ? r * 0.35 : r * 0.78, r * 0.8, r * 0.55); ctx.stroke();   // smile, or not
       }
       break;
     }
@@ -2728,42 +2660,10 @@ function drawArmor(ctx, f, ink, opt, Ut) {
       ctx.beginPath(); ctx.moveTo(lerp(hx, nx, 0.82) - ox * Ut, lerp(hy, ny, 0.82) - oy * Ut); ctx.lineTo(lerp(hx, nx, 0.5) + ox * Ut, lerp(hy, ny, 0.5) + oy * Ut); ctx.stroke();
       break;
     }
-    case 'half_do': {
-      // Garan's Ikazuchi-dō: half a vanguard cuirass, plated on the front side only and burnt ragged down the middle, one
-      // heavy shoulder plate, and a red lightning scorch across the bare side
-      const ox = Math.cos(ang + Math.PI / 2), oy = Math.sin(ang + Math.PI / 2), side = ox * fc >= 0 ? 1 : -1;
-      const P = (u, w) => [lerp(hx, nx, u) + ox * side * w * Ut, lerp(hy, ny, u) + oy * side * w * Ut];
-      ctx.beginPath();
-      const pts = [P(0.12, 1.12), P(0.95, 1.12), P(0.92, 0.1), P(0.75, -0.18), P(0.6, 0.12), P(0.44, -0.2), P(0.28, 0.08), P(0.12, -0.12)];
-      ctx.moveTo(pts[0][0], pts[0][1]); for (const q of pts.slice(1)) ctx.lineTo(q[0], q[1]); ctx.closePath(); ctx.fill();
-      plate(Ut * 0.8, flat ? null : 'rgba(255,106,82,0.5)');
-      if (flat) break;
-      bands(2, 'rgba(201,164,92,0.32)', Ut * 1.05, 0.3, 0.75);
-      ctx.strokeStyle = '#ff6a52'; ctx.lineWidth = 1.6 * s; ctx.lineJoin = 'miter';
-      const a = P(0.82, -0.75), b = P(0.62, -0.25), c = P(0.55, -0.85), d = P(0.32, -0.35);
-      ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.lineTo(c[0], c[1]); ctx.lineTo(d[0], d[1]); ctx.stroke(); ctx.lineJoin = 'round';
+    case 'half_do': case 'vanguard_plate': case 'robe': case 'mist_shroud': case 'shadow_cloak': case 'operative_vest':
+      // the Act I / II sub-bosses' armour (24-anime-subs-a.js)
+      drawSubArmor(ctx, f, f.armor);
       break;
-    }
-    case 'vanguard_plate': {
-      // Shiden's Yoroi: a lieutenant's lamellar of the thunder vanguard, laced in violet cord, two small stacked
-      // shoulder plates and a short tasset skirt; slimmer than his captain's plate, with no red cord
-      torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.1);
-      const ox = Math.cos(ang + Math.PI / 2), oy = Math.sin(ang + Math.PI / 2), ux = Math.cos(ang), uy = Math.sin(ang);
-      ctx.fillStyle = ink; ctx.beginPath();
-      for (let i = -1; i <= 1; i += 2) {
-        const bx = hx + ox * i * Ut * 0.5 + ux * Ut * 0.1, by = hy + oy * i * Ut * 0.5 + uy * Ut * 0.1, L = Ut * 0.8;
-        ctx.moveTo(bx - ox * Ut * 0.45, by - oy * Ut * 0.45); ctx.lineTo(bx - ux * L - ox * Ut * 0.5, by - uy * L - oy * Ut * 0.5);
-        ctx.lineTo(bx - ux * L + ox * Ut * 0.5, by - uy * L + oy * Ut * 0.5); ctx.lineTo(bx + ox * Ut * 0.45, by + oy * Ut * 0.45);
-      }
-      ctx.fill();
-      plate(Ut * 0.62, flat ? null : 'rgba(214,168,255,0.55)');
-      ctx.fillStyle = ink; ctx.beginPath();
-      ctx.ellipse(sk.sh.x - fc * Ut * 0.1 + ux * Ut * 0.32, sk.sh.y + uy * Ut * 0.32 + Ut * 0.1, Ut * 0.55, Ut * 0.34, ang + Math.PI / 2, Math.PI * 0.95, Math.PI * 2.05); ctx.closePath(); ctx.fill();
-      if (flat) break;
-      ctx.strokeStyle = 'rgba(214,168,255,0.5)'; ctx.lineWidth = 1.1 * s; ctx.stroke();
-      bands(5, 'rgba(176,124,255,0.55)', Ut * 1.02, 0.14, 0.86);
-      break;
-    }
     case 'gate_plate': {
       // Gonryu's Tetsumon-do: a broad, flat-fronted cuirass like a piece of the Fortress door, an iron bar strapped
       // across the chest, rows of round gate studs, and one huge square shoulder plate
@@ -2804,23 +2704,6 @@ function drawArmor(ctx, f, ink, opt, Ut) {
       ctx.fillStyle = `rgba(201,189,255,${glow})`; ctx.beginPath(); ctx.arc(lerp(hx, nx, 0.55), lerp(hy, ny, 0.55), 2.2 * s, 0, TAU); ctx.fill();   // where the tubes cross
       break;
     }
-    case 'operative_vest': {
-      // Sayo's Shirabe-dō: a close operative's vest of lacquered horizontal strips, a high wrapped collar, a diagonal
-      // strap of message-slip pockets (pale squares) across the chest, and a small shoulder guard
-      torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.02);
-      plate(Ut * 0.46, flat ? null : 'rgba(155,140,201,0.5)');
-      if (flat) break;
-      bands(4, 'rgba(155,140,201,0.45)', Ut * 0.98, 0.18, 0.78);
-      const ox = Math.cos(ang + Math.PI / 2), oy = Math.sin(ang + Math.PI / 2);
-      ctx.strokeStyle = '#2c2838'; ctx.lineWidth = 3.4 * s; ctx.lineCap = 'butt';
-      const a = [lerp(hx, nx, 0.9) - ox * Ut * 0.9, lerp(hy, ny, 0.9) - oy * Ut * 0.9], b = [lerp(hx, nx, 0.3) + ox * Ut * 0.9, lerp(hy, ny, 0.3) + oy * Ut * 0.9];
-      ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); ctx.lineCap = 'round';
-      ctx.fillStyle = 'rgba(236,229,211,0.55)';
-      for (let i = 1; i <= 3; i++) { const k = i / 4; ctx.fillRect(lerp(a[0], b[0], k) - 1.6 * s, lerp(a[1], b[1], k) - 1.6 * s, 3.2 * s, 3.2 * s); }
-      ctx.strokeStyle = 'rgba(200,190,230,0.6)'; ctx.lineWidth = 2.2 * s;
-      ctx.beginPath(); ctx.moveTo(lerp(hx, nx, 0.95) - ox * Ut * 0.6, lerp(hy, ny, 0.95) - oy * Ut * 0.6); ctx.lineTo(lerp(hx, nx, 0.95) + ox * Ut * 0.6, lerp(hy, ny, 0.95) + oy * Ut * 0.6); ctx.stroke();   // collar
-      break;
-    }
     case 'ledger_coat': {
       // Kasane's Haori: a long coat of pasted ledger pages, layered like scales down the torso and flaring past the
       // hips; each page is a pale rectangle ruled with thin ink lines, a few struck through in violet
@@ -2851,10 +2734,7 @@ function drawArmor(ctx, f, ink, opt, Ut) {
     case 'hollow_rags':
       // the Hollows' torn robe over the gi: a rip, rope, wraps, a kesa, a mirror or a cracked chest per type (23-anime-hollow.js)
       drawHollowArmor(ctx, f, ink, flat);
-      break;
-    case 'robe':
-      torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.05);
-      if (!flat) { ctx.strokeStyle = f.accent || C.gold; ctx.lineWidth = 2 * s; ctx.beginPath(); ctx.moveTo(lerp(hx, nx, 0.9) - fc * Ut * 0.3, lerp(hy, ny, 0.9)); ctx.lineTo(lerp(hx, nx, 0.3) + fc * Ut * 0.7, lerp(hy, ny, 0.3)); ctx.stroke(); }
+      if (animeSkin(f).sub === 'utsushi') drawUtsushiScraps(ctx, f);   // 24-anime-subs-a.js
       break;
   }
 }

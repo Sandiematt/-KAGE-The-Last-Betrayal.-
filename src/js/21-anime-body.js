@@ -67,6 +67,7 @@ function animeCloths(f) {
   }
   if (sk.order) orderCloths(f, sk);   // the Order's hood tails and hat cords (22-anime-order.js)
   if (sk.hollow) hollowCloths(f, sk);   // the Hollows' torn robes, cape and hood tails (23-anime-hollow.js)
+  subCloths(f, sk);   // the sub-bosses' robes, capes, hood tails and cords, by look (24-anime-subs-a.js)
 }
 
 /* ---- palette ---- */
@@ -136,6 +137,7 @@ function animeState(f, front, flat, opt) {
   // light from the upper front of the fighter (STYLE.md): the shadow and the rim sit on the lower back
   A.lx = 0.55 * f.facing; A.ly = -0.83;
   A.pal = animePalette(f, flat ? C.ink : front);
+  const sk = animeSkin(f); if (sk.acc && !flat) A.pal = subAccPal(A.pal, sk.acc);   // a sub-boss's own accent (24-anime-subs-a.js)
   return A;
 }
 
@@ -346,6 +348,7 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   // --- 1. the coat's back panel, behind everything
   if (skin.coat) this.drawCoatPanel(ctx, 'back', A, skin, U);
   if (hol) { this.hollowRobe(ctx, A, skin, U, 'cape'); this.hollowRobe(ctx, A, skin, U, 'back'); }   // 23-anime-hollow.js
+  subLayer(this, ctx, A, skin, U, 'back');   // capes, banners, robes behind the body (24-anime-subs-a.js)
   // --- 2. the far arm: sleeve, cuff, hand (then any off-hand weapon)
   this.animeArm(ctx, sk.shB, sk.bel, sk.bha, A, skin, U * slv, true);
   this.drawOffhand(ctx, front, flat ? Object.assign({}, opt, { color: front }) : opt);
@@ -358,6 +361,7 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   // --- 5. the near leg, then the coat's near flap over its thigh (the Order: the front kusazuri plates)
   this.animeLeg(ctx, sk.hipF, sk.fkn, sk.fft, A, skin, U, false);
   if (ord) this.orderKusazuri(ctx, S, A, U, 'front');
+  subLayer(this, ctx, A, skin, U, 'front');
   if (skin.coat) this.drawCoatPanel(ctx, 'flap', A, skin, U);
   if (hol) this.hollowRobe(ctx, A, skin, U, 'flap');
   // --- 6. sash / obi and the saya at the hip
@@ -366,6 +370,7 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   else if (skin.sash === 'order') this.orderBelt(ctx, S, A, U);
   else if (hol) this.hollowSash(ctx, S, A, U, skin.sash);
   if (hol && hol.mantle) this.hollowMantle(ctx, S, A, U, hol.mantle);
+  subLayer(this, ctx, A, skin, U, 'waist');
   if (this.outfit === 'gi' && !flat && skin.sash !== 'kage' && !skin.noGiSash) this.drawSash(ctx, T);
   if (skin.saya && this.hasWeapon) this.animeSaya(ctx, S, A, U);
   // --- 7. neck, collar and scarf wrap
@@ -410,6 +415,7 @@ Fighter.prototype.animeArm = function (ctx, sh, el, ha, A, skin, U, far, noHand)
   } });
   // the Order's sode over the upper sleeve (22-anime-order.js)
   if (skin.order && skin.order.sode) this.orderSode(ctx, sh, el, A, U / (skin.sleeve || 1), far, skin.order.sode);
+  else subSode(this, ctx, sh, el, A, U / (skin.sleeve || 1), far);   // 24-anime-subs-a.js
   // the kote: a dark lacquered forearm guard from under the sleeve to the wrist, two dark straps with crimson cord
   const hol = skin.hollow, bare = hol && hol.bare;
   if (skin.kote === 'wrap') this.hollowWrap(ctx, at(bare ? 0.02 : 0.3, 0), at(bare ? 0.92 : 0.9, 0), (bare ? 5.4 : 4.4) * U, (bare ? 4.6 : 3.6) * U, A, U, far);
@@ -446,6 +452,7 @@ Fighter.prototype.animeArm = function (ctx, sh, el, ha, A, skin, U, far, noHand)
 // a small dark glove closed round the grip, the fingers implied by one line
 Fighter.prototype.animeHand = function (ctx, el, ha, A, U, far) {
   if (this.weaponId() === 'iron_fists' && this.hollow && animeSkin(this).hollow) { this.hollowFist(ctx, el, ha, A, U, far); return; }
+  if (this.weaponId() === 'iron_fists') { this.subFist(ctx, el, ha, A, U, far); return; }   // the iron tekko (24-anime-subs-a.js)
   const pal = A.pal, glove = far ? [ANIME.cloth0, ANIME.cloth0, ANIME.cloth1] : [ANIME.cloth0, ANIME.cloth1, ANIME.cloth2];
   celFill(ctx, () => animeHandPath(ctx, el, ha, 2.9 * U), this.weaponId() === 'iron_fists' ? pal.metal : glove, A, { sd: 1.4 * U, hd: 0.6 * U, detail: (g) => {
     const dx = ha.x - el.x, dy = ha.y - el.y, l = Math.hypot(dx, dy) || 1, ux = dx / l, uy = dy / l;
