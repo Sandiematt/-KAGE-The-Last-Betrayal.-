@@ -207,15 +207,7 @@ class Fighter {
       this.cloths.push({ kind: 'scarf', c: new Cloth(9, 8 * this.scale, { ph: 6.2, wind: 560, grav: 700, stiff: 1.6 }), at: 'neck', color: sc, rim, w: 5.4 * this.scale, w1: 2.2 * this.scale, dy: 6 });
     }
     // Raikon's tattered cloak and long coat skirts: raikonCloths (27-anime-raikon.js)
-    // Akari's hair: a long high ponytail streaming back off the crown (two layers: black, and a violet-sheened lock over
-    // it), two short violet tassels hanging from the sakura pin at its root (the pin itself: drawHelmet 'akari_mask')
-    if (this.helmet === 'akari_mask') {
-      const sc = this.scale;
-      this.cloths.push({ kind: 'scarf', c: new Cloth(12, 7.4 * sc, { ph: 4.5, wind: 900, grav: 520, stiff: 1.85 }), at: 'head', color: '#120f18', rim: 'rgba(214,190,255,0.7)', w: 11 * sc, w1: 1.2 * sc, dy: -16, dx: 9 });
-      this.cloths.push({ kind: 'scarf', c: new Cloth(10, 7 * sc, { ph: 6.1, wind: 1000, grav: 460, stiff: 1.85 }), at: 'head', color: '#3a2560', w: 5 * sc, w1: 0.8 * sc, dy: -17, dx: 10 });
-      this.cloths.push({ kind: 'scarf', c: new Cloth(4, 3.6 * sc, { ph: 7, wind: 200, grav: 1100, stiff: 1.6 }), at: 'head', color: '#a978f0', w: 1.6 * sc, w1: 2.4 * sc, dy: -8, dx: 13 });
-      this.cloths.push({ kind: 'scarf', c: new Cloth(4, 3.2 * sc, { ph: 8.4, wind: 180, grav: 1100, stiff: 1.6 }), at: 'head', color: '#8a5cc9', w: 1.4 * sc, w1: 2.2 * sc, dy: -7, dx: 10 });
-    }
+    // Akari's ponytail, bead strings, sash and back tail: akariCloths (28-anime-akari.js)
     // Takashi: long hair tied back at the nape, hanging below the brim of his Kasa (`hair` on his ENEMIES entry)
     if (this.def && this.def.hair) {
       const tk = bossLook(this) === 'takashi';   // his key art: white hair, tied with a red cord
@@ -241,15 +233,7 @@ class Fighter {
     // Rem's travel coat is the anime body's own coat panels (ANIME_SKINS.rem / hollow_rem, 26-anime-rem.js)
     // the Shinsei Yoroi's layered robe skirts, hanging from the waist guard
     if (this.armor === 'shinsei') this.cloths.push({ kind: 'robe', c: new Cloth(6, 9.4 * this.scale, { ph: 3, wind: 180, grav: 1250 }), at: 'hip', color: '#1f1b15', w0: 24 * this.scale, w1: 36 * this.scale });
-    // the Mei-En Garb's split cloth panels: a front and a back panel hanging from the waist, muted violet over charcoal
-    // On Akari herself (and her echo) the garb is her own cut: one long violet sash down the front from the belt, with a
-    // sakura crest near its end (kind 'asash', drawn by Fighter.drawAkariSash)
-    if (this.armor === 'mei_en' && this.helmet === 'akari_mask') {
-      this.cloths.push({ kind: 'asash', c: new Cloth(8, 10.5 * this.scale, { ph: 2, wind: 260, grav: 1250, stiff: 1.9 }), at: 'hip', w: 9 * this.scale, dy: -3, dx: -5 });
-    } else if (this.armor === 'mei_en') {
-      this.cloths.push({ kind: 'belt', c: new Cloth(5, 7.4 * this.scale, { ph: 2, wind: 190, grav: 1300, stiff: 1.7 }), at: 'hip', color: '#2b2733', rim: 'rgba(200,170,250,0.6)', w: 8 * this.scale, w1: 5.4 * this.scale, dy: -4, dx: 7 });
-      this.cloths.push({ kind: 'belt', c: new Cloth(5, 6.8 * this.scale, { ph: 5, wind: 170, grav: 1300, stiff: 1.7 }), at: 'hip', color: '#5c4d78', rim: 'rgba(236,229,211,0.4)', w: 7 * this.scale, w1: 4.6 * this.scale, dy: -4, dx: -6 });
-    }
+    // the Mei-En Garb's sash (on Akari, and on Kage when he wears it): akariCloths (28-anime-akari.js)
     animeCloths(this);   // the anime body's own cloth (Kage's coat panels: 21-anime-body.js)
   }
 
@@ -1160,35 +1144,7 @@ const MOVE_EASE = {
 // V-tapered torso: glutes, lower back, chest and lats, shoulders, neck — profile measured along the spine
 const TORSO_FRONT = [[-0.08, 0.6], [0.12, 0.72], [0.4, 0.6], [0.7, 1.02], [0.9, 0.82], [1.04, 0.34]];
 const TORSO_BACK = [[1.04, 0.36], [0.9, 0.8], [0.66, 0.86], [0.42, 0.58], [0.16, 0.86], [-0.08, 0.6]];
-// Akari's figure: a full bust on the front, a narrow waist, the hips flaring toward the back
-const FEM_FRONT = [[-0.08, 0.78], [0.12, 0.88], [0.44, 0.52], [0.66, 1.95], [0.86, 1.05], [1.04, 0.3]];
-const FEM_BACK = [[1.04, 0.32], [0.88, 0.78], [0.64, 0.64], [0.4, 0.5], [0.14, 1.3], [-0.08, 0.98]];
 const _tp = new Float32Array(24);
-// Akari's head: an anime face instead of a ball: a rounded crown and back of the head, a near-vertical brow and cheek,
-// and a narrow jaw tapering to a pointed chin that sits a little below where the circle would end. Local head coords
-// (+x the face side, r the head radius); the path is left open for the caller to fill or clip.
-function akariHeadPath(ctx, r) {
-  ctx.beginPath(); ctx.moveTo(-r * 0.92, r * 0.15);
-  ctx.bezierCurveTo(-r * 1.02, -r * 0.75, -r * 0.45, -r * 1.08, r * 0.1, -r * 1.05);
-  ctx.bezierCurveTo(r * 0.7, -r * 1.0, r * 0.98, -r * 0.55, r * 0.95, -r * 0.1);
-  ctx.quadraticCurveTo(r * 0.98, r * 0.38, r * 0.78, r * 0.68);
-  ctx.quadraticCurveTo(r * 0.58, r * 1.02, r * 0.4, r * 1.14);
-  ctx.quadraticCurveTo(r * 0.02, r * 0.96, -r * 0.35, r * 0.7);
-  ctx.quadraticCurveTo(-r * 0.8, r * 0.6, -r * 0.92, r * 0.15);
-  ctx.closePath();
-}
-// A five-petal sakura with notched petal tips and a pale heart (Akari's pin and sash crest)
-function drawSakura(ctx, x, y, R, rot, fill, core) {
-  ctx.save(); ctx.translate(x, y); ctx.rotate(rot); ctx.fillStyle = fill;
-  for (let i = 0; i < 5; i++) {
-    ctx.beginPath(); ctx.moveTo(0, 0);
-    ctx.bezierCurveTo(-R * 0.6, -R * 0.45, -R * 0.42, -R * 1.0, -R * 0.14, -R * 1.0); ctx.lineTo(0, -R * 0.82); ctx.lineTo(R * 0.14, -R * 1.0);
-    ctx.bezierCurveTo(R * 0.42, -R * 1.0, R * 0.6, -R * 0.45, 0, 0); ctx.fill();
-    ctx.rotate(TAU / 5);
-  }
-  if (core) { ctx.fillStyle = core; ctx.beginPath(); ctx.arc(0, 0, R * 0.2, 0, TAU); ctx.fill(); }
-  ctx.restore();
-}
 function torsoShape(ctx, hip, neck, facing, Ut, front, back) {
   const dx = neck.x - hip.x, dy = neck.y - hip.y, T = Math.sqrt(dx * dx + dy * dy) || 1, ux = dx / T, uy = dy / T;
   let fx = -uy, fy = ux; if (fx * facing < 0) { fx = -fx; fy = -fy; }
@@ -1346,7 +1302,6 @@ Fighter.prototype.draw = function (ctx, opt) {
   this.silhouette(ctx, ink, ink, flat, opt);
   if (this.armor === 'kysmei' && !this.kageFrame && !wit) this.drawKysmei(ctx, 1, opt);
   if (witArt) { this.drawWitnessCoat(ctx, 1, opt); this.drawWitnessVeins(ctx, opt); if (!this.coreBroken) this.drawCore(ctx, opt); }
-  if (this.helmet === 'akari_mask') { this.drawAkariDetails(ctx, opt); this.drawAkariSash(ctx, opt); }
   if (!flat) this.drawDetails(ctx, opt);
   if (!opt.color) this.drawFlipArcs(ctx, true);
   if (this.state === 'kickcharge' && this.charge > 0.18 && !opt.color) {
@@ -1452,52 +1407,7 @@ function drawTakashiBeard(ctx, r, ink, flat) {
 function isRem(f) { const d = f && f.def; return !!d && (d.id === 'young_rem' || d.id === 'rem' || d.echoOf === 'rem'); }
 // his head, hair, band and coat: 26-anime-rem.js
 
-/* ---- Akari ---- */
-// Her long front sash (cloth kind 'asash'): a straight violet panel from the belt, widening slightly, cut in a V at the
-// end, deep violet at the knot to lilac at the tip, a pale edge, and a white sakura crest near the end
-const _asl = new Float32Array(24), _asr = new Float32Array(24);
-Fighter.prototype.drawAkariSash = function (ctx, opt) {
-  const s = this.scale, flat = !!opt.color;
-  for (const cl of this.cloths) {
-    if (cl.kind !== 'asash' || !cl.c.init) continue;
-    const c = cl.c, n = c.n, px = c.px, py = c.py;
-    for (let i = 0; i < n; i++) {
-      const a = i === 0 ? 0 : i - 1, b = i === n - 1 ? n - 1 : i + 1;
-      let dx = px[b] - px[a], dy = py[b] - py[a]; const d = Math.sqrt(dx * dx + dy * dy) || 1; dx /= d; dy /= d;
-      const w = cl.w * 0.5 * (0.8 + 0.3 * i / (n - 1));
-      _asl[i * 2] = px[i] - dy * w; _asl[i * 2 + 1] = py[i] + dx * w; _asr[i * 2] = px[i] + dy * w; _asr[i * 2 + 1] = py[i] - dx * w;
-    }
-    const e = (n - 1) * 2, vx = px[n - 1] - px[n - 2], vy = py[n - 1] - py[n - 2];
-    ctx.beginPath(); ctx.moveTo(_asl[0], _asl[1]);
-    for (let i = 1; i < n; i++) ctx.lineTo(_asl[i * 2], _asl[i * 2 + 1]);
-    ctx.lineTo(_asl[e] + vx * 0.7, _asl[e + 1] + vy * 0.7); ctx.lineTo(px[n - 1], py[n - 1]); ctx.lineTo(_asr[e] + vx * 0.7, _asr[e + 1] + vy * 0.7);
-    for (let i = n - 1; i >= 0; i--) ctx.lineTo(_asr[i * 2], _asr[i * 2 + 1]);
-    ctx.closePath();
-    if (flat) { ctx.fillStyle = opt.color; ctx.fill(); continue; }
-    const g = ctx.createLinearGradient(px[0], py[0], px[n - 1], py[n - 1]);
-    g.addColorStop(0, '#3a2266'); g.addColorStop(0.6, '#7446c4'); g.addColorStop(1, '#a77bf0');
-    ctx.fillStyle = g; ctx.fill();
-    ctx.strokeStyle = 'rgba(226,210,255,0.85)'; ctx.lineWidth = 1 * s; ctx.stroke();
-    const j = Math.round((n - 1) * 0.72);
-    drawSakura(ctx, px[j], py[j], cl.w * 0.36, Math.atan2(vy, vx), 'rgba(250,244,255,0.92)', '#a77bf0');
-  }
-};
-// Her violet arm cuffs above the gloves and the bands at the top of her boots; the back limbs' first, dimmer
-Fighter.prototype.drawAkariDetails = function (ctx, opt) {
-  if (opt.color) return;
-  const sk = this.sk, s = this.scale, L = this.build.w * s * 0.42;
-  const band = (a, b, u, w, col) => {
-    const x = lerp(a.x, b.x, u), y = lerp(a.y, b.y, u), an = Math.atan2(b.y - a.y, b.x - a.x), ox = -Math.sin(an) * L * 1.25, oy = Math.cos(an) * L * 1.25;
-    ctx.strokeStyle = col; ctx.lineWidth = w * s; ctx.lineCap = 'butt';
-    ctx.beginPath(); ctx.moveTo(x - ox, y - oy); ctx.lineTo(x + ox, y + oy); ctx.stroke();
-  };
-  ctx.save();
-  for (const [el, ha, kn, ft, col] of [[sk.bel, sk.bha, sk.bkn, sk.bft, '#5e3f96'], [sk.fel, sk.fha, sk.fkn, sk.fft, '#9a6ae6']]) {
-    band(el, ha, 0.18, 2.4, col); band(el, ha, 0.7, 1.4, col);
-    band(kn, ft, 0.22, 2.8, col); band(kn, ft, 0.9, 1.6, col);
-  }
-  ctx.restore();
-};
+/* ---- Akari: 28-anime-akari.js (hair, mask, fitted garb, arm guards, boots, sash and tail) ---- */
 // The Witness's glitch frame: the figure is drawn once into an offscreen canvas, then put back as horizontal slices,
 // some torn sideways, over a magenta / cyan colour split, with dark scanlines across the figure and a few bright pixel
 // blocks flickering beside it. Deterministic per 1/30 s, stronger during a corrupted move. Returns false (draw it the
@@ -2193,44 +2103,10 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
       }
       break;
     }
-    case 'akari_mask': {
-      // Akari (her head is an anime face, not a ball: akariHeadPath): full black hair over the crown and the back of the
-      // head with a jagged fringe falling over the brow and a lock in front of the ear, a sakura pin at the root of her
-      // high ponytail (the tail and the pin's tassels are cloth), a grey-violet mask over the lower face, and one
-      // glowing violet eye between the fringe and the mask
-      ctx.fillStyle = flat ? ink : '#0c0a12';
-      ctx.beginPath(); ctx.moveTo(r * 0.42, -r * 1.1);
-      for (const [x, y] of [[r * 1.08, -r * 0.66], [r * 1.02, -r * 0.3], [r * 0.84, -r * 0.56], [r * 0.7, -r * 0.24], [r * 0.5, -r * 0.5], [r * 0.3, -r * 0.1],
-        [r * 0.2, r * 0.62], [r * 0.02, r * 0.12], [-r * 0.6, r * 0.7], [-r * 1.12, r * 0.22], [-r * 1.14, -r * 0.6], [-r * 0.62, -r * 1.2], [r * 0.02, -r * 1.24]]) ctx.lineTo(x, y);
-      ctx.closePath(); ctx.fill();
-      if (flat) break;
-      // a fine lilac edge along the fringe and the side lock, so the hairline reads against the dark face
-      ctx.strokeStyle = 'rgba(200,170,255,0.75)'; ctx.lineWidth = Math.max(0.8, r * 0.05); ctx.lineJoin = 'round';
-      ctx.beginPath(); ctx.moveTo(r * 1.08, -r * 0.66);
-      for (const [x, y] of [[r * 1.02, -r * 0.3], [r * 0.84, -r * 0.56], [r * 0.7, -r * 0.24], [r * 0.5, -r * 0.5], [r * 0.3, -r * 0.1], [r * 0.2, r * 0.62], [r * 0.02, r * 0.12]]) ctx.lineTo(x, y);
-      ctx.stroke();
-      // a violet sheen across the crown
-      ctx.strokeStyle = 'rgba(170,120,240,0.7)'; ctx.lineWidth = Math.max(1, r * 0.08);
-      ctx.beginPath(); ctx.moveTo(-r * 0.75, -r * 0.82); ctx.quadraticCurveTo(-r * 0.1, -r * 1.12, r * 0.55, -r * 0.92); ctx.stroke();
-      // the mask, clipped to the face
-      ctx.save(); akariHeadPath(ctx, r * 1.01); ctx.clip();
-      ctx.fillStyle = '#4c445c'; ctx.beginPath(); ctx.moveTo(r * 0.22, -r * 0.04); ctx.lineTo(r * 1.2, -r * 0.1); ctx.lineTo(r * 1.2, r * 1.3); ctx.lineTo(r * 0.18, r * 1.3); ctx.closePath(); ctx.fill();
-      ctx.fillStyle = '#332d40'; ctx.beginPath(); ctx.moveTo(r * 0.18, r * 0.62); ctx.lineTo(r * 1.2, r * 0.5); ctx.lineTo(r * 1.2, r * 1.3); ctx.lineTo(r * 0.18, r * 1.3); ctx.closePath(); ctx.fill();
-      ctx.strokeStyle = 'rgba(226,210,255,0.9)'; ctx.lineWidth = Math.max(1, r * 0.07);
-      ctx.beginPath(); ctx.moveTo(r * 0.22, -r * 0.04); ctx.lineTo(r * 1.2, -r * 0.1); ctx.stroke();   // the mask's upper edge
-      ctx.strokeStyle = 'rgba(20,16,28,0.9)'; ctx.lineWidth = Math.max(1, r * 0.04);
-      ctx.beginPath(); ctx.moveTo(r * 0.86, r * 0.0); ctx.quadraticCurveTo(r * 0.82, r * 0.5, r * 0.5, r * 1.04); ctx.stroke();   // seam down to the chin
-      ctx.restore();
-      // the eye: a narrow glowing almond, flaring white when she is about to strike
-      const hot = f && f.telegraph > 0, ex = r * 0.66, ey = -r * 0.2, ec = (f && f.eye) || '#c9a8ff';
-      ctx.fillStyle = 'rgba(176,120,255,0.45)'; ctx.beginPath(); ctx.ellipse(ex, ey, r * 0.38, r * 0.2, -0.1, 0, TAU); ctx.fill();
-      ctx.fillStyle = hot ? '#ffffff' : ec; ctx.beginPath(); ctx.moveTo(ex - r * 0.24, ey + r * 0.06); ctx.quadraticCurveTo(ex, ey - r * 0.14, ex + r * 0.26, ey - r * 0.02); ctx.quadraticCurveTo(ex + r * 0.02, ey + r * 0.12, ex - r * 0.24, ey + r * 0.06); ctx.fill();
-      ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(ex + r * 0.04, ey, r * 0.05, 0, TAU); ctx.fill();
-      if (hot) { ctx.strokeStyle = ec; ctx.lineWidth = 2; const fl = r * (1 + 0.3 * Math.sin(t * 50)); ctx.beginPath(); ctx.moveTo(ex - fl, ey); ctx.lineTo(ex + fl, ey); ctx.moveTo(ex, ey - fl * 0.5); ctx.lineTo(ex, ey + fl * 0.5); ctx.stroke(); }
-      // the sakura pin at the ponytail's root
-      drawSakura(ctx, -r * 0.62, -r * 0.8, r * 0.44, 0.3, '#b384ff', '#f3e6ff');
+    case 'akari_mask':
+      // Akari (and her echo): ponytail tie and sakura ornament, fringe, side lock, half-mask and white eyes (28-anime-akari.js)
+      drawAkariHead(ctx, f, r, ink, flat);
       break;
-    }
     case 'colossus':
       ctx.beginPath(); ctx.roundRect ? ctx.roundRect(-r * 1.25, -r * 1.35, r * 2.5, r * 2.35, r * 0.5) : ctx.rect(-r * 1.25, -r * 1.35, r * 2.5, r * 2.35); ctx.fill();
       if (!flat) { ctx.fillStyle = 'rgba(255,106,60,0.9)'; ctx.fillRect(r * 0.05, -r * 0.2, r * 1.15, r * 0.14); }
@@ -2320,60 +2196,10 @@ function drawArmor(ctx, f, ink, opt, Ut) {
       }
       break;
     }
-    case 'mei_en': {
-      const ox = Math.cos(ang + Math.PI / 2), oy = Math.sin(ang + Math.PI / 2);
-      const Q = (u, w) => [lerp(hx, nx, u) + ox * w * Ut, lerp(hy, ny, u) + oy * w * Ut];
-      if (f.helmet === 'akari_mask') {
-        // Akari's own cut of it: her figure (FEM_*), a black halter crop top edged in violet with a diamond keyhole at
-        // the chest, the bare-shouldered line of the halter strap, and a belt with a square buckle (the sash: cloth)
-        const W = Ut * 1.3, fo = ox * fc > 0 || (ox === 0 && fc > 0) ? 1 : -1;   // fo: which side of the spine is her front
-        torsoShape(ctx, sk.hip, sk.neck, fc, W, FEM_FRONT, FEM_BACK);
-        // her hips: a full, rounded seat behind the hip joint flowing into the back of the thigh, so the waist curves out
-        // into it naturally (drawn with the body, and in the flat outline pass, so the white rim follows the curve)
-        {
-          const ux = Math.cos(ang), uy = Math.sin(ang), bkx = -ox * fo, bky = -oy * fo, hr2 = W * 1.42;
-          const cx = hx + bkx * W * 0.78 - ux * W * 0.38, cy = hy + bky * W * 0.78 - uy * W * 0.38;
-          ctx.beginPath(); ctx.ellipse(cx, cy, hr2, hr2 * 0.86, ang, 0, TAU); ctx.fill();
-          ctx.beginPath(); ctx.moveTo(hx + bkx * W * 0.2 + ux * W * 0.9, hy + bky * W * 0.2 + uy * W * 0.9);
-          ctx.quadraticCurveTo(hx + bkx * W * 1.1 + ux * W * 0.3, hy + bky * W * 1.1 + uy * W * 0.3, cx + bkx * hr2 * 0.9, cy + bky * hr2 * 0.9);
-          ctx.lineTo(cx - bkx * hr2 * 0.4, cy - bky * hr2 * 0.4); ctx.closePath(); ctx.fill();
-        }
-        if (flat) break;
-        ctx.save(); ctx.clip();
-        const P = (u, w) => [lerp(hx, nx, u) + ox * w * W * fo, lerp(hy, ny, u) + oy * w * W * fo];
-        const band = (u0, u1, col) => { const a = P(u0, -2), b = P(u0, 2), c = P(u1, 2), d = P(u1, -2); ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.lineTo(c[0], c[1]); ctx.lineTo(d[0], d[1]); ctx.closePath(); ctx.fill(); };
-        band(0.5, 0.9, '#0d0a12');            // the crop top
-        band(0.0, 0.16, '#0d0a12');           // the waistband under the belt
-        ctx.strokeStyle = 'rgba(190,150,255,0.9)'; ctx.lineWidth = 1.3 * s;
-        let a = P(0.5, -2), b = P(0.5, 2); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke();   // its hem
-        a = P(0.9, 0.35); b = P(0.62, 1.1); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.quadraticCurveTo(P(0.78, 1.0)[0], P(0.78, 1.0)[1], b[0], b[1]); ctx.stroke();   // the halter edge
-        // the bust's contour: a lilac curve under it, the line of the chest catching the light
-        ctx.strokeStyle = 'rgba(200,170,255,0.8)'; ctx.lineWidth = 1.1 * s;
-        a = P(0.56, 0.2); b = P(0.66, 1.9); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.quadraticCurveTo(P(0.5, 1.5)[0], P(0.5, 1.5)[1], b[0], b[1]); ctx.stroke();
-        const k = P(0.74, 0.82), kr = 2.4 * s;   // the keyhole
-        ctx.fillStyle = '#a978f0'; ctx.beginPath(); ctx.moveTo(k[0], k[1] - kr * 1.4); ctx.lineTo(k[0] + kr, k[1]); ctx.lineTo(k[0], k[1] + kr * 1.4); ctx.lineTo(k[0] - kr, k[1]); ctx.closePath(); ctx.fill();
-        // the belt and its buckle
-        ctx.strokeStyle = '#7d55c4'; ctx.lineWidth = 3.4 * s; ctx.lineCap = 'butt';
-        a = P(0.12, -2); b = P(0.12, 2); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); ctx.lineCap = 'round';
-        ctx.restore();
-        const bk = P(0.12, 0.45); ctx.strokeStyle = '#d9c6ff'; ctx.lineWidth = 1.2 * s; ctx.strokeRect(bk[0] - 2.6 * s, bk[1] - 2.6 * s, 5.2 * s, 5.2 * s);
-        break;
-      }
-      // the Mei-En Garb (as worn by anyone else): light layered armour on a slim frame: two overlapping chest plates
-      // edged in muted violet, a small shoulder guard and a wrapped waist band; its split cloth panels hang from the hip
-      torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.0);
-      ctx.fillStyle = flat ? ink : '#3a3148';
-      for (const [u0, u1] of [[0.5, 0.9], [0.32, 0.66]]) {
-        const pts = [Q(u1, -1.05), Q(u1, 1.05), Q(u0 + 0.04, 1.1), Q(u0, 0), Q(u0 + 0.04, -1.1)];
-        ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]); for (const q of pts.slice(1)) ctx.lineTo(q[0], q[1]); ctx.closePath(); ctx.fill();
-        if (!flat) { ctx.strokeStyle = 'rgba(200,170,250,0.8)'; ctx.lineWidth = 1.3 * s; ctx.beginPath(); ctx.moveTo(pts[2][0], pts[2][1]); ctx.lineTo(pts[3][0], pts[3][1]); ctx.lineTo(pts[4][0], pts[4][1]); ctx.stroke(); }
-      }
-      plate(Ut * 0.5, flat ? null : 'rgba(180,140,240,0.5)');
-      if (flat) break;
-      ctx.strokeStyle = '#6a5a86'; ctx.lineWidth = 4 * s; ctx.lineCap = 'butt';
-      const a = Q(0.16, -1.05), b = Q(0.16, 1.05); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); ctx.lineCap = 'round';
+    case 'mei_en':
+      // the Mei-En Garb: Akari's fitted top and high collar on her, a violet-edged chest guard on Kage (28-anime-akari.js)
+      drawMeiEn(ctx, f, ink, flat);
       break;
-    }
     case 'kysmei': {
       // the Kysmei Robe: a narrow dark under-robe with a violet crossed collar (its fragments drift around the body,
       // Fighter.drawKysmei). On a Witness flicker frame: Kage's own red sash instead

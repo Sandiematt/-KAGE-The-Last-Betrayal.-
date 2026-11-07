@@ -72,6 +72,7 @@ function animeCloths(f) {
   subBCloths(f, sk);   // the later sub-bosses' haori skirts, capes, band tails and hair (25-anime-subs-b.js)
   remCloths(f, sk);   // Rem's headband tails (26-anime-rem.js)
   raikonCloths(f, sk);   // Raikon's cloak and coat skirts (27-anime-raikon.js)
+  akariCloths(f, sk);   // Akari's ponytail, bead strings, sash and tail; the Mei-En Garb's sash on Kage (28-anime-akari.js)
 }
 
 /* ---- palette ---- */
@@ -343,7 +344,7 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   const U = s * clamp(b.w / 10, 0.9, 1.75) * (b.w >= 13 ? 1.08 : 1);       // clothing unit (px per design unit)
   const hr = BODY.head * s * b.head, S = animeSpine(this);
   A.S = S; A.U = U;   // armour parts drawn from drawArmor / drawHelmet (22-anime-order.js) share the spine frame
-  const akari = this.helmet === 'akari_mask', slv = skin.sleeve || 1, boot = skin.feet === 'boot';
+  const akari = !!skin.akari, slv = skin.sleeve || 1, boot = skin.feet === 'boot';
   const ov = flat ? { color: front } : opt;
   const fabB = pal.back, fab = pal.fab, coatT = skin.top === 'coat' ? pal.coat : pal.fab;
   const armInk = flat ? front : this.isPlayer ? pal.metal[1] : (pal.armor || front);
@@ -355,12 +356,13 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   subLayer(this, ctx, A, skin, U, 'back');   // capes, banners, robes behind the body (24-anime-subs-a.js)
   subBLayer(this, ctx, A, skin, U, 'back');   // 25-anime-subs-b.js
   raikonLayer(this, ctx, A, skin, U, 'back');   // Raikon's cloak and coat skirt (27-anime-raikon.js)
+  akariLayer(this, ctx, A, skin, U, 'back');   // Akari's ponytail, bead strings and back tail (28-anime-akari.js)
   // --- 2. the far arm: sleeve, cuff, hand (then any off-hand weapon)
   this.animeArm(ctx, sk.shB, sk.bel, sk.bha, A, skin, U * slv, true);
   this.drawOffhand(ctx, front, flat ? Object.assign({}, opt, { color: front }) : opt);
   // --- 3. the far leg
   this.animeLeg(ctx, sk.hipB, sk.bkn, sk.bft, A, skin, U, true);
-  // --- 4. the torso (Akari's figure is her garb's own cut, drawArmor 'mei_en')
+  // --- 4. the torso (Akari's fitted top is her garb's own cut, drawArmor 'mei_en': 28-anime-akari.js)
   if (!akari) this.animeTorsoDraw(ctx, S, A, skin, U, coatT);
   if (ord) this.orderKusazuri(ctx, S, A, U, 'back');
   drawArmor(ctx, this, armInk, ov, T * 1.25);
@@ -370,6 +372,7 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   subLayer(this, ctx, A, skin, U, 'front');
   subBLayer(this, ctx, A, skin, U, 'front');
   raikonLayer(this, ctx, A, skin, U, 'front');
+  akariLayer(this, ctx, A, skin, U, 'front');   // her violet sash (and the Mei-En Garb's on Kage)
   if (skin.coat) this.drawCoatPanel(ctx, 'flap', A, skin, U);
   if (hol) this.hollowRobe(ctx, A, skin, U, 'flap');
   // --- 6. sash / obi and the saya at the hip
@@ -377,6 +380,7 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   else if (skin.sash === 'obi' && !akari) this.animeObi(ctx, S, A, U);
   else if (skin.sash === 'order') this.orderBelt(ctx, S, A, U);
   else if (skin.sash === 'raikon') raikonLayer(this, ctx, A, skin, U, 'waist');   // his red obi and ring (27-anime-raikon.js)
+  else if (skin.sash === 'akari') akariLayer(this, ctx, A, skin, U, 'waist');   // her belts, buckle and pouch (28-anime-akari.js)
   else if (hol) this.hollowSash(ctx, S, A, U, skin.sash);
   if (hol && hol.mantle) this.hollowMantle(ctx, S, A, U, hol.mantle);
   subLayer(this, ctx, A, skin, U, 'waist');
@@ -390,7 +394,7 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   ctx.save(); ctx.translate(sk.head.x, sk.head.y); ctx.rotate(this.headRot); ctx.scale(f, 1);
   const takashi = bossLook(this) === 'takashi';
   ctx.fillStyle = flat ? front : ANIME.face; ctx.beginPath();
-  if (akari) akariHeadPath(ctx, hr); else if (takashi) takashiHeadPath(ctx, hr); else animeHeadPath(ctx, hr * 0.9);
+  if (akari) animeHeadPath(ctx, hr * 0.86); else if (takashi) takashiHeadPath(ctx, hr); else animeHeadPath(ctx, hr * 0.9);
   ctx.fill();
   if (takashi) drawTakashiBeard(ctx, hr, front, flat);
   drawHelmet(ctx, this.helmet, hr, flat ? front : this.isPlayer ? pal.metal[1] : (pal.armor || front), ov, this);
@@ -411,6 +415,11 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
 // elbow and flares to its opening (Kage's ends in a crimson cuff), a dark strapped kote under it and a small glove on
 // the grip. `far` is the arm behind the body: one tone darker and no detail lines.
 Fighter.prototype.animeArm = function (ctx, sh, el, ha, A, skin, U, far, noHand) {
+  if (skin.akari) {   // Akari's fitted sleeve and long arm guard (28-anime-akari.js)
+    akariArm(this, ctx, sh, el, ha, A, U, far);
+    if (!noHand && !(far && this.pose.ik > 0.5 && IK_OFF[this.shape()] != null)) this.animeHand(ctx, el, ha, A, U * 0.88, far);
+    return;
+  }
   const pal = A.pal, tone = far ? pal.back : skin.top === 'coat' ? pal.coat : pal.fab, gi = skin.top !== 'coat';
   const ex = ha.x - el.x, ey = ha.y - el.y, fl = Math.hypot(ex, ey) || 1, fnx = -ey / fl, fny = ex / fl;
   const at = (u, o) => ({ x: el.x + ex * u + fnx * o, y: el.y + ey * u + fny * o });
@@ -474,6 +483,7 @@ Fighter.prototype.animeHand = function (ctx, el, ha, A, U, far) {
 // wide split hakama: a full thigh and a shin that stays wide to the ankle (bloused into Kage's tall boots), pleat
 // lines, then the boot (Kage) or tabi and straw sandal (everyone else)
 Fighter.prototype.animeLeg = function (ctx, hp, kn, ft, A, skin, U, far) {
+  if (skin.akari) { akariLeg(this, ctx, hp, kn, ft, A, skin, U, far); return; }   // leggings and tall boots (28-anime-akari.js)
   const pal = A.pal, tone = far ? pal.back : pal.fab, f = this.facing, boot = skin.feet === 'boot', lw = (skin.hollow && skin.hollow.legW) || 1;
   const pleats = (g, a, b, os) => {
     const dx = b.x - a.x, dy = b.y - a.y, l = Math.hypot(dx, dy) || 1, nx = -dy / l, ny = dx / l;
@@ -596,7 +606,7 @@ Fighter.prototype.animeNeck = function (ctx, S, A, skin, U, hr) {
 
 /* ---- the eyes: two short, sharp, slightly upswept almonds that glow white; narrowed while attacking ---- */
 function drawEyes(ctx, f, r, opt) {
-  if (opt.color || f.helmet === 'witness_mask' || f.helmet === 'akari_mask') return;   // the Witness's and Akari's eyes are part of their masks
+  if (opt.color || f.helmet === 'witness_mask' || f.helmet === 'akari_mask') return;   // the Witness's and Akari's eyes are drawn with their masks
   if (f.eye === 'rgba(0,0,0,0)') return;   // a decoy or clone: no light behind the eyes
   const squint = f.state === 'move' || f.state === 'ability' ? 0.55 : f.state === 'hit' || f.state === 'stun' ? 0.75 : 1;
   const rf = r * 0.9, glow = f.hollow ? 'rgba(185,150,255,0.4)' : 'rgba(244,241,234,0.16)';
