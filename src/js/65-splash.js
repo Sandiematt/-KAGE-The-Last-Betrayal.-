@@ -2,8 +2,9 @@
    each letter cut in by a slash that comes from outside the frame (about 3 seconds), then the subtitle
    "The Last Betrayal", the tagline and the prompt.
    The painted scene still shows the hero in the old red hachimaki, so he is recoloured in code (sceneRecolour)
-   into Kage's story-bible look, as the title scene does: the headband and its long red tails are taken out of the
-   black silhouette, a flat white face-wrap covers his lower face, and one short white strip trails from its knot. */
+   into Kage's anime look (docs/art-reference/STYLE.md), as the title scene does: the headband and its long red tails
+   are taken out of the black silhouette (the black face and white eye stay as painted), and his red scarf is wound at
+   his neck with two tails streaming back from its knot (drawScarf). */
 const Splash = (() => {
   // everything is laid out in the key art's own pixel space (1774 x 887)
   const ART_W = 1774, ART_H = 887;
@@ -41,12 +42,10 @@ const Splash = (() => {
   // the headband across his head, from the knot at the back to the hair at his brow
   const BAND = [[868, 162], [904, 158], [932, 160], [960, 168], [985, 180], [1008, 192], [1022, 203], [1029, 216], [1030, 238],
     [1018, 247], [1006, 237], [990, 223], [975, 209], [960, 199], [940, 188], [920, 185], [895, 186], [868, 188]];
-  // the face-wrap: everything dark below the eye slit, inside this outline, with a cel-shade under the jaw
-  const WRAP = [[926, 236], [960, 239], [986, 243], [1014, 245], [1024, 300], [948, 300], [934, 268]];
-  const WRAP_TOP = [[930, 237], [960, 240], [986, 244], [1012, 246]];
-  const WRAP_SHADE_Y = x => 270 + (x - 940) * 0.12;
-  const KNOT = { x: 868, y: 176 };
-  const FACEWRAP = '#efe9dd', FACEWRAP_SHADE = '#b4ac9f';
+  // Kage's red scarf: the band round his neck (inside the silhouette, under the jaw) and its knot at the nape
+  const SCARF_BAND = [[884, 266], [914, 263], [944, 262], [948, 276], [916, 279], [882, 283]];
+  const KNOT = { x: 885, y: 274 };
+  const SCARF = '#a8262c', SCARF_DARK = '#6a1218';   // the scarf's deep crimson (Kage's second tail), so it reads against the red moon
   const inPoly = (P, x, y) => {
     let c = false;
     for (let i = 0, j = P.length - 1; i < P.length; j = i++) {
@@ -87,29 +86,18 @@ const Splash = (() => {
       const A = sample(up < 0 ? dn : up), B = sample(dn < 0 ? up : dn), t = up < 0 || dn < 0 ? 0 : (y - up) / (dn - up), i = at(x, y);
       for (let ch = 0; ch < 3; ch++) d[i + ch] = lerp(A[ch], B[ch], t);
     }
-    // the face-wrap: dark pixels inside the outline, keeping a thin ink edge where the silhouette meets the moon
-    const dark = (x, y) => { const i = at(x, y); return Math.max(d[i], d[i + 1], d[i + 2]) < 70; };
-    const fill = [];
-    for (let y = 230; y < 300; y++) for (let x = 920; x < 1030; x++) {
-      if (!inPoly(WRAP, x, y) || !dark(x, y) || !dark(x - 3, y) || !dark(x + 3, y) || !dark(x, y - 3) || !dark(x, y + 3)) continue;
-      fill.push(x, y);
-    }
-    const rgb = hex => [1, 3, 5].map(k => parseInt(hex.slice(k, k + 2), 16)), lit = rgb(FACEWRAP), sh = rgb(FACEWRAP_SHADE);
-    for (let k = 0; k < fill.length; k += 2) {
-      const x = fill[k], y = fill[k + 1], i = at(x, y), col = y > WRAP_SHADE_Y(x) ? sh : lit;
-      d[i] = col[0]; d[i + 1] = col[1]; d[i + 2] = col[2];
-    }
     g.putImageData(id, x0, y0);
-    // crisp ink edges: the wrap's top under the eye and one fold
+    // the scarf's band round the neck: crimson with a shadow fold and an ink edge
     const path = pts => pts.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1]));
-    g.save(); g.strokeStyle = 'rgb(3,2,2)'; g.lineWidth = 3; g.lineJoin = g.lineCap = 'round';
-    g.beginPath(); path(WRAP_TOP); g.stroke();
-    g.beginPath(); g.moveTo(1004, 258); g.quadraticCurveTo(975, 266, 948, 258); g.stroke();
+    g.save(); g.lineJoin = g.lineCap = 'round';
+    g.fillStyle = SCARF; g.beginPath(); path(SCARF_BAND); g.closePath(); g.fill();
+    g.fillStyle = SCARF_DARK; g.beginPath(); path([[883, 276], [914, 273], [946, 272], [948, 276], [916, 279], [882, 283]]); g.closePath(); g.fill();
+    g.strokeStyle = 'rgb(3,2,2)'; g.lineWidth = 2; g.beginPath(); path(SCARF_BAND); g.closePath(); g.stroke();
     g.restore();
     return c;
   }
-  // the short white strip trailing from the knot, blown back to the left
-  function drawStrip(t) {
+  // the scarf's two tails trailing from the knot at his nape, blown back to the left
+  function drawScarf(t) {
     const strip = (len, n, w0, w1, ph, lift, col) => {
       const L = [], R = [], pt = u => [KNOT.x - u * len, KNOT.y + u * lift + Math.sin(t * 7 + u * 5 + ph) * 7 * u];
       for (let i = 0; i <= n; i++) {
@@ -120,11 +108,12 @@ const Splash = (() => {
       ctx.fillStyle = col; ctx.beginPath();
       L.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
       for (let i = R.length - 1; i >= 0; i--) ctx.lineTo(R[i][0], R[i][1]);
-      ctx.closePath(); ctx.fill();
+      ctx.closePath(); ctx.fill(); ctx.stroke();
     };
-    strip(62, 10, 9, 5, 2, 14, FACEWRAP_SHADE);
-    strip(96, 12, 14, 6, 0, -8, FACEWRAP);
-    ctx.fillStyle = FACEWRAP; ctx.strokeStyle = 'rgb(3,2,2)'; ctx.lineWidth = 2.5;
+    ctx.strokeStyle = 'rgb(3,2,2)'; ctx.lineWidth = 2; ctx.lineJoin = 'round';
+    strip(62, 10, 9, 5, 2, 14, SCARF_DARK);
+    strip(96, 12, 14, 6, 0, -8, SCARF);
+    ctx.fillStyle = SCARF; ctx.lineWidth = 2.5;
     ctx.beginPath(); ctx.ellipse(KNOT.x, KNOT.y, 9, 7, -0.5, 0, TAU); ctx.fill(); ctx.stroke();
   }
 
@@ -230,7 +219,7 @@ const Splash = (() => {
     ctx.translate(ART_W / 2, ART_H * 0.42); ctx.scale(zoom, zoom); ctx.translate(-ART_W / 2, -ART_H * 0.42);
     if (!imgs.kage) imgs.kage = sceneRecolour(imgs.scene);
     ctx.drawImage(imgs.kage, 0, 0, ART_W, ART_H);
-    drawStrip(t);
+    drawScarf(t);
     ctx.restore();
     // petals drifting on the wind
     if (petals.length < 16 && Math.random() < dt * 3) spawnPetal(false);

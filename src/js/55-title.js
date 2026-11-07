@@ -1,26 +1,26 @@
 /* KAGE — animated title scene: the key art, alive.
    The painted backdrop (title-plate) and the hero (title-hero) are cut from the key art; on top of them the moon
-   breathes, clouds and petals drift, the face-wrap's trailing strip blows in the wind, the blade glows, the cracked
+   breathes, clouds and petals drift, the tails of his red scarf blow in the wind, the blade glows, the cracked
    ground smoulders and embers rise, and the hero breathes. A 2.5D camera drifts slowly and follows the pointer.
-   The painted hero still wears the old red hachimaki, so he is recoloured in code (heroRecolour) into Kage's
-   story-bible look: the headband is inked out and a flat white face-wrap is laid over his lower face. */
+   The painted hero still wears the old red hachimaki, so it is inked out in code (heroRecolour); what is left is
+   Kage's anime look (docs/art-reference/STYLE.md): the black face with white eyes as painted, the red scarf at his
+   neck, and its two tails streaming back from there. */
 // the key art (1254 px square) sits right-aligned at 0.6 scale; landmarks below are in canvas units
 const TA = { x: 528, y: -20, s: 0.6 };
 const TITLE_MOON = { x: 894, y: 209, r: 211 };
 const TITLE_LAND = { x: 936, y: 625 };       // the hero's ground line
 const TITLE_HORIZON = 500;                     // where the ground plane meets the hills
 const TITLE_OVERSCAN = 1.07;                   // layers are drawn slightly enlarged so camera moves never reveal an edge
-// hero sprite: its top-left in art px, plus anchors in sprite px (face-wrap knot, sword guard) and the blade tip in art px
-const HERO_SPR = { ax: 398, ay: 625, knot: [377, 150], guard: [68, 52], tip: [70, 824] };
-// Kage's face-wrap on the sprite (sprite px): the painted head is a circle; the red headband inside it is inked out
-// and a flat white wrap covers the lower face below the eye slits, knotted at his right where the strip trails
+// hero sprite: its top-left in art px, plus anchors in sprite px (the scarf at the back of his neck, sword guard) and the
+// blade tip in art px
+const HERO_SPR = { ax: 398, ay: 625, knot: [348, 222], guard: [68, 52], tip: [70, 824] };
+// the painted head is a circle (sprite px); the red headband inside it is inked out
 const HERO_HEAD = { x: 300, y: 112, r: 80 };
-const HERO_WRAP_TOP = [[212, 146], [258, 161], [302, 166], [345, 153], [392, 122]];   // just under the eye slits
-const HERO_WRAP_SHADE = [[392, 150], [340, 176], [290, 181], [212, 168]];             // the cel-shade line under the jaw
 const HERO_INK = [16, 7, 8];                                                         // the painted body's ink
+const HERO_SCARF = ['#c8343a', '#a8262c'];                                           // Kage's scarf (ANIME.scarf and its second tail)
 
-// Kage's look on the painted hero: ink out the red headband, then lay a flat white face-wrap over the lower face,
-// clipped to the painted head so his outline and rim light stay exactly as painted
+// Kage's look on the painted hero: ink out the old red headband (the painted black face, white eyes and red scarf at
+// the neck are already his), so his outline and rim light stay exactly as painted
 function heroRecolour(im) {
   const w = im.naturalWidth, h = im.naturalHeight, Hd = HERO_HEAD;
   return makeLayer(w, h, g => {
@@ -34,18 +34,6 @@ function heroRecolour(im) {
       d[i] = lerp(r, HERO_INK[0], red); d[i + 1] = lerp(gg, HERO_INK[1], red); d[i + 2] = lerp(b, HERO_INK[2], red);
     }
     g.putImageData(id, x0, y0);
-    const path = pts => pts.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1]));
-    g.save(); g.beginPath(); g.arc(Hd.x, Hd.y, Hd.r - 1, 0, TAU); g.clip();
-    g.fillStyle = '#efe9dd'; g.beginPath(); path(HERO_WRAP_TOP); g.lineTo(400, 220); g.lineTo(200, 220); g.closePath(); g.fill();
-    g.fillStyle = '#b4ac9f'; g.beginPath(); path(HERO_WRAP_SHADE); g.lineTo(200, 220); g.lineTo(400, 220); g.closePath(); g.fill();
-    // crisp ink edges: the top edge under the eyes and one wrap fold
-    g.strokeStyle = 'rgb(16,7,8)'; g.lineWidth = 3; g.lineJoin = 'round'; g.lineCap = 'round';
-    g.beginPath(); path(HERO_WRAP_TOP); g.stroke();
-    g.beginPath(); g.moveTo(384, 146); g.quadraticCurveTo(310, 184, 236, 166); g.stroke();
-    g.restore();
-    // the knot the strip trails from
-    g.fillStyle = '#efe9dd'; g.strokeStyle = 'rgb(16,7,8)'; g.lineWidth = 2.5;
-    g.beginPath(); g.ellipse(HERO_SPR.knot[0], HERO_SPR.knot[1], 9, 7, -0.5, 0, TAU); g.fill(); g.stroke();
   });
 }
 
@@ -207,7 +195,7 @@ const TitleScene = {
     return c;
   },
 
-  /* ---------------- the face-wrap's trailing strip ---------------- */
+  /* ---------------- the scarf's trailing tails ---------------- */
   ribbon(n) { return { n, px: new Float32Array(n), py: new Float32Array(n), ox: new Float32Array(n), oy: new Float32Array(n), init: false }; },
   stepRibbon(rb, ax, ay, seg, wx, wy, dt, t, ph) {
     const n = rb.n, px = rb.px, py = rb.py, ox = rb.ox, oy = rb.oy;
@@ -225,7 +213,7 @@ const TitleScene = {
       px[i] -= dx * diff; py[i] -= dy * diff;
     }
   },
-  // an easterly breeze lifts the short strip (and the stub of the knot's other end) up and to the right
+  // an easterly breeze lifts the scarf's two tails up and to the right
   stepCloth(dt, t, knot) {
     dt = Math.min(dt, 1 / 30); if (dt <= 0) return;
     if (!this.scarf) this.scarf = [this.ribbon(8), this.ribbon(5)];
@@ -245,6 +233,7 @@ const TitleScene = {
     for (let i = 2; i < L.length; i += 2) ctx.lineTo(L[i], L[i + 1]);
     for (let i = R.length - 2; i >= 0; i -= 2) ctx.lineTo(R[i], R[i + 1]);
     ctx.closePath(); ctx.fillStyle = col; ctx.fill();
+    ctx.strokeStyle = 'rgb(16,7,8)'; ctx.lineWidth = 1.6; ctx.lineJoin = 'round'; ctx.stroke();   // the ink edge of the cel look
   },
 
   /* ---------------- the hero (cut from the key art) ---------------- */
@@ -260,7 +249,7 @@ const TitleScene = {
     // a warm glow behind him from the cracked ground
     ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.22 + 0.06 * Math.sin(clock * 2.2);
     ctx.drawImage(T.heroGlow, TITLE_LAND.x - 220, TITLE_LAND.y - 190, 440, 300); ctx.restore();
-    if (this.scarf) { this.drawRibbon(ctx, this.scarf[1], 10, 6, '#a39b8e'); this.drawRibbon(ctx, this.scarf[0], 15, 7, '#efe9dd'); }
+    if (this.scarf) { this.drawRibbon(ctx, this.scarf[1], 10, 6, HERO_SCARF[1]); this.drawRibbon(ctx, this.scarf[0], 15, 7, HERO_SCARF[0]); }
     ctx.save(); ctx.translate(TITLE_LAND.x, TITLE_LAND.y); ctx.scale(f.sx, f.sy); ctx.translate(-TITLE_LAND.x, -TITLE_LAND.y);
     if (imgReady(im) && !T.heroKage) T.heroKage = heroRecolour(im);
     if (T.heroKage) ctx.drawImage(T.heroKage, TA.x + HERO_SPR.ax * TA.s, TA.y + HERO_SPR.ay * TA.s, im.naturalWidth * TA.s, im.naturalHeight * TA.s);
