@@ -30,13 +30,14 @@ const ANIME = {
 // the silhouette rim of the outline pass (Fighter.draw): the stage's rim colour pulled toward deep crimson (violet for
 // Hollows) and pre-mixed onto near-black, so the stamped passes stay one even, opaque, thin line
 const _rimCache = {};
-function animeRimColor(src, hollow) {
-  const key = src + (hollow ? 'h' : ''); let v = _rimCache[key]; if (v) return v;
+// (`tint`: a skin's own rim hue in place of crimson, e.g. Akari's violet)
+function animeRimColor(src, hollow, tint0) {
+  const key = src + (hollow ? 'h' : '') + (tint0 && !hollow ? tint0.join() : ''); let v = _rimCache[key]; if (v) return v;
   let rgb = [222, 96, 72], a = 0.75;
   const m = /rgba?\(([^)]+)\)/.exec(src);
   if (m) { const q = m[1].split(',').map(x => +x.trim()); rgb = [q[0], q[1], q[2]]; if (q[3] != null) a = q[3]; }
   else if (_hexRGB(src)) { rgb = _hexRGB(src); a = 1; }
-  const tint = hollow ? [124, 92, 224] : [184, 30, 38], k = 0.62, base = [9, 6, 6], t = clamp(a, 0, 1) * 0.86;
+  const tint = hollow ? [124, 92, 224] : tint0 || [184, 30, 38], k = 0.62, base = [9, 6, 6], t = clamp(a, 0, 1) * 0.86;
   const c = [0, 1, 2].map(i => rgb[i] + (tint[i] - rgb[i]) * k);
   return (_rimCache[key] = `rgb(${[0, 1, 2].map(i => Math.round(base[i] + (c[i] - base[i]) * t)).join(',')})`);
 }
@@ -143,6 +144,7 @@ function animeState(f, front, flat, opt) {
   A.lx = 0.55 * f.facing; A.ly = -0.83;
   A.pal = animePalette(f, flat ? C.ink : front);
   const sk = animeSkin(f); if (sk.acc && !flat) A.pal = subAccPal(A.pal, sk.acc);   // a sub-boss's own accent (24-anime-subs-a.js)
+  if (sk.akari && !flat && !f.hollow) A.pal = akariPal(A.pal);   // Akari's violet rim light (28-anime-akari.js)
   return A;
 }
 
@@ -375,6 +377,7 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   akariLayer(this, ctx, A, skin, U, 'front');   // her violet sash (and the Mei-En Garb's on Kage)
   if (skin.coat) this.drawCoatPanel(ctx, 'flap', A, skin, U);
   if (hol) this.hollowRobe(ctx, A, skin, U, 'flap');
+  if (!akari) akariLayer(this, ctx, A, skin, U, 'gear');   // the Mei-En Garb's violet sash, over Kage's coat (28-anime-akari.js)
   // --- 6. sash / obi and the saya at the hip
   if (skin.sash === 'kage') this.animeSash(ctx, S, A, U);
   else if (skin.sash === 'obi' && !akari) this.animeObi(ctx, S, A, U);

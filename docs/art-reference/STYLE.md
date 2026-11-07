@@ -103,6 +103,7 @@ Keep the existing skeleton (`BODY` in `20-fighter.js`); the art dresses it.
 - A dark half-mask over the lower face, so only the eyes show.
 - Fitted black garb with long arm guards and a belt with pouches, and one long violet sash down the front with a sakura crest near its end.
 - Twin short blades with violet edge light.
+- As built (ticket 09, `28-anime-akari.js`): face drawn at 0.86 of the head radius; a cloth half-mask with a violet-lit top edge under white eyes; a sharp fringe, a side lock and a high ponytail of two cloth locks (`ahair`) rooted on the crown, the sakura ornament and two bead strings (`aribbon`). A fitted top with a high collar and violet halter piping (a slim, non-revealing cut), a waist belt with a silver buckle over a slung belt, a thigh strap and pouch, long lacquered arm guards banded violet, leggings into tall boots. The violet sash (`asash`) and a dark tail edged violet (`atail`) hang from the belt. All of her cloth is drawn inside the body, so flat passes and her decoy afterimages carry it. Her edge light is violet (`rimTint`, `akariPal`), as in the key art. Hollow Akari: deep palette, ashen sakura with a petal gone, one bead string gone, torn sash and tail, cracks on the mask, arm guard and top, a stronger violet eye halo. Kage in the Mei-En Garb: a violet-edged chest guard and a shorter sash over his coat.
 
 **Takashi (ticket 10), from `boss_takashi.webp` and `face_takashi.webp`.**
 - A wide straw kasa with a gold rim and gold ribs, and a long red ribbon from the back of the hat.

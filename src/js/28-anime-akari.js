@@ -25,7 +25,7 @@ const AK_VIO = ['#3a2368', '#7a4fd0', '#b48ae6'];             // the sash, pipin
 const AK_VIO_H = ['#211a36', '#463a72', '#8a7cc4'];           // the echo's: faded toward ash
 const AK_CLOTH = ['#040306', '#0b0a0f', '#1c1824'];           // her black fabric, a violet cast in the lit fold
 const AK_GUARD = ['#060509', '#121019', '#2f2a3c'];           // lacquered arm guards, boots, knee guards
-const AK_HAIR = ['#040306', '#0c0a12', '#2a2140'];            // black hair, violet in the light
+const AK_HAIR = ['#040306', '#0d0a14', '#33284e'];            // black hair, violet in the light
 const AK_MASK = ['#100f15', '#1d1b24', '#34303f'];            // the cloth half-mask, a step lighter than the face
 const AK_TAIL = ['#060508', '#0e0c13', '#1f1b29'];
 const AK_SILVER = ['#4a4c52', ANIME.silver, ANIME.silverHi];
@@ -33,10 +33,13 @@ const AK_SAKURA = ['#6b3fb8', '#b384ff', '#f3e6ff'];           // petals shadow 
 const AK_SAKURA_H = ['#3a3448', '#6e6684', '#b9b2c8'];         // ash
 
 /* ---- skins ---- */
-ANIME_SKINS.akari = { top: 'gi', feet: 'boot', sleeve: 1, kote: false, collar: false, sash: 'akari', noGiSash: true, akari: 'boss' };
+ANIME_SKINS.akari = { top: 'gi', feet: 'boot', sleeve: 1, kote: false, collar: false, sash: 'akari', noGiSash: true, akari: 'boss', rimTint: [170, 118, 236] };
 ANIME_SKINS.hollow_akari = { top: 'gi', feet: 'boot', sleeve: 1, kote: false, collar: false, sash: 'akari', noGiSash: true, akari: 'hollow',
   hollow: { fray: 1, robe: {} } };   // `hollow` gives the deep palette; her cloth is her own (ahair, asash, atail)
 const _akH = (f) => animeSkin(f).akari === 'hollow';
+// her key art is edge-lit in violet, not red: the fine rim inside her parts follows (the outline pass: skin.rimTint)
+const _akPalC = new WeakMap();
+function akariPal(pal) { let p = _akPalC.get(pal); if (!p) _akPalC.set(pal, p = Object.assign({}, pal, { rim: 'rgba(150,104,226,0.55)', acc: AK_VIO[1], accHi: AK_VIO[2] })); return p; }
 const _akV = (f) => (f.hollow ? AK_VIO_H : AK_VIO);
 
 // cloth (from animeCloths): the ponytail's two locks and the bead strings from the crown, the sash and the tail from
@@ -44,8 +47,8 @@ const _akV = (f) => (f.hollow ? AK_VIO_H : AK_VIO);
 function akariCloths(f, sk) {
   const s = f.scale;
   if (sk.akari) {
-    f.cloths.push({ kind: 'ahair', main: 1, c: new Cloth(12, 7.8 * s, { ph: 4.5, wind: 1250, grav: 460, stiff: 1.88, hang: 0.5 }), at: 'head', dx: 9, dy: -15 });
-    f.cloths.push({ kind: 'ahair', c: new Cloth(9, 7 * s, { ph: 6.6, wind: 1150, grav: 420, stiff: 1.85, hang: 0.7 }), at: 'head', dx: 10, dy: -14 });
+    f.cloths.push({ kind: 'ahair', main: 1, c: new Cloth(12, 7.8 * s, { ph: 4.5, wind: 1250, grav: 460, stiff: 1.88, hang: 0.5 }), at: 'head', dx: 13, dy: -24 });
+    f.cloths.push({ kind: 'ahair', c: new Cloth(9, 7.2 * s, { ph: 6.6, wind: 1400, grav: 320, stiff: 1.85, hang: 0.8 }), at: 'head', dx: 15, dy: -27 });
     f.cloths.push({ kind: 'aribbon', c: new Cloth(4, 3.8 * s, { ph: 7, wind: 200, grav: 1100, stiff: 1.6 }), at: 'head', dx: 12, dy: -10 });
     if (!(f.def && f.def.echoOf)) f.cloths.push({ kind: 'aribbon', c: new Cloth(4, 3.2 * s, { ph: 8.4, wind: 180, grav: 1100, stiff: 1.6 }), at: 'head', dx: 9, dy: -9 });   // the echo lost one
     f.cloths.push({ kind: 'atail', c: new Cloth(9, 9.4 * s, { ph: 2.4, wind: 1000, grav: 980, stiff: 1.7, hang: 0.5 }), at: 'hip', dx: 8, dy: -3 });
@@ -115,12 +118,12 @@ function _akHeadPt(f, lx, ly) {
 function _akHairLock(f, ctx, A, cl, r, main) {
   const c = cl.c; if (!c.init) return;
   const hol = f.hollow, root = _akHeadPt(f, -0.5 * r, -0.98 * r);
-  const W = r * (main ? 1.5 : 0.9);
-  const n = _akEdges(c, (u) => W * (u < 0.12 ? 0.42 + u * 3.6 : Math.max(0.08, Math.sin(Math.PI * (0.25 + 0.75 * u)) * (1 - u * 0.25))), root[0], root[1]);
+  const W = r * (main ? 1.9 : 1.1);
+  const n = _akEdges(c, (u) => W * (u < 0.1 ? 0.3 + u * 5 : Math.max(0.08, Math.sin(Math.PI * (0.22 + 0.78 * u)) * (1 - u * 0.2))), root[0], root[1]);
   celFill(ctx, () => _akStrip(ctx, n, c, 0, main ? 3 : 2, r * (hol ? 0.13 : 0.09)), main ? AK_HAIR : [AK_HAIR[0], AK_HAIR[0], AK_HAIR[1]], A, { sd: r * 0.3, hd: main ? r * 0.08 : 0, rim: main, detail: (g) => {
     // strands combed along the lock, the lit ones violet
     g.lineCap = 'round';
-    for (const [t, col, lw] of [[0.3, AK_HAIR[0], 1], [0.55, '#4a3770', 0.9], [0.74, AK_HAIR[0], 1]]) {
+    for (const [t, col, lw] of [[0.26, AK_HAIR[0], 1], [0.45, '#6a4fa4', 1.1], [0.6, '#3d2d62', 0.9], [0.78, AK_HAIR[0], 1]]) {
       g.strokeStyle = col; g.lineWidth = lw * A.s; g.beginPath();
       for (let i = 1; i < n; i++) { const x = lerp(_akL[i * 2], _akR[i * 2], t), y = lerp(_akL[i * 2 + 1], _akR[i * 2 + 1], t); i === 1 ? g.moveTo(x, y) : g.lineTo(x, y); }
       g.stroke();
@@ -138,7 +141,9 @@ function akariLayer(f, ctx, A, skin, U, layer) {
     for (const cl of f.cloths) if (cl.kind === 'ahair' && cl.main) _akHairLock(f, ctx, A, cl, r, true);
     _akRibbons(f, ctx, A);
   } else if (layer === 'front') {
-    if (skin.akari || f.armor === 'mei_en') _akSash(f, ctx, A, U);
+    if (skin.akari) _akSash(f, ctx, A, U);
+  } else if (layer === 'gear') {
+    if (f.armor === 'mei_en') _akSash(f, ctx, A, U);
   } else if (layer === 'waist') {
     if (skin.akari) _akBelt(f, ctx, A, A.S, U);
   }
@@ -276,7 +281,7 @@ function drawMeiEn(ctx, f, ink, flat) {
     // Kage in the Mei-En Garb: a lacquered chest guard of two overlapping plates edged violet, over his coat
     for (const [u0, u1, w0, w1] of [[0.5, 0.92, -9, 11.6], [0.34, 0.62, -8, 11]]) {
       const a0 = P(u1, w0), a1 = P(u1, w1), b1 = P(u0, w1 - 1), b0 = P(u0, w0 + 1);
-      celFill(ctx, () => _quad(ctx, a0, a1, b1, b0, 1.2 * U), AK_GUARD, A, { sd: 2.4 * U, hd: 0.8 * U, detail: (g) => _strokePts(g, [b0, b1], vio[1], 1.4 * U) });
+      celFill(ctx, () => _quad(ctx, a0, a1, b1, b0, 1.2 * U), AK_GUARD, A, { sd: 2.4 * U, hd: 0.8 * U, rim: true, detail: (g) => { _strokePts(g, [b0, b1], vio[1], 1.6 * U); _strokePts(g, [a1, b1], vio[2], 1 * U); } });
     }
     void ink; void flat;
     return;
@@ -348,7 +353,7 @@ function drawAkariHead(ctx, f, r, ink, flat) {
   // the hair over the crown, the fringe over the brow
   celFill(ctx, () => orderShape(ctx, r, AK_HAIR_CAP), AK_HAIR, A, { sd: r * 0.3, hd: r * 0.07, rim: true, detail: (g) => {
     // the violet sheen across the crown and a few lit strands into the fringe
-    g.lineCap = 'round'; g.strokeStyle = '#4a3770'; g.lineWidth = Math.max(1, r * 0.09);
+    g.lineCap = 'round'; g.strokeStyle = '#5c4392'; g.lineWidth = Math.max(1, r * 0.09);
     g.beginPath(); g.moveTo(-0.72 * r, -0.84 * r); g.quadraticCurveTo(-0.1 * r, -1.14 * r, 0.56 * r, -0.94 * r); g.stroke();
     g.strokeStyle = AK_HAIR[2]; g.lineWidth = Math.max(0.7, r * 0.04); g.beginPath();
     for (const [x0, y0, x1, y1] of [[0.2, -0.9, 0.5, -0.3], [0.5, -0.92, 0.76, -0.34], [-0.1, -0.8, 0.18, -0.3], [-0.6, -0.6, -0.86, 0.3]]) { g.moveTo(x0 * r, y0 * r); g.quadraticCurveTo((x0 + x1) * 0.5 * r + 0.06 * r, (y0 + y1) * 0.5 * r, x1 * r, y1 * r); }
@@ -361,7 +366,7 @@ function drawAkariHead(ctx, f, r, ink, flat) {
   // the tie at the ponytail's root and the sakura ornament on it (the echo's ashen, a petal gone)
   celFill(ctx, () => { ctx.moveTo(-0.26 * r, -0.98 * r); ctx.ellipse(-0.5 * r, -0.98 * r, 0.24 * r, 0.18 * r, -0.5, 0, TAU); }, [vio[0], vio[0], vio[1]], A, { sd: r * 0.06 });
   const sk = hol ? AK_SAKURA_H : AK_SAKURA;
-  ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = hol ? 'rgba(120,100,180,0.18)' : 'rgba(180,130,255,0.28)';
+  ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = hol ? 'rgba(120,100,180,0.12)' : 'rgba(180,130,255,0.16)';
   ctx.beginPath(); ctx.arc(-0.42 * r, -0.9 * r, 0.5 * r, 0, TAU); ctx.fill(); ctx.restore();
   drawSakura(ctx, -0.42 * r, -0.9 * r, 0.46 * r, 0.3, sk[0], null, hol ? 3 : -1);
   drawSakura(ctx, -0.44 * r, -0.92 * r, 0.4 * r, 0.3, sk[1], sk[2], hol ? 3 : -1);

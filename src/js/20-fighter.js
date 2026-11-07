@@ -1283,7 +1283,7 @@ Fighter.prototype.draw = function (ctx, opt) {
   // rim colour (deepened toward crimson, animeRimColor) on the back and top edges only, then the body on top
   if (opt.rim && !opt.color) {
     const gk = glitch ? 1 + Math.abs(glitch) * 3 : 1, src = (this.hollow && this.family.outline) || opt.outline || (typeof opt.rim === 'string' ? opt.rim : '#f1ebe0');
-    const oc = animeRimColor(src, this.hollow), ro = this._rimOpt || (this._rimOpt = {}), f = this.facing;
+    const oc = animeRimColor(src, this.hollow, animeSkin(this).rimTint), ro = this._rimOpt || (this._rimOpt = {}), f = this.facing;
     for (const k in ro) delete ro[k];
     Object.assign(ro, opt, { rimPass: true });
     const di = 1.5 * s * gk, dr = 1.1 * s * gk;
