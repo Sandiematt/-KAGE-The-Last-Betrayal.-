@@ -310,7 +310,7 @@ const SPEAKERS = {
     portrait(g) {
       const A = STORY_ANI, bd = { bg: '#1a0d0b', glow: 'rgba(163,48,42,0.28)', rim: 'rgba(255,170,150,0.6)' };
       storyBackdrop(g, bd);
-      if (storyFighterBust(g, 'kage', { pose: 'rest', dx: -4, rim: 'rgba(255,190,160,0.9)' })) return;
+      if (storyFighterBust(g, 'kage', { pose: 'rest', dx: 2, rim: 'rgba(255,190,160,0.9)' })) return;
       storyAnimeBust(g, Object.assign({ collar: A.crimson }, bd));
       // the red scarf wound at the throat, one tail thrown back over the shoulder
       storyPart(g, [34, 62, 66, 62, 70, 72, 30, 72], A.scarf);
@@ -579,6 +579,11 @@ const ILLUSTRATIONS = {
       storySleeve(g, -40, 560, 300, 420, 104, { cuff: A.crimson, embroider: A.crimsonHi, rim: 'rgba(214,190,255,0.5)' });
       storyPart(g, [290, 372, 360, 366, 392, 392, 384, 436, 330, 452, 300, 446], A.cloth1, A.outline, 2);   // the palm under the scabbard
       storyLine(g, [300, 380, 356, 372], A.cloth2, 2);
+      // Rem's sleeve from the upper right: the worn travel coat, the violet cuff band, the frayed edge; the back of his
+      // hand behind the grip (his fingers close over it below)
+      storySleeve(g, 1340, 230, 1000, 384, 100, { cloth: '#1d1a20', shade: '#121016', lit: '#2c2832', cuff: K.purple, fray: 1, rim: 'rgba(214,190,255,0.5)' });
+      storyPart(g, [1004, 350, 1012, 410, 990, 418, 944, 404, 940, 372, 970, 356], A.cloth1, A.outline, 2);
+      storyLine(g, [944, 374, 1000, 354], 'rgba(198,162,255,0.4)', 2);
       // the blade: a long black scabbard, gold along the spine, held level, the hilt pointing right toward Rem
       g.save(); g.translate(640, 400); g.rotate(-0.05);
       storyPoly(g, [-360, -14, 200, -18, 214, -6, 200, 8, -360, 10], K.ink);
@@ -590,10 +595,6 @@ const ILLUSTRATIONS = {
       storyGrip(g, -330, -250, 13, { rim: 'rgba(214,190,255,0.45)' });                     // Kage's fingers round the scabbard
       storyGrip(g, 300, 380, 11, { rim: 'rgba(214,190,255,0.55)' });                       // Rem's closing on the grip
       g.restore();
-      // Rem's sleeve from the upper right: the worn travel coat, the violet cuff band, the frayed edge
-      storySleeve(g, 1340, 230, 990, 390, 100, { cloth: '#1d1a20', shade: '#121016', lit: '#2c2832', cuff: A.remAcc, fray: 1, rim: 'rgba(214,190,255,0.5)' });
-      storyPart(g, [1000, 352, 1010, 420, 978, 432, 944, 412, 940, 376], A.cloth1, A.outline, 2);   // the back of his hand
-      storyLine(g, [944, 380, 996, 360], 'rgba(198,162,255,0.4)', 2);
       g.fillStyle = 'rgba(3,3,3,0.45)'; g.fillRect(0, 0, 1280, 70); g.fillRect(0, 650, 1280, 70);
     }
   },
@@ -809,12 +810,13 @@ const ILLUSTRATIONS = {
       }
       storyLine(g, [880, 520, 964, 462], A.char2, 2);                                                     // the thumb
       // the coat sleeve at the wrist, its cuff crimson with the cloud embroidery
-      storyPart(g, [330, 720, 360, 640, 980, 640, 1000, 720], A.char1, A.outline, 3);
-      storyPart(g, [350, 670, 364, 636, 976, 636, 990, 670], A.crimson, A.outline, 2);
-      g.save(); storyPoly(g, [350, 670, 364, 636, 976, 636, 990, 670], 'rgba(0,0,0,0)'); g.clip();
-      storyEmbroidery(g, 360, 990, 660, 18, A.crimsonHi, A.scarf);
+      storyPart(g, [330, 720, 358, 612, 982, 612, 1004, 720], A.char1, A.outline, 3);
+      storyPoly(g, [330, 720, 352, 640, 470, 640, 440, 720], A.char0);
+      storyPart(g, [348, 650, 360, 604, 980, 604, 992, 650], A.crimson, A.outline, 2);
+      g.save(); storyPoly(g, [348, 650, 360, 604, 980, 604, 992, 650], 'rgba(0,0,0,0)'); g.clip();
+      storyEmbroidery(g, 356, 990, 640, 24, A.crimsonHi, A.scarf);
       g.restore();
-      storyLine(g, [364, 636, 976, 636], 'rgba(236,229,211,0.35)', 2);
+      storyLine(g, [360, 604, 980, 604], 'rgba(236,229,211,0.35)', 2);
       // the token: an iron tag with a notched corner, the archive seal, a red lightning crack through it
       g.save(); g.translate(650, 440); g.rotate(-0.12);
       storyPoly(g, [-120, -70, 96, -70, 120, -46, 120, 70, -120, 70], '#3a342b');
