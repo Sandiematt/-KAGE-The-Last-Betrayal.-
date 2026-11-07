@@ -6442,6 +6442,7 @@ function drawWeaponShape(ctx, sh, L, mode, s, ink, f) {
     case 'fan': {
       ctx.beginPath(); ctx.moveTo(0, 0); ctx.arc(0, 0, L, -0.42, 0.18); ctx.closePath();
       ctx.fillStyle = steel; ctx.fill();
+      if (mode === 'flat') break;   // flat passes: one clean silhouette
       ctx.strokeStyle = art ? C.goldDim : 'rgba(185,196,201,0.45)'; ctx.lineWidth = 1;
       for (let a = -0.4; a <= 0.18; a += 0.1) { ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(Math.cos(a) * L, Math.sin(a) * L); ctx.stroke(); }
       break;
@@ -6508,10 +6509,10 @@ function drawWeaponShape(ctx, sh, L, mode, s, ink, f) {
     case 'staff': {
       line(-L * 0.5, 0, L * 0.5, 0, 4.6 * s, dark);
       ctx.strokeStyle = art ? C.gold : 'rgba(127,208,200,0.5)'; ctx.lineWidth = 2;
-      for (const x of [-0.46, -0.4, 0.4, 0.46]) { ctx.beginPath(); ctx.moveTo(L * x, -4 * s); ctx.lineTo(L * x, 4 * s); ctx.stroke(); }
+      if (mode !== 'flat') for (const x of [-0.46, -0.4, 0.4, 0.46]) { ctx.beginPath(); ctx.moveTo(L * x, -4 * s); ctx.lineTo(L * x, 4 * s); ctx.stroke(); }   // flat passes: one clean silhouette
       if (f && f.weaponId() === 'sage_staff') {
-        ctx.beginPath(); ctx.arc(L * 0.56, 0, 9 * s, -1.2, 1.2); ctx.strokeStyle = art ? C.gold : '#7fd0c8'; ctx.lineWidth = 2.4; ctx.stroke();
-        if (!art) { ctx.fillStyle = '#7fd0c8'; ctx.beginPath(); ctx.arc(L * 0.58, 0, 4 * s, 0, TAU); ctx.fill(); }
+        ctx.beginPath(); ctx.arc(L * 0.56, 0, 9 * s, -1.2, 1.2); ctx.strokeStyle = art ? C.gold : mode === 'flat' ? ink : '#7fd0c8'; ctx.lineWidth = 2.4; ctx.stroke();
+        if (!art) { ctx.fillStyle = mode === 'flat' ? ink : '#7fd0c8'; ctx.beginPath(); ctx.arc(L * 0.58, 0, 4 * s, 0, TAU); ctx.fill(); }
       }
       break;
     }
