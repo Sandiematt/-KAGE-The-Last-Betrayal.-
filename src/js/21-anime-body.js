@@ -71,6 +71,7 @@ function animeCloths(f) {
   subCloths(f, sk);   // the sub-bosses' robes, capes, hood tails and cords, by look (24-anime-subs-a.js)
   subBCloths(f, sk);   // the later sub-bosses' haori skirts, capes, band tails and hair (25-anime-subs-b.js)
   remCloths(f, sk);   // Rem's headband tails (26-anime-rem.js)
+  raikonCloths(f, sk);   // Raikon's cloak and coat skirts (27-anime-raikon.js)
 }
 
 /* ---- palette ---- */
@@ -353,6 +354,7 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   if (hol) { this.hollowRobe(ctx, A, skin, U, 'cape'); this.hollowRobe(ctx, A, skin, U, 'back'); }   // 23-anime-hollow.js
   subLayer(this, ctx, A, skin, U, 'back');   // capes, banners, robes behind the body (24-anime-subs-a.js)
   subBLayer(this, ctx, A, skin, U, 'back');   // 25-anime-subs-b.js
+  raikonLayer(this, ctx, A, skin, U, 'back');   // Raikon's cloak and coat skirt (27-anime-raikon.js)
   // --- 2. the far arm: sleeve, cuff, hand (then any off-hand weapon)
   this.animeArm(ctx, sk.shB, sk.bel, sk.bha, A, skin, U * slv, true);
   this.drawOffhand(ctx, front, flat ? Object.assign({}, opt, { color: front }) : opt);
@@ -367,12 +369,14 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   if (ord) this.orderKusazuri(ctx, S, A, U, 'front');
   subLayer(this, ctx, A, skin, U, 'front');
   subBLayer(this, ctx, A, skin, U, 'front');
+  raikonLayer(this, ctx, A, skin, U, 'front');
   if (skin.coat) this.drawCoatPanel(ctx, 'flap', A, skin, U);
   if (hol) this.hollowRobe(ctx, A, skin, U, 'flap');
   // --- 6. sash / obi and the saya at the hip
   if (skin.sash === 'kage') this.animeSash(ctx, S, A, U);
   else if (skin.sash === 'obi' && !akari) this.animeObi(ctx, S, A, U);
   else if (skin.sash === 'order') this.orderBelt(ctx, S, A, U);
+  else if (skin.sash === 'raikon') raikonLayer(this, ctx, A, skin, U, 'waist');   // his red obi and ring (27-anime-raikon.js)
   else if (hol) this.hollowSash(ctx, S, A, U, skin.sash);
   if (hol && hol.mantle) this.hollowMantle(ctx, S, A, U, hol.mantle);
   subLayer(this, ctx, A, skin, U, 'waist');
@@ -422,7 +426,7 @@ Fighter.prototype.animeArm = function (ctx, sh, el, ha, A, skin, U, far, noHand)
   } });
   // the Order's sode over the upper sleeve (22-anime-order.js)
   if (skin.order && skin.order.sode) this.orderSode(ctx, sh, el, A, U / (skin.sleeve || 1), far, skin.order.sode);
-  else { subSode(this, ctx, sh, el, A, U / (skin.sleeve || 1), far); subBSode(this, ctx, sh, el, A, U / (skin.sleeve || 1), far); }   // 24- / 25-anime-subs-*.js
+  else { subSode(this, ctx, sh, el, A, U / (skin.sleeve || 1), far); subBSode(this, ctx, sh, el, A, U / (skin.sleeve || 1), far); raikonSode(this, ctx, sh, el, A, U / (skin.sleeve || 1), far); }   // 24- / 25-anime-subs-*.js
   // the kote: a dark lacquered forearm guard from under the sleeve to the wrist, two dark straps with crimson cord
   const hol = skin.hollow, bare = hol && hol.bare;
   if (skin.kote === 'wrap') this.hollowWrap(ctx, at(bare ? 0.02 : 0.3, 0), at(bare ? 0.92 : 0.9, 0), (bare ? 5.4 : 4.4) * U, (bare ? 4.6 : 3.6) * U, A, U, far);
@@ -516,7 +520,7 @@ Fighter.prototype.animeTorsoDraw = function (ctx, S, A, skin, U, tone) {
   celFill(ctx, () => animeTorso(ctx, S, coat ? ANIME_TORSO.coat : ANIME_TORSO.gi, U), tone, A, { sd: 7.5 * U, hd: 1 * U, rim: true, detail: (g) => {
     const line = (pts, col, w) => { g.strokeStyle = col; g.lineWidth = w; g.beginPath(); pts.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.stroke(); };
     const poly = (pts, col) => { g.fillStyle = col; g.beginPath(); pts.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.closePath(); g.fill(); };
-    if (coat && skin.rem) return;   // Rem's travel coat is wrapped shut: its front is drawArmor 'travel_coat' (26-anime-rem.js)
+    if (coat && (skin.rem || skin.raikon)) return;   // Rem's travel coat and Raikon's armoured coat draw their own fronts (drawArmor)
     if (coat) {
       // the open front: the black inner kimono between the coat's lapel and the chest, its own crossed collar
       poly([P(1.06, 1.2), P(1.06, 12), P(0.1, 12), P(0.12, 5.6), P(0.62, 4.2)], pal.fab[1]);

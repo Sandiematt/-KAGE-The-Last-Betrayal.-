@@ -201,18 +201,12 @@ class Fighter {
     }
     // Raikon: a long dark scarf from the neck, two tails of different length, edged pale so it reads on the dark arena
     if (this.def && this.def.longScarf) {
-      const sc = bossLook(this) === 'raikon' ? '#9e1018' : this.def.longScarf, rim = bossLook(this) === 'raikon' ? 'rgba(255,90,80,0.55)' : 'rgba(236,229,211,0.5)';
+      const rk = bossLook(this) === 'raikon' && !this.hollow;   // Hollow Raikon keeps its own violet-black scarf
+      const sc = rk ? '#9e1018' : this.def.longScarf, rim = rk ? 'rgba(255,90,80,0.55)' : this.hollow ? 'rgba(150,120,240,0.5)' : 'rgba(236,229,211,0.5)';
       this.cloths.push({ kind: 'scarf', c: new Cloth(14, 8.6 * this.scale, { ph: 2.5, wind: 640, grav: 620, stiff: 1.6 }), at: 'neck', color: sc, rim, w: 7.2 * this.scale, w1: 2.8 * this.scale, dy: 2 });
       this.cloths.push({ kind: 'scarf', c: new Cloth(9, 8 * this.scale, { ph: 6.2, wind: 560, grav: 700, stiff: 1.6 }), at: 'neck', color: sc, rim, w: 5.4 * this.scale, w1: 2.2 * this.scale, dy: 6 });
     }
-    // Raikon, the Storm King: a tattered cloak from the shoulders (kind 'rcloak', Fighter.drawRaikonCloak), black
-    // bleeding to crimson at its ragged hem, a red cloud crest on its widest panel; and a long dark coat skirt
-    if (bossLook(this) === 'raikon') {
-      const sc = this.scale;
-      [[10, 15, 1.3, 40, 4, 4, 1], [10, 14, 3.9, 34, 8, 12, 0], [9, 13.4, 5.2, 30, 12, 0, 0], [9, 12.6, 2.2, 26, 2, 18, 0]].forEach(([n, seg, ph, w, dy, dx, crest], i) =>
-        this.cloths.push({ kind: 'rcloak', c: new Cloth(n, seg * sc, { ph, wind: 1100 + i * 170, grav: 1000, stiff: 1.95 }), at: 'neck', w: w * sc, dy, dx, crest }));
-      this.cloths.push({ kind: 'robe', c: new Cloth(6, 10.4 * sc, { ph: 2.8, wind: 260, grav: 1150 }), at: 'hip', color: '#140c0c', w0: 26 * sc, w1: 36 * sc });
-    }
+    // Raikon's tattered cloak and long coat skirts: raikonCloths (27-anime-raikon.js)
     // Akari's hair: a long high ponytail streaming back off the crown (two layers: black, and a violet-sheened lock over
     // it), two short violet tassels hanging from the sakura pin at its root (the pin itself: drawHelmet 'akari_mask')
     if (this.helmet === 'akari_mask') {
@@ -1328,8 +1322,6 @@ Fighter.prototype.draw = function (ctx, opt) {
   const witArt = wit && !this.kageFrame;
   if (witArt) { this.drawWitnessHalo(ctx, opt); this.drawWitnessCoat(ctx, -1, opt); }
   if (this.armor === 'kysmei' && !this.kageFrame && !wit) this.drawKysmei(ctx, -1, opt);
-  const look = bossLook(this);
-  if (look === 'raikon') this.drawRaikonCloak(ctx, opt);
   for (const cl of this.cloths) if (cl.kind === 'cape' || cl.kind === 'robe') cl.c.draw(ctx, opt.color || cl.color, cl.w0, cl.w1, null);
   // the outline: the silhouette stamped around itself as a thin near-black ink line, then a thinner rim in the stage's
   // rim colour (deepened toward crimson, animeRimColor) on the back and top edges only, then the body on top
@@ -1355,7 +1347,6 @@ Fighter.prototype.draw = function (ctx, opt) {
   if (this.armor === 'kysmei' && !this.kageFrame && !wit) this.drawKysmei(ctx, 1, opt);
   if (witArt) { this.drawWitnessCoat(ctx, 1, opt); this.drawWitnessVeins(ctx, opt); if (!this.coreBroken) this.drawCore(ctx, opt); }
   if (this.helmet === 'akari_mask') { this.drawAkariDetails(ctx, opt); this.drawAkariSash(ctx, opt); }
-  if (look === 'raikon') this.drawRaikonDetails(ctx, opt);
   if (!flat) this.drawDetails(ctx, opt);
   if (!opt.color) this.drawFlipArcs(ctx, true);
   if (this.state === 'kickcharge' && this.charge > 0.18 && !opt.color) {
@@ -1427,89 +1418,7 @@ Fighter.prototype.drawKysmei = function (ctx, depth, opt) {
 // so the gear they drop (the Raijin Kabuto, the Kasa) keeps its own look on Kage.
 function bossLook(f) { const d = f && f.def; return d ? d.echoOf || d.id || null : null; }
 
-/* ---- Raikon ---- */
-// His cloak (cloth kind 'rcloak'): long ragged panels from the shoulders, black at the top bleeding into crimson toward
-// the hem, which is torn into teeth; a pale-red edge, and on the widest panel a red cloud crest
-const _rcl = new Float32Array(28), _rcr = new Float32Array(28);
-Fighter.prototype.drawRaikonCloak = function (ctx, opt) {
-  const s = this.scale, flat = !!opt.color;
-  for (const cl of this.cloths) {
-    if (cl.kind !== 'rcloak' || !cl.c.init) continue;
-    const c = cl.c, n = c.n, px = c.px, py = c.py;
-    for (let i = 0; i < n; i++) {
-      const a = i === 0 ? 0 : i - 1, b = i === n - 1 ? n - 1 : i + 1;
-      let dx = px[b] - px[a], dy = py[b] - py[a]; const d = Math.sqrt(dx * dx + dy * dy) || 1; dx /= d; dy /= d;
-      const u = i / (n - 1), tear = u > 0.55 ? (i % 2 ? 1 : 0.62) : 1;   // the lower half torn into teeth
-      const w = cl.w * 0.5 * (0.45 + 0.75 * Math.sin(Math.PI * (0.2 + 0.7 * u)));
-      _rcl[i * 2] = px[i] - dy * w * tear; _rcl[i * 2 + 1] = py[i] + dx * w * tear;
-      _rcr[i * 2] = px[i] + dy * w * (2 - tear) * 0.8; _rcr[i * 2 + 1] = py[i] - dx * w * (2 - tear) * 0.8;
-    }
-    const e = (n - 1) * 2, vx = px[n - 1] - px[n - 2], vy = py[n - 1] - py[n - 2];
-    ctx.beginPath(); ctx.moveTo(_rcl[0], _rcl[1]);
-    for (let i = 1; i < n; i++) ctx.lineTo(_rcl[i * 2], _rcl[i * 2 + 1]);
-    ctx.lineTo(_rcl[e] + vx * 0.9, _rcl[e + 1] + vy * 0.9); ctx.lineTo(px[n - 1] + vx * 0.3, py[n - 1] + vy * 0.3); ctx.lineTo(_rcr[e] + vx * 1.1, _rcr[e + 1] + vy * 1.1);
-    for (let i = n - 1; i >= 0; i--) ctx.lineTo(_rcr[i * 2], _rcr[i * 2 + 1]);
-    ctx.closePath();
-    if (flat) { ctx.fillStyle = opt.color; ctx.fill(); continue; }
-    const g = ctx.createLinearGradient(px[0], py[0], px[n - 1] + vx, py[n - 1] + vy);
-    g.addColorStop(0, '#0c0808'); g.addColorStop(0.45, '#1c0a0b'); g.addColorStop(0.78, '#7a0c12'); g.addColorStop(1, '#d01a22');
-    ctx.fillStyle = g; ctx.fill();
-    ctx.strokeStyle = 'rgba(255,110,100,0.55)'; ctx.lineWidth = 1 * s; ctx.stroke();
-    if (cl.crest) { const j = Math.round((n - 1) * 0.55); drawCloudCrest(ctx, px[j], py[j], cl.w * 0.26, Math.atan2(vy, vx) - Math.PI / 2, '#d4141c'); }
-  }
-};
-// A swirling storm-cloud crest: three billows on a flat base, with a curl cut into each
-function drawCloudCrest(ctx, x, y, R, rot, col) {
-  ctx.save(); ctx.translate(x, y); ctx.rotate(rot);
-  ctx.fillStyle = col; ctx.beginPath();
-  ctx.arc(-R * 0.55, R * 0.1, R * 0.45, 0, TAU); ctx.moveTo(R * 0.55, -R * 0.2); ctx.arc(0, -R * 0.2, R * 0.55, 0, TAU);
-  ctx.moveTo(R * 0.97, R * 0.12); ctx.arc(R * 0.55, R * 0.12, R * 0.42, 0, TAU); ctx.rect(-R * 0.9, R * 0.1, R * 1.8, R * 0.45); ctx.fill();
-  ctx.strokeStyle = '#1a0607'; ctx.lineWidth = Math.max(1, R * 0.12);
-  for (const [cx, cy, rr] of [[-R * 0.55, R * 0.1, R * 0.22], [0, -R * 0.2, R * 0.28], [R * 0.55, R * 0.12, R * 0.2]]) { ctx.beginPath(); ctx.arc(cx, cy, rr, Math.PI * 0.2, Math.PI * 1.6); ctx.stroke(); }
-  ctx.restore();
-}
-// The shoulder guard with the red three-comma crest on his near shoulder, the red wraps on his forearms and the wrapped
-// tops of his boots (his white fur mantle is part of his armour: drawArmor 'raikon_plate')
-Fighter.prototype.drawRaikonDetails = function (ctx, opt) {
-  if (opt.color) return;
-  const sk = this.sk, s = this.scale, fc = this.facing, L = this.build.w * s * 0.42 * 1.15;
-  const band = (a, b, u, w, col) => {
-    const x = lerp(a.x, b.x, u), y = lerp(a.y, b.y, u), an = Math.atan2(b.y - a.y, b.x - a.x), ox = -Math.sin(an) * L * 1.2, oy = Math.cos(an) * L * 1.2;
-    ctx.strokeStyle = col; ctx.lineWidth = w * s; ctx.lineCap = 'butt'; ctx.beginPath(); ctx.moveTo(x - ox, y - oy); ctx.lineTo(x + ox, y + oy); ctx.stroke();
-  };
-  ctx.save();
-  for (const [el, ha, kn, ft, dim] of [[sk.bel, sk.bha, sk.bkn, sk.bft, 1], [sk.fel, sk.fha, sk.fkn, sk.fft, 0]]) {
-    const red = dim ? '#6e0d12' : '#c3161e';
-    band(el, ha, 0.62, 3.2, red); band(el, ha, 0.8, 1.6, red);
-    band(kn, ft, 0.28, 4.2, dim ? '#3a3434' : '#5c5454'); band(kn, ft, 0.38, 1.4, red);
-  }
-  const x = sk.shF.x + fc * 1 * s, y = sk.shF.y + 2 * s, R = 8.5 * s;
-  ctx.fillStyle = '#140b0b'; ctx.beginPath(); ctx.arc(x, y, R, 0, TAU); ctx.fill();
-  ctx.strokeStyle = '#d4141c'; ctx.lineWidth = 1.4 * s; ctx.beginPath(); ctx.arc(x, y, R * 0.72, 0, TAU); ctx.stroke();
-  ctx.strokeStyle = 'rgba(255,120,110,0.5)'; ctx.lineWidth = 1 * s; ctx.beginPath(); ctx.arc(x, y, R, 0, TAU); ctx.stroke();
-  ctx.fillStyle = '#ff2a2a';
-  for (let i = 0; i < 3; i++) {
-    const a = i * TAU / 3, cx = x + Math.cos(a) * R * 0.3, cy = y + Math.sin(a) * R * 0.3;
-    ctx.beginPath(); ctx.arc(cx, cy, R * 0.17, 0, TAU); ctx.fill();
-    ctx.beginPath(); ctx.moveTo(cx + Math.cos(a + 1.6) * R * 0.17, cy + Math.sin(a + 1.6) * R * 0.17);
-    ctx.quadraticCurveTo(x + Math.cos(a + 1.1) * R * 0.55, y + Math.sin(a + 1.1) * R * 0.55, x + Math.cos(a + 2) * R * 0.5, y + Math.sin(a + 2) * R * 0.5); ctx.lineTo(cx, cy); ctx.fill();
-  }
-  ctx.restore();
-};
-// His white fur mantle: a spiky ruff round the back of the neck spilling over the back shoulder, white with grey
-// shading; in a flat pass just its shape (the white outline follows it)
-function drawRaikonFur(ctx, f, ink, flat, Ut) {
-  const sk = f.sk, fc = f.facing, x = sk.neck.x, y = sk.neck.y + Ut * 0.35;
-  const P = (bx, by) => [x - fc * bx * Ut, y + by * Ut];
-  const pts = [P(-0.5, -0.2), P(0.2, -1.4), P(0.45, -0.7), P(1.1, -1.5), P(1.0, -0.6), P(1.9, -1.1), P(1.45, -0.25), P(2.3, -0.2), P(1.6, 0.35), P(2.1, 0.9), P(1.2, 0.8), P(1.3, 1.5), P(0.6, 1.0), P(0.3, 1.6), P(0.0, 0.7)];
-  ctx.fillStyle = flat ? ink : '#e9e4df';
-  ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]); for (const q of pts.slice(1)) ctx.lineTo(q[0], q[1]); ctx.closePath(); ctx.fill();
-  if (flat) return;
-  ctx.strokeStyle = '#9d9690'; ctx.lineWidth = Math.max(1, Ut * 0.12); ctx.lineJoin = 'miter';
-  ctx.beginPath();
-  for (const [a, b] of [[P(0.3, -0.2), P(1.1, -1.0)], [P(0.5, 0.2), P(1.7, -0.1)], [P(0.4, 0.5), P(1.6, 0.8)], [P(0.3, 0.7), P(0.8, 1.2)]]) { ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); }
-  ctx.stroke(); ctx.lineJoin = 'round';
-}
+/* ---- Raikon: 27-anime-raikon.js (cloak, coat, fur, sode, jingasa) ---- */
 
 /* ---- Takashi ---- */
 // His head: a rounded crown over a broad, square jaw (instead of a ball); local head coords, left open to fill
@@ -2267,28 +2176,8 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
       break;
     }
     case 'raijin_kabuto': {
-      if (bossLook(f) === 'raikon') {
-        // Raikon himself, the Storm King: a wide black kasa edged in red, a jagged red crest flaring off its crown, and
-        // a red tassel on a cord at each end of the brim (the trophy keeps the iron helm below)
-        ctx.fillStyle = flat ? ink : '#ff2a2a';
-        ctx.beginPath(); ctx.moveTo(-r * 0.3, -r * 1.4);
-        for (const [x, y] of [[-r * 0.5, -r * 2.2], [-r * 0.15, -r * 1.95], [r * 0.05, -r * 2.85], [r * 0.3, -r * 2.05], [r * 0.62, -r * 2.5], [r * 0.5, -r * 1.65], [r * 0.3, -r * 1.35]]) ctx.lineTo(x, y);
-        ctx.closePath(); ctx.fill();
-        if (!flat) { ctx.fillStyle = '#ffb0a8'; ctx.beginPath(); ctx.moveTo(r * 0.0, -r * 1.5); ctx.lineTo(r * 0.06, -r * 2.4); ctx.lineTo(r * 0.18, -r * 1.55); ctx.closePath(); ctx.fill(); }
-        ctx.fillStyle = flat ? ink : '#0b0808';
-        ctx.beginPath(); ctx.moveTo(-r * 2.25, -r * 0.5); ctx.lineTo(-r * 0.05, -r * 1.6); ctx.lineTo(r * 2.25, -r * 0.4); ctx.quadraticCurveTo(r * 0.1, -r * 0.18, -r * 2.25, -r * 0.5); ctx.closePath(); ctx.fill();
-        if (flat) { for (const sx of [-1, 1]) ctx.fillRect(sx * r * 2.02 - r * 0.1, -r * 0.45, r * 0.2, r * 1.1); break; }
-        ctx.strokeStyle = '#ff3030'; ctx.lineWidth = Math.max(1.2, r * 0.09);
-        ctx.beginPath(); ctx.moveTo(-r * 2.25, -r * 0.5); ctx.quadraticCurveTo(r * 0.1, -r * 0.18, r * 2.25, -r * 0.4); ctx.stroke();   // the red brim edge
-        ctx.strokeStyle = 'rgba(255,60,50,0.35)'; ctx.lineWidth = Math.max(1, r * 0.05);
-        for (const k of [-0.55, 0.55]) { ctx.beginPath(); ctx.moveTo(-r * 0.05, -r * 1.55); ctx.lineTo(k * r * 2.1, -r * 0.42); ctx.stroke(); }
-        for (const [bx, by] of [[-r * 2.05, -r * 0.47], [r * 2.05, -r * 0.39]]) {
-          const sw = Math.sin(t * 2.3 + bx) * r * 0.12;
-          ctx.strokeStyle = '#8e0f18'; ctx.lineWidth = Math.max(1, r * 0.06); ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(bx + sw, by + r * 0.55); ctx.stroke();
-          ctx.fillStyle = '#e0141c'; ctx.beginPath(); ctx.moveTo(bx + sw - r * 0.12, by + r * 0.55); ctx.lineTo(bx + sw + r * 0.12, by + r * 0.55); ctx.lineTo(bx + sw * 1.3 + r * 0.16, by + r * 1.05); ctx.lineTo(bx + sw * 1.3 - r * 0.16, by + r * 1.05); ctx.closePath(); ctx.fill();
-        }
-        break;
-      }
+      // Raikon himself (and his echo): the red-edged jingasa with its flame crest and tassels (27-anime-raikon.js)
+      if (bossLook(f) === 'raikon') { drawRaikonHead(ctx, f, r, ink, flat); break; }
       // Raikon's Raijin Kabuto: an angular faceted bowl, a peak jutting over the brow, a stepped neck guard swept back,
       // and a short red lightning crest on the front
       ctx.beginPath(); ctx.moveTo(-r * 1.15, -r * 0.1); ctx.lineTo(-r * 0.98, -r * 0.92); ctx.lineTo(-r * 0.3, -r * 1.34); ctx.lineTo(r * 0.5, -r * 1.24); ctx.lineTo(r * 1.1, -r * 0.66); ctx.lineTo(r * 1.2, -r * 0.18); ctx.closePath(); ctx.fill();
@@ -2530,43 +2419,10 @@ function drawArmor(ctx, f, ink, opt, Ut) {
       ctx.fillStyle = '#d9b055'; ctx.beginPath(); ctx.arc(cr[0], cr[1], 1.2 * s, 0, TAU); ctx.fill();
       break;
     }
-    case 'raikon_plate': {
-      if (bossLook(f) === 'raikon') {
-        // the Storm King's long dark coat: crossed collar edged in red, a red sash at the waist with a steel ring, and
-        // the white fur mantle round the back of the neck (his cloak, coat skirt and shoulder crest: cloth and details)
-        torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.12);
-        drawRaikonFur(ctx, f, ink, flat, Ut);
-        if (flat) break;
-        const ox = Math.cos(ang + Math.PI / 2), oy = Math.sin(ang + Math.PI / 2), Q = (u, w) => [lerp(hx, nx, u) + ox * w * Ut, lerp(hy, ny, u) + oy * w * Ut];
-        ctx.strokeStyle = '#c3161e'; ctx.lineWidth = 1.6 * s;
-        let a = Q(0.95, -0.7), b = Q(0.5, 0.25), c = Q(0.95, 0.7);
-        ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.lineTo(c[0], c[1]); ctx.stroke();
-        ctx.strokeStyle = '#b3121b'; ctx.lineWidth = 5 * s; ctx.lineCap = 'butt';
-        a = Q(0.16, -1.15); b = Q(0.16, 1.15); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); ctx.lineCap = 'round';
-        const rg = Q(0.16, fc * (ox >= 0 ? 0.55 : -0.55)); ctx.strokeStyle = '#c9c4c0'; ctx.lineWidth = 1.4 * s; ctx.beginPath(); ctx.arc(rg[0], rg[1], 3.2 * s, 0, TAU); ctx.stroke();
-        break;
-      }
-      // Raikon's armour: a broad cuirass of a few layered plates, two stacked shoulder plates, a skirt of three
-      // plates over the hips and a red cord across the chest; simplified, flat, heavy
-      torsoShape(ctx, sk.hip, sk.neck, fc, Ut * 1.22);
-      const ox = Math.cos(ang + Math.PI / 2), oy = Math.sin(ang + Math.PI / 2), ux = Math.cos(ang), uy = Math.sin(ang);
-      ctx.fillStyle = ink; ctx.beginPath();
-      for (let i = -1; i <= 1; i++) {
-        const bx = hx + ox * i * Ut * 0.62 + ux * Ut * 0.15, by = hy + oy * i * Ut * 0.62 + uy * Ut * 0.15, L = Ut * (i === 0 ? 0.9 : 1.05);
-        ctx.moveTo(bx - ox * Ut * 0.4, by - oy * Ut * 0.4); ctx.lineTo(bx - ux * L - ox * Ut * 0.46, by - uy * L - oy * Ut * 0.46);
-        ctx.lineTo(bx - ux * L + ox * Ut * 0.46, by - uy * L + oy * Ut * 0.46); ctx.lineTo(bx + ox * Ut * 0.4, by + oy * Ut * 0.4);
-      }
-      ctx.fill();
-      plate(Ut * 0.9, flat ? null : 'rgba(255,74,60,0.45)');
-      ctx.fillStyle = ink; ctx.beginPath();
-      ctx.ellipse(sk.sh.x - fc * Ut * 0.2 - ux * Ut * 0.45, sk.sh.y - uy * Ut * 0.45 + Ut * 0.2, Ut * 0.85, Ut * 0.5, ang + Math.PI / 2, Math.PI * 0.95, Math.PI * 2.05); ctx.closePath(); ctx.fill();
-      if (flat) break;
-      ctx.strokeStyle = 'rgba(236,229,211,0.3)'; ctx.lineWidth = 1.2 * s; ctx.stroke();
-      bands(3, 'rgba(201,164,92,0.3)', Ut * 1.12, 0.22, 0.7);
-      ctx.strokeStyle = '#a3302a'; ctx.lineWidth = 2.2 * s;
-      ctx.beginPath(); ctx.moveTo(lerp(hx, nx, 0.82) - ox * Ut, lerp(hy, ny, 0.82) - oy * Ut); ctx.lineTo(lerp(hx, nx, 0.5) + ox * Ut, lerp(hy, ny, 0.5) + oy * Ut); ctx.stroke();
+    case 'raikon_plate':
+      // Raikon's armoured coat, breastplate, crossed cords and white fur mantle (27-anime-raikon.js); enemy-only
+      drawRaikonArmor(ctx, f, ink, flat);
       break;
-    }
     case 'half_do': case 'vanguard_plate': case 'robe': case 'mist_shroud': case 'shadow_cloak': case 'operative_vest':
       // the Act I / II sub-bosses' armour (24-anime-subs-a.js)
       drawSubArmor(ctx, f, f.armor);
