@@ -242,7 +242,6 @@ const TK_CAPELET = [[1.13, -5, 1], [1.13, 4.6, 1], [0.86, 7.4, 1], [0.7, 14.8], 
 const TK_CAPELET_HEM = [[0.86, 7.4], [0.66, 15.2], [0.6, 15.6], [0.54, 6], [0.5, -6], [0.48, -15], [0.56, -18.4]];
 function drawShinsei(ctx, f, ink, flat) {
   const A = f._A;
-  if (!A || !A.S) { torsoShape(ctx, f.sk.hip, f.sk.neck, f.facing, f.build.w * f.scale * 0.6); return; }
   const S = A.S, U = A.U, P = _sP(S, U), hol = _tkH(f), gold = _tkG(f), skin = animeSkin(f), tk = !!skin.takashi;
   if (tk) {
     // the robe torso: the outer robe's crossed collar of two gold-edged lapels over the dark inner kimono

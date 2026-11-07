@@ -181,7 +181,6 @@ Fighter.prototype.hollowWrap = function (ctx, a, b, ra, rb, A, U, far) {
 /* ---- the torso overlay (drawArmor 'hollow_rags') ---- */
 function drawHollowArmor(ctx, f, ink, flat) {
   const A = f._A;
-  if (!A || !A.S) { torsoShape(ctx, f.sk.hip, f.sk.neck, f.facing, f.build.w * f.scale * 0.6); return; }
   if (A.flat) return;   // the torso is already in the flat silhouette
   const S = A.S, U = A.U, pal = A.pal, sk = animeSkin(f), h = sk.hollow || { top: 'rip' };
   const P = (u, w) => [spX(S, u, w * U), spY(S, u, w * U)];

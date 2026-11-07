@@ -225,7 +225,6 @@ function _raiFurPath(ctx, S, U, k, f) {
 }
 function drawRaikonArmor(ctx, f, ink, flat) {
   const A = f._A;
-  if (!A || !A.S) { torsoShape(ctx, f.sk.hip, f.sk.neck, f.facing, f.build.w * f.scale * 0.6); return; }
   const S = A.S, U = A.U, P = _sP(S, U), hol = _raiH(f), red = _raiRed(f), pal = A.pal;
   // the breastplate: three lacquered lames laced red, clipped to the coat's torso
   if (!A.flat) {

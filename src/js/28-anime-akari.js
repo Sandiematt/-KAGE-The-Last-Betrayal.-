@@ -275,7 +275,6 @@ const AKARI_TORSO = {
 };
 function drawMeiEn(ctx, f, ink, flat) {
   const A = f._A;
-  if (!A || !A.S) { torsoShape(ctx, f.sk.hip, f.sk.neck, f.facing, f.build.w * f.scale * 0.55); return; }
   const S = A.S, U = A.U, P = _sP(S, U), hol = f.hollow, vio = _akV(f), skin = animeSkin(f);
   if (!skin.akari) {
     // Kage in the Mei-En Garb: a lacquered chest guard of two overlapping plates edged violet, over his coat

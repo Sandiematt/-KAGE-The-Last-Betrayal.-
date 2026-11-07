@@ -244,8 +244,7 @@ const ORDER_DO = {
 };
 // drawn by drawArmor ('order_garb' / 'order_plate') over the gi torso
 function drawOrderArmor(ctx, f, ink, flat) {
-  const A = f._A, sk = A && animeSkin(f), o = sk && sk.order;
-  if (!A || !o || !A.S) { torsoShape(ctx, f.sk.hip, f.sk.neck, f.facing, f.build.w * f.scale * 0.6); return; }
+  const A = f._A, o = animeSkin(f).order;
   const S = A.S, U = A.U, pal = A.pal, kind = o.do;
   const P = (u, w) => [spX(S, u, w * U), spY(S, u, w * U)];
   const prof = ORDER_DO[kind];

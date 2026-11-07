@@ -160,7 +160,6 @@ const WT_TORSO = {
 function drawKysmeiArmor(ctx, f, ink, flat) {
   const A = f._A;
   if (f.kageFrame) return;   // the Kage-flicker wears Kage's own coat (animeSkin)
-  if (!A || !A.S) { const sk = f.sk; torsoShape(ctx, sk.hip, sk.neck, f.facing, f.build.w * f.scale * 0.6); return; }
   const S = A.S, U = A.U, P = _sP(S, U), wit = !!animeSkin(f).witness;
   if (!wit) { _wtKageRobe(f, ctx, A, S, U, P); return; }
   const cp = f.corePos(), broken = !!f.coreBroken, fade = f.witFade();

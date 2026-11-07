@@ -331,7 +331,6 @@ function subSode(f, ctx, sh, el, A, U, far) {
 /* ---- the torso overlays (drawArmor) ---- */
 function drawSubArmor(ctx, f, key) {
   const A = f._A;
-  if (!A || !A.S) { torsoShape(ctx, f.sk.hip, f.sk.neck, f.facing, f.build.w * f.scale * 0.6); return; }
   const S = A.S, U = A.U, P = _sP(S, U), acc = subTone(SUB_ACC[key]), skin = animeSkin(f);
   switch (key) {
     case 'robe': {
@@ -479,7 +478,6 @@ Fighter.prototype.subFist = function (ctx, el, ha, A, U, far) {
 
 /* ---- heads (head frame: +x the face side, r the head radius) ---- */
 function drawSubHead(ctx, key, f, r, ink, flat) {
-  if (!f) { ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(0, -r * 0.2, r * 1.1, Math.PI, TAU); ctx.fill(); return; }
   const A = f._A && f._A.pal ? f._A : animeState(f, ink, flat, {});
   const sv = _headLight(A, f), t = f.time || 0, acc = subTone(SUB_ACC[key] || '#b02a31');
   const fill = (pts, tone, o) => celFill(ctx, () => orderShape(ctx, r, pts), tone, A, o);

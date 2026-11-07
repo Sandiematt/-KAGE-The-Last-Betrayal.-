@@ -77,6 +77,7 @@ function animeCloths(f) {
   akariCloths(f, sk);   // Akari's ponytail, bead strings, sash and tail; the Mei-En Garb's sash on Kage (28-anime-akari.js)
   takashiCloths(f, sk);   // Takashi's cape, robe skirts and hat ribbon (29-anime-takashi.js)
   witnessCloths(f, sk);   // Kage's coat panels and scarf tails for the Witness's Kage-flicker (29w-anime-witness.js)
+  gearCloths(f, sk);   // the shop gear's hood tails and the Raiun Mantle's streamer (29g-anime-gear.js)
 }
 
 /* ---- palette ---- */
@@ -416,7 +417,7 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   this.animeArm(ctx, sk.shF, sk.fel, sk.fha, A, skin, U * slv, false, true);
   witnessLayer(this, ctx, A, skin, U, 'core');   // the Witness's chest core and rune cards, over the near arm (29w-anime-witness.js)
   takashiLayer(this, ctx, A, skin, U, 'over');   // the Shinsei Yoroi's gold clasp and tassel at the throat (29-anime-takashi.js)
-  if (this.weaponId() === 'iron_fists' || this.weaponId() === 'storm_orbs') this.drawFistGear(ctx, front, ov);
+  if (this.weaponId() === 'iron_fists') this.drawFistGear(ctx);
   this.drawMainWeapon(ctx, front, flat ? Object.assign({}, opt, { color: front }) : opt);
   const grip = this.shape() !== 'none' && this.weaponId() !== 'iron_fists';
   if (grip) {
@@ -449,7 +450,7 @@ Fighter.prototype.animeArm = function (ctx, sh, el, ha, A, skin, U, far, noHand)
   } });
   // the Order's sode over the upper sleeve (22-anime-order.js)
   if (skin.order && skin.order.sode) this.orderSode(ctx, sh, el, A, U / (skin.sleeve || 1), far, skin.order.sode);
-  else { subSode(this, ctx, sh, el, A, U / (skin.sleeve || 1), far); subBSode(this, ctx, sh, el, A, U / (skin.sleeve || 1), far); raikonSode(this, ctx, sh, el, A, U / (skin.sleeve || 1), far); takashiSode(this, ctx, sh, el, A, U / (skin.sleeve || 1), far); }   // 24- / 25-anime-subs-*.js, 27-, 29-
+  else { subSode(this, ctx, sh, el, A, U / (skin.sleeve || 1), far); subBSode(this, ctx, sh, el, A, U / (skin.sleeve || 1), far); raikonSode(this, ctx, sh, el, A, U / (skin.sleeve || 1), far); takashiSode(this, ctx, sh, el, A, U / (skin.sleeve || 1), far); gearSode(this, ctx, sh, el, A, U / (skin.sleeve || 1), far); }   // 24- / 25-anime-subs-*.js, 27-, 29-, 29g-
   // the kote: a dark lacquered forearm guard from under the sleeve to the wrist, two dark straps with crimson cord
   const hol = skin.hollow, bare = hol && hol.bare;
   if (skin.kote === 'wrap') this.hollowWrap(ctx, at(bare ? 0.02 : 0.3, 0), at(bare ? 0.92 : 0.9, 0), (bare ? 5.4 : 4.4) * U, (bare ? 4.6 : 3.6) * U, A, U, far);

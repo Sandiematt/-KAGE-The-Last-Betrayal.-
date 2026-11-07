@@ -270,7 +270,6 @@ function subBSode(f, ctx, sh, el, A, U, far) {
 /* ---- the torso overlays (drawArmor) ---- */
 function drawSubBArmor(ctx, f, key) {
   const A = f._A;
-  if (!A || !A.S) { torsoShape(ctx, f.sk.hip, f.sk.neck, f.facing, f.build.w * f.scale * 0.6); return; }
   const S = A.S, U = A.U, P = _sP(S, U), acc = _subbAcc(f, key), skin = animeSkin(f), t = f.time || 0;
   const coat = skin.top === 'coat';
   switch (key) {
@@ -412,7 +411,6 @@ function drawSubBArmor(ctx, f, key) {
 
 /* ---- heads (head frame: +x the face side, r the head radius) ---- */
 function drawSubBHead(ctx, key, f, r, ink, flat) {
-  if (!f) { ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(0, -r * 0.2, r * 1.1, Math.PI, TAU); ctx.fill(); return; }
   const A = f._A && f._A.pal ? f._A : animeState(f, ink, flat, {});
   const sv = _headLight(A, f), t = f.time || 0, acc = _subbAcc(f, key === 'oni_echo' ? 'oni' : key), sub = animeSkin(f).sub;
   const fill = (pts, tone, o) => celFill(ctx, () => orderShape(ctx, r, pts), tone, A, o);
@@ -607,23 +605,33 @@ function _localDown(ctx) {
   const m = ctx.getTransform ? ctx.getTransform() : null; if (!m) return [0, 1];
   const det = m.a * m.d - m.b * m.c || 1; let x = -m.c / det, y = m.a / det; const l = Math.hypot(x, y) || 1; return [x / l, y / l];
 }
+// Kasane's kusari: the chain hanging under gravity from the butt of the kusarigama, swaying; returns the link joints
+// (weapon frame) and the weight's centre, shared by the drawn chain and its flat silhouette
+const _kusariPts = [];
+function _kusariChain(ctx, s, t) {
+  const [gx, gy] = _localDown(ctx), sw = Math.sin(t * 2.4) * 0.35, cx = gx * Math.cos(sw) - gy * Math.sin(sw), cy = gx * Math.sin(sw) + gy * Math.cos(sw);
+  let px = -6 * s, py = 0; _kusariPts.length = 0; _kusariPts.push([px, py]);
+  for (let i = 0; i < 9; i++) {
+    const k = i / 8, bend = Math.sin(k * 2.4) * 0.25, dx = cx - cy * bend, dy = cy + cx * bend;
+    px += dx * 4.2 * s; py += dy * 4.2 * s; _kusariPts.push([px, py]);
+  }
+  return { pts: _kusariPts, wx: px + cx * 2 * s, wy: py + cy * 2 * s };
+}
 Object.assign(SUB_WEAPON_ART, {
   // Kasane's kusarigama: a dark handle wrapped violet, a silver sickle with a violet edge, a chain from the butt
   ledger_kusari(ctx, sh, L, s, f) {
     const acc = subTone('#b48ae6'), t = f ? f.time : 0;
     // the chain, hanging under gravity from the butt, a weight at its end
-    const [gx, gy] = _localDown(ctx), sw = Math.sin(t * 2.4) * 0.35, cx = gx * Math.cos(sw) - gy * Math.sin(sw), cy = gx * Math.sin(sw) + gy * Math.cos(sw);
-    let px = -6 * s, py = 0;
-    ctx.lineWidth = 1.1 * s;
+    const ch = _kusariChain(ctx, s, t);
     for (let i = 0; i < 9; i++) {
-      const k = i / 8, bend = Math.sin(k * 2.4) * 0.25, dx = cx - cy * bend, dy = cy + cx * bend, nx = px + dx * 4.2 * s, ny = py + dy * 4.2 * s;
-      ctx.save(); ctx.translate((px + nx) / 2, (py + ny) / 2); ctx.rotate(Math.atan2(dy, dx));
+      const [px, py] = ch.pts[i], [nx, ny] = ch.pts[i + 1];
+      ctx.save(); ctx.translate((px + nx) / 2, (py + ny) / 2); ctx.rotate(Math.atan2(ny - py, nx - px));
       ctx.strokeStyle = '#030303'; ctx.lineWidth = 2.6 * s; ctx.beginPath(); ctx.ellipse(0, 0, 2.6 * s, i % 2 ? 0.6 * s : 1.4 * s, 0, 0, TAU); ctx.stroke();
       ctx.strokeStyle = i % 2 ? '#4a4d53' : ANIME.silver; ctx.lineWidth = 1 * s; ctx.stroke();
-      ctx.restore(); px = nx; py = ny;
+      ctx.restore();
     }
-    ctx.fillStyle = '#030303'; ctx.beginPath(); ctx.arc(px + cx * 2 * s, py + cy * 2 * s, 3.4 * s, 0, TAU); ctx.fill();
-    ctx.fillStyle = SUB_IRON[2]; ctx.beginPath(); ctx.arc(px + cx * 2 * s, py + cy * 2 * s, 2.3 * s, 0, TAU); ctx.fill();
+    ctx.fillStyle = '#030303'; ctx.beginPath(); ctx.arc(ch.wx, ch.wy, 3.4 * s, 0, TAU); ctx.fill();
+    ctx.fillStyle = SUB_IRON[2]; ctx.beginPath(); ctx.arc(ch.wx, ch.wy, 2.3 * s, 0, TAU); ctx.fill();
     // the handle
     ctx.lineCap = 'round';
     ctx.strokeStyle = '#030303'; ctx.lineWidth = 6.4 * s; ctx.beginPath(); ctx.moveTo(-6 * s, 0); ctx.lineTo(L * 0.55, 0); ctx.stroke();
@@ -744,6 +752,17 @@ function _naginataBlade(ctx, L, s) {
 }
 // flat / outline passes for the weapons whose silhouette is not the shared shape's
 const SUBB_WEAPON_FLAT = {
+  // Kasane's kusarigama: the handle, the sickle and the chain hanging from the butt, all in the one colour
+  ledger_kusari(ctx, L, s, ink, rim, f) {
+    const ch = _kusariChain(ctx, s, f ? f.time : 0);
+    ctx.strokeStyle = ink; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.lineWidth = 3.6 * s;
+    ctx.beginPath(); ch.pts.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y))); ctx.stroke();
+    ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(ch.wx, ch.wy, 3.4 * s, 0, TAU); ctx.fill();
+    ctx.lineWidth = 6.4 * s; ctx.beginPath(); ctx.moveTo(-6 * s, 0); ctx.lineTo(L * 0.55, 0); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(L * 0.5, -3 * s); ctx.quadraticCurveTo(L * 0.95, -8 * s, L * 1.0, -L * 0.62); ctx.quadraticCurveTo(L * 0.8, -12 * s, L * 0.5, 4 * s); ctx.closePath(); ctx.fill();
+    void rim;
+    return true;
+  },
   gate_kanabo(ctx, L, s, ink) {
     ctx.strokeStyle = ink; ctx.lineCap = 'round'; ctx.lineWidth = 6 * s; ctx.beginPath(); ctx.moveTo(-L * 0.1, 0); ctx.lineTo(L * 0.3, 0); ctx.stroke();
     ctx.fillStyle = ink; ctx.beginPath(); _poly(ctx, [[L * 0.28, -4.6 * s], [L * 0.94, -11 * s], [L * 1.02, -8 * s], [L * 1.02, 8 * s], [L * 0.94, 11 * s], [L * 0.28, 4.6 * s]]); ctx.fill();
