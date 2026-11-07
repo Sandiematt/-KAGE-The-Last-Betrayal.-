@@ -1,0 +1,6 @@
+[{"q": "e=order_footman&env=highlands", "shots": [{"js": "place(230); adv(30)", "out": "ig-order.png"}]},
+ {"q": "e=hollow_ward&env=highlands", "shots": [{"js": "place(230); adv(20)", "out": "ig-ward.png"}, {"js": "let k=0; while(k++<400 && !(e.glitchAmount && e.glitchAmount(0))){ adv(1); } return adv(0)", "out": "ig-ward-glitch.png"}]},
+ {"q": "stage=act2.sub4", "shots": [{"js": "place(220); adv(20)", "out": "ig-kasane.png"}, {"js": "pl.flash=0; e.flash=0.2; adv(0)", "out": "ig-kasane-flash.png"}]},
+ {"q": "stage=act1.boss", "shots": [{"js": "place(260); adv(30)", "out": "ig-raikon.png"}]},
+ {"q": "stage=act3.boss", "shots": [{"js": "place(260); adv(30)", "out": "ig-takashi.png"}]},
+ {"q": "stage=core.witness", "shots": [{"js": "place(260); adv(30)", "out": "ig-witness.png"}]}]

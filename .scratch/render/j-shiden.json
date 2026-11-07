@@ -1,0 +1,5 @@
+[{"q": "stage=act1.sub4", "shots": [
+  {"js": "place(140); adv(2)", "out": "sh-close.png"},
+  {"js": "place(90); for(let i=0;i<120;i++){adv(1)}", "out": "sh-close2.png"},
+  {"js": "e.y=-160; e.grounded=false; place(120); adv(1)", "out": "sh-air.png"}
+]}]

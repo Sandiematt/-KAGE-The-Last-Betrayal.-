@@ -1,0 +1,4 @@
+[{"wait": 500, "shot": "ui-splash.png"},
+ {"eval": "Object.keys(window.KAGE||{}).join(',')"},
+ {"eval": "document.querySelector('#boot') && document.querySelector('#boot').outerHTML.slice(0,200)"},
+ {"eval": "[...document.querySelectorAll('[id]')].map(e=>e.id+':'+getComputedStyle(e).display).join(' ').slice(0,1500)"}]

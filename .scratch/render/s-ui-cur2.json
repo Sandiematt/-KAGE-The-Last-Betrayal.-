@@ -1,0 +1,51 @@
+[
+{
+"eval": "window.__budget = 240",
+"wait": 4500
+},
+{
+"click": [
+640,
+600
+],
+"wait": 1500
+},
+{
+"eval": "window.__budget = 300",
+"wait": 6000,
+"shot": "uicur2/title.png"
+},
+{
+"eval": "KAGE.UIManager.openProfile(); window.__budget = 30",
+"wait": 1500,
+"shot": "uicur2/profile.png"
+},
+{
+"eval": "KAGE.UIManager.closeOverlay(); KAGE.UIManager.returnTo = 'title'; KAGE.UIManager.go('armory', () => KAGE.UIManager.renderArmory()); window.__budget = 60",
+"wait": 2500,
+"shot": "uicur2/armory.png"
+},
+{
+"eval": "KAGE.UIManager.go('trials', () => KAGE.UIManager.renderTrials()); window.__budget = 60",
+"wait": 2000,
+"shot": "uicur2/trials.png"
+},
+{
+"eval": "KAGE.UIManager.go('bossrush', () => KAGE.UIManager.renderBossRush()); window.__budget = 60",
+"wait": 2000,
+"shot": "uicur2/bossrush.png"
+},
+{
+"eval": "KAGE.Game.startFight(KAGE.Logic.stageConfig(KAGE.SaveManager.data, 'act1.sub1'), { skipBefore: true }); KAGE.UIManager.show('hud'); window.__budget = 260",
+"wait": 6000,
+"shot": "uicur2/hud.png"
+},
+{
+"eval": "(() => { const G = KAGE.Game, s = G.session; s.win = false; G.finishFight(s.buildResult()); window.__budget = 90; return 'ok'; })()",
+"wait": 4000,
+"shot": "uicur2/result.png"
+},
+{
+"eval": "[...document.querySelectorAll('.screen.on,[id^=ov-]')].filter(e=>getComputedStyle(e).display!=='none').map(e=>e.id).join(',')"
+}
+]

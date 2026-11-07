@@ -1,0 +1,8 @@
+screen     changed  in-char  outside  | noise(cur vs cur) outside
+title         6871     5794     1077  |        0   outside-bbox (35, 39, 1257, 720)
+profile       2893     2865       28  |       23   outside-bbox (645, 0, 842, 615)
+armory       27110    26881      229  |      302   outside-bbox (277, 105, 320, 120)
+trials      151047   151047        0  |        0   outside-bbox None
+bossrush     32270    32270        0  |        0   outside-bbox None
+hud          54107    54107        0  |        0   outside-bbox None
+result       56190    56190        0  |        0   outside-bbox None
