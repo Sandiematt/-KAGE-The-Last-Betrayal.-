@@ -124,14 +124,14 @@ Fighter.prototype.subBPanel = function (ctx, A, part, w0, w1, tone, o) {
       g.strokeStyle = acc[1]; g.lineWidth = 1.1 * U; g.beginPath(); g.moveTo(front[2], front[3]); for (let i = 2; i < n; i++) g.lineTo(front[i * 2], front[i * 2 + 1]); g.stroke();
     } else if (o.kind === 'cloak') {
       // the echo's cloak: a violet-lit band near the torn hem, faint memory script along it
-      _hemLine(g, n, 9 * U, acc[0], 4 * U);
-      _hemLine(g, n, 11.6 * U, acc[1], 0.9 * U);
+      _hemLine(g, n, 9 * U, '#1a1530', 3 * U);
+      _hemLine(g, n, 11 * U, acc[0], 0.9 * U);
       g.fillStyle = 'rgba(185,165,255,0.35)';
       for (let k = 0; k < 7; k++) { const p = _panelAt(n, n - 2.1, 0.1 + k * 0.13); g.fillRect(p[0] - 0.6 * A.s, p[1] - 1.6 * A.s, 1.2 * A.s, 3.2 * A.s); }
     } else {
       // the warden's cape: black, bleeding to the accent at its ragged hem, a lining edge and a crest high on its back
-      _hemLine(g, n, 6 * U, acc[0], 8 * U);
-      _hemLine(g, n, 10.5 * U, acc[1], 1 * U);
+      _hemLine(g, n, 7 * U, f > 0 ? '#16101c' : '#16101c', 6 * U);
+      _hemLine(g, n, 10.5 * U, acc[0], 1 * U);
       g.strokeStyle = acc[0]; g.lineWidth = 1.6 * U; g.beginPath(); g.moveTo(front[2], front[3]); for (let i = 2; i < n; i++) g.lineTo(front[i * 2], front[i * 2 + 1]); g.stroke();
       const c = _panelAt(n, 1.6, 0.5); g.strokeStyle = acc[1]; g.lineWidth = 1.2 * U;
       g.beginPath(); g.arc(c[0], c[1], 4 * U, 0, TAU); g.moveTo(c[0] - 2.6 * U, c[1]); g.lineTo(c[0] + 2.6 * U, c[1]); g.moveTo(c[0], c[1] - 2.6 * U); g.lineTo(c[0], c[1] + 2.6 * U); g.stroke();
@@ -523,8 +523,8 @@ function drawSubBHead(ctx, key, f, r, ink, flat) {
       } else if (echo) {
         // the Echo Sentinel: a close hood, long horns swept back from it
         fill([[0.5, -0.9], [-0.3, -1.12], [-1.02, -0.7], [-1.12, 0.3], [-0.82, 1.2], [-0.1, 1.3], [0.3, 1.06], [0.0, 0.6], [-0.2, 0.0], [0.1, -0.6]], ['#08060d', '#110e18', '#241f31'], { sd: r * 0.3, hd: r * 0.05, rim: true });
-        fill([[0.2, -0.86], [-0.3, -1.4], [-1.2, -2.0, 1], [-0.5, -1.2], [-0.2, -0.9]], ORDER_HORN, { sd: r * 0.1, hd: r * 0.04, rim: true, detail: (g) => { g.strokeStyle = acc[1]; g.lineWidth = r * 0.04; g.beginPath(); g.moveTo(-r * 0.1, -r * 1.1); g.quadraticCurveTo(-r * 0.6, -r * 1.5, -r * 1.12, -r * 1.94); g.stroke(); } });
-        fill([[0.6, -0.84], [0.3, -1.5], [-0.4, -2.2, 1], [0.12, -1.4], [0.36, -0.86]], ORDER_HORN, { sd: r * 0.1, rim: true });
+        fill([[0.62, -0.84], [0.5, -1.5], [-0.1, -2.0], [-1.0, -2.1, 1], [-0.3, -1.7], [0.18, -1.3], [0.36, -0.84]], ORDER_HORN, { sd: r * 0.1, rim: true });
+        fill([[0.3, -0.92], [0.0, -1.4], [-0.8, -1.68], [-1.95, -1.46, 1], [-0.9, -1.34], [-0.3, -1.04], [-0.05, -0.84]], ORDER_HORN, { sd: r * 0.1, hd: r * 0.04, rim: true, detail: (g) => { g.strokeStyle = acc[1]; g.lineWidth = r * 0.04; g.beginPath(); g.moveTo(r * 0.1, -r * 1.1); g.quadraticCurveTo(-r * 0.6, -r * 1.5, -r * 1.8, -r * 1.47); g.stroke(); } });
       } else if (moro) {
         // Moro: a close dark hood under the brow plate (the conduit tube runs into it from the back)
         fill([[0.5, -0.9], [-0.3, -1.12], [-1.02, -0.7], [-1.12, 0.3], [-0.82, 1.2], [-0.1, 1.3], [0.3, 1.06], [0.0, 0.6], [-0.2, 0.0], [0.1, -0.6]], A.pal.fab, { sd: r * 0.3, hd: r * 0.05, rim: true, detail: (g) => {
