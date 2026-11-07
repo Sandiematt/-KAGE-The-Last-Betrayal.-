@@ -54,6 +54,7 @@ const ANIME_SKINS = {
   base: { top: 'gi', feet: 'sandal', sleeve: 1.08, collar: false, kote: true, sash: 'obi' }
 };
 function animeSkin(f) {
+  if (f.kageFrame) return ANIME_SKINS.kage;   // the Witness flickering to Kage's own design (29w-anime-witness.js)
   if (f.isPlayer) return f.armor === 'training' ? ANIME_SKINS.youngKage : ANIME_SKINS.kage;
   const d = f.def;
   return (d && (ANIME_SKINS[d.id] || (d.echoOf && ANIME_SKINS[d.echoOf]))) || ANIME_SKINS.base;
@@ -75,6 +76,7 @@ function animeCloths(f) {
   raikonCloths(f, sk);   // Raikon's cloak and coat skirts (27-anime-raikon.js)
   akariCloths(f, sk);   // Akari's ponytail, bead strings, sash and tail; the Mei-En Garb's sash on Kage (28-anime-akari.js)
   takashiCloths(f, sk);   // Takashi's cape, robe skirts and hat ribbon (29-anime-takashi.js)
+  witnessCloths(f, sk);   // Kage's coat panels and scarf tails for the Witness's Kage-flicker (29w-anime-witness.js)
 }
 
 /* ---- palette ---- */
@@ -147,6 +149,7 @@ function animeState(f, front, flat, opt) {
   const sk = animeSkin(f); if (sk.acc && !flat) A.pal = subAccPal(A.pal, sk.acc);   // a sub-boss's own accent (24-anime-subs-a.js)
   if (sk.akari && !flat && !f.hollow) A.pal = akariPal(A.pal);   // Akari's violet rim light (28-anime-akari.js)
   if (sk.takashi && !flat && !f.hollow) A.pal = takashiPal(A.pal);   // Takashi's plum-black robes and gold rim light (29-anime-takashi.js)
+  if (sk.witness && !flat) A.pal = witnessPal(A.pal);   // the Witness's black-violet armour and violet rim light (29w-anime-witness.js)
   return A;
 }
 
@@ -362,13 +365,14 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   raikonLayer(this, ctx, A, skin, U, 'back');   // Raikon's cloak and coat skirt (27-anime-raikon.js)
   akariLayer(this, ctx, A, skin, U, 'back');   // Akari's ponytail, bead strings and back tail (28-anime-akari.js)
   takashiLayer(this, ctx, A, skin, U, 'back');   // Takashi's long cape, hat ribbon and back robe skirt (29-anime-takashi.js)
+  witnessLayer(this, ctx, A, skin, U, 'back');   // the Witness's high collar and coat tails (29w-anime-witness.js)
   // --- 2. the far arm: sleeve, cuff, hand (then any off-hand weapon)
   this.animeArm(ctx, sk.shB, sk.bel, sk.bha, A, skin, U * slv, true);
   this.drawOffhand(ctx, front, flat ? Object.assign({}, opt, { color: front }) : opt);
   // --- 3. the far leg
   this.animeLeg(ctx, sk.hipB, sk.bkn, sk.bft, A, skin, U, true);
   // --- 4. the torso (Akari's fitted top is her garb's own cut, drawArmor 'mei_en': 28-anime-akari.js)
-  if (!akari) this.animeTorsoDraw(ctx, S, A, skin, U, coatT);
+  if (!akari && !skin.witness) this.animeTorsoDraw(ctx, S, A, skin, U, coatT);   // the Witness's coat: drawArmor 'kysmei'
   if (ord) this.orderKusazuri(ctx, S, A, U, 'back');
   drawArmor(ctx, this, armInk, ov, T * 1.25);
   // --- 5. the near leg, then the coat's near flap over its thigh (the Order: the front kusazuri plates)
@@ -379,6 +383,7 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   raikonLayer(this, ctx, A, skin, U, 'front');
   akariLayer(this, ctx, A, skin, U, 'front');   // her violet sash (and the Mei-En Garb's on Kage)
   takashiLayer(this, ctx, A, skin, U, 'front');   // Takashi's front robe skirt
+  witnessLayer(this, ctx, A, skin, U, 'front');   // the Witness's front coat tail
   if (skin.coat) this.drawCoatPanel(ctx, 'flap', A, skin, U);
   if (hol) this.hollowRobe(ctx, A, skin, U, 'flap');
   if (!akari) akariLayer(this, ctx, A, skin, U, 'gear');   // the Mei-En Garb's violet sash, over Kage's coat (28-anime-akari.js)
@@ -389,6 +394,7 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   else if (skin.sash === 'raikon') raikonLayer(this, ctx, A, skin, U, 'waist');   // his red obi and ring (27-anime-raikon.js)
   else if (skin.sash === 'akari') akariLayer(this, ctx, A, skin, U, 'waist');   // her belts, buckle and pouch (28-anime-akari.js)
   else if (skin.sash === 'takashi') takashiLayer(this, ctx, A, skin, U, 'waist');   // his gold-corded obi and tassels (29-anime-takashi.js)
+  else if (skin.sash === 'witness') witnessLayer(this, ctx, A, skin, U, 'waist');   // its armoured belt and tassets (29w-anime-witness.js)
   else if (hol) this.hollowSash(ctx, S, A, U, skin.sash);
   if (hol && hol.mantle) this.hollowMantle(ctx, S, A, U, hol.mantle);
   subLayer(this, ctx, A, skin, U, 'waist');
@@ -406,6 +412,7 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   drawHelmet(ctx, this.helmet, hr, flat ? front : this.isPlayer ? pal.metal[1] : (pal.armor || front), ov, this);
   if (!flat && !opt.noEyes) drawEyes(ctx, this, hr, opt);
   ctx.restore();
+  witnessLayer(this, ctx, A, skin, U, 'core');   // the Witness's chest core and rune cards, under the near arm (29w-anime-witness.js)
   // --- 9. the near arm, the weapon in its hand, and the hands closed over the grip
   this.animeArm(ctx, sk.shF, sk.fel, sk.fha, A, skin, U * slv, false, true);
   takashiLayer(this, ctx, A, skin, U, 'over');   // the Shinsei Yoroi's gold clasp and tassel at the throat (29-anime-takashi.js)
@@ -422,9 +429,9 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
 // elbow and flares to its opening (Kage's ends in a crimson cuff), a dark strapped kote under it and a small glove on
 // the grip. `far` is the arm behind the body: one tone darker and no detail lines.
 Fighter.prototype.animeArm = function (ctx, sh, el, ha, A, skin, U, far, noHand) {
-  if (skin.akari) {   // Akari's fitted sleeve and long arm guard (28-anime-akari.js)
-    akariArm(this, ctx, sh, el, ha, A, U, far);
-    if (!noHand && !(far && this.pose.ik > 0.5 && IK_OFF[this.shape()] != null)) this.animeHand(ctx, el, ha, A, U * 0.88, far);
+  if (skin.akari || skin.witness) {   // Akari's fitted sleeve and long arm guard (28-anime-akari.js); the Witness's pauldron and gauntlet (29w-)
+    if (skin.akari) akariArm(this, ctx, sh, el, ha, A, U, far); else witnessArm(this, ctx, sh, el, ha, A, U, far);
+    if (!noHand && !(far && this.pose.ik > 0.5 && IK_OFF[this.shape()] != null)) this.animeHand(ctx, el, ha, A, U * (skin.akari ? 0.88 : 1), far);
     return;
   }
   const pal = A.pal, tone = far ? pal.back : skin.top === 'coat' ? pal.coat : pal.fab, gi = skin.top !== 'coat';
@@ -480,7 +487,7 @@ Fighter.prototype.animeArm = function (ctx, sh, el, ha, A, skin, U, far, noHand)
 Fighter.prototype.animeHand = function (ctx, el, ha, A, U, far) {
   if (this.weaponId() === 'iron_fists' && this.hollow && animeSkin(this).hollow) { this.hollowFist(ctx, el, ha, A, U, far); return; }
   if (this.weaponId() === 'iron_fists') { this.subFist(ctx, el, ha, A, U, far); return; }   // the iron tekko (24-anime-subs-a.js)
-  const pal = A.pal, glove = far ? [ANIME.cloth0, ANIME.cloth0, ANIME.cloth1] : [ANIME.cloth0, ANIME.cloth1, ANIME.cloth2];
+  const pal = A.pal, glove = animeSkin(this).witness ? (far ? WT_FAR : WT_ARMOR) : far ? [ANIME.cloth0, ANIME.cloth0, ANIME.cloth1] : [ANIME.cloth0, ANIME.cloth1, ANIME.cloth2];
   celFill(ctx, () => animeHandPath(ctx, el, ha, 2.9 * U), this.weaponId() === 'iron_fists' ? pal.metal : glove, A, { sd: 1.4 * U, hd: 0.6 * U, detail: (g) => {
     const dx = ha.x - el.x, dy = ha.y - el.y, l = Math.hypot(dx, dy) || 1, ux = dx / l, uy = dy / l;
     g.strokeStyle = ANIME.cloth2; g.lineWidth = 0.7 * A.s; g.beginPath();
@@ -491,6 +498,7 @@ Fighter.prototype.animeHand = function (ctx, el, ha, A, U, far) {
 // lines, then the boot (Kage) or tabi and straw sandal (everyone else)
 Fighter.prototype.animeLeg = function (ctx, hp, kn, ft, A, skin, U, far) {
   if (skin.akari) { akariLeg(this, ctx, hp, kn, ft, A, skin, U, far); return; }   // leggings and tall boots (28-anime-akari.js)
+  if (skin.witness) { witnessLeg(this, ctx, hp, kn, ft, A, U, far); return; }   // the Witness's armoured legs (29w-anime-witness.js)
   const pal = A.pal, tone = far ? pal.back : pal.fab, f = this.facing, boot = skin.feet === 'boot', lw = (skin.hollow && skin.hollow.legW) || 1;
   const pleats = (g, a, b, os) => {
     const dx = b.x - a.x, dy = b.y - a.y, l = Math.hypot(dx, dy) || 1, nx = -dy / l, ny = dx / l;
@@ -613,7 +621,7 @@ Fighter.prototype.animeNeck = function (ctx, S, A, skin, U, hr) {
 
 /* ---- the eyes: two short, sharp, slightly upswept almonds that glow white; narrowed while attacking ---- */
 function drawEyes(ctx, f, r, opt) {
-  if (opt.color || f.helmet === 'witness_mask' || f.helmet === 'akari_mask') return;   // the Witness's and Akari's eyes are drawn with their masks
+  if (opt.color || (f.helmet === 'witness_mask' && !f.kageFrame) || f.helmet === 'akari_mask') return;   // the Witness's and Akari's eyes are drawn with their masks
   if (f.eye === 'rgba(0,0,0,0)') return;   // a decoy or clone: no light behind the eyes
   const squint = f.state === 'move' || f.state === 'ability' ? 0.55 : f.state === 'hit' || f.state === 'stun' ? 0.75 : 1;
   const rf = r * 0.9, glow = f.hollow ? 'rgba(185,150,255,0.4)' : 'rgba(244,241,234,0.16)';
