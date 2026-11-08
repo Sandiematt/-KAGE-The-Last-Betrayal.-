@@ -1,7 +1,8 @@
 // builds harness.html: all game modules except boot + harness.js, in one scope
 import fs from 'node:fs'; import path from 'node:path';
 const root = 'E:/PROJECTS/KAGE/KAGE', js = path.join(root, 'src/js');
-const files = fs.readdirSync(js).filter(f => f.endsWith('.js') && f !== '90-main.js').sort();
+const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]);
+const files = walk(js).filter(f => f.endsWith('.js')).map(f => path.relative(js, f).split(path.sep).join('/')).filter(f => f !== '90-main.js').sort();
 const src = files.map(f => fs.readFileSync(path.join(js, f), 'utf8')).join('\n;\n')
   .replace(/__IMG\(([\w.-]+)\)__/g, (m, n) => '/src/img/' + n);
 const h = fs.readFileSync(path.join(root, '.scratch/render/harness.js'), 'utf8');

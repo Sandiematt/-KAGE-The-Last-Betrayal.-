@@ -4,7 +4,7 @@
    glowing white eyes, no nose or mouth, detailed dark clothing with a fine rim light.
 
    The cast is the game's own: when the game is loaded, every bust and every figure that has an in-game design is the
-   real Fighter in its anime skin (20-fighter.js, 21-anime-body.js to 29w-anime-witness.js), posed with poseFighter and
+   real Fighter in its anime skin (20-fighter.js, 21-characters/_shared/ to 21-characters/bosses/witness/), posed with poseFighter and
    drawn exactly as in a fight (STORY_CAST, storyFighter, storyFighterBust). The module still loads on its own:
    tests/story.test.js runs it under Node, where there is no Fighter, and code-drawn anime figures stand in
    (storyAnimeBust, storyBackFigure). The two civilians (survivor, resident), the dawn walk's back views and the close-ups
@@ -27,7 +27,7 @@ const STORY_ANI = {
   face: '#050404', cloth0: '#060505', cloth1: '#0d0b0b', cloth2: '#1b1817', char0: '#0d0c0e', char1: '#161518', char2: '#252329',
   metal0: '#09090b', metal1: '#141518', metal2: '#2c2f35', crimson: '#7e161b', crimsonHi: '#b02a31', scarf: '#c8343a',
   silver: '#9a9ea4', silverHi: '#d6d9dd', eye: '#f4f1ea', eyeGlow: 'rgba(244,241,234,0.35)', outline: '#030303',
-  remAcc: '#8a5cd6', band: '#e4ded2', bandDim: '#a59e92', akari: '#b48ae6', straw: '#4e4230'
+  remAcc: '#8a5cd6', band: '#e4ded2', bandDim: '#a59e92', akari: '#ff66b2', straw: '#4e4230'
 };
 
 // tiny deterministic random source, so an illustration is the same picture every time
@@ -57,7 +57,7 @@ function storyPart(g, pts, fill, line, w) {
 /* ======================================================================== */
 // The real fighters, built the way the game builds them (the HUD and the menus do the same with drawFighterInto). Each
 // maker takes { facing, weapon }. Adult Rem has no fighter of his own in the campaign; he is the design Hollow Rem
-// copies (26-anime-rem.js), built here without the Hollow family.
+// copies (21-characters/bosses/rem/), built here without the Hollow family.
 const STORY_CAST = {
   kage: o => makePlayerFighter(Logic.defaultSave(), { facing: o.facing, weapon: o.weapon || 'kagetsu', wlvl: 1 }),
   young_kage: o => makeYoungKage({ facing: o.facing }),
@@ -327,7 +327,7 @@ const SPEAKERS = {
     portrait(g) {
       const A = STORY_ANI, bd = { bg: '#140d1c', glow: 'rgba(138,92,201,0.3)', rim: 'rgba(198,162,255,0.6)' };
       storyBackdrop(g, bd);
-      if (storyFighterBust(g, 'young_rem', { pose: 'rest', dx: -4, rim: 'rgba(214,190,255,0.9)' })) return;
+      if (storyFighterBust(g, 'young_rem', { pose: 'rest', dx: -4, rim: 'rgba(255,190,225,0.9)' })) return;
       storyAnimeBust(g, Object.assign({ collar: A.remAcc }, bd));
       storyHair(g, [[-3.3, 26], [-2.8, 32], [-2.4, 34], [-2.0, 33], [-1.6, 30], [-1.25, 28], [-0.9, 26]], 15, A.cloth1);
       storyPart(g, [33, 36, 67, 36, 67, 41, 33, 41], A.band);                                     // the white band
@@ -379,7 +379,7 @@ const SPEAKERS = {
     portrait(g) {
       const A = STORY_ANI, bd = { bg: '#120b1a', glow: 'rgba(198,162,255,0.26)', rim: 'rgba(198,162,255,0.7)' };
       storyBackdrop(g, bd);
-      if (storyFighterBust(g, 'akari', { pose: 'rest', dx: -4, rim: 'rgba(214,190,255,0.9)' })) return;
+      if (storyFighterBust(g, 'akari', { pose: 'rest', dx: -4, rim: 'rgba(255,190,225,0.9)' })) return;
       storyAnimeBust(g, Object.assign({ collar: A.akari }, bd));
       storyPart(g, [64, 30, 84, 22, 92, 34, 80, 34, 88, 46, 70, 38], A.cloth1);                  // the high ponytail
       storyPart(g, [34, 40, 36, 28, 50, 24, 64, 28, 66, 40, 58, 32, 50, 34, 42, 32], A.cloth1);  // the fringe
@@ -437,7 +437,7 @@ const SPEAKERS = {
       storyPoly(g, [22, 78, 34, 78, 34, 80, 22, 80], 'rgba(185,168,255,0.35)');
     }
   },
-  // an Order of Silence officer: the runner's peaked hood and fox half-mask (22-anime-order.js)
+  // an Order of Silence officer: the runner's peaked hood and fox half-mask (21-characters/enemies/order/)
   order: {
     name: 'Order of Silence', accent: '#c4c8cc',
     portrait(g) {
@@ -839,7 +839,7 @@ const ILLUSTRATIONS = {
     paint(g) {
       const K = STORY_INK, A = STORY_ANI;
       storySky(g, ['#0a0810', '#100c16', '#151020', '#100c16', '#0a0810'], 0, 720);
-      storyAsh(g, 91, 110, [0, 0, 1280, 720], 'rgba(198,162,255,0.42)', 3);    // Akari coming apart
+      storyAsh(g, 91, 110, [0, 0, 1280, 720], 'rgba(255,162,210,0.42)', 3);    // Akari coming apart
       // two forearms from below in her long lacquered arm guards, banded violet, the gloved hands turned up under the blade
       for (const [x, dir] of [[400, 1], [880, -1]]) {
         storyPart(g, [x - 70 * dir, 720, x - 10 * dir, 470, x + 60 * dir, 470, x + 70 * dir, 720], A.metal1, A.outline, 2);

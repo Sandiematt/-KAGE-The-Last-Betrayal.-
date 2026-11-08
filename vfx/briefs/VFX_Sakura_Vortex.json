@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Sakura_Vortex",
+  "role": "full-screen sustained storm (Thousand Petal Requiem, phase-3 entrance)",
+  "style": "stylized anime combat, glowing additive sakura (Senbonzakura) over a dark night arena, side-view 2D",
+  "dominant_shape": "screen-filling petal whirlpool round a white eye",
+  "palette": {
+    "core": [
+      255,
+      246,
+      252
+    ],
+    "body": [
+      255,
+      102,
+      178
+    ],
+    "dark": [
+      70,
+      6,
+      40
+    ],
+    "matter": [
+      255,
+      196,
+      226
+    ],
+    "accent": [
+      255,
+      20,
+      147
+    ]
+  },
+  "delivery": {
+    "kind": "area"
+  },
+  "anchor": "body",
+  "reference": {
+    "id": "gemini_generated_video_9ba223ac.mp4 (user reference: Senbonzakura boss duel)"
+  },
+  "beats": [
+    {
+      "frame": 20,
+      "name": "rise",
+      "expect": "veil dims the arena, bands fade in"
+    },
+    {
+      "frame": 60,
+      "name": "hold",
+      "expect": "petals and blades spiral inward round the eye"
+    },
+    {
+      "frame": 110,
+      "name": "loop",
+      "expect": "storm keeps turning with no visible seam"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Dark veil",
+      "role": "dark: wine veil that dims the arena",
+      "primitive": "sprite T_SoftCircle Blend",
+      "exit": "gone by absolute f120"
+    },
+    {
+      "name": "1:Outer band",
+      "role": "volume: deep-pink band turning round the screen",
+      "primitive": "orbit_band",
+      "exit": "gone by absolute f120"
+    },
+    {
+      "name": "2:Inner band",
+      "role": "volume: pink inner band, faster",
+      "primitive": "orbit_band",
+      "exit": "gone by absolute f120"
+    },
+    {
+      "name": "3:Vortex pivot",
+      "role": "pivot spinning the storm about Z",
+      "primitive": "renderer None",
+      "exit": "gone by absolute f153.25"
+    },
+    {
+      "name": "3:Vortex pivot/0:Storm petals",
+      "role": "main shape: petals spiralling inward",
+      "primitive": "sprite T_SakuraPetal01",
+      "exit": "gone by absolute f153.25"
+    },
+    {
+      "name": "3:Vortex pivot/1:Storm blades",
+      "role": "signature: crescent blades riding the vortex",
+      "primitive": "sprite T_PetalBlade01",
+      "exit": "gone by absolute f129.5"
+    },
+    {
+      "name": "4:Storm strands",
+      "role": "shape change: torn strands in the whirl",
+      "primitive": "wisps",
+      "exit": "gone by absolute f133"
+    },
+    {
+      "name": "5:Eye bloom",
+      "role": "light: pink bloom of the eye",
+      "primitive": "glow",
+      "exit": "gone by absolute f120"
+    },
+    {
+      "name": "6:Eye core",
+      "role": "core: white-hot eye",
+      "primitive": "glow",
+      "exit": "gone by absolute f120"
+    },
+    {
+      "name": "7:Storm glints",
+      "role": "accent: glints in the storm",
+      "primitive": "sparkle",
+      "exit": "gone by absolute f126"
+    }
+  ],
+  "acceptance": [
+    "The whirl turns visibly (petals travel inward along a spiral)",
+    "Characters stay readable through the veil",
+    "At most three screen-sized additive layers at once"
+  ],
+  "avoid": [
+    "A flat rotating icon",
+    "The veil going so dark the fighters disappear"
+  ]
+}

@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Sakura_Pillar",
+  "role": "vertical eruption (ribbon impact, Falling Petal landing, phase-2 entrance)",
+  "style": "stylized anime combat, glowing additive sakura (Senbonzakura) over a dark night arena, side-view 2D",
+  "dominant_shape": "fan of standing crescent blades round a pink light column",
+  "palette": {
+    "core": [
+      255,
+      246,
+      252
+    ],
+    "body": [
+      255,
+      102,
+      178
+    ],
+    "dark": [
+      70,
+      6,
+      40
+    ],
+    "matter": [
+      255,
+      196,
+      226
+    ],
+    "accent": [
+      255,
+      20,
+      147
+    ]
+  },
+  "delivery": {
+    "kind": "projectile",
+    "projectile": "VFX_Sakura_Ribbon"
+  },
+  "anchor": "ground",
+  "reference": {
+    "id": "gemini_generated_video_9ba223ac.mp4 (user reference: Senbonzakura boss duel)"
+  },
+  "beats": [
+    {
+      "frame": 3,
+      "name": "tell",
+      "expect": "floor ellipse flares, glints drawn in"
+    },
+    {
+      "frame": 6,
+      "name": "contact",
+      "expect": "white contact at the base"
+    },
+    {
+      "frame": 14,
+      "name": "body",
+      "expect": "seven blades shoot up in a fan, column at full height"
+    },
+    {
+      "frame": 40,
+      "name": "tail",
+      "expect": "blades eroded, petals drifting down"
+    },
+    {
+      "frame": 74,
+      "name": "clear",
+      "expect": "settling pale petals"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Floor tell",
+      "role": "anticipation: pink ellipse on the floor where it will rise",
+      "primitive": "orbit_band",
+      "exit": "gone by absolute f12"
+    },
+    {
+      "name": "1:Gather",
+      "role": "anticipation: glints drawn to the eruption point",
+      "primitive": "motes",
+      "exit": "gone by absolute f7"
+    },
+    {
+      "name": "2:Contact flash",
+      "role": "contact",
+      "primitive": "flash",
+      "exit": "gone by absolute f11"
+    },
+    {
+      "name": "3:Floor shock",
+      "role": "ground feedback ring",
+      "primitive": "tilted_ring",
+      "exit": "gone by absolute f20"
+    },
+    {
+      "name": "4:Pillar body",
+      "role": "volume: tall pink light column",
+      "primitive": "column",
+      "exit": "gone by absolute f46"
+    },
+    {
+      "name": "5:Pillar core",
+      "role": "core: thin white column inside",
+      "primitive": "column",
+      "exit": "gone by absolute f28"
+    },
+    {
+      "name": "6:Standing blade 1",
+      "role": "signature: crescent blades shooting up in a fan",
+      "primitive": "sprite T_PetalBladeV01 pivot bottom",
+      "exit": "gone by absolute f35"
+    },
+    {
+      "name": "7:Standing blade 2",
+      "role": "signature: crescent blades shooting up in a fan",
+      "primitive": "sprite T_PetalBladeV01 pivot bottom",
+      "exit": "gone by absolute f34"
+    },
+    {
+      "name": "8:Standing blade 3",
+      "role": "signature: crescent blades shooting up in a fan",
+      "primitive": "sprite T_PetalBladeV01 pivot bottom",
+      "exit": "gone by absolute f33"
+    },
+    {
+      "name": "9:Standing blade 4",
+      "role": "signature: crescent blades shooting up in a fan",
+      "primitive": "sprite T_PetalBladeV01 pivot bottom",
+      "exit": "gone by absolute f32"
+    },
+    {
+      "name": "10:Standing blade 5",
+      "role": "signature: crescent blades shooting up in a fan",
+      "primitive": "sprite T_PetalBladeV01 pivot bottom",
+      "exit": "gone by absolute f33"
+    },
+    {
+      "name": "11:Standing blade 6",
+      "role": "signature: crescent blades shooting up in a fan",
+      "primitive": "sprite T_PetalBladeV01 pivot bottom",
+      "exit": "gone by absolute f34"
+    },
+    {
+      "name": "12:Standing blade 7",
+      "role": "signature: crescent blades shooting up in a fan",
+      "primitive": "sprite T_PetalBladeV01 pivot bottom",
+      "exit": "gone by absolute f35"
+    },
+    {
+      "name": "13:Up streaks",
+      "role": "secondary: upward streaks",
+      "primitive": "radial_sparks",
+      "exit": "gone by absolute f21"
+    },
+    {
+      "name": "14:Petal geyser",
+      "role": "secondary: petals thrown up, then drifting down",
+      "primitive": "sprite T_SakuraPetal01",
+      "exit": "gone by absolute f67"
+    },
+    {
+      "name": "15:Glints",
+      "role": "accent: four-point glints",
+      "primitive": "sparkle",
+      "exit": "gone by absolute f22"
+    },
+    {
+      "name": "16:Settling petals",
+      "role": "residue: pale petals settling",
+      "primitive": "sprite T_SakuraPetal01 Blend",
+      "exit": "gone by absolute f74"
+    }
+  ],
+  "acceptance": [
+    "Blades grow from the floor, the centre one tallest",
+    "The column fades top-down without a hard cut",
+    "Petals rise and then drift back down"
+  ],
+  "avoid": [
+    "A static vertical bar",
+    "Blades appearing at full height"
+  ]
+}

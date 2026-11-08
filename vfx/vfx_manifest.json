@@ -144,5 +144,911 @@
     "preview": "previews/VFX_Raikon_Storm_Mantle.png",
     "particle_budget": 55,
     "layers": 30
+  },
+  {
+    "id": "VFX_Sakura_Ambient",
+    "name": "Sakura Drift",
+    "category": "status",
+    "element": "sakura",
+    "duration": 2.0,
+    "loop": true,
+    "attach": "body",
+    "peak": 0.1,
+    "impact": 0,
+    "light": [
+      1,
+      0.85,
+      0.6
+    ],
+    "seed": 1729,
+    "design": "Pink petals drift and tumble round Akari on a slow wind with a faint deep-pink rim light; now and then one whole blossom drifts past and falls apart.",
+    "delivery": {
+      "kind": "self"
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Sakura_Ambient.py",
+    "file": "res://effects/VFX_Sakura_Ambient.efkefc",
+    "runtime": "exports/VFX_Sakura_Ambient.efk",
+    "preview": "previews/VFX_Sakura_Ambient.png",
+    "particle_budget": 36,
+    "layers": 5
+  },
+  {
+    "id": "VFX_Sakura_Burst",
+    "name": "Sakura Burst",
+    "category": "boss",
+    "element": "sakura",
+    "duration": 1.6,
+    "loop": false,
+    "attach": "body",
+    "peak": 0.1,
+    "impact": 1,
+    "light": [
+      1,
+      0.45,
+      0.75
+    ],
+    "seed": 1729,
+    "design": "Petals rush in, then a big white detonation, two pink shock rings, twenty-four crescent blades flung outward and ninety petals that burst, hang and drift down in a slow pink snow.",
+    "delivery": {
+      "kind": "area"
+    },
+    "screen": {
+      "shake": 0.7,
+      "flash_frames": 2,
+      "flash": "white",
+      "hitstop": 0.08
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Sakura_Burst.py",
+    "file": "res://effects/VFX_Sakura_Burst.efkefc",
+    "runtime": "exports/VFX_Sakura_Burst.efk",
+    "preview": "previews/VFX_Sakura_Burst.png",
+    "particle_budget": 179,
+    "layers": 11
+  },
+  {
+    "id": "VFX_Sakura_Petal_Impact",
+    "name": "Petal Impact",
+    "category": "hit",
+    "element": "sakura",
+    "duration": 0.7,
+    "loop": false,
+    "attach": "body",
+    "peak": 0.03,
+    "impact": 0.3,
+    "light": [
+      1,
+      0.45,
+      0.75
+    ],
+    "seed": 1729,
+    "design": "A short white contact and a pink ring, splinters thrown outward, a blossom pops open and falls apart while petals drift down.",
+    "delivery": {
+      "kind": "projectile",
+      "projectile": "VFX_Sakura_Petal_Shot"
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Sakura_Petal_Impact.py",
+    "file": "res://effects/VFX_Sakura_Petal_Impact.efkefc",
+    "runtime": "exports/VFX_Sakura_Petal_Impact.efk",
+    "preview": "previews/VFX_Sakura_Petal_Impact.png",
+    "particle_budget": 29,
+    "layers": 7
+  },
+  {
+    "id": "VFX_Sakura_Petal_Shot",
+    "name": "Petal Shot",
+    "category": "projectile",
+    "element": "sakura",
+    "duration": 1.0,
+    "loop": false,
+    "attach": "projectile",
+    "peak": 0.1,
+    "impact": 0,
+    "light": [
+      1,
+      0.85,
+      0.6
+    ],
+    "seed": 1729,
+    "design": "A white-hot crescent petal flies flat and fast with a pink glow, drawing a thin deep-pink streak and shedding petals that tumble down behind it.",
+    "delivery": {
+      "kind": "projectile"
+    },
+    "flight": 0.4,
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Sakura_Petal_Shot.py",
+    "file": "res://effects/VFX_Sakura_Petal_Shot.efkefc",
+    "runtime": "exports/VFX_Sakura_Petal_Shot.efk",
+    "preview": "previews/VFX_Sakura_Petal_Shot.png",
+    "particle_budget": 26,
+    "layers": 5
+  },
+  {
+    "id": "VFX_Sakura_Pillar",
+    "name": "Blade Petal Pillar",
+    "category": "boss",
+    "element": "sakura",
+    "duration": 1.3,
+    "loop": false,
+    "attach": "ground",
+    "peak": 0.1,
+    "impact": 0.55,
+    "light": [
+      1,
+      0.45,
+      0.75
+    ],
+    "seed": 1729,
+    "design": "A pink ellipse flares on the floor, then a white contact, a tall pink light column and a fan of seven crescent blades shoot up while a geyser of petals rises and drifts back down.",
+    "delivery": {
+      "kind": "projectile",
+      "projectile": "VFX_Sakura_Ribbon"
+    },
+    "screen": {
+      "shake": 0.35,
+      "hitstop": 0.05
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Sakura_Pillar.py",
+    "file": "res://effects/VFX_Sakura_Pillar.efkefc",
+    "runtime": "exports/VFX_Sakura_Pillar.efk",
+    "preview": "previews/VFX_Sakura_Pillar.png",
+    "particle_budget": 87,
+    "layers": 17
+  },
+  {
+    "id": "VFX_Sakura_Ribbon",
+    "name": "Blossom Ribbon",
+    "category": "projectile",
+    "element": "sakura",
+    "duration": 1.2,
+    "loop": false,
+    "attach": "projectile",
+    "peak": 0.1,
+    "impact": 0,
+    "light": [
+      1,
+      0.85,
+      0.6
+    ],
+    "seed": 1729,
+    "design": "A spinning blossom races along the floor; a deep-pink ribbon of light unrolls behind it while blossoms bloom open on the path and petals kick up and fall.",
+    "delivery": {
+      "kind": "projectile"
+    },
+    "flight": 0.55,
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Sakura_Ribbon.py",
+    "file": "res://effects/VFX_Sakura_Ribbon.efkefc",
+    "runtime": "exports/VFX_Sakura_Ribbon.efk",
+    "preview": "previews/VFX_Sakura_Ribbon.png",
+    "particle_budget": 49,
+    "layers": 5
+  },
+  {
+    "id": "VFX_Sakura_Slash",
+    "name": "Sakura Slash",
+    "category": "slash",
+    "element": "sakura",
+    "duration": 1.0,
+    "loop": false,
+    "attach": "impact",
+    "peak": 0.07,
+    "impact": 0.35,
+    "light": [
+      1,
+      0.45,
+      0.75
+    ],
+    "seed": 1729,
+    "design": "A pink arc sweeps through the target and sheds five crescent blade-petals along its path, then glowing petals tumble down through the cut.",
+    "delivery": {
+      "kind": "melee"
+    },
+    "screen": {
+      "shake": 0.12,
+      "hitstop": 0.03
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Sakura_Slash.py",
+    "file": "res://effects/VFX_Sakura_Slash.efkefc",
+    "runtime": "exports/VFX_Sakura_Slash.efk",
+    "preview": "previews/VFX_Sakura_Slash.png",
+    "particle_budget": 38,
+    "layers": 15
+  },
+  {
+    "id": "VFX_Sakura_Slash_Beam",
+    "name": "Sakura Slash Beams",
+    "category": "slash",
+    "element": "sakura",
+    "duration": 0.8,
+    "loop": false,
+    "attach": "impact",
+    "peak": 0.05,
+    "impact": 0.45,
+    "light": [
+      1,
+      0.45,
+      0.75
+    ],
+    "seed": 1729,
+    "design": "Three white-hot slash beams in deep-pink glow cross the target from three directions three frames apart, each flinging crescent blades and petals along its cut.",
+    "delivery": {
+      "kind": "melee"
+    },
+    "screen": {
+      "shake": 0.22,
+      "hitstop": 0.04
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Sakura_Slash_Beam.py",
+    "file": "res://effects/VFX_Sakura_Slash_Beam.efkefc",
+    "runtime": "exports/VFX_Sakura_Slash_Beam.efk",
+    "preview": "previews/VFX_Sakura_Slash_Beam.png",
+    "particle_budget": 51,
+    "layers": 17
+  },
+  {
+    "id": "VFX_Sakura_Spiral",
+    "name": "Spiral Petal Stream",
+    "category": "boss",
+    "element": "sakura",
+    "duration": 2.8,
+    "loop": false,
+    "attach": "ground",
+    "peak": 0.75,
+    "impact": 0.3,
+    "light": [
+      1,
+      0.45,
+      0.75
+    ],
+    "seed": 1729,
+    "design": "Petals slide inward over a pink floor ellipse for 0.75 s, then a white release and a column of petals spirals upward in torn pink strands, and drops its petals as it dies.",
+    "delivery": {
+      "kind": "targeted"
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Sakura_Spiral.py",
+    "file": "res://effects/VFX_Sakura_Spiral.efkefc",
+    "runtime": "exports/VFX_Sakura_Spiral.efk",
+    "preview": "previews/VFX_Sakura_Spiral.png",
+    "particle_budget": 120,
+    "layers": 10
+  },
+  {
+    "id": "VFX_Sakura_Tornado",
+    "name": "Petal Tornado",
+    "category": "boss",
+    "element": "sakura",
+    "duration": 1.4,
+    "loop": true,
+    "attach": "ground",
+    "peak": 0.1,
+    "impact": 0,
+    "light": [
+      1,
+      0.45,
+      0.75
+    ],
+    "seed": 1729,
+    "design": "A narrow column of petals spirals up in torn pink strands over a deep-pink base glow, flinging petals off its foot as it travels across the floor.",
+    "delivery": {
+      "kind": "area"
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Sakura_Tornado.py",
+    "file": "res://effects/VFX_Sakura_Tornado.efkefc",
+    "runtime": "exports/VFX_Sakura_Tornado.efk",
+    "preview": "previews/VFX_Sakura_Tornado.png",
+    "particle_budget": 90,
+    "layers": 7
+  },
+  {
+    "id": "VFX_Sakura_Veil",
+    "name": "Petal Veil",
+    "category": "element",
+    "element": "sakura",
+    "duration": 0.9,
+    "loop": false,
+    "attach": "body",
+    "peak": 0.07,
+    "impact": 0,
+    "light": [
+      1,
+      0.85,
+      0.6
+    ],
+    "seed": 1729,
+    "design": "Petals rush in, a white pop and a blossom mark where she was, torn pink strands swirl once and a puff of petals drifts down.",
+    "delivery": {
+      "kind": "self"
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Sakura_Veil.py",
+    "file": "res://effects/VFX_Sakura_Veil.efkefc",
+    "runtime": "exports/VFX_Sakura_Veil.efk",
+    "preview": "previews/VFX_Sakura_Veil.png",
+    "particle_budget": 49,
+    "layers": 6
+  },
+  {
+    "id": "VFX_Sakura_Vortex",
+    "name": "Petal Storm Vortex",
+    "category": "boss",
+    "element": "sakura",
+    "duration": 2.0,
+    "loop": true,
+    "attach": "body",
+    "peak": 0.1,
+    "impact": 0,
+    "light": [
+      1,
+      0.45,
+      0.75
+    ],
+    "seed": 1729,
+    "design": "The arena dims under a wine veil while two pink bands turn round the screen and hundreds of petals and crescent blades spiral inward round a white-hot eye.",
+    "delivery": {
+      "kind": "area"
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Sakura_Vortex.py",
+    "file": "res://effects/VFX_Sakura_Vortex.efkefc",
+    "runtime": "exports/VFX_Sakura_Vortex.efk",
+    "preview": "previews/VFX_Sakura_Vortex.png",
+    "particle_budget": 172,
+    "layers": 10
+  },
+  {
+    "id": "VFX_Takashi_Aura",
+    "name": "Yashiro Titan Aura",
+    "category": "status",
+    "element": "holy",
+    "duration": 2.0,
+    "loop": true,
+    "attach": "caster_ground",
+    "peak": 0,
+    "impact": 0,
+    "light": [
+      1,
+      0.78,
+      0.4
+    ],
+    "seed": 1729,
+    "design": "A dim gold mantle the height of the Titan, gold flame licking up its sides at uneven times, rising wisps, embers drifting up off it and a faint band of light on the floor.",
+    "delivery": {
+      "kind": "self"
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Takashi_Aura.py",
+    "file": "res://effects/VFX_Takashi_Aura.efkefc",
+    "runtime": "exports/VFX_Takashi_Aura.efk",
+    "preview": "previews/VFX_Takashi_Aura.png",
+    "particle_budget": 40,
+    "layers": 6
+  },
+  {
+    "id": "VFX_Takashi_Blade_Fall",
+    "name": "Blade Rain",
+    "category": "boss",
+    "element": "holy",
+    "duration": 1.25,
+    "loop": false,
+    "attach": "ground",
+    "peak": 0.3,
+    "impact": 0.6,
+    "light": [
+      1,
+      0.78,
+      0.4
+    ],
+    "seed": 1729,
+    "design": "A gold mark tightens on the floor, then a giant golden sword falls point first from the sky and drives into it with a white contact, a ring and cracks of gold light, stone and dust thrown out; the blade stands glowing a moment and is eaten away.",
+    "delivery": {
+      "kind": "targeted"
+    },
+    "screen": {
+      "shake": 0.4,
+      "hitstop": 0.03
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Takashi_Blade_Fall.py",
+    "file": "res://effects/VFX_Takashi_Blade_Fall.efkefc",
+    "runtime": "exports/VFX_Takashi_Blade_Fall.efk",
+    "preview": "previews/VFX_Takashi_Blade_Fall.png",
+    "particle_budget": 42,
+    "layers": 12
+  },
+  {
+    "id": "VFX_Takashi_Crack",
+    "name": "Tenrai Channel",
+    "category": "status",
+    "element": "holy",
+    "duration": 1.5,
+    "loop": true,
+    "attach": "ground",
+    "peak": 0,
+    "impact": 0,
+    "light": [
+      1,
+      0.78,
+      0.4
+    ],
+    "seed": 1729,
+    "design": "The family seal turns slowly round the planted blade while gold light wells out of the cracks and pulses, sparks shoot up off the cracks at uneven times and embers rise.",
+    "delivery": {
+      "kind": "self"
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Takashi_Crack.py",
+    "file": "res://effects/VFX_Takashi_Crack.efkefc",
+    "runtime": "exports/VFX_Takashi_Crack.efk",
+    "preview": "previews/VFX_Takashi_Crack.png",
+    "particle_budget": 52,
+    "layers": 6
+  },
+  {
+    "id": "VFX_Takashi_Kunai",
+    "name": "Golden Kunai",
+    "category": "projectile",
+    "element": "holy",
+    "duration": 0.7,
+    "loop": false,
+    "attach": "projectile",
+    "peak": 0.1,
+    "impact": 0,
+    "light": [
+      1,
+      0.85,
+      0.6
+    ],
+    "seed": 1729,
+    "design": "A white-hot gold kunai flies flat and fast inside a gold glow, drawing a thin amber streak and shedding sparks that drop away behind it.",
+    "delivery": {
+      "kind": "projectile"
+    },
+    "flight": 0.4,
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Takashi_Kunai.py",
+    "file": "res://effects/VFX_Takashi_Kunai.efkefc",
+    "runtime": "exports/VFX_Takashi_Kunai.efk",
+    "preview": "previews/VFX_Takashi_Kunai.png",
+    "particle_budget": 22,
+    "layers": 5
+  },
+  {
+    "id": "VFX_Takashi_Kunai_Impact",
+    "name": "Golden Kunai Impact",
+    "category": "hit",
+    "element": "holy",
+    "duration": 0.5,
+    "loop": false,
+    "attach": "impact",
+    "peak": 0.016666666666666666,
+    "impact": 0.25,
+    "light": [
+      1,
+      0.8,
+      0.45
+    ],
+    "seed": 1729,
+    "design": "A white contact that is gone in four frames, a gold ring, fast white streaks and drooping gold sparks thrown back along the throw, then a few embers that rise and hang.",
+    "delivery": {
+      "kind": "projectile",
+      "projectile": "VFX_Takashi_Kunai"
+    },
+    "screen": {
+      "shake": 0.1,
+      "hitstop": 0.02
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Takashi_Kunai_Impact.py",
+    "file": "res://effects/VFX_Takashi_Kunai_Impact.efkefc",
+    "runtime": "exports/VFX_Takashi_Kunai_Impact.efk",
+    "preview": "previews/VFX_Takashi_Kunai_Impact.png",
+    "particle_budget": 32,
+    "layers": 8
+  },
+  {
+    "id": "VFX_Takashi_Manifest",
+    "name": "Yashiro Titan Manifest",
+    "category": "boss",
+    "element": "holy",
+    "duration": 1.9,
+    "loop": false,
+    "attach": "ground",
+    "peak": 0.23333333333333334,
+    "impact": 0.8,
+    "light": [
+      1,
+      0.78,
+      0.4
+    ],
+    "seed": 1729,
+    "design": "The family seal opens gold on the floor and motes are drawn in; a column of gold light erupts round him, halos rise up it, flame tongues lick upward, sparks shoot up and embers hang as the column thins away.",
+    "delivery": {
+      "kind": "self"
+    },
+    "screen": {
+      "shake": 0.6,
+      "flash_frames": 1,
+      "flash": "white",
+      "hitstop": 0
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Takashi_Manifest.py",
+    "file": "res://effects/VFX_Takashi_Manifest.efkefc",
+    "runtime": "exports/VFX_Takashi_Manifest.efk",
+    "preview": "previews/VFX_Takashi_Manifest.png",
+    "particle_budget": 74,
+    "layers": 13
+  },
+  {
+    "id": "VFX_Takashi_Parry",
+    "name": "Iron Guard Parry",
+    "category": "hit",
+    "element": "holy",
+    "duration": 0.45,
+    "loop": false,
+    "attach": "impact",
+    "peak": 0.016666666666666666,
+    "impact": 0.3,
+    "light": [
+      1,
+      0.8,
+      0.45
+    ],
+    "seed": 1729,
+    "design": "A gold crescent of the edge flashes across the contact with a white star, hard gold sparks fan back at the attacker, a thin enso ring opens and a few embers rise.",
+    "delivery": {
+      "kind": "melee"
+    },
+    "screen": {
+      "shake": 0.2,
+      "hitstop": 0.08
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Takashi_Parry.py",
+    "file": "res://effects/VFX_Takashi_Parry.efkefc",
+    "runtime": "exports/VFX_Takashi_Parry.efk",
+    "preview": "previews/VFX_Takashi_Parry.png",
+    "particle_budget": 40,
+    "layers": 12
+  },
+  {
+    "id": "VFX_Takashi_Pulse",
+    "name": "Domain Pulse",
+    "category": "boss",
+    "element": "holy",
+    "duration": 1.1,
+    "loop": false,
+    "attach": "ground",
+    "peak": 0.03333333333333333,
+    "impact": 0.9,
+    "light": [
+      1,
+      0.78,
+      0.4
+    ],
+    "seed": 1729,
+    "design": "A white contact on the floor, a wide gold shock ring racing out along the ground with a thinner ring behind it, gold cracks under the blow, a wall of dust and stone thrown out and embers rising.",
+    "delivery": {
+      "kind": "area"
+    },
+    "screen": {
+      "shake": 0.8,
+      "flash_frames": 1,
+      "flash": "white",
+      "hitstop": 0.05
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Takashi_Pulse.py",
+    "file": "res://effects/VFX_Takashi_Pulse.efkefc",
+    "runtime": "exports/VFX_Takashi_Pulse.efk",
+    "preview": "previews/VFX_Takashi_Pulse.png",
+    "particle_budget": 60,
+    "layers": 11
+  },
+  {
+    "id": "VFX_Takashi_Thunder",
+    "name": "Tenrai Divine Thunder",
+    "category": "boss",
+    "element": "holy",
+    "duration": 1.45,
+    "loop": false,
+    "attach": "ground",
+    "peak": 0.2,
+    "impact": 1.0,
+    "light": [
+      1,
+      0.78,
+      0.4
+    ],
+    "seed": 1729,
+    "design": "The sky opens gold over him and a dim leader feels its way down; a massive gold bolt with a white core strikes inside a pillar of gold light, goes dark, strikes again on another path, and the pillar thins while gold cracks cool and embers rise.",
+    "delivery": {
+      "kind": "targeted"
+    },
+    "screen": {
+      "shake": 1.0,
+      "flash_frames": 2,
+      "flash": "white",
+      "hitstop": 0
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Takashi_Thunder.py",
+    "file": "res://effects/VFX_Takashi_Thunder.efkefc",
+    "runtime": "exports/VFX_Takashi_Thunder.efk",
+    "preview": "previews/VFX_Takashi_Thunder.png",
+    "particle_budget": 91,
+    "layers": 54
+  },
+  {
+    "id": "VFX_Takashi_Titan_Slash",
+    "name": "Titan Slash",
+    "category": "slash",
+    "element": "holy",
+    "duration": 1.2,
+    "loop": false,
+    "attach": "ground",
+    "peak": 0.11666666666666667,
+    "impact": 0.75,
+    "light": [
+      1,
+      0.78,
+      0.4
+    ],
+    "seed": 1729,
+    "design": "A long, flat gold arc sweeps low across the floor with a white leading edge and a long slice line along the ground; dust and stone are thrown up along the cut, sparks drag behind it and embers rise off the scar.",
+    "delivery": {
+      "kind": "melee"
+    },
+    "screen": {
+      "shake": 0.55,
+      "flash_frames": 1,
+      "flash": "white",
+      "hitstop": 0.06
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Takashi_Titan_Slash.py",
+    "file": "res://effects/VFX_Takashi_Titan_Slash.efkefc",
+    "runtime": "exports/VFX_Takashi_Titan_Slash.efk",
+    "preview": "previews/VFX_Takashi_Titan_Slash.png",
+    "particle_budget": 62,
+    "layers": 12
+  },
+  {
+    "id": "VFX_Rage_Crimson_Crescent",
+    "name": "Crimson Moon Cut",
+    "category": "slash",
+    "element": "moon",
+    "duration": 0.58,
+    "loop": false,
+    "attach": "impact",
+    "peak": 0.05,
+    "impact": 0.4,
+    "light": [
+      1,
+      0.3,
+      0.35
+    ],
+    "seed": 1729,
+    "design": "A wide crimson crescent sweeps through the target with a white-hot edge and a pale outer rim like a moon halo; crimson shards spray along the cut and red motes hang and fade.",
+    "delivery": {
+      "kind": "melee"
+    },
+    "screen": {
+      "shake": 0.2,
+      "hitstop": 0.04
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Rage_Crimson_Crescent.py",
+    "file": "res://effects/VFX_Rage_Crimson_Crescent.efkefc",
+    "runtime": "exports/VFX_Rage_Crimson_Crescent.efk",
+    "preview": "previews/VFX_Rage_Crimson_Crescent.png",
+    "particle_budget": 53,
+    "layers": 14
+  },
+  {
+    "id": "VFX_Rage_Gold_Quake",
+    "name": "Golden Earthbreaker",
+    "category": "boss",
+    "element": "earth",
+    "duration": 1.15,
+    "loop": false,
+    "attach": "ground",
+    "peak": 0.03333333333333333,
+    "impact": 0.95,
+    "light": [
+      1,
+      0.8,
+      0.35
+    ],
+    "seed": 1729,
+    "design": "A golden rune seal lights under the hammer, a white contact, three gold rings race out along the floor one after another, shafts of gold light stand up, boulders are thrown up and land, dust rolls out.",
+    "delivery": {
+      "kind": "area"
+    },
+    "screen": {
+      "shake": 0.9,
+      "flash_frames": 1,
+      "flash": "white",
+      "hitstop": 0.08
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Rage_Gold_Quake.py",
+    "file": "res://effects/VFX_Rage_Gold_Quake.efkefc",
+    "runtime": "exports/VFX_Rage_Gold_Quake.efk",
+    "preview": "previews/VFX_Rage_Gold_Quake.png",
+    "particle_budget": 73,
+    "layers": 15
+  },
+  {
+    "id": "VFX_Rage_Hell_Split",
+    "name": "Hell Splitter Impact",
+    "category": "boss",
+    "element": "fire",
+    "duration": 1.0,
+    "loop": false,
+    "attach": "ground",
+    "peak": 0.03333333333333333,
+    "impact": 0.9,
+    "light": [
+      1,
+      0.4,
+      0.2
+    ],
+    "seed": 1729,
+    "design": "A white contact on the floor, a red-hot crack opening and cooling, a crimson ring racing out, fire tongues erupting from the split from the middle outward, a fireball cooling into smoke, rock thrown up, embers rising.",
+    "delivery": {
+      "kind": "area"
+    },
+    "screen": {
+      "shake": 0.9,
+      "flash_frames": 1,
+      "flash": "white",
+      "hitstop": 0.08
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Rage_Hell_Split.py",
+    "file": "res://effects/VFX_Rage_Hell_Split.efkefc",
+    "runtime": "exports/VFX_Rage_Hell_Split.efk",
+    "preview": "previews/VFX_Rage_Hell_Split.png",
+    "particle_budget": 76,
+    "layers": 16
+  },
+  {
+    "id": "VFX_Rage_Shadow_Scythe",
+    "name": "Reaper Crescent",
+    "category": "slash",
+    "element": "dark",
+    "duration": 0.5,
+    "loop": false,
+    "attach": "impact",
+    "peak": 0.1,
+    "impact": 0.5,
+    "light": [
+      0.6,
+      0.3,
+      1
+    ],
+    "seed": 1729,
+    "design": "Dark strands drawn in, then a huge violet crescent sweeps open with a white-violet edge and a thin pale outer edge; violet sparks reap off it, shadow smoke rolls out and motes rise.",
+    "delivery": {
+      "kind": "melee"
+    },
+    "screen": {
+      "shake": 0.35,
+      "hitstop": 0.04
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Rage_Shadow_Scythe.py",
+    "file": "res://effects/VFX_Rage_Shadow_Scythe.efkefc",
+    "runtime": "exports/VFX_Rage_Shadow_Scythe.efk",
+    "preview": "previews/VFX_Rage_Shadow_Scythe.png",
+    "particle_budget": 53,
+    "layers": 12
+  },
+  {
+    "id": "VFX_Rage_Swallow_Bolt",
+    "name": "Swallow Bolt",
+    "category": "slash",
+    "element": "lightning",
+    "duration": 0.3,
+    "loop": false,
+    "attach": "impact",
+    "peak": 0.016666666666666666,
+    "impact": 0.35,
+    "light": [
+      0.5,
+      0.85,
+      1
+    ],
+    "seed": 1729,
+    "design": "A white core line shoots straight through the target with a jagged cyan bolt along it, struck again on another path, forks spitting off and sparks flying on; a dim after-flicker as it dies.",
+    "delivery": {
+      "kind": "melee"
+    },
+    "screen": {
+      "shake": 0.15,
+      "hitstop": 0.02
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Rage_Swallow_Bolt.py",
+    "file": "res://effects/VFX_Rage_Swallow_Bolt.efkefc",
+    "runtime": "exports/VFX_Rage_Swallow_Bolt.efk",
+    "preview": "previews/VFX_Rage_Swallow_Bolt.png",
+    "particle_budget": 55,
+    "layers": 32
+  },
+  {
+    "id": "VFX_Rage_Tidal_Crash",
+    "name": "Tidal Crash",
+    "category": "boss",
+    "element": "water",
+    "duration": 0.85,
+    "loop": false,
+    "attach": "ground",
+    "peak": 0.03333333333333333,
+    "impact": 0.85,
+    "light": [
+      0.4,
+      0.75,
+      1
+    ],
+    "seed": 1729,
+    "design": "A white-blue contact, a column of water shooting up, a crown of long water streaks arcing over and falling, spray, two wave rings racing out along the floor and low mist.",
+    "delivery": {
+      "kind": "area"
+    },
+    "screen": {
+      "shake": 0.8,
+      "flash_frames": 1,
+      "flash": "white",
+      "hitstop": 0.06
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Rage_Tidal_Crash.py",
+    "file": "res://effects/VFX_Rage_Tidal_Crash.efkefc",
+    "runtime": "exports/VFX_Rage_Tidal_Crash.efk",
+    "preview": "previews/VFX_Rage_Tidal_Crash.png",
+    "particle_budget": 112,
+    "layers": 9
+  },
+  {
+    "id": "VFX_Rage_Violet_Slash",
+    "name": "Silent Violet Cut",
+    "category": "slash",
+    "element": "silence",
+    "duration": 0.45,
+    "loop": false,
+    "attach": "impact",
+    "peak": 0.16666666666666666,
+    "impact": 0.3,
+    "light": [
+      0.7,
+      0.5,
+      1
+    ],
+    "seed": 1729,
+    "design": "A hair-thin white line appears whole across the target over a violet one and a long thin arc; a beat later a second cut opens across it with a small star, needles of light along it, and lilac motes drift and hang.",
+    "delivery": {
+      "kind": "melee"
+    },
+    "screen": {
+      "shake": 0.1,
+      "hitstop": 0.02
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Rage_Violet_Slash.py",
+    "file": "res://effects/VFX_Rage_Violet_Slash.efkefc",
+    "runtime": "exports/VFX_Rage_Violet_Slash.efk",
+    "preview": "previews/VFX_Rage_Violet_Slash.png",
+    "particle_budget": 36,
+    "layers": 10
   }
 ]

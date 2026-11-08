@@ -130,6 +130,12 @@ Ticket 02 redraws every shape on the new hands in muted silver (`STYLE.md`). A b
 | staff | sage_staff, temple_staff | **02** |
 | crescent | hollow_crescents, echo_crescents | **02** |
 | fan | mist_fans | **02** |
+
+Kage's seven shop weapons keep their shape class above (grip, IK, carry angle) but draw their own redesigned blades
+(2026-11-08, `21-characters/kage/weapons.js`, `WEAPON_LOOK` through `twinShape`), each from one silhouette of
+`weapons-reference.png`: kagetsu `kb_kagetsu` (#7), tsubame `kb_tsubame` (#2), shizuka `kb_shizuka` (#10), onikiri
+`kb_onikiri` (#6), mizuchi `kb_mizuchi` (#12), yamigama `kb_yamigama` (#11), iwakudaki `kb_iwakudaki` (#9). The foes' arms
+in the same classes keep the shared shapes.
 | shinsen | shinsen | **02** |
 | bokken | bokken | **02** |
 | none (fist gear, `drawFistGear`) | fists, iron_fists, storm_orbs | **02** |

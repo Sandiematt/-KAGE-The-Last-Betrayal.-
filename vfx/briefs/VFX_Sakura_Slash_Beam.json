@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Sakura_Slash_Beam",
+  "role": "rapid multi-directional cuts (Phantom Dash, Thousand Cuts, Petal Cross)",
+  "style": "stylized anime combat, glowing additive sakura (Senbonzakura) over a dark night arena, side-view 2D",
+  "dominant_shape": "three long slash beams crossing the target",
+  "palette": {
+    "core": [
+      255,
+      246,
+      252
+    ],
+    "body": [
+      255,
+      102,
+      178
+    ],
+    "dark": [
+      70,
+      6,
+      40
+    ],
+    "matter": [
+      255,
+      196,
+      226
+    ],
+    "accent": [
+      255,
+      20,
+      147
+    ]
+  },
+  "delivery": {
+    "kind": "melee"
+  },
+  "anchor": "impact",
+  "reference": {
+    "id": "gemini_generated_video_9ba223ac.mp4 (user reference: Senbonzakura boss duel)"
+  },
+  "beats": [
+    {
+      "frame": 1,
+      "name": "cut 1",
+      "expect": "first beam and star"
+    },
+    {
+      "frame": 4,
+      "name": "cut 2",
+      "expect": "second beam from another direction"
+    },
+    {
+      "frame": 7,
+      "name": "cut 3",
+      "expect": "third beam"
+    },
+    {
+      "frame": 18,
+      "name": "body",
+      "expect": "beams thinned out, blades still flying"
+    },
+    {
+      "frame": 40,
+      "name": "tail",
+      "expect": "petals and residue only"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Pink bloom",
+      "role": "subordinate light under the contact",
+      "primitive": "glow",
+      "exit": "gone by absolute f19"
+    },
+    {
+      "name": "1:Beam glow 1",
+      "role": "body: deep-pink glow of one slash beam",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "2:Beam core 1",
+      "role": "core: long white-hot line of one slash beam",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f11"
+    },
+    {
+      "name": "3:Cut star 1",
+      "role": "contact of one cut",
+      "primitive": "flash",
+      "exit": "gone by absolute f4"
+    },
+    {
+      "name": "4:Cut blades 1",
+      "role": "signature: crescent blades flung along one cut",
+      "primitive": "sprite T_PetalBlade01 Line spawn",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "5:Cut petals 1",
+      "role": "secondary: petals sprayed after one cut",
+      "primitive": "sprite T_SakuraPetal01",
+      "exit": "gone by absolute f34"
+    },
+    {
+      "name": "6:Beam glow 2",
+      "role": "body: deep-pink glow of one slash beam",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f17"
+    },
+    {
+      "name": "7:Beam core 2",
+      "role": "core: long white-hot line of one slash beam",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "8:Cut star 2",
+      "role": "contact of one cut",
+      "primitive": "flash",
+      "exit": "gone by absolute f7"
+    },
+    {
+      "name": "9:Cut blades 2",
+      "role": "signature: crescent blades flung along one cut",
+      "primitive": "sprite T_PetalBlade01 Line spawn",
+      "exit": "gone by absolute f17"
+    },
+    {
+      "name": "10:Cut petals 2",
+      "role": "secondary: petals sprayed after one cut",
+      "primitive": "sprite T_SakuraPetal01",
+      "exit": "gone by absolute f37"
+    },
+    {
+      "name": "11:Beam glow 3",
+      "role": "body: deep-pink glow of one slash beam",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f20"
+    },
+    {
+      "name": "12:Beam core 3",
+      "role": "core: long white-hot line of one slash beam",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f17"
+    },
+    {
+      "name": "13:Cut star 3",
+      "role": "contact of one cut",
+      "primitive": "flash",
+      "exit": "gone by absolute f10"
+    },
+    {
+      "name": "14:Cut blades 3",
+      "role": "signature: crescent blades flung along one cut",
+      "primitive": "sprite T_PetalBlade01 Line spawn",
+      "exit": "gone by absolute f20"
+    },
+    {
+      "name": "15:Cut petals 3",
+      "role": "secondary: petals sprayed after one cut",
+      "primitive": "sprite T_SakuraPetal01",
+      "exit": "gone by absolute f40"
+    },
+    {
+      "name": "16:Cut residue",
+      "role": "matter: pale petals left in the air",
+      "primitive": "sprite T_SakuraPetal01 Blend",
+      "exit": "gone by absolute f46"
+    }
+  ],
+  "acceptance": [
+    "Each beam has its own contact frame",
+    "Beams are long thin lines (over 15:1), white cores in deep-pink glow"
+  ],
+  "avoid": [
+    "Three beams appearing on the same frame",
+    "A wide white blob at the crossing"
+  ]
+}

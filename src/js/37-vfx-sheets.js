@@ -29,12 +29,14 @@ const VfxSheets = {
     while (i + 1 < fr.length && fr[i + 1] <= f) i++;
     return i;
   },
-  // draw cell i with the effect's origin at the current (0, 0), mirrored for dir -1, `scale` = fighter scale
-  drawCell(ctx, name, d, i, dir, scale, alpha) {
+  // draw cell i with the effect's origin at the current (0, 0), mirrored for dir -1, `scale` = fighter scale, turned
+  // `rot` radians (after mirroring, so a mirrored cut turns the mirrored way)
+  drawCell(ctx, name, d, i, dir, scale, alpha, rot) {
     if (alpha <= 0.003) return;
     const s = VFX_PPM * scale / d.ppm, sx = (i % d.cols) * d.cw, sy = ((i / d.cols) | 0) * d.ch;
     ctx.save();
     ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = Math.min(1, alpha);
+    if (rot) ctx.rotate(rot * dir);
     ctx.scale(dir * s, s);
     ctx.drawImage(this.img[name], sx, sy, d.cw, d.ch, -d.ox, -d.oy, d.cw, d.ch);
     ctx.restore();
@@ -58,7 +60,9 @@ Object.assign(Effects.prototype, {
        dir (1 / -1, mirror), scale (fighter scale), at (a fighter to follow), anchor ('feet' or a skeleton joint such as
        'wt', the blade tip), start (seconds of the effect to skip), delay (seconds before it shows), rate (playback
        speed), loop (repeat until stopped, crossfading two copies half a cycle apart so the seam never shows),
-       alpha }
+       alpha, rot (radians, turned the way the effect faces), ox / oy (pixels added to the anchor), vx (pixels per
+       second the origin moves for `until` seconds of effect time: a travelling front), life (seconds, then it fades) }
+     An instance following a fighter (`at`) is not drawn while that fighter is invisible and fades when it dies.
      Returns the instance: set .stop = true to fade it out over .fadeDur seconds (default 0.15). */
   playSheet(name, x, y, o) {
     o = o || {};
@@ -66,7 +70,8 @@ Object.assign(Effects.prototype, {
     const list = this.sheetFx();
     if (list.length > 24) list.shift();
     const h = { name, x, y, t: (o.start || 0) - (o.delay || 0), rate: o.rate || 1, dir: o.dir || 1, scale: o.scale || 1, at: o.at || null,
-      anchor: o.anchor || 'feet', loop: !!o.loop, alpha: o.alpha != null ? o.alpha : 1, stop: false, fade: 1, fadeDur: 0.15 };
+      anchor: o.anchor || 'feet', loop: !!o.loop, alpha: o.alpha != null ? o.alpha : 1, stop: false, fade: 1, fadeDur: 0.15,
+      rot: o.rot || 0, ox: o.ox || 0, oy: o.oy || 0, vx: o.vx || 0, until: o.until != null ? o.until : Infinity, life: o.life || 0 };
     list.push(h);
     return h;
   },
@@ -74,7 +79,10 @@ Object.assign(Effects.prototype, {
     const list = this.sheetFx();
     for (let i = list.length - 1; i >= 0; i--) {
       const h = list[i], d = VFX_SHEETS[h.name];
+      const t0 = h.t;
       h.t += dt * h.rate;
+      if (h.vx && h.t > 0 && t0 < h.until) h.x += h.vx * (Math.min(h.t, h.until) - Math.max(t0, 0)) / h.rate;
+      if ((h.life && h.t > h.life) || (h.at && h.at.alive === false)) h.stop = true;
       if (h.stop) h.fade -= dt / h.fadeDur;
       if (h.fade <= 0 || (!h.loop && h.t > d.duration) || (h.at && !h.at.visible && !h.loop)) list.splice(i, 1);
     }
@@ -90,17 +98,19 @@ Object.assign(Effects.prototype, {
       let x = h.x, y = h.y;
       if (h.at) {
         const f = h.at;
-        if (h.anchor === 'feet' || !f.sk || !f.sk[h.anchor]) { x = f.x; y = f.y; } else { x = f.sk[h.anchor].x; y = f.sk[h.anchor].y; }
+        if (f.visible === false) continue;
+        if (h.anchor === 'feet' || !f.sk || !f.sk[h.anchor]) { x = f.x; y = f.y != null ? f.y : h.y; } else { x = f.sk[h.anchor].x; y = f.sk[h.anchor].y; }
         if (h.at.facing) h.dir = h.at.facing;
       }
+      x += h.ox * h.dir; y += h.oy;
       const a = h.alpha * Math.max(0, h.fade) * rf;
       ctx.save(); ctx.translate(x, y);
       if (h.loop) {
         // two copies half a cycle apart, weighted sin^2 / cos^2: their sum is constant and each is silent at its seam
         const P = d.duration, ph = h.t % P, w = Math.sin(Math.PI * ph / P) ** 2;
-        VfxSheets.drawCell(ctx, h.name, d, VfxSheets.cell(d, ph), h.dir, h.scale, a * w);
-        VfxSheets.drawCell(ctx, h.name, d, VfxSheets.cell(d, (ph + P / 2) % P), h.dir, h.scale, a * (1 - w));
-      } else VfxSheets.drawCell(ctx, h.name, d, VfxSheets.cell(d, h.t), h.dir, h.scale, a);
+        VfxSheets.drawCell(ctx, h.name, d, VfxSheets.cell(d, ph), h.dir, h.scale, a * w, h.rot);
+        VfxSheets.drawCell(ctx, h.name, d, VfxSheets.cell(d, (ph + P / 2) % P), h.dir, h.scale, a * (1 - w), h.rot);
+      } else VfxSheets.drawCell(ctx, h.name, d, VfxSheets.cell(d, h.t), h.dir, h.scale, a, h.rot);
       ctx.restore();
     }
   },

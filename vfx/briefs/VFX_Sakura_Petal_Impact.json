@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Sakura_Petal_Impact",
+  "role": "paired projectile impact",
+  "style": "stylized anime combat, glowing additive sakura (Senbonzakura) over a dark night arena, side-view 2D",
+  "dominant_shape": "blossom popping open in a pink ring",
+  "palette": {
+    "core": [
+      255,
+      246,
+      252
+    ],
+    "body": [
+      255,
+      102,
+      178
+    ],
+    "dark": [
+      70,
+      6,
+      40
+    ],
+    "matter": [
+      255,
+      196,
+      226
+    ],
+    "accent": [
+      255,
+      20,
+      147
+    ]
+  },
+  "delivery": {
+    "kind": "projectile",
+    "projectile": "VFX_Sakura_Petal_Shot"
+  },
+  "anchor": "body",
+  "reference": {
+    "id": "gemini_generated_video_9ba223ac.mp4 (user reference: Senbonzakura boss duel)"
+  },
+  "beats": [
+    {
+      "frame": 2,
+      "name": "contact",
+      "expect": "short white contact"
+    },
+    {
+      "frame": 8,
+      "name": "body",
+      "expect": "pink ring and blossom open, splinters out"
+    },
+    {
+      "frame": 30,
+      "name": "tail",
+      "expect": "petals drifting down"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Contact flash",
+      "role": "contact",
+      "primitive": "flash",
+      "exit": "gone by absolute f5"
+    },
+    {
+      "name": "1:Pink bloom",
+      "role": "subordinate light under the contact",
+      "primitive": "glow",
+      "exit": "gone by absolute f12"
+    },
+    {
+      "name": "2:Pink ring",
+      "role": "body: expanding pink ring",
+      "primitive": "shock_ring",
+      "exit": "gone by absolute f12"
+    },
+    {
+      "name": "3:Splinter streaks",
+      "role": "secondary tier 1: fast white streaks",
+      "primitive": "radial_sparks",
+      "exit": "gone by absolute f10"
+    },
+    {
+      "name": "4:Splinters",
+      "role": "secondary tier 2: pink splinters that droop",
+      "primitive": "radial_sparks",
+      "exit": "gone by absolute f19"
+    },
+    {
+      "name": "5:Blossom pop",
+      "role": "body: blossom pops open and dissolves",
+      "primitive": "sprite T_SakuraBlossom01",
+      "exit": "gone by absolute f18"
+    },
+    {
+      "name": "6:Scatter",
+      "role": "secondary: petals scattered outward",
+      "primitive": "sprite T_SakuraPetal01",
+      "exit": "gone by absolute f38"
+    }
+  ],
+  "acceptance": [
+    "The white contact is gone by f6 and the blossom keeps its pink shape",
+    "Splinters read in two speeds"
+  ],
+  "avoid": [
+    "A white blob lasting more than five frames"
+  ]
+}

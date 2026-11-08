@@ -1,0 +1,3 @@
+# Godot cache and the build's debug texture dumps (rebuilt by build/build_kage.gd)
+.godot/
+generated/textures/

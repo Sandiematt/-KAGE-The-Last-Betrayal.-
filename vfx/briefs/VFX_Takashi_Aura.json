@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Takashi_Aura",
+  "role": "sustained status round the Yashiro Titan",
+  "style": "stylized anime combat, additive holy gold over a dark fortress night (and his golden domain), side-view 2D, baked to sheets",
+  "dominant_shape": "a faint spectral gold column with streaks climbing it",
+  "palette": {
+    "core": [
+      255,
+      250,
+      232
+    ],
+    "body": [
+      255,
+      186,
+      64
+    ],
+    "dark": [
+      40,
+      22,
+      4
+    ],
+    "matter": [
+      156,
+      132,
+      100
+    ],
+    "accent": [
+      214,
+      118,
+      22
+    ]
+  },
+  "delivery": {
+    "kind": "self"
+  },
+  "anchor": "caster_ground",
+  "reference": {
+    "id": "user reference sheets: Takashi the Father, Yashiro Titan (phase II) and Ogon Musojin / Tenrai domain (phase III)"
+  },
+  "beats": [
+    {
+      "frame": 20,
+      "name": "arrive",
+      "expect": "column and floor light fade in"
+    },
+    {
+      "frame": 60,
+      "name": "hold",
+      "expect": "streaks and embers climbing"
+    },
+    {
+      "frame": 110,
+      "name": "loop",
+      "expect": "no seam"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Mantle",
+      "role": "sustained: dim gold mantle the height of the Titan",
+      "primitive": "sprite T_Glow01",
+      "exit": "gone by absolute f120"
+    },
+    {
+      "name": "1:Floor light",
+      "role": "a faint band of light on the floor",
+      "primitive": "orbit_band",
+      "exit": "gone by absolute f120"
+    },
+    {
+      "name": "2:Spirit column",
+      "role": "sustained volume: faint spectral column",
+      "primitive": "column",
+      "exit": "gone by absolute f120"
+    },
+    {
+      "name": "3:Rising streaks",
+      "role": "surface motion: streaks climbing the column",
+      "primitive": "speed_streaks",
+      "exit": "gone by absolute f120"
+    },
+    {
+      "name": "4:Rising wisps",
+      "role": "shape change: broken wisps rising",
+      "primitive": "wisps",
+      "exit": "gone by absolute f134"
+    },
+    {
+      "name": "5:Embers",
+      "role": "residue: gold embers rising and hanging",
+      "primitive": "motes",
+      "exit": "gone by absolute f187"
+    }
+  ],
+  "acceptance": [
+    "Never the brightest thing on screen",
+    "Takashi and the Titan read through it"
+  ],
+  "avoid": [
+    "Fire flipbook puffs"
+  ]
+}

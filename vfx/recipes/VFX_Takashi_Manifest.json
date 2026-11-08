@@ -1,0 +1,970 @@
+{
+  "id": "VFX_Takashi_Manifest",
+  "name": "Yashiro Titan Manifest",
+  "category": "boss",
+  "element": "holy",
+  "duration": 1.9,
+  "loop": false,
+  "attach": "ground",
+  "peak": 0.23333333333333334,
+  "impact": 0.8,
+  "light": [
+    1,
+    0.78,
+    0.4
+  ],
+  "seed": 1729,
+  "layers": [
+    {
+      "name": "Seal",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_TomoeSeal01.png",
+      "color": [
+        255,
+        228,
+        156,
+        255
+      ],
+      "life": 96,
+      "delay": 0,
+      "size": 3.4,
+      "billboard": "Fixed",
+      "rotation": [
+        -90,
+        0,
+        0
+      ],
+      "spin": [
+        0,
+        0,
+        0.4
+      ],
+      "position": [
+        0,
+        0.05,
+        0
+      ],
+      "z_test": true,
+      "fade_in": 10,
+      "fade_out": 40,
+      "emissive": 1.6,
+      "size_curve": [
+        [
+          0,
+          0.55
+        ],
+        [
+          15,
+          1
+        ],
+        [
+          100,
+          1.08
+        ]
+      ],
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseTile01.png",
+      "cutoff": {
+        "start": 0,
+        "end": 0.9,
+        "easing": "EaseInQuartic"
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Floor glow",
+      "renderer": "Ring",
+      "color": [
+        255,
+        186,
+        64,
+        200
+      ],
+      "life": 70,
+      "delay": 2,
+      "billboard": "Fixed",
+      "rotation": [
+        -80,
+        0,
+        0
+      ],
+      "ring": {
+        "vertices": 96,
+        "outer": [
+          1.5,
+          0
+        ],
+        "inner": [
+          1.0,
+          0
+        ],
+        "center_ratio": 0.3,
+        "outer_color": [
+          255,
+          186,
+          64,
+          0
+        ],
+        "center_color": [
+          255,
+          186,
+          64,
+          200
+        ],
+        "inner_color": [
+          255,
+          186,
+          64,
+          0
+        ]
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+      "alpha_scroll": [
+        -0.03,
+        0
+      ],
+      "fade_in": 8,
+      "fade_out": 30,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Gather",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        255,
+        228,
+        156,
+        255
+      ],
+      "color_end": [
+        255,
+        186,
+        64,
+        255
+      ],
+      "count": 18,
+      "life": [
+        12,
+        14
+      ],
+      "delay": 0,
+      "interval": 0,
+      "billboard": "Billboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          1.6,
+          2.0
+        ],
+        "rot_x": [
+          -90,
+          90
+        ]
+      },
+      "travel": {
+        "end": [
+          0,
+          [
+            -1.6,
+            -1.1
+          ],
+          0
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "size": [
+        0.06,
+        0.11
+      ],
+      "size_end": 0,
+      "easing": "EaseInCubic",
+      "forces": [
+        {
+          "type": "Turbulence",
+          "power": 0.003,
+          "scale": 5
+        }
+      ],
+      "fade_in": 2,
+      "fade_out": 3,
+      "emissive": 1.5,
+      "position": [
+        0,
+        1.2,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Eruption flash",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Flare01.png",
+      "color": [
+        255,
+        250,
+        232,
+        255
+      ],
+      "life": 5,
+      "delay": 14,
+      "size": 2.6,
+      "size_curve": [
+        [
+          0,
+          0.55
+        ],
+        [
+          25,
+          1
+        ],
+        [
+          100,
+          0.15
+        ]
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "fade_in": 0,
+      "fade_out": 3.0,
+      "emissive": 1.6,
+      "position": [
+        0,
+        1.4,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Floor shock",
+      "renderer": "Ring",
+      "color": [
+        255,
+        186,
+        64,
+        255
+      ],
+      "life": 18,
+      "delay": 14,
+      "billboard": "Fixed",
+      "rotation": [
+        -80,
+        0,
+        0
+      ],
+      "ring": {
+        "outer": [
+          1,
+          0
+        ],
+        "inner": {
+          "start": [
+            0.7,
+            0
+          ],
+          "end": [
+            0.97,
+            0
+          ]
+        },
+        "center_ratio": 0.8,
+        "outer_color": [
+          255,
+          186,
+          64,
+          127
+        ],
+        "center_color": [
+          255,
+          186,
+          64,
+          255
+        ],
+        "inner_color": [
+          255,
+          186,
+          64,
+          0
+        ]
+      },
+      "size": 3.0,
+      "size_curve": [
+        [
+          0,
+          0.12
+        ],
+        [
+          35,
+          0.72
+        ],
+        [
+          100,
+          1
+        ]
+      ],
+      "fade_in": 0,
+      "fade_out": 12.6,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Light column",
+      "renderer": "Model",
+      "procedural_model": {
+        "Name": "Light column",
+        "Shape/PrimitiveType": "Cylinder",
+        "Shape/Radius": 0.9,
+        "Mesh/Divisions/X": 40,
+        "Mesh/Divisions/Y": 12,
+        "Shape/Depth": 6.5,
+        "Shape/DepthMin": 0,
+        "Shape/DepthMax": 6.5
+      },
+      "color": [
+        255,
+        186,
+        64,
+        200
+      ],
+      "life": 70,
+      "fade_in": 0,
+      "fade_out": 34,
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak02.png",
+      "uv_scroll": [
+        0.01,
+        -0.06
+      ],
+      "delay": 14,
+      "culling": "Double",
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_GradientV01.png",
+      "alpha_wrap": "Clamp",
+      "falloff": {
+        "begin": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "end": [
+          255,
+          255,
+          255,
+          0
+        ],
+        "pow": 1.6,
+        "blend": "Mul"
+      },
+      "scale_start": [
+        1,
+        0.1,
+        1
+      ],
+      "scale_end": [
+        1,
+        1,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "emissive": 1.4,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Column core",
+      "renderer": "Model",
+      "procedural_model": {
+        "Name": "Column core",
+        "Shape/PrimitiveType": "Cylinder",
+        "Shape/Radius": 0.3,
+        "Mesh/Divisions/X": 40,
+        "Mesh/Divisions/Y": 12,
+        "Shape/Depth": 6.0,
+        "Shape/DepthMin": 0,
+        "Shape/DepthMax": 6.0
+      },
+      "color": [
+        255,
+        250,
+        232,
+        160
+      ],
+      "life": 30,
+      "fade_in": 0,
+      "fade_out": 16,
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak02.png",
+      "uv_scroll": [
+        0.01,
+        -0.09
+      ],
+      "delay": 14,
+      "culling": "Double",
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_GradientV01.png",
+      "alpha_wrap": "Clamp",
+      "falloff": {
+        "begin": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "end": [
+          255,
+          255,
+          255,
+          0
+        ],
+        "pow": 1.6,
+        "blend": "Mul"
+      },
+      "scale_start": [
+        1,
+        0.15,
+        1
+      ],
+      "scale_end": [
+        1,
+        1,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "emissive": 1.8,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Flame tongues",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ExplosionSheet01.png",
+      "color": [
+        255,
+        245,
+        215,
+        255
+      ],
+      "color_curve": {
+        "R": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            55,
+            255
+          ],
+          [
+            100,
+            255
+          ]
+        ],
+        "G": [
+          [
+            0,
+            245
+          ],
+          [
+            18,
+            228
+          ],
+          [
+            55,
+            207
+          ],
+          [
+            100,
+            186
+          ]
+        ],
+        "B": [
+          [
+            0,
+            215
+          ],
+          [
+            18,
+            156
+          ],
+          [
+            55,
+            110
+          ],
+          [
+            100,
+            64
+          ]
+        ],
+        "A": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            55,
+            200
+          ],
+          [
+            100,
+            0
+          ]
+        ]
+      },
+      "count": 7,
+      "life": [
+        22,
+        34
+      ],
+      "size": 1.4,
+      "billboard": "YAxisFixed",
+      "pivot": "bottom",
+      "flipbook": {
+        "x": 4,
+        "y": 4,
+        "frame_length": 2,
+        "loop": "Once"
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseTile01.png",
+      "cutoff": {
+        "start": 0.04,
+        "end": 0.5,
+        "easing": "EaseInQuintic"
+      },
+      "edge": {
+        "color": [
+          255,
+          90,
+          20,
+          255
+        ],
+        "threshold": 0.06,
+        "scaling": 2
+      },
+      "fade_in": 1,
+      "fade_out": 8,
+      "emissive": 1.5,
+      "delay": 15,
+      "spawn": {
+        "shape": "Circle",
+        "axis": "YAxis",
+        "radius": [
+          0.4,
+          1.0
+        ],
+        "rotate": false
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Halo 1",
+      "renderer": "Ring",
+      "color": [
+        255,
+        228,
+        156,
+        255
+      ],
+      "life": 30,
+      "delay": 18,
+      "billboard": "Fixed",
+      "rotation": [
+        -80,
+        0,
+        0
+      ],
+      "ring": {
+        "outer": [
+          1,
+          0
+        ],
+        "inner": {
+          "start": [
+            0.86,
+            0
+          ],
+          "end": [
+            0.97,
+            0
+          ]
+        },
+        "center_ratio": 0.8,
+        "outer_color": [
+          255,
+          228,
+          156,
+          127
+        ],
+        "center_color": [
+          255,
+          228,
+          156,
+          255
+        ],
+        "inner_color": [
+          255,
+          228,
+          156,
+          0
+        ]
+      },
+      "size": 1.2,
+      "size_curve": [
+        [
+          0,
+          0.12
+        ],
+        [
+          35,
+          0.72
+        ],
+        [
+          100,
+          1
+        ]
+      ],
+      "fade_in": 0,
+      "fade_out": 14,
+      "travel": {
+        "start": [
+          0,
+          0.4,
+          0
+        ],
+        "end": [
+          0,
+          4.0,
+          0
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Halo 2",
+      "renderer": "Ring",
+      "color": [
+        255,
+        228,
+        156,
+        255
+      ],
+      "life": 30,
+      "delay": 26,
+      "billboard": "Fixed",
+      "rotation": [
+        -80,
+        0,
+        0
+      ],
+      "ring": {
+        "outer": [
+          1,
+          0
+        ],
+        "inner": {
+          "start": [
+            0.88,
+            0
+          ],
+          "end": [
+            0.97,
+            0
+          ]
+        },
+        "center_ratio": 0.8,
+        "outer_color": [
+          255,
+          228,
+          156,
+          127
+        ],
+        "center_color": [
+          255,
+          228,
+          156,
+          255
+        ],
+        "inner_color": [
+          255,
+          228,
+          156,
+          0
+        ]
+      },
+      "size": 1.0,
+      "size_curve": [
+        [
+          0,
+          0.12
+        ],
+        [
+          35,
+          0.72
+        ],
+        [
+          100,
+          1
+        ]
+      ],
+      "fade_in": 0,
+      "fade_out": 14,
+      "travel": {
+        "start": [
+          0,
+          0.4,
+          0
+        ],
+        "end": [
+          0,
+          4.6,
+          0
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Up streaks",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Spark01.png",
+      "color": [
+        255,
+        250,
+        232,
+        255
+      ],
+      "color_end": [
+        255,
+        186,
+        64,
+        255
+      ],
+      "count": 16,
+      "life": [
+        12,
+        18
+      ],
+      "delay": 14,
+      "billboard": "DirectionalBillboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          0.5
+        ],
+        "rotate": false
+      },
+      "travel": {
+        "end": [
+          [
+            -1.0,
+            1.0
+          ],
+          [
+            2.6,
+            4.6
+          ],
+          [
+            -0.2,
+            0.2
+          ]
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "scale_start": [
+        0.1,
+        [
+          0.5,
+          1.0
+        ],
+        1
+      ],
+      "scale_end": [
+        0.03,
+        0.1,
+        1
+      ],
+      "easing": "EaseInQuadratic",
+      "forces": [],
+      "fade_in": 0,
+      "fade_out": 5,
+      "emissive": 1.5,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Embers",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        255,
+        228,
+        156,
+        255
+      ],
+      "color_end": [
+        214,
+        118,
+        22,
+        0
+      ],
+      "count": 20,
+      "life": [
+        34,
+        48
+      ],
+      "delay": 20,
+      "interval": 2,
+      "billboard": "Billboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0.5,
+          1.4
+        ],
+        "rot_x": [
+          -90,
+          90
+        ]
+      },
+      "travel": {
+        "end": [
+          0,
+          [
+            0.2,
+            0.7
+          ],
+          0
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "size": [
+        0.05,
+        0.1
+      ],
+      "size_end": 0,
+      "easing": "EaseInCubic",
+      "forces": [
+        {
+          "type": "Turbulence",
+          "power": 0.003,
+          "scale": 5
+        },
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            0.0016,
+            0
+          ]
+        }
+      ],
+      "fade_in": 1,
+      "fade_out": 6,
+      "emissive": 1.5,
+      "position": [
+        0,
+        1.0,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Dust",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_SmokeSheet01.png",
+      "color": [
+        156,
+        132,
+        100,
+        170
+      ],
+      "color_end": [
+        156,
+        132,
+        100,
+        0
+      ],
+      "count": 5,
+      "life": [
+        40,
+        56
+      ],
+      "delay": 14,
+      "interval": 0,
+      "blend": "Blend",
+      "billboard": "RotatedBillboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0.6,
+          1.2
+        ]
+      },
+      "velocity": [
+        0,
+        [
+          0.005,
+          0.02
+        ],
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        [
+          -180,
+          180
+        ]
+      ],
+      "spin": [
+        0,
+        0,
+        [
+          -0.6,
+          0.6
+        ]
+      ],
+      "size": [
+        0.8,
+        1.2
+      ],
+      "size_end": [
+        1.52,
+        2.28
+      ],
+      "easing": "EaseOutCubic",
+      "forces": [
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            0.0004,
+            0
+          ]
+        }
+      ],
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseTile01.png",
+      "fade_in": 2,
+      "fade_out": 10,
+      "flipbook": {
+        "x": 4,
+        "y": 4,
+        "frame_length": 4,
+        "loop": "Once"
+      },
+      "cutoff": {
+        "start": 0,
+        "end": 0.3,
+        "easing": "EaseInCubic"
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Alpha.vfxmat.json"
+    }
+  ],
+  "design": "The family seal opens gold on the floor and motes are drawn in; a column of gold light erupts round him, halos rise up it, flame tongues lick upward, sparks shoot up and embers hang as the column thins away.",
+  "delivery": {
+    "kind": "self"
+  },
+  "screen": {
+    "shake": 0.6,
+    "flash_frames": 1,
+    "flash": "white",
+    "hitstop": 0
+  }
+}

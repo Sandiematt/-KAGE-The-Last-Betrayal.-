@@ -1,0 +1,651 @@
+{
+  "id": "VFX_Sakura_Tornado",
+  "name": "Petal Tornado",
+  "category": "boss",
+  "element": "sakura",
+  "duration": 1.4,
+  "loop": true,
+  "attach": "ground",
+  "peak": 0.1,
+  "impact": 0,
+  "light": [
+    1,
+    0.45,
+    0.75
+  ],
+  "seed": 1729,
+  "layers": [
+    {
+      "name": "Base glow",
+      "renderer": "Ring",
+      "color": [
+        255,
+        20,
+        147,
+        190
+      ],
+      "life": 84,
+      "delay": 0,
+      "billboard": "Fixed",
+      "rotation": [
+        -80,
+        0,
+        0
+      ],
+      "ring": {
+        "vertices": 96,
+        "outer": [
+          0.95,
+          0
+        ],
+        "inner": [
+          0.6,
+          0
+        ],
+        "center_ratio": 0.3,
+        "outer_color": [
+          255,
+          20,
+          147,
+          0
+        ],
+        "center_color": [
+          255,
+          20,
+          147,
+          190
+        ],
+        "inner_color": [
+          255,
+          20,
+          147,
+          0
+        ]
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+      "alpha_scroll": [
+        -0.03,
+        0
+      ],
+      "fade_in": 8,
+      "fade_out": 20,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Spiral pivot",
+      "renderer": "None",
+      "life": 84,
+      "delay": 0,
+      "spin": [
+        0,
+        9,
+        0
+      ],
+      "children": [
+        {
+          "name": "Spiral stream",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_SakuraPetal01.png",
+          "color": [
+            255,
+            246,
+            252,
+            255
+          ],
+          "count": 60,
+          "life": [
+            38,
+            42
+          ],
+          "delay": 0,
+          "interval": 1.2,
+          "size": [
+            0.14,
+            0.22
+          ],
+          "rotation": [
+            0,
+            0,
+            [
+              -180,
+              180
+            ]
+          ],
+          "spin": [
+            0,
+            0,
+            [
+              -7,
+              7
+            ]
+          ],
+          "forces": [
+            {
+              "type": "Turbulence",
+              "power": 0.002,
+              "scale": 5
+            }
+          ],
+          "color_curve": {
+            "R": [
+              [
+                0,
+                255
+              ],
+              [
+                18,
+                255
+              ],
+              [
+                45,
+                255
+              ],
+              [
+                80,
+                255
+              ],
+              [
+                100,
+                255
+              ]
+            ],
+            "G": [
+              [
+                0,
+                246
+              ],
+              [
+                18,
+                184
+              ],
+              [
+                45,
+                102
+              ],
+              [
+                80,
+                20
+              ],
+              [
+                100,
+                20
+              ]
+            ],
+            "B": [
+              [
+                0,
+                252
+              ],
+              [
+                18,
+                224
+              ],
+              [
+                45,
+                178
+              ],
+              [
+                80,
+                147
+              ],
+              [
+                100,
+                147
+              ]
+            ],
+            "A": [
+              [
+                0,
+                255
+              ],
+              [
+                18,
+                255
+              ],
+              [
+                45,
+                255
+              ],
+              [
+                80,
+                255
+              ],
+              [
+                100,
+                0
+              ]
+            ]
+          },
+          "fade_in": 1,
+          "fade_out": 8,
+          "emissive": 1.6,
+          "spawn": {
+            "shape": "Circle",
+            "radius": [
+              0.5456,
+              0.6944
+            ],
+            "rotate": true
+          },
+          "velocity": [
+            0,
+            [
+              0.04,
+              0.05
+            ],
+            0
+          ],
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Spiral strands",
+          "renderer": "Ring",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_WispTrail01.png",
+          "color": [
+            255,
+            102,
+            178,
+            255
+          ],
+          "count": 8,
+          "interval": 9,
+          "life": [
+            18,
+            26
+          ],
+          "delay": 0,
+          "billboard": "Fixed",
+          "rotation": [
+            [
+              -82,
+              -62
+            ],
+            [
+              0,
+              360
+            ],
+            [
+              -10,
+              10
+            ]
+          ],
+          "size": [
+            0.8,
+            1.2
+          ],
+          "ring": {
+            "vertices": 72,
+            "outer": [
+              0.7315999999999999,
+              0
+            ],
+            "inner": {
+              "start": [
+                0.4715999999999999,
+                0
+              ],
+              "end": [
+                0.6536,
+                0
+              ]
+            },
+            "center_ratio": 0.45,
+            "outer_color": [
+              255,
+              102,
+              178,
+              85
+            ],
+            "center_color": [
+              255,
+              102,
+              178,
+              255
+            ],
+            "inner_color": [
+              255,
+              102,
+              178,
+              0
+            ],
+            "angle_start": [
+              0,
+              75.0
+            ],
+            "angle_end": [
+              30.0,
+              150
+            ],
+            "angle_easing": "EaseOutCubic",
+            "angle_fade": [
+              20,
+              6
+            ]
+          },
+          "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+          "alpha_scroll": [
+            -0.05,
+            0
+          ],
+          "cutoff": {
+            "start": 0.1,
+            "end": 0.8,
+            "easing": "EaseInQuadratic"
+          },
+          "fade_in": 1,
+          "fade_out": 11.700000000000001,
+          "wrap": "Clamp",
+          "emissive": 2.0,
+          "position": [
+            0,
+            [
+              0.3,
+              2.407
+            ],
+            0
+          ],
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        }
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Wind column",
+      "renderer": "Model",
+      "procedural_model": {
+        "Name": "Wind column",
+        "Shape/PrimitiveType": "Cylinder",
+        "Shape/Radius": 0.6572,
+        "Mesh/Divisions/X": 40,
+        "Mesh/Divisions/Y": 12,
+        "Shape/Depth": 2.9,
+        "Shape/DepthMin": 0,
+        "Shape/DepthMax": 2.9,
+        "Shape/Radius2": 0.8370000000000001
+      },
+      "color": [
+        255,
+        102,
+        178,
+        110
+      ],
+      "life": 84,
+      "fade_in": 4,
+      "fade_out": 22,
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak02.png",
+      "uv_scroll": [
+        0.025,
+        -0.035
+      ],
+      "delay": 0,
+      "culling": "Double",
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_GradientV01.png",
+      "alpha_wrap": "Clamp",
+      "falloff": {
+        "begin": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "end": [
+          255,
+          255,
+          255,
+          0
+        ],
+        "pow": 1.6,
+        "blend": "Mul"
+      },
+      "emissive": 1.4,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Flung petals",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_SakuraPetal01.png",
+      "color": [
+        255,
+        246,
+        252,
+        255
+      ],
+      "count": 18,
+      "life": [
+        22,
+        30
+      ],
+      "delay": 0,
+      "interval": 4,
+      "size": [
+        0.1,
+        0.16
+      ],
+      "rotation": [
+        0,
+        0,
+        [
+          -180,
+          180
+        ]
+      ],
+      "spin": [
+        0,
+        0,
+        [
+          -7,
+          7
+        ]
+      ],
+      "forces": [
+        {
+          "type": "Turbulence",
+          "power": 0.004,
+          "scale": 5
+        },
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            -0.0012,
+            0
+          ]
+        }
+      ],
+      "color_curve": {
+        "R": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            45,
+            255
+          ],
+          [
+            80,
+            255
+          ],
+          [
+            100,
+            255
+          ]
+        ],
+        "G": [
+          [
+            0,
+            246
+          ],
+          [
+            18,
+            184
+          ],
+          [
+            45,
+            102
+          ],
+          [
+            80,
+            20
+          ],
+          [
+            100,
+            20
+          ]
+        ],
+        "B": [
+          [
+            0,
+            252
+          ],
+          [
+            18,
+            224
+          ],
+          [
+            45,
+            178
+          ],
+          [
+            80,
+            147
+          ],
+          [
+            100,
+            147
+          ]
+        ],
+        "A": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            45,
+            255
+          ],
+          [
+            80,
+            255
+          ],
+          [
+            100,
+            0
+          ]
+        ]
+      },
+      "fade_in": 1,
+      "fade_out": 8,
+      "emissive": 1.6,
+      "position": [
+        0,
+        0.25,
+        0
+      ],
+      "spawn": {
+        "shape": "Circle",
+        "radius": [
+          0.5,
+          0.7
+        ],
+        "rotate": true
+      },
+      "travel": {
+        "end": [
+          [
+            1.0,
+            1.6
+          ],
+          [
+            0.2,
+            0.7
+          ],
+          0
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Base pulse",
+      "renderer": "Ring",
+      "color": [
+        255,
+        102,
+        178,
+        255
+      ],
+      "life": 16,
+      "delay": 2,
+      "billboard": "Fixed",
+      "rotation": [
+        -80,
+        0,
+        0
+      ],
+      "ring": {
+        "outer": [
+          1,
+          0
+        ],
+        "inner": {
+          "start": [
+            0.7,
+            0
+          ],
+          "end": [
+            0.97,
+            0
+          ]
+        },
+        "center_ratio": 0.8,
+        "outer_color": [
+          255,
+          102,
+          178,
+          127
+        ],
+        "center_color": [
+          255,
+          102,
+          178,
+          255
+        ],
+        "inner_color": [
+          255,
+          102,
+          178,
+          0
+        ]
+      },
+      "size": 1.2,
+      "size_curve": [
+        [
+          0,
+          0.12
+        ],
+        [
+          35,
+          0.72
+        ],
+        [
+          100,
+          1
+        ]
+      ],
+      "fade_in": 0,
+      "fade_out": 11.2,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    }
+  ],
+  "design": "A narrow column of petals spirals up in torn pink strands over a deep-pink base glow, flinging petals off its foot as it travels across the floor.",
+  "delivery": {
+    "kind": "area"
+  }
+}

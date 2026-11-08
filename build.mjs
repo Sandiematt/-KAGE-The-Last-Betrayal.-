@@ -9,7 +9,9 @@ const src = path.join(root, 'src');
 const template = fs.readFileSync(path.join(src, 'index.template.html'), 'utf8');
 const css = fs.readFileSync(path.join(src, 'styles.css'), 'utf8');
 const jsDir = path.join(src, 'js');
-const files = fs.readdirSync(jsDir).filter(f => f.endsWith('.js')).sort();
+// every .js under src/js, sub-folders included (src/js/21-characters/<character>/<part>.js), in path order
+const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]);
+const files = walk(jsDir).filter(f => f.endsWith('.js')).map(f => path.relative(jsDir, f).split(path.sep).join('/')).sort();
 const js = files.map(f => `/* ===== ${f} ===== */\n` + fs.readFileSync(path.join(jsDir, f), 'utf8')).join('\n\n');
 
 // Embedded Google Fonts (SIL Open Font License) — inlined so the game runs fully offline / inside Capacitor.

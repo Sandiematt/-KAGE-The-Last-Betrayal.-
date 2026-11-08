@@ -5,7 +5,7 @@ import fs from 'node:fs';
 const [stage, out, script] = process.argv.slice(2);
 const EDGE = 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe';
 const port = 9300 + Math.floor(Math.random() * 400);
-const prof = 'C:/Users/sande/AppData/Local/Temp/claude/af88188064ae6f1f/8a34bc17-e6a2-44f5-b71a-2e15efc19c16/scratchpad/edge-' + port;
+const prof = 'C:/Users/sande/AppData/Local/Temp/claude/af88188064ae6f1f/b959fe56-752e-4e98-acc9-0c1c76c0caea/scratchpad/edge-' + port;
 const p = spawn(EDGE, ['--headless=new', '--disable-gpu', '--hide-scrollbars', `--remote-debugging-port=${port}`, `--user-data-dir=${prof}`, '--window-size=1280,800', 'about:blank'], { stdio: 'ignore' });
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 let ws, id = 0; const pend = {};

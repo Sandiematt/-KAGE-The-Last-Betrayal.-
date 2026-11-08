@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Sakura_Ribbon",
+  "role": "ground-skimming projectile ending in a pillar (Poison Trap, False Opening)",
+  "style": "stylized anime combat, glowing additive sakura (Senbonzakura) over a dark night arena, side-view 2D",
+  "dominant_shape": "blossom ribbon unrolling along the floor",
+  "palette": {
+    "core": [
+      255,
+      246,
+      252
+    ],
+    "body": [
+      255,
+      102,
+      178
+    ],
+    "dark": [
+      70,
+      6,
+      40
+    ],
+    "matter": [
+      255,
+      196,
+      226
+    ],
+    "accent": [
+      255,
+      20,
+      147
+    ]
+  },
+  "delivery": {
+    "kind": "projectile"
+  },
+  "anchor": "projectile",
+  "reference": {
+    "id": "gemini_generated_video_9ba223ac.mp4 (user reference: Senbonzakura boss duel)"
+  },
+  "beats": [
+    {
+      "frame": 3,
+      "name": "launch",
+      "expect": "spinning blossom leaves her feet"
+    },
+    {
+      "frame": 18,
+      "name": "flight",
+      "expect": "ribbon and blossoms on the path"
+    },
+    {
+      "frame": 33,
+      "name": "arrival",
+      "expect": "head released at the target"
+    },
+    {
+      "frame": 60,
+      "name": "tail",
+      "expect": "path blossoms dissolving"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Head glow",
+      "role": "head: pink glow round the head",
+      "primitive": "glow",
+      "exit": "gone by absolute f6"
+    },
+    {
+      "name": "1:Head blossom",
+      "role": "head: spinning blossom",
+      "primitive": "sprite T_SakuraBlossom01",
+      "exit": "gone by absolute f6"
+    },
+    {
+      "name": "2:Light ribbon",
+      "role": "trail: deep-pink light ribbon on the floor",
+      "primitive": "Track",
+      "exit": "gone by absolute f22"
+    },
+    {
+      "name": "3:Path blossoms",
+      "role": "trail: blossoms blooming on the path",
+      "primitive": "sprite T_SakuraBlossom01",
+      "exit": "gone by absolute f30"
+    },
+    {
+      "name": "4:Kicked petals",
+      "role": "secondary: petals kicked up off the floor",
+      "primitive": "sprite T_SakuraPetal01",
+      "exit": "gone by absolute f30"
+    }
+  ],
+  "acceptance": [
+    "The ribbon stays on the floor line",
+    "Path blossoms bloom (pop open) after the head passes"
+  ],
+  "avoid": [
+    "A ribbon floating at body height"
+  ]
+}

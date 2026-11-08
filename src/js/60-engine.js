@@ -14,6 +14,7 @@ class FightSession {
     this.cam = { x: 0, y: 0, zoom: 1.05 };
     this.env = getEnv(cfg.env);
     this.history = []; this.letterbox = 1; this.fightFlash = 0;
+    this.actions = []; this.spamCd = 0; this.spamTaught = false;   // the spam read (SPAM_READ, onPlayerAction)
     // the Witness: the player's moves with whether each landed (Logic.echoReplication / mirrorSequence read it),
     // Void Slash lines waiting to cut, and the Memory Break in progress
     this.hitLog = []; this.voidLines = []; this.memBreak = null; this.memBreakN = 0;
@@ -155,8 +156,33 @@ class FightSession {
   }
   // how much of the player's recent string is this one move (Logic.predictability; Takashi's Guard Return reads it)
   predictability(id) { return Logic.predictability(this.history, id); }
+  /* The spam read (SPAM_READ in 10-data.js): every attack, dash and jump Kage starts is logged under its input key
+     (Logic.spamKey). When the newest one completes a spam streak (Logic.spamRead), the nearest foe able to react reads
+     it and punishes (AIController.spamPunish); the log then starts over. Every foe reads, not only bosses: regular
+     enemies, sub-bosses and bosses, each with its own chance (SPAM_READ.chance by role) and cool-down. */
+  onPlayerAction(f, key) {
+    if (!f.isPlayer || !key) return;
+    this.actions.push({ k: key, t: this.time }); if (this.actions.length > 16) this.actions.shift();
+    if (this.phase !== 'fight' || this.time < this.spamCd) return;
+    const w = f.weapon(), read = Logic.spamRead(this.actions, this.time, (w.moves || []).length);
+    if (!read) return;
+    let best = null, bd = SPAM_READ.range;
+    for (const e of this.fighters) {
+      if (!e.ai || e.team === f.team || !e.alive || !e.visible || e.clone || e.decoy) continue;
+      const d = Math.abs(e.x - f.x);
+      if (d < bd && e.ai.canReadSpam()) { bd = d; best = e; }
+    }
+    if (best && best.ai.spamPunish(f, read)) { this.actions.length = 0; this.spamCd = this.time + SPAM_READ.sessionCd; }
+  }
+  // the first punish of a fight explains itself once
+  onSpamPunish(att, def) {
+    if (!def.isPlayer || this.spamTaught) return;
+    this.spamTaught = true;
+    this.fx.popText(def, 'SPAM READ: MIX W / A / S / D + ATTACK', C.gold);
+  }
   onMoveStart(f, m) {
     if (!f.isPlayer) return;
+    this.onPlayerAction(f, Logic.spamKey(m));
     this.history.push(m.id); if (this.history.length > 12) this.history.shift();
     this.hitLog.push({ id: m.id, t: this.time, hit: false }); if (this.hitLog.length > 24) this.hitLog.shift();
     const h = this.history, L = h.length;
@@ -179,15 +205,17 @@ class FightSession {
     }
     if (def.isPlayer) { this.damageTaken += dmg; this.combo = 0; }
     if (def === this.enemy && def.barrier > 0 && dmg > 12) { def.barrier = 0; this.fx.popText(def, 'BARRIER BROKEN', C.gold); }
+    TakashiBoss.onHit(this, att, def, dmg);   // blows during his domain's channel count toward breaking it
   }
   onParry(def) { if (def.isPlayer) AudioManager.play('coin', { pitch: 1.4 }); }
   onBossPhase(f, idx, ph) {
     this.fx.banner(`Phase ${ROMAN[idx]}`, ph.name, f.accent || C.emberBright);
     this.fx.impactFrame(f.x, f.y - 100, 3); this.fx.shake(0.6);
     this.cine = { t: 1.2, target: f }; this.fx.elemImpact(f.elementOf(null) || 'ink', f.x, f.y - 100 * f.scale, f.facing, 3, true);
-    this.fx.ring(f.x, f.y - 100, 380, f.accent || C.emberBright, 0.7, 10);
+    this.fx.ring(f.x, f.y - 100, 380, AkariSakura.is(f) ? '#ff66b2' : f.accent || C.emberBright, 0.7, 10);
     if (ph.berserk) { f.eye = '#8be07a'; }
     StormDirector.phase(this, f, idx);
+    TakashiBoss.phase(this, f, idx, ph);
   }
   // Akari's False Opening: an afterimage of her stands where she was, guard down, at reduced opacity (o.opacity) with
   // o.afterimages offset echoes, for o.hold seconds. It has no AI and no eyes; any blow passes through it (Combat.applyHit
@@ -198,7 +226,7 @@ class FightSession {
     c.hp = c.maxHp = 1; c.y = owner.y; c.grounded = owner.grounded;
     Object.assign(c.pose, owner.pose); c.computeSkeleton();
     c.startAbility({ dur: o.hold + 10, rate: 10, pose: AKARI_POSE.open,
-      update(c, w, t) { if (((t * 60) | 0) % 7 === 0) for (let i = 0; i < c.echoes; i++) w.fx.afterimage(c, 'rgba(180,140,240,0.28)', { dur: 0.2, dx: (i ? -1 : 1) * (14 + 4 * Math.sin(t * 9)) }); } });
+      update(c, w, t) { if (((t * 60) | 0) % 7 === 0) for (let i = 0; i < c.echoes; i++) w.fx.afterimage(c, AkariSakura.ghost(c.decoy, 0.28, 'rgba(180,140,240,0.28)'), { dur: 0.2, dx: (i ? -1 : 1) * (14 + 4 * Math.sin(t * 9)) }); } });
     this.fighters.push(c);
     return c;
   }
@@ -206,8 +234,10 @@ class FightSession {
   vanishDecoy(c) {
     if (!c.alive) return;
     c.alive = false; c.visible = false; c.abil = null;
-    this.fx.memoryAsh(c, 14, true);
-    this.fx.afterimage(c, 'rgba(236,229,211,0.4)', { dur: 0.25, dx: 22 }); this.fx.afterimage(c, 'rgba(180,140,240,0.4)', { dur: 0.25, dx: -22 });
+    if (!AkariSakura.decoyVanish(this, c)) {
+      this.fx.memoryAsh(c, 14, true);
+      this.fx.afterimage(c, 'rgba(236,229,211,0.4)', { dur: 0.25, dx: 22 }); this.fx.afterimage(c, 'rgba(180,140,240,0.4)', { dur: 0.25, dx: -22 });
+    }
     AudioManager.play('smoke', { pitch: 1.6 });
   }
   strikeDecoy(c, att) {
@@ -323,7 +353,7 @@ class FightSession {
   onKO(def, att) {
     const fx = this.fx;
     if (def.hollow) this.dissolve(def);
-    if (def.clone) { def.visible = false; this.smokeCloud(def.x); this.fighters.splice(this.fighters.indexOf(def), 1); return; }
+    if (def.clone) { def.visible = false; if (AkariSakura.cloneBreak(this, def)) AudioManager.play('smoke'); else this.smokeCloud(def.x); this.fighters.splice(this.fighters.indexOf(def), 1); return; }
     if (def.minion) { if (!def.hollow) fx.embers(def.x, -60, 16); return; }
     // Echo Trials: while the wave still has Hollows standing, the next one takes the lead (and the HUD bar)
     if (def === this.enemy && this.mode === 'trials' && this.phase === 'fight') {
@@ -475,28 +505,33 @@ class FightSession {
   // Everything both modes share each tick: controls, AI, fighters, hits, projectiles, separation and the camera.
   simulate(dt, p, e) {
     if (this.cine) { this.cine.t -= dt; if (this.cine.t <= 0) this.cine = null; }
-    this.letterbox = damp(this.letterbox, this.phase === 'intro' || this.phase === 'outro' || this.phase === 'interrupt' || this.cine ? 1 : 0, 6, dt);
+    this.letterbox = damp(this.letterbox, this.phase === 'intro' || this.phase === 'outro' || this.phase === 'interrupt' || this.cine || (this.rart && this.rart.cine) ? 1 : 0, 6, dt);
     this.fightFlash = Math.max(0, this.fightFlash - dt * 3);
     if (this.dialogue) this.dialogue.t += dt;
     if (this.comboT > 0) { this.comboT -= dt; if (this.comboT <= 0) this.combo = 0; }
 
     // controls
     if (this.phase === 'fight') InputManager.readCtrl(p.ctrl); else clearCtrlEdges(p.ctrl), p.ctrl.dir = 0, p.ctrl.blockHeld = false, p.ctrl.kickHeld = false;
-    for (const f of this.fighters) if (f.ai) { if (this.phase === 'fight') f.ai.update(dt); else { clearCtrlEdges(f.ctrl); f.ctrl.dir = 0; f.ctrl.blockHeld = false; f.ctrl.kickHeld = false; } if (f.ai.adaptT > 0) { f.ai.adaptT -= dt; if (f.ai.adaptT <= 0) f.ai.adapted = null; } }
+    // a rage art's anticipation holds the world still round Kage (67-rage-arts.js): no other fighter acts or moves
+    const hold = RageArts.holding(this), held = (f) => hold && f !== hold && f.team !== hold.team;
+    for (const f of this.fighters) if (f.ai) { if (this.phase === 'fight' && !held(f)) f.ai.update(dt); else { clearCtrlEdges(f.ctrl); f.ctrl.dir = 0; f.ctrl.blockHeld = false; f.ctrl.kickHeld = false; } if (f.ai.adaptT > 0) { f.ai.adaptT -= dt; if (f.ai.adaptT <= 0) f.ai.adapted = null; } }
     // auras / barriers / clone lifetime
     p.slow = 1;
     for (const f of this.fighters) {
       if (f.barrier > 0) f.barrier -= dt;
       if (f.aura > 0) { f.aura -= dt; if (Math.abs(p.x - f.x) < 330 && f.alive) p.slow = 0.68; }
-      if (f.clone && f.alive) { f.life -= dt; if (f.life <= 0) { if (f.decoy) this.vanishDecoy(f); else { f.alive = false; f.visible = false; this.smokeCloud(f.x); } } }
+      if (f.clone && f.alive) { f.life -= dt; if (f.life <= 0) { if (f.decoy) this.vanishDecoy(f); else { f.alive = false; f.visible = false; if (AkariSakura.cloneBreak(this, f)) AudioManager.play('smoke'); else this.smokeCloud(f.x); } } }
     }
     this.stepVoidLines(dt); this.stepMemoryBreak(dt);
+    this.stepHazards(dt); this.stepAkariPresence();   // Akari's storms, mist, traps, tornadoes and petals (62-akari-hazards.js)
+    TakashiBoss.step(this, dt);   // Takashi's guard, size, the Yashiro Titan and his domain (66-takashi.js)
     if (p.glow > 0) p.glow = Math.max(0, p.glow - dt * 0.5);
     // simulate
-    for (const f of this.fighters) { if (f.dissolve) { this.stepDissolve(f, dt); continue; } f.update(dt, this); VFX.emit(f, this.fx); }
+    RageArts.step(this, dt);   // the rage arts' arenas, Mizuchi's dragon, Reaper's clones, Shizuka's silent cuts (67-rage-arts.js)
+    for (const f of this.fighters) { if (f.dissolve) { this.stepDissolve(f, dt); continue; } if (held(f)) continue; f.update(dt, this); VFX.emit(f, this.fx); }
     if (this.phase === 'fight' || this.phase === 'ko') Combat.resolve(this);
     StormDirector.step(this);
-    WeaponSystem.update(this, dt);
+    if (!hold) WeaponSystem.update(this, dt);
     WeaponSystem.updatePickups(this, dt);
     this.separate();
     this.fighters = this.fighters.filter(f => f.visible || f.alive || f === p || f === e);
@@ -610,6 +645,10 @@ class FightSession {
       tx = (p.x + e.x) / 2; tz = clamp(1300 / (dist + 560), 0.9, 1.36);
       ty = Math.min(0, Math.min(p.y, e.y) * 0.35);
     }
+    // the Yashiro Titan and Takashi's domain need a wider frame (66-takashi.js)
+    if (this.phase === 'fight') { const tk = TakashiBoss.camera(this, tz, ty); if (tk) { tz = tk.tz; ty = tk.ty; } }
+    // a rage art frames its own cinematic (67-rage-arts.js)
+    if (this.phase === 'fight') { const ra = RageArts.camera(this, tz, ty); if (ra) { tx = ra.tx; tz = ra.tz; ty = ra.ty; } }
     const half = W / 2 / tz;
     tx = clamp(tx, this.bounds.l - 70 + half, this.bounds.r + 70 - half);
     cam.x = damp(cam.x, tx, this.phase === 'ko' ? 4 : 5, dt);

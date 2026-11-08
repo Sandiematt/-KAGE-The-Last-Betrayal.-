@@ -1,0 +1,259 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Rage_Swallow_Bolt",
+  "role": "rage art strike (Tsubame, Thousand Swallows): eight per art from eight directions",
+  "style": "stylized anime combat, additive light over a dark arena, side-view 2D, baked to sheets and turned per strike in the game",
+  "dominant_shape": "a straight jagged cyan bolt through the target",
+  "palette": {
+    "core": [
+      246,
+      254,
+      255
+    ],
+    "body": [
+      56,
+      200,
+      255
+    ],
+    "dark": [
+      2,
+      14,
+      30
+    ],
+    "matter": [
+      120,
+      140,
+      156
+    ],
+    "accent": [
+      20,
+      96,
+      200
+    ]
+  },
+  "delivery": {
+    "kind": "melee"
+  },
+  "anchor": "impact",
+  "reference": {
+    "id": "user request 2026-11-08: Kagetsu crimson moon slashes, Tsubame lightning afterimages, Shizuka purple energy slashes, Onikiri crimson ground-shattering impacts, Mizuchi giant blue water dragon, Yamigama enormous scythe crescents, Iwakudaki golden ground-impact shockwaves"
+  },
+  "beats": [
+    {
+      "frame": 1,
+      "name": "contact",
+      "expect": "core line and bolt at once"
+    },
+    {
+      "frame": 4,
+      "name": "restrike",
+      "expect": "the bolt struck again on another path"
+    },
+    {
+      "frame": 11,
+      "name": "flicker",
+      "expect": "dim after-flicker"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Core line",
+      "role": "core: the hair-thin white line through the foe",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f10"
+    },
+    {
+      "name": "1:Streak glow",
+      "role": "body light along the streak",
+      "primitive": "sprite T_Glow01",
+      "exit": "gone by absolute f9"
+    },
+    {
+      "name": "2:Bolt 1",
+      "role": "main stroke: jagged cyan bolt of painted strands",
+      "primitive": "sprite T_ArcStrand01",
+      "exit": "gone by absolute f6"
+    },
+    {
+      "name": "3:Bolt 2",
+      "role": "main stroke: jagged cyan bolt of painted strands",
+      "primitive": "sprite T_ArcStrand01",
+      "exit": "gone by absolute f6"
+    },
+    {
+      "name": "4:Bolt 3",
+      "role": "main stroke: jagged cyan bolt of painted strands",
+      "primitive": "sprite T_ArcStrand01",
+      "exit": "gone by absolute f6"
+    },
+    {
+      "name": "5:Bolt 4",
+      "role": "main stroke: jagged cyan bolt of painted strands",
+      "primitive": "sprite T_ArcStrand01",
+      "exit": "gone by absolute f6"
+    },
+    {
+      "name": "6:Bolt 5",
+      "role": "main stroke: jagged cyan bolt of painted strands",
+      "primitive": "sprite T_ArcStrand01",
+      "exit": "gone by absolute f6"
+    },
+    {
+      "name": "7:Bolt 6",
+      "role": "main stroke: jagged cyan bolt of painted strands",
+      "primitive": "sprite T_ArcStrand01",
+      "exit": "gone by absolute f6"
+    },
+    {
+      "name": "8:Bolt 7",
+      "role": "main stroke: jagged cyan bolt of painted strands",
+      "primitive": "sprite T_ArcStrand01",
+      "exit": "gone by absolute f6"
+    },
+    {
+      "name": "9:Restrike 1",
+      "role": "re-strike on another path, mirrored",
+      "primitive": "sprite T_ArcStrand01",
+      "exit": "gone by absolute f8"
+    },
+    {
+      "name": "10:Restrike 2",
+      "role": "re-strike on another path, mirrored",
+      "primitive": "sprite T_ArcStrand01",
+      "exit": "gone by absolute f8"
+    },
+    {
+      "name": "11:Restrike 3",
+      "role": "re-strike on another path, mirrored",
+      "primitive": "sprite T_ArcStrand01",
+      "exit": "gone by absolute f8"
+    },
+    {
+      "name": "12:Restrike 4",
+      "role": "re-strike on another path, mirrored",
+      "primitive": "sprite T_ArcStrand01",
+      "exit": "gone by absolute f8"
+    },
+    {
+      "name": "13:Restrike 5",
+      "role": "re-strike on another path, mirrored",
+      "primitive": "sprite T_ArcStrand01",
+      "exit": "gone by absolute f8"
+    },
+    {
+      "name": "14:Restrike 6",
+      "role": "re-strike on another path, mirrored",
+      "primitive": "sprite T_ArcStrand01",
+      "exit": "gone by absolute f8"
+    },
+    {
+      "name": "15:Fork 1 1",
+      "role": "forks spitting off the bolt",
+      "primitive": "sprite T_ArcStrand01",
+      "exit": "gone by absolute f6"
+    },
+    {
+      "name": "16:Fork 1 2",
+      "role": "forks spitting off the bolt",
+      "primitive": "sprite T_ArcStrand01",
+      "exit": "gone by absolute f6"
+    },
+    {
+      "name": "17:Fork 1 3",
+      "role": "forks spitting off the bolt",
+      "primitive": "sprite T_ArcStrand01",
+      "exit": "gone by absolute f6"
+    },
+    {
+      "name": "18:Fork 2 1",
+      "role": "forks spitting off the bolt",
+      "primitive": "sprite T_ArcStrand01",
+      "exit": "gone by absolute f7"
+    },
+    {
+      "name": "19:Fork 2 2",
+      "role": "forks spitting off the bolt",
+      "primitive": "sprite T_ArcStrand01",
+      "exit": "gone by absolute f7"
+    },
+    {
+      "name": "20:Fork 2 3",
+      "role": "forks spitting off the bolt",
+      "primitive": "sprite T_ArcStrand01",
+      "exit": "gone by absolute f7"
+    },
+    {
+      "name": "21:Fork 3 1",
+      "role": "forks spitting off the bolt",
+      "primitive": "sprite T_ArcStrand01",
+      "exit": "gone by absolute f8"
+    },
+    {
+      "name": "22:Fork 3 2",
+      "role": "forks spitting off the bolt",
+      "primitive": "sprite T_ArcStrand01",
+      "exit": "gone by absolute f8"
+    },
+    {
+      "name": "23:Fork 3 3",
+      "role": "forks spitting off the bolt",
+      "primitive": "sprite T_ArcStrand01",
+      "exit": "gone by absolute f8"
+    },
+    {
+      "name": "24:After flicker 1",
+      "role": "after-flicker as it dies",
+      "primitive": "sprite T_ArcStrand01",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "25:After flicker 2",
+      "role": "after-flicker as it dies",
+      "primitive": "sprite T_ArcStrand01",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "26:After flicker 3",
+      "role": "after-flicker as it dies",
+      "primitive": "sprite T_ArcStrand01",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "27:After flicker 4",
+      "role": "after-flicker as it dies",
+      "primitive": "sprite T_ArcStrand01",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "28:After flicker 5",
+      "role": "after-flicker as it dies",
+      "primitive": "sprite T_ArcStrand01",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "29:Contact flash",
+      "role": "contact",
+      "primitive": "flash",
+      "exit": "gone by absolute f5"
+    },
+    {
+      "name": "30:Spat sparks",
+      "role": "secondary: sparks flying on through the target",
+      "primitive": "radial_sparks",
+      "exit": "gone by absolute f13"
+    },
+    {
+      "name": "31:Glints",
+      "role": "accent: star glints",
+      "primitive": "sparkle",
+      "exit": "gone by absolute f10"
+    }
+  ],
+  "acceptance": [
+    "It never travels: it strikes, re-strikes, flickers",
+    "The core line is hair-thin"
+  ],
+  "avoid": [
+    "A soft glow tube"
+  ]
+}

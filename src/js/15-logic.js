@@ -444,6 +444,39 @@ const Logic = {
     if (h.length >= n && h.slice(-n).every(x => x === id)) return true;
     return this.predictability(h, id) >= PATTERN_READ.share;
   },
+  // Takashi's Iron Guard (TAKASHI_GUARD, his phase flag `ironGuard`): whether the strike Kage is making now (`id`, the
+  // newest entry of his move history) repeats one of his previous `span` moves. A repeat is parried; only a move
+  // he has not used in that many moves lands. The first strike of a fight, or any fresh one, is never read.
+  ironGuardReads(history, id, span) {
+    const h = history || [], n = span || TAKASHI_GUARD.span;
+    const prev = h[h.length - 1] === id ? h.slice(0, -1) : h;
+    return prev.slice(-n).includes(id);
+  },
+  // The input key a player action counts under for the spam read: 'dash', 'jump', or a move's: a directional form is
+  // its own key ('dir:up', 'dir:sweep'...), the weapon string is 'weapon', and punches, kicks, air attacks, kunai and
+  // grabs go by their kind.
+  spamKey(m) {
+    if (!m) return null;
+    if (typeof m === 'string') return m;
+    if (m.aim) return 'dir:' + m.aim;
+    return m.kind === 'throw' ? 'kunai' : m.kind;
+  },
+  // The spam read (SPAM_READ): actions [{ k, t }] oldest first, `now` the session clock, `stringLen` the weapon string's
+  // length. Returns { key, streak } when the newest action is the same key SPAM_READ.streak times running (each within
+  // SPAM_READ.gap seconds of the one before, or its SPAM_READ.gaps entry; a weapon string needs its length plus one),
+  // else null. Grabs never count.
+  spamRead(actions, now, stringLen) {
+    const a = actions || [], L = a.length;
+    if (!L) return null;
+    const last = a[L - 1];
+    const gap = (SPAM_READ.gaps && SPAM_READ.gaps[last.k]) || SPAM_READ.gap;
+    if (!last.k || last.k === 'grab' || now - last.t > gap) return null;
+    let n = 1;
+    for (let i = L - 2; i >= 0 && a[i].k === last.k && a[i + 1].t - a[i].t <= gap; i--) n++;
+    const S = SPAM_READ.streak;
+    const need = last.k === 'weapon' ? Math.max(S.weapon, (stringLen || 0) + 1) : last.k.startsWith('dir:') ? S.dir : (S[last.k] || 4);
+    return n >= need ? { key: last.k, streak: n } : null;
+  },
   /* ---- the Core's echoes (core.echo1..4) ---- */
   // One of the echoes' corrupted moves (CORE_ECHO_MOVES): the numbers it runs with (its original's, AKARI_MOVES or
   // TAKASHI_MOVES, with the echo's on top; Raikon's are written out on the entry) plus { id, base, of, corrupt: true }.

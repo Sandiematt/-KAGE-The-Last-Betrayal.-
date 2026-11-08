@@ -1,0 +1,486 @@
+{
+  "id": "VFX_Rage_Violet_Slash",
+  "name": "Silent Violet Cut",
+  "category": "slash",
+  "element": "silence",
+  "duration": 0.45,
+  "loop": false,
+  "attach": "impact",
+  "peak": 0.16666666666666666,
+  "impact": 0.3,
+  "light": [
+    0.7,
+    0.5,
+    1
+  ],
+  "seed": 1729,
+  "layers": [
+    {
+      "name": "Silent line",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        252,
+        248,
+        255,
+        255
+      ],
+      "life": 14,
+      "delay": 0,
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale_start": [
+        1.3299999999999998,
+        0.625,
+        1
+      ],
+      "scale_end": [
+        4.369999999999999,
+        0.09375,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 9.799999999999999,
+      "emissive": 2.4,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Violet line",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        164,
+        107,
+        255,
+        255
+      ],
+      "life": 18,
+      "delay": 1,
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale_start": [
+        1.47,
+        4.0,
+        1
+      ],
+      "scale_end": [
+        4.83,
+        0.6,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 12.6,
+      "emissive": 2.4,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Swing plane",
+      "renderer": "None",
+      "life": 15,
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "children": [
+        {
+          "name": "Thin arc",
+          "renderer": "Ring",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Trail02.png",
+          "color": [
+            164,
+            107,
+            255,
+            255
+          ],
+          "life": 14,
+          "delay": 1,
+          "billboard": "Fixed",
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "ring": {
+            "vertices": 96,
+            "outer": [
+              3.2,
+              0
+            ],
+            "inner": {
+              "start": [
+                3.0,
+                0.0
+              ],
+              "end": [
+                3.1500000000000004,
+                0.0
+              ]
+            },
+            "center_ratio": 0.6,
+            "outer_color": [
+              164,
+              107,
+              255,
+              255
+            ],
+            "center_color": [
+              164,
+              107,
+              255,
+              255
+            ],
+            "inner_color": [
+              164,
+              107,
+              255,
+              255
+            ],
+            "angle_start": [
+              160,
+              176.0
+            ],
+            "angle_end": [
+              164.8,
+              200
+            ],
+            "angle_easing": "EaseOutQuartic",
+            "angle_fade": [
+              25,
+              4
+            ]
+          },
+          "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+          "cutoff": {
+            "start": 0,
+            "end": 0.75,
+            "easing": "EaseInQuadratic"
+          },
+          "fade_in": 0,
+          "fade_out": 7.0,
+          "wrap": "Clamp",
+          "position": [
+            0,
+            3.2,
+            0
+          ],
+          "emissive": 2.0,
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        }
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Echo cut",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        226,
+        208,
+        255,
+        255
+      ],
+      "life": 12,
+      "delay": 10,
+      "rotation": [
+        0,
+        0,
+        -14
+      ],
+      "scale_start": [
+        1.0499999999999998,
+        1.0,
+        1
+      ],
+      "scale_end": [
+        3.4499999999999997,
+        0.15,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 8.399999999999999,
+      "emissive": 2.4,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Echo star",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Flare01.png",
+      "color": [
+        252,
+        248,
+        255,
+        255
+      ],
+      "life": 3,
+      "delay": 10,
+      "size": 1.1,
+      "size_curve": [
+        [
+          0,
+          0.55
+        ],
+        [
+          25,
+          1
+        ],
+        [
+          100,
+          0.15
+        ]
+      ],
+      "rotation": [
+        0,
+        0,
+        -14
+      ],
+      "fade_in": 0,
+      "fade_out": 1.7999999999999998,
+      "emissive": 1.6,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Violet bloom",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        164,
+        107,
+        255,
+        160
+      ],
+      "life": 16,
+      "delay": 1,
+      "size": 2.4,
+      "size_curve": [
+        [
+          0,
+          0.25
+        ],
+        [
+          18,
+          1
+        ],
+        [
+          100,
+          1.25
+        ]
+      ],
+      "billboard": "Billboard",
+      "fade_in": 0,
+      "fade_out": 12.8,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Needles",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Spark01.png",
+      "color": [
+        252,
+        248,
+        255,
+        255
+      ],
+      "color_end": [
+        164,
+        107,
+        255,
+        255
+      ],
+      "count": 10,
+      "life": [
+        8,
+        14
+      ],
+      "delay": 10,
+      "billboard": "DirectionalBillboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          0.4
+        ],
+        "rotate": false
+      },
+      "travel": {
+        "end": [
+          [
+            -1.8,
+            1.8
+          ],
+          [
+            -0.3,
+            0.3
+          ],
+          [
+            -0.1,
+            0.1
+          ]
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "scale_start": [
+        0.03,
+        [
+          0.35,
+          0.7
+        ],
+        1
+      ],
+      "scale_end": [
+        0.009,
+        0.06999999999999999,
+        1
+      ],
+      "easing": "EaseInQuadratic",
+      "forces": [],
+      "fade_in": 0,
+      "fade_out": 5,
+      "emissive": 1.5,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Hush motes",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        226,
+        208,
+        255,
+        255
+      ],
+      "color_end": [
+        96,
+        40,
+        200,
+        0
+      ],
+      "count": 16,
+      "life": [
+        18,
+        24
+      ],
+      "delay": 2,
+      "interval": 0,
+      "billboard": "Billboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          1.2
+        ],
+        "rot_x": [
+          -90,
+          90
+        ]
+      },
+      "travel": {
+        "end": [
+          0,
+          [
+            0.2,
+            1.0
+          ],
+          0
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "size": [
+        0.07,
+        0.13
+      ],
+      "size_end": 0,
+      "easing": "EaseInCubic",
+      "forces": [
+        {
+          "type": "Turbulence",
+          "power": 0.003,
+          "scale": 5
+        },
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            0.0002,
+            0
+          ]
+        }
+      ],
+      "fade_in": 1,
+      "fade_out": 6,
+      "emissive": 1.5,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Glints",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Star01.png",
+      "color": [
+        252,
+        248,
+        255,
+        255
+      ],
+      "count": 3,
+      "life": 12,
+      "delay": 10,
+      "interval": 0,
+      "size": 0.26,
+      "size_curve": [
+        [
+          0,
+          0.2
+        ],
+        [
+          15,
+          1.15
+        ],
+        [
+          60,
+          1
+        ],
+        [
+          100,
+          0
+        ]
+      ],
+      "rotation": [
+        0,
+        0,
+        [
+          -20,
+          20
+        ]
+      ],
+      "spin": [
+        0,
+        0,
+        [
+          -0.8,
+          0.8
+        ]
+      ],
+      "billboard": "Billboard",
+      "fade_in": 0,
+      "fade_out": 3,
+      "emissive": 1.8,
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          1.4
+        ]
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    }
+  ],
+  "design": "A hair-thin white line appears whole across the target over a violet one and a long thin arc; a beat later a second cut opens across it with a small star, needles of light along it, and lilac motes drift and hang.",
+  "delivery": {
+    "kind": "melee"
+  },
+  "screen": {
+    "shake": 0.1,
+    "hitstop": 0.02
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Takashi_Kunai_Impact",
+  "role": "paired projectile impact",
+  "style": "stylized anime combat, additive holy gold over a dark fortress night (and his golden domain), side-view 2D, baked to sheets",
+  "dominant_shape": "a gold ring with sparks thrown back along the throw",
+  "palette": {
+    "core": [
+      255,
+      250,
+      232
+    ],
+    "body": [
+      255,
+      186,
+      64
+    ],
+    "dark": [
+      40,
+      22,
+      4
+    ],
+    "matter": [
+      156,
+      132,
+      100
+    ],
+    "accent": [
+      214,
+      118,
+      22
+    ]
+  },
+  "delivery": {
+    "kind": "projectile",
+    "projectile": "VFX_Takashi_Kunai"
+  },
+  "anchor": "impact",
+  "reference": {
+    "id": "user reference sheets: Takashi the Father, Yashiro Titan (phase II) and Ogon Musojin / Tenrai domain (phase III)"
+  },
+  "beats": [
+    {
+      "frame": 1,
+      "name": "contact",
+      "expect": "short white contact"
+    },
+    {
+      "frame": 6,
+      "name": "body",
+      "expect": "gold ring and two speeds of sparks"
+    },
+    {
+      "frame": 24,
+      "name": "tail",
+      "expect": "embers rising"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Contact flash",
+      "role": "contact",
+      "primitive": "flash",
+      "exit": "gone by absolute f5"
+    },
+    {
+      "name": "1:Gold bloom",
+      "role": "subordinate light under the contact",
+      "primitive": "glow",
+      "exit": "gone by absolute f10"
+    },
+    {
+      "name": "2:Gold ring",
+      "role": "body: gold ring eroding",
+      "primitive": "shock_ring",
+      "exit": "gone by absolute f12"
+    },
+    {
+      "name": "3:Fast streaks",
+      "role": "secondary tier 1: fast white streaks back along the throw",
+      "primitive": "radial_sparks",
+      "exit": "gone by absolute f10"
+    },
+    {
+      "name": "4:Sparks streaks",
+      "role": "secondary: gold sparks in tiers",
+      "primitive": "spark_burst",
+      "exit": "gone by absolute f12"
+    },
+    {
+      "name": "5:Sparks",
+      "role": "secondary: gold sparks in tiers",
+      "primitive": "spark_burst",
+      "exit": "gone by absolute f22"
+    },
+    {
+      "name": "6:Sparks heavy",
+      "role": "secondary: gold sparks in tiers",
+      "primitive": "spark_burst",
+      "exit": "gone by absolute f30"
+    },
+    {
+      "name": "7:Embers",
+      "role": "residue: gold embers rising and hanging",
+      "primitive": "motes",
+      "exit": "gone by absolute f30"
+    }
+  ],
+  "acceptance": [
+    "The white contact is gone by f6"
+  ],
+  "avoid": [
+    "A white blob lasting more than five frames"
+  ]
+}

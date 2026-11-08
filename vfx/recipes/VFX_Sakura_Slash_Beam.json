@@ -1,0 +1,1389 @@
+{
+  "id": "VFX_Sakura_Slash_Beam",
+  "name": "Sakura Slash Beams",
+  "category": "slash",
+  "element": "sakura",
+  "duration": 0.8,
+  "loop": false,
+  "attach": "impact",
+  "peak": 0.05,
+  "impact": 0.45,
+  "light": [
+    1,
+    0.45,
+    0.75
+  ],
+  "seed": 1729,
+  "layers": [
+    {
+      "name": "Pink bloom",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        255,
+        20,
+        147,
+        160
+      ],
+      "life": 18,
+      "delay": 1,
+      "size": 2.6,
+      "size_curve": [
+        [
+          0,
+          0.25
+        ],
+        [
+          18,
+          1
+        ],
+        [
+          100,
+          1.25
+        ]
+      ],
+      "billboard": "Billboard",
+      "fade_in": 0,
+      "fade_out": 14.4,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Beam glow 1",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        255,
+        20,
+        147,
+        210
+      ],
+      "life": 13,
+      "delay": 1,
+      "rotation": [
+        0,
+        0,
+        18
+      ],
+      "scale_start": [
+        1.9599999999999997,
+        4.25,
+        1
+      ],
+      "scale_end": [
+        6.4399999999999995,
+        0.6375,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 9.1,
+      "emissive": 1.6,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Beam core 1",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        255,
+        246,
+        252,
+        255
+      ],
+      "life": 10,
+      "delay": 1,
+      "rotation": [
+        0,
+        0,
+        18
+      ],
+      "scale_start": [
+        2.17,
+        0.8750000000000001,
+        1
+      ],
+      "scale_end": [
+        7.13,
+        0.13125,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 7.0,
+      "emissive": 2.4,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Cut star 1",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Flare01.png",
+      "color": [
+        255,
+        246,
+        252,
+        255
+      ],
+      "life": 3,
+      "delay": 1,
+      "size": 1.05,
+      "size_curve": [
+        [
+          0,
+          0.55
+        ],
+        [
+          25,
+          1
+        ],
+        [
+          100,
+          0.15
+        ]
+      ],
+      "rotation": [
+        0,
+        0,
+        18
+      ],
+      "fade_in": 0,
+      "fade_out": 1.7999999999999998,
+      "emissive": 1.6,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Cut blades 1",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_PetalBlade01.png",
+      "color": [
+        255,
+        246,
+        252,
+        255
+      ],
+      "life": 12,
+      "delay": 2,
+      "scale_start": [
+        0.75,
+        0.36,
+        1
+      ],
+      "rotation": [
+        0,
+        0,
+        18
+      ],
+      "color_curve": {
+        "R": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            45,
+            255
+          ],
+          [
+            80,
+            255
+          ],
+          [
+            100,
+            255
+          ]
+        ],
+        "G": [
+          [
+            0,
+            246
+          ],
+          [
+            18,
+            184
+          ],
+          [
+            45,
+            102
+          ],
+          [
+            80,
+            20
+          ],
+          [
+            100,
+            20
+          ]
+        ],
+        "B": [
+          [
+            0,
+            252
+          ],
+          [
+            18,
+            224
+          ],
+          [
+            45,
+            178
+          ],
+          [
+            80,
+            147
+          ],
+          [
+            100,
+            147
+          ]
+        ],
+        "A": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            45,
+            255
+          ],
+          [
+            80,
+            255
+          ],
+          [
+            100,
+            0
+          ]
+        ]
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+      "cutoff": {
+        "start": 0,
+        "end": 0.85,
+        "easing": "EaseInCubic"
+      },
+      "fade_in": 0,
+      "fade_out": 4.800000000000001,
+      "emissive": 2.4,
+      "count": 3,
+      "spawn": {
+        "shape": "Line",
+        "start": [
+          -1.5216904260722457,
+          -0.49442719099991583,
+          0
+        ],
+        "end": [
+          1.5216904260722457,
+          0.49442719099991583,
+          0
+        ],
+        "division": 3,
+        "order": "Order",
+        "rotate": false
+      },
+      "velocity": [
+        0.06657395614066075,
+        0.02163118960624632,
+        0
+      ],
+      "acceleration": [
+        -0.0038042260651806143,
+        -0.0012360679774997896,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Cut petals 1",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_SakuraPetal01.png",
+      "color": [
+        255,
+        246,
+        252,
+        255
+      ],
+      "count": 8,
+      "life": [
+        22,
+        32
+      ],
+      "delay": 2,
+      "interval": 0,
+      "size": [
+        0.1,
+        0.16
+      ],
+      "rotation": [
+        0,
+        0,
+        [
+          -180,
+          180
+        ]
+      ],
+      "spin": [
+        0,
+        0,
+        [
+          -7,
+          7
+        ]
+      ],
+      "forces": [
+        {
+          "type": "Turbulence",
+          "power": 0.004,
+          "scale": 5
+        },
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            -0.0009,
+            0
+          ]
+        }
+      ],
+      "color_curve": {
+        "R": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            45,
+            255
+          ],
+          [
+            80,
+            255
+          ],
+          [
+            100,
+            255
+          ]
+        ],
+        "G": [
+          [
+            0,
+            246
+          ],
+          [
+            18,
+            184
+          ],
+          [
+            45,
+            102
+          ],
+          [
+            80,
+            20
+          ],
+          [
+            100,
+            20
+          ]
+        ],
+        "B": [
+          [
+            0,
+            252
+          ],
+          [
+            18,
+            224
+          ],
+          [
+            45,
+            178
+          ],
+          [
+            80,
+            147
+          ],
+          [
+            100,
+            147
+          ]
+        ],
+        "A": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            45,
+            255
+          ],
+          [
+            80,
+            255
+          ],
+          [
+            100,
+            0
+          ]
+        ]
+      },
+      "fade_in": 1,
+      "fade_out": 8,
+      "emissive": 1.6,
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          0.35
+        ],
+        "rotate": false
+      },
+      "travel": {
+        "end": [
+          [
+            0.570633909777092,
+            1.902113032590307
+          ],
+          [
+            0.18541019662496844,
+            0.6180339887498948
+          ],
+          [
+            -0.2,
+            0.2
+          ]
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Beam glow 2",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        255,
+        20,
+        147,
+        210
+      ],
+      "life": 13,
+      "delay": 4,
+      "rotation": [
+        0,
+        0,
+        -38
+      ],
+      "scale_start": [
+        1.9599999999999997,
+        4.25,
+        1
+      ],
+      "scale_end": [
+        6.4399999999999995,
+        0.6375,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 9.1,
+      "emissive": 1.6,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Beam core 2",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        255,
+        246,
+        252,
+        255
+      ],
+      "life": 10,
+      "delay": 4,
+      "rotation": [
+        0,
+        0,
+        -38
+      ],
+      "scale_start": [
+        2.17,
+        0.8750000000000001,
+        1
+      ],
+      "scale_end": [
+        7.13,
+        0.13125,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 7.0,
+      "emissive": 2.4,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Cut star 2",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Flare01.png",
+      "color": [
+        255,
+        246,
+        252,
+        255
+      ],
+      "life": 3,
+      "delay": 4,
+      "size": 1.05,
+      "size_curve": [
+        [
+          0,
+          0.55
+        ],
+        [
+          25,
+          1
+        ],
+        [
+          100,
+          0.15
+        ]
+      ],
+      "rotation": [
+        0,
+        0,
+        -38
+      ],
+      "fade_in": 0,
+      "fade_out": 1.7999999999999998,
+      "emissive": 1.6,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Cut blades 2",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_PetalBlade01.png",
+      "color": [
+        255,
+        246,
+        252,
+        255
+      ],
+      "life": 12,
+      "delay": 5,
+      "scale_start": [
+        0.75,
+        0.36,
+        1
+      ],
+      "rotation": [
+        0,
+        0,
+        -38
+      ],
+      "color_curve": {
+        "R": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            45,
+            255
+          ],
+          [
+            80,
+            255
+          ],
+          [
+            100,
+            255
+          ]
+        ],
+        "G": [
+          [
+            0,
+            246
+          ],
+          [
+            18,
+            184
+          ],
+          [
+            45,
+            102
+          ],
+          [
+            80,
+            20
+          ],
+          [
+            100,
+            20
+          ]
+        ],
+        "B": [
+          [
+            0,
+            252
+          ],
+          [
+            18,
+            224
+          ],
+          [
+            45,
+            178
+          ],
+          [
+            80,
+            147
+          ],
+          [
+            100,
+            147
+          ]
+        ],
+        "A": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            45,
+            255
+          ],
+          [
+            80,
+            255
+          ],
+          [
+            100,
+            0
+          ]
+        ]
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+      "cutoff": {
+        "start": 0,
+        "end": 0.85,
+        "easing": "EaseInCubic"
+      },
+      "fade_in": 0,
+      "fade_out": 4.800000000000001,
+      "emissive": 2.4,
+      "count": 3,
+      "spawn": {
+        "shape": "Line",
+        "start": [
+          -1.2608172057707552,
+          0.9850583605210533,
+          0
+        ],
+        "end": [
+          1.2608172057707552,
+          -0.9850583605210533,
+          0
+        ],
+        "division": 3,
+        "order": "Order",
+        "rotate": false
+      },
+      "velocity": [
+        0.05516075275247054,
+        -0.04309630327279609,
+        0
+      ],
+      "acceleration": [
+        -0.003152043014426888,
+        0.002462645901302633,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Cut petals 2",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_SakuraPetal01.png",
+      "color": [
+        255,
+        246,
+        252,
+        255
+      ],
+      "count": 8,
+      "life": [
+        22,
+        32
+      ],
+      "delay": 5,
+      "interval": 0,
+      "size": [
+        0.1,
+        0.16
+      ],
+      "rotation": [
+        0,
+        0,
+        [
+          -180,
+          180
+        ]
+      ],
+      "spin": [
+        0,
+        0,
+        [
+          -7,
+          7
+        ]
+      ],
+      "forces": [
+        {
+          "type": "Turbulence",
+          "power": 0.004,
+          "scale": 5
+        },
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            -0.0009,
+            0
+          ]
+        }
+      ],
+      "color_curve": {
+        "R": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            45,
+            255
+          ],
+          [
+            80,
+            255
+          ],
+          [
+            100,
+            255
+          ]
+        ],
+        "G": [
+          [
+            0,
+            246
+          ],
+          [
+            18,
+            184
+          ],
+          [
+            45,
+            102
+          ],
+          [
+            80,
+            20
+          ],
+          [
+            100,
+            20
+          ]
+        ],
+        "B": [
+          [
+            0,
+            252
+          ],
+          [
+            18,
+            224
+          ],
+          [
+            45,
+            178
+          ],
+          [
+            80,
+            147
+          ],
+          [
+            100,
+            147
+          ]
+        ],
+        "A": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            45,
+            255
+          ],
+          [
+            80,
+            255
+          ],
+          [
+            100,
+            0
+          ]
+        ]
+      },
+      "fade_in": 1,
+      "fade_out": 8,
+      "emissive": 1.6,
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          0.35
+        ],
+        "rotate": false
+      },
+      "travel": {
+        "end": [
+          [
+            0.4728064521640331,
+            1.5760215072134438
+          ],
+          [
+            -1.2313229506513166,
+            -0.369396885195395
+          ],
+          [
+            -0.2,
+            0.2
+          ]
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Beam glow 3",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        255,
+        20,
+        147,
+        210
+      ],
+      "life": 13,
+      "delay": 7,
+      "rotation": [
+        0,
+        0,
+        74
+      ],
+      "scale_start": [
+        1.9599999999999997,
+        4.25,
+        1
+      ],
+      "scale_end": [
+        6.4399999999999995,
+        0.6375,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 9.1,
+      "emissive": 1.6,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Beam core 3",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        255,
+        246,
+        252,
+        255
+      ],
+      "life": 10,
+      "delay": 7,
+      "rotation": [
+        0,
+        0,
+        74
+      ],
+      "scale_start": [
+        2.17,
+        0.8750000000000001,
+        1
+      ],
+      "scale_end": [
+        7.13,
+        0.13125,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 7.0,
+      "emissive": 2.4,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Cut star 3",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Flare01.png",
+      "color": [
+        255,
+        246,
+        252,
+        255
+      ],
+      "life": 3,
+      "delay": 7,
+      "size": 1.05,
+      "size_curve": [
+        [
+          0,
+          0.55
+        ],
+        [
+          25,
+          1
+        ],
+        [
+          100,
+          0.15
+        ]
+      ],
+      "rotation": [
+        0,
+        0,
+        74
+      ],
+      "fade_in": 0,
+      "fade_out": 1.7999999999999998,
+      "emissive": 1.6,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Cut blades 3",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_PetalBlade01.png",
+      "color": [
+        255,
+        246,
+        252,
+        255
+      ],
+      "life": 12,
+      "delay": 8,
+      "scale_start": [
+        0.75,
+        0.36,
+        1
+      ],
+      "rotation": [
+        0,
+        0,
+        74
+      ],
+      "color_curve": {
+        "R": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            45,
+            255
+          ],
+          [
+            80,
+            255
+          ],
+          [
+            100,
+            255
+          ]
+        ],
+        "G": [
+          [
+            0,
+            246
+          ],
+          [
+            18,
+            184
+          ],
+          [
+            45,
+            102
+          ],
+          [
+            80,
+            20
+          ],
+          [
+            100,
+            20
+          ]
+        ],
+        "B": [
+          [
+            0,
+            252
+          ],
+          [
+            18,
+            224
+          ],
+          [
+            45,
+            178
+          ],
+          [
+            80,
+            147
+          ],
+          [
+            100,
+            147
+          ]
+        ],
+        "A": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            45,
+            255
+          ],
+          [
+            80,
+            255
+          ],
+          [
+            100,
+            0
+          ]
+        ]
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+      "cutoff": {
+        "start": 0,
+        "end": 0.85,
+        "easing": "EaseInCubic"
+      },
+      "fade_in": 0,
+      "fade_out": 4.800000000000001,
+      "emissive": 2.4,
+      "count": 3,
+      "spawn": {
+        "shape": "Line",
+        "start": [
+          -0.44101976930719866,
+          -1.5380187135013104,
+          0
+        ],
+        "end": [
+          0.44101976930719866,
+          1.5380187135013104,
+          0
+        ],
+        "division": 3,
+        "order": "Order",
+        "rotate": false
+      },
+      "velocity": [
+        0.019294614907189943,
+        0.06728831871568233,
+        0
+      ],
+      "acceleration": [
+        -0.0011025494232679966,
+        -0.003845046783753276,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Cut petals 3",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_SakuraPetal01.png",
+      "color": [
+        255,
+        246,
+        252,
+        255
+      ],
+      "count": 8,
+      "life": [
+        22,
+        32
+      ],
+      "delay": 8,
+      "interval": 0,
+      "size": [
+        0.1,
+        0.16
+      ],
+      "rotation": [
+        0,
+        0,
+        [
+          -180,
+          180
+        ]
+      ],
+      "spin": [
+        0,
+        0,
+        [
+          -7,
+          7
+        ]
+      ],
+      "forces": [
+        {
+          "type": "Turbulence",
+          "power": 0.004,
+          "scale": 5
+        },
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            -0.0009,
+            0
+          ]
+        }
+      ],
+      "color_curve": {
+        "R": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            45,
+            255
+          ],
+          [
+            80,
+            255
+          ],
+          [
+            100,
+            255
+          ]
+        ],
+        "G": [
+          [
+            0,
+            246
+          ],
+          [
+            18,
+            184
+          ],
+          [
+            45,
+            102
+          ],
+          [
+            80,
+            20
+          ],
+          [
+            100,
+            20
+          ]
+        ],
+        "B": [
+          [
+            0,
+            252
+          ],
+          [
+            18,
+            224
+          ],
+          [
+            45,
+            178
+          ],
+          [
+            80,
+            147
+          ],
+          [
+            100,
+            147
+          ]
+        ],
+        "A": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            45,
+            255
+          ],
+          [
+            80,
+            255
+          ],
+          [
+            100,
+            0
+          ]
+        ]
+      },
+      "fade_in": 1,
+      "fade_out": 8,
+      "emissive": 1.6,
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          0.35
+        ],
+        "rotate": false
+      },
+      "travel": {
+        "end": [
+          [
+            0.1653824134901995,
+            0.5512747116339983
+          ],
+          [
+            0.5767570175629914,
+            1.9225233918766378
+          ],
+          [
+            -0.2,
+            0.2
+          ]
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Cut residue",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_SakuraPetal01.png",
+      "color": [
+        255,
+        196,
+        226,
+        225
+      ],
+      "count": 8,
+      "life": [
+        28,
+        36
+      ],
+      "delay": 10,
+      "interval": 0,
+      "size": [
+        0.13,
+        0.2
+      ],
+      "rotation": [
+        0,
+        0,
+        [
+          -180,
+          180
+        ]
+      ],
+      "spin": [
+        0,
+        0,
+        [
+          -5,
+          5
+        ]
+      ],
+      "blend": "Blend",
+      "forces": [
+        {
+          "type": "Turbulence",
+          "power": 0.004,
+          "scale": 5
+        },
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            -0.0006,
+            0
+          ]
+        }
+      ],
+      "color_end": [
+        255,
+        196,
+        226,
+        0
+      ],
+      "easing": "EaseInCubic",
+      "fade_in": 4,
+      "fade_out": 14,
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0.2,
+          1.3
+        ],
+        "rotate": false
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Alpha.vfxmat.json"
+    }
+  ],
+  "design": "Three white-hot slash beams in deep-pink glow cross the target from three directions three frames apart, each flinging crescent blades and petals along its cut.",
+  "delivery": {
+    "kind": "melee"
+  },
+  "screen": {
+    "shake": 0.22,
+    "hitstop": 0.04
+  }
+}

@@ -743,12 +743,14 @@ const Renderer = {
       if (white) ctx.drawImage(this.paperTex(), 0, 0); else { ctx.fillStyle = C.ink; ctx.fillRect(0, 0, W, H); }
       const sp = toScreen(imp.x, imp.y);
       // the red sun behind the blow on the paper frame, a red enso on the ink frame
-      if (white) { ctx.fillStyle = C.emberBright; ctx.beginPath(); ctx.arc(sp.x, sp.y, 150 + imp.tier * 20, 0, TAU); ctx.fill(); }
-      this.focusLines(ctx, sp.x, sp.y, white ? C.ink : C.emberBright, white ? 0.92 : 0.8, 40);
-      if (!white) { ctx.globalAlpha = 0.9; ensoStroke(ctx, sp.x, sp.y, 175, C.emberBright, 1, 2.2, 30); ctx.globalAlpha = 1; }
+      // (a rage art's finisher tints the sun and the enso in its own colour: imp.col)
+      const ic = imp.col || C.emberBright;
+      if (white) { ctx.fillStyle = ic; ctx.beginPath(); ctx.arc(sp.x, sp.y, 150 + imp.tier * 20, 0, TAU); ctx.fill(); }
+      this.focusLines(ctx, sp.x, sp.y, white ? C.ink : ic, white ? 0.92 : 0.8, 40);
+      if (!white) { ctx.globalAlpha = 0.9; ensoStroke(ctx, sp.x, sp.y, 175, ic, 1, 2.2, 30); ctx.globalAlpha = 1; }
       ctx.save(); this.worldTransform(ctx, s, zoom);
       ctx.fillStyle = white ? 'rgba(3,3,3,0.9)' : 'rgba(236,229,211,0.3)'; ctx.fillRect(cam.x - 2000, 0, 4000, 4);
-      if (!white) { ctx.save(); ctx.translate(7, 3); for (const f of s.fighters) f.draw(ctx, { color: C.emberBright, shadow: false, noEyes: true }); ctx.restore(); }
+      if (!white) { ctx.save(); ctx.translate(7, 3); for (const f of s.fighters) f.draw(ctx, { color: ic, shadow: false, noEyes: true }); ctx.restore(); }
       for (const f of s.fighters) f.draw(ctx, { color: white ? C.ink : C.bone, shadow: false });
       ctx.restore();
       fx.drawScreen(ctx, toScreen);
@@ -757,12 +759,20 @@ const Renderer = {
     // background
     env.back(ctx, cam.x, realT);
     fx.drawStormSky(ctx, s, toScreen, realT);   // storm darkness, clouds, distant strikes, the sky lit by lightning
+    TakashiDomain.drawSky(ctx, s, toScreen, realT);   // Takashi's domain: the golden sky, the sun, the shrine (66-takashi.js)
+    RageArts.drawSky(ctx, s, toScreen, realT);   // a rage art's arena: the blood moon, the storm, the hell sky ... (67-rage-arts.js)
     this.drawFloor(ctx, env, cam.x, realT, GROUND - cam.y * zoom + fx.shakeY);
+    TakashiDomain.drawFloor(ctx, s, toScreen, realT);
     // world
+    AkariGL.tickTo(s.time || 0);   // her scythe's sparks, petals and trails age on the fight's clock (64-akari-gl.js)
     ctx.save(); this.worldTransform(ctx, s, zoom);
     fx.drawWorldBack(ctx);
     fx.drawStormGround(ctx);
+    fx.drawSkyfallGround(ctx);   // Skyfall's mark under its target (38-skyfall.js)
+    drawAkariHazards(ctx, s, realT);   // Akari's storms, mist, traps and tornadoes (62-akari-hazards.js)
     if (s.isStretch) this.drawStretchProps(ctx, s, realT);
+    TakashiBoss.drawBehind(ctx, s, realT);   // the floor cracks, blade marks and the Yashiro Titan behind him (66-takashi.js)
+    RageArts.drawBehind(ctx, s, realT);   // rage arts: floor cracks, rocks, the dragon's far coils, the shadow clones, chains
     for (const f of s.fighters) f.drawShadow(ctx);
     for (const f of s.fighters) this.drawAuras(ctx, f, realT);
     const order = s.fighters.slice().sort((a, b) => (a.alive ? 1 : 0) - (b.alive ? 1 : 0) || (a.isPlayer ? 1 : 0) - (b.isPlayer ? 1 : 0));
@@ -773,9 +783,14 @@ const Renderer = {
     }
     for (const f of order) this.drawTrails(ctx, f, realT);
     WeaponSystem.draw(ctx, s);
+    AkariChain.draw(ctx, s, realT);   // Akari's chain, Petal Burst's petals and lotus, the bound prompt (62b-akari-chain.js)
     fx.drawWorld(ctx);
     fx.drawStormWorld(ctx);
+    fx.drawSkyfallWorld(ctx, (70 - GROUND - fx.shakeY) / zoom + s.cam.y);   // its storm cloud near the top of the frame, and the bolt
+    TakashiBoss.drawFront(ctx, s, realT);   // falling blades and the divine thunder when their sheets are not ready
     fx.drawSheets(ctx);   // baked Effekseer effects (37-vfx-sheets.js)
+    RageArts.drawFront(ctx, s, realT);   // rage arts: the flood, the dragon's near coils and head, the crescents and cuts
+    AkariGL.drawEffects(ctx);   // Akari's scythe: its energy trails, sparks and petals (64-akari-gl.js)
     if (s.isStretch && !StoryPlayer.active) this.drawTutorial(ctx, s, realT);
     ctx.restore();
     fx.applyHaze(ctx, toScreen);
@@ -792,7 +807,9 @@ const Renderer = {
     if (s.fightFlash > 0) { ctx.fillStyle = `rgba(210,74,60,${s.fightFlash * 0.25})`; ctx.fillRect(0, 0, W, H); }
     if (s.glitch > 0) this.drawGlitch(ctx, s.glitch, realT);
     // cinematic letterbox
+    RageArts.drawScreen(ctx, s, toScreen, realT);   // a rage art's grade, darkness, frozen petals and its cut-in band
     if (s.letterbox > 0.01) { const h = 70 * s.letterbox; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, h); ctx.fillRect(0, H - h, W, h); }
+    TakashiDomain.drawScreen(ctx, s);   // the domain's flash, its name and the break prompt
     fx.drawScreen(ctx, toScreen);
   },
   // The City of Echoes skips as Kage crosses a seam where its street starts over (StretchSession: `glitch` seconds):
@@ -838,13 +855,16 @@ const Renderer = {
   // weapon / limb smears built from the real blade history, styled by element
   drawTrails(ctx, f, t) {
     const el = f.poisonBlade ? 'blood' : (f.state === 'ability' && f.abil && f.abil.el) || f.elementOf(f.move);
+    // Akari's sakura scythe (21-characters/bosses/akari/scythe.js): one long blade, so one wide sweep and no off-hand smear
+    if (f.weaponId && f.weaponId() === 'akari_blades') { if (!AkariGL.live()) VFX.drawSmear(ctx, f, akariScytheTrail(f.trail), el || 'shade', t); return; }   // the WebGL energy trail draws hers (64-akari-gl.js)
     VFX.drawSmear(ctx, f, f.trail, el || 'shade', t);
     VFX.drawSmear(ctx, f, f.trail2, el || 'shade', t);
   },
   drawAuras(ctx, f, t) {
     if (!f.visible || f.alpha <= 0.05 || f.decoy) return;   // a hidden fighter (Akari in her smoke) or her afterimage gives nothing away
     // glowing energy around a fighter performing a special art or a boss changing phase
-    if ((f.state === 'ability' && (f.isPlayer || (f.def && (f.def.type === 'boss' || f.def.type === 'sub')))) || (f.def && f.def.type === 'boss' && f.state === 'pose')) {
+    // (not Takashi: his gold fire and gathering motes are his, 66-takashi.js)
+    if (!(f.def && f.def.id === 'takashi' && !f.clone) && !f.rageArt && ((f.state === 'ability' && (f.isPlayer || (f.def && (f.def.type === 'boss' || f.def.type === 'sub')))) || (f.def && f.def.type === 'boss' && f.state === 'pose'))) {
       const E = ELEMENTS[f.elementOf(null) || 'ink'] || ELEMENTS.ink, c = E.glow || E.smear, cy = f.y - 100 * f.scale, R = 150 * f.scale * (1 + Math.sin(t * 9) * 0.05);
       ctx.save(); ctx.globalCompositeOperation = 'source-over';
       const g = ctx.createRadialGradient(f.x, cy, 10, f.x, cy, R * 0.75);   // fades out inside the ellipse: no hard rim

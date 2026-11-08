@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Takashi_Kunai",
+  "role": "projectile (Golden Kunai, Kunai Execution)",
+  "style": "stylized anime combat, additive holy gold over a dark fortress night (and his golden domain), side-view 2D, baked to sheets",
+  "dominant_shape": "a pale gold kunai flying flat with a thin amber streak",
+  "palette": {
+    "core": [
+      255,
+      250,
+      232
+    ],
+    "body": [
+      255,
+      186,
+      64
+    ],
+    "dark": [
+      40,
+      22,
+      4
+    ],
+    "matter": [
+      156,
+      132,
+      100
+    ],
+    "accent": [
+      214,
+      118,
+      22
+    ]
+  },
+  "delivery": {
+    "kind": "projectile"
+  },
+  "anchor": "projectile",
+  "reference": {
+    "id": "user reference sheets: Takashi the Father, Yashiro Titan (phase II) and Ogon Musojin / Tenrai domain (phase III)"
+  },
+  "beats": [
+    {
+      "frame": 2,
+      "name": "launch",
+      "expect": "gold ring at the hand, kunai leaves"
+    },
+    {
+      "frame": 12,
+      "name": "flight",
+      "expect": "the kunai silhouette reads, not a glow ball"
+    },
+    {
+      "frame": 24,
+      "name": "arrival",
+      "expect": "head released; the streak stays on the path"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Launch ring",
+      "role": "launch speed carrier left at the hand",
+      "primitive": "shock_ring",
+      "exit": "gone by absolute f9"
+    },
+    {
+      "name": "1:Head glow",
+      "role": "head: small gold glow round the kunai",
+      "primitive": "glow",
+      "exit": "gone by absolute f6"
+    },
+    {
+      "name": "2:Head kunai",
+      "role": "head: the kunai silhouette, pale gold",
+      "primitive": "sprite T_Kunai01",
+      "exit": "gone by absolute f6"
+    },
+    {
+      "name": "3:Streak",
+      "role": "trail: thin amber streak that erodes",
+      "primitive": "sprite T_Streak01",
+      "exit": "gone by absolute f9"
+    },
+    {
+      "name": "4:Shed sparks",
+      "role": "secondary: sparks dropping off the path",
+      "primitive": "radial_sparks",
+      "exit": "gone by absolute f16"
+    }
+  ],
+  "acceptance": [
+    "The kunai shape (ring, grip, blade) reads at combat distance",
+    "Sparks fall behind the path"
+  ],
+  "avoid": [
+    "A white glow ball hiding the kunai"
+  ]
+}

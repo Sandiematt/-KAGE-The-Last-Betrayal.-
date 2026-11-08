@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Sakura_Petal_Shot",
+  "role": "single-target projectile (Poison Kunai, Kunai Rain)",
+  "style": "stylized anime combat, glowing additive sakura (Senbonzakura) over a dark night arena, side-view 2D",
+  "dominant_shape": "white-hot crescent petal head with a pink streak",
+  "palette": {
+    "core": [
+      255,
+      246,
+      252
+    ],
+    "body": [
+      255,
+      102,
+      178
+    ],
+    "dark": [
+      70,
+      6,
+      40
+    ],
+    "matter": [
+      255,
+      196,
+      226
+    ],
+    "accent": [
+      255,
+      20,
+      147
+    ]
+  },
+  "delivery": {
+    "kind": "projectile"
+  },
+  "anchor": "projectile",
+  "reference": {
+    "id": "gemini_generated_video_9ba223ac.mp4 (user reference: Senbonzakura boss duel)"
+  },
+  "beats": [
+    {
+      "frame": 2,
+      "name": "launch",
+      "expect": "pink ring at the hand, head leaves"
+    },
+    {
+      "frame": 12,
+      "name": "flight",
+      "expect": "head, glow and streak read at combat distance"
+    },
+    {
+      "frame": 24,
+      "name": "arrival",
+      "expect": "head released; the trail stays on the path"
+    },
+    {
+      "frame": 50,
+      "name": "tail",
+      "expect": "shed petals falling, streak gone"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Launch ring",
+      "role": "launch speed carrier left at the muzzle",
+      "primitive": "shock_ring",
+      "exit": "gone by absolute f9"
+    },
+    {
+      "name": "1:Head blade",
+      "role": "head: white-hot crescent petal",
+      "primitive": "sprite T_PetalBlade01",
+      "exit": "gone by absolute f6"
+    },
+    {
+      "name": "2:Head glow",
+      "role": "head: pink glow round the head",
+      "primitive": "glow",
+      "exit": "gone by absolute f6"
+    },
+    {
+      "name": "3:Streak",
+      "role": "trail: thin deep-pink streak that erodes",
+      "primitive": "sprite T_Streak01",
+      "exit": "gone by absolute f9"
+    },
+    {
+      "name": "4:Shed petals",
+      "role": "secondary: glowing petals shed off the cut / path",
+      "primitive": "sprite T_SakuraPetal01",
+      "exit": "gone by absolute f34"
+    }
+  ],
+  "acceptance": [
+    "The head reads as a crescent pointing along the flight",
+    "Shed petals fall behind the path, not ahead of it"
+  ],
+  "avoid": [
+    "A round glowing ball",
+    "A uniform tube trail"
+  ]
+}

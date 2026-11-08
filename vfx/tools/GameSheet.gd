@@ -7,6 +7,8 @@ extends Node3D
 ## Run (from the game project; the files are copied into vfx/godot first):
 ##   godot --path vfx/godot res://GameSheet.tscn --fixed-fps 60 --resolution WxH -- \
 ##     --id=VFX_X --out=DIR --frames=0:30:1,32:78:2 --size=9.5 --cy=3.5 --pitch=10 [--cx=0.4] [--track=0.07]
+## --launch=D flies a projectile effect (Vfx.launch, its manifest flight time) from the origin to D metres along +X;
+## pair it with --track=D/flight_frames and --stop=flight_frames so the head stays put and its trail slides back.
 ## --cx shifts the view right (metres); --track moves the camera +X that many metres per effect frame (less --decel
 ## per frame squared, until --stop), so a travelling front stays put in the frame while what it leaves behind slides
 ## back (the game moves the sprite).
@@ -21,6 +23,7 @@ var center_x := 0.0
 var track := 0.0
 var decel := 0.0
 var stop_frame := 100000
+var launch_dist := 0.0
 var origin0 := Vector2.ZERO
 var cam0 := Vector3.ZERO
 var pitch_deg := 10.0
@@ -39,6 +42,7 @@ func _ready() -> void:
 		elif arg.begins_with("--decel="): decel = float(arg.trim_prefix("--decel="))
 		elif arg.begins_with("--stop="): stop_frame = int(arg.trim_prefix("--stop="))
 		elif arg.begins_with("--pitch="): pitch_deg = float(arg.trim_prefix("--pitch="))
+		elif arg.begins_with("--launch="): launch_dist = float(arg.trim_prefix("--launch="))
 		elif arg.begins_with("--frames="):
 			for span in arg.trim_prefix("--frames=").split(","):
 				var p := span.split(":")
@@ -91,7 +95,8 @@ func _process(_delta: float) -> void:
 	# frame -1 -> 0: start the effect at the origin; effect frame n is the n-th rendered frame after the start
 	if frame == 0:
 		origin0 = camera.unproject_position(Vector3.ZERO)
-		Vfx.play(id, Vector3.ZERO)
+		if launch_dist > 0.0: Vfx.launch(id, Vector3.ZERO, Vector3(launch_dist, 0, 0))
+		else: Vfx.play(id, Vector3.ZERO)
 		return
 	var n := frame - 1
 	var m := float(mini(n, stop_frame))

@@ -133,7 +133,7 @@ function build() {
     const mk = (id) => { if (id === 'kage') { const k = kage({ helmet: 'raijin_kabuto', weapon: 'raiko_no_tachi', wlvl: 1 }); return k; } const f = makeFighterFromEnemy(id, { facing: Q.get('left') ? -1 : 1 }); f.glitchAmount = () => 0; if (Q.get('nok')) f.cloths = f.cloths.filter(c => c.kind !== Q.get('nok')); return f; };
     const mv = (f, i) => { const w = f.weapon(), b = w.defs ? w : WEAPONS[w.base]; const k = b && b.defs ? Object.keys(b.defs) : ['k1', 'k2']; return k[Math.min(i, k.length - 1)]; };
     const RP = (n) => f => { POSES['__r' + n] = Object.assign({}, RAIKON_POSE[n]); if (POSES['__r' + n].ik == null) POSES['__r' + n].ik = 0; poseFighter(f, '__r' + n, 60); };
-    const cols = mode === 'rclose' ? [[Q.get('st') || 'idle', Q.get('st') === 'overhead' ? RP('overhead') : f => poseStance(f)]]
+    const cols = mode === 'rclose' ? [[Q.get('st') || 'idle', RAIKON_POSE[Q.get('st')] ? RP(Q.get('st')) : f => poseStance(f)]]
       : Q.get('flat') ? [['idle flat', f => poseStance(f), { color: '#0a0909' }], ['attack flat', f => poseMove(f, mv(f, 0), 's'), { color: '#0a0909' }], ['impact white', f => poseMove(f, mv(f, 0), 's'), { color: '#ece5d3' }], ['facing left', f => { f.facing = -1; poseStance(f); }], ['glitch', f => { poseStance(f); f.glitchAmount = () => 0.42; }]]
       : [['idle', f => poseStance(f)], ['attack wind', f => poseMove(f, mv(f, 0), 'w')], ['attack strike', f => poseMove(f, mv(f, 0), 's')], ['overhead', RP('overhead')], ['slam', RP('slam')], ['swing back', RP('swingBack')], ['swing through', RP('swingThrough')],
          ['guard', RP('guard')], ['hurt', f => poseFighter(f, 'hit', 60)], ['hurt gut', f => poseFighter(f, 'hitGut', 60)], ['dead', f => settleState(f, 'dead')]];

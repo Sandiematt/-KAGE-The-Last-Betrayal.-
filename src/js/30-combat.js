@@ -142,7 +142,7 @@ class Effects {
   // o (optional): { dur, dx } a longer-lived echo, offset sideways (Akari's afterimage silhouettes, the Smoke Step decoy)
   afterimage(f, color, o) {
     // the fighter's whole render pose at this moment (skeleton, blades, cloth), redrawn later as a flat silhouette of
-    // its body (Fighter.drawAfterimage, 21-anime-body.js)
+    // its body (Fighter.drawAfterimage, 21-characters/_shared/)
     const snap = []; f.packRender(snap);
     const hr = (f.pose.lean + f.pose.head + f.pose.rot + f.extraRot) * DEG * f.facing;
     this.ghosts.push({ f, snap, facing: f.facing, hr, dx: (o && o.dx) || 0, t: 0, dur: (o && o.dur) || 0.22, color: color || 'rgba(236,229,211,0.2)' });
@@ -159,7 +159,8 @@ class Effects {
   stop(t) { this.hitStop = Math.max(this.hitStop, t); }
   slowmo(scale, dur) { this.slowScale = scale; this.slowT = dur; }
   punch(z) { this.zoomPunch = Math.max(this.zoomPunch, z); }
-  impactFrame(x, y, tier) { this.impact = { x, y, t: 0, dur: tier >= 3 ? 0.12 : 0.05, tier }; }
+  // (during a rage art every impact frame takes the art's colour: impactTint, 67-rage-arts.js)
+  impactFrame(x, y, tier) { this.impact = { x, y, t: 0, dur: tier >= 3 ? 0.12 : 0.05, tier, col: this.impactTint || null }; }
   // one call per hit: layered feedback scaled by importance tier
   hit(x, y, dir, tier, kind, color, el, crit) {
     const t = clamp(tier, 0, 3);
@@ -196,6 +197,7 @@ class Effects {
     tick(this.stamps, realDt); tick(this.banners, realDt); tick(this.ensos, realDt); tick(this.flashes, realDt); tick(this.bursts, realDt);
     this.updateVfx(realDt, simDt);
     this.updateStorm(realDt, simDt);
+    this.updateSkyfall(realDt, simDt);   // Raikon's Skyfall (38-skyfall.js)
     this.updateSheets(simDt);
   }
   drawWorldBack(ctx) {
@@ -424,6 +426,8 @@ const WeaponSystem = {
       else if (d.ground) { p.y = 0; if (((p.t * 30) | 0) % 2 === 0) { world.fx.dust(p.x, 0, 1); world.fx.part({ x: p.x + rand(-14, 14), y: -rand(0, 30), vx: rand(-40, 40), vy: rand(-420, -200), life: 0.4, size: rand(3, 6), color: '#2a2620', type: 'drop', grav: 1600 }); } }
       if (d.smoke && p.y >= 0) { world.smokeCloud(p.x); p.dead = true; }
       if (p.type === 'orb' || p.type === 'bigorb') world.fx.part({ x: p.x, y: p.y, vx: rand(-20, 20), vy: rand(-20, 20), life: 0.3, size: d.r * 0.4, color: 'rgba(127,184,255,0.35)', type: 'dot', grav: 0, add: true });
+      // a poisoned kunai (Akari's) trails a sickly green-violet mist
+      if (p.poison && ((p.t * 60) | 0) % 2 === 0 && !AkariSakura.live(p.owner, 'sakura_petal_shot')) world.fx.part({ x: p.x - p.dir * 8, y: p.y, vx: rand(-20, 20), vy: rand(-30, 10), life: 0.3, size: rand(1.5, 3), color: chance(0.5) ? 'rgba(130,220,110,0.6)' : 'rgba(180,120,240,0.55)', type: 'dot', grav: 0, add: true });
       if (p.type === 'crescent') world.fx.part({ x: p.x - p.dir * 30, y: p.y + rand(-60, 60), vx: -p.dir * 100, vy: 0, life: 0.3, size: 2, color: C.bone, type: 'spark', grav: 0, add: true });
       // hit fighters
       if (!p.ret || d.ret) {
@@ -434,7 +438,7 @@ const WeaponSystem = {
           const R = d.r;
           if (p.x + R > hb.x && p.x - R < hb.x + hb.w && p.y + R > hb.y && p.y - R < hb.y + hb.h) {
             p.hit.push(f);
-            const m = { dmg: p.dmg, kb: d.kb, up: d.up || (d.kd ? -300 : 0), hs: d.hs, imp: d.imp, hsnd: d.hsnd, kd: d.kd, unb: d.unb, stamp: d.stamp, proj: true, gb: p.dmg * 1.5, pullTo: d.pullTo };
+            const m = { dmg: p.dmg, kb: d.kb, up: d.up || (d.kd ? -300 : 0), hs: d.hs, imp: d.imp, hsnd: d.hsnd, kd: d.kd, unb: d.unb, stamp: d.stamp, proj: true, gb: p.dmg * 1.5, pullTo: d.pullTo, poison: p.poison };
             Combat.applyHit(world, p.owner, f, m, p.x, p.y, p.dir);
             if (d.pullTo && !f.def?.heavyArmor) { p.ret = true; f.pulledBy = p.owner; }
             if (!d.ground && p.type !== 'crescent') { if (!d.ret) p.dead = true; else p.ret = true; }
@@ -449,7 +453,11 @@ const WeaponSystem = {
           if (hb && p.x > hb.x && p.x < hb.x + hb.w && p.y > hb.y && p.y < hb.y + hb.h) { p.dead = true; world.fx.sparks(p.x, p.y, -p.dir, 8, C.gold); AudioManager.play('clang'); world.fx.popText(f, 'DEFLECT', C.bone); }
         }
       }
-      if (p.life <= 0 || p.dead || p.x < world.bounds.l - 300 || p.x > world.bounds.r + 300 || p.y > 40) arr.splice(i, 1);
+      if (p.life <= 0 || p.dead || p.x < world.bounds.l - 300 || p.x > world.bounds.r + 300 || p.y > 40) {
+        if (p.poison && (p.dead || p.y > 40)) AkariSakura.shotImpact(world, p);   // her petal shot bursts where it lands
+        if (p.gold && (p.dead || p.y > 40)) TakashiProj.impact(world, p);   // Takashi's gold kunai (66-takashi.js)
+        arr.splice(i, 1);
+      }
     }
     // projectile vs projectile
     for (let i = 0; i < arr.length; i++) for (let j = i + 1; j < arr.length; j++) {
@@ -466,8 +474,10 @@ const WeaponSystem = {
     for (const p of world.projectiles) {
       const d = p.d;
       ctx.save(); ctx.translate(p.x, p.y);
+      if (p.gold && TakashiProj.draw(ctx, p)) { ctx.restore(); continue; }   // Takashi's gold kunai, spear and pulse (66-takashi.js)
       switch (p.type) {
         case 'kunai': {
+          if (p.poison && AkariSakura.drawShot(ctx, p)) break;   // Akari's: the baked crescent petal (63-akari-sakura.js)
           ctx.rotate(Math.atan2(p.vy, p.vx));
           ctx.strokeStyle = 'rgba(236,229,211,0.25)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-40, 0); ctx.lineTo(-8, 0); ctx.stroke();
           ctx.fillStyle = C.ink; ctx.beginPath(); ctx.moveTo(14, 0); ctx.lineTo(0, -4); ctx.lineTo(-10, -1.5); ctx.lineTo(-10, 1.5); ctx.lineTo(0, 4); ctx.closePath(); ctx.fill();
@@ -490,8 +500,8 @@ const WeaponSystem = {
           ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = 'rgba(236,229,211,0.25)';
           ctx.beginPath(); ctx.arc(-30, 0, 92, -1.25, 1.25); ctx.arc(-58, 0, 80, 1.1, -1.1, true); ctx.closePath(); ctx.fill();
           ctx.globalCompositeOperation = 'source-over';
-          ctx.fillStyle = C.bone; ctx.beginPath(); ctx.arc(-20, 0, 82, -1.2, 1.2); ctx.arc(-44, 0, 74, 1.08, -1.08, true); ctx.closePath(); ctx.fill();
-          ctx.strokeStyle = C.emberBright; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(-20, 0, 82, -1.2, 1.2); ctx.stroke();
+          ctx.fillStyle = p.tint ? '#ffd0d4' : C.bone; ctx.beginPath(); ctx.arc(-20, 0, 82, -1.2, 1.2); ctx.arc(-44, 0, 74, 1.08, -1.08, true); ctx.closePath(); ctx.fill();
+          ctx.strokeStyle = p.tint || C.emberBright; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(-20, 0, 82, -1.2, 1.2); ctx.stroke();
           break;
         }
         case 'shock': case 'bigshock': {
@@ -555,7 +565,7 @@ const WeaponSystem = {
     // dropped weapons
     for (const k of world.pickups) {
       ctx.save(); ctx.translate(k.x, k.y - 6); ctx.rotate(k.rot);
-      drawWeaponShape(ctx, SHAPE[k.wid] || 'katana', (WEAPONS[k.wid].len || 80) * k.owner.scale, 'ink', k.owner.scale, C.ink);
+      drawWeaponShape(ctx, twinShape(WEAPONS[k.wid], SHAPE[k.wid] || 'katana', 0), (WEAPONS[k.wid].len || 80) * k.owner.scale, 'ink', k.owner.scale, C.ink);
       ctx.restore();
       if (k.grounded) {
         const a = 0.35 + Math.sin(world.time * 5) * 0.2;
@@ -597,9 +607,24 @@ const WeaponSystem = {
   }
 };
 
+// the direction the attacker's blade tip is moving (radians, world space), from its last two trail samples; the cut's
+// authored direction when there is no history yet
+const DIR_CUT_ANG = { fwd: 0.12, dash: -0.05, up: -1.35, airUp: -1.35, down: 1.4, airDown: 1.4, diagUp: -0.75, diagDown: 0.7 };
+function bladeTravel(f, m) {
+  const arr = f.trail, n = arr.length;
+  if (n >= 2) {
+    const A = arr[n - 2], B = arr[n - 1];
+    const dx = (B.hx + Math.cos(B.a) * B.L) - (A.hx + Math.cos(A.a) * A.L), dy = (B.hy + Math.sin(B.a) * B.L) - (A.hy + Math.sin(A.a) * A.L);
+    if (dx * dx + dy * dy > 16) return Math.atan2(dy, dx);
+  }
+  const a = DIR_CUT_ANG[m.aim] || 0;
+  return f.facing > 0 ? a : Math.PI - a;
+}
+
 /* ======================================================================== */
 /* CombatSystem — hit detection, block / parry / guard break, reactions        */
 /* ======================================================================== */
+const _hd = { x: 0, y: 0, w: 0, h: 0 };
 const Combat = {
   resolve(world) {
     const fs = world.fighters;
@@ -620,8 +645,8 @@ const Combat = {
         if (!overlap(hb, hurt)) continue;
         att.hitList.push(def);
         // weapon clash
-        const dh = def.hitbox(_hc);
-        if (dh && overlap(hb, dh) && m.kind === 'weapon' && def.move.kind === 'weapon' && !def.hitList.includes(att)) { this.clash(world, att, def, hb); continue; }
+        const dh = def.hitbox(_hc, true);
+        if (dh && overlap(att.hitbox(_hd, true), dh) && m.kind === 'weapon' && def.move.kind === 'weapon' && !def.hitList.includes(att)) { this.clash(world, att, def, hb); continue; }
         if (m.kind === 'grab') { this.grab(world, att, def); continue; }
         const ix = (Math.max(hb.x, hurt.x) + Math.min(hb.x + hb.w, hurt.x + hurt.w)) / 2;
         const iy = (Math.max(hb.y, hurt.y) + Math.min(hb.y + hb.h, hurt.y + hurt.h)) / 2;
@@ -670,6 +695,8 @@ const Combat = {
     if (att.unblockable && !m.proj && m.kind) m = Object.assign({}, m, { unb: 1 });
     // Akari's False Opening decoy: any blow passes through the afterimage, which vanishes; the real Akari answers
     if (def.decoy) { world.strikeDecoy && world.strikeDecoy(def, att); return; }
+    // Takashi's Iron Guard (66-takashi.js): a strike Kage has used in his last few moves is parried, any kunai deflected
+    if (def.ironGuard && TakashiGuard.parries(world, att, def, m, front, ix, iy, dir)) return;
     // counter stance: any melee blow from the front is turned aside and answered
     if (def.counterStance && !m.proj && front && m.kind !== 'grab') {
       def.counterStance = false;
@@ -723,24 +750,44 @@ const Combat = {
     let counter = def.state === 'move' && def.mphase === 0;
     if (counter) dmg *= 1.2;
     // critical strikes: counter-hits, blows from behind and the occasional clean strike
-    const crit = att.isPlayer && !m.proj && (counter || !front || chance(0.1));
+    // (a rage art's lesser blows are `quiet`: no critical, no counter tier, so only its finisher lands an impact frame)
+    const crit = att.isPlayer && !m.proj && !m.quiet && (counter || !front || chance(0.1));
     if (crit) dmg *= 1.4;
     if (!front && !m.proj) dmg *= 1.1;
     if (def.def && def.def.heavyArmor && (m.imp || 0) <= 1) dmg *= 0.75;
     if (def.barrier > 0) { dmg *= 0.25; fx.popText(def, 'BARRIER', '#7fd0c8'); }
+    // the Yashiro Titan's armour (66-takashi.js) takes most of every blow
+    if (def.titanArmor) dmg *= def.titanArmor;
+    // the spam read's answer (AIController.spamPunish): the punish cut lands harder and says so
+    const punish = !!att.punishMove && att.punishMove === att.move && !m.proj;
+    if (punish) { dmg *= SPAM_READ.punishMul; att.punishMove = null; }
+    // a blow that takes a share of its target's health (the Yashiro Titan's: `pct` of max health, whatever else applies)
+    if (m.pct) dmg = m.pct * def.maxHp / Math.max(0.05, 1 - def.defense);
     let tier = m.imp || 0;
-    if ((counter || crit) && tier < 3) tier++;
+    if ((counter || crit) && tier < 3 && !m.quiet) tier++;
+    // the directional combo (DIR_COMBO, 11-sword-arcs.js): each change of direction in a row cuts harder, and from the
+    // finisher step the cut lands a tier heavier with a beat of slow motion
+    const chain = !m.proj && m.aim && att.move === m ? att.dirChain || 0 : 0;
+    if (chain > 1) dmg *= 1 + DIR_COMBO.dmg * (chain - 1);
+    if (chain >= DIR_COMBO.finisher) {
+      if (tier < 3) tier++;
+      if (att.isPlayer && !punish) { fx.slowmo(0.35, 0.22); if (chain === DIR_COMBO.finisher) fx.stamp(m.stamp || 'SLASH', ix, iy, 3, C.gold, `${chain}-WAY CUT`); }
+    }
     if (m.counter) tier = 3;
-    if (counter && att.isPlayer) fx.stamp('COUNTER', ix, iy, Math.max(2, tier), C.gold);
+    if (punish) { tier = 3; fx.stamp('PUNISHED', ix, iy, 3, att.accent || C.emberBright, 'SPAM PUNISHED'); fx.slowmo(0.45, 0.35); world.onSpamPunish && world.onSpamPunish(att, def); }
+    else if (counter && att.isPlayer && !m.quiet) fx.stamp('COUNTER', ix, iy, Math.max(2, tier), C.gold);
     else if (crit) fx.stamp('CRITICAL', ix, iy, Math.max(2, tier), C.emberBright);
     this.damage(world, att, def, dmg * (1 - def.defense), m, ix, iy, dir, tier, crit);
     if (!def.alive) return;
+    // Shizuka's silent cut: a blade with `echo` leaves a cut that opens on the foe a beat later (67-rage-arts.js)
+    if (m.echo && !m.proj) RageArts.echo(world, att, def, m, dir);
     // reaction
-    const armored = def.superArmor && (def.state === 'move' || def.state === 'ability') || (def.def && def.def.heavyArmor && (m.imp || 0) <= 1 && !m.kd && def.grounded);
+    const armored = def.superArmor && (def.state === 'move' || def.state === 'ability') || (def.def && def.def.heavyArmor && (m.imp || 0) <= 1 && !m.kd && def.grounded) || (def.titanArmor && !m.kd);
     if (armored && !m.unb) { def.flash = 0.08; return; }
     def.move = null;
     if (def.abil) { const keep = def.abil.uninterruptible; if (!keep) def.endAbility(world); else { def.flash = 0.08; return; } }
-    const launch = m.kd || (m.up && m.up < -300) || !def.grounded || def.state === 'juggle';
+    const airborne = !def.grounded || def.state === 'juggle';
+    const launch = m.kd || (m.up && m.up < -300) || airborne;
     const kbMul = def.def && def.def.heavyArmor ? 0.5 : 1;
     if (m.pull || m.pullTo) {
       if (def.def && def.def.heavyArmor) { fx.popText(def, 'TOO HEAVY', C.emberBright); }
@@ -750,6 +797,8 @@ const Combat = {
       def.setState('juggle'); def.grounded = false; def.juggle++;
       def.bodyRotVel = (def.bodyRotVel || 0) - (m.kd || (m.imp || 0) >= 2 ? 200 : 80);
       def.vy = (m.up || -260) * (def.grounded ? 1 : 0.8) * (def.juggle > 3 ? 0.6 : 1); def.vx = dir * (m.kb || 200) * kbMul;
+      // a downward cut on a foe in the air drives him into the floor (he bounces off it into the knock-down)
+      if (m.spike && airborne) { def.vy = m.spike; def.vx *= 0.4; def.bounced = false; fx.shake(0.3); }
       if (def.juggle > 4) def.invuln = 0.5;
     } else {
       def.setState('hit'); def.hitstun = (m.hs || 0.3) * (1 - def.stunRes * 0.4); def.vx = dir * (m.kb || 150) * kbMul; def.hitGut = chance(0.4);
@@ -782,9 +831,10 @@ const Combat = {
     def.rage = Math.min(100, def.rage + dmg * 0.45 * def.rageMul);
     att.comboHits++; att.comboT = 1.1; att.moveHit = true;
     // air attacks that connect hang the attacker briefly so juggles can be extended instead of falling away from the target
-    if (!m.proj && !att.grounded && att.state === 'move' && att.move && att.move.kind === 'air') att.vy = Math.min(att.vy, -170);
+    if (!m.proj && !att.grounded && att.state === 'move' && att.move && att.move.kind === 'air' && !att.move.dive) att.vy = Math.min(att.vy, -170);
     if (att.comboHits > att.stats.maxCombo) att.stats.maxCombo = att.comboHits;
     if (att.poisonBlade && !m.proj) def.poison = 3;
+    if (m.poison) def.poison = Math.max(def.poison || 0, m.poison);   // a poisoned blow (Akari's kunai, traps, mist)
     tier = tier == null ? (m.imp || 0) : tier;
     const lethal = def.hp <= 0;
     if (lethal) tier = 3;
@@ -792,6 +842,12 @@ const Combat = {
     const wpTrail = att.weapon().trail;
     const el = m.proj ? null : att.elementOf(m);
     fx.hit(ix, iy, dir, tier, kind, kind === 'slash' ? (att.poisonBlade ? '#8be07a' : wpTrail) : null, el, crit);
+    // a sword arc that connects: the blade drags through the body for a few frames (Fighter.updateMove), and the cut
+    // line and its sparks follow the direction the blade was really travelling (from its tip history)
+    if (!m.proj && m.aim && att.move === m && att.state === 'move') {
+      att.impactT = 0.045 + 0.015 * tier;
+      if (fx.cutImpact) fx.cutImpact(ix, iy, bladeTravel(att, m), el || 'ink', tier, wpTrail);
+    }
     AudioManager.play(m.hsnd || 'punch', { pitch: rand(0.92, 1.08) });
     if (tier >= 3) AudioManager.play('impact');
     if (m.stamp && !lethal && tier >= 3 && !crit) fx.stamp(m.stamp, ix, iy, tier);

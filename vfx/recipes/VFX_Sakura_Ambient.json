@@ -1,0 +1,532 @@
+{
+  "id": "VFX_Sakura_Ambient",
+  "name": "Sakura Drift",
+  "category": "status",
+  "element": "sakura",
+  "duration": 2.0,
+  "loop": true,
+  "attach": "body",
+  "peak": 0.1,
+  "impact": 0,
+  "light": [
+    1,
+    0.85,
+    0.6
+  ],
+  "seed": 1729,
+  "layers": [
+    {
+      "name": "Rim aura",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        255,
+        20,
+        147,
+        55
+      ],
+      "life": 120,
+      "size": 2.8,
+      "billboard": "Billboard",
+      "fade_in": 30,
+      "fade_out": 40,
+      "size_curve": [
+        [
+          0,
+          0.92
+        ],
+        [
+          50,
+          1.04
+        ],
+        [
+          100,
+          0.95
+        ]
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Drift petals",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_SakuraPetal01.png",
+      "color": [
+        255,
+        246,
+        252,
+        255
+      ],
+      "count": 16,
+      "life": [
+        70,
+        90
+      ],
+      "delay": 0,
+      "interval": 7,
+      "size": [
+        0.12,
+        0.2
+      ],
+      "rotation": [
+        0,
+        0,
+        [
+          -180,
+          180
+        ]
+      ],
+      "spin": [
+        0,
+        0,
+        [
+          -7,
+          7
+        ]
+      ],
+      "forces": [
+        {
+          "type": "Turbulence",
+          "power": 0.005,
+          "scale": 5
+        },
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            -0.00025,
+            0
+          ]
+        }
+      ],
+      "color_curve": {
+        "R": [
+          [
+            0,
+            255
+          ],
+          [
+            12,
+            255
+          ],
+          [
+            50,
+            255
+          ],
+          [
+            85,
+            255
+          ],
+          [
+            100,
+            255
+          ]
+        ],
+        "G": [
+          [
+            0,
+            184
+          ],
+          [
+            12,
+            184
+          ],
+          [
+            50,
+            102
+          ],
+          [
+            85,
+            20
+          ],
+          [
+            100,
+            20
+          ]
+        ],
+        "B": [
+          [
+            0,
+            224
+          ],
+          [
+            12,
+            224
+          ],
+          [
+            50,
+            178
+          ],
+          [
+            85,
+            147
+          ],
+          [
+            100,
+            147
+          ]
+        ],
+        "A": [
+          [
+            0,
+            0
+          ],
+          [
+            12,
+            255
+          ],
+          [
+            50,
+            255
+          ],
+          [
+            85,
+            255
+          ],
+          [
+            100,
+            0
+          ]
+        ]
+      },
+      "fade_in": 1,
+      "fade_out": 8,
+      "emissive": 1.6,
+      "velocity": [
+        [
+          -0.012,
+          -0.004
+        ],
+        [
+          -0.002,
+          0.003
+        ],
+        0
+      ],
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0.5,
+          1.4
+        ],
+        "rotate": false
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Glow motes",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        255,
+        184,
+        224,
+        210
+      ],
+      "color_end": [
+        255,
+        20,
+        147,
+        0
+      ],
+      "count": 10,
+      "life": [
+        50,
+        70
+      ],
+      "delay": 0,
+      "interval": 12,
+      "billboard": "Billboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0.4,
+          1.2
+        ],
+        "rot_x": [
+          -90,
+          90
+        ]
+      },
+      "travel": {
+        "end": [
+          0,
+          [
+            0.1,
+            0.4
+          ],
+          0
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "size": [
+        0.05,
+        0.09
+      ],
+      "size_end": 0,
+      "easing": "EaseInCubic",
+      "forces": [
+        {
+          "type": "Turbulence",
+          "power": 0.004,
+          "scale": 5
+        },
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            0.0003,
+            0
+          ]
+        }
+      ],
+      "fade_in": 1,
+      "fade_out": 6,
+      "emissive": 1.5,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Pale petals",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_SakuraPetal01.png",
+      "color": [
+        255,
+        196,
+        226,
+        225
+      ],
+      "count": 6,
+      "life": [
+        80,
+        100
+      ],
+      "delay": 0,
+      "interval": 20,
+      "size": [
+        0.13,
+        0.2
+      ],
+      "rotation": [
+        0,
+        0,
+        [
+          -180,
+          180
+        ]
+      ],
+      "spin": [
+        0,
+        0,
+        [
+          -5,
+          5
+        ]
+      ],
+      "blend": "Blend",
+      "forces": [
+        {
+          "type": "Turbulence",
+          "power": 0.004,
+          "scale": 5
+        },
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            -0.0002,
+            0
+          ]
+        }
+      ],
+      "color_end": [
+        255,
+        196,
+        226,
+        0
+      ],
+      "easing": "EaseInCubic",
+      "fade_in": 4,
+      "fade_out": 14,
+      "velocity": [
+        [
+          -0.008,
+          -0.002
+        ],
+        0,
+        0
+      ],
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0.5,
+          1.4
+        ],
+        "rotate": false
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Alpha.vfxmat.json"
+    },
+    {
+      "name": "Drifting blossom",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_SakuraBlossom01.png",
+      "color": [
+        255,
+        246,
+        252,
+        255
+      ],
+      "count": 3,
+      "life": 60,
+      "delay": 10,
+      "size": 0.32,
+      "size_curve": [
+        [
+          0,
+          0.4
+        ],
+        [
+          18,
+          1
+        ],
+        [
+          100,
+          1.1
+        ]
+      ],
+      "rotation": [
+        0,
+        0,
+        [
+          -36,
+          36
+        ]
+      ],
+      "spin": [
+        0,
+        0,
+        [
+          -1.5,
+          1.5
+        ]
+      ],
+      "color_curve": {
+        "R": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            45,
+            255
+          ],
+          [
+            80,
+            255
+          ],
+          [
+            100,
+            255
+          ]
+        ],
+        "G": [
+          [
+            0,
+            246
+          ],
+          [
+            18,
+            184
+          ],
+          [
+            45,
+            102
+          ],
+          [
+            80,
+            20
+          ],
+          [
+            100,
+            20
+          ]
+        ],
+        "B": [
+          [
+            0,
+            252
+          ],
+          [
+            18,
+            224
+          ],
+          [
+            45,
+            178
+          ],
+          [
+            80,
+            147
+          ],
+          [
+            100,
+            147
+          ]
+        ],
+        "A": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            45,
+            255
+          ],
+          [
+            80,
+            255
+          ],
+          [
+            100,
+            0
+          ]
+        ]
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseTile01.png",
+      "cutoff": {
+        "start": 0,
+        "end": 0.9,
+        "easing": "EaseInQuartic"
+      },
+      "fade_in": 0,
+      "fade_out": 6,
+      "emissive": 1.8,
+      "interval": 40,
+      "velocity": [
+        [
+          -0.006,
+          -0.002
+        ],
+        [
+          -0.004,
+          -0.001
+        ],
+        0
+      ],
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0.5,
+          1.4
+        ],
+        "rotate": false
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    }
+  ],
+  "design": "Pink petals drift and tumble round Akari on a slow wind with a faint deep-pink rim light; now and then one whole blossom drifts past and falls apart.",
+  "delivery": {
+    "kind": "self"
+  }
+}

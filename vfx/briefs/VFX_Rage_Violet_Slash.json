@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Rage_Violet_Slash",
+  "role": "rage art cut (Shizuka, Silent Moon): a lattice of them, and the delayed silent cut",
+  "style": "stylized anime combat, additive light over a dark arena, side-view 2D, baked to sheets and turned per strike in the game",
+  "dominant_shape": "a hair-thin white line over a violet band",
+  "palette": {
+    "core": [
+      252,
+      248,
+      255
+    ],
+    "body": [
+      164,
+      107,
+      255
+    ],
+    "dark": [
+      14,
+      4,
+      30
+    ],
+    "matter": [
+      150,
+      136,
+      176
+    ],
+    "accent": [
+      96,
+      40,
+      200
+    ]
+  },
+  "delivery": {
+    "kind": "melee"
+  },
+  "anchor": "impact",
+  "reference": {
+    "id": "user request 2026-11-08: Kagetsu crimson moon slashes, Tsubame lightning afterimages, Shizuka purple energy slashes, Onikiri crimson ground-shattering impacts, Mizuchi giant blue water dragon, Yamigama enormous scythe crescents, Iwakudaki golden ground-impact shockwaves"
+  },
+  "beats": [
+    {
+      "frame": 0,
+      "name": "cut",
+      "expect": "the line appears whole, no wind-up"
+    },
+    {
+      "frame": 10,
+      "name": "echo",
+      "expect": "the second cut opens a beat later with a small star"
+    },
+    {
+      "frame": 20,
+      "name": "tail",
+      "expect": "lilac motes drift"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Silent line",
+      "role": "the first cut: appears whole, no wind-up",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "1:Violet line",
+      "role": "body: the violet band under the line",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f19"
+    },
+    {
+      "name": "2:Swing plane",
+      "role": "pivot setting the blade arc into its swing plane",
+      "primitive": "swing",
+      "exit": "gone by absolute f15"
+    },
+    {
+      "name": "2:Swing plane/0:Thin arc",
+      "role": "a long, nearly straight thin arc",
+      "primitive": "slash_arc",
+      "exit": "gone by absolute f15"
+    },
+    {
+      "name": "3:Echo cut",
+      "role": "the silent second cut a beat later",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f22"
+    },
+    {
+      "name": "4:Echo star",
+      "role": "the second cut opening: small contact",
+      "primitive": "flash",
+      "exit": "gone by absolute f13"
+    },
+    {
+      "name": "5:Violet bloom",
+      "role": "subordinate light under the cut",
+      "primitive": "glow",
+      "exit": "gone by absolute f17"
+    },
+    {
+      "name": "6:Needles",
+      "role": "secondary: needles of light along the second cut",
+      "primitive": "radial_sparks",
+      "exit": "gone by absolute f24"
+    },
+    {
+      "name": "7:Hush motes",
+      "role": "residue: slow lilac motes",
+      "primitive": "motes",
+      "exit": "gone by absolute f26"
+    },
+    {
+      "name": "8:Glints",
+      "role": "accent: star glints",
+      "primitive": "sparkle",
+      "exit": "gone by absolute f22"
+    }
+  ],
+  "acceptance": [
+    "A beat of nothing between the two cuts",
+    "Quiet: no burst, no debris"
+  ],
+  "avoid": [
+    "A wide crescent"
+  ]
+}

@@ -30,9 +30,9 @@ function prepCanvas(cv) {
 }
 function drawWeaponIcon(cv, wid, color) {
   const { g, w, h } = prepCanvas(cv);
-  const sh = SHAPE[wid] || 'katana', L = Math.min(w * 0.95, (WEAPONS[wid].len || 80) * 0.75);
+  const sh = twinShape(WEAPONS[wid], SHAPE[wid] || 'katana', 0), L = Math.min(w * 0.95, (WEAPONS[wid].len || 80) * 0.75);
   g.save(); g.translate(w / 2 - L * 0.42 * Math.cos(-0.42), h / 2 + L * 0.42 * Math.sin(0.42) * 0.6); g.rotate(-0.42);
-  if (sh === 'staff' || sh === 'spear') g.translate(L * 0.1, 0);
+  if (sh === 'staff' || sh === 'spear' || sh === 'kb_mizuchi') g.translate(L * 0.1, 0);
   const sc = clamp(h / 46, 0.5, 1.4) * 0.8;
   if (color) drawWeaponShape(g, sh, L, 'flat', sc, color); else drawWeaponShape(g, sh, L, 'art', sc, C.ink);
   g.restore();
@@ -591,7 +591,7 @@ const UIManager = {
         g.save(); g.translate(w * 0.5 - L * 0.42 * Math.cos(ang), h * 0.5 - L * 0.42 * Math.sin(ang) + Math.sin(t * 1.3) * 6); g.rotate(ang); g.scale(1, sx);
         const sh = SHAPE[id];
         if (sh === 'short') { g.save(); g.translate(0, 18); drawWeaponShape(g, twinShape(WEAPONS[id], sh, 0), L * 0.82, 'art', 3, C.ink); g.restore(); g.save(); g.translate(30, -30); g.rotate(0.25); drawWeaponShape(g, twinShape(WEAPONS[id], sh, 1), L * 0.82, 'art', 3, C.ink); g.restore(); }
-        else drawWeaponShape(g, sh, L, 'art', 3, C.ink, f);
+        else drawWeaponShape(g, twinShape(WEAPONS[id], sh, 0), L, 'art', 3, C.ink, f);
         g.restore();
         g.globalCompositeOperation = 'lighter';
         const sp = (t * 0.35) % 1; const sg = g.createLinearGradient(w * (sp - 0.2), 0, w * sp, h); sg.addColorStop(0, 'rgba(236,229,211,0)'); sg.addColorStop(0.5, 'rgba(236,229,211,0.05)'); sg.addColorStop(1, 'rgba(236,229,211,0)');
@@ -1074,9 +1074,13 @@ const UIManager = {
         ${k('Dash · dodge (i-frames)', ['L', 'Shift'])}${k('Block · tap late to parry', ['S'])}
         ${k('Grab & throw (close)', ['S + J'])}${k('Dash punch · slide sweep', ['L→J', 'L→K'])}
         ${k('Counter-slash after block', ['S → U'])}${k('Pause', ['Esc', 'P'])}
+        ${k('Forward slash (gap closer)', ['D + U'])}${k('Rising slash · launch', ['W + U'])}
+        ${k('Downward slash · knockdown', ['S + U'])}${k('Turn slash · step back', ['A + U'])}
+        ${k('Rising dash · low sweep', ['W+D+U', 'S+D+U'])}${k('Spinning slash', ['A+W+U'])}
+        ${k('Dash strike', ['D, D + U', 'L→U'])}${k('Air: rising cut · plunge', ['W + U', 'S + U'])}
       </div>
       <div class="help-cols">
-        <div><h4>Combat</h4><p>Block just as a blow lands to <b>parry</b>: the attacker is stunned and your weapon’s counter-slash opens up. Blocking too long cracks your guard.</p><p>Repeating one move loses damage. Mixing punches, kicks and weapon strings lets attacks cancel into each other after a hit.</p><p>Heavy blows can <b>disarm</b>. Walk over a dropped weapon to recover it.</p></div>
+        <div><h4>Combat</h4><p>Block just as a blow lands to <b>parry</b>: the attacker is stunned and your weapon’s counter-slash opens up. Blocking too long cracks your guard.</p><p>Repeating one move loses damage. Mixing punches, kicks and weapon strings lets attacks cancel into each other after a hit.</p><p><b>Never spam.</b> Every foe reads a mashed attack, dash or jump: it slips to your other side and punishes. Hold W, A, S or D with the weapon button for a different cut, and branch your string mid-combo. Forward and back are measured toward the foe.</p><p>Heavy blows can <b>disarm</b>. Walk over a dropped weapon to recover it.</p></div>
         <div><h4>Touch &amp; pad</h4><p>Left thumb: the stick (push up to jump). Right thumb: Strike (weapon), Punch, Kick, Jump, Dash, Block and the Rage diamond (kunai / rage art). Choose a floating or fixed stick in Settings.</p><p>Gamepad: A jump · X punch · Y kick · B / LB dash · RB weapon · LT block · RT special · Start pause.</p></div>
       </div>
       <div class="stack"><button class="btn-primary" data-a="${back ? 'pause' : 'close-ov'}" data-focus>${back ? 'Back' : 'Got it'}</button></div></div>`);

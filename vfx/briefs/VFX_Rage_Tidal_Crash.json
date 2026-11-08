@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Rage_Tidal_Crash",
+  "role": "rage art finisher (Mizuchi, Rising Water Dragon): the dragon crashing down",
+  "style": "stylized anime combat, additive light over a dark arena, side-view 2D, baked to sheets and turned per strike in the game",
+  "dominant_shape": "a column and crown of water thrown up and falling back",
+  "palette": {
+    "core": [
+      240,
+      252,
+      255
+    ],
+    "body": [
+      47,
+      157,
+      255
+    ],
+    "dark": [
+      2,
+      16,
+      36
+    ],
+    "matter": [
+      196,
+      222,
+      240
+    ],
+    "accent": [
+      12,
+      76,
+      170
+    ]
+  },
+  "delivery": {
+    "kind": "area"
+  },
+  "anchor": "ground",
+  "reference": {
+    "id": "user request 2026-11-08: Kagetsu crimson moon slashes, Tsubame lightning afterimages, Shizuka purple energy slashes, Onikiri crimson ground-shattering impacts, Mizuchi giant blue water dragon, Yamigama enormous scythe crescents, Iwakudaki golden ground-impact shockwaves"
+  },
+  "beats": [
+    {
+      "frame": 2,
+      "name": "contact",
+      "expect": "white-blue contact"
+    },
+    {
+      "frame": 12,
+      "name": "crown",
+      "expect": "column up, crown arcing over"
+    },
+    {
+      "frame": 24,
+      "name": "fall",
+      "expect": "water falling back, rings racing out"
+    },
+    {
+      "frame": 36,
+      "name": "tail",
+      "expect": "haze and the last ring"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Mist",
+      "role": "matter: low blue haze",
+      "primitive": "smoke T_SoftCircle",
+      "exit": "gone by absolute f40"
+    },
+    {
+      "name": "1:Contact flash",
+      "role": "contact",
+      "primitive": "flash",
+      "exit": "gone by absolute f6"
+    },
+    {
+      "name": "2:Water bloom",
+      "role": "light under the splash",
+      "primitive": "glow",
+      "exit": "gone by absolute f16"
+    },
+    {
+      "name": "3:Wave ring",
+      "role": "ground: the first wave racing out",
+      "primitive": "tilted_ring",
+      "exit": "gone by absolute f30"
+    },
+    {
+      "name": "4:Second wave",
+      "role": "a second wave behind it",
+      "primitive": "tilted_ring",
+      "exit": "gone by absolute f38"
+    },
+    {
+      "name": "5:Water column",
+      "role": "body: the column of water shooting up",
+      "primitive": "column",
+      "exit": "gone by absolute f28"
+    },
+    {
+      "name": "6:Crown",
+      "role": "body: the crown of water streaks arcing over and falling",
+      "primitive": "radial_sparks",
+      "exit": "gone by absolute f34"
+    },
+    {
+      "name": "7:Spray",
+      "role": "secondary: wider droplet spray",
+      "primitive": "radial_sparks",
+      "exit": "gone by absolute f30"
+    },
+    {
+      "name": "8:Glints",
+      "role": "accent: star glints",
+      "primitive": "sparkle",
+      "exit": "gone by absolute f17"
+    }
+  ],
+  "acceptance": [
+    "Water rises and falls back under gravity",
+    "Two rings on the floor"
+  ],
+  "avoid": [
+    "Grey smoke curls"
+  ]
+}

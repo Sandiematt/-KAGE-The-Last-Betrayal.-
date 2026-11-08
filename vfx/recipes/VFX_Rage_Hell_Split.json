@@ -1,0 +1,1645 @@
+{
+  "id": "VFX_Rage_Hell_Split",
+  "name": "Hell Splitter Impact",
+  "category": "boss",
+  "element": "fire",
+  "duration": 1.0,
+  "loop": false,
+  "attach": "ground",
+  "peak": 0.03333333333333333,
+  "impact": 0.9,
+  "light": [
+    1,
+    0.4,
+    0.2
+  ],
+  "seed": 1729,
+  "layers": [
+    {
+      "name": "Smoke",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_SmokeSheet01.png",
+      "color": [
+        78,
+        58,
+        52,
+        205
+      ],
+      "color_end": [
+        78,
+        58,
+        52,
+        0
+      ],
+      "count": 8,
+      "life": [
+        30,
+        44
+      ],
+      "delay": 8,
+      "interval": 0,
+      "blend": "Blend",
+      "billboard": "RotatedBillboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0.2,
+          1.6
+        ]
+      },
+      "velocity": [
+        0,
+        [
+          0.005,
+          0.02
+        ],
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        [
+          -180,
+          180
+        ]
+      ],
+      "spin": [
+        0,
+        0,
+        [
+          -0.6,
+          0.6
+        ]
+      ],
+      "size": [
+        0.8,
+        1.3
+      ],
+      "size_end": [
+        1.52,
+        2.4699999999999998
+      ],
+      "easing": "EaseOutCubic",
+      "forces": [
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            0.0006,
+            0
+          ]
+        }
+      ],
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseTile01.png",
+      "fade_in": 2,
+      "fade_out": 10,
+      "flipbook": {
+        "x": 4,
+        "y": 4,
+        "frame_length": 3,
+        "loop": "Once"
+      },
+      "cutoff": {
+        "start": 0,
+        "end": 0.3,
+        "easing": "EaseInCubic"
+      },
+      "position": [
+        0,
+        0.6,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Alpha.vfxmat.json"
+    },
+    {
+      "name": "Contact flash",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Flare01.png",
+      "color": [
+        255,
+        246,
+        222,
+        255
+      ],
+      "life": 5,
+      "delay": 2,
+      "size": 2.8,
+      "size_curve": [
+        [
+          0,
+          0.55
+        ],
+        [
+          25,
+          1
+        ],
+        [
+          100,
+          0.15
+        ]
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "fade_in": 0,
+      "fade_out": 3.0,
+      "emissive": 1.6,
+      "position": [
+        0,
+        0.4,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Ground bloom",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        255,
+        72,
+        28,
+        170
+      ],
+      "life": 18,
+      "delay": 2,
+      "size": 3.4,
+      "size_curve": [
+        [
+          0,
+          0.25
+        ],
+        [
+          18,
+          1
+        ],
+        [
+          100,
+          1.25
+        ]
+      ],
+      "billboard": "Billboard",
+      "fade_in": 0,
+      "fade_out": 14.4,
+      "position": [
+        0,
+        0.3,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Crack",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Crack01.png",
+      "color": [
+        255,
+        206,
+        150,
+        255
+      ],
+      "life": 54,
+      "delay": 2,
+      "size": 4.2,
+      "billboard": "Fixed",
+      "rotation": [
+        -90,
+        0,
+        0
+      ],
+      "spin": [
+        0,
+        0,
+        0
+      ],
+      "position": [
+        0,
+        0.05,
+        0
+      ],
+      "z_test": true,
+      "fade_in": 0,
+      "fade_out": 10,
+      "emissive": 2.4,
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseTile01.png",
+      "cutoff": {
+        "start": 0,
+        "end": 0.95,
+        "easing": "EaseInQuintic"
+      },
+      "color_curve": {
+        "R": [
+          [
+            0,
+            255
+          ],
+          [
+            16,
+            255
+          ],
+          [
+            42,
+            255
+          ],
+          [
+            78,
+            170
+          ],
+          [
+            100,
+            170
+          ]
+        ],
+        "G": [
+          [
+            0,
+            246
+          ],
+          [
+            16,
+            206
+          ],
+          [
+            42,
+            72
+          ],
+          [
+            78,
+            20
+          ],
+          [
+            100,
+            20
+          ]
+        ],
+        "B": [
+          [
+            0,
+            222
+          ],
+          [
+            16,
+            150
+          ],
+          [
+            42,
+            28
+          ],
+          [
+            78,
+            8
+          ],
+          [
+            100,
+            8
+          ]
+        ],
+        "A": [
+          [
+            0,
+            255
+          ],
+          [
+            16,
+            255
+          ],
+          [
+            42,
+            255
+          ],
+          [
+            78,
+            255
+          ],
+          [
+            100,
+            0
+          ]
+        ]
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Shock ring",
+      "renderer": "Ring",
+      "color": [
+        255,
+        72,
+        28,
+        255
+      ],
+      "life": 24,
+      "delay": 2,
+      "billboard": "Fixed",
+      "rotation": [
+        -80,
+        0,
+        0
+      ],
+      "ring": {
+        "outer": [
+          1,
+          0
+        ],
+        "inner": {
+          "start": [
+            0.76,
+            0
+          ],
+          "end": [
+            0.97,
+            0
+          ]
+        },
+        "center_ratio": 0.8,
+        "outer_color": [
+          255,
+          72,
+          28,
+          127
+        ],
+        "center_color": [
+          255,
+          72,
+          28,
+          255
+        ],
+        "inner_color": [
+          255,
+          72,
+          28,
+          0
+        ]
+      },
+      "size": 5.0,
+      "size_curve": [
+        [
+          0,
+          0.12
+        ],
+        [
+          35,
+          0.72
+        ],
+        [
+          100,
+          1
+        ]
+      ],
+      "fade_in": 0,
+      "fade_out": 16.799999999999997,
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseTile01.png",
+      "cutoff": {
+        "start": 0,
+        "end": 0.9,
+        "easing": "EaseInCubic"
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Fire tongue 1",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ExplosionSheet01.png",
+      "color": [
+        255,
+        245,
+        215,
+        255
+      ],
+      "color_curve": {
+        "R": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            55,
+            212
+          ],
+          [
+            100,
+            170
+          ]
+        ],
+        "G": [
+          [
+            0,
+            245
+          ],
+          [
+            18,
+            72
+          ],
+          [
+            55,
+            46
+          ],
+          [
+            100,
+            20
+          ]
+        ],
+        "B": [
+          [
+            0,
+            215
+          ],
+          [
+            18,
+            28
+          ],
+          [
+            55,
+            18
+          ],
+          [
+            100,
+            8
+          ]
+        ],
+        "A": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            55,
+            200
+          ],
+          [
+            100,
+            255
+          ]
+        ]
+      },
+      "count": 1,
+      "life": [
+        24,
+        30
+      ],
+      "size": 3.0,
+      "billboard": "YAxisFixed",
+      "pivot": "bottom",
+      "flipbook": {
+        "x": 4,
+        "y": 4,
+        "frame_length": 2,
+        "loop": "Once"
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseTile01.png",
+      "cutoff": {
+        "start": 0.04,
+        "end": 0.5,
+        "easing": "EaseInQuintic"
+      },
+      "edge": {
+        "color": [
+          255,
+          90,
+          20,
+          255
+        ],
+        "threshold": 0.06,
+        "scaling": 2
+      },
+      "fade_in": 1,
+      "fade_out": 8,
+      "emissive": 1.5,
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "delay": 2,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Fire tongue 2",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ExplosionSheet01.png",
+      "color": [
+        255,
+        245,
+        215,
+        255
+      ],
+      "color_curve": {
+        "R": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            55,
+            212
+          ],
+          [
+            100,
+            170
+          ]
+        ],
+        "G": [
+          [
+            0,
+            245
+          ],
+          [
+            18,
+            72
+          ],
+          [
+            55,
+            46
+          ],
+          [
+            100,
+            20
+          ]
+        ],
+        "B": [
+          [
+            0,
+            215
+          ],
+          [
+            18,
+            28
+          ],
+          [
+            55,
+            18
+          ],
+          [
+            100,
+            8
+          ]
+        ],
+        "A": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            55,
+            200
+          ],
+          [
+            100,
+            255
+          ]
+        ]
+      },
+      "count": 1,
+      "life": [
+        24,
+        30
+      ],
+      "size": 2.3,
+      "billboard": "YAxisFixed",
+      "pivot": "bottom",
+      "flipbook": {
+        "x": 4,
+        "y": 4,
+        "frame_length": 2,
+        "loop": "Once"
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseTile01.png",
+      "cutoff": {
+        "start": 0.04,
+        "end": 0.5,
+        "easing": "EaseInQuintic"
+      },
+      "edge": {
+        "color": [
+          255,
+          90,
+          20,
+          255
+        ],
+        "threshold": 0.06,
+        "scaling": 2
+      },
+      "fade_in": 1,
+      "fade_out": 8,
+      "emissive": 1.5,
+      "position": [
+        -0.7,
+        0,
+        0
+      ],
+      "delay": 4,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Fire tongue 3",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ExplosionSheet01.png",
+      "color": [
+        255,
+        245,
+        215,
+        255
+      ],
+      "color_curve": {
+        "R": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            55,
+            212
+          ],
+          [
+            100,
+            170
+          ]
+        ],
+        "G": [
+          [
+            0,
+            245
+          ],
+          [
+            18,
+            72
+          ],
+          [
+            55,
+            46
+          ],
+          [
+            100,
+            20
+          ]
+        ],
+        "B": [
+          [
+            0,
+            215
+          ],
+          [
+            18,
+            28
+          ],
+          [
+            55,
+            18
+          ],
+          [
+            100,
+            8
+          ]
+        ],
+        "A": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            55,
+            200
+          ],
+          [
+            100,
+            255
+          ]
+        ]
+      },
+      "count": 1,
+      "life": [
+        24,
+        30
+      ],
+      "size": 2.4,
+      "billboard": "YAxisFixed",
+      "pivot": "bottom",
+      "flipbook": {
+        "x": 4,
+        "y": 4,
+        "frame_length": 2,
+        "loop": "Once"
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseTile01.png",
+      "cutoff": {
+        "start": 0.04,
+        "end": 0.5,
+        "easing": "EaseInQuintic"
+      },
+      "edge": {
+        "color": [
+          255,
+          90,
+          20,
+          255
+        ],
+        "threshold": 0.06,
+        "scaling": 2
+      },
+      "fade_in": 1,
+      "fade_out": 8,
+      "emissive": 1.5,
+      "position": [
+        0.7,
+        0,
+        0
+      ],
+      "delay": 4,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Fire tongue 4",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ExplosionSheet01.png",
+      "color": [
+        255,
+        245,
+        215,
+        255
+      ],
+      "color_curve": {
+        "R": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            55,
+            212
+          ],
+          [
+            100,
+            170
+          ]
+        ],
+        "G": [
+          [
+            0,
+            245
+          ],
+          [
+            18,
+            72
+          ],
+          [
+            55,
+            46
+          ],
+          [
+            100,
+            20
+          ]
+        ],
+        "B": [
+          [
+            0,
+            215
+          ],
+          [
+            18,
+            28
+          ],
+          [
+            55,
+            18
+          ],
+          [
+            100,
+            8
+          ]
+        ],
+        "A": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            55,
+            200
+          ],
+          [
+            100,
+            255
+          ]
+        ]
+      },
+      "count": 1,
+      "life": [
+        24,
+        30
+      ],
+      "size": 1.8,
+      "billboard": "YAxisFixed",
+      "pivot": "bottom",
+      "flipbook": {
+        "x": 4,
+        "y": 4,
+        "frame_length": 2,
+        "loop": "Once"
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseTile01.png",
+      "cutoff": {
+        "start": 0.04,
+        "end": 0.5,
+        "easing": "EaseInQuintic"
+      },
+      "edge": {
+        "color": [
+          255,
+          90,
+          20,
+          255
+        ],
+        "threshold": 0.06,
+        "scaling": 2
+      },
+      "fade_in": 1,
+      "fade_out": 8,
+      "emissive": 1.5,
+      "position": [
+        -1.4,
+        0,
+        0
+      ],
+      "delay": 6,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Fire tongue 5",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ExplosionSheet01.png",
+      "color": [
+        255,
+        245,
+        215,
+        255
+      ],
+      "color_curve": {
+        "R": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            55,
+            212
+          ],
+          [
+            100,
+            170
+          ]
+        ],
+        "G": [
+          [
+            0,
+            245
+          ],
+          [
+            18,
+            72
+          ],
+          [
+            55,
+            46
+          ],
+          [
+            100,
+            20
+          ]
+        ],
+        "B": [
+          [
+            0,
+            215
+          ],
+          [
+            18,
+            28
+          ],
+          [
+            55,
+            18
+          ],
+          [
+            100,
+            8
+          ]
+        ],
+        "A": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            55,
+            200
+          ],
+          [
+            100,
+            255
+          ]
+        ]
+      },
+      "count": 1,
+      "life": [
+        24,
+        30
+      ],
+      "size": 1.9,
+      "billboard": "YAxisFixed",
+      "pivot": "bottom",
+      "flipbook": {
+        "x": 4,
+        "y": 4,
+        "frame_length": 2,
+        "loop": "Once"
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseTile01.png",
+      "cutoff": {
+        "start": 0.04,
+        "end": 0.5,
+        "easing": "EaseInQuintic"
+      },
+      "edge": {
+        "color": [
+          255,
+          90,
+          20,
+          255
+        ],
+        "threshold": 0.06,
+        "scaling": 2
+      },
+      "fade_in": 1,
+      "fade_out": 8,
+      "emissive": 1.5,
+      "position": [
+        1.4,
+        0,
+        0
+      ],
+      "delay": 6,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Fire tongue 6",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ExplosionSheet01.png",
+      "color": [
+        255,
+        245,
+        215,
+        255
+      ],
+      "color_curve": {
+        "R": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            55,
+            212
+          ],
+          [
+            100,
+            170
+          ]
+        ],
+        "G": [
+          [
+            0,
+            245
+          ],
+          [
+            18,
+            72
+          ],
+          [
+            55,
+            46
+          ],
+          [
+            100,
+            20
+          ]
+        ],
+        "B": [
+          [
+            0,
+            215
+          ],
+          [
+            18,
+            28
+          ],
+          [
+            55,
+            18
+          ],
+          [
+            100,
+            8
+          ]
+        ],
+        "A": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            55,
+            200
+          ],
+          [
+            100,
+            255
+          ]
+        ]
+      },
+      "count": 1,
+      "life": [
+        24,
+        30
+      ],
+      "size": 1.3,
+      "billboard": "YAxisFixed",
+      "pivot": "bottom",
+      "flipbook": {
+        "x": 4,
+        "y": 4,
+        "frame_length": 2,
+        "loop": "Once"
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseTile01.png",
+      "cutoff": {
+        "start": 0.04,
+        "end": 0.5,
+        "easing": "EaseInQuintic"
+      },
+      "edge": {
+        "color": [
+          255,
+          90,
+          20,
+          255
+        ],
+        "threshold": 0.06,
+        "scaling": 2
+      },
+      "fade_in": 1,
+      "fade_out": 8,
+      "emissive": 1.5,
+      "position": [
+        -2.0,
+        0,
+        0
+      ],
+      "delay": 8,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Fire tongue 7",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ExplosionSheet01.png",
+      "color": [
+        255,
+        245,
+        215,
+        255
+      ],
+      "color_curve": {
+        "R": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            55,
+            212
+          ],
+          [
+            100,
+            170
+          ]
+        ],
+        "G": [
+          [
+            0,
+            245
+          ],
+          [
+            18,
+            72
+          ],
+          [
+            55,
+            46
+          ],
+          [
+            100,
+            20
+          ]
+        ],
+        "B": [
+          [
+            0,
+            215
+          ],
+          [
+            18,
+            28
+          ],
+          [
+            55,
+            18
+          ],
+          [
+            100,
+            8
+          ]
+        ],
+        "A": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            55,
+            200
+          ],
+          [
+            100,
+            255
+          ]
+        ]
+      },
+      "count": 1,
+      "life": [
+        24,
+        30
+      ],
+      "size": 1.35,
+      "billboard": "YAxisFixed",
+      "pivot": "bottom",
+      "flipbook": {
+        "x": 4,
+        "y": 4,
+        "frame_length": 2,
+        "loop": "Once"
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseTile01.png",
+      "cutoff": {
+        "start": 0.04,
+        "end": 0.5,
+        "easing": "EaseInQuintic"
+      },
+      "edge": {
+        "color": [
+          255,
+          90,
+          20,
+          255
+        ],
+        "threshold": 0.06,
+        "scaling": 2
+      },
+      "fade_in": 1,
+      "fade_out": 8,
+      "emissive": 1.5,
+      "position": [
+        2.0,
+        0,
+        0
+      ],
+      "delay": 8,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Eruption",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ExplosionSheet01.png",
+      "color": [
+        255,
+        246,
+        222,
+        255
+      ],
+      "color_curve": {
+        "R": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            45,
+            255
+          ],
+          [
+            80,
+            170
+          ],
+          [
+            100,
+            170
+          ]
+        ],
+        "G": [
+          [
+            0,
+            246
+          ],
+          [
+            18,
+            206
+          ],
+          [
+            45,
+            72
+          ],
+          [
+            80,
+            20
+          ],
+          [
+            100,
+            20
+          ]
+        ],
+        "B": [
+          [
+            0,
+            222
+          ],
+          [
+            18,
+            150
+          ],
+          [
+            45,
+            28
+          ],
+          [
+            80,
+            8
+          ],
+          [
+            100,
+            8
+          ]
+        ],
+        "A": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            45,
+            255
+          ],
+          [
+            80,
+            255
+          ],
+          [
+            100,
+            0
+          ]
+        ]
+      },
+      "count": 1,
+      "life": 30,
+      "size": 3.0,
+      "flipbook": {
+        "x": 4,
+        "y": 4,
+        "frame_length": 2,
+        "loop": "Once"
+      },
+      "rotation": [
+        0,
+        0,
+        [
+          -180,
+          180
+        ]
+      ],
+      "billboard": "RotatedBillboard",
+      "fade_in": 0,
+      "fade_out": 4,
+      "blend": "Add",
+      "delay": 2,
+      "position": [
+        0,
+        0.7,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Spit embers",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Spark01.png",
+      "color": [
+        255,
+        246,
+        222,
+        255
+      ],
+      "color_end": [
+        255,
+        72,
+        28,
+        255
+      ],
+      "count": 24,
+      "life": [
+        14,
+        22
+      ],
+      "delay": 2,
+      "billboard": "DirectionalBillboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          0.6
+        ],
+        "rotate": false
+      },
+      "travel": {
+        "end": [
+          [
+            -2.4,
+            2.4
+          ],
+          [
+            1.2,
+            3.2
+          ],
+          [
+            -0.3,
+            0.3
+          ]
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "scale_start": [
+        0.1,
+        [
+          0.35,
+          0.7
+        ],
+        1
+      ],
+      "scale_end": [
+        0.03,
+        0.06999999999999999,
+        1
+      ],
+      "easing": "EaseInQuadratic",
+      "forces": [
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            -0.0012,
+            0
+          ]
+        }
+      ],
+      "fade_in": 0,
+      "fade_out": 5,
+      "emissive": 1.5,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Rock",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Shard01.png",
+      "color": [
+        96,
+        82,
+        76,
+        255
+      ],
+      "color_end": [
+        57,
+        49,
+        45,
+        255
+      ],
+      "count": 16,
+      "life": [
+        30,
+        44
+      ],
+      "delay": 2,
+      "blend": "Blend",
+      "rotation": [
+        0,
+        0,
+        [
+          -180,
+          180
+        ]
+      ],
+      "spin": [
+        0,
+        0,
+        [
+          -12,
+          12
+        ]
+      ],
+      "size": [
+        0.12,
+        0.3
+      ],
+      "size_end": [
+        0.096,
+        0.24
+      ],
+      "forces": [
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            -0.004,
+            0
+          ]
+        }
+      ],
+      "fade_in": 0,
+      "fade_out": 6,
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          0.1
+        ],
+        "rotate": false
+      },
+      "travel": {
+        "end": [
+          [
+            -2.6,
+            2.6
+          ],
+          [
+            0.8,
+            2.4
+          ],
+          [
+            -0.4,
+            0.4
+          ]
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "collide": {
+        "height": 0.02,
+        "bounce": [
+          0.15,
+          0.35
+        ],
+        "friction": 0.6,
+        "reduction": 0.2
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Alpha.vfxmat.json"
+    },
+    {
+      "name": "Rising embers",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        255,
+        206,
+        150,
+        255
+      ],
+      "color_end": [
+        170,
+        20,
+        8,
+        0
+      ],
+      "count": 16,
+      "life": [
+        26,
+        36
+      ],
+      "delay": 8,
+      "interval": 0,
+      "billboard": "Billboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          1.6
+        ],
+        "rot_x": [
+          -90,
+          90
+        ]
+      },
+      "travel": {
+        "end": [
+          0,
+          [
+            0.3,
+            1.2
+          ],
+          0
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "size": [
+        0.07,
+        0.12
+      ],
+      "size_end": 0,
+      "easing": "EaseInCubic",
+      "forces": [
+        {
+          "type": "Turbulence",
+          "power": 0.003,
+          "scale": 5
+        },
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            0.0012,
+            0
+          ]
+        }
+      ],
+      "fade_in": 1,
+      "fade_out": 6,
+      "emissive": 1.5,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    }
+  ],
+  "design": "A white contact on the floor, a red-hot crack opening and cooling, a crimson ring racing out, fire tongues erupting from the split from the middle outward, a fireball cooling into smoke, rock thrown up, embers rising.",
+  "delivery": {
+    "kind": "area"
+  },
+  "screen": {
+    "shake": 0.9,
+    "flash_frames": 1,
+    "flash": "white",
+    "hitstop": 0.08
+  }
+}

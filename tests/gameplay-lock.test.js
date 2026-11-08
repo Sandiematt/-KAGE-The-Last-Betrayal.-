@@ -72,9 +72,12 @@ test('gameplay lock: the script exercises Kage\'s whole kit and every foe\'s ans
     }
   }
   // punch string, the katana chain (k1-k3) and its air slash (ka), tap and charged kicks, dash punch and slide,
-  // air punch and kick, grab, kunai, the rage special, and guard into a perfect parry
+  // air punch and kick, grab, kunai, the rage special, and guard into a perfect parry (blade clashes have their own
+  // deterministic test in combat-dir.test.js: two cuts meeting depends on frame-exact timing against a live AI)
   for (const k of ['kage:p1', 'kage:p2', 'kage:p3', 'kage:k1', 'kage:k2', 'kage:k3', 'kage:ka', 'kage:rk', 'kage:hk', 'kage:dp', 'kage:slide',
-    'kage:ap', 'kage:ak', 'kage:grab', 'kage:kunai', 'special', 'parry by kage', 'clash', 'grab', 'dodge', 'ko', 'phase', 'ability'])
+    'kage:ap', 'kage:ak', 'kage:grab', 'kage:kunai', 'special', 'parry by kage', 'grab', 'dodge', 'ko', 'phase', 'ability',
+    // the directional sword arcs (11-sword-arcs.js) and a foe's spam punish (SPAM_READ)
+    'kage:k2_up', 'kage:k1_down', 'kage:k3_fwd', 'kage:k1_diagDown', 'kage:k2_diagUp', 'kage:kc_dash', 'kage:ka_airDown', 'punish'])
     assert.ok(seen.has(k), `the scripted fights never produce "${k}"`);
   for (const spec of FIGHTS) {
     assert.ok(perFight[spec.id].has('kage hits'), `Kage never lands a blow on ${spec.id}`);

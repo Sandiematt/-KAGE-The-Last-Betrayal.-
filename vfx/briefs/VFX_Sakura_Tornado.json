@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Sakura_Tornado",
+  "role": "travelling sustained column (Petal Tornado, 3.2 s)",
+  "style": "stylized anime combat, glowing additive sakura (Senbonzakura) over a dark night arena, side-view 2D",
+  "dominant_shape": "narrow spiralling petal column over a floor glow",
+  "palette": {
+    "core": [
+      255,
+      246,
+      252
+    ],
+    "body": [
+      255,
+      102,
+      178
+    ],
+    "dark": [
+      70,
+      6,
+      40
+    ],
+    "matter": [
+      255,
+      196,
+      226
+    ],
+    "accent": [
+      255,
+      20,
+      147
+    ]
+  },
+  "delivery": {
+    "kind": "area"
+  },
+  "anchor": "ground",
+  "reference": {
+    "id": "gemini_generated_video_9ba223ac.mp4 (user reference: Senbonzakura boss duel)"
+  },
+  "beats": [
+    {
+      "frame": 6,
+      "name": "rise",
+      "expect": "base glow and first rising petals"
+    },
+    {
+      "frame": 40,
+      "name": "hold",
+      "expect": "helix of petals and strands at full height"
+    },
+    {
+      "frame": 80,
+      "name": "loop",
+      "expect": "next loop takes over with no visible seam"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Base glow",
+      "role": "ground: deep-pink glow under the travelling column",
+      "primitive": "orbit_band",
+      "exit": "gone by absolute f84"
+    },
+    {
+      "name": "1:Spiral pivot",
+      "role": "pivot yawing the stream so rising petals trace a helix",
+      "primitive": "renderer None",
+      "exit": "gone by absolute f112.8"
+    },
+    {
+      "name": "1:Spiral pivot/0:Spiral stream",
+      "role": "main shape: petals spiralling upward",
+      "primitive": "sprite T_SakuraPetal01",
+      "exit": "gone by absolute f112.8"
+    },
+    {
+      "name": "1:Spiral pivot/1:Spiral strands",
+      "role": "shape change: torn strands wrapping the column",
+      "primitive": "wisps",
+      "exit": "gone by absolute f89"
+    },
+    {
+      "name": "2:Wind column",
+      "role": "volume: scrolling pink wind column",
+      "primitive": "column",
+      "exit": "gone by absolute f84"
+    },
+    {
+      "name": "3:Flung petals",
+      "role": "secondary: petals flung off the base as it travels",
+      "primitive": "sprite T_SakuraPetal01",
+      "exit": "gone by absolute f98"
+    },
+    {
+      "name": "4:Base pulse",
+      "role": "ground feedback ring, once per loop",
+      "primitive": "tilted_ring",
+      "exit": "gone by absolute f18"
+    }
+  ],
+  "acceptance": [
+    "Reads as a narrow travelling column, clearly different from the wide Petal Storm",
+    "Petals flung off the base trail behind it as it moves"
+  ],
+  "avoid": [
+    "A tell or release flash (it has none: the wind-up belongs to Akari)",
+    "A column wider than about two character widths"
+  ]
+}

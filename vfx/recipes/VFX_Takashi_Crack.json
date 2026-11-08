@@ -1,0 +1,360 @@
+{
+  "id": "VFX_Takashi_Crack",
+  "name": "Tenrai Channel",
+  "category": "status",
+  "element": "holy",
+  "duration": 1.5,
+  "loop": true,
+  "attach": "ground",
+  "peak": 0,
+  "impact": 0,
+  "light": [
+    1,
+    0.78,
+    0.4
+  ],
+  "seed": 1729,
+  "layers": [
+    {
+      "name": "Seal",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_TomoeSeal01.png",
+      "color": [
+        255,
+        228,
+        156,
+        220
+      ],
+      "life": 90,
+      "delay": 0,
+      "size": 3.0,
+      "billboard": "Fixed",
+      "rotation": [
+        -90,
+        0,
+        0
+      ],
+      "spin": [
+        0,
+        0,
+        0.6
+      ],
+      "position": [
+        0,
+        0.05,
+        0
+      ],
+      "z_test": true,
+      "fade_in": 14,
+      "fade_out": 14,
+      "emissive": 1.5,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Cracks",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Crack01.png",
+      "color": [
+        255,
+        228,
+        156,
+        255
+      ],
+      "life": 90,
+      "delay": 0,
+      "size": 4.2,
+      "billboard": "Fixed",
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "spin": [
+        0,
+        0,
+        0
+      ],
+      "position": [
+        0,
+        0.05,
+        0
+      ],
+      "z_test": true,
+      "fade_in": 10,
+      "fade_out": 10,
+      "emissive": 2.3,
+      "size_curve": [
+        [
+          0,
+          0.94
+        ],
+        [
+          50,
+          1.04
+        ],
+        [
+          100,
+          0.94
+        ]
+      ],
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseTile01.png",
+      "alpha_scroll": [
+        0.004,
+        0.002
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Floor light",
+      "renderer": "Ring",
+      "color": [
+        255,
+        186,
+        64,
+        170
+      ],
+      "life": 90,
+      "delay": 0,
+      "billboard": "Fixed",
+      "rotation": [
+        -80,
+        0,
+        0
+      ],
+      "ring": {
+        "vertices": 96,
+        "outer": [
+          1.8,
+          0
+        ],
+        "inner": [
+          1.3,
+          0
+        ],
+        "center_ratio": 0.3,
+        "outer_color": [
+          255,
+          186,
+          64,
+          0
+        ],
+        "center_color": [
+          255,
+          186,
+          64,
+          170
+        ],
+        "inner_color": [
+          255,
+          186,
+          64,
+          0
+        ]
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+      "alpha_scroll": [
+        -0.03,
+        0
+      ],
+      "fade_in": 15,
+      "fade_out": 15,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Blade glow",
+      "renderer": "Model",
+      "procedural_model": {
+        "Name": "Blade glow",
+        "Shape/PrimitiveType": "Cylinder",
+        "Shape/Radius": 0.18,
+        "Mesh/Divisions/X": 40,
+        "Mesh/Divisions/Y": 12,
+        "Shape/Depth": 2.2,
+        "Shape/DepthMin": 0,
+        "Shape/DepthMax": 2.2
+      },
+      "color": [
+        255,
+        186,
+        64,
+        150
+      ],
+      "life": 90,
+      "fade_in": 15,
+      "fade_out": 15,
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak02.png",
+      "uv_scroll": [
+        0.01,
+        -0.05
+      ],
+      "delay": 0,
+      "culling": "Double",
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_GradientV01.png",
+      "alpha_wrap": "Clamp",
+      "falloff": {
+        "begin": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "end": [
+          255,
+          255,
+          255,
+          0
+        ],
+        "pow": 1.6,
+        "blend": "Mul"
+      },
+      "emissive": 1.3,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Crack sparks",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Spark01.png",
+      "color": [
+        255,
+        250,
+        232,
+        255
+      ],
+      "color_end": [
+        255,
+        186,
+        64,
+        255
+      ],
+      "count": 24,
+      "life": [
+        10,
+        16
+      ],
+      "delay": 2,
+      "billboard": "DirectionalBillboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          1.8
+        ],
+        "rotate": false
+      },
+      "travel": {
+        "end": [
+          [
+            -0.3,
+            0.3
+          ],
+          [
+            1.0,
+            2.0
+          ],
+          [
+            -0.1,
+            0.1
+          ]
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "scale_start": [
+        0.06,
+        [
+          0.3,
+          0.55
+        ],
+        1
+      ],
+      "scale_end": [
+        0.018,
+        0.06,
+        1
+      ],
+      "easing": "EaseInQuadratic",
+      "forces": [],
+      "fade_in": 0,
+      "fade_out": 5,
+      "emissive": 1.5,
+      "interval": 4,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Embers",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        255,
+        228,
+        156,
+        255
+      ],
+      "color_end": [
+        214,
+        118,
+        22,
+        0
+      ],
+      "count": 24,
+      "life": [
+        40,
+        56
+      ],
+      "delay": 1,
+      "interval": 4,
+      "billboard": "Billboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          2.0
+        ],
+        "rot_x": [
+          -90,
+          90
+        ]
+      },
+      "travel": {
+        "end": [
+          0,
+          [
+            0.2,
+            0.7
+          ],
+          0
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "size": [
+        0.05,
+        0.1
+      ],
+      "size_end": 0,
+      "easing": "EaseInCubic",
+      "forces": [
+        {
+          "type": "Turbulence",
+          "power": 0.003,
+          "scale": 5
+        },
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            0.0016,
+            0
+          ]
+        }
+      ],
+      "fade_in": 1,
+      "fade_out": 6,
+      "emissive": 1.5,
+      "position": [
+        0,
+        0.4,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    }
+  ],
+  "design": "The family seal turns slowly round the planted blade while gold light wells out of the cracks and pulses, sparks shoot up off the cracks at uneven times and embers rise.",
+  "delivery": {
+    "kind": "self"
+  }
+}

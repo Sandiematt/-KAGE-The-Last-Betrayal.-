@@ -7,7 +7,7 @@ const { loadLogic } = require('./helpers/load-logic');
 const { Logic, SCENES, ENEMIES, WEAPONS, MOVES } = loadLogic();
 const clearUpTo = (L, save, id) => { for (const st of L.stages()) { if (st.id === id) break; L.completeStage(save, st.id); } };
 const win = (stageId, ng) => ({ mode: 'campaign', stageId, win: true, ng: ng || 0, hpLeft: 0.5, time: 90, maxCombo: 4, parries: 0, flawless: false });
-const FOUR = ['earthCleave', 'groundSmash', 'guardReturn', 'finalFlow'];
+
 
 test('Takashi is the foe of the Act III boss stage, fought in the boss format', () => {
   const cfg = Logic.stageConfig(Logic.defaultSave(), 'act3.boss');
@@ -17,16 +17,40 @@ test('Takashi is the foe of the Act III boss stage, fought in the boss format', 
   assert.equal(cfg.format.phases, 3);
 });
 
-test('Takashi fights in three phases with all four moves, Final Flow only in phase 3', () => {
+test('Takashi fights in three phases: the Unbroken Guard, the Yashiro Titan, then his domain', () => {
   const phases = Logic.bossPhases('takashi');
   assert.equal(phases.length, 3);
   assert.deepEqual(phases.map(p => p.at), [1, 0.66, 0.33]);
-  assert.deepEqual(Logic.bossAbilities('takashi').slice().sort(), FOUR.slice().sort());
   const [p1, p2, p3] = phases;
-  assert.ok(p1.abilities.includes('earthCleave') && p1.abilities.includes('guardReturn'), 'he reads spam from the first phase');
-  assert.ok(p2.abilities.includes('groundSmash'));
+  assert.deepEqual(phases.map(p => p.name), ['The Unbroken Guard', 'Yashiro Titan', 'Tenrai: Heaven\'s Final Judgment']);
+  // phase 1: normal attacks, the Iron Guard's constant parries, golden kunai and Kunai Execution
+  assert.equal(p1.ironGuard, 1);
+  for (const a of ['earthCleave', 'guardReturn', 'goldKunai', 'kunaiExecution']) assert.ok(p1.abilities.includes(a), `phase 1 ${a}`);
+  // phase 2: the Titan's moves only
+  assert.equal(p2.titan, 1); assert.ok(!p2.ironGuard);
+  assert.deepEqual(p2.abilities.slice().sort(), ['bladeRain', 'crushingGrasp', 'domainPulse', 'heavenCleaver', 'titanSlash', 'titanSpear']);
+  // phase 3: his phase 1 kit at his huge size, Final Flow, and the domain
+  assert.equal(p3.huge, 1); assert.equal(p3.ironGuard, 1); assert.ok(!p3.titan);
+  for (const a of p1.abilities) assert.ok(p3.abilities.includes(a), `phase 3 keeps ${a}`);
+  assert.ok(p3.abilities.includes('finalFlow') && p3.abilities.includes('tenraiJudgment'));
   assert.ok(!p1.abilities.includes('finalFlow') && !p2.abilities.includes('finalFlow'));
-  for (const a of FOUR) assert.ok(p3.abilities.includes(a), `phase 3 ${a}`);
+  for (const a of Logic.bossAbilities('takashi')) assert.ok(Logic.takashiMove(a), `${a} has its numbers in TAKASHI_MOVES`);
+});
+
+test('the Yashiro Titan\'s blows take a share of Kage\'s health: Titan Slash half, Heaven Cleaver 70%', () => {
+  assert.equal(Logic.takashiMove('titanSlash').pct, 0.5);
+  assert.equal(Logic.takashiMove('heavenCleaver').pct, 0.7);
+  for (const id of ['titanSlash', 'heavenCleaver', 'bladeRain', 'crushingGrasp', 'titanSpear', 'domainPulse']) {
+    const m = Logic.takashiMove(id);
+    assert.ok(m.label && m.windup >= 0.6, `${id} has a long, readable tell`);
+  }
+});
+
+test('the domain\'s channel is long enough to break and asks a real share of his health', () => {
+  const d = Logic.takashiMove('tenraiJudgment');
+  assert.ok(d.channel >= 3, 'seconds to answer it');
+  assert.ok(d.breakPct > 0.03 && d.breakPct < 0.1);
+  assert.equal(d.chance, 1);
 });
 
 test('every Takashi move has a call-out and a readable tell', () => {

@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Sakura_Ambient",
+  "role": "sustained status aura round Akari (stacked per phase)",
+  "style": "stylized anime combat, glowing additive sakura (Senbonzakura) over a dark night arena, side-view 2D",
+  "dominant_shape": "petals drifting on a slow wind round her body",
+  "palette": {
+    "core": [
+      255,
+      246,
+      252
+    ],
+    "body": [
+      255,
+      102,
+      178
+    ],
+    "dark": [
+      70,
+      6,
+      40
+    ],
+    "matter": [
+      255,
+      196,
+      226
+    ],
+    "accent": [
+      255,
+      20,
+      147
+    ]
+  },
+  "delivery": {
+    "kind": "self"
+  },
+  "anchor": "body",
+  "reference": {
+    "id": "gemini_generated_video_9ba223ac.mp4 (user reference: Senbonzakura boss duel)"
+  },
+  "beats": [
+    {
+      "frame": 10,
+      "name": "arrive",
+      "expect": "first petals appear round her"
+    },
+    {
+      "frame": 60,
+      "name": "hold",
+      "expect": "steady drift, rim light at its fullest"
+    },
+    {
+      "frame": 110,
+      "name": "loop",
+      "expect": "drift continues with no visible seam"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Rim aura",
+      "role": "soft deep-pink rim light round her body",
+      "primitive": "glow",
+      "exit": "gone by absolute f120"
+    },
+    {
+      "name": "1:Drift petals",
+      "role": "main shape: drifting tumbling petals",
+      "primitive": "sprite T_SakuraPetal01",
+      "exit": "gone by absolute f195"
+    },
+    {
+      "name": "2:Glow motes",
+      "role": "secondary: tiny rising glints",
+      "primitive": "motes",
+      "exit": "gone by absolute f178"
+    },
+    {
+      "name": "3:Pale petals",
+      "role": "matter: alpha-blended petals for weight",
+      "primitive": "sprite T_SakuraPetal01 Blend",
+      "exit": "gone by absolute f200"
+    },
+    {
+      "name": "4:Drifting blossom",
+      "role": "accent: an occasional whole blossom that dissolves",
+      "primitive": "sprite T_SakuraBlossom01",
+      "exit": "gone by absolute f150"
+    }
+  ],
+  "acceptance": [
+    "Akari stays readable inside the drift",
+    "Petals tumble (roll and spin), never slide as flat dots",
+    "No flash: the aura never holds the brightest value on screen"
+  ],
+  "avoid": [
+    "A bright halo that hides her silhouette",
+    "All petals moving in the same direction at the same speed"
+  ]
+}

@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Rage_Hell_Split",
+  "role": "rage art finisher (Onikiri, Hell Splitter): where the cleaver lands",
+  "style": "stylized anime combat, additive light over a dark arena, side-view 2D, baked to sheets and turned per strike in the game",
+  "dominant_shape": "fire tongues erupting out of a red-hot split in the floor",
+  "palette": {
+    "core": [
+      255,
+      246,
+      222
+    ],
+    "body": [
+      255,
+      72,
+      28
+    ],
+    "dark": [
+      30,
+      8,
+      4
+    ],
+    "matter": [
+      96,
+      82,
+      76
+    ],
+    "accent": [
+      170,
+      20,
+      8
+    ]
+  },
+  "delivery": {
+    "kind": "area"
+  },
+  "anchor": "ground",
+  "reference": {
+    "id": "user request 2026-11-08: Kagetsu crimson moon slashes, Tsubame lightning afterimages, Shizuka purple energy slashes, Onikiri crimson ground-shattering impacts, Mizuchi giant blue water dragon, Yamigama enormous scythe crescents, Iwakudaki golden ground-impact shockwaves"
+  },
+  "beats": [
+    {
+      "frame": 2,
+      "name": "contact",
+      "expect": "white contact on the floor"
+    },
+    {
+      "frame": 8,
+      "name": "eruption",
+      "expect": "fire tongues from the middle outward, ring racing out"
+    },
+    {
+      "frame": 24,
+      "name": "body",
+      "expect": "fireball cooling, rock in the air"
+    },
+    {
+      "frame": 44,
+      "name": "tail",
+      "expect": "crack cooling, embers"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Smoke",
+      "role": "matter: dark smoke the fire cools into",
+      "primitive": "smoke",
+      "exit": "gone by absolute f52"
+    },
+    {
+      "name": "1:Contact flash",
+      "role": "contact",
+      "primitive": "flash",
+      "exit": "gone by absolute f7"
+    },
+    {
+      "name": "2:Ground bloom",
+      "role": "light on the floor under the blow",
+      "primitive": "glow",
+      "exit": "gone by absolute f20"
+    },
+    {
+      "name": "3:Crack",
+      "role": "ground: the red-hot split cooling",
+      "primitive": "decal T_Crack01",
+      "exit": "gone by absolute f56"
+    },
+    {
+      "name": "4:Shock ring",
+      "role": "ground feedback: ring racing out along the floor",
+      "primitive": "tilted_ring",
+      "exit": "gone by absolute f26"
+    },
+    {
+      "name": "5:Fire tongue 1",
+      "role": "body: fire erupting from the split",
+      "primitive": "flame",
+      "exit": "gone by absolute f32"
+    },
+    {
+      "name": "6:Fire tongue 2",
+      "role": "body: fire erupting from the split",
+      "primitive": "flame",
+      "exit": "gone by absolute f34"
+    },
+    {
+      "name": "7:Fire tongue 3",
+      "role": "body: fire erupting from the split",
+      "primitive": "flame",
+      "exit": "gone by absolute f34"
+    },
+    {
+      "name": "8:Fire tongue 4",
+      "role": "body: fire erupting from the split",
+      "primitive": "flame",
+      "exit": "gone by absolute f36"
+    },
+    {
+      "name": "9:Fire tongue 5",
+      "role": "body: fire erupting from the split",
+      "primitive": "flame",
+      "exit": "gone by absolute f36"
+    },
+    {
+      "name": "10:Fire tongue 6",
+      "role": "body: fire erupting from the split",
+      "primitive": "flame",
+      "exit": "gone by absolute f38"
+    },
+    {
+      "name": "11:Fire tongue 7",
+      "role": "body: fire erupting from the split",
+      "primitive": "flame",
+      "exit": "gone by absolute f38"
+    },
+    {
+      "name": "12:Eruption",
+      "role": "body: the fireball boiling up",
+      "primitive": "billow",
+      "exit": "gone by absolute f32"
+    },
+    {
+      "name": "13:Spit embers",
+      "role": "secondary: embers spat up",
+      "primitive": "radial_sparks",
+      "exit": "gone by absolute f24"
+    },
+    {
+      "name": "14:Rock",
+      "role": "matter: rock thrown up, landing",
+      "primitive": "debris",
+      "exit": "gone by absolute f46"
+    },
+    {
+      "name": "15:Rising embers",
+      "role": "residue: embers rising off the scar",
+      "primitive": "motes",
+      "exit": "gone by absolute f44"
+    }
+  ],
+  "acceptance": [
+    "The fire rises and cools to smoke",
+    "The crack stays on the floor"
+  ],
+  "avoid": [
+    "A round fireball sticker"
+  ]
+}

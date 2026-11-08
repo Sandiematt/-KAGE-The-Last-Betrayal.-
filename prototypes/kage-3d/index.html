@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kage 3D Test</title>
+<style>
+  :root { --ink: #070505; --paper: #efe6d6; --crimson: #c4313a; --gold: #c9a45c; --muted: #8d8276; }
+  html, body { margin: 0; height: 100%; background: #120d0c; color: var(--paper); font-family: 'Segoe UI', system-ui, sans-serif; overflow: hidden; }
+  #stage { position: fixed; inset: 0; display: block; width: 100%; height: 100%; touch-action: none; }
+  .hud { position: fixed; left: 16px; top: 14px; pointer-events: none; }
+  .hud h1 { margin: 0; font: 700 26px/1 Georgia, 'Times New Roman', serif; letter-spacing: 0.32em; }
+  .hud p { margin: 6px 0 0; font-size: 12px; letter-spacing: 0.08em; color: var(--muted); }
+  .bar { position: fixed; left: 50%; bottom: 12px; transform: translateX(-50%); display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; max-width: calc(100% - 32px); }
+  .bar button { border: 0; padding: 7px 11px; font: 600 11px/1 'Segoe UI', system-ui, sans-serif; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--paper); background: rgba(10, 6, 6, 0.78); box-shadow: inset 0 0 0 1px rgba(201, 164, 92, 0.35); cursor: pointer; }
+  .bar button:hover { box-shadow: inset 0 0 0 1px var(--gold); }
+  .bar button.on { background: var(--crimson); box-shadow: none; }
+  .keys { position: fixed; right: 16px; top: 14px; font-size: 12px; color: var(--muted); text-align: right; line-height: 1.6; pointer-events: none; }
+  .err { position: fixed; inset: auto 16px 70px 16px; color: #ffb4a8; font-size: 13px; white-space: pre-wrap; }
+  @media (max-width: 600px) { .keys { display: none; } .hud h1 { font-size: 20px; } }
+</style>
+</head>
+<body>
+<canvas id="stage"></canvas>
+<div class="hud">
+  <h1>KAGE</h1>
+  <p>Designed in Godot 4.7 · rendered in Three.js r170 · 2D painted backdrop</p>
+</div>
+<div class="keys">1 idle · 2 walk · 3 / space slash · E eyes<br>T turntable · O outlines · drag to orbit</div>
+<div class="bar">
+  <button data-anim="idle" class="on">Idle</button>
+  <button data-anim="walk">Walk</button>
+  <button data-anim="slash">Slash</button>
+  <button data-eyes="neutral" class="on">Neutral</button>
+  <button data-eyes="focused">Focused</button>
+  <button data-eyes="awakened">Awakened</button>
+  <button data-toggle="turntable">Turntable</button>
+  <button data-toggle="outline" class="on">Outlines</button>
+</div>
+<div class="err" id="err"></div>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+} }
+</script>
+<script>
+  // surface module load failures (e.g. opened from file:// instead of a local server)
+  window.addEventListener('error', (e) => { document.getElementById('err').textContent = 'Error: ' + (e.message || e) + '\nServe this folder over http (see README.md).'; });
+</script>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Rage_Shadow_Scythe",
+  "role": "rage art finisher (Yamigama, Reaper's Requiem): two crossed, and one per clone's cut",
+  "style": "stylized anime combat, additive light over a dark arena, side-view 2D, baked to sheets and turned per strike in the game",
+  "dominant_shape": "an enormous violet crescent wider than a character is tall",
+  "palette": {
+    "core": [
+      250,
+      236,
+      255
+    ],
+    "body": [
+      154,
+      60,
+      255
+    ],
+    "dark": [
+      8,
+      2,
+      14
+    ],
+    "matter": [
+      110,
+      96,
+      130
+    ],
+    "accent": [
+      80,
+      16,
+      150
+    ]
+  },
+  "delivery": {
+    "kind": "melee"
+  },
+  "anchor": "impact",
+  "reference": {
+    "id": "user request 2026-11-08: Kagetsu crimson moon slashes, Tsubame lightning afterimages, Shizuka purple energy slashes, Onikiri crimson ground-shattering impacts, Mizuchi giant blue water dragon, Yamigama enormous scythe crescents, Iwakudaki golden ground-impact shockwaves"
+  },
+  "beats": [
+    {
+      "frame": 1,
+      "name": "gather",
+      "expect": "dark strands drawn in"
+    },
+    {
+      "frame": 6,
+      "name": "contact",
+      "expect": "the crescent sweeps open with a white-violet edge"
+    },
+    {
+      "frame": 14,
+      "name": "body",
+      "expect": "violet body and pale outer edge"
+    },
+    {
+      "frame": 24,
+      "name": "tail",
+      "expect": "smoke and motes"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Shadow smoke",
+      "role": "matter: shadow smoke rolling out",
+      "primitive": "smoke",
+      "exit": "gone by absolute f29"
+    },
+    {
+      "name": "1:Gathering strands",
+      "role": "anticipation: dark strands drawn in",
+      "primitive": "wisps",
+      "exit": "gone by absolute f12"
+    },
+    {
+      "name": "2:Swing plane",
+      "role": "pivot setting the blade arc into its swing plane",
+      "primitive": "swing",
+      "exit": "gone by absolute f29"
+    },
+    {
+      "name": "2:Swing plane/0:Afterimage",
+      "role": "motion smear lagging the blade",
+      "primitive": "slash_arc",
+      "exit": "gone by absolute f29"
+    },
+    {
+      "name": "2:Swing plane/1:Blade body",
+      "role": "main shape: the saturated crescent",
+      "primitive": "slash_arc",
+      "exit": "gone by absolute f24"
+    },
+    {
+      "name": "2:Swing plane/2:Hot edge",
+      "role": "core: thin white-hot leading edge",
+      "primitive": "slash_arc",
+      "exit": "gone by absolute f20"
+    },
+    {
+      "name": "2:Swing plane/3:Cel crescent",
+      "role": "painted cel crescent held a few frames, in the body colour",
+      "primitive": "sprite T_Slash02",
+      "exit": "gone by absolute f19"
+    },
+    {
+      "name": "2:Swing plane/4:Outer edge",
+      "role": "a thin pale outer edge holding a beat",
+      "primitive": "slash_arc",
+      "exit": "gone by absolute f26"
+    },
+    {
+      "name": "3:Contact flash",
+      "role": "contact",
+      "primitive": "flash",
+      "exit": "gone by absolute f10"
+    },
+    {
+      "name": "4:Violet bloom",
+      "role": "subordinate light under the cut",
+      "primitive": "glow",
+      "exit": "gone by absolute f21"
+    },
+    {
+      "name": "5:Reap sparks",
+      "role": "secondary: violet sparks reaped off the blade",
+      "primitive": "radial_sparks",
+      "exit": "gone by absolute f24"
+    },
+    {
+      "name": "6:Soul motes",
+      "role": "residue: motes rising",
+      "primitive": "motes",
+      "exit": "gone by absolute f29"
+    }
+  ],
+  "acceptance": [
+    "It draws in before it releases",
+    "Violet, never white, through the body"
+  ],
+  "avoid": [
+    "A small crescent"
+  ]
+}

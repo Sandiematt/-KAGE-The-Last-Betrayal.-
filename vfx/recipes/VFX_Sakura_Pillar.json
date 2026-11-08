@@ -1,0 +1,1589 @@
+{
+  "id": "VFX_Sakura_Pillar",
+  "name": "Blade Petal Pillar",
+  "category": "boss",
+  "element": "sakura",
+  "duration": 1.3,
+  "loop": false,
+  "attach": "ground",
+  "peak": 0.1,
+  "impact": 0.55,
+  "light": [
+    1,
+    0.45,
+    0.75
+  ],
+  "seed": 1729,
+  "layers": [
+    {
+      "name": "Floor tell",
+      "renderer": "Ring",
+      "color": [
+        255,
+        20,
+        147,
+        210
+      ],
+      "life": 12,
+      "delay": 0,
+      "billboard": "Fixed",
+      "rotation": [
+        -80,
+        0,
+        0
+      ],
+      "ring": {
+        "vertices": 96,
+        "outer": [
+          1.0,
+          0
+        ],
+        "inner": [
+          0.6799999999999999,
+          0
+        ],
+        "center_ratio": 0.3,
+        "outer_color": [
+          255,
+          20,
+          147,
+          0
+        ],
+        "center_color": [
+          255,
+          20,
+          147,
+          210
+        ],
+        "inner_color": [
+          255,
+          20,
+          147,
+          0
+        ]
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+      "alpha_scroll": [
+        -0.03,
+        0
+      ],
+      "fade_in": 2,
+      "fade_out": 4,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Gather",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        255,
+        184,
+        224,
+        255
+      ],
+      "color_end": [
+        255,
+        102,
+        178,
+        255
+      ],
+      "count": 10,
+      "life": [
+        6,
+        7
+      ],
+      "delay": 0,
+      "interval": 0,
+      "billboard": "Billboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0.8,
+          1.0
+        ],
+        "rot_x": [
+          -90,
+          90
+        ]
+      },
+      "travel": {
+        "end": [
+          0,
+          [
+            -0.8,
+            -0.5
+          ],
+          0
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "size": [
+        0.06,
+        0.1
+      ],
+      "size_end": 0,
+      "easing": "EaseInCubic",
+      "forces": [
+        {
+          "type": "Turbulence",
+          "power": 0.003,
+          "scale": 5
+        }
+      ],
+      "fade_in": 0,
+      "fade_out": 3,
+      "emissive": 1.5,
+      "position": [
+        0,
+        0.3,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Contact flash",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Flare01.png",
+      "color": [
+        255,
+        246,
+        252,
+        255
+      ],
+      "life": 4,
+      "delay": 6,
+      "size": 1.2,
+      "size_curve": [
+        [
+          0,
+          0.55
+        ],
+        [
+          25,
+          1
+        ],
+        [
+          100,
+          0.15
+        ]
+      ],
+      "rotation": [
+        0,
+        0,
+        90
+      ],
+      "fade_in": 0,
+      "fade_out": 2.4,
+      "emissive": 1.6,
+      "position": [
+        0,
+        0.55,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Floor shock",
+      "renderer": "Ring",
+      "color": [
+        255,
+        102,
+        178,
+        255
+      ],
+      "life": 14,
+      "delay": 6,
+      "billboard": "Fixed",
+      "rotation": [
+        -80,
+        0,
+        0
+      ],
+      "ring": {
+        "outer": [
+          1,
+          0
+        ],
+        "inner": {
+          "start": [
+            0.72,
+            0
+          ],
+          "end": [
+            0.97,
+            0
+          ]
+        },
+        "center_ratio": 0.8,
+        "outer_color": [
+          255,
+          102,
+          178,
+          127
+        ],
+        "center_color": [
+          255,
+          102,
+          178,
+          255
+        ],
+        "inner_color": [
+          255,
+          102,
+          178,
+          0
+        ]
+      },
+      "size": 2.1,
+      "size_curve": [
+        [
+          0,
+          0.12
+        ],
+        [
+          35,
+          0.72
+        ],
+        [
+          100,
+          1
+        ]
+      ],
+      "fade_in": 0,
+      "fade_out": 9.799999999999999,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Pillar body",
+      "renderer": "Model",
+      "procedural_model": {
+        "Name": "Pillar body",
+        "Shape/PrimitiveType": "Cylinder",
+        "Shape/Radius": 0.55,
+        "Mesh/Divisions/X": 40,
+        "Mesh/Divisions/Y": 12,
+        "Shape/Depth": 3.3,
+        "Shape/DepthMin": 0,
+        "Shape/DepthMax": 3.3
+      },
+      "color": [
+        255,
+        102,
+        178,
+        210
+      ],
+      "life": 40,
+      "fade_in": 0,
+      "fade_out": 20,
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak02.png",
+      "uv_scroll": [
+        0.01,
+        -0.05
+      ],
+      "delay": 6,
+      "culling": "Double",
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_GradientV01.png",
+      "alpha_wrap": "Clamp",
+      "falloff": {
+        "begin": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "end": [
+          255,
+          255,
+          255,
+          0
+        ],
+        "pow": 1.6,
+        "blend": "Mul"
+      },
+      "scale_start": [
+        1,
+        0.15,
+        1
+      ],
+      "scale_end": [
+        1,
+        1,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "emissive": 1.3,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Pillar core",
+      "renderer": "Model",
+      "procedural_model": {
+        "Name": "Pillar core",
+        "Shape/PrimitiveType": "Cylinder",
+        "Shape/Radius": 0.12,
+        "Mesh/Divisions/X": 40,
+        "Mesh/Divisions/Y": 12,
+        "Shape/Depth": 3.1,
+        "Shape/DepthMin": 0,
+        "Shape/DepthMax": 3.1
+      },
+      "color": [
+        255,
+        246,
+        252,
+        150
+      ],
+      "life": 16,
+      "fade_in": 0,
+      "fade_out": 10,
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak02.png",
+      "uv_scroll": [
+        0.01,
+        -0.08
+      ],
+      "delay": 6,
+      "culling": "Double",
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_GradientV01.png",
+      "alpha_wrap": "Clamp",
+      "falloff": {
+        "begin": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "end": [
+          255,
+          255,
+          255,
+          0
+        ],
+        "pow": 1.6,
+        "blend": "Mul"
+      },
+      "scale_start": [
+        1,
+        0.2,
+        1
+      ],
+      "scale_end": [
+        1,
+        1,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "emissive": 1.6,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Standing blade 1",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_PetalBladeV01.png",
+      "color": [
+        255,
+        246,
+        252,
+        255
+      ],
+      "life": 26,
+      "delay": 9,
+      "scale_start": [
+        0.42,
+        0.14400000000000002,
+        1
+      ],
+      "rotation": [
+        0,
+        0,
+        -48
+      ],
+      "color_curve": {
+        "R": [
+          [
+            0,
+            255
+          ],
+          [
+            30,
+            255
+          ],
+          [
+            75,
+            255
+          ],
+          [
+            100,
+            255
+          ]
+        ],
+        "G": [
+          [
+            0,
+            184
+          ],
+          [
+            30,
+            102
+          ],
+          [
+            75,
+            20
+          ],
+          [
+            100,
+            20
+          ]
+        ],
+        "B": [
+          [
+            0,
+            224
+          ],
+          [
+            30,
+            178
+          ],
+          [
+            75,
+            147
+          ],
+          [
+            100,
+            147
+          ]
+        ],
+        "A": [
+          [
+            0,
+            255
+          ],
+          [
+            30,
+            255
+          ],
+          [
+            75,
+            255
+          ],
+          [
+            100,
+            0
+          ]
+        ]
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+      "cutoff": {
+        "start": 0,
+        "end": 0.85,
+        "easing": "EaseInCubic"
+      },
+      "fade_in": 0,
+      "fade_out": 10.4,
+      "emissive": 2.2,
+      "pivot": "bottom",
+      "position": [
+        -0.3,
+        0,
+        0
+      ],
+      "scale_end": [
+        0.42,
+        1.8000000000000003,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Standing blade 2",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_PetalBladeV01.png",
+      "color": [
+        255,
+        246,
+        252,
+        255
+      ],
+      "life": 26,
+      "delay": 8,
+      "scale_start": [
+        0.42,
+        0.168,
+        1
+      ],
+      "rotation": [
+        0,
+        0,
+        -32
+      ],
+      "color_curve": {
+        "R": [
+          [
+            0,
+            255
+          ],
+          [
+            30,
+            255
+          ],
+          [
+            75,
+            255
+          ],
+          [
+            100,
+            255
+          ]
+        ],
+        "G": [
+          [
+            0,
+            184
+          ],
+          [
+            30,
+            102
+          ],
+          [
+            75,
+            20
+          ],
+          [
+            100,
+            20
+          ]
+        ],
+        "B": [
+          [
+            0,
+            224
+          ],
+          [
+            30,
+            178
+          ],
+          [
+            75,
+            147
+          ],
+          [
+            100,
+            147
+          ]
+        ],
+        "A": [
+          [
+            0,
+            255
+          ],
+          [
+            30,
+            255
+          ],
+          [
+            75,
+            255
+          ],
+          [
+            100,
+            0
+          ]
+        ]
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+      "cutoff": {
+        "start": 0,
+        "end": 0.85,
+        "easing": "EaseInCubic"
+      },
+      "fade_in": 0,
+      "fade_out": 10.4,
+      "emissive": 2.2,
+      "pivot": "bottom",
+      "position": [
+        -0.2,
+        0,
+        0
+      ],
+      "scale_end": [
+        0.42,
+        2.1,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Standing blade 3",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_PetalBladeV01.png",
+      "color": [
+        255,
+        246,
+        252,
+        255
+      ],
+      "life": 26,
+      "delay": 7,
+      "scale_start": [
+        0.42,
+        0.19200000000000003,
+        1
+      ],
+      "rotation": [
+        0,
+        0,
+        -16
+      ],
+      "color_curve": {
+        "R": [
+          [
+            0,
+            255
+          ],
+          [
+            30,
+            255
+          ],
+          [
+            75,
+            255
+          ],
+          [
+            100,
+            255
+          ]
+        ],
+        "G": [
+          [
+            0,
+            184
+          ],
+          [
+            30,
+            102
+          ],
+          [
+            75,
+            20
+          ],
+          [
+            100,
+            20
+          ]
+        ],
+        "B": [
+          [
+            0,
+            224
+          ],
+          [
+            30,
+            178
+          ],
+          [
+            75,
+            147
+          ],
+          [
+            100,
+            147
+          ]
+        ],
+        "A": [
+          [
+            0,
+            255
+          ],
+          [
+            30,
+            255
+          ],
+          [
+            75,
+            255
+          ],
+          [
+            100,
+            0
+          ]
+        ]
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+      "cutoff": {
+        "start": 0,
+        "end": 0.85,
+        "easing": "EaseInCubic"
+      },
+      "fade_in": 0,
+      "fade_out": 10.4,
+      "emissive": 2.2,
+      "pivot": "bottom",
+      "position": [
+        -0.1,
+        0,
+        0
+      ],
+      "scale_end": [
+        0.42,
+        2.4000000000000004,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Standing blade 4",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_PetalBladeV01.png",
+      "color": [
+        255,
+        246,
+        252,
+        255
+      ],
+      "life": 26,
+      "delay": 6,
+      "scale_start": [
+        0.42,
+        0.21600000000000003,
+        1
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color_curve": {
+        "R": [
+          [
+            0,
+            255
+          ],
+          [
+            30,
+            255
+          ],
+          [
+            75,
+            255
+          ],
+          [
+            100,
+            255
+          ]
+        ],
+        "G": [
+          [
+            0,
+            184
+          ],
+          [
+            30,
+            102
+          ],
+          [
+            75,
+            20
+          ],
+          [
+            100,
+            20
+          ]
+        ],
+        "B": [
+          [
+            0,
+            224
+          ],
+          [
+            30,
+            178
+          ],
+          [
+            75,
+            147
+          ],
+          [
+            100,
+            147
+          ]
+        ],
+        "A": [
+          [
+            0,
+            255
+          ],
+          [
+            30,
+            255
+          ],
+          [
+            75,
+            255
+          ],
+          [
+            100,
+            0
+          ]
+        ]
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+      "cutoff": {
+        "start": 0,
+        "end": 0.85,
+        "easing": "EaseInCubic"
+      },
+      "fade_in": 0,
+      "fade_out": 10.4,
+      "emissive": 2.2,
+      "pivot": "bottom",
+      "position": [
+        0.0,
+        0,
+        0
+      ],
+      "scale_end": [
+        0.42,
+        2.7,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Standing blade 5",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_PetalBladeV01.png",
+      "color": [
+        255,
+        246,
+        252,
+        255
+      ],
+      "life": 26,
+      "delay": 7,
+      "scale_start": [
+        0.42,
+        0.19200000000000003,
+        1
+      ],
+      "rotation": [
+        0,
+        0,
+        16
+      ],
+      "color_curve": {
+        "R": [
+          [
+            0,
+            255
+          ],
+          [
+            30,
+            255
+          ],
+          [
+            75,
+            255
+          ],
+          [
+            100,
+            255
+          ]
+        ],
+        "G": [
+          [
+            0,
+            184
+          ],
+          [
+            30,
+            102
+          ],
+          [
+            75,
+            20
+          ],
+          [
+            100,
+            20
+          ]
+        ],
+        "B": [
+          [
+            0,
+            224
+          ],
+          [
+            30,
+            178
+          ],
+          [
+            75,
+            147
+          ],
+          [
+            100,
+            147
+          ]
+        ],
+        "A": [
+          [
+            0,
+            255
+          ],
+          [
+            30,
+            255
+          ],
+          [
+            75,
+            255
+          ],
+          [
+            100,
+            0
+          ]
+        ]
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+      "cutoff": {
+        "start": 0,
+        "end": 0.85,
+        "easing": "EaseInCubic"
+      },
+      "fade_in": 0,
+      "fade_out": 10.4,
+      "emissive": 2.2,
+      "pivot": "bottom",
+      "position": [
+        0.1,
+        0,
+        0
+      ],
+      "scale_end": [
+        0.42,
+        2.4000000000000004,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Standing blade 6",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_PetalBladeV01.png",
+      "color": [
+        255,
+        246,
+        252,
+        255
+      ],
+      "life": 26,
+      "delay": 8,
+      "scale_start": [
+        0.42,
+        0.168,
+        1
+      ],
+      "rotation": [
+        0,
+        0,
+        32
+      ],
+      "color_curve": {
+        "R": [
+          [
+            0,
+            255
+          ],
+          [
+            30,
+            255
+          ],
+          [
+            75,
+            255
+          ],
+          [
+            100,
+            255
+          ]
+        ],
+        "G": [
+          [
+            0,
+            184
+          ],
+          [
+            30,
+            102
+          ],
+          [
+            75,
+            20
+          ],
+          [
+            100,
+            20
+          ]
+        ],
+        "B": [
+          [
+            0,
+            224
+          ],
+          [
+            30,
+            178
+          ],
+          [
+            75,
+            147
+          ],
+          [
+            100,
+            147
+          ]
+        ],
+        "A": [
+          [
+            0,
+            255
+          ],
+          [
+            30,
+            255
+          ],
+          [
+            75,
+            255
+          ],
+          [
+            100,
+            0
+          ]
+        ]
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+      "cutoff": {
+        "start": 0,
+        "end": 0.85,
+        "easing": "EaseInCubic"
+      },
+      "fade_in": 0,
+      "fade_out": 10.4,
+      "emissive": 2.2,
+      "pivot": "bottom",
+      "position": [
+        0.2,
+        0,
+        0
+      ],
+      "scale_end": [
+        0.42,
+        2.1,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Standing blade 7",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_PetalBladeV01.png",
+      "color": [
+        255,
+        246,
+        252,
+        255
+      ],
+      "life": 26,
+      "delay": 9,
+      "scale_start": [
+        0.42,
+        0.14400000000000002,
+        1
+      ],
+      "rotation": [
+        0,
+        0,
+        48
+      ],
+      "color_curve": {
+        "R": [
+          [
+            0,
+            255
+          ],
+          [
+            30,
+            255
+          ],
+          [
+            75,
+            255
+          ],
+          [
+            100,
+            255
+          ]
+        ],
+        "G": [
+          [
+            0,
+            184
+          ],
+          [
+            30,
+            102
+          ],
+          [
+            75,
+            20
+          ],
+          [
+            100,
+            20
+          ]
+        ],
+        "B": [
+          [
+            0,
+            224
+          ],
+          [
+            30,
+            178
+          ],
+          [
+            75,
+            147
+          ],
+          [
+            100,
+            147
+          ]
+        ],
+        "A": [
+          [
+            0,
+            255
+          ],
+          [
+            30,
+            255
+          ],
+          [
+            75,
+            255
+          ],
+          [
+            100,
+            0
+          ]
+        ]
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+      "cutoff": {
+        "start": 0,
+        "end": 0.85,
+        "easing": "EaseInCubic"
+      },
+      "fade_in": 0,
+      "fade_out": 10.4,
+      "emissive": 2.2,
+      "pivot": "bottom",
+      "position": [
+        0.3,
+        0,
+        0
+      ],
+      "scale_end": [
+        0.42,
+        1.8000000000000003,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Up streaks",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Spark01.png",
+      "color": [
+        255,
+        246,
+        252,
+        255
+      ],
+      "color_end": [
+        255,
+        102,
+        178,
+        255
+      ],
+      "count": 10,
+      "life": [
+        10,
+        15
+      ],
+      "delay": 6,
+      "billboard": "DirectionalBillboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          0.08
+        ],
+        "rot_x": [
+          0,
+          90
+        ]
+      },
+      "travel": {
+        "end": [
+          0,
+          [
+            1.6,
+            3.0
+          ],
+          0
+        ],
+        "easing": "EaseOutQuartic"
+      },
+      "scale_start": [
+        0.1,
+        [
+          0.4,
+          0.8
+        ],
+        1
+      ],
+      "scale_end": [
+        0.03,
+        0.08000000000000002,
+        1
+      ],
+      "easing": "EaseInQuadratic",
+      "forces": [],
+      "fade_in": 0,
+      "fade_out": 5,
+      "emissive": 1.5,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Petal geyser",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_SakuraPetal01.png",
+      "color": [
+        255,
+        246,
+        252,
+        255
+      ],
+      "count": 40,
+      "life": [
+        42,
+        60
+      ],
+      "delay": 7,
+      "interval": 0,
+      "size": [
+        0.14,
+        0.22
+      ],
+      "rotation": [
+        0,
+        0,
+        [
+          -180,
+          180
+        ]
+      ],
+      "spin": [
+        0,
+        0,
+        [
+          -7,
+          7
+        ]
+      ],
+      "forces": [
+        {
+          "type": "Turbulence",
+          "power": 0.005,
+          "scale": 5
+        },
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            -0.0007,
+            0
+          ]
+        }
+      ],
+      "color_curve": {
+        "R": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            45,
+            255
+          ],
+          [
+            80,
+            255
+          ],
+          [
+            100,
+            255
+          ]
+        ],
+        "G": [
+          [
+            0,
+            246
+          ],
+          [
+            18,
+            184
+          ],
+          [
+            45,
+            102
+          ],
+          [
+            80,
+            20
+          ],
+          [
+            100,
+            20
+          ]
+        ],
+        "B": [
+          [
+            0,
+            252
+          ],
+          [
+            18,
+            224
+          ],
+          [
+            45,
+            178
+          ],
+          [
+            80,
+            147
+          ],
+          [
+            100,
+            147
+          ]
+        ],
+        "A": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            45,
+            255
+          ],
+          [
+            80,
+            255
+          ],
+          [
+            100,
+            0
+          ]
+        ]
+      },
+      "fade_in": 1,
+      "fade_out": 8,
+      "emissive": 1.6,
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          0.35
+        ],
+        "rotate": false
+      },
+      "travel": {
+        "end": [
+          [
+            -1.3,
+            1.3
+          ],
+          [
+            1.6,
+            3.4
+          ],
+          [
+            -0.3,
+            0.3
+          ]
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Glints",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Star01.png",
+      "color": [
+        255,
+        246,
+        252,
+        255
+      ],
+      "count": 5,
+      "life": 14,
+      "delay": 8,
+      "interval": 0,
+      "size": 0.38,
+      "size_curve": [
+        [
+          0,
+          0.2
+        ],
+        [
+          15,
+          1.15
+        ],
+        [
+          60,
+          1
+        ],
+        [
+          100,
+          0
+        ]
+      ],
+      "rotation": [
+        0,
+        0,
+        [
+          -20,
+          20
+        ]
+      ],
+      "spin": [
+        0,
+        0,
+        [
+          -0.8,
+          0.8
+        ]
+      ],
+      "billboard": "Billboard",
+      "fade_in": 0,
+      "fade_out": 3,
+      "emissive": 1.8,
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          1.4
+        ]
+      },
+      "position": [
+        0,
+        1.6,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Settling petals",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_SakuraPetal01.png",
+      "color": [
+        255,
+        196,
+        226,
+        225
+      ],
+      "count": 10,
+      "life": [
+        36,
+        44
+      ],
+      "delay": 30,
+      "interval": 0,
+      "size": [
+        0.13,
+        0.2
+      ],
+      "rotation": [
+        0,
+        0,
+        [
+          -180,
+          180
+        ]
+      ],
+      "spin": [
+        0,
+        0,
+        [
+          -5,
+          5
+        ]
+      ],
+      "blend": "Blend",
+      "forces": [
+        {
+          "type": "Turbulence",
+          "power": 0.004,
+          "scale": 5
+        },
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            -0.0008,
+            0
+          ]
+        }
+      ],
+      "color_end": [
+        255,
+        196,
+        226,
+        0
+      ],
+      "easing": "EaseInCubic",
+      "fade_in": 4,
+      "fade_out": 14,
+      "position": [
+        0,
+        2.0,
+        0
+      ],
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0.2,
+          1.2
+        ],
+        "rotate": false
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Alpha.vfxmat.json"
+    }
+  ],
+  "design": "A pink ellipse flares on the floor, then a white contact, a tall pink light column and a fan of seven crescent blades shoot up while a geyser of petals rises and drifts back down.",
+  "delivery": {
+    "kind": "projectile",
+    "projectile": "VFX_Sakura_Ribbon"
+  },
+  "screen": {
+    "shake": 0.35,
+    "hitstop": 0.05
+  }
+}

@@ -1,0 +1,479 @@
+{
+  "id": "VFX_Sakura_Ribbon",
+  "name": "Blossom Ribbon",
+  "category": "projectile",
+  "element": "sakura",
+  "duration": 1.2,
+  "loop": false,
+  "attach": "projectile",
+  "peak": 0.1,
+  "impact": 0,
+  "light": [
+    1,
+    0.85,
+    0.6
+  ],
+  "seed": 1729,
+  "layers": [
+    {
+      "name": "Head glow",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        255,
+        102,
+        178,
+        200
+      ],
+      "life": 6,
+      "delay": 0,
+      "size": 1.0,
+      "size_curve": [
+        [
+          0,
+          0.25
+        ],
+        [
+          18,
+          1
+        ],
+        [
+          100,
+          1.25
+        ]
+      ],
+      "billboard": "Billboard",
+      "fade_in": 1,
+      "fade_out": 3,
+      "position": [
+        0,
+        0.15,
+        0
+      ],
+      "infinite": true,
+      "interval": 3,
+      "count": 1,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Head blossom",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_SakuraBlossom01.png",
+      "color": [
+        255,
+        246,
+        252,
+        255
+      ],
+      "count": 1,
+      "life": 6,
+      "delay": 0,
+      "size": 0.55,
+      "size_curve": null,
+      "rotation": [
+        0,
+        0,
+        [
+          -36,
+          36
+        ]
+      ],
+      "spin": [
+        0,
+        0,
+        9
+      ],
+      "color_curve": null,
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseTile01.png",
+      "cutoff": null,
+      "fade_in": 1,
+      "fade_out": 2,
+      "emissive": 1.8,
+      "position": [
+        0,
+        0.18,
+        0
+      ],
+      "infinite": true,
+      "interval": 3,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Light ribbon",
+      "renderer": "Track",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Trail01.png",
+      "color": [
+        255,
+        20,
+        147,
+        255
+      ],
+      "life": 22,
+      "track_size": [
+        0.05,
+        0.22,
+        0.05
+      ],
+      "position": [
+        0,
+        0.08,
+        0
+      ],
+      "fade_in": 0,
+      "fade_out": 14,
+      "emissive": 1.8,
+      "inherit": {
+        "location": "WhenCreating",
+        "rotation": "WhenCreating",
+        "scale": "WhenCreating"
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+      "alpha_scroll": [
+        -0.04,
+        0
+      ],
+      "cutoff": {
+        "start": 0,
+        "end": 0.8,
+        "easing": "EaseInQuadratic"
+      },
+      "infinite": true,
+      "interval": 1,
+      "count": 1,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Path blossoms",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_SakuraBlossom01.png",
+      "color": [
+        255,
+        246,
+        252,
+        255
+      ],
+      "count": 1,
+      "life": 30,
+      "delay": 0,
+      "size": 0.42,
+      "size_curve": [
+        [
+          0,
+          0.4
+        ],
+        [
+          18,
+          1
+        ],
+        [
+          100,
+          1.1
+        ]
+      ],
+      "rotation": [
+        0,
+        0,
+        [
+          -36,
+          36
+        ]
+      ],
+      "spin": [
+        0,
+        0,
+        [
+          -2,
+          2
+        ]
+      ],
+      "color_curve": {
+        "R": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            45,
+            255
+          ],
+          [
+            80,
+            255
+          ],
+          [
+            100,
+            255
+          ]
+        ],
+        "G": [
+          [
+            0,
+            246
+          ],
+          [
+            18,
+            184
+          ],
+          [
+            45,
+            102
+          ],
+          [
+            80,
+            20
+          ],
+          [
+            100,
+            20
+          ]
+        ],
+        "B": [
+          [
+            0,
+            252
+          ],
+          [
+            18,
+            224
+          ],
+          [
+            45,
+            178
+          ],
+          [
+            80,
+            147
+          ],
+          [
+            100,
+            147
+          ]
+        ],
+        "A": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            45,
+            255
+          ],
+          [
+            80,
+            255
+          ],
+          [
+            100,
+            0
+          ]
+        ]
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseTile01.png",
+      "cutoff": {
+        "start": 0,
+        "end": 0.9,
+        "easing": "EaseInQuadratic"
+      },
+      "fade_in": 0,
+      "fade_out": 6,
+      "emissive": 1.8,
+      "position": [
+        0,
+        0.1,
+        [
+          -0.1,
+          0.1
+        ]
+      ],
+      "inherit": {
+        "location": "WhenCreating",
+        "rotation": "WhenCreating",
+        "scale": "WhenCreating"
+      },
+      "infinite": true,
+      "interval": 4,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Kicked petals",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_SakuraPetal01.png",
+      "color": [
+        255,
+        246,
+        252,
+        255
+      ],
+      "count": 1,
+      "life": [
+        22,
+        30
+      ],
+      "delay": 0,
+      "interval": 2,
+      "size": [
+        0.1,
+        0.16
+      ],
+      "rotation": [
+        0,
+        0,
+        [
+          -180,
+          180
+        ]
+      ],
+      "spin": [
+        0,
+        0,
+        [
+          -7,
+          7
+        ]
+      ],
+      "forces": [
+        {
+          "type": "Turbulence",
+          "power": 0.004,
+          "scale": 5
+        },
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            -0.0011,
+            0
+          ]
+        }
+      ],
+      "color_curve": {
+        "R": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            45,
+            255
+          ],
+          [
+            80,
+            255
+          ],
+          [
+            100,
+            255
+          ]
+        ],
+        "G": [
+          [
+            0,
+            246
+          ],
+          [
+            18,
+            184
+          ],
+          [
+            45,
+            102
+          ],
+          [
+            80,
+            20
+          ],
+          [
+            100,
+            20
+          ]
+        ],
+        "B": [
+          [
+            0,
+            252
+          ],
+          [
+            18,
+            224
+          ],
+          [
+            45,
+            178
+          ],
+          [
+            80,
+            147
+          ],
+          [
+            100,
+            147
+          ]
+        ],
+        "A": [
+          [
+            0,
+            255
+          ],
+          [
+            18,
+            255
+          ],
+          [
+            45,
+            255
+          ],
+          [
+            80,
+            255
+          ],
+          [
+            100,
+            0
+          ]
+        ]
+      },
+      "fade_in": 1,
+      "fade_out": 8,
+      "emissive": 1.6,
+      "position": [
+        0,
+        0.05,
+        0
+      ],
+      "velocity": [
+        [
+          -0.012,
+          0.004
+        ],
+        [
+          0.012,
+          0.026
+        ],
+        [
+          -0.004,
+          0.004
+        ]
+      ],
+      "inherit": {
+        "location": "WhenCreating",
+        "rotation": "WhenCreating",
+        "scale": "WhenCreating"
+      },
+      "infinite": true,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    }
+  ],
+  "design": "A spinning blossom races along the floor; a deep-pink ribbon of light unrolls behind it while blossoms bloom open on the path and petals kick up and fall.",
+  "delivery": {
+    "kind": "projectile"
+  },
+  "flight": 0.55
+}

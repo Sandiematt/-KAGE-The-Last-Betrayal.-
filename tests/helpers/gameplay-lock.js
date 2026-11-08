@@ -25,7 +25,11 @@ const FIGHTS = [
   { id: 'raikon', stage: 'act1.boss', frames: 2100 },
   { id: 'akari', stage: 'act2.boss', frames: 2100 },
   { id: 'takashi', stage: 'act3.boss', frames: 2100 },
-  { id: 'witness', stage: 'core.witness', frames: 2400 }
+  { id: 'witness', stage: 'core.witness', frames: 2400 },
+  // directional attacks and the spam read: Kage at a quarter of his usual damage, so the foe lasts the whole script
+  { id: 'forms', cfg: { mode: 'campaign', enemyId: 'order_footman', env: 'highlands', diff: 1, ng: 0 }, frames: 2400, dmgMul: 0.25, order: 'forms' },
+  // the perfect dodge: Kage answers the foe's wind-ups by dashing through the blow as it lands (react 'dodge')
+  { id: 'dodge', cfg: { mode: 'campaign', enemyId: 'order_footman', env: 'highlands', diff: 1, ng: 0 }, frames: 1200, dmgMul: 0.25, react: 'dodge' }
 ];
 
 // Player input macros: [frame offset, action, 'down' | 'up' | 'tap'] (a tap is down now, up two frames later).
@@ -44,15 +48,33 @@ const MACROS = {
   doubleJump: [[0, 'jump', 'tap'], [16, 'jump', 'tap'], [30, 'weapon', 'tap']],
   airDash: [[0, 'jump', 'tap'], [14, 'toward', 'down'], [14, 'dash', 'tap'], [22, 'punch', 'tap'], [24, 'toward', 'up']],
   grab: [[0, 'block', 'down'], [2, 'punch', 'tap'], [6, 'block', 'up']],
-  kunai: [[0, 'special', 'tap']],
+  kunai: [[0, 'rage', 'clear'], [0, 'special', 'tap']],
   special: [[0, 'rage', 'set'], [0, 'special', 'tap']],
   guard: [[0, 'block', 'down'], [36, 'block', 'up']],
   backstep: [[0, 'away', 'down'], [0, 'dash', 'tap'], [10, 'away', 'up']],
   walkBack: [[0, 'away', 'down'], [24, 'away', 'up']],
-  launcher: [[0, 'punch', 'tap'], [12, 'punch', 'tap'], [24, 'kick', 'tap'], [40, 'jump', 'tap'], [56, 'punch', 'tap'], [68, 'kick', 'tap']]
+  launcher: [[0, 'punch', 'tap'], [12, 'punch', 'tap'], [24, 'kick', 'tap'], [40, 'jump', 'tap'], [56, 'punch', 'tap'], [68, 'kick', 'tap']],
+  // directional sword arcs (11-sword-arcs.js): W / S / A / D + attack, the diagonals, a two-cut directional combo, the
+  // dash strike and the air plunge
+  dirUp: [[0, 'up', 'down'], [0, 'weapon', 'tap'], [6, 'up', 'up']],
+  dirDown: [[0, 'block', 'down'], [1, 'weapon', 'tap'], [8, 'block', 'up']],
+  dirAway: [[0, 'away', 'down'], [0, 'weapon', 'tap'], [8, 'away', 'up']],
+  dirFwd: [[0, 'toward', 'down'], [0, 'weapon', 'tap'], [8, 'toward', 'up']],
+  dirDiagDown: [[0, 'block', 'down'], [0, 'toward', 'down'], [1, 'weapon', 'tap'], [8, 'block', 'up'], [8, 'toward', 'up']],
+  dirCombo: [[0, 'toward', 'down'], [0, 'weapon', 'tap'], [4, 'toward', 'up'], [16, 'block', 'down'], [17, 'weapon', 'tap'], [22, 'block', 'up']],
+  dirDiagUp: [[0, 'up', 'down'], [0, 'toward', 'down'], [0, 'weapon', 'tap'], [8, 'up', 'up'], [8, 'toward', 'up']],
+  dashStrike: [[0, 'toward', 'tap'], [5, 'toward', 'tap'], [9, 'weapon', 'tap']],
+  airPlunge: [[0, 'jump', 'tap'], [16, 'block', 'down'], [17, 'weapon', 'tap'], [30, 'block', 'up']],
+  // mashing the weapon button well past the end of the string: the foe reads it (SPAM_READ) and punishes
+  spam: [[0, 'weapon', 'tap'], [14, 'weapon', 'tap'], [28, 'weapon', 'tap'], [42, 'weapon', 'tap'], [56, 'weapon', 'tap'], [70, 'weapon', 'tap'], [84, 'weapon', 'tap']]
 };
 const ORDER = ['punch3', 'kickCharge', 'weapon3', 'kunai', 'jumpWeapon', 'dashPunch', 'kickTap', 'guard', 'slide', 'jumpPunch', 'special',
   'weapon3', 'grab', 'doubleJump', 'backstep', 'airDash', 'launcher', 'jumpKick', 'dashIn', 'walkBack', 'weapon3', 'punch3'];
+// the 'forms' fight: the directional weapon forms and the spam read, against a sturdy foe so the whole list runs
+// (dirUp lifts Kage, so a walk lets him land before the grounded forms; the kesa diagonal comes before the guard, whose
+// block would turn it into the counter-slash; dirAway turns him round to cut the other way, so the walk back faces him again)
+const FORMS_ORDER = ['dirUp', 'walkBack', 'dirDown', 'dirDiagDown', 'dirFwd', 'dirAway', 'walkBack', 'guard', 'dashStrike', 'dirDiagUp', 'airPlunge', 'spam',
+  'walkBack', 'dirCombo', 'dirUp', 'airPlunge', 'weapon3', 'dirDown', 'dirDiagDown', 'spam', 'dirFwd', 'dirDiagUp'];
 const MELEE_RANGE = 150;
 
 const r1 = v => { const n = Math.round(v * 10) / 10; return n === 0 ? 0 : n; };
@@ -88,7 +110,7 @@ const hash = rec => crypto.createHash('sha1').update(JSON.stringify(rec)).digest
 // The scripted player: walks in, runs the next macro in ORDER, and guards on the foe's wind-up every other time it sees
 // one (a parry when the blow lands inside the window, a block otherwise). A deterministic function of the sim state.
 class Pilot {
-  constructor(S, s) { this.S = S; this.s = s; this.i = 0; this.macro = null; this.t = 0; this.held = new Set(); this.taps = []; this.threats = 0; this.sawWindup = false; this.wait = 0; }
+  constructor(S, s, order, react) { this.S = S; this.s = s; this.order = order || ORDER; this.react = react || 'guard'; this.i = 0; this.macro = null; this.t = 0; this.held = new Set(); this.taps = []; this.threats = 0; this.sawWindup = false; this.wait = 0; }
   dirKeys() { const p = this.s.player, e = this.s.enemy; const toward = e.x >= p.x ? 'right' : 'left'; return { toward, away: toward === 'right' ? 'left' : 'right' }; }
   down(a) { if (!this.held.has(a)) { this.held.add(a); this.S.InputManager.virtualDown(a); } }
   up(a) { if (this.held.has(a)) { this.held.delete(a); this.S.InputManager.virtualUp(a); } }
@@ -107,10 +129,12 @@ class Pilot {
       if (this.threats % 2 === 1 && !this.macro && p.grounded && p.canAct()) { this.releaseAll(); this.start('guard'); }
     }
     this.sawWindup = windup;
+    // react 'dodge': as the foe's blow is about to come out close by, dash through it
+    if (this.react === 'dodge' && e.alive && e.state === 'move' && e.mphase === 0 && e.mdur[0] - e.mt < 0.06 && dist < 260 && p.grounded && p.canAct() && (!this.macro || this.name !== 'dashIn')) { this.releaseAll(); this.start('dashIn'); }
     if (!this.macro) {
       if (this.wait > 0) { this.wait--; return; }
       if (!p.canAct() && p.state !== 'air') return;
-      const next = ORDER[this.i % ORDER.length];
+      const next = this.order[this.i % this.order.length];
       const ranged = next === 'kunai' || next === 'walkBack' || next === 'backstep';
       const k = this.dirKeys();
       if (!ranged && dist > MELEE_RANGE && p.grounded) { this.up(k.away); this.down(k.toward); return; }
@@ -121,6 +145,7 @@ class Pilot {
       if (at !== this.t) continue;
       const a = act === 'toward' ? this.dir.toward : act === 'away' ? this.dir.away : act;
       if (how === 'set') { p.rage = 100; continue; }
+      if (how === 'clear') { p.rage = Math.min(p.rage, 99); continue; }   // a kunai, never the rage art
       if (how === 'down') this.down(a); else if (how === 'up') this.up(a); else { this.down(a); this.taps.push({ a, n: 2 }); }
     }
     this.t++;
@@ -162,10 +187,11 @@ function runFight(spec, opts) {
   wrap(s, 'onKO', ([def, att]) => ev('ko', { def: fighterLabel(def), att: att ? fighterLabel(att) : null }));
   wrap(s, 'onBossPhase', ([f, idx]) => ev('phase', { who: fighterLabel(f), idx }));
   wrap(s, 'onSpecial', ([f, name]) => ev('special', { who: fighterLabel(f), name }));
+  wrap(s, 'onSpamPunish', ([att, def]) => ev('punish', { att: fighterLabel(att), def: fighterLabel(def) }));
   // a long-lived, hard-hitting Kage, so every fight runs its full script and reaches the foe's later phases and its KO
   s.player.maxHp = s.player.hp = 100000;
   s.player.dmgMul *= spec.dmgMul || 3;
-  const pilot = new Pilot(S, s);
+  const pilot = new Pilot(S, s, spec.order === 'forms' ? FORMS_ORDER : ORDER, spec.react);
   const box = { a: { x: 0, y: 0, w: 0, h: 0 }, b: { x: 0, y: 0, w: 0, h: 0 } };
   const out = { frames: [], samples: {}, events };
   const STEP = S.STEP, real = 1 / 60;

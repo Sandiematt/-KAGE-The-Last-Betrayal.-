@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Takashi_Parry",
+  "role": "frequent defensive hit (the Iron Guard parry, the execution pin)",
+  "style": "stylized anime combat, additive holy gold over a dark fortress night (and his golden domain), side-view 2D, baked to sheets",
+  "dominant_shape": "a gold crescent across the contact with sparks fanned back",
+  "palette": {
+    "core": [
+      255,
+      250,
+      232
+    ],
+    "body": [
+      255,
+      186,
+      64
+    ],
+    "dark": [
+      40,
+      22,
+      4
+    ],
+    "matter": [
+      156,
+      132,
+      100
+    ],
+    "accent": [
+      214,
+      118,
+      22
+    ]
+  },
+  "delivery": {
+    "kind": "melee"
+  },
+  "anchor": "impact",
+  "reference": {
+    "id": "user reference sheets: Takashi the Father, Yashiro Titan (phase II) and Ogon Musojin / Tenrai domain (phase III)"
+  },
+  "beats": [
+    {
+      "frame": 1,
+      "name": "contact",
+      "expect": "gold crescent and a small star"
+    },
+    {
+      "frame": 6,
+      "name": "body",
+      "expect": "enso ring opening, sparks fanned back"
+    },
+    {
+      "frame": 20,
+      "name": "tail",
+      "expect": "embers"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Swing plane",
+      "role": "pivot setting the blade arc into its swing plane",
+      "primitive": "swing",
+      "exit": "gone by absolute f16"
+    },
+    {
+      "name": "0:Swing plane/0:Afterimage",
+      "role": "amber motion smear lagging the blade",
+      "primitive": "slash_arc",
+      "exit": "gone by absolute f16"
+    },
+    {
+      "name": "0:Swing plane/1:Blade body",
+      "role": "main shape: saturated gold arc",
+      "primitive": "slash_arc",
+      "exit": "gone by absolute f11"
+    },
+    {
+      "name": "0:Swing plane/2:Hot edge",
+      "role": "core: thin white-hot leading edge",
+      "primitive": "slash_arc",
+      "exit": "gone by absolute f7"
+    },
+    {
+      "name": "1:Contact star",
+      "role": "contact",
+      "primitive": "flash",
+      "exit": "gone by absolute f4"
+    },
+    {
+      "name": "2:Gold bloom",
+      "role": "subordinate light under the contact",
+      "primitive": "glow",
+      "exit": "gone by absolute f9"
+    },
+    {
+      "name": "3:Enso",
+      "role": "body: thin enso ring opening",
+      "primitive": "tilted_ring",
+      "exit": "gone by absolute f16"
+    },
+    {
+      "name": "4:Deflect streaks",
+      "role": "secondary tier 1: hard streaks thrown back at the attacker",
+      "primitive": "radial_sparks",
+      "exit": "gone by absolute f9"
+    },
+    {
+      "name": "5:Sparks streaks",
+      "role": "secondary: gold sparks in tiers",
+      "primitive": "spark_burst",
+      "exit": "gone by absolute f11"
+    },
+    {
+      "name": "6:Sparks",
+      "role": "secondary: gold sparks in tiers",
+      "primitive": "spark_burst",
+      "exit": "gone by absolute f19"
+    },
+    {
+      "name": "7:Sparks heavy",
+      "role": "secondary: gold sparks in tiers",
+      "primitive": "spark_burst",
+      "exit": "gone by absolute f27"
+    },
+    {
+      "name": "8:Embers",
+      "role": "residue: gold embers rising and hanging",
+      "primitive": "motes",
+      "exit": "gone by absolute f27"
+    }
+  ],
+  "acceptance": [
+    "The crescent reads before the star takes over",
+    "Sparks go back toward the attacker"
+  ],
+  "avoid": [
+    "A full-screen flash on every parry"
+  ]
+}

@@ -8,6 +8,10 @@ const ELEMENTS = {
   shade:     { smear: [205, 200, 190], edge: '#ffffff', alpha: 0.72 },
   wind:      { smear: [222, 236, 230], edge: 'rgba(255,255,255,0.85)', alpha: 0.34, streaks: 1 },
   moon:      { smear: [150, 122, 255], alt: [255, 72, 98], edge: 'rgba(246,238,255,1)', glow: [150, 122, 255], alpha: 0.5, layers: 1 },
+  // Kagetsu's crimson moon: a deep blood-red crescent with a pale-pink core
+  crimson:   { smear: [226, 30, 56], alt: [255, 132, 140], edge: 'rgba(255,238,240,1)', glow: [255, 40, 64], alpha: 0.55, layers: 1 },
+  // Shizuka's silent violet: a slimmer, elegant purple cut with a lilac outer band
+  violet:    { smear: [160, 104, 255], alt: [232, 214, 255], edge: 'rgba(250,244,255,1)', glow: [170, 118, 255], alpha: 0.5, layers: 1, narrow: 0.62 },
   blood:     { smear: [200, 28, 52], alt: [150, 122, 255], edge: 'rgba(255,214,220,1)', glow: [220, 40, 60], alpha: 0.52, layers: 1 },
   water:     { smear: [64, 148, 255], alt: [170, 225, 255], edge: 'rgba(236,250,255,1)', glow: [80, 170, 255], alpha: 0.55, water: 1 },
   flame:     { smear: [255, 104, 34], alt: [255, 214, 120], edge: 'rgba(255,244,200,1)', glow: [255, 110, 40], alpha: 0.6, add: 1, fire: 1 },
@@ -15,8 +19,8 @@ const ELEMENTS = {
   // Raikon's red lightning (Raikō no Tachi): a red slash with a white core and a jagged bolt along its edge
   redline:   { smear: [255, 58, 46], alt: [120, 10, 10], edge: 'rgba(255,240,236,1)', glow: [255, 60, 40], alpha: 0.55, bolts: 1, boltColor: '#ffe9e4' },
   earth:     { smear: [210, 168, 112], edge: 'rgba(255,232,190,0.9)', glow: [255, 150, 70], alpha: 0.48 },
-  // Akari's twin blades (Kagehira & Yurei): a NARROW violet slash with a thin white core, shedding a few flat petals
-  petal:     { smear: [155, 107, 214], edge: 'rgba(246,238,255,1)', glow: [155, 107, 214], alpha: 0.55, narrow: 0.32 },
+  // Akari's twin blades (Kagehira & Yurei): a NARROW sakura-pink slash with a thin white core, shedding a few flat petals
+  petal:     { smear: [255, 102, 178], edge: 'rgba(255,244,250,1)', glow: [214, 90, 160], alpha: 0.55, narrow: 0.32 },
   // Shinsen and the Tachibana father style (Takashi): a broad GOLD slash with a pale-gold outer band and a white core
   gold:      { smear: [232, 186, 84], alt: [255, 226, 150], edge: 'rgba(255,250,232,1)', glow: [240, 196, 90], alpha: 0.56, layers: 1 },
   // the Witness (Mugen no Ha, whatever weapon it copies): a deep violet slash over a near-black outer band, white core,
@@ -40,6 +44,20 @@ function smearSamples(arr) {
   }
   return n;
 }
+// the crescent of each directional cut (Effects.dirSlash): an ellipse round a point offset from the shoulders (cx, cy in
+// body units, facing right), radii in units of the weapon's reach, tilted by rot (degrees), swept from a0 to a1 (degrees
+// on the ellipse, 0 = front, 90 = below) the way the blade travels: the horizontal over the top and level through the
+// front, the rising cut from the floor up past the head, the overhead straight down, the diagonals at 35-40 degrees, the
+// iai under and level
+const DIR_SLASH = {
+  fwd:      { cx: 22, cy: 30, rx: 0.95, ry: 0.28, rot: 0, a0: -172, a1: 14 },
+  dash:     { cx: 46, cy: 20, rx: 1.3, ry: 0.24, rot: 0, a0: 168, a1: -6 },
+  up:       { cx: 28, cy: -22, rx: 0.42, ry: 0.8, rot: 0, a0: 72, a1: -104 },
+  down:     { cx: 30, cy: -6, rx: 0.4, ry: 0.86, rot: 0, a0: -108, a1: 80 },
+  diagUp:   { cx: 26, cy: -4, rx: 0.95, ry: 0.36, rot: -38, a0: 172, a1: -8 },
+  diagDown: { cx: 26, cy: 0, rx: 0.95, ry: 0.36, rot: 36, a0: -172, a1: 8 }
+};
+DIR_SLASH.airUp = DIR_SLASH.up; DIR_SLASH.airDown = DIR_SLASH.down;
 const VFX = {
   // flat anime slash: a solid crescent swept by the blade, thinning toward its tail, with a white core along the edge
   drawSmear(ctx, f, arr, elId, time) {
@@ -61,6 +79,9 @@ const VFX = {
     };
     const c = el.smear, col = `rgb(${c[0]},${c[1]},${c[2]})`;
     ctx.save(); ctx.globalAlpha = Math.min(1, fade * 1.3);
+    // a horizontal sword arc (11-sword-arcs.js `flat`) leaves a flat, wide smear at chest height: squashed toward the
+    // line its hands travelled (a 2D stylisation of the sweep, the body itself is never squashed)
+    if (f.smearFlat && (arr === f.trail || arr === f.trail2)) { ctx.translate(0, f.smearY); ctx.scale(1, f.smearFlat); ctx.translate(0, -f.smearY); }
     if (el.layers) band(1.14, 0.22, `rgb(${el.alt[0]},${el.alt[1]},${el.alt[2]})`);
     const nk = el.narrow || 1;   // narrow slashes (petal) keep only a thin band at the blade's edge
     band(1.0, 0.85 * nk, col);
@@ -94,10 +115,10 @@ const VFX = {
     const vx = (tx - (A.hx + Math.cos(A.a) * A.L)) * 30, vy = (ty - (A.hy + Math.sin(A.a) * A.L)) * 30;
     if (el === 'water') for (let i = 0; i < 2; i++) fx.part({ x: tx, y: ty, vx: vx * rand(0.2, 0.5) + rand(-60, 60), vy: vy * rand(0.2, 0.5) - rand(40, 160), life: rand(0.4, 0.7), size: rand(1.6, 3.2), color: i ? '#bfe6ff' : '#4f9dff', type: 'drop', grav: 1300, drag: 0.6, sq: 0.8 });
     else if (el === 'flame') { fx.part({ x: tx, y: ty, vx: rand(-40, 40), vy: rand(-220, -80), life: rand(0.35, 0.7), size: rand(1.4, 2.6), color: '#ffb35a', type: 'spark', grav: -140, drag: 1.2, add: true }); fx.part({ x: tx, y: ty, vx: rand(-30, 30), vy: rand(-120, -40), life: 0.3, size: rand(6, 10), color: 'rgba(255,120,40,0.5)', type: 'flame', grav: -200, drag: 2, add: true, grow: -10 }); }
-    else if (el === 'moon' || el === 'blood') fx.part({ x: tx + rand(-6, 6), y: ty + rand(-6, 6), vx: vx * 0.1, vy: vy * 0.1, life: rand(0.3, 0.55), size: rand(2.5, 4.5), color: el === 'moon' ? (chance(0.5) ? '#d9ccff' : '#ff6a82') : (chance(0.6) ? '#ff5470' : '#cdbfff'), type: 'star', grav: 0, drag: 3, add: true });
+    else if (el === 'moon' || el === 'blood' || el === 'crimson' || el === 'violet') fx.part({ x: tx + rand(-6, 6), y: ty + rand(-6, 6), vx: vx * 0.1, vy: vy * 0.1, life: rand(0.3, 0.55), size: rand(2.5, 4.5), color: el === 'moon' ? (chance(0.5) ? '#d9ccff' : '#ff6a82') : el === 'crimson' ? (chance(0.5) ? '#ff4a5e' : '#ffd0d4') : el === 'violet' ? (chance(0.5) ? '#b88cff' : '#f0e6ff') : (chance(0.6) ? '#ff5470' : '#cdbfff'), type: 'star', grav: 0, drag: 3, add: true });
     else if (el === 'gold') fx.part({ x: tx + rand(-5, 5), y: ty + rand(-5, 5), vx: vx * 0.1 + rand(-30, 30), vy: vy * 0.1 - rand(10, 40), life: rand(0.3, 0.55), size: rand(1.6, 3), color: chance(0.6) ? '#ffd27a' : '#fff4d6', type: 'spark', grav: 120, drag: 3, add: true });
     else if (el === 'void') { if (chance(0.6)) fx.part({ x: tx + rand(-5, 5), y: ty + rand(-5, 5), vx: vx * 0.08 + rand(-40, 40), vy: vy * 0.08 - rand(10, 40), life: rand(0.3, 0.55), size: rand(2.4, 4), color: chance(0.5) ? '#a77bff' : (chance(0.5) ? '#ece6ff' : '#1a1228'), type: 'ash', grav: 40, drag: 2.4, rot: rand(0, TAU), vr: rand(-12, 12) }); }
-    else if (el === 'petal') { if (chance(0.5)) fx.part({ x: tx + rand(-5, 5), y: ty + rand(-5, 5), vx: vx * 0.08 + rand(-40, 40), vy: vy * 0.08 - rand(10, 50), life: rand(0.35, 0.6), size: rand(2.6, 4.2), color: chance(0.6) ? '#b48ae6' : '#ece2ff', type: 'ash', grav: 60, drag: 2.4, rot: rand(0, TAU), vr: rand(-10, 10) }); }
+    else if (el === 'petal') { if (chance(0.5)) fx.part({ x: tx + rand(-5, 5), y: ty + rand(-5, 5), vx: vx * 0.08 + rand(-40, 40), vy: vy * 0.08 - rand(10, 50), life: rand(0.35, 0.6), size: rand(2.6, 4.2), color: chance(0.6) ? '#ff66b2' : '#ffd6ea', type: 'ash', grav: 60, drag: 2.4, rot: rand(0, TAU), vr: rand(-10, 10) }); }
     else if (el === 'redline') fx.part({ x: tx, y: ty, vx: rand(-220, 220), vy: rand(-220, 120), life: rand(0.08, 0.18), size: rand(1.2, 2.4), color: chance(0.6) ? '#ff5a46' : '#ffffff', type: 'spark', grav: 0, drag: 4, add: true });
     else if (el === 'lightning') fx.part({ x: tx, y: ty, vx: rand(-200, 200), vy: rand(-200, 200), life: rand(0.08, 0.16), size: rand(1, 2), color: '#cfeeff', type: 'spark', grav: 0, drag: 4, add: true });
     else if (el === 'earth') { if (chance(0.5)) fx.part({ x: tx, y: ty, vx: vx * 0.15 + rand(-60, 60), vy: rand(-200, -60), life: rand(0.4, 0.7), size: rand(2, 4), color: '#2a2018', type: 'drop', grav: 1600, sq: 0.8 }); fx.part({ x: tx, y: ty, vx: rand(-30, 30), vy: rand(-90, -30), life: 0.4, size: rand(1.4, 2.4), color: '#ff9a50', type: 'spark', grav: -60, add: true }); }
@@ -108,7 +129,7 @@ const VFX = {
 /* ---- Effects extensions: elemental impacts, rings, finisher slash, clash flare, heat haze ---- */
 Object.assign(Effects.prototype, {
   vfx() {
-    return this._v || (this._v = { puffs: [], marks: [], crosses: [], zaps: [], glints: [], fire: [], ripples: [], bolts: [], cres: [], streaks: [], shards: [], rings: [], flares: [], rise: [], trail: [], lburst: [], voids: [], cshards: [], streams: [], finisher: null, tint: null });
+    return this._v || (this._v = { dslash: [], cuts: [], puffs: [], marks: [], crosses: [], zaps: [], glints: [], fire: [], ripples: [], bolts: [], cres: [], streaks: [], shards: [], rings: [], flares: [], rise: [], trail: [], lburst: [], voids: [], cshards: [], streams: [], finisher: null, tint: null });
   },
   elemImpact(el, x, y, dir, tier, crit) {
     const V = this.vfx(), big = crit ? 1.4 : 1, t = clamp(tier, 0, 3);
@@ -125,12 +146,12 @@ Object.assign(Effects.prototype, {
         for (let i = 0; i < 5; i++) this.part({ x: x + rand(-14, 14), y: y + rand(-14, 14), vx: rand(-60, 60), vy: rand(-60, 20), life: 0.45, size: rand(5, 9), color: 'rgba(230,246,255,0.55)', type: 'puff', grav: 0, drag: 2, grow: 20 });
         break;
       }
-      case 'moon': case 'blood': {
+      case 'moon': case 'blood': case 'crimson': case 'violet': {
         const a0 = dir > 0 ? rand(-0.5, 0.1) : Math.PI + rand(-0.1, 0.5);
-        const c1 = el === 'moon' ? [150, 122, 255] : [220, 36, 58], c2 = el === 'moon' ? [255, 72, 98] : [150, 122, 255];
+        const c1 = el === 'moon' ? [150, 122, 255] : el === 'violet' ? [164, 108, 255] : [220, 36, 58], c2 = el === 'moon' ? [255, 72, 98] : el === 'crimson' ? [255, 150, 160] : el === 'violet' ? [236, 220, 255] : [150, 122, 255];
         V.cres.push({ x, y, a: a0, s: (58 + t * 18) * big, t: 0, dur: 0.38, c: c1 }, { x, y, a: a0 + 1.8, s: (48 + t * 14) * big, t: 0.03, dur: 0.36, c: c2 });
         if (t >= 2) V.rings.push({ x, y, r: 70 + t * 20, t: 0, dur: 0.45, c: c1, flat: 0.5 });
-        for (let i = 0; i < 8 + t * 4; i++) { const a = rand(0, TAU), v = rand(80, 300); this.part({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: rand(0.3, 0.6), size: rand(2.5, 5), color: chance(0.5) ? '#e2d8ff' : '#ff6a82', type: 'star', grav: 0, drag: 3, add: true }); }
+        for (let i = 0; i < 8 + t * 4; i++) { const a = rand(0, TAU), v = rand(80, 300); this.part({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: rand(0.3, 0.6), size: rand(2.5, 5), color: chance(0.5) ? (el === 'crimson' ? '#ffd0d4' : el === 'violet' ? '#f0e6ff' : '#e2d8ff') : (el === 'violet' ? '#a46bff' : el === 'crimson' ? '#ff2a40' : '#ff6a82'), type: 'star', grav: 0, drag: 3, add: true }); }
         break;
       }
       case 'lightning': {
@@ -154,10 +175,10 @@ Object.assign(Effects.prototype, {
         break;
       }
       case 'petal': {
-        // a thin violet cut through the target and a few flat petals; deliberately small (Akari's style is precise)
+        // a thin sakura-pink cut through the target and a few flat petals; deliberately small (Akari's style is precise)
         const a = dir > 0 ? rand(-0.7, -0.3) : Math.PI + rand(0.3, 0.7);
         V.crosses.push({ x, y, a, len: 70 + t * 22, t: 0, dur: 0.26, n: 1, dir });
-        for (let i = 0; i < 4 + t * 2; i++) { const g = rand(0, TAU), v = rand(60, 220); this.part({ x, y, vx: Math.cos(g) * v, vy: Math.sin(g) * v - 40, life: rand(0.35, 0.6), size: rand(2.6, 4.4), color: chance(0.6) ? '#b48ae6' : '#ece2ff', type: 'ash', grav: 80, drag: 2.4, rot: rand(0, TAU), vr: rand(-10, 10) }); }
+        for (let i = 0; i < 4 + t * 2; i++) { const g = rand(0, TAU), v = rand(60, 220); this.part({ x, y, vx: Math.cos(g) * v, vy: Math.sin(g) * v - 40, life: rand(0.35, 0.6), size: rand(2.6, 4.4), color: chance(0.6) ? '#ff66b2' : '#ffd6ea', type: 'ash', grav: 80, drag: 2.4, rot: rand(0, TAU), vr: rand(-10, 10) }); }
         break;
       }
       case 'wind': {
@@ -246,9 +267,103 @@ Object.assign(Effects.prototype, {
   clashFlare(x, y) { this.vfx().flares.push({ x, y, t: 0, dur: 0.32, r: 90 }); },
   finisher(x, y, dir) { this.vfx().finisher = { x, y, dir, t: 0, dur: 1.15, a: dir > 0 ? -0.32 : Math.PI + 0.32 }; },
   screenTint(color, dur) { this.vfx().tint = { color, t: 0, dur }; },
+
+  /* ---- sword arcs (11-sword-arcs.js) ----
+     dirSlash: the crescent a directional cut carves in the air, shaped by its direction (DIR_SLASH: an ellipse round the
+     shoulders, its tilt and the part swept), drawn on from the blade's start toward its end, then eaten from the tail.
+     Flat 2D shapes in the element's colours with a white core; a twin weapon carves a second, thinner one a beat later;
+     a combo finisher (DIR_COMBO) carves a bigger one with an outer echo. cutImpact: where a cut connects, a thin slit of
+     light along the blade's real direction of travel and sparks sprayed along it. */
+  dirSlash(f, m) {
+    const S = DIR_SLASH[m.aim]; if (!S) return;
+    const el = f.elementOf(m) || 'shade', E = ELEMENTS[el] || ELEMENTS.ink, sc = f.scale;
+    const fin = (f.dirChain || 0) >= DIR_COMBO.finisher, big = fin ? 1.16 : 1;
+    // sized by the reach of a sword-length blade at most, so a spear or an odachi does not fill the screen
+    const R = Math.max(80 * sc, Math.min(f.weaponLen(), 118 * sc) + 46 * sc) * big;
+    if (m.grip === 'pole' && (m.aim === 'fwd' || m.aim === 'dash')) {
+      // a polearm's forward cut is a thrust: a straight streak of light along the shaft, not a crescent
+      const L = f.weaponLen(), ang = f.facing > 0 ? 0.02 : Math.PI - 0.02;
+      this.vfx().cuts.push({ x: f.sk.fha.x + f.facing * L * 0.75, y: f.sk.fha.y - 6 * sc, ang, t: 0, dur: 0.18, L: L * 0.6, w: 8 * sc * big, col: E.smear });
+      return;
+    }
+    const base = { x: f.sk.sh.x + f.facing * S.cx * sc, y: f.sk.sh.y + S.cy * sc, rx: S.rx * R, ry: S.ry * R, rot: S.rot * DEG, a0: S.a0 * DEG, a1: S.a1 * DEG,
+      dir: f.facing, col: E.smear, alt: E.alt || null, t: 0, dur: 0.2 + (fin ? 0.08 : 0), grow: clamp(f.mdur[1] * 0.9, 0.045, 0.1), w: (fin ? 30 : 20) * sc, fin };
+    // an air cut's crescent travels with him (he is rising or falling through it); a grounded one stays where it was cut
+    if (!f.grounded) { base.ref = f; base.ox = base.x - f.x; base.oy = base.y - f.y; }
+    const V = this.vfx();
+    V.dslash.push(base);
+    if (m.grip === 'twin') V.dslash.push(Object.assign({}, base, { t: -0.045, rx: base.rx * 0.86, ry: base.ry * 0.86, w: base.w * 0.6, fin: false }));
+    if (fin) V.dslash.push(Object.assign({}, base, { t: -0.02, rx: base.rx * 1.18, ry: base.ry * 1.18, w: base.w * 0.35, fin: false, ghost: 1 }));
+  },
+  cutImpact(x, y, ang, el, tier, col) {
+    const E = ELEMENTS[el] || ELEMENTS.ink, c = E.smear, t = clamp(tier || 0, 0, 3);
+    this.vfx().cuts.push({ x, y, ang, t: 0, dur: 0.2 + t * 0.03, L: 110 + t * 45, w: 5 + t * 1.6, col: c });
+    const cs = `rgb(${c[0]},${c[1]},${c[2]})`;
+    for (let i = 0; i < 8 + t * 4; i++) {
+      const a = ang + rand(-0.32, 0.32), v = rand(380, 920);
+      this.part({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: rand(0.14, 0.32), size: rand(1.2, 2.6), color: i % 3 ? '#ffffff' : cs, type: 'spark', grav: 700, drag: 3, add: true });
+    }
+    for (let i = 0; i < 3 + t; i++) {
+      const a = ang + Math.PI + rand(-0.6, 0.6), v = rand(160, 380);
+      this.part({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: rand(0.12, 0.24), size: rand(1, 2), color: cs, type: 'spark', grav: 500, drag: 4, add: true });
+    }
+  },
+  drawSwordArcs(ctx) {
+    const V = this.vfx();
+    if (!V.dslash.length && !V.cuts.length) return;
+    ctx.save();
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    const N = 26, P = this._arcPts || (this._arcPts = new Float32Array((N + 1) * 4));
+    for (const d of V.dslash) {
+      if (d.t < 0) continue;
+      const head = Ease.outCubic(clamp(d.t / d.grow, 0, 1)), t0 = d.grow * 0.55;
+      const tail = Math.pow(clamp((d.t - t0) / Math.max(0.01, d.dur - t0), 0, 1), 1.6) * head;
+      if (head - tail < 0.02) continue;
+      const fade = d.t < d.dur * 0.6 ? 1 : 1 - (d.t - d.dur * 0.6) / (d.dur * 0.4);
+      if (d.ref) { d.x = d.ref.x + d.ox; d.y = d.ref.y + d.oy; }
+      ctx.save(); ctx.translate(d.x, d.y); ctx.scale(d.dir, 1); ctx.rotate(d.rot);
+      // outer and inner edge of the crescent: thickest just behind the head, thin to nothing at the tail, a sharp point
+      for (let i = 0; i <= N; i++) {
+        const u = tail + (head - tail) * (i / N), th = d.a0 + (d.a1 - d.a0) * u;
+        const ox = Math.cos(th) * d.rx, oy = Math.sin(th) * d.ry, l = Math.hypot(ox, oy) || 1;
+        const k = i / N, w = d.w * Math.pow(k, 1.3) * (k > 0.9 ? 0.3 + 0.7 * (1 - k) / 0.1 : 1);
+        P[i * 4] = ox; P[i * 4 + 1] = oy; P[i * 4 + 2] = ox - ox / l * w; P[i * 4 + 3] = oy - oy / l * w;
+      }
+      const band = (wk, style, alpha) => {
+        ctx.globalAlpha = alpha * fade; ctx.fillStyle = style; ctx.beginPath();
+        for (let i = 0; i <= N; i++) { const x = P[i * 4], y = P[i * 4 + 1]; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+        for (let i = N; i >= 0; i--) { const x = P[i * 4], y = P[i * 4 + 1]; ctx.lineTo(x + (P[i * 4 + 2] - x) * wk, y + (P[i * 4 + 3] - y) * wk); }
+        ctx.closePath(); ctx.fill();
+      };
+      const c = d.col, a = d.alt;
+      if (d.ghost) { band(1, `rgb(${c[0]},${c[1]},${c[2]})`, 0.45); ctx.restore(); continue; }
+      ctx.globalCompositeOperation = 'lighter';
+      band(1.7, `rgb(${c[0]},${c[1]},${c[2]})`, 0.22);          // soft glow beyond the edge
+      ctx.globalCompositeOperation = 'source-over';
+      if (a) band(1.15, `rgb(${a[0]},${a[1]},${a[2]})`, 0.85);   // the element's second band (moon violet-red, gold...)
+      band(1, `rgb(${c[0]},${c[1]},${c[2]})`, 0.92);
+      band(0.38, '#ffffff', 1);                                   // the white core along the cutting edge
+      ctx.globalAlpha = 0.9 * fade; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.4;
+      ctx.beginPath(); for (let i = Math.floor(N * 0.3); i <= N; i++) { const x = P[i * 4], y = P[i * 4 + 1]; i > Math.floor(N * 0.3) ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } ctx.stroke();
+      ctx.restore();
+    }
+    for (const q of V.cuts) {
+      const k = q.t / q.dur, grow = Ease.outCubic(clamp(k / 0.22, 0, 1)), thin = k < 0.3 ? 1 : 1 - (k - 0.3) / 0.7;
+      const L = q.L * grow, w = q.w * thin, c = Math.cos(q.ang), sn = Math.sin(q.ang), nx = -sn, ny = c;
+      const lens = (len, wid, style, alpha) => {
+        ctx.globalAlpha = alpha; ctx.fillStyle = style; ctx.beginPath();
+        ctx.moveTo(q.x - c * len, q.y - sn * len); ctx.lineTo(q.x + nx * wid, q.y + ny * wid);
+        ctx.lineTo(q.x + c * len, q.y + sn * len); ctx.lineTo(q.x - nx * wid, q.y - ny * wid); ctx.closePath(); ctx.fill();
+      };
+      lens(L * 1.05, w * 2.2, `rgb(${q.col[0]},${q.col[1]},${q.col[2]})`, 0.55 * thin);
+      lens(L, w, '#ffffff', thin);
+    }
+    ctx.restore();
+  },
   updateVfx(realDt, dt) {
     const V = this.vfx();
     const tick = (arr, d) => { for (let i = arr.length - 1; i >= 0; i--) { arr[i].t += d; if (arr[i].t >= arr[i].dur) arr.splice(i, 1); } };
+    tick(V.dslash, dt); tick(V.cuts, dt);
     tick(V.zaps, dt); tick(V.glints, dt); tick(V.puffs, dt); tick(V.marks, dt); tick(V.crosses, dt);
     tick(V.fire, dt); tick(V.ripples, dt); tick(V.bolts, dt); tick(V.cres, dt); tick(V.streaks, dt); tick(V.shards, dt); tick(V.rings, dt); tick(V.flares, realDt); tick(V.rise, dt); tick(V.trail, dt); tick(V.lburst, dt); tick(V.voids, dt); tick(V.streams, dt);
     for (let i = V.cshards.length - 1; i >= 0; i--) { const c = V.cshards[i]; c.t += dt; c.x += c.vx * dt; c.y += c.vy * dt; c.vx *= 1 - 1.6 * dt; c.vy = c.vy * (1 - 1.6 * dt) + 200 * dt; c.r += c.vr * dt; if (c.t >= c.dur) V.cshards.splice(i, 1); }
@@ -394,7 +509,7 @@ Object.assign(Effects.prototype, {
       ctx.fillStyle = `rgba(${m.c[0]},${m.c[1]},${m.c[2]},${0.9 * a})`;
       ctx.beginPath(); ctx.moveTo(m.x - 9, -2); ctx.lineTo(m.x, -16); ctx.lineTo(m.x + 9, -2); ctx.lineTo(m.x, 1); ctx.closePath(); ctx.fill();
     }
-    // narrow violet slashes (Akari's hits, Petal Cross): a thin violet blade of light with a white core; n = 2 is the X
+    // narrow sakura slashes (Akari's hits, Petal Cross): a thin deep-pink blade of light with a white core; n = 2 is the X
     ctx.lineCap = 'round';
     for (const c of V.crosses) {
       const k = c.t / c.dur;
@@ -403,9 +518,9 @@ Object.assign(Effects.prototype, {
         const kk = clamp((k - lag) / (1 - lag), 0, 1), grow = Ease.outCubic(clamp(kk / 0.25, 0, 1)), a = kk < 0.35 ? 1 : 1 - (kk - 0.35) / 0.65;
         const ang = i ? -c.a : c.a, dx = Math.cos(ang) * c.len, dy = Math.sin(ang) * c.len;
         const ax = c.x - dx * 0.5, ay = c.y - dy * 0.5, bx = lerp(ax, c.x + dx * 0.5, grow), by = lerp(ay, c.y + dy * 0.5, grow);
-        ctx.strokeStyle = `rgba(110,64,170,${0.9 * a})`; ctx.lineWidth = 6 * a + 1;
+        ctx.strokeStyle = `rgba(255,20,147,${0.9 * a})`; ctx.lineWidth = 6 * a + 1;
         ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
-        ctx.strokeStyle = `rgba(200,170,255,${a})`; ctx.lineWidth = 3 * a + 0.6;
+        ctx.strokeStyle = `rgba(255,150,205,${a})`; ctx.lineWidth = 3 * a + 0.6;
         ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
         ctx.strokeStyle = `rgba(255,255,255,${a})`; ctx.lineWidth = 1.1;
         ctx.beginPath(); ctx.moveTo(lerp(ax, bx, 0.08), lerp(ay, by, 0.08)); ctx.lineTo(lerp(ax, bx, 0.92), lerp(ay, by, 0.92)); ctx.stroke();
@@ -477,6 +592,7 @@ Object.assign(Effects.prototype, {
       ctx.beginPath(); ctx.moveTo(s.x - dx * grow * 0.8, s.y - dy * grow * 0.8); ctx.lineTo(s.x + dx * grow * 0.8, s.y + dy * grow * 0.8); ctx.stroke();
     }
     ctx.restore();
+    this.drawSwordArcs(ctx);
   },
   // screen-space: the finishing slash across the whole frame, and colour washes for perfect moments
   drawVfxScreen(ctx, toScreen) {

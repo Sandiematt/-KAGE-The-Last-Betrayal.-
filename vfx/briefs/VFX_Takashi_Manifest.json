@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Takashi_Manifest",
+  "role": "phase entrance (the Yashiro Titan rising)",
+  "style": "stylized anime combat, additive holy gold over a dark fortress night (and his golden domain), side-view 2D, baked to sheets",
+  "dominant_shape": "a column of gold light erupting out of the family seal",
+  "palette": {
+    "core": [
+      255,
+      250,
+      232
+    ],
+    "body": [
+      255,
+      186,
+      64
+    ],
+    "dark": [
+      40,
+      22,
+      4
+    ],
+    "matter": [
+      156,
+      132,
+      100
+    ],
+    "accent": [
+      214,
+      118,
+      22
+    ]
+  },
+  "delivery": {
+    "kind": "self"
+  },
+  "anchor": "ground",
+  "reference": {
+    "id": "user reference sheets: Takashi the Father, Yashiro Titan (phase II) and Ogon Musojin / Tenrai domain (phase III)"
+  },
+  "beats": [
+    {
+      "frame": 6,
+      "name": "seal",
+      "expect": "the tomoe seal opens on the floor, motes drawn in"
+    },
+    {
+      "frame": 14,
+      "name": "release",
+      "expect": "eruption flash, the column shoots up"
+    },
+    {
+      "frame": 40,
+      "name": "body",
+      "expect": "halos rising, flame licking up"
+    },
+    {
+      "frame": 96,
+      "name": "tail",
+      "expect": "the column thinned, embers hanging"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Seal",
+      "role": "ownership: the family tomoe seal on the floor",
+      "primitive": "decal T_TomoeSeal01",
+      "exit": "gone by absolute f96"
+    },
+    {
+      "name": "1:Floor glow",
+      "role": "anticipation: light on the floor where it will erupt",
+      "primitive": "orbit_band",
+      "exit": "gone by absolute f72"
+    },
+    {
+      "name": "2:Gather",
+      "role": "anticipation: motes drawn in",
+      "primitive": "motes",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "3:Eruption flash",
+      "role": "release",
+      "primitive": "flash",
+      "exit": "gone by absolute f19"
+    },
+    {
+      "name": "4:Floor shock",
+      "role": "ground feedback ring at release",
+      "primitive": "tilted_ring",
+      "exit": "gone by absolute f32"
+    },
+    {
+      "name": "5:Light column",
+      "role": "main shape: the column of gold light",
+      "primitive": "column",
+      "exit": "gone by absolute f84"
+    },
+    {
+      "name": "6:Column core",
+      "role": "core of the column",
+      "primitive": "column",
+      "exit": "gone by absolute f44"
+    },
+    {
+      "name": "7:Flame tongues",
+      "role": "secondary: pale gold flame licking upward",
+      "primitive": "flame",
+      "exit": "gone by absolute f49"
+    },
+    {
+      "name": "8:Halo 1",
+      "role": "holy secondary: a halo rising",
+      "primitive": "tilted_ring",
+      "exit": "gone by absolute f48"
+    },
+    {
+      "name": "9:Halo 2",
+      "role": "holy secondary: a halo rising",
+      "primitive": "tilted_ring",
+      "exit": "gone by absolute f56"
+    },
+    {
+      "name": "10:Up streaks",
+      "role": "secondary: streaks shooting up",
+      "primitive": "radial_sparks",
+      "exit": "gone by absolute f32"
+    },
+    {
+      "name": "11:Embers",
+      "role": "residue: gold embers rising and hanging",
+      "primitive": "motes",
+      "exit": "gone by absolute f106"
+    },
+    {
+      "name": "12:Dust",
+      "role": "matter: dust",
+      "primitive": "smoke",
+      "exit": "gone by absolute f70"
+    }
+  ],
+  "acceptance": [
+    "The seal reads before the eruption",
+    "The column keeps its gold after the flash"
+  ],
+  "avoid": [
+    "Orange fireball puffs"
+  ]
+}

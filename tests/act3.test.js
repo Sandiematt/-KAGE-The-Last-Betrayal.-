@@ -15,7 +15,9 @@ const win = (stageId, enemyId) => ({ mode: 'campaign', stageId, enemyId, win: tr
 const clearUpTo = (L, save, id) => { for (const st of L.stages()) { if (st.id === id) break; L.completeStage(save, st.id); } };
 const AI_SRC = moduleSource('40-ai.js');
 const CODED = (() => { const s = AI_SRC.indexOf('const BOSS_ABILITIES = {'); const body = AI_SRC.slice(s, AI_SRC.indexOf('\n};', s));
-  return [...body.matchAll(/^ {2}([A-Za-z_]+):\s*\{/gm)].map(m => m[1]); })();
+  // Takashi's redesigned fight registers his own moves into the same table (66-takashi.js)
+  const tk = moduleSource('66-takashi.js'), t0 = tk.indexOf('Object.assign(BOSS_ABILITIES, {'), more = tk.slice(t0, tk.indexOf('\n});', t0));
+  return [...body.matchAll(/^ {2}([A-Za-z_]+):\s*\{/gm), ...more.matchAll(/^ {2}([A-Za-z_]+):\s*\{/gm)].map(m => m[1]); })();
 
 /* ---------------- the sub-bosses ---------------- */
 

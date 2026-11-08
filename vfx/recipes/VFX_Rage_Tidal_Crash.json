@@ -1,0 +1,612 @@
+{
+  "id": "VFX_Rage_Tidal_Crash",
+  "name": "Tidal Crash",
+  "category": "boss",
+  "element": "water",
+  "duration": 0.85,
+  "loop": false,
+  "attach": "ground",
+  "peak": 0.03333333333333333,
+  "impact": 0.85,
+  "light": [
+    0.4,
+    0.75,
+    1
+  ],
+  "seed": 1729,
+  "layers": [
+    {
+      "name": "Mist",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_SoftCircle.png",
+      "color": [
+        150,
+        206,
+        245,
+        120
+      ],
+      "color_end": [
+        150,
+        206,
+        245,
+        0
+      ],
+      "count": 10,
+      "life": [
+        24,
+        34
+      ],
+      "delay": 6,
+      "interval": 0,
+      "blend": "Add",
+      "billboard": "RotatedBillboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0.2,
+          2.4
+        ]
+      },
+      "velocity": [
+        0,
+        [
+          0.005,
+          0.02
+        ],
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        [
+          -180,
+          180
+        ]
+      ],
+      "spin": [
+        0,
+        0,
+        [
+          -0.6,
+          0.6
+        ]
+      ],
+      "size": [
+        0.8,
+        1.2
+      ],
+      "size_end": [
+        1.52,
+        2.28
+      ],
+      "easing": "EaseOutCubic",
+      "forces": [
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            0.0002,
+            0
+          ]
+        }
+      ],
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseTile01.png",
+      "fade_in": 2,
+      "fade_out": 10,
+      "cutoff": {
+        "start": 0,
+        "end": 0.7,
+        "easing": "EaseInQuadratic"
+      },
+      "position": [
+        0,
+        0.3,
+        0
+      ],
+      "emissive": 1.0,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Contact flash",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Flare01.png",
+      "color": [
+        240,
+        252,
+        255,
+        255
+      ],
+      "life": 4,
+      "delay": 2,
+      "size": 2.4,
+      "size_curve": [
+        [
+          0,
+          0.55
+        ],
+        [
+          25,
+          1
+        ],
+        [
+          100,
+          0.15
+        ]
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "fade_in": 0,
+      "fade_out": 2.4,
+      "emissive": 1.6,
+      "position": [
+        0,
+        0.5,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Water bloom",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        47,
+        157,
+        255,
+        150
+      ],
+      "life": 14,
+      "delay": 2,
+      "size": 3.0,
+      "size_curve": [
+        [
+          0,
+          0.25
+        ],
+        [
+          18,
+          1
+        ],
+        [
+          100,
+          1.25
+        ]
+      ],
+      "billboard": "Billboard",
+      "fade_in": 0,
+      "fade_out": 11.200000000000001,
+      "position": [
+        0,
+        0.6,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Wave ring",
+      "renderer": "Ring",
+      "color": [
+        186,
+        230,
+        255,
+        255
+      ],
+      "life": 28,
+      "delay": 2,
+      "billboard": "Fixed",
+      "rotation": [
+        -80,
+        0,
+        0
+      ],
+      "ring": {
+        "outer": [
+          1,
+          0
+        ],
+        "inner": {
+          "start": [
+            0.74,
+            0
+          ],
+          "end": [
+            0.97,
+            0
+          ]
+        },
+        "center_ratio": 0.8,
+        "outer_color": [
+          186,
+          230,
+          255,
+          127
+        ],
+        "center_color": [
+          186,
+          230,
+          255,
+          255
+        ],
+        "inner_color": [
+          186,
+          230,
+          255,
+          0
+        ]
+      },
+      "size": 5.4,
+      "size_curve": [
+        [
+          0,
+          0.12
+        ],
+        [
+          35,
+          0.72
+        ],
+        [
+          100,
+          1
+        ]
+      ],
+      "fade_in": 0,
+      "fade_out": 19.599999999999998,
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseTile01.png",
+      "cutoff": {
+        "start": 0,
+        "end": 0.85,
+        "easing": "EaseInCubic"
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Second wave",
+      "renderer": "Ring",
+      "color": [
+        47,
+        157,
+        255,
+        255
+      ],
+      "life": 30,
+      "delay": 8,
+      "billboard": "Fixed",
+      "rotation": [
+        -80,
+        0,
+        0
+      ],
+      "ring": {
+        "outer": [
+          1,
+          0
+        ],
+        "inner": {
+          "start": [
+            0.8200000000000001,
+            0
+          ],
+          "end": [
+            0.97,
+            0
+          ]
+        },
+        "center_ratio": 0.8,
+        "outer_color": [
+          47,
+          157,
+          255,
+          127
+        ],
+        "center_color": [
+          47,
+          157,
+          255,
+          255
+        ],
+        "inner_color": [
+          47,
+          157,
+          255,
+          0
+        ]
+      },
+      "size": 3.8,
+      "size_curve": [
+        [
+          0,
+          0.12
+        ],
+        [
+          35,
+          0.72
+        ],
+        [
+          100,
+          1
+        ]
+      ],
+      "fade_in": 0,
+      "fade_out": 21.0,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Water column",
+      "renderer": "Model",
+      "procedural_model": {
+        "Name": "Water column",
+        "Shape/PrimitiveType": "Cylinder",
+        "Shape/Radius": 0.55,
+        "Mesh/Divisions/X": 40,
+        "Mesh/Divisions/Y": 12,
+        "Shape/Depth": 3.4,
+        "Shape/DepthMin": 0,
+        "Shape/DepthMax": 3.4,
+        "Shape/Radius2": 0.95
+      },
+      "color": [
+        47,
+        157,
+        255,
+        210
+      ],
+      "life": 26,
+      "fade_in": 3,
+      "fade_out": 13.0,
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak02.png",
+      "uv_scroll": [
+        0.003,
+        -0.02
+      ],
+      "delay": 2,
+      "culling": "Double",
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_GradientV01.png",
+      "alpha_wrap": "Clamp",
+      "falloff": {
+        "begin": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "end": [
+          255,
+          255,
+          255,
+          0
+        ],
+        "pow": 1.6,
+        "blend": "Mul"
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Crown",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Spark01.png",
+      "color": [
+        240,
+        252,
+        255,
+        255
+      ],
+      "color_end": [
+        47,
+        157,
+        255,
+        255
+      ],
+      "count": 52,
+      "life": [
+        22,
+        32
+      ],
+      "delay": 2,
+      "billboard": "DirectionalBillboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          0.6
+        ],
+        "rotate": false
+      },
+      "travel": {
+        "end": [
+          [
+            -2.0,
+            2.0
+          ],
+          [
+            1.8,
+            3.8
+          ],
+          [
+            -0.3,
+            0.3
+          ]
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "scale_start": [
+        0.17,
+        [
+          0.6,
+          1.3
+        ],
+        1
+      ],
+      "scale_end": [
+        0.051000000000000004,
+        0.12,
+        1
+      ],
+      "easing": "EaseInQuadratic",
+      "forces": [
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            -0.0022,
+            0
+          ]
+        }
+      ],
+      "fade_in": 0,
+      "fade_out": 5,
+      "emissive": 1.5,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Spray",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Spark01.png",
+      "color": [
+        186,
+        230,
+        255,
+        255
+      ],
+      "color_end": [
+        12,
+        76,
+        170,
+        255
+      ],
+      "count": 40,
+      "life": [
+        16,
+        26
+      ],
+      "delay": 4,
+      "billboard": "DirectionalBillboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          0.8
+        ],
+        "rotate": false
+      },
+      "travel": {
+        "end": [
+          [
+            -2.8,
+            2.8
+          ],
+          [
+            0.4,
+            1.6
+          ],
+          [
+            -0.4,
+            0.4
+          ]
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "scale_start": [
+        0.11,
+        [
+          0.35,
+          0.7
+        ],
+        1
+      ],
+      "scale_end": [
+        0.033,
+        0.06999999999999999,
+        1
+      ],
+      "easing": "EaseInQuadratic",
+      "forces": [
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            -0.003,
+            0
+          ]
+        }
+      ],
+      "fade_in": 0,
+      "fade_out": 5,
+      "emissive": 1.5,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Glints",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Star01.png",
+      "color": [
+        240,
+        252,
+        255,
+        255
+      ],
+      "count": 5,
+      "life": 12,
+      "delay": 5,
+      "interval": 0,
+      "size": 0.3,
+      "size_curve": [
+        [
+          0,
+          0.2
+        ],
+        [
+          15,
+          1.15
+        ],
+        [
+          60,
+          1
+        ],
+        [
+          100,
+          0
+        ]
+      ],
+      "rotation": [
+        0,
+        0,
+        [
+          -20,
+          20
+        ]
+      ],
+      "spin": [
+        0,
+        0,
+        [
+          -0.8,
+          0.8
+        ]
+      ],
+      "billboard": "Billboard",
+      "fade_in": 0,
+      "fade_out": 3,
+      "emissive": 1.8,
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          2.0
+        ]
+      },
+      "position": [
+        0,
+        1.4,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    }
+  ],
+  "design": "A white-blue contact, a column of water shooting up, a crown of long water streaks arcing over and falling, spray, two wave rings racing out along the floor and low mist.",
+  "delivery": {
+    "kind": "area"
+  },
+  "screen": {
+    "shake": 0.8,
+    "flash_frames": 1,
+    "flash": "white",
+    "hitstop": 0.06
+  }
+}

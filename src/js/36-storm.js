@@ -476,11 +476,9 @@ const StormDirector = {
     const e = s.enemy;
     if (e && e.alive && s.phase !== 'intro') {
       const lv = 1 + ((e.ai && e.ai.phase) || 0);
-      // his storm presence: the baked Storm Mantle, looping, brighter each phase (the canvas aura keeps his
-      // underglow, embers and eye trace, and draws its own body arcs only while the sheet is not ready)
-      if (!st.mantle) st.mantle = s.fx.playSheet('raikon_storm_mantle', e.x, e.y, { at: e, loop: true, scale: e.scale });
-      if (st.mantle) st.mantle.alpha = lv >= 3 ? 1 : lv >= 2 ? 0.8 : 0.55;
-      s.fx.stormAura(e, lv, !!st.mantle);
+      // his storm presence, drawn on the canvas: arcs crawling over his body, embers, his underglow and eye trace,
+      // stronger each phase (the baked Storm Mantle's red rings round his body are no longer played)
+      s.fx.stormAura(e, lv, false);
     } else if (e && !e.alive) { s.fx.storm().aura = null; if (st.mantle) { st.mantle.stop = true; st.mantle.fadeDur = 0.6; st.mantle = null; } }
   },
   phase(s, f, idx) {
@@ -497,6 +495,7 @@ const StormDirector = {
   // a signature move begins (BossAI.tryAbility): the storm answers its wind-up with a strike on the weapon
   ability(s, f, a) {
     const st = s.storm; if (!st || f !== s.enemy || !f.alive) return;
+    if (a.id === 'skyfall') return;   // Skyfall calls the storm with his hand and draws its own (38-skyfall.js)
     if (st.raikon) {
       // Redline Counter: the crescent barrier for the stance (40-ai.js fades it when the counter triggers); the other
       // moves: lightning pulled onto the blade tip, played so its glint lands just before the release

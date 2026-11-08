@@ -1,0 +1,829 @@
+{
+  "id": "VFX_Rage_Shadow_Scythe",
+  "name": "Reaper Crescent",
+  "category": "slash",
+  "element": "dark",
+  "duration": 0.5,
+  "loop": false,
+  "attach": "impact",
+  "peak": 0.1,
+  "impact": 0.5,
+  "light": [
+    0.6,
+    0.3,
+    1
+  ],
+  "seed": 1729,
+  "layers": [
+    {
+      "name": "Shadow smoke",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_SmokeSheet01.png",
+      "color": [
+        72,
+        44,
+        100,
+        200
+      ],
+      "color_end": [
+        72,
+        44,
+        100,
+        0
+      ],
+      "count": 8,
+      "life": [
+        18,
+        21
+      ],
+      "delay": 8,
+      "interval": 0,
+      "blend": "Blend",
+      "billboard": "RotatedBillboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0.4,
+          2.0
+        ]
+      },
+      "velocity": [
+        0,
+        [
+          0.005,
+          0.02
+        ],
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        [
+          -180,
+          180
+        ]
+      ],
+      "spin": [
+        0,
+        0,
+        [
+          -0.6,
+          0.6
+        ]
+      ],
+      "size": [
+        0.7,
+        1.1
+      ],
+      "size_end": [
+        1.3299999999999998,
+        2.09
+      ],
+      "easing": "EaseOutCubic",
+      "forces": [
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            0.0003,
+            0
+          ]
+        }
+      ],
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseTile01.png",
+      "fade_in": 2,
+      "fade_out": 10,
+      "flipbook": {
+        "x": 4,
+        "y": 4,
+        "frame_length": 1,
+        "loop": "Once"
+      },
+      "cutoff": {
+        "start": 0,
+        "end": 0.3,
+        "easing": "EaseInCubic"
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Alpha.vfxmat.json"
+    },
+    {
+      "name": "Gathering strands",
+      "renderer": "Ring",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_WispTrail01.png",
+      "color": [
+        154,
+        60,
+        255,
+        200
+      ],
+      "count": 5,
+      "interval": 0,
+      "life": [
+        8,
+        12
+      ],
+      "delay": 0,
+      "billboard": "Fixed",
+      "rotation": [
+        [
+          -90,
+          90
+        ],
+        [
+          0,
+          360
+        ],
+        [
+          0,
+          360
+        ]
+      ],
+      "size": [
+        0.7,
+        1.3
+      ],
+      "ring": {
+        "vertices": 72,
+        "outer": [
+          1.6,
+          0
+        ],
+        "inner": {
+          "start": [
+            1.3800000000000001,
+            0
+          ],
+          "end": [
+            1.534,
+            0
+          ]
+        },
+        "center_ratio": 0.45,
+        "outer_color": [
+          154,
+          60,
+          255,
+          66
+        ],
+        "center_color": [
+          154,
+          60,
+          255,
+          200
+        ],
+        "inner_color": [
+          154,
+          60,
+          255,
+          0
+        ],
+        "angle_start": [
+          0,
+          75.0
+        ],
+        "angle_end": [
+          30.0,
+          150
+        ],
+        "angle_easing": "EaseOutCubic",
+        "angle_fade": [
+          20,
+          6
+        ]
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+      "alpha_scroll": [
+        -0.05,
+        0
+      ],
+      "cutoff": {
+        "start": 0.1,
+        "end": 0.8,
+        "easing": "EaseInQuadratic"
+      },
+      "fade_in": 1,
+      "fade_out": 5.4,
+      "wrap": "Clamp",
+      "emissive": 2.0,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Swing plane",
+      "renderer": "None",
+      "life": 29,
+      "rotation": [
+        0,
+        -26,
+        0
+      ],
+      "children": [
+        {
+          "name": "Afterimage",
+          "renderer": "Ring",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Trail01.png",
+          "color": [
+            80,
+            16,
+            150,
+            190
+          ],
+          "life": 23,
+          "delay": 6,
+          "billboard": "Fixed",
+          "rotation": [
+            -8,
+            0,
+            -14
+          ],
+          "ring": {
+            "vertices": 96,
+            "outer": [
+              2.162,
+              0.13799999999999998
+            ],
+            "inner": {
+              "start": [
+                0.32200000000000006,
+                -0.08279999999999998
+              ],
+              "end": [
+                1.702,
+                -0.020699999999999996
+              ]
+            },
+            "center_ratio": 0.6,
+            "outer_color": [
+              80,
+              16,
+              150,
+              190
+            ],
+            "center_color": [
+              80,
+              16,
+              150,
+              190
+            ],
+            "inner_color": [
+              80,
+              16,
+              150,
+              190
+            ],
+            "angle_start": [
+              70,
+              158.8
+            ],
+            "angle_end": [
+              96.64,
+              292
+            ],
+            "angle_easing": "EaseOutQuartic",
+            "angle_fade": [
+              25,
+              4
+            ]
+          },
+          "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+          "cutoff": {
+            "start": 0,
+            "end": 0.75,
+            "easing": "EaseInQuadratic"
+          },
+          "fade_in": 0,
+          "fade_out": 11.5,
+          "wrap": "Clamp",
+          "position": [
+            0.5173874249908892,
+            2.219241393277289,
+            0.18810596218271158
+          ],
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Blade body",
+          "renderer": "Ring",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Trail01.png",
+          "color": [
+            154,
+            60,
+            255,
+            255
+          ],
+          "life": 20,
+          "delay": 4,
+          "billboard": "Fixed",
+          "rotation": [
+            -8,
+            0,
+            -14
+          ],
+          "ring": {
+            "vertices": 96,
+            "outer": [
+              2.3,
+              0.22999999999999998
+            ],
+            "inner": {
+              "start": [
+                1.035,
+                -0.13799999999999998
+              ],
+              "end": [
+                1.98375,
+                -0.034499999999999996
+              ]
+            },
+            "center_ratio": 0.6,
+            "outer_color": [
+              154,
+              60,
+              255,
+              255
+            ],
+            "center_color": [
+              154,
+              60,
+              255,
+              255
+            ],
+            "inner_color": [
+              154,
+              60,
+              255,
+              255
+            ],
+            "angle_start": [
+              70,
+              158.8
+            ],
+            "angle_end": [
+              96.64,
+              292
+            ],
+            "angle_easing": "EaseOutQuartic",
+            "angle_fade": [
+              25,
+              4
+            ]
+          },
+          "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+          "cutoff": {
+            "start": 0,
+            "end": 0.75,
+            "easing": "EaseInQuadratic"
+          },
+          "fade_in": 0,
+          "fade_out": 10.0,
+          "wrap": "Clamp",
+          "alpha_scroll": [
+            -0.04,
+            0
+          ],
+          "emissive": 2.0,
+          "position": [
+            0.5173874249908892,
+            2.219241393277289,
+            0.18810596218271158
+          ],
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Hot edge",
+          "renderer": "Ring",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Trail02.png",
+          "color": [
+            250,
+            236,
+            255,
+            255
+          ],
+          "life": 16,
+          "delay": 4,
+          "billboard": "Fixed",
+          "rotation": [
+            -8,
+            0,
+            -14
+          ],
+          "ring": {
+            "vertices": 96,
+            "outer": [
+              2.323,
+              0.22999999999999998
+            ],
+            "inner": {
+              "start": [
+                1.909,
+                -0.13799999999999998
+              ],
+              "end": [
+                2.2195,
+                -0.034499999999999996
+              ]
+            },
+            "center_ratio": 0.6,
+            "outer_color": [
+              250,
+              236,
+              255,
+              255
+            ],
+            "center_color": [
+              250,
+              236,
+              255,
+              255
+            ],
+            "inner_color": [
+              250,
+              236,
+              255,
+              255
+            ],
+            "angle_start": [
+              70,
+              158.8
+            ],
+            "angle_end": [
+              96.64,
+              292
+            ],
+            "angle_easing": "EaseOutQuartic",
+            "angle_fade": [
+              25,
+              4
+            ]
+          },
+          "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+          "cutoff": {
+            "start": 0,
+            "end": 0.75,
+            "easing": "EaseInQuadratic"
+          },
+          "fade_in": 0,
+          "fade_out": 8.0,
+          "wrap": "Clamp",
+          "emissive": 2.2,
+          "position": [
+            0.5173874249908892,
+            2.219241393277289,
+            0.18810596218271158
+          ],
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Cel crescent",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Slash02.png",
+          "color": [
+            154,
+            60,
+            255,
+            255
+          ],
+          "color_end": [
+            80,
+            16,
+            150,
+            255
+          ],
+          "delay": 5,
+          "life": 14,
+          "size": 5.289999999999999,
+          "size_curve": [
+            [
+              0,
+              0.8
+            ],
+            [
+              20,
+              1
+            ],
+            [
+              100,
+              1.06
+            ]
+          ],
+          "billboard": "Fixed",
+          "rotation": [
+            -8,
+            0,
+            -208.0
+          ],
+          "position": [
+            0.35699732324371347,
+            1.5312765613613295,
+            0.38479311390607107
+          ],
+          "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+          "cutoff": {
+            "start": 0,
+            "end": 0.9,
+            "easing": "EaseInQuadratic"
+          },
+          "fade_in": 0,
+          "fade_out": 3,
+          "emissive": 1.6,
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Outer edge",
+          "renderer": "Ring",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Trail02.png",
+          "color": [
+            220,
+            170,
+            255,
+            200
+          ],
+          "life": 20,
+          "delay": 6,
+          "billboard": "Fixed",
+          "rotation": [
+            -8,
+            0,
+            -14
+          ],
+          "ring": {
+            "vertices": 96,
+            "outer": [
+              2.576,
+              0
+            ],
+            "inner": {
+              "start": [
+                2.438,
+                0.0
+              ],
+              "end": [
+                2.5415,
+                0.0
+              ]
+            },
+            "center_ratio": 0.6,
+            "outer_color": [
+              220,
+              170,
+              255,
+              200
+            ],
+            "center_color": [
+              220,
+              170,
+              255,
+              200
+            ],
+            "inner_color": [
+              220,
+              170,
+              255,
+              200
+            ],
+            "angle_start": [
+              90,
+              162.8
+            ],
+            "angle_end": [
+              111.84,
+              272
+            ],
+            "angle_easing": "EaseOutQuartic",
+            "angle_fade": [
+              25,
+              4
+            ]
+          },
+          "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+          "cutoff": {
+            "start": 0,
+            "end": 0.75,
+            "easing": "EaseInQuadratic"
+          },
+          "fade_in": 0,
+          "fade_out": 10.0,
+          "wrap": "Clamp",
+          "position": [
+            0.5173874249908892,
+            2.219241393277289,
+            0.18810596218271158
+          ],
+          "emissive": 1.8,
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        }
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Contact flash",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Flare01.png",
+      "color": [
+        250,
+        236,
+        255,
+        255
+      ],
+      "life": 4,
+      "delay": 6,
+      "size": 2.0,
+      "size_curve": [
+        [
+          0,
+          0.55
+        ],
+        [
+          25,
+          1
+        ],
+        [
+          100,
+          0.15
+        ]
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "fade_in": 0,
+      "fade_out": 2.4,
+      "emissive": 1.6,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Violet bloom",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        154,
+        60,
+        255,
+        140
+      ],
+      "life": 16,
+      "delay": 5,
+      "size": 3.0,
+      "size_curve": [
+        [
+          0,
+          0.25
+        ],
+        [
+          18,
+          1
+        ],
+        [
+          100,
+          1.25
+        ]
+      ],
+      "billboard": "Billboard",
+      "fade_in": 0,
+      "fade_out": 12.8,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Reap sparks",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Spark01.png",
+      "color": [
+        220,
+        170,
+        255,
+        255
+      ],
+      "color_end": [
+        80,
+        16,
+        150,
+        255
+      ],
+      "count": 16,
+      "life": [
+        10,
+        18
+      ],
+      "delay": 6,
+      "billboard": "DirectionalBillboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          1.0
+        ],
+        "rotate": false
+      },
+      "travel": {
+        "end": [
+          [
+            -1.6,
+            2.4
+          ],
+          [
+            -1.6,
+            1.2
+          ],
+          [
+            -0.3,
+            0.3
+          ]
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "scale_start": [
+        0.1,
+        [
+          0.35,
+          0.7
+        ],
+        1
+      ],
+      "scale_end": [
+        0.03,
+        0.06999999999999999,
+        1
+      ],
+      "easing": "EaseInQuadratic",
+      "forces": [],
+      "fade_in": 0,
+      "fade_out": 5,
+      "emissive": 1.5,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Soul motes",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        220,
+        170,
+        255,
+        255
+      ],
+      "color_end": [
+        80,
+        16,
+        150,
+        0
+      ],
+      "count": 16,
+      "life": [
+        16,
+        21
+      ],
+      "delay": 8,
+      "interval": 0,
+      "billboard": "Billboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          1.6
+        ],
+        "rot_x": [
+          -90,
+          90
+        ]
+      },
+      "travel": {
+        "end": [
+          0,
+          [
+            0.3,
+            1.2
+          ],
+          0
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "size": [
+        0.08,
+        0.14
+      ],
+      "size_end": 0,
+      "easing": "EaseInCubic",
+      "forces": [
+        {
+          "type": "Turbulence",
+          "power": 0.003,
+          "scale": 5
+        },
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            0.0008,
+            0
+          ]
+        }
+      ],
+      "fade_in": 1,
+      "fade_out": 6,
+      "emissive": 1.5,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    }
+  ],
+  "design": "Dark strands drawn in, then a huge violet crescent sweeps open with a white-violet edge and a thin pale outer edge; violet sparks reap off it, shadow smoke rolls out and motes rise.",
+  "delivery": {
+    "kind": "melee"
+  },
+  "screen": {
+    "shake": 0.35,
+    "hitstop": 0.04
+  }
+}

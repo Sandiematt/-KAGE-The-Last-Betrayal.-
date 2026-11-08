@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Takashi_Pulse",
+  "role": "area boss hit (Domain Pulse, Heaven Cleaver landing)",
+  "style": "stylized anime combat, additive holy gold over a dark fortress night (and his golden domain), side-view 2D, baked to sheets",
+  "dominant_shape": "a wide gold shock ring racing out along the floor",
+  "palette": {
+    "core": [
+      255,
+      250,
+      232
+    ],
+    "body": [
+      255,
+      186,
+      64
+    ],
+    "dark": [
+      40,
+      22,
+      4
+    ],
+    "matter": [
+      156,
+      132,
+      100
+    ],
+    "accent": [
+      214,
+      118,
+      22
+    ]
+  },
+  "delivery": {
+    "kind": "area"
+  },
+  "anchor": "ground",
+  "reference": {
+    "id": "user reference sheets: Takashi the Father, Yashiro Titan (phase II) and Ogon Musojin / Tenrai domain (phase III)"
+  },
+  "beats": [
+    {
+      "frame": 2,
+      "name": "contact",
+      "expect": "white contact on the floor"
+    },
+    {
+      "frame": 12,
+      "name": "body",
+      "expect": "ring racing out, cracks under the blow"
+    },
+    {
+      "frame": 36,
+      "name": "tail",
+      "expect": "dust and embers"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Contact flash",
+      "role": "contact",
+      "primitive": "flash",
+      "exit": "gone by absolute f7"
+    },
+    {
+      "name": "1:Ground bloom",
+      "role": "light on the floor under the blow",
+      "primitive": "glow",
+      "exit": "gone by absolute f18"
+    },
+    {
+      "name": "2:Shock ring",
+      "role": "main shape: wide gold shock ring racing out along the floor",
+      "primitive": "tilted_ring",
+      "exit": "gone by absolute f28"
+    },
+    {
+      "name": "3:Trailing ring",
+      "role": "a thinner ring behind the first",
+      "primitive": "tilted_ring",
+      "exit": "gone by absolute f28"
+    },
+    {
+      "name": "4:Air wave",
+      "role": "the air shock at contact",
+      "primitive": "shock_ring",
+      "exit": "gone by absolute f12"
+    },
+    {
+      "name": "5:Cracks",
+      "role": "ground: gold cracks cooling",
+      "primitive": "decal T_Crack01",
+      "exit": "gone by absolute f64"
+    },
+    {
+      "name": "6:Rising shards",
+      "role": "holy secondary: light shards thrown up",
+      "primitive": "radial_sparks",
+      "exit": "gone by absolute f24"
+    },
+    {
+      "name": "7:Halo",
+      "role": "holy secondary: a halo rising",
+      "primitive": "tilted_ring",
+      "exit": "gone by absolute f36"
+    },
+    {
+      "name": "8:Stone",
+      "role": "matter: stone thrown up, landing",
+      "primitive": "debris",
+      "exit": "gone by absolute f48"
+    },
+    {
+      "name": "9:Dust wall",
+      "role": "matter: a wall of dust along the cut",
+      "primitive": "smoke",
+      "exit": "gone by absolute f48"
+    },
+    {
+      "name": "10:Embers",
+      "role": "residue: gold embers rising and hanging",
+      "primitive": "motes",
+      "exit": "gone by absolute f64"
+    }
+  ],
+  "acceptance": [
+    "The ring reads as running along the floor",
+    "Light rises (shards, halo), it does not rain down"
+  ],
+  "avoid": [
+    "A floating bubble"
+  ]
+}

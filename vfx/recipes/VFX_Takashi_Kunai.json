@@ -1,0 +1,297 @@
+{
+  "id": "VFX_Takashi_Kunai",
+  "name": "Golden Kunai",
+  "category": "projectile",
+  "element": "holy",
+  "duration": 0.7,
+  "loop": false,
+  "attach": "projectile",
+  "peak": 0.1,
+  "impact": 0,
+  "light": [
+    1,
+    0.85,
+    0.6
+  ],
+  "seed": 1729,
+  "layers": [
+    {
+      "name": "Launch ring",
+      "renderer": "Ring",
+      "color": [
+        255,
+        186,
+        64,
+        255
+      ],
+      "life": 9,
+      "delay": 0,
+      "billboard": "Billboard",
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "ring": {
+        "outer": [
+          1,
+          0
+        ],
+        "inner": {
+          "start": [
+            0.72,
+            0
+          ],
+          "end": [
+            0.97,
+            0
+          ]
+        },
+        "center_ratio": 0.8,
+        "outer_color": [
+          255,
+          186,
+          64,
+          127
+        ],
+        "center_color": [
+          255,
+          186,
+          64,
+          255
+        ],
+        "inner_color": [
+          255,
+          186,
+          64,
+          0
+        ]
+      },
+      "size": 0.28,
+      "size_curve": [
+        [
+          0,
+          0.12
+        ],
+        [
+          35,
+          0.72
+        ],
+        [
+          100,
+          1
+        ]
+      ],
+      "fade_in": 0,
+      "fade_out": 6.3,
+      "inherit": {
+        "location": "WhenCreating",
+        "rotation": "WhenCreating",
+        "scale": "WhenCreating"
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Head glow",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        255,
+        186,
+        64,
+        110
+      ],
+      "life": 6,
+      "delay": 0,
+      "size": 0.38,
+      "size_curve": [
+        [
+          0,
+          0.25
+        ],
+        [
+          18,
+          1
+        ],
+        [
+          100,
+          1.25
+        ]
+      ],
+      "billboard": "Billboard",
+      "fade_in": 1,
+      "fade_out": 3,
+      "infinite": true,
+      "interval": 3,
+      "count": 1,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Head kunai",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Kunai01.png",
+      "color": [
+        255,
+        228,
+        156,
+        255
+      ],
+      "life": 6,
+      "scale_start": [
+        1.1,
+        1.1,
+        1
+      ],
+      "fade_in": 1,
+      "fade_out": 2,
+      "emissive": 1.5,
+      "infinite": true,
+      "interval": 3,
+      "count": 1,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Streak",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        214,
+        118,
+        22,
+        255
+      ],
+      "color_end": [
+        214,
+        118,
+        22,
+        0
+      ],
+      "life": 9,
+      "scale_start": [
+        0.5,
+        1.7,
+        1
+      ],
+      "scale_end": [
+        0.3,
+        0.5,
+        1
+      ],
+      "easing": "EaseOutCubic",
+      "position": [
+        -0.55,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        90
+      ],
+      "fade_in": 0,
+      "fade_out": 6,
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+      "alpha_scroll": [
+        0.06,
+        0
+      ],
+      "cutoff": {
+        "start": 0.05,
+        "end": 0.7,
+        "easing": "EaseInQuadratic"
+      },
+      "emissive": 1.8,
+      "inherit": {
+        "location": "WhenCreating",
+        "rotation": "WhenCreating",
+        "scale": "WhenCreating"
+      },
+      "infinite": true,
+      "interval": 1,
+      "count": 1,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Shed sparks",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Spark01.png",
+      "color": [
+        255,
+        228,
+        156,
+        255
+      ],
+      "color_end": [
+        214,
+        118,
+        22,
+        0
+      ],
+      "count": 1,
+      "life": [
+        10,
+        16
+      ],
+      "delay": 0,
+      "billboard": "DirectionalBillboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          0.08
+        ],
+        "rot_x": [
+          -90,
+          90
+        ]
+      },
+      "travel": {
+        "end": [
+          0,
+          [
+            0.15,
+            0.35
+          ],
+          0
+        ],
+        "easing": "EaseOutQuartic"
+      },
+      "scale_start": [
+        0.05,
+        [
+          0.12,
+          0.2
+        ],
+        1
+      ],
+      "scale_end": [
+        0.015,
+        0.024,
+        1
+      ],
+      "easing": "EaseInQuadratic",
+      "forces": [
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            -0.0012,
+            0
+          ]
+        }
+      ],
+      "fade_in": 0,
+      "fade_out": 5,
+      "emissive": 1.5,
+      "inherit": {
+        "location": "WhenCreating",
+        "rotation": "WhenCreating",
+        "scale": "WhenCreating"
+      },
+      "infinite": true,
+      "interval": 2,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    }
+  ],
+  "design": "A white-hot gold kunai flies flat and fast inside a gold glow, drawing a thin amber streak and shedding sparks that drop away behind it.",
+  "delivery": {
+    "kind": "projectile"
+  },
+  "flight": 0.4
+}

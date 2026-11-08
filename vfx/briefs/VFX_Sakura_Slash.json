@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Sakura_Slash",
+  "role": "frequent melee cut (Twin Fang, Shadow Flip)",
+  "style": "stylized anime combat, glowing additive sakura (Senbonzakura) over a dark night arena, side-view 2D",
+  "dominant_shape": "tilted pink arc shedding crescent blade-petals",
+  "palette": {
+    "core": [
+      255,
+      246,
+      252
+    ],
+    "body": [
+      255,
+      102,
+      178
+    ],
+    "dark": [
+      70,
+      6,
+      40
+    ],
+    "matter": [
+      255,
+      196,
+      226
+    ],
+    "accent": [
+      255,
+      20,
+      147
+    ]
+  },
+  "delivery": {
+    "kind": "melee"
+  },
+  "anchor": "impact",
+  "reference": {
+    "id": "gemini_generated_video_9ba223ac.mp4 (user reference: Senbonzakura boss duel)"
+  },
+  "beats": [
+    {
+      "frame": 1,
+      "name": "blade",
+      "expect": "white glint and the arc starts sweeping"
+    },
+    {
+      "frame": 4,
+      "name": "contact",
+      "expect": "white star for 3-4 frames on the target"
+    },
+    {
+      "frame": 8,
+      "name": "body",
+      "expect": "pink arc with blade-petals peeling off it, white only on the leading edge"
+    },
+    {
+      "frame": 30,
+      "name": "tail",
+      "expect": "arc gone; glowing petals tumble down through the cut"
+    },
+    {
+      "frame": 54,
+      "name": "clear",
+      "expect": "last pale petals fading"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Blade glint",
+      "role": "anticipation: where the blade starts",
+      "primitive": "glow",
+      "exit": "gone by absolute f5"
+    },
+    {
+      "name": "1:Swing plane",
+      "role": "pivot yawing the blade set into a 3D swing plane",
+      "primitive": "swing",
+      "exit": "gone by absolute f20"
+    },
+    {
+      "name": "1:Swing plane/0:Afterimage",
+      "role": "deep-pink motion smear lagging the blade",
+      "primitive": "slash_arc",
+      "exit": "gone by absolute f20"
+    },
+    {
+      "name": "1:Swing plane/1:Blade body",
+      "role": "main shape: saturated #FF66B2 arc",
+      "primitive": "slash_arc",
+      "exit": "gone by absolute f15"
+    },
+    {
+      "name": "1:Swing plane/2:Hot edge",
+      "role": "core: thin white-hot leading edge",
+      "primitive": "slash_arc",
+      "exit": "gone by absolute f11"
+    },
+    {
+      "name": "1:Swing plane/3:Blade petal 1",
+      "role": "signature: crescent blade-petals peeling off the arc",
+      "primitive": "sprite T_PetalBlade01",
+      "exit": "gone by absolute f15"
+    },
+    {
+      "name": "1:Swing plane/4:Blade petal 2",
+      "role": "signature: crescent blade-petals peeling off the arc",
+      "primitive": "sprite T_PetalBlade01",
+      "exit": "gone by absolute f16"
+    },
+    {
+      "name": "1:Swing plane/5:Blade petal 3",
+      "role": "signature: crescent blade-petals peeling off the arc",
+      "primitive": "sprite T_PetalBlade01",
+      "exit": "gone by absolute f17"
+    },
+    {
+      "name": "1:Swing plane/6:Blade petal 4",
+      "role": "signature: crescent blade-petals peeling off the arc",
+      "primitive": "sprite T_PetalBlade01",
+      "exit": "gone by absolute f18"
+    },
+    {
+      "name": "1:Swing plane/7:Blade petal 5",
+      "role": "signature: crescent blade-petals peeling off the arc",
+      "primitive": "sprite T_PetalBlade01",
+      "exit": "gone by absolute f19"
+    },
+    {
+      "name": "2:Contact flash",
+      "role": "contact",
+      "primitive": "flash",
+      "exit": "gone by absolute f7"
+    },
+    {
+      "name": "3:Pink bloom",
+      "role": "subordinate light under the contact",
+      "primitive": "glow",
+      "exit": "gone by absolute f15"
+    },
+    {
+      "name": "4:Shed petals",
+      "role": "secondary: glowing petals shed off the cut / path",
+      "primitive": "sprite T_SakuraPetal01",
+      "exit": "gone by absolute f49"
+    },
+    {
+      "name": "5:Falling petals",
+      "role": "residue: petals left falling",
+      "primitive": "sprite T_SakuraPetal01",
+      "exit": "gone by absolute f56"
+    },
+    {
+      "name": "6:Glints",
+      "role": "accent: four-point glints",
+      "primitive": "sparkle",
+      "exit": "gone by absolute f16"
+    }
+  ],
+  "acceptance": [
+    "The arc reads as #FF66B2 pink with a thin white edge, not a white crescent",
+    "Five blade-petals leave the arc one frame apart and keep flying after the arc erodes",
+    "Petals fall and tumble after the arc is gone; nothing large remains at f54"
+  ],
+  "avoid": [
+    "A full white crescent sticker",
+    "Petals bursting symmetrically like fireworks"
+  ]
+}

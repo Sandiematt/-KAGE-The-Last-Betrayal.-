@@ -151,13 +151,19 @@ class Fighter {
     this.ctrl = makeCtrl(); this.charge = 0; this.blockT = 0; this.counterT = 0; this.dashT = 0; this.dashCd = 0; this.dashDir = 1;
     this.walkT = 0; this.runDir = 0; this.walkPhase = 0; this.flipRot = 0; this.extraRot = 0;
     this.bodyRot = 0; this.bodyRotVel = 0; this.tuckT = 0; this.flipT = 0; this.flipLand = false; this.landT = 0.08; this.landDepth = 0.5; this.jumpDir = 0;
-    this.poison = 0; this.slow = 1; this.abil = null; this.grabbedBy = null; this.grabbing = null;
+    this.poison = 0; this.slow = 1; this.abil = null; this.grabbedBy = null; this.grabbing = null; this.boundBy = null; this.boundT = 0;
     this.turnDelay = o.turnDelay || 0; this.turnT = 0; this.superArmor = false;
+    // directional attacks: the form asked for with the latest weapon press (attackDir), whether a left / right tap came
+    // just before it (a forward form inside a string needs a fresh tap), and the last tap (a double tap dashes)
+    this.bufAim = null; this.bufSide = 0; this.bufAimTap = false; this.tapD = 0; this.tapT = -9; this.dirTapT = -9; this.lateAim = false; this.punishMove = null;
     this.hipOff = -(BODY.thigh + BODY.shin) * this.scale * this.build.legs * 0.94;
     this.sk = {}; for (const k of ['hip', 'neck', 'sh', 'shF', 'shB', 'hipF', 'hipB', 'head', 'fel', 'fha', 'bel', 'bha', 'fkn', 'fft', 'bkn', 'bft', 'wt', 'wb', 'w2t', 'w2b']) this.sk[k] = { x: 0, y: 0 };
     this.wAng = 0; this.w2Ang = 0; this.wVec = { x: 1, y: 0 }; this.w2Vec = { x: 1, y: 0 };
     this.time = Math.random() * 10; this.poseName = null; this.stats = { dealt: 0, taken: 0, maxCombo: 0, parries: 0 };
     this.turnX = 1; this.sqx = 1; this.sqy = 1;
+    // sword arcs (11-sword-arcs.js): the directional combo step, the last cut's direction, a chained cut skipping its
+    // anticipation (flowChain), the blade dragging through a body it just cut (impactT), the horizontal smear's squash
+    this.dirChain = 0; this.lastAim = null; this.flowChain = false; this.impactT = 0; this.smearFlat = 0; this.smearY = 0; this._glinted = false;
     // regular foes wear their family's palette (ENEMY_FAMILIES): Order slate with a pale sash, flickering Hollow violet
     this.family = (!o.isPlayer && this.def && ENEMY_FAMILIES[this.def.family]) || null;
     this.hollow = !!(this.def && this.def.family === 'hollow');
@@ -172,7 +178,7 @@ class Fighter {
       this.cloths.push({ kind: 'belt', c: new Cloth(5, 5.4 * this.scale, { ph: 8, wind: 170, grav: 1300, stiff: 1.7 }), at: 'hip', color: bc2, w: 3.2 * this.scale, w1: 2 * this.scale, dy: -10, dx: -1 });
     }
     if (o.isPlayer && this.armor !== 'training' && (o.scarf || this.helmet === 'topknot')) {
-      // Kage's signature: a red scarf wound round the neck (drawn with the body, 21-anime-body.js) with two long tails
+      // Kage's signature: a red scarf wound round the neck (drawn with the body, 21-characters/_shared/) with two long tails
       // streaming back, out of phase so they never move as one strip
       const sc = this.scale;
       this.cloths.push({ kind: 'scarf', c: new Cloth(12, 7.4 * sc, { ph: 9, wind: 1400, grav: 430, stiff: 1.85 }), at: 'neck', color: ANIME.scarf, rim: 'rgba(24,6,6,0.7)', w: 6.4 * sc, w1: 2.2 * sc, dy: -2, dx: 7 });
@@ -184,7 +190,7 @@ class Fighter {
       this.cloths.push({ kind: 'scarf', c: new Cloth(8, 7 * this.scale, { ph: 12.5, wind: 740, grav: 760, stiff: 1.75 }), at: 'head', color: hv ? '#4b3a8e' : '#b8362b', w: 2.8 * this.scale, w1: 1.1 * this.scale, dy: -6, dx: 16 });
     }
     if (this.helmet === 'headband' && isRem(this)) {
-      // Rem: the band's two long tails come from the anime body (remCloths, 26-anime-rem.js)
+      // Rem: the band's two long tails come from the anime body (remCloths, 21-characters/bosses/rem/)
     } else if (this.helmet === 'headband') {
       // two short tails of the training band, knotted at the back of the head
       const hc = headbandColor(this);
@@ -195,7 +201,7 @@ class Fighter {
       this.cloths.push({ kind: 'scarf', c: new Cloth(9, 7 * this.scale, { ph: 0, wind: 560 }), at: 'neck', color: C.emberBright, w: 5.5 * this.scale });
       this.cloths.push({ kind: 'scarf', c: new Cloth(8, 6.5 * this.scale, { ph: 2, wind: 480 }), at: 'neck', color: C.emberBright, w: 3.6 * this.scale, dy: 4 });
     }
-    // capes (cloak, tyrant), robes and hood tails of the sub-boss looks: 24- / 25-anime-subs-*.js
+    // capes (cloak, tyrant), robes and hood tails of the sub-boss looks: 21-characters/sub-bosses/
     // Raikon: a long dark scarf from the neck, two tails of different length, edged pale so it reads on the dark arena
     if (this.def && this.def.longScarf) {
       const rk = bossLook(this) === 'raikon' && !this.hollow;   // Hollow Raikon keeps its own violet-black scarf
@@ -203,17 +209,17 @@ class Fighter {
       this.cloths.push({ kind: 'scarf', c: new Cloth(14, 8.6 * this.scale, { ph: 2.5, wind: 640, grav: 620, stiff: 1.6 }), at: 'neck', color: sc, rim, w: 7.2 * this.scale, w1: 2.8 * this.scale, dy: 2 });
       this.cloths.push({ kind: 'scarf', c: new Cloth(9, 8 * this.scale, { ph: 6.2, wind: 560, grav: 700, stiff: 1.6 }), at: 'neck', color: sc, rim, w: 5.4 * this.scale, w1: 2.2 * this.scale, dy: 6 });
     }
-    // Raikon's tattered cloak and long coat skirts: raikonCloths (27-anime-raikon.js)
-    // Akari's ponytail, bead strings, sash and back tail: akariCloths (28-anime-akari.js)
+    // Raikon's tattered cloak and long coat skirts: raikonCloths (21-characters/bosses/raikon/)
+    // Akari's ponytail, bead strings, sash and back tail: akariCloths (21-characters/bosses/akari/)
     // long hair tied back at the nape (`hair` on an ENEMIES entry). Takashi's white hair, beard and the red ribbon from
-    // his kasa are his own (29-anime-takashi.js)
+    // his kasa are his own (21-characters/bosses/takashi/)
     if (this.def && this.def.hair && bossLook(this) !== 'takashi') {
       this.cloths.push({ kind: 'scarf', c: new Cloth(9, 6.4 * this.scale, { ph: 3.2, wind: 520, grav: 900, stiff: 1.8 }), at: 'head', color: this.def.hair, rim: 'rgba(236,229,211,0.45)', w: 5.4 * this.scale, w1: 2.4 * this.scale, dy: 4, dx: 14 });
       this.cloths.push({ kind: 'scarf', c: new Cloth(2, 3 * this.scale, { ph: 6, wind: 760, grav: 760, stiff: 1.9 }), at: 'head', color: '#c9a45c', w: 2.2 * this.scale, w1: 1.2 * this.scale, dy: 5, dx: 15 });
     }
     // the Witness: long violet strands streaming back off the spiked crown (violet strands of different length, two dark
     // ones underneath for depth), and its long tattered coat: blade-shaped tails (kind 'wcoat', drawn by
-    // the Witness's own layer inside the body, 29w-anime-witness.js) from the upper back and the waist, violet fading out of black
+    // the Witness's own layer inside the body, 21-characters/bosses/witness/) from the upper back and the waist, violet fading out of black
     // with crimson veins and glowing rune circles. `depth` -1 hangs behind the body, +1 in front of it.
     if (this.def && this.def.witness) {
       const sc = this.scale;
@@ -227,10 +233,10 @@ class Fighter {
        [6, 11, 0.4, 16, -1, -4, 'hip', 1, 0]].forEach(([n, seg, ph, w, dy, dx, at, depth, rune], i) =>
         this.cloths.push({ kind: 'wcoat', witness: true, c: new Cloth(n, seg * sc, { ph, wind: depth < 0 ? 1500 + i * 180 : 420, grav: 1000, stiff: 1.96 }), at, w: w * sc, dy, dx, depth, rune }));
     }
-    // Rem's travel coat is the anime body's own coat panels (ANIME_SKINS.rem / hollow_rem, 26-anime-rem.js)
-    // the Shinsei Yoroi's robes, capelet and cape: Takashi's cloth and drawShinsei (29-anime-takashi.js)
-    // the Mei-En Garb's sash (on Akari, and on Kage when he wears it): akariCloths (28-anime-akari.js)
-    animeCloths(this);   // the anime body's own cloth (Kage's coat panels: 21-anime-body.js)
+    // Rem's travel coat is the anime body's own coat panels (ANIME_SKINS.rem / hollow_rem, 21-characters/bosses/rem/)
+    // the Shinsei Yoroi's robes, capelet and cape: Takashi's cloth and drawShinsei (21-characters/bosses/takashi/)
+    // the Mei-En Garb's sash (on Akari, and on Kage when he wears it): akariCloths (21-characters/bosses/akari/)
+    animeCloths(this);   // the anime body's own cloth (Kage's coat panels: 21-characters/_shared/)
   }
 
   /* ---- equipment helpers ---- */
@@ -243,6 +249,8 @@ class Fighter {
   weaponId() { return this.hasWeapon ? this.baseWeapon : (this.baseWeapon === 'storm_orbs' || this.baseWeapon === 'iron_fists' ? this.baseWeapon : 'fists'); }
   weapon() { return WEAPONS[this.weaponId()]; }
   shape() { return SHAPE[this.weaponId()] || 'none'; }
+  // a shop weapon's own footwork and signature cuts (ARC_STYLES, 11-sword-arcs.js); null for every other arm
+  weaponStyle() { return this.hasWeapon ? ARC_STYLES[this.weaponId()] || null : null; }
   height() { return 196 * this.scale; }
   standHip() { return (BODY.thigh + BODY.shin) * this.scale * this.build.legs * 0.94; }
   isAttacking() { return this.state === 'move' || this.state === 'ability'; }
@@ -274,10 +282,17 @@ class Fighter {
     // attack presses made during a wind-up are held until the chain window opens, so mashing a heavy weapon never drops inputs
     const b = this.buf, holdAtk = this.state === 'move' && this.mphase === 0;
     for (const k in b) if (b[k] > 0 && !(holdAtk && (k === 'punch' || k === 'kick' || k === 'weapon'))) b[k] -= dt;
-    if (c.punchP) b.punch = 0.2; if (c.kickP) b.kick = 0.2; if (c.weaponP) b.weapon = 0.2;
+    const opp = world ? world.opponentOf(this) : null;
+    // double tap (player): the same direction twice within 0.24 s dashes that way (D, D + attack is the dash strike)
+    if (this.isPlayer && c.tapDir) {
+      if (c.tapDir === this.tapD && this.time - this.tapT < 0.24) { b.dash = 0.12; this.tapT = -9; }
+      else { this.tapD = c.tapDir; this.tapT = this.time; }
+      this.dirTapT = this.time;
+    }
+    if (c.punchP) b.punch = 0.2; if (c.kickP) b.kick = 0.2;
+    if (c.weaponP) { b.weapon = 0.2; this.bufAim = this.attackDir(opp); this.bufAimTap = this.time - this.dirTapT < 0.3; }
     if (c.specialP) b.special = 0.16; if (c.jumpP) b.jump = 0.12; if (c.dashP) b.dash = 0.12;
 
-    const opp = world ? world.opponentOf(this) : null;
     switch (this.state) {
       case 'idle': case 'walk': case 'run': this.updateNeutral(dt, world, opp); break;
       case 'land':
@@ -288,6 +303,8 @@ class Fighter {
       case 'prejump':
         this.friction(dt, 20);
         if (this.ctrl.dir) this.jumpDir = this.ctrl.dir;
+        // up + attack pressed together (W is also jump): the rising slash instead of the jump
+        if (this.buf.weapon > 0 && this.aimsUp()) { this.buf.weapon = 0; this.buf.jump = 0; this.startMove(this.weaponMove('ground'), world); break; }
         if (this.st >= 0.075) this.launchJump(world);
         break;
       case 'kickcharge': this.updateCharge(dt, world); break;
@@ -305,6 +322,7 @@ class Fighter {
       case 'getup': if (this.st > 0.36) this.setState('idle'); break;
       case 'stun': this.stunT -= dt; this.friction(dt, 10); if (this.stunT <= 0) this.setState('idle'); break;
       case 'grabbed': break;
+      case 'bound': this.updateBound(dt, world); break;
       case 'throwing': this.updateThrow(dt, world); break;
       case 'ability': {
         const a = this.abil;
@@ -339,17 +357,56 @@ class Fighter {
   }
   friction(dt, k) { if (this.grounded) this.vx = damp(this.vx, 0, k, dt); }
 
+  /* ---- directional attacks (the sword arcs, 11-sword-arcs.js) ----
+     Which cut the weapon press asks for: the AI names it (ctrl.aim); the player's comes from the keys held with the
+     press, on the screen: W up, S down, A / D a horizontal cut to that side, W or S with A / D the diagonal to that side.
+     The side (bufSide, -1 / 1) is where a horizontal, diagonal or dash cut goes: Fighter.startMove turns him to face it. */
+  attackDir(opp) {
+    const c = this.ctrl;
+    this.bufSide = 0;
+    if (!this.isPlayer) return c.aim || null;
+    const side = c.dir, up = c.up, down = c.blockHeld;
+    if (side) this.bufSide = side;
+    if (up && side) return 'diagUp';
+    if (down && side) return 'diagDown';
+    if (up) return 'up';
+    if (down) return 'down';
+    if (side) return 'fwd';
+    return null;
+  }
+  aimsUp() { const a = this.bufAim; return a === 'up' || a === 'diagUp'; }
+  // the move a weapon press starts. ctx: 'ground' (from neutral), 'chain' (inside a string: null keeps the string; a
+  // horizontal cut needs a fresh tap there, so walking in while mashing still runs the string), 'air', 'dash'
+  weaponMove(ctx) {
+    const w = this.weapon(), d = w.dirs;
+    let aim = this.bufAim;
+    if (ctx === 'chain' && aim === 'fwd' && !this.bufAimTap) aim = null;
+    if (ctx === 'air') {
+      if (d && (aim === 'up' || aim === 'diagUp')) return d.airUp;
+      if (d && (aim === 'down' || aim === 'diagDown')) return d.airDown;
+      return w.air || null;
+    }
+    if (ctx === 'dash') return d ? d.dash : null;
+    if (d && aim && d[aim]) return d[aim];
+    return ctx === 'chain' ? null : w.moves[0];
+  }
+
   tryActions(world, opp) {
     const c = this.ctrl, b = this.buf;
     if (c.grabP) { b.punch = 0; return this.startMove('grab', world); }
     if (b.special > 0) { b.special = 0; return this.doSpecial(world); }
     if (b.dash > 0 && this.dashCd <= 0) { b.dash = 0; return this.startDash(c.dir || this.facing, world); }
+    if (b.jump > 0 && b.weapon > 0 && this.aimsUp()) b.jump = 0;   // up + attack together: the rising slash, not a jump
     if (b.jump > 0) { b.jump = 0; return this.doJump(world); }
     if (b.weapon > 0) {
       b.weapon = 0;
       const w = this.weapon();
       if (this.counterT > 0 && w.counter) return this.startMove(w.counter, world);
-      return this.startMove(w.moves[0], world);
+      const id = this.weaponMove('ground');
+      const ok = this.startMove(id, world);
+      // a direction pressed a frame or two after the button still counts (lateAim, updateMove)
+      this.lateAim = ok && this.isPlayer && id === w.moves[0];
+      return ok;
     }
     if (b.punch > 0) { b.punch = 0; return this.startMove('p1', world); }
     if (c.kickP) { this.setState('kickcharge'); this.charge = 0; return true; }
@@ -360,11 +417,12 @@ class Fighter {
     const c = this.ctrl;
     if (c.blockHeld && !c.punchP) { this.setState('block'); this.blockT = 0; return; }
     if (this.tryActions(world, opp)) return;
-    const spd = 245 * this.speedMul;
+    const st = this.weaponStyle(), mv = st && st.move;   // the weapon's pace: the heavy ones stomp, the light ones dart
+    const spd = 245 * this.speedMul * (mv ? mv.walk : 1);
     if (c.dir !== 0) {
       if (this.runDir === c.dir) this.walkT += dt; else { this.runDir = c.dir; this.walkT = 0; }
       const run = this.walkT > 0.38 && c.dir === this.facing;
-      const target = c.dir * (run ? spd * 1.65 : spd * (c.dir === this.facing ? 1 : 0.82));
+      const target = c.dir * (run ? spd * 1.65 * (mv ? mv.run / mv.walk : 1) : spd * (c.dir === this.facing ? 1 : 0.82));
       this.vx = damp(this.vx, target, 16, dt);
       const s = run ? 'run' : 'walk';
       if (this.state !== s) { this.state = s; }
@@ -373,7 +431,9 @@ class Fighter {
       this.vx = damp(this.vx, 0, 18, dt);
       if (this.state !== 'idle') this.state = 'idle';
     }
+    const ph0 = this.walkPhase;
     this.walkPhase += Math.abs(this.vx) * dt / (30 * this.scale);
+    if (mv && mv.stomp && world && this.grounded && Math.floor(ph0 / Math.PI) !== Math.floor(this.walkPhase / Math.PI)) WeaponFootwork.stomp(world, this, this.weaponId() === 'iwakudaki');
   }
 
   updateCharge(dt, world) {
@@ -392,6 +452,8 @@ class Fighter {
     this.blockT += dt; this.friction(dt, 20);
     if (c.grabP) { this.buf.punch = 0; this.startMove('grab', world); return; }
     if (this.buf.weapon > 0 && this.counterT > 0) { this.buf.weapon = 0; const w = this.weapon(); if (w.counter) { this.startMove(w.counter, world); return; } }
+    // down + attack (S is the guard): the downward slash, or the low sweep with toward held
+    if (this.buf.weapon > 0 && (this.isPlayer || this.bufAim)) { this.buf.weapon = 0; const id = this.weaponMove('ground'); if (id) { this.startMove(id, world); return; } }
     if (this.buf.dash > 0 && this.dashCd <= 0) { this.buf.dash = 0; this.startDash(c.dir || -this.facing, world); return; }
     if (!c.blockHeld) this.setState('idle');
   }
@@ -402,6 +464,7 @@ class Fighter {
       if (this.state === 'prejump') return true;
       this.jumpDir = this.ctrl.dir; this.move = null; this.setState('prejump');
       this.sqx = 1.08; this.sqy = 0.9;
+      if (this.isPlayer && world && world.onPlayerAction) world.onPlayerAction(this, 'jump');
       return true;
     }
     if (this.jumps < 2) {
@@ -409,6 +472,7 @@ class Fighter {
       world && world.fx.riseLines(this.x, this.y + 10 * this.scale, 7, this.scale);
       if (this.ctrl.dir) this.vx = this.ctrl.dir * 330 * this.speedMul;
       this.setState('air'); AudioManager.play('djump');
+      if (this.isPlayer && world && world.onPlayerAction) world.onPlayerAction(this, 'jump');
       world && world.fx.ring(this.x, this.y - 60 * this.scale, 40, 'rgba(236,229,211,0.5)', 0.25);
       return true;
     }
@@ -426,20 +490,26 @@ class Fighter {
     this.dashDir = dir || this.facing;
     this.setState('dash'); this.dashT = 0.2;
     this.invuln = Math.max(this.invuln, (0.17 + this.dashBonus * 0.5) * this.dodgeMul);
-    this.dashCd = 0.42 * (1 - this.dashBonus);
+    const mv = this.weaponStyle() && this.weaponStyle().move;
+    this.dashCd = 0.42 * (1 - this.dashBonus) * (mv && mv.cd || 1);
     AudioManager.play('dash');
     world && world.fx.dashLines(this);
+    if (this.isPlayer && world && world.onPlayerAction) world.onPlayerAction(this, 'dash');
     if (!this.grounded) { this.airDash = true; this.vy = 0; }
     return true;
   }
 
   updateDash(dt, world) {
     this.dashT -= dt;
-    this.vx = this.dashDir * 900 * this.speedMul * (this.dashDir === this.facing ? 1 : 0.85);
+    const mv = this.weaponStyle() && this.weaponStyle().move;
+    this.vx = this.dashDir * 900 * this.speedMul * (mv ? mv.dash : 1) * (this.dashDir === this.facing ? 1 : 0.85);
+    if (mv && mv.dashFx && world && (this.st * 60 | 0) % 2 === 1) WeaponFootwork.dash(world, this, mv.dashFx);   // the weapon's own trail (67-rage-arts.js)
     if (!this.grounded) this.vy = Math.min(this.vy, 60);
     if (this.st > 0.03) {
       if (this.buf.punch > 0 && this.dashDir === this.facing) { this.buf.punch = 0; this.startMove('dp', world); return; }
       if ((this.buf.kick > 0 || this.ctrl.kickP) && this.dashDir === this.facing && this.grounded) { this.buf.kick = 0; this.startMove('slide', world); return; }
+      // dash strike: a weapon press out of a forward dash
+      if (this.buf.weapon > 0 && this.dashDir === this.facing && this.grounded) { const id = this.weaponMove('dash'); if (id) { this.buf.weapon = 0; this.startMove(id, world); return; } }
     }
     if (world && (this.st * 60 | 0) % 2 === 0) world.fx.afterimage(this);
     if (this.dashT <= 0) { this.vx *= 0.35; this.setState(this.grounded ? 'idle' : 'air'); }
@@ -451,7 +521,7 @@ class Fighter {
     if (b.jump > 0 && this.jumps < 2) { b.jump = 0; this.doJump(world); return; }
     if (b.dash > 0 && !this.airDash && this.dashCd <= 0) { b.dash = 0; this.startDash(c.dir || this.facing, world); return; }
     if (b.special > 0) { b.special = 0; if (this.doSpecial(world)) return; }
-    if (b.weapon > 0) { b.weapon = 0; const w = this.weapon(); if (w.air) { this.startMove(w.air, world); return; } }
+    if (b.weapon > 0) { b.weapon = 0; const id = this.weaponMove('air'); if (id) { this.startMove(id, world); return; } }
     if (b.punch > 0) { b.punch = 0; this.startMove('ap', world); return; }
     if (b.kick > 0 || c.kickP) { b.kick = 0; this.startMove('ak', world); return; }
     if (this.tuckT > 0) this.tuckT -= dt;
@@ -462,7 +532,17 @@ class Fighter {
     const m = MOVES[id];
     if (!m) return false;
     if (m.kind === 'throw') { if (this.ammo <= 0) { world && world.fx.popText(this, 'NO KUNAI', C.muted); return false; } }
+    this.punishMove = null; this.lateAim = false;
     const now = world ? world.time : 0;
+    // a horizontal, diagonal or dash cut goes to the side pressed: he turns to face it (a clean 2D turn, never a spin)
+    const sided = !!(this.isPlayer && this.bufSide && (m.kind === 'weapon' || m.kind === 'air') && (DIR_SIDED[m.aim] || (m.kind === 'air' && !m.aim && this.bufAim === 'fwd')));
+    if (sided && this.bufSide !== this.facing) { this.facing = this.bufSide; this.turnT = 0; if (world && this.grounded) world.fx.dust(this.x, 0, 3); }
+    this.bufSide = 0;
+    // the directional combo: a chained cut in a new direction skips its anticipation and raises the step
+    const chained = !!(opts && opts.chain && m.aim);
+    this.dirChain = m.aim ? (chained && this.lastAim ? Math.min(DIR_COMBO.max, this.dirChain + 1) : 1) : 0;
+    this.lastAim = m.aim || null; this.flowChain = chained; this.impactT = 0; this._glinted = false;
+    this.smearFlat = m.flat || 0;
     if (m.id === this.lastMoveId && now - this.lastMoveT < 2.4) this.repeat++; else this.repeat = 0;
     this.lastMoveId = m.id; this.lastMoveT = now;
     this.move = m; this.setState('move'); this.mt = 0; this.mphase = 0; this.hitList.length = 0; this.moveHit = false; this.multiN = 0;
@@ -473,14 +553,15 @@ class Fighter {
     if (this.boostAtk) { this.mdur[0] *= this.boostAtk; this.mdur[2] *= this.boostAtk; }
     if (this.windupMul !== 1) this.mdur[0] *= this.windupMul;
     if (this.recoveryMul !== 1) this.mdur[2] *= this.recoveryMul;
+    if (chained) this.mdur[0] *= DIR_COMBO.flow;
     // player attack assist: turn to face a foe who crossed over, and glide the last short gap during the wind-up so near-misses connect
     this.magV = 0;
     if (this.isPlayer && world && m.box && m.kind !== 'grab' && m.kind !== 'throw') {
       const o = world.opponentOf(this);
       if (o && o.alive && o.visible && o.state !== 'down' && o.state !== 'getup') {
         const dx = o.x - this.x, ad = Math.abs(dx), side = Math.sign(dx) || this.facing;
-        if (ad > 10 && ad < 520 && side !== this.facing) this.facing = side;
-        if (this.grounded && side === this.facing) {
+        if (!sided && ad > 10 && ad < 520 && side !== this.facing) this.facing = side;
+        if (this.grounded && side === this.facing && !(m.lunge < 0)) {
           const reach = (m.box[0] + m.box[2]) * this.scale * (wm ? wm.reach : 1);
           const gap = ad - 22 * o.scale - reach * 0.85;
           if (gap > 0 && gap < 75 * this.scale) this.magV = Math.min(gap / Math.max(0.05, this.mdur[0]), 900);
@@ -496,18 +577,34 @@ class Fighter {
 
   updateMove(dt, world) {
     const m = this.move; if (!m) { this.setState('idle'); return; }
-    this.mt += dt;
+    // impact: the blade drags through the body it just cut for a few frames before the follow-through tears free
+    if (this.impactT > 0) { this.impactT -= dt; this.mt += dt * 0.35; } else this.mt += dt;
     const d0 = this.mdur[0], d1 = d0 + this.mdur[1], d2 = d1 + this.mdur[2];
     if (this.mphase === 0 && this.magV) this.x += this.facing * this.magV * dt;
+    // late aim: up / down / away pressed within a few frames after a plain weapon press turns it into that form
+    if (this.lateAim && this.mphase === 0) {
+      if (this.mt > 0.07) this.lateAim = false;
+      else {
+        const aim = this.attackDir(world ? world.opponentOf(this) : null), d = this.weapon().dirs;
+        if (aim && aim !== 'fwd' && d && d[aim]) { this.bufAim = aim; this.buf.jump = 0; this.startMove(d[aim], world); return; }
+      }
+    }
+    // a foe's directional cut flashes at the blade during the wind-up, so its direction can be read in time
+    if (this.mphase === 0 && m.aim && !this.isPlayer && !this._glinted && this.mt > d0 * 0.45 && world) {
+      this._glinted = true; world.fx.glint(this.sk.wt.x, this.sk.wt.y, this.accent || '#ffffff');
+    }
     if (this.mphase === 0 && this.mt >= d0) {
       this.mphase = 1; this.magV = 0;
+      this.smearY = this.sk.sh.y + 18 * this.scale;
+      if (world && m.aim && m.grip !== 'fists' && world.fx.dirSlash) world.fx.dirSlash(this, m);
       this.sqx = 1.1 + 0.04 * this.heft(); this.sqy = 0.93;
       if (world && (m.kind === 'punch' || m.kind === 'kick' || (m.imp || 0) >= 2) && !this.clone) world.fx.kiai(this);
       if (world && this.heft() >= 1.4) { world.fx.shake(0.05 * this.heft()); if (this.grounded) world.fx.dust(this.x + this.facing * 30 * this.scale, 0, 4); }
-      if (world && (m.spin || m.rot) && (m.kind === 'weapon' || m.kind === 'kick')) world.fx.elemRing(this.elementOf(m), this.x, this.y - 95 * this.scale, 120 * this.scale);
+      if (world && m.spin && (m.kind === 'weapon' || m.kind === 'kick')) world.fx.elemRing(this.elementOf(m), this.x, this.y - 95 * this.scale, 120 * this.scale);
       const ch = this.moveCharge;
       if (m.lunge) this.vx = this.facing * m.lunge * (1 + ch * 0.6) * (this.grounded ? 1 : 0.5);
       if (m.hop) { this.vy = m.hop; this.grounded = false; }
+      if (m.dive && !this.grounded) { this.vy = m.dive; this.vx *= 0.4; }
       if (m.snd) AudioManager.play(m.snd, { pitch: this.isPlayer ? 1 : 0.9 });
       if (m.proj && world) world.spawnProjectile(m.proj, this);
       if (m.kind === 'throw') this.ammo--;
@@ -522,22 +619,34 @@ class Fighter {
     }
     if (this.grounded) { if (this.mphase !== 1 || this.mt - d0 > 0.08) this.vx = damp(this.vx, 0, m.kind === 'kick' && m.id === 'slide' ? 4 : 11, dt); }
     // air move landing
-    if (m.kind === 'air' && this.grounded && this.mt > 0.04) { this.move = null; this.setState('land'); AudioManager.play('land'); world && world.fx.dust(this.x, this.y, 6); return; }
+    if (m.kind === 'air' && this.grounded && this.mt > 0.04) {
+      if (m.dive && world) this.diveQuake(world, m);
+      this.move = null; this.setState('land'); AudioManager.play('land'); world && world.fx.dust(this.x, this.y, 6); return;
+    }
     // chains and cancels
     if (this.mphase >= 1 && this.mt > d0 + this.mdur[1] * 0.5) {
       const b = this.buf, wpn = this.weapon();
       const btn = m.kind === 'weapon' ? 'weapon' : m.kind === 'kick' ? 'kick' : m.kind === 'punch' ? 'punch' : null;
+      // a weapon press with a direction held branches the string into that cut (W, S, A, D + attack mid-combo), and a
+      // directional cut flows into a cut in another direction (or the same one to the other side): the directional
+      // combo (DIR_COMBO). On a whiff it waits for the back part of the recovery; a repeated direction never chains.
+      if (btn === 'weapon' && b.weapon > 0 && this.mphase === 2 && this.grounded) {
+        const id = this.weaponMove('chain'), nm = id && MOVES[id];
+        const rk = (this.mt - d1) / Math.max(0.001, this.mdur[2]);
+        const fresh = !nm || !nm.aim || !m.aim || nm.aim !== m.aim || (DIR_SIDED[nm.aim] && this.bufSide && this.bufSide !== this.facing);
+        if (id && id !== m.id && fresh && (m.next || this.moveHit || (m.aim && rk > DIR_COMBO.whiff))) { b.weapon = 0; this.startMove(id, world, { chain: !!(nm.aim && m.aim) }); return; }
+      }
       if (m.next && btn && b[btn] > 0 && this.mphase === 2) { b[btn] = 0; this.startMove(m.next, world); return; }
       if (this.moveHit && this.mphase === 2) {
         if (b.special > 0 && this.rage >= 100) { b.special = 0; this.doSpecial(world); return; }
         if (!this.grounded) {
           // air strings: each connecting air attack can flow into a different one, or a double jump to keep the juggle going
           if (b.jump > 0 && this.jumps < 2) { b.jump = 0; this.endMove(); this.doJump(world); return; }
-          if (b.weapon > 0 && wpn.air && m.id !== wpn.air) { b.weapon = 0; this.startMove(wpn.air, world); return; }
+          if (b.weapon > 0) { const id = this.weaponMove('air'); if (id && m.id !== id) { b.weapon = 0; this.startMove(id, world); return; } }
           if (b.kick > 0 && m.id !== 'ak') { b.kick = 0; this.startMove('ak', world); return; }
           if (b.punch > 0 && m.id !== 'ap') { b.punch = 0; this.startMove('ap', world); return; }
         } else {
-          if (b.weapon > 0 && btn !== 'weapon') { b.weapon = 0; this.startMove(wpn.moves[0], world); return; }
+          if (b.weapon > 0 && btn !== 'weapon') { b.weapon = 0; this.startMove(this.weaponMove('ground'), world); return; }
           if (b.kick > 0 && btn !== 'kick') { b.kick = 0; this.startMove('rk', world); return; }
           if (b.punch > 0 && btn !== 'punch') { b.punch = 0; this.startMove('p1', world); return; }
           if (b.jump > 0 && this.mt > d1 + this.mdur[2] * 0.4) { b.jump = 0; this.endMove(); this.doJump(world); return; }
@@ -563,11 +672,42 @@ class Fighter {
     }
   }
   endMove() { this.move = null; this.superArmor = false; this.magV = 0; }
+  // the plunge (airDown form) hitting the floor: a small quake around the landing that knocks grounded foes down
+  diveQuake(world, m) {
+    world.fx.shake(0.4); world.fx.dust(this.x - 30, 0, 8); world.fx.dust(this.x + 30, 0, 8);
+    world.fx.elemRing(this.elementOf(m), this.x, -3, 130 * this.scale); AudioManager.play('slam');
+    Combat.area(world, this, fbox(this, -115, -80, 230, 80), { id: m.id, kind: 'air', dmg: m.dmg * 0.5, kb: 260, up: -340, kd: 1, hs: 0.4, imp: 2, hsnd: 'heavy', groundOnly: 1 });
+  }
+  // bound by Akari's chain (62b-akari-chain.js): no movement, guard or attack. Only the rage art breaks free: a full
+  // rage meter and the special press break the chain (her move's onBreak leaves her reeling) and the rage art fires.
+  // The move that bound him decides what happens when the hold runs out; if it is gone, he is simply let go.
+  updateBound(dt, world) {
+    this.friction(dt, 14);
+    this.boundT = (this.boundT || 0) - dt;
+    const by = this.boundBy;
+    if (!by || !by.alive || !by.abil || this.boundT < -1) { this.boundBy = null; this.setState(this.grounded ? 'idle' : 'air'); return; }
+    if (this.buf.special > 0 && this.rage >= 100) {
+      this.buf.special = 0; this.boundBy = null; this.invuln = 0.4;
+      this.setState(this.grounded ? 'idle' : 'air');
+      if (by.abil.onBreak) by.abil.onBreak(by, world, this);
+      this.doSpecial(world);
+    }
+  }
 
   // hitbox in world space, or null
-  hitbox(out) {
+  // full: the whole arc's box instead of the swept part (blade clashes: two cuts in flight meet anywhere along their arcs)
+  hitbox(out, full) {
     if (this.state !== 'move' || this.mphase !== 1 || !this.move || !this.move.box) return null;
-    const b = this.move.box, s = this.scale;
+    const m = this.move, s = this.scale;
+    let b = m.box;
+    if (m.sweep && !full) {
+      // the swept hitbox: where the blade has been over the last part of the active frames, moving along the arc
+      const u = clamp((this.mt - this.mdur[0]) / Math.max(0.001, this.mdur[1]), 0, 1), u0 = Math.max(0, u - 0.4);
+      const A = m.sweep[0], B = m.sweep[1], o = this._sw || (this._sw = [0, 0, 0, 0]);
+      const x0 = Math.min(lerp(A[0], B[0], u0), lerp(A[0], B[0], u)), y0 = Math.min(lerp(A[1], B[1], u0), lerp(A[1], B[1], u));
+      const x1 = Math.max(lerp(A[0] + A[2], B[0] + B[2], u0), lerp(A[0] + A[2], B[0] + B[2], u)), y1 = Math.max(lerp(A[1] + A[3], B[1] + B[3], u0), lerp(A[1] + A[3], B[1] + B[3], u));
+      o[0] = x0; o[1] = y0; o[2] = x1 - x0; o[3] = y1 - y0; b = o;
+    }
     const reach = (this.move.kind === 'weapon' || this.move.kind === 'air') && this.hasWeapon ? weaponMul(this.weaponId(), this.wlvl).reach : 1;
     const x0 = b[0] * s, w = b[2] * s * reach * (this.move.id === 'hk' ? 1 + this.moveCharge * 0.15 : 1);
     out.x = this.facing > 0 ? this.x + x0 : this.x - x0 - w;
@@ -643,6 +783,8 @@ class Fighter {
     AudioManager.play('land');
     if (!this.alive) { this.setState('dead'); return; }
     this.setState('down'); this.downT = 0.4 + impact * 0.45; this.feetLand = feet;
+    // a Yashiro Titan blow (66-takashi.js) keeps him down longer: he has to get up before he can fight back
+    if (this.tkDown) { this.downT = Math.max(this.downT, this.tkDown); this.tkDown = 0; }
   }
 
   physics(dt, world) {
@@ -682,7 +824,7 @@ class Fighter {
     // a mimicking foe stands in the stance of the fighter it copies (Kage's), not its own
     const t = this.tgt, wp = this.mimic ? this.mimic.src.weapon() : this.weapon(), stance = STANCES[wp.stance] || STANCES.fists;
     let rate = 14;
-    const copy = src => { for (let i = 0; i < POSE_KEYS.length; i++) t[POSE_KEYS[i]] = src[POSE_KEYS[i]]; t.ik = src.ik || 0; };
+    const copy = src => { for (let i = 0; i < POSE_KEYS.length; i++) { const k = POSE_KEYS[i], v = src[k]; t[k] = v === undefined ? BASE_POSE[k] : v; } t.ik = src.ik || 0; };
     this.extraRot = 0;
     let plant = null;
     switch (this.state) {
@@ -743,7 +885,8 @@ class Fighter {
         const m = this.move;
         if (!m) { copy(stance); break; }
         this.movePose(t); rate = 70;
-        if (m.rot && this.mphase === 1) this.extraRot = m.rot * clamp((this.mt - this.mdur[0]) / this.mdur[1], 0, 1);
+        // impact: the body shudders against the resistance of the cut (arms and torso only; the body never turns over)
+        if (this.impactT > 0) { const k = Math.sin(this.impactT * 90); t.rx -= 3 + k * 2; t.lean -= 2; t.head += k * 2; }
         if (m.id === 'hk') t.lean -= this.moveCharge * 6;
         break;
       }
@@ -773,12 +916,12 @@ class Fighter {
         if (this.feetLand) { copy(POSES.land); rate = 12; if (this.st > 0.12) { copy(stance); rate = 10; } break; }
         copy(POSES.getup); rate = 14; if (this.st > 0.15) { copy(stance); rate = 12; } break;
       case 'stun': copy(POSES.stun); rate = 6; t.lean += Math.sin(this.time * 5) * 10; t.head += Math.sin(this.time * 7) * 14; t.rx = Math.sin(this.time * 5) * 6; break;
+      case 'bound': copy(POSES.stun); t.fs = 14; t.fe = 34; t.bs = -6; t.be = 34; t.head = 6 + Math.sin(this.time * 9) * 6; t.lean = -4 + Math.sin(this.time * 15) * 5; t.rx = Math.sin(this.time * 19) * 3; rate = 16; break;
       case 'grabbed': copy(POSES.grabbed); rate = 20; this.extraRot = this.grabbedBy ? -this.grabbedBy.facing * this.facing * 0 : 0; break;
       case 'throwing': copy(UNARMED.grab.s); t.fs = lerp(86, 200, clamp(this.st / 0.5, 0, 1)); t.bs = lerp(80, 190, clamp(this.st / 0.5, 0, 1)); t.lean = lerp(18, -30, clamp(this.st / 0.5, 0, 1)); rate = 30; break;
       case 'ability': {
         const a = this.abil;
         copy(a && a.pose ? (typeof a.pose === 'function' ? a.pose(this, a.t) : a.pose) : stance); rate = a ? a.rate : 18;
-        if (a && a.rot) this.extraRot = a.rot(this, a.t);
         break;
       }
       case 'pose': copy(POSES[this.poseName] || stance); rate = 8;
@@ -795,9 +938,11 @@ class Fighter {
     if (t.wb == null) t.wb = t.bs + t.be + (CARRY[sh] || 0);
     if (sh === 'none') { t.ik = 0; }
     this.updateBodyRot(dt);
+    // the whole body turns only for the double-jump flip and when knocked off the feet (bodyRot); an attack never does
+    if (this.state === 'move' || this.state === 'ability') t.rot = 0;
     this.extraRot += this.bodyRot + this.flipAngle();
-    if (this.state === 'move' && this.move && this.move.spin && this.mphase === 0) this.turnX = Math.cos(clamp(this.mt / this.mdur[0], 0, 1) * TAU);
-    else this.turnX = damp(this.turnX, 1, 30, dt);
+    // no fake 3D: the old spin-move squash (turnX) is gone; turning is a clean 2D facing change
+    this.turnX = 1;
     const p = this.pose;
     const k = 1 - Math.exp(-rate * dt);
     for (let i = 0; i < POSE_KEYS.length; i++) { const key = POSE_KEYS[i]; p[key] += (t[key] - p[key]) * k; }
@@ -809,7 +954,7 @@ class Fighter {
     if (this.flipT <= 0) return;
     const st = this.state;
     // a hit or touching down ends the flip: whatever angle is left is handed to the body spring, so nothing snaps
-    if (this.grounded || st === 'hit' || st === 'juggle' || st === 'grabbed' || st === 'stun' || st === 'down' || st === 'dead') {
+    if (this.grounded || st === 'hit' || st === 'juggle' || st === 'grabbed' || st === 'bound' || st === 'stun' || st === 'down' || st === 'dead') {
       let a = this.flipAngle() % 360; if (a > 180) a -= 360;
       this.bodyRot += a; this.flipT = 0; return;
     }
@@ -910,6 +1055,11 @@ class Fighter {
     };
     limb(shF.x, shF.y, p.fs, p.fe, upper, fore, 'fel', 'fha');
     limb(shB.x, shB.y, p.bs, p.be, upper, fore, 'bel', 'bha');
+    // sword arcs: the hands reach for their targets (hx/hy, bx/by from the shoulder centre) by two-bone IK, so a cut's
+    // hands travel the arc's path with the arm lengths kept; gk / gb blend the IK over the angle-driven arm
+    const ak = s * b.arms;
+    if (p.gk > 0.01) this.reachHand(shF, shd.x + p.hx * ak, shd.y + p.hy * ak, Math.min(1, p.gk), upper, fore, L.fel, L.fha);
+    if (p.gb > 0.01) this.reachHand(shB, shd.x + p.bx * ak, shd.y + p.by * ak, Math.min(1, p.gb), upper, fore, L.bel, L.bha);
     limb(hipF.x, hipF.y, p.fh, p.fk, thigh, shin, 'fkn', 'fft');
     limb(hipB.x, hipB.y, p.bh, p.bk, thigh, shin, 'bkn', 'bft');
     const pw = this.plantW || 0, ps = this.plantSrc;
@@ -962,6 +1112,18 @@ class Fighter {
     sk.w2b.x = sk.bha.x + this.w2Vec.x * wl2 * 0.3; sk.w2b.y = sk.bha.y + this.w2Vec.y * wl2 * 0.3;
     sk.w2t.x = sk.bha.x + this.w2Vec.x * wl2; sk.w2t.y = sk.bha.y + this.w2Vec.y * wl2;
   }
+  // two-bone arm IK toward a hand target (elbow hanging below the line). w blends the TARGET from the angle-driven hand
+  // to the arc's target and the arm is always solved whole, so both bones keep their length through every blend
+  reachHand(sh, tx, ty, w, a, b, el, ha) {
+    if (w < 1) { tx = ha.x + (tx - ha.x) * w; ty = ha.y + (ty - ha.y) * w; }
+    const dx = tx - sh.x, dy = ty - sh.y, d = clamp(Math.sqrt(dx * dx + dy * dy), Math.abs(a - b) + 0.01, a + b - 0.01);
+    const base = Math.atan2(dy, dx), A = Math.acos(clamp((a * a + d * d - b * b) / (2 * a * d), -1, 1));
+    const e1y = sh.y + Math.sin(base + A) * a, e2y = sh.y + Math.sin(base - A) * a;
+    const pick = e1y > e2y ? base + A : base - A;
+    const ex = sh.x + Math.cos(pick) * a, ey = sh.y + Math.sin(pick) * a;
+    const fa = Math.atan2(ty - ey, tx - ex), hx = ex + Math.cos(fa) * b, hy = ey + Math.sin(fa) * b;
+    el.x = ex; el.y = ey; ha.x = hx; ha.y = hy;
+  }
   // two-bone leg IK toward a planted foot (knee always bends forward), blended over the FK leg by w
   plantLeg(hp, kn, ft, tx, ty, a, b, w) {
     const dx = tx - hp.x, dy = ty - hp.y, d = clamp(Math.sqrt(dx * dx + dy * dy), Math.abs(a - b) + 0.01, a + b - 0.01);
@@ -1012,7 +1174,7 @@ class Fighter {
       else if (limb === 'bhand') seg(this.trail, sk.bel, sk.bha, 0.4);
       else if (limb === 'ffoot') seg(this.trail, sk.fkn, sk.fft, 0.35);
       else if (limb === 'bfoot') seg(this.trail, sk.bkn, sk.bft, 0.35);
-      if ((this.shape() === 'short' || this.shape() === 'crescent' || this.shape() === 'fan') && limb === 'w' && m && m.rot) push(this.trail2, sk.bha.x, sk.bha.y, this.w2Ang, wl, 0.1);
+      if ((this.shape() === 'short' || this.shape() === 'crescent' || this.shape() === 'fan') && limb === 'w' && m && (m.aim || m.multi)) push(this.trail2, sk.bha.x, sk.bha.y, this.w2Ang, wl, 0.1);
     }
     for (const arr of [this.trail, this.trail2]) {
       for (const e of arr) e.t += STEP;
@@ -1032,8 +1194,8 @@ class Fighter {
     const K = this._keys || (this._keys = []);
     K.length = 0;
     K.push(this._snap, 0, 'inOut');
-    if (m.a) K.push(m.a, d0 * 0.42, 'inOut');
-    K.push(m.w, d0, m.a ? 'out' : 'inOut');
+    if (m.a && !this.flowChain) K.push(m.a, d0 * 0.42, 'inOut');
+    K.push(m.w, d0, m.a && !this.flowChain ? 'out' : 'inOut');
     const strikeAt = d0 + Math.min(d1, Math.max(0.028, 0.035 + 0.025 * hf));
     const strikeIdx = K.length / 3;
     K.push(m.s, strikeAt, hf < 1.05 ? 'snap' : 'quart');
@@ -1061,6 +1223,13 @@ class Fighter {
       out[k] = lerp(a || 0, b || 0, k === 'head' ? eH : e);
     }
     out.ik = u < 0.5 ? (A.ik || 0) : (B.ik || 0);
+    // the strike's hands swing round the shoulder on a curve (bowed away from it), not along a straight line
+    if (j + 1 === strikeIdx && A.gk && B.gk) {
+      const mx = (A.hx + B.hx) / 2, my = (A.hy + B.hy) / 2, ml = Math.hypot(mx, my) || 1;
+      const bow = Math.sin(Math.PI * e) * 0.22 * Math.hypot(B.hx - A.hx, B.hy - A.hy);
+      out.hx += mx / ml * bow; out.hy += my / ml * bow;
+      if (A.gb && B.gb) { out.bx += mx / ml * bow * 0.8; out.by += my / ml * bow * 0.8; }
+    }
     // momentum: heavy weapons drag the body forward through the follow-through; a whiff over-extends
     if (this.mphase === 2) {
       const rk = clamp((t - d0 - d1) / d2, 0, 1), bump = Math.sin(rk * Math.PI);
@@ -1213,7 +1382,7 @@ const OUTLINE_DIRS = Array.from({ length: 12 }, (_, i) => [Math.cos(i * Math.PI 
 Fighter.prototype.draw = function (ctx, opt) {
   opt = opt || {};
   if (!this.visible || this.alpha <= 0.01) return;
-  // a translucent fighter (clones, Akari's decoy) is drawn opaque into a layer and composited once (21-anime-body.js)
+  // a translucent fighter (clones, Akari's decoy) is drawn opaque into a layer and composited once (21-characters/_shared/)
   if (this.alpha < 0.99 && !opt.layered) {
     const a = this.alpha, lo = Object.assign({}, opt, { layered: true });
     animeLayer(ctx, a, 0, (g) => { this.alpha = 1; this.draw(g, lo); this.alpha = a; });
@@ -1252,7 +1421,7 @@ Fighter.prototype.draw = function (ctx, opt) {
   // the Witness's own look (not while it flickers to Kage): the halo ring, high collar and back coat tails behind the
   // body, then (below) the front tail, the chest core with its rune cards and the crimson veins over it
   const witArt = wit && !this.kageFrame;
-  if (witArt) this.drawWitnessHalo(ctx, opt);   // its coat tails, armour and chest core are drawn with the body (29w-anime-witness.js)
+  if (witArt) this.drawWitnessHalo(ctx, opt);   // its coat tails, armour and chest core are drawn with the body (21-characters/bosses/witness/)
   if (this.armor === 'kysmei' && !this.kageFrame && !wit) this.drawKysmei(ctx, -1, opt);
   for (const cl of this.cloths) if (cl.kind === 'cape' || cl.kind === 'robe') cl.c.draw(ctx, opt.color || cl.color, cl.w0, cl.w1, null);
   // the outline: the silhouette stamped around itself as a thin near-black ink line, then a thinner rim in the stage's
@@ -1312,22 +1481,22 @@ Fighter.prototype.witnessFlicker = function () {
   return h < (this.kageFlicker > 0 ? 0.5 : 0.07);
 };
 // The Kysmei Robe's drifting fragments (Fighter.drawKysmei), the Witness's halo, core, rune cards, coat tails and its
-// shard weapon (drawShardWeapon): 29w-anime-witness.js
+// shard weapon (drawShardWeapon): 21-characters/bosses/witness/
 // Which story boss's own look a fighter wears: the boss itself or its Core echo (echoOf) give that boss's id
 // ('raikon', 'akari', 'takashi', 'witness'); anyone else gives their own id or null. The bosses' redesigns key on this,
 // so the gear they drop (the Raijin Kabuto, the Kasa) keeps its own look on Kage.
 function bossLook(f) { const d = f && f.def; return d ? d.echoOf || d.id || null : null; }
 
-/* ---- Raikon: 27-anime-raikon.js (cloak, coat, fur, sode, jingasa) ---- */
+/* ---- Raikon: 21-characters/bosses/raikon/ (cloak, coat, fur, sode, jingasa) ---- */
 
-/* ---- Takashi: 29-anime-takashi.js (kasa, hair, beard, robes, capelet, cape, obi, gold-wrapped blade) ---- */
+/* ---- Takashi: 21-characters/bosses/takashi/ (kasa, hair, beard, robes, capelet, cape, obi, gold-wrapped blade) ---- */
 
 /* ---- Rem ---- */
 // Rem (young Rem in the spar, Hollow Rem in the Core): his own hairstyle and band from his key art
 function isRem(f) { const d = f && f.def; return !!d && (d.id === 'young_rem' || d.id === 'rem' || d.echoOf === 'rem'); }
-// his head, hair, band and coat: 26-anime-rem.js
+// his head, hair, band and coat: 21-characters/bosses/rem/
 
-/* ---- Akari: 28-anime-akari.js (hair, mask, fitted garb, arm guards, boots, sash and tail) ---- */
+/* ---- Akari: 21-characters/bosses/akari/ (hair, mask, fitted garb, arm guards, boots, sash and tail) ---- */
 // The Witness's glitch frame: the figure is drawn once into an offscreen canvas, then put back as horizontal slices,
 // some torn sideways, over a magenta / cyan colour split, with dark scanlines across the figure and a few bright pixel
 // blocks flickering beside it. Deterministic per 1/30 s, stronger during a corrupted move. Returns false (draw it the
@@ -1413,14 +1582,15 @@ Fighter.prototype.drawMainWeapon = function (ctx, ink, opt) {
 };
 Fighter.prototype.drawOffhand = function (ctx, ink, opt) {
   const sh = this.shape(), sk = this.sk;
-  if (sh === 'short' || sh === 'crescent' || sh === 'fan') {
+  // Akari holds one sakura scythe in her main hand (21-characters/bosses/akari/scythe.js): nothing in the off hand
+  if ((sh === 'short' || sh === 'crescent' || sh === 'fan') && this.weaponId() !== 'akari_blades') {
     ctx.save(); ctx.translate(sk.bha.x, sk.bha.y); ctx.rotate(this.w2Ang); if (this.facing < 0) ctx.scale(1, -1);
     drawWeaponShape(ctx, twinShape(this.weapon(), sh, 1), this.weaponLen(), opt.color ? 'flat' : 'ink', this.scale, opt.color || ink, this);
     ctx.restore();
   }
-  if (this.weapon().shield && this.hasWeapon) this.orderShield(ctx, this._A);   // the Order's tate (22-anime-order.js)
+  if (this.weapon().shield && this.hasWeapon) this.orderShield(ctx, this._A);   // the Order's tate (21-characters/enemies/order/)
 };
-// iron fists: the Hollow husk's bandaged fists (23-anime-hollow.js), Garan's tekko (24-anime-subs-a.js); the far one is
+// iron fists: the Hollow husk's bandaged fists (21-characters/enemies/hollow/), Garan's tekko (21-characters/sub-bosses/); the far one is
 // drawn with its arm, behind the body
 Fighter.prototype.drawFistGear = function (ctx) {
   const sk = this.sk;
@@ -1429,12 +1599,17 @@ Fighter.prototype.drawFistGear = function (ctx) {
 };
 
 // a `twin` weapon (Kagehira & Yūrei) draws a different blade in each hand: Kagehira in the main hand, Yūrei in the off hand
-function twinShape(w, sh, offhand) { return w && w.twin && sh === 'short' ? (offhand ? 'yurei' : 'kagehira') : sh; }
+// Kage's seven shop weapons draw their own redesigned blades (21-characters/kage/weapons.js, WEAPON_LOOK)
+function twinShape(w, sh, offhand) {
+  if (w && WEAPON_LOOK[w.id] && sh === SHAPE[w.id]) return WEAPON_LOOK[w.id];
+  return w && w.twin && sh === 'short' ? (offhand ? 'yurei' : 'kagehira') : sh;
+}
 /* ---- weapon art: origin at the grip, +x along the blade ---- */
 function drawWeaponShape(ctx, sh, L, mode, s, ink, f) {
   if (f && f.def && f.def.mirrorWeapon && !f.kageFrame && mode !== 'art') return drawShardWeapon(ctx, sh, L, mode, s, ink, f);
-  if (mode === 'ink' && f && SUB_WEAPON_ART[f.weaponId()] && SUB_WEAPON_ART[f.weaponId()](ctx, sh, L, s, f)) return;   // 24-anime-subs-a.js
-  if ((mode === 'flat' || mode === 'rim') && f && SUBB_WEAPON_FLAT[f.weaponId()] && SUBB_WEAPON_FLAT[f.weaponId()](ctx, L, s, ink, mode === 'rim', f)) return;   // 25-anime-subs-b.js
+  if (mode === 'ink' && f && SUB_WEAPON_ART[f.weaponId()] && SUB_WEAPON_ART[f.weaponId()](ctx, sh, L, s, f)) return;   // 21-characters/sub-bosses/
+  if ((mode === 'flat' || mode === 'rim') && f && SUBB_WEAPON_FLAT[f.weaponId()] && SUBB_WEAPON_FLAT[f.weaponId()](ctx, L, s, ink, mode === 'rim', f)) return;   // 21-characters/sub-bosses/
+  if (KAGE_BLADES[sh]) { ctx.lineCap = 'round'; ctx.lineJoin = 'round'; KAGE_BLADES[sh](ctx, L, mode, s, ink, f); return; }   // 21-characters/kage/weapons.js
   const rim = mode === 'rim'; if (rim) mode = 'flat';   // outline pass: the steel stays thin, only the hilt gets the white edge
   const art = mode === 'art';
   const steel = art ? C.bone : mode === 'flat' ? ink : ANIME.silver;   // muted silver (STYLE.md), never pure white
@@ -1538,12 +1713,12 @@ function drawWeaponShape(ctx, sh, L, mode, s, ink, f) {
       break;
     }
     // Akari's Kagehira & Yūrei (twinShape): two short, narrow blades with different guards. Kagehira (main hand) is
-    // straight with a squared bar guard and a chisel tip; Yūrei (off hand) has a ring guard, a slight curve and a violet
-    // edge line.
+    // straight with a squared bar guard and a chisel tip; Yūrei (off hand) has a ring guard, a slight curve and a
+    // sakura-pink edge line.
     case 'kagehira': case 'yurei': {
       const yurei = sh === 'yurei', hl = 0.3;
       line(-L * hl, 0, -1 * s, 0, 5.2 * s, dark);
-      ctx.fillStyle = art ? C.gold : yurei && mode !== 'flat' ? '#5c4d78' : ink;
+      ctx.fillStyle = art ? C.gold : yurei && mode !== 'flat' ? '#7a3d5c' : ink;
       if (yurei) { ctx.beginPath(); ctx.arc(-0.4 * s, 0, 6 * s, 0, TAU); ctx.arc(-0.4 * s, 0, 2.6 * s, 0, TAU, true); ctx.fill('evenodd'); }
       else { ctx.fillRect(-2 * s, -7 * s, 3.6 * s, 14 * s); ctx.fillRect(-2 * s, -7 * s, 6 * s, 2.2 * s); ctx.fillRect(-2 * s, 4.8 * s, 6 * s, 2.2 * s); }
       if (rim) break;
@@ -1552,12 +1727,12 @@ function drawWeaponShape(ctx, sh, L, mode, s, ink, f) {
       if (!yurei) { ctx.moveTo(b0, -w); ctx.lineTo(L * 0.9, -w); ctx.lineTo(L, -w * 0.15); ctx.lineTo(L * 0.86, w); ctx.lineTo(b0, w); }
       else { const sori = L * 0.06; ctx.moveTo(b0, -w); ctx.quadraticCurveTo(L * 0.55, -w - sori, L, -sori * 1.4); ctx.quadraticCurveTo(L * 0.55, w - sori * 0.6, b0, w); }
       ctx.closePath();
-      // in Akari's own hands the blades glow violet (a soft bloom round a lilac blade)
+      // in Akari's own hands the blades glow sakura pink (a soft bloom round a pale-pink blade)
       const glow = mode === 'ink' && f && f.helmet === 'akari_mask';
-      if (glow) { ctx.strokeStyle = 'rgba(170,110,255,0.45)'; ctx.lineWidth = 4 * s; ctx.stroke(); }
-      ctx.fillStyle = glow ? '#e4d6ff' : steel; ctx.fill();
+      if (glow) { ctx.strokeStyle = 'rgba(255,90,170,0.5)'; ctx.lineWidth = 4 * s; ctx.stroke(); }
+      ctx.fillStyle = glow ? '#ffdcec' : steel; ctx.fill();
       if (mode !== 'flat') {
-        ctx.strokeStyle = art ? C.emberBright : yurei || glow ? 'rgba(180,140,240,0.85)' : 'rgba(120,114,104,0.6)'; ctx.lineWidth = (art ? 1.3 : 0.9) * s;
+        ctx.strokeStyle = art ? C.emberBright : yurei || glow ? 'rgba(255,130,195,0.85)' : 'rgba(120,114,104,0.6)'; ctx.lineWidth = (art ? 1.3 : 0.9) * s;
         ctx.beginPath(); if (yurei) { const sori = L * 0.06; ctx.moveTo(b0 + 2 * s, w * 0.6); ctx.quadraticCurveTo(L * 0.55, w * 0.6 - sori * 0.6, L * 0.96, -sori * 1.3); } else { ctx.moveTo(b0 + 2 * s, 0); ctx.lineTo(L * 0.88, 0); } ctx.stroke();
       }
       break;
@@ -1676,7 +1851,7 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
   ctx.fillStyle = ink; ctx.strokeStyle = ink;
   switch (key) {
     case 'topknot': // Kage's spiky hair over his black face (his red scarf is drawn with the body); anyone else adds a crimson hachimaki
-      if (f && f.hollow && !f.isPlayer && animeSkin(f).hollow) { drawHollowHead(ctx, f, r, ink, flat); break; }   // Hollow Kage: the ronin (23-anime-hollow.js)
+      if (f && f.hollow && !f.isPlayer && animeSkin(f).hollow) { drawHollowHead(ctx, f, r, ink, flat); break; }   // Hollow Kage: the ronin (21-characters/enemies/hollow/)
       drawKageHair(ctx, r, ink, flat, f);
       if (f && f.isPlayer) break;
       ctx.save(); ctx.beginPath(); ctx.arc(0, 0, r * 1.04, 0, TAU); ctx.clip();
@@ -1686,9 +1861,9 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
       ctx.fillStyle = flat ? ink : '#b8362b'; ctx.beginPath(); ctx.ellipse(-r * 1.0, -r * 0.39, r * 0.15, r * 0.12, 0.4, 0, TAU); ctx.fill();
       break;
     case 'witness_mask': // the Witness: a crown of black spikes, the masked face's markings, white eyes; on a Kage-flicker frame, Kage's hair
-      drawWitnessHead(ctx, f, r, ink, flat);   // 29w-anime-witness.js
+      drawWitnessHead(ctx, f, r, ink, flat);   // 21-characters/bosses/witness/
       break;
-    case 'headband': { // the Interlude's young brothers: Rem's white band and ring (26-anime-rem.js); young Kage's short crimson band
+    case 'headband': { // the Interlude's young brothers: Rem's white band and ring (21-characters/bosses/rem/); young Kage's short crimson band
       if (isRem(f)) { drawRemHead(ctx, f, r, ink, flat); break; }
       drawKageHair(ctx, r, ink, flat, f);
       ctx.save(); ctx.beginPath(); ctx.arc(0, 0, r * 1.04, 0, TAU); ctx.clip();
@@ -1699,41 +1874,41 @@ function drawHelmet(ctx, key, r, ink, opt, f) {
       break;
     }
     case 'ronin_hood': case 'sage_antlers': case 'hollow_crest': case 'executioner':
-      // the shop's hoods and kabuto with no wearer of their own: Kuro Zukin, Shika Kabuto, Utsuro Kabuto, Shikkō Zukin (29g-anime-gear.js)
+      // the shop's hoods and kabuto with no wearer of their own: Kuro Zukin, Shika Kabuto, Utsuro Kabuto, Shikkō Zukin (21-characters/kage/gear/)
       drawGearHead(ctx, key, f, r, ink, flat);
       break;
     case 'straw_kasa':
-      // Takashi's gold-rimmed kasa with his white hair and beard; the Kasa or the plain Sugegasa on Kage (29-anime-takashi.js)
+      // Takashi's gold-rimmed kasa with his white hair and beard; the Kasa or the plain Sugegasa on Kage (21-characters/bosses/takashi/)
       drawStrawKasa(ctx, f, r, ink, flat);
       break;
-    case 'oni':   // Garan's oni (24-anime-subs-a.js); the Echo placeholders' violet oni (25-anime-subs-b.js)
+    case 'oni':   // Garan's oni (21-characters/sub-bosses/); the Echo placeholders' violet oni (21-characters/sub-bosses/)
       if (f && /^echo_/.test(animeSkin(f).sub || '')) drawSubBHead(ctx, 'oni_echo', f, r, ink, flat); else drawSubHead(ctx, 'oni', f, r, ink, flat);
       break;
     case 'iron_kabuto': case 'oni_mask': case 'storm_band': case 'disciple_wrap': case 'blademaster_kabuto':
-      // the Act II / III sub-bosses' heads, also gear (25-anime-subs-b.js)
+      // the Act II / III sub-bosses' heads, also gear (21-characters/sub-bosses/)
       drawSubBHead(ctx, key, f, r, ink, flat);
       break;
     case 'sentinel_helm': case 'veil': case 'sumi_eboshi': case 'rain_hood': case 'courier_hat': case 'borrowed_mask':
-      // the Act I / II sub-bosses' heads (24-anime-subs-a.js)
+      // the Act I / II sub-bosses' heads (21-characters/sub-bosses/)
       drawSubHead(ctx, key, f, r, ink, flat);
       break;
     case 'raijin_kabuto': {
-      // Raikon himself (and his echo): the red-edged jingasa with its flame crest and tassels (27-anime-raikon.js)
+      // Raikon himself (and his echo): the red-edged jingasa with its flame crest and tassels (21-characters/bosses/raikon/)
       if (bossLook(f) === 'raikon') { drawRaikonHead(ctx, f, r, ink, flat); break; }
-      // the Raijin Kabuto on anyone else (Kage): the faceted bowl, peak, stepped neck guard and red crest (29g-anime-gear.js)
+      // the Raijin Kabuto on anyone else (Kage): the faceted bowl, peak, stepped neck guard and red crest (21-characters/kage/gear/)
       drawGearHead(ctx, 'raijin_kabuto', f, r, ink, flat);
       break;
     }
     case 'akari_mask':
-      // Akari (and her echo): ponytail tie and sakura ornament, fringe, side lock, half-mask and white eyes (28-anime-akari.js)
+      // Akari (and her echo): ponytail tie and sakura ornament, fringe, side lock, half-mask and white eyes (21-characters/bosses/akari/)
       drawAkariHead(ctx, f, r, ink, flat);
       break;
     case 'order_hood': case 'order_kabuto':
-      // the Order of Silence: each soldier type's own hood or kabuto over a fox mask (22-anime-order.js)
+      // the Order of Silence: each soldier type's own hood or kabuto over a fox mask (21-characters/enemies/order/)
       drawOrderHead(ctx, f, r, ink, flat);
       break;
     case 'hollow_shard':
-      // the Hollows: each type's cowl, hood or hat with its cracked mask fragments (23-anime-hollow.js)
+      // the Hollows: each type's cowl, hood or hat with its cracked mask fragments (21-characters/enemies/hollow/)
       drawHollowHead(ctx, f, r, ink, flat);
       break;
   }
@@ -1748,7 +1923,7 @@ function drawArmor(ctx, f, ink, opt, Ut) {
   switch (f.armor) {
     case 'training': break;   // the Interlude's plain training clothes: just the gi and its obi
     case 'travel_coat':
-      // Rem's worn travel coat, wrapped shut under a violet collar band (26-anime-rem.js)
+      // Rem's worn travel coat, wrapped shut under a violet collar band (21-characters/bosses/rem/)
       drawRemCoat(ctx, f, ink, flat);
       break;
     case 'tachibana': {
@@ -1771,42 +1946,42 @@ function drawArmor(ctx, f, ink, opt, Ut) {
       break;
     }
     case 'jerkin': case 'gate_plate': case 'conduit_harness': case 'ledger_coat': case 'pauldrons': case 'tyrant': case 'cloak':
-      // the Act II / III sub-bosses' armour, also gear (25-anime-subs-b.js)
+      // the Act II / III sub-bosses' armour, also gear (21-characters/sub-bosses/)
       drawSubBArmor(ctx, f, f.armor);
       break;
     case 'lamellar': case 'executioner_garb': case 'colossus_plate': case 'storm_mantle':
-      // the shop's armour with no wearer of its own: Kozane-dō, Shikkō Garb, Kurogane-dō, Raiun Mantle (29g-anime-gear.js)
+      // the shop's armour with no wearer of its own: Kozane-dō, Shikkō Garb, Kurogane-dō, Raiun Mantle (21-characters/kage/gear/)
       drawGearArmor(ctx, f, f.armor);
       break;
     case 'mei_en':
-      // the Mei-En Garb: Akari's fitted top and high collar on her, a violet-edged chest guard on Kage (28-anime-akari.js)
+      // the Mei-En Garb: Akari's fitted top and high collar on her, a pink-edged chest guard on Kage (21-characters/bosses/akari/)
       drawMeiEn(ctx, f, ink, flat);
       break;
     case 'kysmei':
       // the Witness's armoured coat, breastplate and core bezel; the Kysmei Robe's chest plate and collar on Kage; nothing
-      // on the Witness's Kage-flicker frames, which wear Kage's own coat (29w-anime-witness.js)
+      // on the Witness's Kage-flicker frames, which wear Kage's own coat (21-characters/bosses/witness/)
       drawKysmeiArmor(ctx, f, ink, flat);
       break;
     case 'shinsei':
-      // the Shinsei Yoroi: Takashi's robe torso, capelet, gold clasp and cords; the capelet over Kage's coat (29-anime-takashi.js)
+      // the Shinsei Yoroi: Takashi's robe torso, capelet, gold clasp and cords; the capelet over Kage's coat (21-characters/bosses/takashi/)
       drawShinsei(ctx, f, ink, flat);
       break;
     case 'raikon_plate':
-      // Raikon's armoured coat, breastplate, crossed cords and white fur mantle (27-anime-raikon.js); enemy-only
+      // Raikon's armoured coat, breastplate, crossed cords and white fur mantle (21-characters/bosses/raikon/); enemy-only
       drawRaikonArmor(ctx, f, ink, flat);
       break;
     case 'half_do': case 'vanguard_plate': case 'robe': case 'mist_shroud': case 'shadow_cloak': case 'operative_vest':
-      // the Act I / II sub-bosses' armour (24-anime-subs-a.js)
+      // the Act I / II sub-bosses' armour (21-characters/sub-bosses/)
       drawSubArmor(ctx, f, f.armor);
       break;
     case 'order_garb': case 'order_plate':
-      // the Order's lacquered dō laced in crimson: full, light (hara-ate) or heavy per soldier type (22-anime-order.js)
+      // the Order's lacquered dō laced in crimson: full, light (hara-ate) or heavy per soldier type (21-characters/enemies/order/)
       drawOrderArmor(ctx, f, ink, flat);
       break;
     case 'hollow_rags':
-      // the Hollows' torn robe over the gi: a rip, rope, wraps, a kesa, a mirror or a cracked chest per type (23-anime-hollow.js)
+      // the Hollows' torn robe over the gi: a rip, rope, wraps, a kesa, a mirror or a cracked chest per type (21-characters/enemies/hollow/)
       drawHollowArmor(ctx, f, ink, flat);
-      if (animeSkin(f).sub === 'utsushi') drawUtsushiScraps(ctx, f);   // 24-anime-subs-a.js
+      if (animeSkin(f).sub === 'utsushi') drawUtsushiScraps(ctx, f);   // 21-characters/sub-bosses/
       break;
   }
 }

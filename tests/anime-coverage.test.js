@@ -22,7 +22,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const { loadSim } = require('./helpers/load-sim');
+const { loadSim, jsFiles } = require('./helpers/load-sim');
 const { recordCtx } = require('./helpers/record-ctx');
 
 const errors = [];
@@ -212,7 +212,7 @@ test('every speaker portrait and illustration paints without falling back; code-
 
 /* ---------------- the old primitive art stays deleted ---------------- */
 test('the deleted primitive drawing code does not come back', () => {
-  const all = fs.readdirSync(SRC).filter(f => f.endsWith('.js')).map(f => [f, fs.readFileSync(path.join(SRC, f), 'utf8')]);
+  const all = jsFiles().map(f => [f, fs.readFileSync(path.join(SRC, f), 'utf8')]);
   const banned = [/\btorsoShape\b/, /\bTORSO_(FRONT|BACK)\b/, /'reaper_cowl'/, /'ashen_crown'/, /case 'colossus':/, /\bdrawDetails\b/];
   for (const [f, s] of all) for (const re of banned) assert.ok(!re.test(s), `${f} brings back ${re}`);
   const fighter = all.find(([f]) => f === '20-fighter.js')[1];

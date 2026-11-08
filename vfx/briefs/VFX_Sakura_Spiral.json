@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Sakura_Spiral",
+  "role": "area storm with a 0.75 s tell (Petal Storm, moving Petal Tornado)",
+  "style": "stylized anime combat, glowing additive sakura (Senbonzakura) over a dark night arena, side-view 2D",
+  "dominant_shape": "spiralling petal column",
+  "palette": {
+    "core": [
+      255,
+      246,
+      252
+    ],
+    "body": [
+      255,
+      102,
+      178
+    ],
+    "dark": [
+      70,
+      6,
+      40
+    ],
+    "matter": [
+      255,
+      196,
+      226
+    ],
+    "accent": [
+      255,
+      20,
+      147
+    ]
+  },
+  "delivery": {
+    "kind": "targeted"
+  },
+  "anchor": "ground",
+  "reference": {
+    "id": "gemini_generated_video_9ba223ac.mp4 (user reference: Senbonzakura boss duel)"
+  },
+  "beats": [
+    {
+      "frame": 10,
+      "name": "tell",
+      "expect": "pink floor ellipse, petals sliding inward"
+    },
+    {
+      "frame": 45,
+      "name": "release",
+      "expect": "white release flash and floor ring"
+    },
+    {
+      "frame": 70,
+      "name": "storm",
+      "expect": "petals spiral up in a helix, wrapped in torn strands"
+    },
+    {
+      "frame": 125,
+      "name": "drop",
+      "expect": "column fades, petals fall"
+    },
+    {
+      "frame": 160,
+      "name": "clear",
+      "expect": "last petals fading"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Floor tell",
+      "role": "anticipation: pink ellipse on the floor where it will rise",
+      "primitive": "orbit_band",
+      "exit": "gone by absolute f53"
+    },
+    {
+      "name": "1:Gathering petals",
+      "role": "anticipation: petals sliding inward over the floor",
+      "primitive": "sprite T_SakuraPetal01",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "2:Release flash",
+      "role": "release",
+      "primitive": "flash",
+      "exit": "gone by absolute f50"
+    },
+    {
+      "name": "3:Floor ring",
+      "role": "ground feedback ring at release",
+      "primitive": "tilted_ring",
+      "exit": "gone by absolute f61"
+    },
+    {
+      "name": "4:Spiral pivot",
+      "role": "pivot yawing the stream so rising petals trace a helix",
+      "primitive": "renderer None",
+      "exit": "gone by absolute f165"
+    },
+    {
+      "name": "4:Spiral pivot/0:Spiral stream",
+      "role": "main shape: petals spiralling upward",
+      "primitive": "sprite T_SakuraPetal01",
+      "exit": "gone by absolute f157.8"
+    },
+    {
+      "name": "4:Spiral pivot/1:Spiral strands",
+      "role": "shape change: torn strands wrapping the column",
+      "primitive": "wisps",
+      "exit": "gone by absolute f134"
+    },
+    {
+      "name": "5:Wind column",
+      "role": "volume: scrolling pink wind column",
+      "primitive": "column",
+      "exit": "gone by absolute f129"
+    },
+    {
+      "name": "6:Thrown petals",
+      "role": "matter: pale petals thrown off the storm",
+      "primitive": "sprite T_SakuraPetal01 Blend",
+      "exit": "gone by absolute f152"
+    },
+    {
+      "name": "7:Falling petals",
+      "role": "residue: petals left falling",
+      "primitive": "sprite T_SakuraPetal01",
+      "exit": "gone by absolute f151"
+    }
+  ],
+  "acceptance": [
+    "The floor tell is readable from f10 to f45 (the dodge window)",
+    "Rising petals trace a helix, not a straight column",
+    "The storm cuts off cleanly enough that its end is visible"
+  ],
+  "avoid": [
+    "A tell so bright it reads as the storm already hitting",
+    "A solid pink cylinder sticker"
+  ]
+}

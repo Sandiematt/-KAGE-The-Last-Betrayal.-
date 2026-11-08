@@ -28,7 +28,7 @@ IMG = ROOT / 'src' / 'img'
 OUT_JS = ROOT / 'src' / 'js' / '34-vfx-sheets.js'
 
 # name: (effect id, render W, H, ortho size (vertical metres), centre y, centre x, track (m/frame, decel m/frame^2,
-#        stop frame) or None, frames, cell scale)
+#        stop frame) or None, frames, cell scale[, launch distance in metres: fly a projectile effect along +X])
 SHEETS = {
     'raikon_sky_strike':   ('VFX_Raikon_Sky_Strike',   400, 680, 8.5, 4.1, 0.0, None, '0:40:2,43:73:3', .8),
     'raikon_blade_charge': ('VFX_Raikon_Blade_Charge', 224, 224, 2.8, 0.0, 0.0, None, '0:44:2', 1.0),
@@ -36,15 +36,50 @@ SHEETS = {
     'raikon_thunder_wave': ('VFX_Raikon_Thunder_Wave', 448, 200, 2.2, .85, -.35, (.158, .158 / 76, 76), '0:93:3', 1.0),
     'raikon_redline_guard': ('VFX_Raikon_Redline_Guard', 320, 256, 2.8, 1.2, .4, None, '0:76:2', 1.0),
     'raikon_storm_mantle': ('VFX_Raikon_Storm_Mantle', 192, 256, 2.6, 1.05, 0.0, None, '0:58:2', 1.0),
+    # Akari's Senbonzakura set (vfx/src/VFX_Sakura_*.py; 63-akari-sakura.js plays them)
+    'sakura_slash':        ('VFX_Sakura_Slash',        384, 384, 4.4, .2, .3, None, '0:20:1,22:56:2', .8),
+    'sakura_veil':         ('VFX_Sakura_Veil',         256, 256, 3.4, 0.0, 0.0, None, '0:52:2', 1.0),
+    # the petal shot flies 4 m in its 24-frame flight; the camera keeps the head still (frames 2-24 loop on a kunai)
+    'sakura_petal_shot':   ('VFX_Sakura_Petal_Shot',   256, 128, 1.6, 0.0, -.3, (4 / 24, 0, 24), '2:24:2', 1.0, 4.0),
+    'sakura_petal_impact': ('VFX_Sakura_Petal_Impact', 224, 224, 3.0, 0.0, 0.0, None, '0:40:2', 1.0),
+    'sakura_spiral':       ('VFX_Sakura_Spiral',       320, 384, 4.2, 1.7, 0.0, None, '0:42:3,45:150:3', .75),
+    'sakura_tornado':      ('VFX_Sakura_Tornado',      256, 384, 4.0, 1.6, 0.0, None, '0:82:3', .75),
+    'sakura_pillar':       ('VFX_Sakura_Pillar',       320, 448, 4.6, 1.9, 0.0, None, '0:30:2,33:78:3', .75),
+    'sakura_slash_beam':   ('VFX_Sakura_Slash_Beam',   448, 448, 6.4, 0.0, 0.0, None, '0:20:1,22:48:2', .7),
+    'sakura_burst':        ('VFX_Sakura_Burst',        512, 512, 10.0, 0.0, 0.0, None, '0:24:2,27:96:3', .7),
+    # drawn screen-sized in the game: baked large so its petals do not turn to blocks when scaled up
+    'sakura_vortex':       ('VFX_Sakura_Vortex',       768, 512, 12.0, 0.0, 0.0, None, '0:117:3', .85),
+    'sakura_ambient':      ('VFX_Sakura_Ambient',      256, 320, 3.6, 0.0, 0.0, None, '0:117:3', .8),
+    # the ribbon runs 5 m along the floor in its 33-frame flight; the camera follows the head
+    'sakura_ribbon':       ('VFX_Sakura_Ribbon',       576, 240, 1.8, .2, -1.0, (5 / 33, 0, 33), '0:60:2', 1.0, 5.0),
+    # Takashi's gold set (vfx/src/VFX_Takashi_*.py; 66-takashi.js plays them)
+    # the kunai flies 4 m in its 24-frame flight; the camera keeps the head still (frames 2-24 loop in flight)
+    'tk_kunai':            ('VFX_Takashi_Kunai',       256, 128, 1.6, 0.0, -.3, (4 / 24, 0, 24), '2:24:2', 1.0, 4.0),
+    'tk_kunai_hit':        ('VFX_Takashi_Kunai_Impact', 224, 224, 3.0, 0.0, 0.0, None, '0:30:2', 1.0),
+    'tk_parry':            ('VFX_Takashi_Parry',       256, 256, 3.0, 0.0, 0.0, None, '0:27:1', .8),
+    'tk_manifest':         ('VFX_Takashi_Manifest',    384, 640, 7.6, 3.2, 0.0, None, '0:40:2,43:114:3', .75),
+    'tk_slash':            ('VFX_Takashi_Titan_Slash', 768, 320, 3.6, 1.0, 0.0, None, '0:30:1,32:72:2', .75),
+    'tk_blade':            ('VFX_Takashi_Blade_Fall',  256, 640, 8.6, 3.9, 0.0, None, '0:30:1,32:75:3', .7),
+    'tk_pulse':            ('VFX_Takashi_Pulse',       768, 320, 4.4, 1.2, 0.0, None, '0:30:1,32:66:2', .7),
+    'tk_crack':            ('VFX_Takashi_Crack',       512, 320, 3.4, 1.0, 0.0, None, '0:87:3', .8),
+    'tk_thunder':          ('VFX_Takashi_Thunder',     320, 768, 11.0, 5.0, 0.0, None, '0:30:1,32:87:3', .7),
+    # Kage's seven rage arts (vfx/src/VFX_Rage_*.py; 67-rage-arts.js plays them, turned per strike)
+    'rage_crimson':        ('VFX_Rage_Crimson_Crescent', 448, 448, 5.0, .6, 0.0, None, '0:20:1,22:34:2', .8),
+    'rage_bolt':           ('VFX_Rage_Swallow_Bolt',   576, 224, 2.4, 0.0, 0.0, None, '0:18:1', .8),
+    'rage_violet':         ('VFX_Rage_Violet_Slash',   512, 192, 2.0, 0.0, 0.0, None, '0:16:1,18:26:2', .8),
+    'rage_hell':           ('VFX_Rage_Hell_Split',     512, 448, 4.6, 1.7, 0.0, None, '0:30:2,33:57:3', .75),
+    'rage_tidal':          ('VFX_Rage_Tidal_Crash',    512, 512, 5.4, 2.2, 0.0, None, '0:30:2,33:48:3', .75),
+    'rage_scythe':         ('VFX_Rage_Shadow_Scythe',  512, 512, 6.0, 1.8, 0.0, None, '0:24:1,26:28:2', .7),
+    'rage_quake':          ('VFX_Rage_Gold_Quake',     896, 320, 4.2, 1.4, 0.0, None, '0:30:2,33:66:3', .7),
 }
 
 
 def render(work, name, spec, out):
-    eid, w, h, size, cy, cx, track, frames, _ = spec
+    eid, w, h, size, cy, cx, track, frames = spec[:8]
     godot = os.environ.get('GODOT') or 'godot'
     cmd = [godot, '--path', str(work), 'res://GameSheet.tscn', '--fixed-fps', '60', '--resolution', f'{w}x{h}', '--',
            f'--id={eid}', f'--out={out}', f'--frames={frames}', f'--size={size}', f'--cy={cy}', f'--cx={cx}',
-           '--pitch=10'] + ([f'--track={track[0]}', f'--decel={track[1]}', f'--stop={track[2]}'] if track else [])
+           '--pitch=10'] + ([f'--track={track[0]}', f'--decel={track[1]}', f'--stop={track[2]}'] if track else []) +           ([f'--launch={spec[9]}'] if len(spec) > 9 else [])
     subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=180)
     return json.loads((out / 'capture.json').read_text())
 

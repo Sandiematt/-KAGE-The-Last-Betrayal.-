@@ -7,6 +7,13 @@ const AI_VARIATIONS = {
   unarmed: [['dash', 'punch', 'kick'], ['kick', 'heavy'], ['jump', 'fwd', 'kick'], ['punch', 'punch', 'kick']]
 };
 
+// directional combos the sub-bosses and bosses run: every cut in a new direction, so each one flows out of the last
+// (DIR_COMBO); a boss runs three, a sub-boss the first two
+const AI_ROUTES = [
+  ['w:fwd', 'w:up', 'w:down'], ['w:diagDown', 'w:diagUp', 'w:fwd'], ['w:diagUp', 'w:down', 'w:fwd'],
+  ['w:fwd', 'w:diagDown', 'w:up'], ['w:down', 'w:diagUp', 'w:diagDown'], ['w:up', 'w:fwd', 'w:diagDown']
+];
+
 class AIController {
   constructor(f, world, opts) {
     this.f = f; this.world = world;
@@ -36,6 +43,7 @@ class AIController {
     if (btn === 'punch') c.punchP = true; else if (btn === 'kick') c.kickP = true; else if (btn === 'weapon') c.weaponP = true;
     else if (btn === 'jump') c.jumpP = true; else if (btn === 'dash') c.dashP = true; else if (btn === 'special') c.specialP = true;
     else if (btn === 'grab') { c.grabP = true; }
+    else if (btn.startsWith('w:')) { c.weaponP = true; c.aim = btn.slice(2); }   // a directional form (DIR_FORMS)
     else if (btn === 'heavy') { c.kickP = true; this.kickHold = rand(0.35, 0.75); }
   }
   startSeq(list, delay) { this.seq = list; this.seqI = 0; this.seqT = delay || 0; this.plan = 'attack'; }
@@ -181,7 +189,7 @@ class AIController {
   canPerform(id) {
     const m = MOVES[id], w = this.f.weapon(); if (!m || m.kind === 'throw' || m.kind === 'grab') return false;
     if (UNARMED[id]) return true;   // punches, kicks and their air versions: any fighter can copy them
-    return (w.moves || []).includes(id) || w.counter === id || w.air === id;
+    return (w.moves || []).includes(id) || w.counter === id || w.air === id || !!(w.dirs && Object.values(w.dirs).includes(id));
   }
   stepPlayback(dt, toward, dist) {
     const f = this.f, c = f.ctrl, w = this.world, r = this.playback, st = r.steps[r.i];
@@ -231,6 +239,63 @@ class AIController {
     return true;
   }
 
+  /* ---- the spam read (every foe; SPAM_READ in 10-data.js, FightSession.onPlayerAction) ----
+     Whether this foe is free to answer a spammed action right now: not knocked down, juggled, grabbed, bound or busy
+     with a committed ability, not mid-strike, and off its own cool-down. A foe reeling from the spammed blows (hit)
+     can still slip out: that is the point of the read. */
+  canReadSpam() {
+    const f = this.f, s = f.state;
+    if (!f.alive || f.mimic || this.playback || this.running || (this.cds.spamRead || 0) > 0) return false;
+    if (s === 'move') return f.mphase !== 1;
+    if (f.canAct() || s === 'air' || s === 'hit' || s === 'kickcharge') return true;
+    // bosses and sub-bosses break out of a juggle or a knockdown to read it: spam never pins a boss
+    return this.role() !== 'regular' && f.hp > 0 && (s === 'juggle' || s === 'down' || s === 'getup');
+  }
+  role() { const t = this.f.def && this.f.def.type; return t === 'boss' ? 'boss' : t === 'sub' ? 'sub' : 'regular'; }
+  /* Kage has started the same attack (or dash, or jump) one time too many (read: Logic.spamRead's { key, streak }).
+     A red "!" flashes over the foe; it slips out to Kage's far side in a short hop he cannot touch, lands behind him,
+     turns, and answers with its weapon's counter cut (its rising launcher if Kage is in the air), under super armour,
+     for SPAM_READ.punishMul damage (Combat.applyHit). With no room behind him it springs back out of reach instead and
+     lunges in with its dash strike. The chance is the role's base plus the foe's difficulty-scaled `punish`. Returns
+     true when the read fires. */
+  spamPunish(p, read) {
+    const f = this.f, w = this.world, R = SPAM_READ, role = this.role();
+    if (!this.canReadSpam() || !chance(Math.min(R.cap[role], R.chance[role] + this.p.punish))) return false;
+    this.cds.spamRead = R.cd[role];
+    this.seq = null; this.block = 0; this.reactTo = p.move || null; this.punishedThis = true;
+    if (f.state === 'move') f.endMove();
+    if (f.state === 'juggle' || f.state === 'down' || f.state === 'getup') { f.bodyRot = 0; f.bodyRotVel = 0; f.tumble = null; f.juggle = 0; w.fx.ring(f.x, f.y - 60 * f.scale, 90, f.accent || C.emberBright, 0.3, 4); }
+    const s = f.scale, toward = Math.sign(p.x - f.x) || 1, l = w.bounds.l + 30, r = w.bounds.r - 30;
+    // the other side of Kage (behind him as he attacks); against a wall, out of reach the other way instead
+    let dest = clamp(p.x + toward * R.behind * s, l, r), cross = true;
+    if (Math.abs(dest - p.x) < 70 * s) { dest = clamp(f.x - toward * 240 * s, l, r); cross = false; }
+    const air = !p.grounded || read.key === 'jump';
+    const wpn = f.weapon(), d = wpn.dirs;
+    const id = air ? (d && d.up) || 'p3' : cross ? (wpn.counter && f.hasWeapon ? wpn.counter : (d && d.fwd) || 'dp') : (d && d.dash) || 'dp';
+    const W = R.react * this.p.windup, E = R.evade, x0 = f.x, col = f.accent || C.emberBright;
+    f.telegraph = W + E;
+    w.fx.popText(f, '!', '#ff3b2f');
+    w.fx.stamp('READ', f.x, f.y - f.height() * 0.9, 2, col, read.key === 'dash' ? 'DASH READ' : read.key === 'jump' ? 'JUMP READ' : 'SPAM READ');
+    AudioManager.play('teleport', { pitch: 1.5 });
+    f.startAbility({ dur: W + E + 0.2, float: true, uninterruptible: true, rate: 30,
+      pose: (f, t) => (t < W ? POSES.land : POSES.jump),
+      start(f) { f.invuln = Math.max(f.invuln, W + E + 0.05); f.vx = 0; f.facing = toward; },
+      update(f, w, t) {
+        f.vx = 0; f.vy = 0;
+        if (t < W) return;
+        const u = clamp((t - W) / E, 0, 1), e = Ease.inOut(u);
+        f.x = lerp(x0, dest, e); f.y = -Math.sin(u * Math.PI) * R.hopH * s * (cross ? 1 : 0.6); f.grounded = false;
+        if (((t * 60) | 0) % 2 === 0) w.fx.afterimage(f, 'rgba(255,90,90,0.4)');
+        if (u < 1) return;
+        f.y = 0; f.grounded = true; f.vy = 0;
+        f.facing = Math.sign(p.x - f.x) || -toward;
+        w.fx.dust(f.x, 0, 6);
+        f.endAbility(w);
+        if (f.startMove(id, w)) { f.punishMove = f.move; f.superArmor = true; f.mdur[0] = Math.min(f.mdur[0], 0.12); }
+      } });
+    return true;
+  }
+
   threatened(p, dist) {
     if (p.state !== 'move' || !p.move || p.mphase > 1) return false;
     if (Math.sign(this.f.x - p.x) !== p.facing) return false;
@@ -249,13 +314,16 @@ class AIController {
     if (this.adapted && this.adapted === m.id) { parry = 1; this.world.fx.stamp('ADAPTED', f.x, f.y - f.height(), 2, '#7fd0c8'); }
     if (m.unb || m.kind === 'grab') { block = 0; dodge += 0.3; }
     if (m.low && f.def && f.def.shield) { dodge += 0.2; }
+    // the overhead and the kesa cut crush a guard: step out of them rather than block
+    if (m.aim === 'down' || m.aim === 'diagDown') { dodge += 0.18; block *= 0.7; }
+    const rising = m.aim === 'up' || m.aim === 'diagUp';
     const r = Math.random();
     const startupLeft = p.mdur[0] - p.mt;
     if (r < parry && startupLeft < 0.14 && f.grounded) { c.blockHeld = true; f.setState('block'); f.blockT = 0; this.block = 0.3; return; }
     if (r < parry + block && f.grounded && !m.unb) { this.block = rand(0.3, 0.55); c.blockHeld = true; return; }
     if (r < parry + block + dodge) {
       if (m.low || (m.kind === 'throw')) { c.jumpP = true; c.dir = chance(0.5) ? toward : -toward; }
-      else if (chance(0.6)) { c.dashP = true; c.dir = -toward; }
+      else if (rising || chance(0.6)) { c.dashP = true; c.dir = -toward; }   // never jump into a rising cut
       else { c.jumpP = true; c.dir = toward; }
       return;
     }
@@ -329,10 +397,29 @@ class AIController {
     else if (dist < 105 * f.scale && roll < 0.75) seq = new Array(Math.min(3, n)).fill('punch');
     else if (roll < 1 - pr.branch) seq = chance(0.5) ? ['kick'] : ['heavy'];
     else seq = hasW ? ['weapon', 'punch', 'punch'] : ['punch', 'kick'];
+    // sword arcs (11-sword-arcs.js): foes cut in directions the way Kage can, picked for the moment (aimFor); sub-bosses
+    // and bosses also run whole directional combos (AI_ROUTES), each cut in a new direction flowing from the last
+    const dirs = hasW && f.weapon().dirs, role = this.role();
+    if (dirs && role !== 'regular' && chance(0.2 + pr.branch + (role === 'boss' ? 0.15 : 0))) seq = pick(AI_ROUTES).slice(0, role === 'boss' ? 3 : 2);
+    else if (dirs && chance(0.25 + pr.branch)) {
+      const form = this.aimFor(this.target(), dist, reachW);
+      if (seq[0] === 'weapon') seq = seq.length > 1 && chance(0.6) ? seq.slice(0, -1).concat([form]) : [form].concat(seq.slice(1));
+      else if (seq[0] === 'kick' || seq[0] === 'heavy') seq = seq.concat([form]);
+      else seq = [form];
+    }
     // Impossible: unique combo variations that extend the string and leave fewer openings
     if (pr.unique && chance(0.5)) seq = seq.concat(pick(hasW ? AI_VARIATIONS.armed : AI_VARIATIONS.unarmed));
     if (this.phaseData && this.phaseData.unblockable) f.unblockable = true;
     this.startSeq(seq, delay);
+  }
+
+  // the directional cut that fits the moment: rising cuts for a foe in the air, the guard-breaking overhead and
+  // diagonal against a raised guard, the travelling cuts from range, any direction up close
+  aimFor(p, dist, reachW) {
+    if (p && !p.grounded) return chance(0.65) ? 'w:up' : 'w:diagUp';
+    if (p && p.state === 'block') return chance(0.6) ? 'w:down' : 'w:diagDown';
+    if (dist > reachW + 10) return pick(['w:fwd', 'w:diagDown', 'w:diagUp']);
+    return pick(['w:up', 'w:down', 'w:diagUp', 'w:diagDown', 'w:fwd']);
   }
 
   /* ---- the family form ----
@@ -391,6 +478,14 @@ class AIController {
     this.phaseData = this.phases[this.phase];
     f.poisonBlade = !!this.phaseData.poison;
     if (this.phaseData.berserk) { f.speedMul = (f.baseSpeed || 1) * 1.25; f.boostAtk = 0.78; }
+    // a phase's tempo (Akari's): faster movement and harder hits each phase; its eye glow and petal colour
+    const tp = this.phaseData.tempo;
+    if (tp) {
+      if (f._dmg0 == null) f._dmg0 = f.dmgMul;
+      f.speedMul = (f.baseSpeed || 1) * tp.speed; f.dmgMul = f._dmg0 * tp.dmg;
+    }
+    if (this.phaseData.eye) f.eye = this.phaseData.eye;
+    if (this.phaseData.petal) f.petal = this.phaseData.petal;
   }
   tryAbility(p, dist, toward) {
     const list = this.phaseData ? this.phaseData.abilities : this.abilities;
@@ -406,7 +501,7 @@ class AIController {
     if (!opts.length) return false;
     const a = pick(opts);
     if (!chance(a.chance * (this.phaseData && this.phaseData.aggressive ? 1.3 : 1))) return false;
-    this.cds[a.id] = a.cd * (this.phaseData && this.phaseData.berserk ? 0.7 : 1);
+    this.cds[a.id] = a.cd * (this.phaseData && this.phaseData.berserk ? 0.7 : 1) * (this.phaseData && this.phaseData.tempo ? this.phaseData.tempo.cd : 1);
     a.run(this.f, this.world, this, p);
     if (this.world.storm) StormDirector.ability(this.world, this.f, a);   // cosmetic: the sky answers the wind-up
     return true;
@@ -593,7 +688,7 @@ const BOSS_ABILITIES = {
   // `o` (optional) is a reduced variant's parameters (RAIKON_VARIANTS in 10-data.js): label, windup, dmg, reach,
   // dash, and wave: false for the cut alone (no ground wave and no second wave); a Core echo's (CORE_ECHO_MOVES) adds
   // `tint` (violet for every red: lightning, glint, the wave) and `glitch` (corrupted frames).
-  thunderSwing: { id: 'thunderSwing', cd: 5.2, range: [140, 760], chance: 0.75,
+  thunderSwing: { id: 'thunderSwing', cd: 5.2, range: [140, 460], chance: 0.75,
     run(f, w, ai, p, o) {
       o = o || {};
       const wave = o.wave !== false, tell = ai.p.windup, W = (o.windup || 0.66) * tell;
@@ -678,6 +773,40 @@ const BOSS_ABILITIES = {
         // Combat.applyHit calls this when a blow lands on the guard: switch to the punish
         onCounter(f) { f.counterStance = false; this.charge = false; this.punish = this.t; this.dur = this.t + P2 + 0.55; f.telegraph = P2; if (f._redlineFx) { f._redlineFx.stop = true; f._redlineFx = null; } },
         end(f) { f.counterStance = false; f.redline = false; } });
+    } },
+  // Skyfall: his answer to a foe who keeps their distance (only from far: RAIKON_SKYFALL.range). He raises his hand; a
+  // lightning mark opens on the floor under his foe and follows them while a storm cloud gathers above it (charge s,
+  // x the mode's windup); then the mark locks, and after RAIKON_SKYFALL.fall seconds a bolt falls from the cloud onto it.
+  // Step off the locked mark to dodge it. A foe it catches is electrified and knocked down. Effect: 38-skyfall.js.
+  skyfall: { id: 'skyfall', cd: RAIKON_SKYFALL.cd, range: RAIKON_SKYFALL.range, chance: RAIKON_SKYFALL.chance,
+    run(f, w, ai) {
+      const m = RAIKON_SKYFALL, W = m.charge * ai.p.windup, F = m.fall;
+      f.telegraph = W;
+      f.startAbility({ dur: W + F + 0.6, rate: 18, charge: true,
+        pose: (f, t) => (t < W + F - 0.08 ? RAIKON_POSE.callSky : RAIKON_POSE.callDown),
+        start(f) {
+          f.superArmor = true; f.facing = w.player.x > f.x ? 1 : -1;
+          w.fx.popText(f, 'SKYFALL', m.color); AudioManager.play('teleport', { pitch: 0.7 });
+          this.fx = w.fx.skyfallCast({ target: w.player, lockT: W, strikeT: W + F, color: m.color, scale: f.scale });
+        },
+        update(f, w, t, dt) {
+          f.vx = damp(f.vx, 0, 12, dt);
+          // sparks gathering on the raised hand
+          if (t < W + F && ((t * 60) | 0) % 3 === 0) {
+            const hnd = f.sk.bha;
+            w.fx.lightning(hnd.x, hnd.y, hnd.x + rand(-26, 26), hnd.y - rand(10, 40), { w: 1.1, branches: 1, dur: 0.07, color: m.color });
+          }
+          if (t < W) { f.facing = w.player.x > f.x ? 1 : -1; return; }
+          if (!this.hit && t >= W + F) {
+            this.hit = 1; f.superArmor = false;
+            const x = this.fx.x, half = m.width / 2, dir = Math.sign(w.player.x - x) || f.facing;
+            const caught = Combat.area(w, f, { x: x - half, y: -480, w: m.width, h: 490 },
+              { dmg: m.dmg * f.dmgMul, kb: 260, up: -460, hs: 0.6, kd: 1, imp: 3, hsnd: 'heavy', stamp: 'SKYFALL', gb: 120, dir });
+            if (caught) this.fx.zap = m.zap;   // the foe crackles with it (38-skyfall.js)
+          }
+          if (!this.tell && t > W + F + 0.15) { this.tell = 1; w.fx.popText(f, 'OPENING', C.gold); }
+        },
+        end(f) { f.superArmor = false; } });
     } },
   /* ---- Takashi, the Master's Flow (Act III boss). Numbers come from TAKASHI_MOVES (10-data.js); `o` (optional)
      overrides them (Act III's sub-bosses can run lighter versions). Every tell is `windup x Logic.aiTuning(...).windup`
@@ -802,7 +931,8 @@ const BOSS_ABILITIES = {
           }
           if (t > W + G * 2) { f.vx = damp(f.vx, 0, 14, dt); if (!this.tell && t > W + G * 2 + 0.12) { this.tell = 1; w.fx.popText(f, 'OPENING', C.gold); } return; }
           const i = t < W + G ? 0 : 1;
-          if (i !== this.i) { this.i = i; this.hit = false; f.facing = w.player.x > f.x ? 1 : -1; f.vx = f.facing * o.dash; AudioManager.play('swing', { pitch: 1.15 + i * 0.12 }); }
+          if (i !== this.i) { this.i = i; this.hit = false; f.facing = w.player.x > f.x ? 1 : -1; f.vx = f.facing * o.dash; AudioManager.play('swing', { pitch: 1.15 + i * 0.12 });
+            AkariSakura.play(w, f, 'sakura_slash', f.x + f.facing * 95 * f.scale, AkariSakura.chest(f), { rot: i ? -0.5 : 0.1, rate: 1.2, scale: f.scale * (i ? 1.08 : 1) }); }
           f.vx = damp(f.vx, 0, 9, dt);
           if (!this.hit) this.hit = Combat.area(w, f, fbox(f, 0, -200, 130, 140), { dmg: o.dmg[i] * f.dmgMul, kb: i ? 380 : 90, up: i ? -240 : -40, hs: i ? 0.4 : 0.22, imp: i ? 2 : 1, hsnd: 'slash', stamp: i ? 'FANG' : null });
         } });
@@ -819,17 +949,17 @@ const BOSS_ABILITIES = {
         start(f) { f.facing = pl.x > f.x ? 1 : -1; w.fx.popText(f, o.label, o.tint || AKARI_VIOLET); corruptFrames(f, o); AudioManager.play('teleport', { pitch: 1.2 }); },
         update(f, w, t, dt) {
           f.vx = damp(f.vx, 0, 12, dt);
-          if (t < W) { if (((t * 60) | 0) % 4 === 0) w.fx.part({ x: f.x + rand(-26, 26), y: -rand(2, 14), vx: rand(-40, 40), vy: rand(-50, -20), life: 0.32, size: rand(5, 9), color: 'rgba(74,61,94,0.7)', type: 'puff', grav: -20, drag: 2, grow: 10 }); return; }
-          if (!this.gone) { this.gone = 1; w.fx.smokePuff(f.x, 0, o.smoke); AudioManager.play('smoke'); f.visible = false; f.invuln = H + 0.1; }
+          if (t < W) { if (((t * 60) | 0) % 4 === 0 && !AkariSakura.live(f, 'sakura_veil')) w.fx.part({ x: f.x + rand(-26, 26), y: -rand(2, 14), vx: rand(-40, 40), vy: rand(-50, -20), life: 0.32, size: rand(5, 9), color: 'rgba(74,61,94,0.7)', type: 'puff', grav: -20, drag: 2, grow: 10 }); return; }
+          if (!this.gone) { this.gone = 1; AkariSakura.play(w, f, 'sakura_veil', f.x, AkariSakura.body(f)) || w.fx.smokePuff(f.x, 0, o.smoke); AudioManager.play('smoke'); f.visible = false; f.invuln = H + 0.1; }
           if (t < W + H) return;
           if (!this.out) {
             this.out = 1;
             const side = behind ? -pl.facing : (Math.sign(f.x - pl.x) || 1);
             f.x = akariSpot(w, pl.x, side, o.dist); f.facing = pl.x > f.x ? 1 : -1;
-            f.visible = true; f.alpha = 1; w.fx.smokePuff(f.x, 0, o.smoke); f.telegraph = R; akariGlint(f, w, 'w2t');
+            f.visible = true; f.alpha = 1; AkariSakura.play(w, f, 'sakura_veil', f.x, AkariSakura.body(f), { scale: f.scale * 0.8 }) || w.fx.smokePuff(f.x, 0, o.smoke); f.telegraph = R; akariGlint(f, w, 'w2t');
           }
           if (t < W + H + R) return;
-          if (!this.cut) { this.cut = 1; f.vx = f.facing * 520; AudioManager.play('swing', { pitch: 1.2 }); }
+          if (!this.cut) { this.cut = 1; f.vx = f.facing * 520; AudioManager.play('swing', { pitch: 1.2 }); AkariSakura.play(w, f, 'sakura_slash', f.x + f.facing * 100 * f.scale, AkariSakura.chest(f), { rate: 1.2 }); }
           if (!this.hit && t < W + H + R + 0.16) this.hit = Combat.area(w, f, fbox(f, 0, -200, 130, 140), { dmg: o.dmg * f.dmgMul, kb: 320, up: -200, hs: 0.4, imp: 2, hsnd: 'slash' });
           if (!this.tell && t > W + H + R + 0.3) { this.tell = 1; w.fx.popText(f, 'OPENING', C.gold); }
         },
@@ -841,7 +971,9 @@ const BOSS_ABILITIES = {
   blink: { id: 'blink', cd: AKARI_MOVES.blink.cd, range: AKARI_MOVES.blink.range, chance: AKARI_MOVES.blink.chance,
     run(f, w, ai, p, o) {
       o = akariOpt('blink', o);
-      const W = o.windup * ai.p.windup, pl = w.player, n = ai.phaseData && ai.phaseData.chainBlink ? 2 : 1, step = 0.24, dests = [];
+      // chainBlink: how many blinks she chains (a phase flag: a number, or true for two)
+      const cb = ai.phaseData && ai.phaseData.chainBlink, n = typeof cb === 'number' ? cb : cb ? 2 : 1;
+      const W = o.windup * ai.p.windup, pl = w.player, step = 0.24, dests = [];
       let x = f.x;
       for (let i = 0; i < n; i++) {
         const dir = Math.sign(pl.x - x) || 1, gap = Math.abs(pl.x - x);
@@ -851,15 +983,16 @@ const BOSS_ABILITIES = {
       f.telegraph = W;
       f.startAbility({ dur: W + n * step + 0.3, rate: 30,
         pose: () => AKARI_POSE.fangBack,
-        start(f) { f.facing = pl.x > f.x ? 1 : -1; w.fx.popText(f, o.label, AKARI_VIOLET); AudioManager.play('teleport', { pitch: 1.7 }); dests.forEach((d, i) => w.fx.groundMark(d, W + i * step + 0.12)); },
+        start(f) { f.facing = pl.x > f.x ? 1 : -1; w.fx.popText(f, o.label, AKARI_VIOLET); AudioManager.play('teleport', { pitch: 1.7 }); dests.forEach((d, i) => w.fx.groundMark(d, W + i * step + 0.12, AkariSakura.mark(f))); },
         update(f, w, t, dt) {
           f.vx = damp(f.vx, 0, 12, dt);
-          if (t < W) { if (((t * 60) | 0) % 3 === 0) w.fx.part({ x: f.x + rand(-18, 18), y: -rand(0, 160) * f.scale, vx: 0, vy: -rand(40, 90), life: 0.3, size: rand(1.5, 2.5), color: '#c9a8ff', type: 'spark', grav: 0, drag: 2, add: true }); return; }
+          if (t < W) { if (((t * 60) | 0) % 3 === 0) w.fx.part({ x: f.x + rand(-18, 18), y: -rand(0, 160) * f.scale, vx: 0, vy: -rand(40, 90), life: 0.3, size: rand(1.5, 2.5), color: AkariSakura.is(f) ? '#ffb8dc' : '#c9a8ff', type: 'spark', grav: 0, drag: 2, add: true }); return; }
           const i = Math.min(n - 1, ((t - W) / step) | 0);
           if (i !== this.i) {
-            this.i = i; w.fx.afterimage(f, 'rgba(180,140,240,0.5)', { dur: 0.35 });
+            this.i = i;
+            if (!AkariSakura.play(w, f, 'sakura_veil', f.x, AkariSakura.body(f), { scale: f.scale * 0.75 })) w.fx.afterimage(f, 'rgba(180,140,240,0.5)', { dur: 0.35 });
             f.x = dests[i]; f.facing = pl.x > f.x ? 1 : -1; f.invuln = 0.12;
-            w.fx.afterimage(f, 'rgba(236,229,211,0.3)'); AudioManager.play('dash', { pitch: 1.4 });
+            if (!AkariSakura.play(w, f, 'sakura_veil', f.x, AkariSakura.body(f), { scale: f.scale * 0.55, start: 0.05 })) w.fx.afterimage(f, 'rgba(236,229,211,0.3)'); AudioManager.play('dash', { pitch: 1.4 });
           }
           if (!this.done && t > W + n * step + 0.08) { this.done = 1; akariGlint(f, w, 'wt'); f.endAbility(w); f.startMove(f.weapon().moves[0], w); }
         } });
@@ -879,21 +1012,21 @@ const BOSS_ABILITIES = {
         start(f) { f.facing = pl.x > f.x ? 1 : -1; w.fx.popText(f, o.label, o.tint || AKARI_VIOLET); corruptFrames(f, o); AudioManager.play('teleport', { pitch: 0.8 }); },
         update(f, w, t, dt) {
           f.vx = damp(f.vx, 0, 12, dt);
-          if (t < W) { if (((t * 60) | 0) % 6 === 0) w.fx.afterimage(f, 'rgba(180,140,240,0.4)', { dur: 0.3, dx: (((t * 10) | 0) % 2 ? 1 : -1) * 18 }); return; }
-          if (!this.split) { this.split = 1; this.decoy = w.spawnDecoy(f, o); f.visible = false; f.invuln = o.hold + 1; AudioManager.play('smoke', { pitch: 1.5 }); }
+          if (t < W) { if (((t * 60) | 0) % 6 === 0) w.fx.afterimage(f, AkariSakura.ghost(f, 0.4, 'rgba(180,140,240,0.4)'), { dur: 0.3, dx: (((t * 10) | 0) % 2 ? 1 : -1) * 18 }); return; }
+          if (!this.split) { this.split = 1; this.decoy = w.spawnDecoy(f, o); AkariSakura.play(w, f, 'sakura_veil', f.x, AkariSakura.body(f), { scale: f.scale * 0.7 }); f.visible = false; f.invuln = o.hold + 1; AudioManager.play('smoke', { pitch: 1.5 }); }
           if (!this.out) {
             if (!this.struck && t < W + o.hold) return;
             this.out = 1; this.outT = t;
             if (this.decoy && this.decoy.alive) w.vanishDecoy(this.decoy);
             f.x = akariSpot(w, pl.x, -pl.facing, 120); f.facing = pl.x > f.x ? 1 : -1;
             f.visible = true; f.alpha = 1; f.invuln = 0; f.telegraph = R;
-            w.fx.afterimage(f, 'rgba(180,140,240,0.5)', { dur: 0.3 }); akariGlint(f, w, 'w2t');
+            AkariSakura.play(w, f, 'sakura_veil', f.x, AkariSakura.body(f), { scale: f.scale * 0.8 }) || w.fx.afterimage(f, 'rgba(180,140,240,0.5)', { dur: 0.3 }); akariGlint(f, w, 'w2t');
             this.dur = t + R + 0.8;
             return;
           }
           const k = t - this.outT;
           if (k < R) return;
-          if (!this.cut) { this.cut = 1; f.vx = f.facing * 700; AudioManager.play('heavyswing', { pitch: 1.3 }); }
+          if (!this.cut) { this.cut = 1; f.vx = f.facing * 700; AudioManager.play('heavyswing', { pitch: 1.3 }); AkariSakura.play(w, f, 'sakura_slash', f.x + f.facing * 110 * f.scale, AkariSakura.chest(f), { rot: 0.35, scale: f.scale * 1.2 }); }
           if (!this.hit && k < R + 0.18) this.hit = Combat.area(w, f, fbox(f, -10, -210, 150, 190), { dmg: o.dmg * f.dmgMul, kb: 460, up: -320, hs: 0.5, kd: 1, imp: 3, hsnd: 'slash', stamp: 'PUNISH' });
           if (k > R + 0.2) f.vx = damp(f.vx, 0, 14, dt);
           if (!this.tell && k > R + 0.35) { this.tell = 1; w.fx.popText(f, 'OPENING', C.gold); }
@@ -916,22 +1049,536 @@ const BOSS_ABILITIES = {
           const cx = (f.sk.wt.x + f.sk.w2t.x) / 2, cy = (f.sk.wt.y + f.sk.w2t.y) / 2;
           if (t < W) {
             f.vx = damp(f.vx, -f.facing * 40, 6, dt);
-            if (((t * 60) | 0) % 3 === 0) { const g = rand(0, TAU), r = rand(70, 110); w.fx.part({ x: cx + Math.cos(g) * r, y: cy + Math.sin(g) * r, vx: -Math.cos(g) * r * 2.6, vy: -Math.sin(g) * r * 2.6, life: 0.36, size: rand(2.6, 4), color: chance(0.6) ? '#b48ae6' : '#ece2ff', type: 'ash', grav: 0, drag: 0.5, rot: rand(0, TAU), vr: rand(-8, 8) }); }
-            if (!this.g && t > W - 0.18) { this.g = 1; w.fx.glint(cx, cy, '#e6d6ff'); AudioManager.play('orb', { pitch: 1.9 }); }
+            if (((t * 60) | 0) % 3 === 0) { const g = rand(0, TAU), r = rand(70, 110); w.fx.part({ x: cx + Math.cos(g) * r, y: cy + Math.sin(g) * r, vx: -Math.cos(g) * r * 2.6, vy: -Math.sin(g) * r * 2.6, life: 0.36, size: rand(2.6, 4), color: chance(0.6) ? AkariSakura.col(f)[0] : AkariSakura.col(f)[1], type: 'ash', grav: 0, drag: 0.5, rot: rand(0, TAU), vr: rand(-8, 8) }); }
+            if (!this.g && t > W - 0.18) { this.g = 1; w.fx.glint(cx, cy, AkariSakura.glint(f) || '#e6d6ff'); AudioManager.play('orb', { pitch: 1.9 }); }
             return;
           }
           if (t < W + D) {
             f.vx = f.facing * o.dash;
-            if (((t * 60) | 0) % 2 === 0) w.fx.afterimage(f, 'rgba(180,140,240,0.35)');
+            if (((t * 60) | 0) % 2 === 0) w.fx.afterimage(f, AkariSakura.ghost(f, 0.35, 'rgba(180,140,240,0.35)'));
             const i = t < W + D * 0.5 ? 0 : 1;
             if (i !== this.i) { this.i = i; this.hit = false; AudioManager.play(i ? 'heavyswing' : 'swing', { pitch: 1.25 }); }
             if (!this.hit) this.hit = Combat.area(w, f, fbox(f, -20, -220, o.reach, 200), { dmg: o.dmg * (i ? 0.6 : 0.4) * f.dmgMul, kb: i ? 620 : 80, up: i ? -420 : -40, hs: i ? 0.6 : 0.3, kd: i, imp: i ? 3 : 1, hsnd: 'slash', stamp: i ? 'PETAL' : null, gb: 90 });
-            if (i === 1 && !this.x) { this.x = 1; w.fx.petalCross(f.x + f.facing * 70 * f.scale, f.y - 120 * f.scale, f.facing, 170); w.fx.shake(0.4); }
+            if (i === 1 && !this.x) { this.x = 1; AkariSakura.play(w, f, 'sakura_slash_beam', f.x + f.facing * 70 * f.scale, f.y - 120 * f.scale, { scale: f.scale * 1.25 }) || w.fx.petalCross(f.x + f.facing * 70 * f.scale, f.y - 120 * f.scale, f.facing, 170); w.fx.shake(0.4); }
             return;
           }
           f.vx = damp(f.vx, 0, 10, dt);
           if (!this.tell && t > W + D + 0.3) { this.tell = 1; w.fx.popText(f, 'OPENING', C.gold); }
         } });
+    } },
+  /* ---- Akari's new moves (her three-phase redesign). Numbers: AKARI_MOVES; her hazards: 62-akari-hazards.js. Every
+     move keeps a readable tell (windup >= 0.3 s x the mode's windup), white eyes while it winds up, and an opening. ---- */
+  // Poison Kunai (phase 1): her throwing hand drawn back with a green glint, then a fan of poisoned kunai; from phase 2
+  // a second volley follows (the phase's volleys). Block or deflect them; a hit poisons.
+  poisonKunai: { id: 'poisonKunai', cd: AKARI_MOVES.poisonKunai.cd, range: AKARI_MOVES.poisonKunai.range, chance: AKARI_MOVES.poisonKunai.chance,
+    run(f, w, ai, p, o) {
+      o = akariOpt('poisonKunai', o);
+      const W = o.windup * ai.p.windup, V = (ai.phaseData && ai.phaseData.volleys) || 1, gap = 0.3;
+      f.telegraph = W;
+      f.startAbility({ dur: W + gap * V + 0.35, rate: 26,
+        pose: (f, t) => (t < W ? AKARI_POSE.throwBack : ((t - W) % gap) < gap * 0.55 ? AKARI_POSE.throwOut : AKARI_POSE.throwBack),
+        start(f) { f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, o.label, akariCol(f)[0]); AudioManager.play('teleport', { pitch: 1.5 }); },
+        update(f, w, t, dt) {
+          f.vx = damp(f.vx, 0, 12, dt);
+          if (t < W) { if (!this.g && t > W - 0.14) { this.g = 1; w.fx.glint(f.sk.fha.x, f.sk.fha.y, '#b6f0a0'); AudioManager.play('orb', { pitch: 2 }); } return; }
+          const v = Math.min(V - 1, ((t - W) / gap) | 0);
+          if (v === this.v) return;
+          this.v = v; f.facing = w.player.x > f.x ? 1 : -1;
+          const pl = w.player;
+          for (let i = 0; i < o.count; i++) akariKunai(f, w, o, pl.x, pl.y - 110 * pl.scale, 0, (i - (o.count - 1) / 2) * o.spread);
+        } });
+    } },
+  // Shadow Flip (phase 1): pressed up close she sinks, then backflips away (a brief moment untouchable) and, at the top
+  // of the flip, throws poisoned kunai down at him.
+  shadowFlip: { id: 'shadowFlip', cd: AKARI_MOVES.shadowFlip.cd, range: AKARI_MOVES.shadowFlip.range, chance: AKARI_MOVES.shadowFlip.chance,
+    run(f, w, ai, p, o) {
+      o = akariOpt('shadowFlip', o);
+      const W = o.windup * ai.p.windup, F = 0.55;
+      f.telegraph = W;
+      f.startAbility({ dur: W + F + 0.3, rate: 30,
+        pose: (f, t) => (t < W ? AKARI_POSE.smokeCrouch : t < W + F ? akariGather(AKARI_POSE.flip, (t - W) / F, 0) : AKARI_POSE.smokeCrouch),
+        start(f) { f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, o.label, akariCol(f)[0]); },
+        update(f, w, t, dt) {
+          if (t < W) { f.vx = damp(f.vx, 0, 12, dt); return; }
+          if (!this.up) { this.up = 1; f.grounded = false; f.vy = -820; f.vx = -f.facing * o.dist / F; f.invuln = 0.3; AudioManager.play('djump'); AkariSakura.play(w, f, 'sakura_veil', f.x, AkariSakura.body(f), { scale: f.scale * 0.8 }) || w.fx.afterimage(f, 'rgba(180,140,240,0.4)', { dur: 0.3 }); }
+          if (!this.threw && t > W + 0.24) {
+            this.threw = 1; const pl = w.player;
+            for (let i = 0; i < o.count; i++) akariKunai(f, w, o, pl.x, pl.y - 60 * pl.scale, (i - (o.count - 1) / 2) * 0.16, 0);
+          }
+          if (f.grounded && t > W + 0.2) f.vx = damp(f.vx, 0, 14, dt);
+        } });
+    } },
+  // Petal Storm (phase 2): she raises both blades and petals start gathering on the floor under Kage (and beside him,
+  // the phase's stormCount), a ring closing on each spot; then each spot erupts in a swirling storm. In phase 3 the
+  // storms leave poison mist behind (poisonZones).
+  petalStorm: { id: 'petalStorm', cd: AKARI_MOVES.petalStorm.cd, range: AKARI_MOVES.petalStorm.range, chance: AKARI_MOVES.petalStorm.chance,
+    run(f, w, ai, p, o) {
+      o = akariOpt('petalStorm', o);
+      const W = o.windup * ai.p.windup, pd = ai.phaseData || {}, n = pd.stormCount || 1;
+      f.telegraph = W;
+      f.startAbility({ dur: W + 0.5, rate: 18,
+        pose: () => AKARI_POSE.crossGuard,
+        start(f) { f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, o.label, akariCol(f)[0]); AudioManager.play('teleport', { pitch: 0.8 }); },
+        update(f, w, t, dt) {
+          f.vx = damp(f.vx, 0, 12, dt);
+          akariSwirl(f, w, t, 90);
+          if (t < W || this.cast) return;
+          this.cast = 1; AudioManager.play('swing', { pitch: 0.6 });
+          const pl = w.player;
+          for (let i = 0; i < n; i++) {
+            const x = clamp(pl.x + (i === 0 ? 0 : (i % 2 ? 1 : -1) * Math.ceil(i / 2) * o.spacing), w.bounds.l + o.radius * 0.6, w.bounds.r - o.radius * 0.6);
+            w.spawnHazard({ kind: 'storm', owner: f, x, r: o.radius, delay: o.delay, dur: o.dur, tick: o.tick, dmg: o.dmg, petal: f.petal, zone: !!pd.poisonZones });
+          }
+        } });
+    } },
+  // Kunai Rain (phase 2): a crouch, a leap, and hanging at the top of it a fan of poisoned kunai rained down round him.
+  kunaiFan: { id: 'kunaiFan', cd: AKARI_MOVES.kunaiFan.cd, range: AKARI_MOVES.kunaiFan.range, chance: AKARI_MOVES.kunaiFan.chance,
+    run(f, w, ai, p, o) {
+      o = akariOpt('kunaiFan', o);
+      const W = o.windup * ai.p.windup, UP = 0.32, HANG = 0.34;
+      f.telegraph = W;
+      f.startAbility({ dur: W + UP + HANG + 0.7, rate: 24,
+        pose: (f, t) => (t < W ? AKARI_POSE.smokeCrouch : t < W + UP ? AKARI_POSE.flip : t < W + UP + HANG ? AKARI_POSE.throwOut : AKARI_POSE.flip),
+        start(f) { f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, o.label, akariCol(f)[0]); },
+        update(f, w, t, dt) {
+          if (t < W) { f.vx = damp(f.vx, 0, 12, dt); return; }
+          if (!this.up) { this.up = 1; f.grounded = false; f.vy = -1050; f.vx = 0; AudioManager.play('djump'); }
+          if (t < W + UP) return;
+          if (!this.hang) { this.hang = 1; this.float = true; f.vx = 0; f.vy = 0; f.facing = w.player.x > f.x ? 1 : -1; w.fx.glint(f.sk.fha.x, f.sk.fha.y, '#b6f0a0'); }
+          if (!this.threw && t > W + UP + 0.12) {
+            this.threw = 1; const pl = w.player;
+            for (let i = 0; i < o.count; i++) akariKunai(f, w, o, pl.x, pl.y - 40 * pl.scale, (i - (o.count - 1) / 2) * (o.spread / Math.max(1, o.count - 1)), 0);
+          }
+          if (t > W + UP + HANG && this.float) { this.float = false; f.vy = 300; }
+        },
+        end(f) { f.vy = Math.max(f.vy, 200); } });
+    } },
+  // Falling Petal (phase 2): an aerial dive. A crouch, a leap high over him; at the top she hangs, and a petal mark opens
+  // on the floor where he stands; then she dives onto it with a cut. Move off the mark.
+  aerialDive: { id: 'aerialDive', cd: AKARI_MOVES.aerialDive.cd, range: AKARI_MOVES.aerialDive.range, chance: AKARI_MOVES.aerialDive.chance,
+    run(f, w, ai, p, o) {
+      o = akariOpt('aerialDive', o);
+      const W = o.windup * ai.p.windup, UP = 0.44, H = o.hang;
+      f.telegraph = W;
+      f.startAbility({ dur: W + UP + H + 0.9, rate: 24, trail: true,
+        pose: (f, t) => (t < W ? AKARI_POSE.smokeCrouch : t < W + UP + H ? AKARI_POSE.crossGuard : AKARI_POSE.punish),
+        start(f) { f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, o.label, akariCol(f)[0]); AudioManager.play('teleport', { pitch: 1.1 }); },
+        update(f, w, t, dt) {
+          if (t < W) { f.vx = damp(f.vx, 0, 12, dt); akariSwirl(f, w, t, 50); return; }
+          const pl = w.player;
+          if (!this.up) { this.up = 1; f.grounded = false; f.vy = -1250; f.vx = clamp((pl.x - f.x) * 0.8 / UP, -900, 900); AudioManager.play('djump'); }
+          if (t < W + UP) return;
+          if (!this.hang) { this.hang = 1; this.float = true; f.vx = 0; f.vy = 0; this.tx = pl.x; f.facing = pl.x > f.x ? 1 : -1; w.fx.groundMark(this.tx, H + 0.25, hexRgb(AkariSakura.col(f)[0])); akariGlint(f, w, 'wt'); }
+          if (t < W + UP + H) return;
+          if (!this.dove) { this.dove = 1; this.float = false; f.vx = (this.tx - f.x) / 0.2; f.vy = 1900; AudioManager.play('heavyswing', { pitch: 1.2 }); }
+          if (((t * 60) | 0) % 2 === 0 && !f.grounded) w.fx.afterimage(f, AkariSakura.ghost(f, 0.3, 'rgba(200,60,90,0.3)'), { dur: 0.2 });
+          if (f.grounded && !this.hit) {
+            this.hit = 1; f.vx = 0;
+            Combat.area(w, f, { x: f.x - o.reach, y: -220, w: o.reach * 2, h: 220 }, { dmg: o.dmg * f.dmgMul, kb: 420, up: -380, hs: 0.5, kd: 1, imp: 3, hsnd: 'slash', stamp: 'FALLING PETAL', dir: Math.sign(pl.x - f.x) || f.facing });
+            const pillar = AkariSakura.play(w, f, 'sakura_pillar', f.x, 0);
+            if (!pillar) akariBurst(f, w, f.x, -10, 26); w.fx.shake(0.45); if (!pillar) w.fx.dust(f.x, 0, 14); AudioManager.play('slam');
+          }
+          if (this.hit) { f.vx = damp(f.vx, 0, 14, dt); if (!this.tell && t > W + UP + H + 0.35) { this.tell = 1; w.fx.popText(f, 'OPENING', C.gold); } }
+        },
+        end(f) { f.vy = Math.max(f.vy, 0); } });
+    } },
+  // Poison Trap (phase 2): a flick of the wrist and small caltrops scatter onto the floor round him; they glow green
+  // once armed and burst into poison mist under the first foe to step on one.
+  poisonTrap: { id: 'poisonTrap', cd: AKARI_MOVES.poisonTrap.cd, range: AKARI_MOVES.poisonTrap.range, chance: AKARI_MOVES.poisonTrap.chance,
+    cond: (f, w) => !(w.hazards || []).some(h => h.kind === 'trap'),
+    run(f, w, ai, p, o) {
+      o = akariOpt('poisonTrap', o);
+      const W = o.windup * ai.p.windup;
+      f.telegraph = W;
+      f.startAbility({ dur: W + 0.45, rate: 24,
+        pose: (f, t) => (t < W ? AKARI_POSE.throwBack : AKARI_POSE.throwOut),
+        start(f) { f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, o.label, '#8be07a'); },
+        update(f, w, t, dt) {
+          f.vx = damp(f.vx, 0, 12, dt);
+          if (t < W || this.cast) return;
+          this.cast = 1; AudioManager.play('throw');
+          const pl = w.player;
+          for (let i = 0; i < o.count; i++) {
+            const x = clamp(pl.x + (i - (o.count - 1) / 2) * o.gap + rand(-20, 20), w.bounds.l + 20, w.bounds.r - 20);
+            w.spawnHazard({ kind: 'trap', owner: f, x, r: o.radius, arm: o.arm, life: o.life, dmg: o.dmg, poison: o.poison, petal: f.petal });
+            AkariSakura.ribbon(w, f, x) || w.fx.smokePuff(x, 0, { life: 0.3, radius: 20 });
+          }
+        } });
+    } },
+  // Phantom Dash (phase 3): a flicker, then near-instant dashes straight through him, each one's landing marked on the
+  // floor a moment before, a trail of afterimages along the path. Jump, block or step off the line.
+  phantomDash: { id: 'phantomDash', cd: AKARI_MOVES.phantomDash.cd, range: AKARI_MOVES.phantomDash.range, chance: AKARI_MOVES.phantomDash.chance,
+    run(f, w, ai, p, o) {
+      o = akariOpt('phantomDash', o);
+      const W = o.windup * ai.p.windup, G = o.gap, step = G + 0.06;
+      f.telegraph = W;
+      f.startAbility({ dur: W + o.count * step + 0.5, rate: 30, trail: true,
+        pose: (f, t) => (t < W ? AKARI_POSE.fangBack : AKARI_POSE.crossThrough),
+        start(f) { f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, o.label, akariCol(f)[1]); AudioManager.play('teleport', { pitch: 1.8 }); },
+        update(f, w, t, dt) {
+          f.vx = damp(f.vx, 0, 16, dt);
+          if (t < W) { if (((t * 60) | 0) % 5 === 0) w.fx.afterimage(f, AkariSakura.ghost(f, 0.35, 'rgba(200,40,70,0.35)'), { dur: 0.2, dx: rand(-16, 16) }); return; }
+          const i = ((t - W) / step) | 0, k = (t - W) - i * step;
+          if (i >= o.count) { if (!this.tell && t > W + o.count * step + 0.15) { this.tell = 1; w.fx.popText(f, 'OPENING', C.gold); } return; }
+          const pl = w.player;
+          // the mark: where this dash will end, decided now
+          if (this.mi !== i) {
+            this.mi = i; const dir = Math.sign(pl.x - f.x) || f.facing;
+            this.endX = clamp(pl.x + dir * o.through, w.bounds.l + 30, w.bounds.r - 30);
+            w.fx.groundMark(this.endX, G + 0.1, hexRgb(AkariSakura.col(f)[1])); AudioManager.play('orb', { pitch: 2.2 });
+          }
+          if (k < G || this.di === i) return;
+          // the dash: afterimages along the path, then she is there, and the path cuts
+          this.di = i;
+          const x0 = f.x, x1 = this.endX;
+          for (let n = 1; n <= 4; n++) w.fx.afterimage(f, AkariSakura.ghost(f, 0.4, 'rgba(200,40,70,0.4)'), { dur: 0.3, dx: (x1 - x0) * n / 5 });
+          AkariSakura.play(w, f, 'sakura_veil', x0, AkariSakura.body(f), { scale: f.scale * 0.6 });
+          f.x = x1; f.facing = pl.x > f.x ? 1 : -1;
+          Combat.area(w, f, { x: Math.min(x0, x1) - 30, y: -210, w: Math.abs(x1 - x0) + 60, h: 210 }, { dmg: o.dmg * f.dmgMul, kb: 220, up: -160, hs: 0.25, imp: 2, hsnd: 'slash', dir: Math.sign(x1 - x0) || 1 });
+          AudioManager.play('dash', { pitch: 1.5 }); AkariSakura.play(w, f, 'sakura_slash_beam', (x0 + x1) / 2, AkariSakura.chest(f), { rot: AkariSakura.beamRot(i * 2 + 1) }) || akariBurst(f, w, (x0 + x1) / 2, -120, 8);
+        } });
+    } },
+  // Thousand Cuts (phase 3): up close, both blades drawn back with a glint on each, then a flurry of quick alternating
+  // cuts walking forward and a heavy last cut that knocks him down. Blockable; back off or dash through.
+  thousandCuts: { id: 'thousandCuts', cd: AKARI_MOVES.thousandCuts.cd, range: AKARI_MOVES.thousandCuts.range, chance: AKARI_MOVES.thousandCuts.chance,
+    run(f, w, ai, p, o) {
+      o = akariOpt('thousandCuts', o);
+      const W = o.windup * ai.p.windup, E = o.every, L = W + o.hits * E + 0.12;
+      f.telegraph = W;
+      f.startAbility({ dur: L + 0.6, rate: 36, trail: true,
+        pose: (f, t) => (t < W ? AKARI_POSE.fangBack : t < L - 0.12 ? ((((t - W) / E) | 0) % 2 ? MOVES.tw2.s : MOVES.tw1.s) : AKARI_POSE.crossThrough),
+        start(f) { f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, o.label, akariCol(f)[1]); AudioManager.play('teleport', { pitch: 1.6 }); },
+        update(f, w, t, dt) {
+          if (t < W) { f.vx = damp(f.vx, 0, 12, dt); if (!this.g1 && t > W * 0.4) { this.g1 = 1; akariGlint(f, w, 'w2t'); } if (!this.g2 && t > W - 0.14) { this.g2 = 1; akariGlint(f, w, 'wt'); } return; }
+          if (t < L - 0.12) {
+            const i = ((t - W) / E) | 0;
+            f.vx = f.facing * 150;
+            if (i !== this.i) {
+              this.i = i; AudioManager.play('swing', { pitch: 1.3 + (i % 2) * 0.15 });
+              Combat.area(w, f, fbox(f, 0, -200, 140, 170), { dmg: o.dmg * f.dmgMul, kb: 40, up: -30, hs: 0.05, imp: 0, hsnd: 'slash' });
+              AkariSakura.play(w, f, 'sakura_slash_beam', f.sk.wt.x, f.sk.wt.y, { scale: f.scale * 0.6, rot: AkariSakura.beamRot(i), rate: 1.4 }) || akariBurst(f, w, f.sk.wt.x, f.sk.wt.y, 3);
+            }
+            return;
+          }
+          if (!this.last) {
+            this.last = 1; f.vx = f.facing * 520; AudioManager.play('heavyswing', { pitch: 1.2 });
+            Combat.area(w, f, fbox(f, -10, -220, 170, 200), { dmg: o.last * f.dmgMul, kb: 560, up: -380, hs: 0.5, kd: 1, imp: 3, hsnd: 'slash', stamp: 'THOUSAND CUTS' });
+            if (AkariSakura.play(w, f, 'sakura_slash_beam', f.x + f.facing * 70 * f.scale, f.y - 120 * f.scale, { scale: f.scale * 1.1 })) AkariSakura.play(w, f, 'sakura_burst', f.x + f.facing * 70 * f.scale, f.y - 120 * f.scale, { scale: f.scale * 0.55 });
+            else w.fx.petalCross(f.x + f.facing * 70 * f.scale, f.y - 120 * f.scale, f.facing, 150);
+          }
+          f.vx = damp(f.vx, 0, 12, dt);
+          if (!this.tell && t > L + 0.25) { this.tell = 1; w.fx.popText(f, 'OPENING', C.gold); }
+        } });
+    } },
+  // Petal Tornado (phase 3): she spins in place, petals rising round her; a tornado of petals spins up beside her and
+  // travels toward him. Dash through it or keep ahead of it.
+  petalTornado: { id: 'petalTornado', cd: AKARI_MOVES.petalTornado.cd, range: AKARI_MOVES.petalTornado.range, chance: AKARI_MOVES.petalTornado.chance,
+    cond: (f, w) => !(w.hazards || []).some(h => h.kind === 'tornado'),
+    run(f, w, ai, p, o) {
+      o = akariOpt('petalTornado', o);
+      const W = o.windup * ai.p.windup;
+      f.telegraph = W;
+      f.startAbility({ dur: W + 0.45, rate: 24,
+        pose: (f, t) => (t < W ? akariGather(AKARI_POSE.crossGuard, t / W, 2) : AKARI_POSE.crossThrough),
+        start(f) { f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, o.label, akariCol(f)[1]); AudioManager.play('teleport', { pitch: 0.6 }); },
+        update(f, w, t, dt) {
+          f.vx = damp(f.vx, 0, 12, dt);
+          akariSwirl(f, w, t, 70);
+          if (t < W || this.cast) return;
+          this.cast = 1; AudioManager.play('heavyswing', { pitch: 0.7 }); w.fx.shake(0.3);
+          const dir = Math.sign(w.player.x - f.x) || f.facing;
+          w.spawnHazard({ kind: 'tornado', owner: f, x: f.x + dir * 90 * f.scale, dir, spin: 0.4, speed: o.speed, dur: o.dur, w: o.width, tick: o.tick, dmg: o.dmg, petal: f.petal });
+        } });
+    } },
+  // Mirror of Petals (phase 3): petals whirl round her and she splits: she blinks away and copies of her step out of the
+  // petals round him, with her eyes and her blades. One hit breaks a copy; only the real Akari sheds petals.
+  mirrorClones: { id: 'mirrorClones', cd: AKARI_MOVES.mirrorClones.cd, range: AKARI_MOVES.mirrorClones.range, chance: AKARI_MOVES.mirrorClones.chance,
+    cond: (f, w) => !w.fighters.some(x => x.clone && !x.decoy && x.alive),
+    run(f, w, ai, p, o) {
+      o = akariOpt('mirrorClones', o);
+      const W = o.windup * ai.p.windup;
+      f.telegraph = W;
+      f.startAbility({ dur: W + 0.35, rate: 20,
+        pose: (f, t) => (t < W ? akariGather(AKARI_POSE.crossGuard, t / W, 1) : AKARI_POSE.fangBack),
+        start(f) { f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, o.label, akariCol(f)[1]); AudioManager.play('teleport', { pitch: 0.9 }); },
+        update(f, w, t, dt) {
+          f.vx = damp(f.vx, 0, 12, dt);
+          if (t < W) { akariSwirl(f, w, t, 80); if (((t * 60) | 0) % 6 === 0) w.fx.afterimage(f, AkariSakura.ghost(f, 0.3, 'rgba(200,40,70,0.3)'), { dur: 0.25, dx: rand(-30, 30) }); return; }
+          if (this.cast) return;
+          this.cast = 1;
+          const pl = w.player, spots = [akariSpot(w, pl.x, -pl.facing, 190), akariSpot(w, pl.x, pl.facing, 230), clamp(pl.x + rand(-320, 320), w.bounds.l + 40, w.bounds.r - 40)];
+          if (!AkariSakura.play(w, f, 'sakura_burst', f.x, AkariSakura.body(f), { scale: f.scale * 0.45 })) { akariBurst(f, w, f.x, f.y - 100 * f.scale, 18);
+            w.fx.afterimage(f, 'rgba(200,40,70,0.5)', { dur: 0.35 }); }
+          f.x = spots[2]; f.facing = pl.x > f.x ? 1 : -1;
+          for (let i = 0; i < o.count; i++) {
+            const c = w.makeEnemy(f.def.id, spots[i], { clone: true }, 'clone');
+            c.clone = true; c.alpha = 1; c.eye = f.eye; c.hp = c.maxHp = 1; c.life = o.life; c.dmgMul = f.dmgMul * 0.6;
+            if (c.ai) { c.ai.phases = null; c.ai.abilities = []; }
+            c.facing = pl.x > c.x ? 1 : -1;
+            w.fighters.push(c); AkariSakura.play(w, f, 'sakura_veil', c.x, AkariSakura.body(c), { dir: c.facing, scale: c.scale * 0.85 }) || akariBurst(c, w, c.x, c.y - 100 * c.scale, 14);
+          }
+          AudioManager.play('smoke', { pitch: 1.3 });
+        } });
+    } },
+  // Thousand Petal Requiem (phase 3, once, below AKARI_MOVES.demonRequiem.at of her health): her final ultimate. The
+  // world darkens and the petals gather; then three blink cuts (each landing marked first), a leap and a rain of
+  // poisoned kunai, and last a petal storm over the whole floor except one clear spot, marked pale. Untouchable while it
+  // runs; a long opening after.
+  demonRequiem: { id: 'demonRequiem', cd: AKARI_MOVES.demonRequiem.cd, range: AKARI_MOVES.demonRequiem.range, chance: AKARI_MOVES.demonRequiem.chance,
+    cond: (f, w, ai) => !ai.requiem && f.hp / f.maxHp <= AKARI_MOVES.demonRequiem.at,
+    run(f, w, ai, p, o) {
+      o = akariOpt('demonRequiem', o); ai.requiem = 1;
+      const W = o.windup * ai.p.windup, BL = 0.5, B0 = W, R0 = B0 + o.blinks * BL + 0.1, S0 = R0 + 1.05, E0 = S0 + o.delay + o.dur;
+      f.telegraph = W;
+      f.startAbility({ dur: E0 + 1.4, rate: 24, trail: true, uninterruptible: true,
+        pose: (f, t) => (t < W ? akariGather(AKARI_POSE.crossGuard, t / W, 1.5) : t < R0 ? AKARI_POSE.punish : t < S0 ? AKARI_POSE.throwOut : t < E0 ? AKARI_POSE.crossGuard : AKARI_POSE.smokeCrouch),
+        start(f) {
+          f.facing = w.player.x > f.x ? 1 : -1; f.superArmor = true; f.invuln = E0;
+          w.fx.banner('Thousand Petal Requiem', 'The Demon of Petals', '#ff2a40');
+          w.fx.screenTint('rgba(40,0,10,', E0); w.fx.shake(0.4); AudioManager.play('boss');
+          this.vortex = AkariSakura.vortex(w, f);
+        },
+        update(f, w, t, dt) {
+          const pl = w.player;
+          if (t < W) { f.vx = damp(f.vx, 0, 12, dt); akariSwirl(f, w, t, 120); return; }
+          // the blink cuts: each landing marked a moment before it
+          if (t < R0) {
+            f.vx = damp(f.vx, 0, 14, dt);
+            const i = Math.min(o.blinks - 1, ((t - B0) / BL) | 0), k = t - B0 - i * BL;
+            if (this.mi !== i) { this.mi = i; this.to = akariSpot(w, pl.x, i % 2 ? pl.facing : -pl.facing, 120); w.fx.groundMark(this.to, 0.34, hexRgb(AkariSakura.col(f)[1])); }
+            if (k > 0.3 && this.bi !== i) {
+              this.bi = i;
+              if (!AkariSakura.play(w, f, 'sakura_veil', f.x, AkariSakura.body(f), { scale: f.scale * 0.6 })) w.fx.afterimage(f, 'rgba(200,40,70,0.5)', { dur: 0.3 });
+              f.x = this.to; f.facing = pl.x > f.x ? 1 : -1; f.vx = f.facing * 500; AudioManager.play('heavyswing', { pitch: 1.4 });
+              AkariSakura.play(w, f, 'sakura_slash_beam', f.x + f.facing * 90 * f.scale, AkariSakura.chest(f), { scale: f.scale * 1.1, rot: AkariSakura.beamRot(i + 3) });
+              Combat.area(w, f, fbox(f, -10, -210, 150, 190), { dmg: 8 * f.dmgMul, kb: 260, up: -200, hs: 0.3, imp: 2, hsnd: 'slash', stamp: 'REQUIEM' });
+            }
+            return;
+          }
+          // the rain: a leap, and hanging at the top a wide fan of poisoned kunai
+          if (t < S0) {
+            if (!this.up) { this.up = 1; f.grounded = false; f.vy = -1150; f.vx = 0; AudioManager.play('djump'); }
+            if (!this.hang && t > R0 + 0.4) { this.hang = 1; this.float = true; f.vy = 0; f.facing = pl.x > f.x ? 1 : -1; }
+            if (!this.rained && t > R0 + 0.5) { this.rained = 1; for (let i = 0; i < o.kunai; i++) akariKunai(f, w, { dmg: 4, poison: 1.4 }, pl.x, pl.y, (i - (o.kunai - 1) / 2) * 0.16, 0); }
+            if (this.float && t > R0 + 0.75) { this.float = false; f.vy = 400; }
+            return;
+          }
+          // the storm over the whole floor, one clear spot left (marked pale)
+          if (!this.storm) {
+            this.storm = 1; f.vx = 0;
+            const safe = clamp(pl.x + rand(-260, 260), w.bounds.l + o.gap, w.bounds.r - o.gap), r = o.radius;
+            w.fx.groundMark(safe, o.delay + o.dur, [236, 240, 255]);
+            for (let x = w.bounds.l + r * 0.8; x <= w.bounds.r - r * 0.5; x += r * 1.8) {
+              if (Math.abs(x - safe) < o.gap * 0.5 + r) continue;
+              w.spawnHazard({ kind: 'storm', owner: f, x, r, delay: o.delay, dur: o.dur, tick: 0.25, dmg: o.dmg, petal: f.petal });
+            }
+            AudioManager.play('teleport', { pitch: 0.5 });
+          }
+          if (t < E0) { akariSwirl(f, w, t, 60); return; }
+          // spent: the opening
+          if (!this.open) { this.open = 1; f.invuln = 0; f.superArmor = false; w.fx.popText(f, 'OPENING', C.gold);
+            if (this.vortex) { this.vortex.stop = true; AkariSakura.play(w, f, 'sakura_burst', f.x, AkariSakura.body(f), { scale: f.scale * 1.3 }); } }
+        },
+        end(f) { f.invuln = 0; f.superArmor = false; if (this.vortex) this.vortex.stop = true; } });
+    } },
+  /* ---- Akari's scythe (her boss sheet: Ready Stance, Wind-up Swing, Blade Launch, Chain Lunge, Wrap / Pull, Return &
+     Spin, and the Petal Burst phase skill). The chain and the petals: 62b-akari-chain.js. ---- */
+  // Reaping Arc (every phase, up close): the scythe drawn back over her shoulder, a glint, then one wide forward sweep
+  // with a step in and a rising return cut. Blockable; back off out of its reach or dash through.
+  reapingArc: { id: 'reapingArc', cd: AKARI_MOVES.reapingArc.cd, range: AKARI_MOVES.reapingArc.range, chance: AKARI_MOVES.reapingArc.chance,
+    run(f, w, ai, p, o) {
+      o = akariOpt('reapingArc', o);
+      const W = o.windup * ai.p.windup, S1 = 0.2, S2 = 0.2;
+      f.telegraph = W;
+      f.startAbility({ dur: W + S1 + S2 + 0.5, rate: 26, trail: true,
+        pose: (f, t) => (t < W ? AKARI_POSE.fangBack : t < W + S1 ? AKARI_POSE.crossThrough : AKARI_POSE.punish),
+        start(f) { f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, o.label, o.tint || akariCol(f)[0]); corruptFrames(f, o); AudioManager.play('teleport', { pitch: 1.3 }); },
+        update(f, w, t, dt) {
+          if (t < W) { f.vx = damp(f.vx, -f.facing * 40, 10, dt); if (!this.g && t > W - 0.16) { this.g = 1; akariGlint(f, w, 'wt'); } return; }
+          if (!this.s1) {
+            this.s1 = 1; f.vx = f.facing * o.dash; AudioManager.play('heavyswing', { pitch: 1.1 });
+            AkariSakura.play(w, f, 'sakura_slash', f.x + f.facing * 115 * f.scale, AkariSakura.chest(f), { rot: 0.55, scale: f.scale * 1.3 }) || akariBurst(f, w, f.x + f.facing * 120 * f.scale, f.y - 110 * f.scale, 8);
+          }
+          if (!this.h1 && t < W + 0.14) this.h1 = Combat.area(w, f, fbox(f, -20, -240, o.reach, 240), { dmg: o.dmg[0] * f.dmgMul, kb: 300, up: -200, hs: 0.3, imp: 2, hsnd: 'slash', stamp: 'REAP' });
+          if (t > W + S1 && !this.s2) {
+            this.s2 = 1; f.vx = f.facing * 160; AudioManager.play('swing', { pitch: 1.3 });
+            AkariSakura.play(w, f, 'sakura_slash', f.x + f.facing * 95 * f.scale, AkariSakura.chest(f), { rot: -0.7, rate: 1.3, scale: f.scale * 1.05 });
+          }
+          if (this.s2 && !this.h2 && t < W + S1 + 0.14) this.h2 = Combat.area(w, f, fbox(f, -10, -270, o.reach * 0.8, 270), { dmg: o.dmg[1] * f.dmgMul, kb: 220, up: -560, hs: 0.35, imp: 2, hsnd: 'slash' });
+          f.vx = damp(f.vx, 0, 7, dt);
+          if (!this.tell && t > W + S1 + S2 + 0.1) { this.tell = 1; w.fx.popText(f, 'OPENING', C.gold); }
+        } });
+    } },
+  // Chain Reap (every phase, from range): the wind-up swing, then the scythe's head flies off its staff on a chain at
+  // his chest, cuts the first thing it meets and is reeled back spinning. Blockable; jump it or dash through it. She is
+  // open while it comes home.
+  chainReap: { id: 'chainReap', cd: AKARI_MOVES.chainReap.cd, range: AKARI_MOVES.chainReap.range, chance: AKARI_MOVES.chainReap.chance,
+    cond: (f, w) => !f.akChainOut,
+    run(f, w, ai, p, o) {
+      o = akariOpt('chainReap', o);
+      const W = o.windup * ai.p.windup;
+      f.telegraph = W;
+      f.startAbility({ dur: W + 2.6, rate: 24, trail: true,
+        pose: (f, t) => (t < W ? AKARI_POSE.fangBack : AKARI_POSE.throwOut),
+        start(f) { f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, o.label, o.tint || akariCol(f)[0]); corruptFrames(f, o); AudioManager.play('teleport', { pitch: 1.1 }); },
+        update(f, w, t, dt) {
+          f.vx = damp(f.vx, 0, 12, dt);
+          if (t < W) { if (!this.g && t > W - 0.16) { this.g = 1; akariGlint(f, w, 'wt'); } return; }
+          const pl = w.player;
+          if (!this.c) {
+            this.c = AkariChain.launch(w, f, { speed: o.speed, reach: o.reach, back: o.back }, pl.x, pl.y - 110 * pl.scale);
+            AudioManager.play('heavyswing', { pitch: 1.0 }); AudioManager.play('throw');
+            AkariSakura.play(w, f, 'sakura_slash', f.x + f.facing * 80 * f.scale, AkariSakura.chest(f), { rot: 0.4, rate: 1.3 });
+          }
+          const c = this.c, ph = AkariChain.step(w, c, dt);
+          if (ph === 'out' && Combat.area(w, f, AkariChain.box(c), { dmg: o.dmg * f.dmgMul, kb: 260, up: -180, hs: 0.3, imp: 2, hsnd: 'slash', proj: 1, dir: c.dir, stamp: 'CHAIN REAP' })) {
+            AkariChain.recall(c); if (AkariGL.live()) AkariGL.burst(c.x, c.y, c.dir, f.scale);
+          }
+          if (!this.tell && ph === 'back') { this.tell = 1; w.fx.popText(f, 'OPENING', C.gold); }
+          if (ph === 'done') { if (this.doneT == null) this.doneT = t; if (t > this.doneT + 0.2) return false; }
+        },
+        end(f) { AkariChain.end(w, f); } });
+    } },
+  // Binding Chain (phase 3): the chain whirled overhead with a red glint, then thrown at him. A chain wraps a guard, so it
+  // cannot be blocked: jump it or dash through it. Caught, he is BOUND (Fighter state 'bound'): only his rage art breaks
+  // the chain, and leaves her reeling. If he cannot, she reels him in and reaps: heavy damage and a knockdown.
+  chainBind: { id: 'chainBind', cd: AKARI_MOVES.chainBind.cd, range: AKARI_MOVES.chainBind.range, chance: AKARI_MOVES.chainBind.chance,
+    cond: (f, w) => !f.akChainOut && w.player && w.player.state !== 'bound',
+    run(f, w, ai, p, o) {
+      o = akariOpt('chainBind', o);
+      const W = o.windup * ai.p.windup, hb = {};
+      f.telegraph = W;
+      f.startAbility({ dur: W + o.hold + 3, rate: 22,
+        pose: (f, t) => (t < W ? AKARI_POSE.crossGuard : f.abil && f.abil.yank ? AKARI_POSE.punish : AKARI_POSE.throwOut),
+        start(f) { f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, o.label, o.tint || '#ff2a6a'); corruptFrames(f, o); AudioManager.play('teleport', { pitch: 0.75 }); },
+        update(f, w, t, dt) {
+          const pl = w.player;
+          f.vx = damp(f.vx, 0, 12, dt);
+          if (t < W) {
+            // the tell: the chain whirled overhead, links of light circling, a red glint at the end
+            if (((t * 60) | 0) % 2 === 0) { const a = t * 18, r = 62 * f.scale; w.fx.part({ x: f.x + Math.cos(a) * r, y: f.y - 225 * f.scale + Math.sin(a) * r * 0.35, vx: -Math.sin(a) * 220, vy: 0, life: 0.18, size: 2, color: '#ff8cc6', type: 'spark', grav: 0, drag: 3, add: true }); }
+            if (!this.g && t > W - 0.16) { this.g = 1; w.fx.glint(f.x + f.facing * 40 * f.scale, f.y - 225 * f.scale, '#ff2a6a'); AudioManager.play('orb', { pitch: 1.4 }); }
+            return;
+          }
+          if (!this.c) { this.c = AkariChain.launch(w, f, { speed: o.speed, reach: o.reach, back: o.speed, kind: 'bind' }, pl.x, pl.y - 105 * pl.scale); AudioManager.play('heavyswing', { pitch: 0.8 }); AudioManager.play('throw'); }
+          const c = this.c, ph = AkariChain.step(w, c, dt);
+          if (ph === 'out') {
+            if (pl.alive && pl.invuln <= 0 && pl.state !== 'bound' && overlap(AkariChain.box(c), pl.hurtbox(hb))) {
+              Combat.applyHit(w, f, pl, { dmg: o.dmg * f.dmgMul, kb: 0, up: 0, hs: 0.1, imp: 1, hsnd: 'slash', proj: 1, unb: 1, dir: c.dir }, c.x, c.y, c.dir);
+              if (pl.alive) { AkariChain.bind(w, c, pl, o.hold); this.bindT = t; } else AkariChain.recall(c);
+            }
+            return;
+          }
+          if (ph === 'bind') {
+            // he struggles; she holds the chain taut
+            if (pl.state !== 'bound') { AkariChain.release(w, c); AkariChain.recall(c); return; }
+            if (((t * 60) | 0) % 5 === 0) w.fx.part({ x: lerp(f.x, pl.x, Math.random()), y: -rand(110, 140) * f.scale, vx: rand(-40, 40), vy: -rand(20, 60), life: 0.4, size: rand(1.6, 2.4), color: '#ff8cc6', type: 'spark', grav: 0, drag: 2, add: true });
+            if (t - this.bindT >= o.hold) { this.yank = 1; c.phase = 'yank'; this.yankT = t; AudioManager.play('heavyswing', { pitch: 0.6 }); w.fx.popText(f, 'REEL IN', '#ff2a6a'); }
+            return;
+          }
+          if (ph === 'yank' && !this.cut) {
+            // reeled in: dragged to her, then the reaping cut
+            pl.x = damp(pl.x, f.x + f.facing * 95 * f.scale, 14, dt);
+            if (t - this.yankT > 0.24) {
+              this.cut = 1; AkariChain.release(w, c); AkariChain.recall(c); pl.invuln = 0;
+              Combat.applyHit(w, f, pl, { dmg: o.yank * f.dmgMul, kb: 520, up: -520, hs: 0.6, kd: 1, imp: 3, hsnd: 'slash', unb: 1, stamp: 'REAPED' }, pl.x, pl.y - 110 * pl.scale, f.facing);
+              AkariSakura.play(w, f, 'sakura_slash_beam', f.x + f.facing * 90 * f.scale, AkariSakura.chest(f), { scale: f.scale * 1.25 }) || w.fx.petalCross(f.x + f.facing * 90 * f.scale, f.y - 120 * f.scale, f.facing, 170);
+              w.fx.shake(0.6); AudioManager.play('heavyswing', { pitch: 1.2 });
+            }
+            return;
+          }
+          if (!this.tell && ph === 'back') { this.tell = 1; w.fx.popText(f, 'OPENING', C.gold); }
+          if (ph === 'done') { if (this.doneT == null) this.doneT = t; if (t > this.doneT + 0.3) return false; }
+        },
+        // his rage art broke the chain: it shatters and she reels
+        onBreak(f, w) {
+          if (this.c) AkariChain.shatter(w, this.c); this.c = null;
+          w.fx.popText(f, 'CHAIN BROKEN', C.gold);
+          f.endAbility(w); f.move = null; f.setState('stun'); f.stunT = 1.2; f.vx = -f.facing * 220;
+        },
+        end(f) { AkariChain.end(w, f); } });
+    } },
+  // Petal Burst (phases 2 and 3; her phase skill): the scythe raised, a bloom circle opening under her and blade petals
+  // forming a ring round her, each one's loop traced faintly on the air; then one after another they swing out, each
+  // in its own wide loop round the whole arena (low passes skim the floor: jump them), one cut each, and come home to
+  // burst round her. In phase 3 (burstBind) she throws a Binding Chain into the storm: caught, the petals converge over
+  // him into a lotus that bursts ON him, unless his rage art breaks the chain first. Super armour while it runs; she is
+  // open after.
+  petalBurst: { id: 'petalBurst', cd: AKARI_MOVES.petalBurst.cd, range: AKARI_MOVES.petalBurst.range, chance: AKARI_MOVES.petalBurst.chance,
+    cond: (f, w) => !(w.akPetals && w.akPetals.some(q => q.owner === f)) && !f.akChainOut,
+    run(f, w, ai, p, o) {
+      o = akariOpt('petalBurst', o);
+      const pd = ai.phaseData || {}, bindIt = !!pd.burstBind, n = pd.burstCount || o.count, hb = {};
+      const W = o.windup * ai.p.windup, T0 = W + o.bloom, FLY = T0 + (n - 1) * o.gap + o.fly;
+      const BIND = T0 + (n - 1) * o.gap * 0.5 + 0.7, HOLD = FLY - BIND + 1.2;
+      f.telegraph = W;
+      f.startAbility({ dur: FLY + 4, rate: 18, uninterruptible: true,
+        pose: (f, t) => (t < W ? AKARI_POSE.crossGuard : f.abil && f.abil.burst ? AKARI_POSE.crossThrough : AKARI_POSE.throwBack),
+        start(f) {
+          f.facing = w.player.x > f.x ? 1 : -1; f.superArmor = true;
+          w.fx.banner('Petal Burst', bindIt ? 'Binding Bloom' : 'The Crimson Petal', '#ff3d9a');
+          w.fx.screenTint('rgba(60,0,30,', FLY + 1); AudioManager.play('teleport', { pitch: 0.6 });
+        },
+        update(f, w, t, dt) {
+          const pl = w.player;
+          f.vx = damp(f.vx, 0, 12, dt); f.superArmor = !this.burst;
+          if (t < W) { akariSwirl(f, w, t, 130); return; }
+          if (!this.formed) {
+            this.formed = 1; AkariChain.petalsForm(w, f, n); AudioManager.play('orb', { pitch: 0.8 });
+            w.fx.ring(f.x, -4, 190, 'rgba(255,120,190,0.8)', 0.5, 5);
+            AkariSakura.play(w, f, 'sakura_burst', f.x, AkariSakura.body(f), { scale: f.scale * 0.5 });
+          }
+          // phase 3: the Binding Chain thrown into the storm
+          if (bindIt && !this.thrown && t >= BIND) {
+            this.thrown = 1; this.c = AkariChain.launch(w, f, { speed: AKARI_MOVES.chainBind.speed, reach: AKARI_MOVES.chainBind.reach, kind: 'bind' }, pl.x, pl.y - 105 * pl.scale);
+            AudioManager.play('throw'); w.fx.popText(f, 'BINDING BLOOM', '#ff2a6a');
+          }
+          if (this.c) {
+            const c = this.c, ph = AkariChain.step(w, c, dt);
+            if (ph === 'out' && pl.alive && pl.invuln <= 0 && pl.state !== 'bound' && overlap(AkariChain.box(c), pl.hurtbox(hb))) { AkariChain.bind(w, c, pl, HOLD); this.caught = 1; }
+            if (ph === 'done') this.c = null;
+          }
+          const bound = this.caught && pl.state === 'bound';
+          // Convergence: once he is caught and the petals have flown, they gather over him into a lotus
+          if (bound && t >= FLY - 0.9 && !this.lotus) {
+            this.lotus = w.akLotus = { owner: f, abil: f.abil, x: pl.x, y: pl.y - 300 * pl.scale, t: 0, s: pl.scale, beam: 0 };
+            AudioManager.play('boss'); w.fx.popText(pl, 'CONVERGENCE', '#ff5aa8');
+          }
+          const L = this.lotus;
+          if (L) { L.t += dt; L.x = pl.x; if (L.beam > 0) L.beam = Math.max(0, L.beam - dt * 1.6); }
+          const live = AkariChain.petalsStep(w, f, o, t, T0, dt, t >= FLY, L && !this.burst ? { x: L.x, y: L.y } : null);
+          // the burst ON him: the lotus's pillar of light
+          if (L && !this.burst && L.t >= 0.95) {
+            this.burst = 1; this.doneT = t; L.beam = 1;
+            if (this.c) { AkariChain.release(w, this.c); AkariChain.recall(this.c); }
+            pl.invuln = 0;
+            Combat.applyHit(w, f, pl, { dmg: o.bindDmg * f.dmgMul, kb: 300, up: -700, hs: 0.7, kd: 1, imp: 3, hsnd: 'heavy', unb: 1, stamp: 'PETAL BURST' }, pl.x, pl.y - 110 * pl.scale, f.facing);
+            AkariChain.petalsClear(w, f, true);
+            w.fx.shake(0.9); w.fx.stop(0.12); w.fx.screenTint('rgba(255,120,190,', 0.4); AudioManager.play('slam');
+            AkariSakura.play(w, f, 'sakura_pillar', pl.x, 0, { scale: pl.scale * 1.2 });
+            AkariSakura.play(w, f, 'sakura_burst', pl.x, pl.y - 110 * pl.scale, { scale: pl.scale * 1.1 }) || akariBurst(f, w, pl.x, pl.y - 110 * pl.scale, 30);
+          }
+          // or they come home and burst round her
+          if (!L && t >= FLY && !this.burst && live === 0 && !this.c) {
+            this.burst = 1; this.doneT = t;
+            Combat.area(w, f, { x: f.x - o.burstR * f.scale, y: -280, w: o.burstR * 2 * f.scale, h: 280 }, { dmg: o.burst * f.dmgMul, kb: 520, up: -460, hs: 0.45, kd: 1, imp: 3, hsnd: 'heavy', stamp: 'PETAL BURST', dir: Math.sign(pl.x - f.x) || f.facing });
+            w.fx.ring(f.x, f.y - 110 * f.scale, o.burstR * 1.4, 'rgba(255,170,215,0.95)', 0.45, 8); w.fx.shake(0.6); AudioManager.play('slam');
+            AkariSakura.play(w, f, 'sakura_burst', f.x, AkariSakura.body(f), { scale: f.scale * 1.2 }) || akariBurst(f, w, f.x, f.y - 110 * f.scale, 30);
+            if (w.akBloom) w.akBloom = w.akBloom.filter(b => b.owner !== f);
+          }
+          if (this.burst) {
+            if (!this.tell && t > this.doneT + 0.3) { this.tell = 1; f.superArmor = false; w.fx.popText(f, 'OPENING', C.gold); }
+            if (t > this.doneT + 1.1) return false;
+          }
+        },
+        // his rage art broke the chain: the petals scatter, the lotus withers, she reels
+        onBreak(f, w) {
+          if (this.c) AkariChain.shatter(w, this.c); this.c = null;
+          AkariChain.petalsClear(w, f, true); if (w.akLotus === this.lotus) w.akLotus = null;
+          w.fx.popText(f, 'CHAIN BROKEN', C.gold);
+          f.endAbility(w); f.move = null; f.setState('stun'); f.stunT = 1.4; f.vx = -f.facing * 220;
+        },
+        end(f) { f.superArmor = false; AkariChain.end(w, f); if (w.akLotus && w.akLotus.owner === f) w.akLotus = null; } });
     } },
   /* ---- The Witness, Mirror of the Self (final boss). Numbers come from WITNESS_MOVES (10-data.js). Every tell is
      `windup x Logic.aiTuning(...).windup` seconds with the violet eye flaring white (telegraph) and a violet glint. ---- */
@@ -1053,7 +1700,11 @@ const RAIKON_POSE = {
   // Redline Counter: a low guard, the blade held diagonally across the body, edge out
   guard: P({ lean: -4, head: 4, fs: 70, fe: 80, wa: 140, bs: 50, be: 100, fh: 30, fk: -30, bh: -30, bk: -14 }),
   // ... and the fast diagonal punish (kesa-giri, high to low)
-  diagonal: P({ lean: 34, rx: 20, head: 10, fs: 40, fe: 0, wa: 34, bs: -30, be: 30, fh: 54, fk: -60, bh: -50, bk: -8 })
+  diagonal: P({ lean: 34, rx: 20, head: 10, fs: 40, fe: 0, wa: 34, bs: -30, be: 30, fh: 54, fk: -60, bh: -50, bk: -8 }),
+  // Skyfall: the free hand raised high toward his foe, calling the storm down; the odachi held low at his side
+  callSky: P({ lean: -10, head: -10, fs: 16, fe: 24, wa: 40, bs: 128, be: 4, fh: 24, fk: -24, bh: -30, bk: -18, ik: 0 }),
+  // ... and the hand brought down onto the mark as the bolt falls
+  callDown: P({ lean: 14, head: 6, fs: 20, fe: 28, wa: 36, bs: 86, be: 0, fh: 34, fk: -40, bh: -34, bk: -22, ik: 0 })
 };
 // red lightning crackling along Raikō no Tachi while a strike gathers
 // (`tint`: a corrupted echo's violet instead of the red)
@@ -1077,7 +1728,7 @@ function raikonRelease(f, w, o) {
   if (o.wave !== false) StormDirector.groundStrike(w, f.x + f.facing * 110 * f.scale, 1.15, o.tint);   // the wave's source
 }
 /* ---- Akari's poses and helpers (the player's Smoke Step rage art, 30-combat.js, uses them too) ---- */
-const AKARI_VIOLET = '#b48ae6';
+const AKARI_VIOLET = '#ff66b2';   // (old name) her sakura pink: move labels
 const AKARI_POSE = {
   // Twin Fang / Smoke Step wind-up: low, both blades drawn back behind her hips
   fangBack: P({ lean: 24, head: 10, fs: 20, fe: 50, wa: -40, bs: 10, be: 60, wb: -60, fh: 52, fk: -76, bh: -40, bk: -54 }),
@@ -1090,9 +1741,36 @@ const AKARI_POSE = {
   // Petal Cross: both blades crossed in an X before her face
   crossGuard: P({ lean: -4, head: 6, fs: 130, fe: 70, wa: 150, bs: 140, be: 76, wb: 50, fh: 30, fk: -40, bh: -30, bk: -20 }),
   // ... and swept through, both arms flung out low after the crossing cuts
-  crossThrough: P({ lean: 30, rx: 18, head: 8, fs: 60, fe: 0, wa: 20, bs: -50, be: 10, wb: -30, fh: 54, fk: -52, bh: -52, bk: -10 })
+  crossThrough: P({ lean: 30, rx: 18, head: 8, fs: 60, fe: 0, wa: 20, bs: -50, be: 10, wb: -30, fh: 54, fk: -52, bh: -52, bk: -10 }),
+  // Poison Kunai: the throwing hand drawn back high over the shoulder, the other blade held low
+  throwBack: P({ lean: -8, head: 4, fs: 196, fe: 70, wa: 150, bs: 26, be: 80, wb: 160, fh: 30, fk: -36, bh: -30, bk: -18 }),
+  // ... and flung forward, arm extended toward him
+  throwOut: P({ lean: 22, rx: 12, head: 8, fs: 84, fe: 0, wa: 110, bs: -20, be: 40, wb: -20, fh: 44, fk: -50, bh: -40, bk: -12 }),
+  // Shadow Flip / Kunai Rain: tucked tight in the air, knees drawn up, blades in close
+  flip: P({ lean: 10, head: 10, fs: 120, fe: 100, wa: 170, bs: 110, be: 100, wb: 160, fh: 104, fk: -136, bh: 84, bk: -124 })
 };
 const akariOpt = (id, o) => Object.assign({}, AKARI_MOVES[id], o || {});
+// her phase's petal colours (AKARI_PETALS): [base, highlight, dark]
+const akariCol = (f) => AKARI_PETALS[f.petal] || AKARI_PETALS.violet;
+// one poisoned kunai from her hand toward (tx, ty): da turns it (radians), dvy adds vertical speed (a fan)
+function akariKunai(f, w, o, tx, ty, da, dvy) {
+  const p = WeaponSystem.spawn(w, 'kunai', f, { dmg: o.dmg });
+  const sp = 1150, a = Math.atan2(ty - p.y, tx - p.x) + (da || 0);
+  p.vx = Math.cos(a) * sp; p.vy = Math.sin(a) * sp + (dvy || 0); p.dir = Math.sign(p.vx) || f.facing;
+  p.poison = o.poison;
+  return p;
+}
+// petals whirling in round her while a move gathers (r: how far out they start)
+function akariSwirl(f, w, t, r) {
+  if (((t * 60) | 0) % 2 !== 0) return;
+  const col = AkariSakura.col(f), a = rand(0, TAU), cx = f.x, cy = f.y - 110 * f.scale;
+  w.fx.part({ x: cx + Math.cos(a) * r * f.scale, y: cy + Math.sin(a) * r * 0.6 * f.scale, vx: -Math.sin(a) * 300 - Math.cos(a) * 120, vy: Math.cos(a) * 180 - Math.sin(a) * 80, life: 0.4, size: rand(2.4, 3.8), color: chance(0.6) ? col[0] : col[1], type: 'ash', grav: 0, drag: 0.8, rot: rand(0, TAU), vr: rand(-10, 10) });
+}
+// a burst of petals out of a point
+function akariBurst(f, w, x, y, n) {
+  const col = AkariSakura.col(f);
+  for (let i = 0; i < n; i++) w.fx.part({ x, y, vx: rand(-360, 360), vy: rand(-360, 120), life: rand(0.35, 0.7), size: rand(2.4, 4), color: chance(0.5) ? col[0] : chance(0.5) ? col[1] : col[2], type: 'ash', grav: 200, drag: 1.5, rot: rand(0, TAU), vr: rand(-12, 12) });
+}
 /* ---- Takashi's poses and helpers ---- */
 const TAKASHI_GOLD = '#e8c25c';
 const TAKASHI_POSE = {
@@ -1115,7 +1793,7 @@ function witnessGlint(f, w) { w.fx.glint(f.sk.wt.x, f.sk.wt.y, '#e4d6ff'); Audio
 // a corrupted move (the Witness's Identity Collapse, `o.glitch`) glitches the fighter's frames while it runs
 function corruptFrames(f, o) { if (o && o.glitch) f.corruptUntil = f.time + 1.8; }
 // a violet glint on one of her blades ('wt' Kagehira, 'w2t' Yūrei): the moment before that blade cuts
-function akariGlint(f, w, tip) { w.fx.glint(f.sk[tip].x, f.sk[tip].y, '#e0ccff'); AudioManager.play('orb', { pitch: 1.9 }); }
+function akariGlint(f, w, tip) { w.fx.glint(f.sk[tip].x, f.sk[tip].y, AkariSakura.glint(f) || '#e0ccff'); AudioManager.play('orb', { pitch: 1.9 }); }
 // where she lands `dist` from x on `side`, inside the arena (the other side when the wall is in the way)
 function akariSpot(w, x, side, dist) {
   const l = w.bounds.l + 30, r = w.bounds.r - 30;
@@ -1125,4 +1803,14 @@ function akariSpot(w, x, side, dist) {
 }
 function this_charge_pose(f, t) {
   return t < 0.6 ? P({ lean: -14, fs: 186, fe: 0, wa: 210, fh: 30, fk: -40, bh: -30, bk: -30 }) : P({ lean: 40, fs: 80, fe: 0, wa: 60, bs: -60, be: 30, fh: 60, fk: -60, bh: -50, bk: -20 });
+}
+
+// Akari's wind-ups and evasions without turning her whole body over (only Kage's double jump does that): she sinks and
+// rises, the torso twisting back and forth `turns` times, while her scythe rig twirls the weapon (64-akari-rig.js).
+// turns 0: the shadow flip's tucked back-leap (knees drawn up, then opening for the landing).
+function akariGather(base, u, turns) {
+  u = clamp(u, 0, 1);
+  if (!turns) return P({ lean: base.lean - 18 * Math.sin(u * Math.PI), head: (base.head || 0) - 10 * Math.sin(u * Math.PI), fh: 70, fk: -110, bh: 30, bk: -100, tw: 0.4 }, base);
+  const w = Math.sin(u * Math.PI * 2 * turns), sink = Math.sin(u * Math.PI);
+  return P({ lean: base.lean + 6 * w, tw: 0.9 * w, hp: 0.5 * w, rx: 4 * w, fk: (base.fk || 0) - 22 * sink, bk: (base.bk || 0) - 22 * sink }, base);
 }

@@ -12,11 +12,15 @@ const DEV = { unlockAll: true, coins: 99999, gems: 999 };
 /* ---------------- Poses ----------------
    Angles in degrees, authored facing right.
    Limb angle: 0 = straight down, 90 = forward, 180 = up, -90 = back.
-   lean: torso tilt (0 upright, + forward). rot: whole-body spin around the hip.
+   lean: torso tilt (0 upright, + forward). rot: whole-body turn around the hip, used only by
+   knock-downs (lying flat) — no attack ever turns the whole body; the double-jump flip is Fighter.flipT.
    f-/b- prefixed keys = front/back arm (s shoulder, e elbow bend) and leg (h hip, k knee, negative bends back).
-   wa/wb = absolute angle of main / off-hand weapon (null = follows the forearm). */
-const POSE_KEYS = ['lean', 'head', 'rot', 'fs', 'fe', 'bs', 'be', 'fh', 'fk', 'bh', 'bk', 'wa', 'wb', 'rx', 'tw', 'hp'];
-const BASE_POSE = { lean: 6, head: 0, rot: 0, fs: 55, fe: 95, bs: 30, be: 115, fh: 22, fk: -16, bh: -22, bk: -20, wa: null, wb: null, rx: 0, tw: -0.2, hp: 0 };
+   wa/wb = absolute angle of main / off-hand weapon (null = follows the forearm).
+   hx/hy + gk: a hand target for the front (weapon) hand, in body units from the shoulder centre (x forward, y down),
+   reached by two-bone IK with weight gk (0 = the arm follows fs/fe); bx/by + gb the same for the back hand. The sword
+   arcs (11-sword-arcs.js) drive the hands along real paths this way, so the blade follows the hands, not the body. */
+const POSE_KEYS = ['lean', 'head', 'rot', 'fs', 'fe', 'bs', 'be', 'fh', 'fk', 'bh', 'bk', 'wa', 'wb', 'rx', 'tw', 'hp', 'hx', 'hy', 'gk', 'bx', 'by', 'gb'];
+const BASE_POSE = { lean: 6, head: 0, rot: 0, fs: 55, fe: 95, bs: 30, be: 115, fh: 22, fk: -16, bh: -22, bk: -20, wa: null, wb: null, rx: 0, tw: -0.2, hp: 0, hx: 0, hy: 0, gk: 0, bx: 0, by: 0, gb: 0 };
 function P(o, base) { return Object.assign({}, base || BASE_POSE, o); }
 
 const STANCES = {
@@ -143,8 +147,15 @@ const WEAPONS = {
   tsubame: { heft: 0.6, el: 'lightning', name: 'Tsubame', cls: 'Twin blades', tab: 'blades', tier: 'common', hands: 'dual', len: 64, stance: 'twin', stats: [44, 92, 38], price: 450,
     trail: '#ece5d3', desc: 'Fast attacks and extended combos. Five-cut string ending in a spinning finisher.',
     lore: 'Courier blades of the Hoshimura runners, light enough to carry past every Order checkpoint unseen.',
-    moves: ['tw1', 'tw2', 'tw3', 'tw4', 'tw5'], air: 'twa', special: 'thousandCuts',
+    // Kage's string is four level cuts, fang after fang (ts1-ts4), into the spinning finisher; the foes on the twin-blade
+    // forms keep the original up-and-down string (`baseMoves`: tw1-tw4)
+    moves: ['ts1', 'ts2', 'ts3', 'ts4', 'tw5'], baseMoves: ['tw1', 'tw2', 'tw3', 'tw4', 'tw5'], air: 'twa', special: 'swallowStorm', baseSpecial: 'thousandCuts',
     defs: {
+      // horizontal cuts: each fang drawn back level past the hip, then swept straight through at chest, head and knee height
+      ts1: { kind: 'weapon', w: { lean: -4, rx: -6, fs: -20, fe: 96, wa: 256 }, s: { lean: 18, rx: 12, fs: 96, fe: 0, wa: 94 }, f: { lean: 16, rx: 10, fs: 102, fe: 8, wa: 106 }, t: [0.05, 0.05, 0.13], dmg: 5, kb: 90, hs: 0.26, box: [16, -200, 120, 130], limb: 'w', snd: 'swing', hsnd: 'slash', imp: 0, next: 'ts2' },
+      ts2: { kind: 'weapon', w: { lean: -2, rx: -4, bs: -24, be: 96, wb: 258 }, s: { lean: 20, rx: 14, bs: 94, be: 0, wb: 92 }, f: { lean: 18, rx: 12, bs: 100, be: 8, wb: 104 }, t: [0.05, 0.05, 0.13], dmg: 5, kb: 90, hs: 0.26, box: [16, -200, 120, 130], limb: 'w2', snd: 'swing', hsnd: 'slash', imp: 0, next: 'ts3' },
+      ts3: { kind: 'weapon', w: { lean: -8, rx: -6, fs: -10, fe: 112, wa: 246 }, s: { lean: 10, rx: 10, head: -4, fs: 120, fe: 0, wa: 104 }, f: { lean: 8, rx: 8, fs: 126, fe: 8, wa: 112 }, t: [0.05, 0.05, 0.13], dmg: 5, kb: 90, up: -160, hs: 0.28, box: [16, -210, 116, 150], limb: 'w', snd: 'swing', hsnd: 'slash', imp: 0, next: 'ts4' },
+      ts4: { kind: 'weapon', w: { lean: 2, rx: -6, bs: -32, be: 88, wb: 264, fh: 36, fk: -48, bh: -30, bk: -30 }, s: { lean: 28, rx: 16, head: 8, bs: 78, be: 0, wb: 84, fh: 52, fk: -60, bh: -40, bk: -20 }, f: { lean: 26, rx: 14, bs: 84, be: 8, wb: 92, fh: 50, fk: -58, bh: -40, bk: -20 }, t: [0.05, 0.05, 0.14], dmg: 6, kb: 120, up: -200, hs: 0.3, box: [16, -210, 116, 150], limb: 'w2', snd: 'swing', hsnd: 'slash', imp: 1, next: 'tw5' },
       tw1: { kind: 'weapon', w: { fs: 122, fe: 20, wa: 196 }, s: { lean: 16, fs: 72, fe: 0, wa: 28 }, t: [0.05, 0.05, 0.13], dmg: 5, kb: 90, hs: 0.26, box: [16, -200, 120, 130], limb: 'w', snd: 'swing', hsnd: 'slash', imp: 0, next: 'tw2' },
       tw2: { kind: 'weapon', w: { bs: 132, be: 20, wb: 204 }, s: { lean: 20, rx: 8, bs: 80, be: 0, wb: 40 }, t: [0.05, 0.05, 0.13], dmg: 5, kb: 90, hs: 0.26, box: [16, -200, 120, 130], limb: 'w2', snd: 'swing', hsnd: 'slash', imp: 0, next: 'tw3' },
       tw3: { kind: 'weapon', w: { fs: 10, fe: 30, wa: -12 }, s: { lean: 4, fs: 142, fe: 10, wa: 172 }, t: [0.05, 0.05, 0.13], dmg: 5, kb: 90, up: -160, hs: 0.28, box: [16, -210, 116, 150], limb: 'w', snd: 'swing', hsnd: 'slash', imp: 0, next: 'tw4' },
@@ -155,10 +166,10 @@ const WEAPONS = {
     },
     counter: 'twc'
   },
-  kagetsu: { heft: 1, el: 'moon', name: 'Kagetsu', cls: 'Katana', tab: 'blades', tier: 'common', hands: 2, len: 82, stance: 'katana', stats: [60, 64, 58], price: 0,
+  kagetsu: { heft: 1, el: 'crimson', name: 'Kagetsu', cls: 'Katana', tab: 'blades', tier: 'common', hands: 2, len: 82, stance: 'katana', stats: [60, 64, 58], price: 0,
     trail: '#ece5d3', desc: 'Balanced cuts and lightning counter-slashes. Block or parry, then strike to draw the iai counter.',
     lore: '"Shadow Moon." Takashi forged it in Hoshimura for Kage\'s first oath; it was never registered with the Order.',
-    moves: ['k1', 'k2', 'k3'], air: 'ka', special: 'crescentMoon', counter: 'kc',
+    moves: ['k1', 'k2', 'k3'], air: 'ka', special: 'crimsonMoon', baseSpecial: 'crescentMoon', counter: 'kc',
     defs: {
       k1: { kind: 'weapon', a: { lean: -6, head: 2, fs: 166, fe: 8, wa: 194 }, w: { lean: -8, fs: 178, fe: 26, wa: 214 }, s: { lean: 22, rx: 14, head: 8, fs: 74, fe: 0, wa: 22, fh: 38, fk: -24, bh: -32, bk: -4 }, f: { lean: 28, rx: 12, head: 10, fs: 40, fe: 0, wa: -14, fh: 40, fk: -32, bh: -34, bk: -6 }, t: [0.1, 0.07, 0.19], dmg: 10, kb: 200, hs: 0.32, box: [16, -222, 150, 176], limb: 'w', snd: 'swing', hsnd: 'slash', imp: 1, next: 'k2' },
       k2: { kind: 'weapon', w: { lean: 16, head: 10, fs: 20, fe: 8, wa: -26, fh: 32, fk: -32 }, s: { lean: -4, fs: 152, fe: 10, wa: 190 }, f: { lean: -8, head: -4, fs: 168, fe: 16, wa: 208 }, t: [0.1, 0.07, 0.19], dmg: 10, kb: 140, up: -420, hs: 0.4, box: [16, -232, 140, 186], limb: 'w', snd: 'swing', hsnd: 'slash', imp: 1, next: 'k3' },
@@ -170,7 +181,7 @@ const WEAPONS = {
   onikiri: { heft: 1.6, el: 'flame', name: 'Onikiri', cls: 'Cleaver', tab: 'heavy', tier: 'rare', hands: 1, len: 104, stance: 'cleaver', stats: [82, 38, 54], price: 1400,
     trail: '#d24a3c', desc: 'Heavy damage that breaks any guard. Slow to start — commit to every swing.',
     lore: 'A field cleaver salvaged from the Silent War. The soot of a burned barracks never washes out of its fuller.',
-    moves: ['c1', 'c2', 'c3'], air: 'ca', special: 'mountainSplit', counter: 'c2',
+    moves: ['c1', 'c2', 'c3'], air: 'ca', special: 'hellSplitter', baseSpecial: 'mountainSplit', counter: 'c2',
     defs: {
       c1: { kind: 'weapon', a: { lean: -16, head: -4, fs: 188, fe: 4, wa: 230 }, f: { lean: 32, rx: 12, fs: 40, fe: 0, wa: -22, fh: 42, fk: -34, bh: -36, bk: -8 }, w: { lean: -12, fs: 176, fe: 14, wa: 222 }, s: { lean: 26, rx: 14, fs: 72, fe: 0, wa: 8, fh: 38, fk: -24, bh: -34, bk: -8 }, t: [0.22, 0.08, 0.3], dmg: 18, kb: 260, hs: 0.45, gb: 70, box: [16, -230, 150, 230], limb: 'w', snd: 'heavyswing', hsnd: 'heavy', imp: 2, stamp: 'BREAK', next: 'c2' },
       c2: { kind: 'weapon', w: { lean: 4, fs: -30, fe: 30, wa: -36 }, s: { lean: -6, fs: 150, fe: 6, wa: 150 }, t: [0.2, 0.08, 0.3], dmg: 15, kb: 260, up: -560, hs: 0.5, gb: 55, box: [16, -230, 150, 200], limb: 'w', snd: 'heavyswing', hsnd: 'heavy', imp: 2, next: 'c3' },
@@ -181,7 +192,7 @@ const WEAPONS = {
   mizuchi: { heft: 1.2, el: 'water', name: 'Mizuchi', cls: 'Spear', tab: 'polearms', tier: 'rare', hands: 2, len: 196, stance: 'spear', stats: [52, 60, 96], price: 1700,
     trail: '#c9a45c', desc: 'Longest reach in the Armory. Two pokes and a leg-sweeping arc.',
     lore: 'Pike of the old Hoshimura gate watch, re-hafted in secret after the Order burned the village gate.',
-    moves: ['s1', 's2', 's3'], air: 'sa', special: 'dragonLance', counter: 's1',
+    moves: ['s1', 's2', 's3'], air: 'sa', special: 'waterDragon', baseSpecial: 'dragonLance', counter: 's1',
     defs: {
       s1: { kind: 'weapon', f: { lean: 14, rx: 20, fs: 82, fe: 10, wa: 93 }, w: { lean: 0, rx: -14, fs: 36, fe: 70, wa: 95 }, s: { lean: 18, rx: 26, fs: 88, fe: 0, wa: 92 }, t: [0.09, 0.07, 0.18], dmg: 8, kb: 220, hs: 0.3, box: [30, -170, 236, 44], limb: 'w', snd: 'swing', hsnd: 'slash', imp: 0, next: 's2' },
       s2: { kind: 'weapon', w: { lean: -2, rx: -10, fs: 62, fe: 70, wa: 116 }, s: { lean: 14, rx: 22, fs: 110, fe: 0, wa: 112 }, t: [0.09, 0.07, 0.18], dmg: 8, kb: 240, hs: 0.3, box: [30, -232, 230, 60], limb: 'w', snd: 'swing', hsnd: 'slash', imp: 1, next: 's3' },
@@ -192,7 +203,7 @@ const WEAPONS = {
   yamigama: { heft: 0.95, el: 'blood', name: 'Yamigama', cls: 'Chain sickle', tab: 'chains', tier: 'epic', hands: 1, len: 70, stance: 'sickle', stats: [56, 66, 74], price: 2600,
     trail: '#9b8cff', desc: 'A chained sickle. The second strike hurls the blade and drags the enemy to you.',
     lore: 'A Hollow-hunter\'s chain sickle. Its links are woven with memory ash, so they bite things that should have no body.',
-    moves: ['h1', 'h2', 'h3'], air: 'ha', special: 'reapersHarvest', counter: 'h3',
+    moves: ['h1', 'h2', 'h3'], air: 'ha', special: 'reaperRequiem', baseSpecial: 'reapersHarvest', counter: 'h3',
     defs: {
       h1: { kind: 'weapon', w: { lean: -4, fs: 172, fe: 30, wa: 232 }, s: { lean: 18, fs: 72, fe: 0, wa: 20 }, t: [0.09, 0.07, 0.18], dmg: 9, kb: 160, hs: 0.32, box: [16, -214, 128, 160], limb: 'w', snd: 'swing', hsnd: 'slash', imp: 0, next: 'h2' },
       h2: { kind: 'weapon', a: { lean: -4, fs: 170, fe: 30, wa: 300 }, w: { lean: -8, fs: 196, fe: 40, wa: 236 }, s: { lean: 20, fs: 96, fe: 0, wa: 90 }, t: [0.13, 0.16, 0.24], dmg: 8, kb: 0, hs: 0.45, pull: 1, disarm: 0.2, box: [70, -176, 250, 56], chain: 300, limb: 'w', snd: 'chain', hsnd: 'slash', imp: 1, stamp: 'YANK', next: 'h3' },
@@ -203,7 +214,7 @@ const WEAPONS = {
   iwakudaki: { heft: 2.2, el: 'earth', name: 'Iwakudaki', cls: 'Hammer', tab: 'heavy', tier: 'epic', hands: 2, len: 150, stance: 'hammer', stats: [98, 16, 66], price: 3200,
     trail: '#d24a3c', desc: 'Extremely slow but devastating. The overhead smash splits the ground.',
     lore: 'The siege maul that cracked the outer wall of the Fortress of Silence in the war. The Order buried it; someone dug it up.',
-    moves: ['m1', 'm2'], air: 'ma', special: 'earthshatter', counter: 'm2',
+    moves: ['m1', 'm2'], air: 'ma', special: 'goldenQuake', baseSpecial: 'earthshatter', counter: 'm2',
     defs: {
       m1: { kind: 'weapon', a: { lean: -22, head: -6, fs: 196, fe: 0, wa: 196, fh: 22, fk: -30, bh: -24, bk: -22 }, f: { lean: 36, fs: 74, fe: 0, wa: -2, fh: 46, fk: -44, bh: -38, bk: -22 }, w: { lean: -18, fs: 186, fe: 0, wa: 200 }, s: { lean: 34, fs: 76, fe: 0, wa: 2, fh: 44, fk: -40, bh: -36, bk: -20 }, t: [0.42, 0.1, 0.48], dmg: 34, kb: 380, up: -360, hs: 0.7, kd: 1, gb: 160, box: [16, -246, 176, 246], limb: 'w', snd: 'heavyswing', hsnd: 'heavy', imp: 3, stamp: 'SMASH', shock: 1, armor: 1, next: 'm2' },
       m2: { kind: 'weapon', a: { lean: -12, fs: -70, fe: 20, wa: -96 }, f: { lean: 14, fs: 140, fe: 10, wa: 190 }, w: { lean: -8, fs: -60, fe: 20, wa: -82 }, s: { lean: 22, fs: 112, fe: 0, wa: 152 }, t: [0.36, 0.1, 0.46], dmg: 28, kb: 900, up: -380, hs: 0.7, kd: 1, gb: 140, box: [16, -246, 176, 230], limb: 'w', snd: 'heavyswing', hsnd: 'heavy', imp: 3, stamp: 'BREAK', armor: 1 },
@@ -211,9 +222,36 @@ const WEAPONS = {
     }
   },
 
-  shizuka: { heft: 1.05, el: 'moon', name: 'Shizuka', cls: 'Katana', tab: 'blades', tier: 'rare', base: 'kagetsu', hands: 2, len: 88, stance: 'katana', stats: [64, 68, 62], price: 1100,
-    trail: '#b9c4c9', desc: 'An Order katana on the Kagetsu forms: slightly longer and quicker to draw.',
-    lore: 'Order-issue steel. The scabbard is lined with felt so that no draw is ever heard in the City of Echoes.' },
+  // Shizuka: iai. Every cut of its own string starts from the scabbard at the hip and the blade goes home after the
+  // fourth, the noutou: a beat later its silent cut lands (`echo`, Combat.echoCut). Quick draws, light single cuts, a
+  // needle thrust that pierces twice. `base: 'kagetsu'` only measures its damage against Kagetsu's (weaponMul).
+  shizuka: { heft: 1.05, el: 'violet', name: 'Shizuka', cls: 'Katana', tab: 'blades', tier: 'rare', base: 'kagetsu', hands: 2, len: 88, stance: 'katana', stats: [64, 68, 62], price: 1100,
+    trail: '#b9a4e6', desc: 'Iai: four quick draws from the scabbard. Sheathing it ends the string, and the silent cut lands a beat later.',
+    lore: 'Order-issue steel. The scabbard is lined with felt so that no draw is ever heard in the City of Echoes.',
+    moves: ['sz1', 'sz2', 'sz3', 'sz4'], air: 'sza', counter: 'szc', special: 'silentMoon',
+    defs: {
+      // nukitsuke: drawn one-handed from the hip straight into a level cut, the free hand holding the scabbard back
+      sz1: { kind: 'weapon', a: { lean: 10, head: 6, rx: -6, fs: -6, fe: 72, wa: 258, bs: 26, be: 66, ik: 0, fh: 40, fk: -52, bh: -34, bk: -40 }, w: { lean: 14, head: 8, rx: -8, fs: -12, fe: 80, wa: 264, bs: 30, be: 64, ik: 0, fh: 46, fk: -60, bh: -38, bk: -44 },
+        s: { lean: 26, rx: 26, head: 8, fs: 96, fe: 0, wa: 92, bs: -40, be: 30, ik: 0, fh: 50, fk: -30, bh: -50, bk: -2 }, f: { lean: 22, rx: 22, head: 8, fs: 104, fe: 6, wa: 100, bs: -46, be: 40, ik: 0, fh: 48, fk: -32, bh: -48, bk: -4 },
+        t: [0.07, 0.06, 0.16], dmg: 8, kb: 140, hs: 0.28, box: [16, -196, 166, 74], limb: 'w', snd: 'swing', hsnd: 'slash', imp: 1, next: 'sz2', lunge: 300 },
+      // kiriage: both hands, the blade rising from the knee past the head
+      sz2: { kind: 'weapon', w: { lean: 18, head: 10, fs: 10, fe: 10, wa: 20, fh: 40, fk: -50, bh: -30, bk: -30 }, s: { lean: -6, head: -6, fs: 160, fe: 8, wa: 176 }, f: { lean: -10, head: -8, fs: 172, fe: 14, wa: 196 },
+        t: [0.07, 0.06, 0.17], dmg: 8, kb: 120, up: -380, hs: 0.32, box: [16, -240, 142, 192], limb: 'w', snd: 'swing', hsnd: 'slash', imp: 1, next: 'sz3' },
+      // tsuki: the needle point driven straight through, twice
+      sz3: { kind: 'weapon', a: { lean: -2, rx: -10, fs: 40, fe: 110, wa: 92, fh: 18, fk: -24, bh: -16, bk: -22 }, w: { lean: -6, rx: -16, fs: 34, fe: 124, wa: 92, fh: 20, fk: -26, bh: -18, bk: -24 },
+        s: { lean: 30, rx: 40, head: 10, fs: 92, fe: 0, wa: 92, fh: 54, fk: -30, bh: -54, bk: -2 }, f: { lean: 26, rx: 34, head: 8, fs: 88, fe: 6, wa: 92, fh: 52, fk: -30, bh: -50, bk: -4 },
+        t: [0.08, 0.08, 0.18], dmg: 5, multi: [2, 0.04], kb: 260, hs: 0.3, box: [30, -178, 214, 44], limb: 'w', snd: 'swing', hsnd: 'slash', imp: 1, next: 'sz4', lunge: 460, stamp: 'PIERCE' },
+      // noutou: one wide draw, then the blade slides home in the follow-through; the silent cut lands as it clicks shut
+      sz4: { kind: 'weapon', a: { lean: 10, head: 6, rx: -6, fs: -6, fe: 72, wa: 258, bs: 26, be: 66, ik: 0, fh: 40, fk: -52, bh: -34, bk: -40 }, w: { lean: 16, head: 8, rx: -10, fs: -14, fe: 82, wa: 266, bs: 30, be: 64, ik: 0, fh: 48, fk: -62, bh: -40, bk: -46 },
+        s: { lean: 28, rx: 30, head: 8, fs: 100, fe: 0, wa: 100, bs: -36, be: 30, ik: 0, fh: 50, fk: -28, bh: -50, bk: -2 }, f: { lean: 6, rx: 6, head: 4, fs: 4, fe: 70, wa: 252, bs: 26, be: 66, ik: 0, fh: 30, fk: -30, bh: -30, bk: -14 },
+        t: [0.12, 0.07, 0.34], dmg: 9, kb: 140, hs: 0.34, box: [16, -212, 200, 112], limb: 'w', snd: 'heavyswing', hsnd: 'slash', imp: 2, lunge: 420,
+        echo: { delay: 0.3, dmg: 12, kb: 520, up: -320, kd: 1, hs: 0.5, imp: 3, stamp: 'SILENCE' } },
+      sza: { kind: 'air', w: { lean: 0, fs: 170, fe: 10, wa: 214 }, s: { lean: 24, fs: 62, fe: 0, wa: -10 }, t: [0.06, 0.09, 0.15], dmg: 8, kb: 200, up: 200, hs: 0.34, box: [10, -198, 140, 188], limb: 'w', snd: 'swing', hsnd: 'slash', imp: 1 },
+      // the iai counter: the fastest draw in the Armory, straight out of a block or parry
+      szc: { kind: 'weapon', counter: 1, w: { lean: 14, head: 8, rx: -8, fs: -12, fe: 80, wa: 264, bs: 30, be: 64, ik: 0, fh: 46, fk: -60, bh: -38, bk: -44 }, s: { lean: 28, rx: 34, head: 8, fs: 98, fe: 0, wa: 96, bs: -40, be: 30, ik: 0, fh: 50, fk: -30, bh: -50, bk: 0 },
+        f: { lean: 18, fs: 108, fe: 8, wa: 104, bs: -44, be: 40, ik: 0 }, t: [0.03, 0.07, 0.24], dmg: 16, kb: 480, up: -240, hs: 0.52, box: [16, -214, 176, 120], limb: 'w', snd: 'heavyswing', hsnd: 'slash', imp: 3, stamp: 'COUNTER', lunge: 440,
+        echo: { delay: 0.22, dmg: 6, kb: 200, up: -120, hs: 0.3, imp: 1 } }
+    } },
 
   /* ---- boss weapons: defined but locked; boss stages grant them through their `reward` (see CAMPAIGN).
      Never upgraded and never scaled with player level: their fixed stats are the top tier.
@@ -244,7 +282,7 @@ const WEAPONS = {
   // slight curve; it punishes the opening). `twin` draws the two different blades (20-fighter.js).
   kagehira_yurei: { heft: 0.7, el: 'petal', name: 'Kagehira & Yūrei', cls: 'Twin blades', tab: 'blades', tier: 'boss', base: 'tsubame', hands: 'dual', len: 72, stance: 'twin', stats: [104, 188, 110],
     exclusive: true, hint: 'Defeat Akari', special: 'smokeStep', twin: 1,
-    trail: '#9b6bd6', desc: 'Akari\'s paired short blades on the twin-blade forms. Rage art: Smoke Step.',
+    trail: '#ff66b2', desc: 'Akari\'s paired short blades on the twin-blade forms. Rage art: Smoke Step.',
     lore: 'Akari\'s paired blades. Kagehira cuts the body; Yūrei cuts the memory of the wound, so it never stops hurting.' },
   mugen_no_ha: { heft: 1.1, el: 'moon', name: 'Mugen no Ha', cls: 'Katana', tab: 'blades', tier: 'boss', base: 'kagetsu', hands: 2, len: 96, stance: 'katana', stats: [162, 124, 128],
     exclusive: true, hint: 'Finish the Epilogue, The Last Choice', special: 'echoReplication',
@@ -263,7 +301,7 @@ const WEAPONS = {
   tyrant_cleaver: { heft: 2, el: 'flame', enemy: 1, name: 'Tyrant Cleaver', base: 'onikiri', len: 130, trail: '#ff6a3c' },
   cutter_blade: { heft: 1, el: 'shade', enemy: 1, name: 'Cutter Blade', base: 'kagetsu', len: 92, trail: '#ece5d3' },
   // Akari's own Kagehira & Yūrei, at enemy strength (the player's boss-tier pair is kagehira_yurei, granted when she falls)
-  akari_blades: { heft: 0.7, el: 'petal', enemy: 1, name: 'Kagehira & Yūrei', base: 'tsubame', len: 70, stats: [50, 70, 54], trail: '#9b6bd6', twin: 1 },
+  akari_blades: { heft: 0.7, el: 'petal', enemy: 1, name: 'Kagehira & Yūrei', base: 'tsubame', len: 70, stats: [50, 70, 54], trail: '#ff66b2', twin: 1 },
   // Raikon's own Raikō no Tachi: the same broad odachi and red lightning groove, at enemy strength (the player's boss-tier
   // copy is raiko_no_tachi, granted when Raikon falls)
   raikon_tachi: { heft: 1.9, el: 'redline', enemy: 1, name: 'Raikō no Tachi', base: 'onikiri', len: 128, stats: [64, 40, 60], trail: '#ff4a3c' },
@@ -310,7 +348,9 @@ for (const id in WEAPONS) {
   w.id = id;
   if (w.base) {
     const b = WEAPONS[w.base];
-    for (const k of ['cls', 'hands', 'stance', 'stats', 'moves', 'air', 'special', 'counter', 'defs']) if (w[k] == null) w[k] = b[k];
+    // a weapon on another's forms inherits its numbers; the rage art it inherits is the base's original one-beat art
+    // (`baseSpecial`): the cinematic arts belong to Kage's own weapons (67-rage-arts.js)
+    for (const k of ['cls', 'hands', 'stance', 'stats', 'moves', 'air', 'special', 'counter', 'defs']) if (w[k] == null) w[k] = k === 'special' && b.baseSpecial ? b.baseSpecial : k === 'moves' && b.baseMoves ? b.baseMoves : b[k];
   }
 }
 // torso / hip twist for each technique  [wind-up tw, strike tw, follow tw, strike hip]
@@ -318,10 +358,12 @@ const TWIST = {
   p1: [-0.45, -0.1, -0.2, 0.1], p2: [-0.5, 0.85, 0.6, 0.6], p3: [-0.3, 0.45, 0.4, 0.4], rk: [-0.2, 0.35, 0.2, 1.0], hk: [-0.7, -0.6, -0.3, -0.5],
   slide: [-0.4, 0.5, 0.3, 0.8], dp: [-0.5, 0.2, 0.1, 0.3], ap: [-0.3, 0.3, 0.2, 0.2], ak: [-0.4, -0.3, -0.2, -0.3], kunai: [-0.6, 0.7, 0.5, 0.4],
   k1: [-0.7, 0.75, 0.95, 0.45], k2: [0.4, -0.55, -0.7, -0.2], k3: [-0.5, 0.55, 0.4, 0.35], ka: [-0.5, 0.6, 0.6, 0.2], kc: [-0.9, 0.95, 0.8, 0.6],
+  ts1: [-0.7, 0.7, 0.5, 0.35], ts2: [0.6, -0.6, -0.5, -0.3], ts3: [-0.6, 0.6, 0.45, 0.3], ts4: [0.6, -0.55, -0.45, -0.3],
   tw1: [-0.6, 0.6, 0.4, 0.3], tw2: [0.6, -0.5, -0.4, -0.2], tw3: [-0.5, 0.5, 0.3, 0.2], tw4: [0.5, -0.4, -0.3, -0.2], tw5: [-0.6, 0.9, 0.6, 0.6], twa: [-0.4, 0.5, 0.4, 0.2], twc: [-0.8, 0.9, 0.7, 0.5],
   c1: [-0.8, 0.8, 0.95, 0.5], c2: [0.5, -0.6, -0.7, -0.3], c3: [-0.9, 0.9, 1, 0.6], ca: [-0.6, 0.7, 0.7, 0.3],
   s1: [-0.4, 0.55, 0.4, 0.4], s2: [-0.4, 0.5, 0.35, 0.35], s3: [-0.7, 0.9, 0.8, 0.6], sa: [-0.4, 0.5, 0.4, 0.2],
   h1: [-0.6, 0.6, 0.5, 0.3], h2: [-0.7, 0.8, 0.6, 0.4], h3: [0.4, -0.6, -0.5, -0.3], ha: [-0.5, 0.5, 0.4, 0.2],
+  sz1: [-0.85, 0.9, 0.95, 0.55], sz2: [0.4, -0.55, -0.7, -0.2], sz3: [-0.5, 0.6, 0.5, 0.45], sz4: [-0.9, 0.95, 0.3, 0.6], sza: [-0.5, 0.6, 0.6, 0.2], szc: [-0.95, 1, 0.85, 0.65],
   sh1: [-0.85, 0.85, 1, 0.55], sh2: [0.5, -0.65, -0.8, -0.25], sh3: [-0.65, 0.7, 0.55, 0.45], sha: [-0.6, 0.7, 0.7, 0.25], shc: [-0.95, 1, 0.85, 0.65],
   m1: [-0.9, 0.85, 1, 0.6], m2: [0.6, -0.8, -0.9, -0.4], ma: [-0.7, 0.7, 0.8, 0.4], pa1: [-0.8, 0.5, 0.3, 0.4], pa2: [-0.4, 0.6, 0.5, 0.4]
 };
@@ -359,6 +401,26 @@ const MOVES = {};
   }
 })();
 
+/* ---------------- Directional attacks ----------------
+   The W / A / S / D + attack sword arcs (DIR_KEYS, DIR_FORMS, the arc keyframes, swept hitboxes and the moves they
+   build) live in 11-sword-arcs.js, which runs right after this file. */
+
+/* ---------------- Spam read (every foe: regular enemies, sub-bosses and bosses) ----------------
+   Logic.spamRead watches the player's recent actions (FightSession.actions: each attack, dash and jump with its
+   input key). The same key `streak` times running, each within `gap` seconds of the one before (`gaps` per key: a
+   hop and its double jump hang in the air, so jumps may be further apart), is spam; a weapon
+   string counts its whole length plus one press (mashing past the end of the string is spam, finishing it is not).
+   The moment the spammed action starts, the nearest foe that can react reads it (AIController.spamPunish): a red "!",
+   it slips out to Kage's far side (untouchable while it moves), turns and answers with its weapon's counter cut (or its
+   rising launcher if Kage is in the air), under super armour, for `punishMul` damage. Changing direction (W/A/S/D +
+   attack), mixing punch, kick and weapon, or simply pausing breaks the streak.
+   `chance`: on top of the foe's (difficulty-scaled) `punish` tuning, by role; `cd` per foe by role, `sessionCd` between reads. */
+const SPAM_READ = {
+  gap: 1.0, gaps: { jump: 1.7 }, streak: { weapon: 4, punch: 4, kick: 4, air: 4, dash: 3, jump: 4, kunai: 4, dir: 3 },
+  chance: { boss: 0.5, sub: 0.45, regular: 0.15 }, cap: { boss: 1, sub: 1, regular: 0.85 },
+  cd: { boss: 2.4, sub: 2.6, regular: 3.4 }, sessionCd: 1.1, range: 760, react: 0.12, evade: 0.26, behind: 115, hopH: 140, punishMul: 1.35
+};
+
 /* ---------------- Rage specials (I with a full rage meter) ---------------- */
 const SPECIALS = {
   shadowPalm:    { name: 'Shadow Palm', desc: 'A burst of ink that hurls the enemy away.' },
@@ -368,6 +430,15 @@ const SPECIALS = {
   dragonLance:   { name: 'Dragon Lance', desc: 'A dragon-fire lunge across the arena that launches.' },
   reapersHarvest:{ name: "Reaper's Harvest", desc: 'The chain finds the enemy anywhere, drags and slams them.' },
   earthshatter:  { name: 'Earthshatter', desc: 'The ground itself breaks. Every grounded enemy is stunned.' },
+  // Kage's seven cinematic rage arts (67-rage-arts.js): the world freezes for the anticipation, the foe is bound for the
+  // execution, and each ends on its own finisher. All unblockable.
+  crimsonMoon:   { name: 'Crimson Moon', desc: 'A blood moon rises. Three crimson crescent cuts from both sides, then the blade is sheathed and the giant crescent falls through the enemy. Unblockable.' },
+  swallowStorm:  { name: 'Thousand Swallows', desc: 'Strike from eight directions in a blink, leaving lightning afterimages that all strike at once in a lightning X. Unblockable.' },
+  silentMoon:    { name: 'Silent Moon', desc: 'The world goes silent. One unseen draw, a lattice of violet cuts, and they all open as the blade clicks home. Unblockable.' },
+  hellSplitter:  { name: 'Hell Splitter', desc: 'A demon leap and an overhead that splits the ground: fissures race both ways and lava pillars erupt along them. Unblockable.' },
+  waterDragon:   { name: 'Rising Water Dragon', desc: 'The arena floods. A giant water dragon bursts from the spear, coils round the enemy and crashes down on them. Unblockable.' },
+  reaperRequiem: { name: "Reaper's Requiem", desc: 'Darkness falls and three shadow clones rise: they chain the enemy and cut in turn, then two enormous scythe crescents carve down. Unblockable.' },
+  goldenQuake:   { name: 'Golden Earthbreaker', desc: 'Rocks rise and the ground trembles; one slam sends three golden shockwaves racing out. Every grounded enemy is stunned. Unblockable.' },
   thunderSwing:  { name: 'Thunder Swing', desc: 'A wide arc that sends red lightning racing along the ground. Unblockable.' },
   smokeStep:     { name: 'Smoke Step', desc: 'Vanish in a puff of smoke, leave an afterimage behind, and strike from behind the enemy. Unblockable.' },
   echoReplication:{ name: 'Echo Replication', desc: 'A phantom memory-shard copy of Kage replays his most recent landed string on the enemy, harder. Unblockable.' },
@@ -566,40 +637,55 @@ const ENEMIES = {
             hp: 640, def: 0.16, dmg: 1.1, speed: 0.9, build: { scale: 1.24, w: 13.5, arms: 1.04 }, eye: '#ff3b2f', accent: '#ff4a3c',
             flashEyes: 1, heavyArmor: 1, noGrab: 1, longScarf: '#191414', defeat: 'finisher',
             taunt: 'The man who was supposed to stay buried. The archive will not have you.', win: 'Stay buried this time, shadow.',
-            tip: 'Thunder Swing sends red lightning along the ground: jump or dash through it. In his last phase a second wave follows late, so wait for it before you dodge again.',
+            tip: 'Thunder Swing sends red lightning along the ground: jump or dash through it. In his last phase a second wave follows late, so wait for it before you dodge again. Keep your distance and he calls Skyfall: when his blade comes down, move off the red mark before the bolt lands.',
             phases: [
-              { name: 'The Storm Gathers', at: 1, abilities: ['thunderSwing', 'stormBreak'] },
-              { name: 'Redline', at: 0.66, abilities: ['thunderSwing', 'stormBreak', 'redlineCounter'] },
-              { name: 'Lightning Ascendant', at: 0.33, abilities: ['thunderSwing', 'stormBreak', 'redlineCounter'], secondWave: 0.7, aggressive: 1 }
+              { name: 'The Storm Gathers', at: 1, abilities: ['thunderSwing', 'stormBreak', 'skyfall'] },
+              { name: 'Redline', at: 0.66, abilities: ['thunderSwing', 'stormBreak', 'redlineCounter', 'skyfall'] },
+              { name: 'Lightning Ascendant', at: 0.33, abilities: ['thunderSwing', 'stormBreak', 'redlineCounter', 'skyfall'], secondWave: 0.7, aggressive: 1 }
             ] },
   // Akari, the Memory Blade (Act II boss, act2.boss): a former intelligence operative, calm and hard to read. A slim,
   // compact build with a half-mask and tied hair (helmet `akari_mask`), layered light armour with split cloth panels
-  // (her Mei-En Garb), muted violet on charcoal (`body` is her flat fill), and Kagehira & Yūrei. Her moves: AKARI_MOVES.
+  // (her Mei-En Garb), sakura pink on charcoal (`body` is her flat fill), and Kagehira & Yūrei. Her moves: AKARI_MOVES.
   akari: { name: 'Akari', title: 'the Memory Blade', type: 'boss', ai: 'boss', weapon: 'akari_blades', helmet: 'akari_mask', armor: 'mei_en_garb',
-            hp: 600, def: 0.1, dmg: 1.05, speed: 1.12, build: { scale: 1.0, w: 8.8, legs: 1.04, head: 0.98 }, eye: '#c9a8ff', accent: '#9b6bd6', body: '#1d1a22',
+            hp: 600, def: 0.1, dmg: 1.05, speed: 1.12, build: { scale: 1.16, w: 9.4, legs: 1.06, head: 0.96 }, eye: '#ffb3d9', accent: '#ff66b2', body: '#1d1a22',
             flashEyes: 1, noGrab: 1, defeat: 'finisher',
             taunt: 'You walk through these memories like they belong to you.', win: 'Stay lost. It is kinder.',
-            tip: 'A pale copy of her standing open is a False Opening: strike it and the real Akari punishes from behind, so turn as it vanishes. When she crosses her blades before her face, Petal Cross is coming: dash through it or away.',
+            tip: 'Up close she reaps with the scythe; from range its blade flies at you on a chain: jump it or dash through. When petals ring her, watch their paths and jump the low ones. A chain thrown overhead binds: dodge it, or keep your rage full, because only your rage art breaks it. Her kunai are poisoned: block or deflect them, and get out of green mist. Petals gathering on the floor mean a storm is about to rise there: move. A pale copy standing open is a False Opening: turn as it vanishes. In her last phase only the real Akari sheds petals, and when the world goes dark, find the one clear spot on the floor.',
+            // each phase adds new moves and raises her tempo (AIController.checkPhase): speed (movement), cd (cooldowns),
+            // dmg (damage); petal (the colour of her petals and rim light, AKARI_PETALS), eye (her eye glow);
+            // chainBlink (how many blinks Blink chains), stormCount (Petal Storm's storms), volleys (Poison Kunai's),
+            // poisonZones (her storms leave poison mist behind), burstBind / burstCount (Petal Burst throws a Binding
+            // Chain into its storm, with this many petals)
             phases: [
-              { name: 'Quiet Blade', at: 1, abilities: ['twinFang', 'smokeStep'] },
-              { name: 'False Opening', at: 0.66, abilities: ['twinFang', 'smokeStep', 'blink', 'falseOpening'] },
-              { name: 'Petal Cross', at: 0.33, abilities: ['twinFang', 'smokeStep', 'blink', 'falseOpening', 'petalCross'], aggressive: 1, chainBlink: 1 }
+              { name: 'The Silent Assassin', at: 1, abilities: ['twinFang', 'smokeStep', 'blink', 'poisonKunai', 'shadowFlip', 'reapingArc', 'chainReap'],
+                petal: 'violet', tempo: { speed: 1, cd: 1, dmg: 1 } },
+              { name: 'The Crimson Petal', at: 0.66, abilities: ['twinFang', 'smokeStep', 'blink', 'poisonKunai', 'shadowFlip', 'reapingArc', 'chainReap', 'falseOpening', 'petalStorm', 'kunaiFan', 'aerialDive', 'poisonTrap', 'petalBurst'],
+                petal: 'crimson', eye: '#ff5aa8', tempo: { speed: 1.15, cd: 0.85, dmg: 1.12 }, aggressive: 1, chainBlink: 2, stormCount: 2, volleys: 2 },
+              { name: 'The Demon of Petals', at: 0.33, abilities: ['twinFang', 'smokeStep', 'blink', 'poisonKunai', 'shadowFlip', 'reapingArc', 'chainReap', 'falseOpening', 'petalStorm', 'kunaiFan', 'aerialDive', 'poisonTrap', 'petalBurst',
+                'petalCross', 'phantomDash', 'thousandCuts', 'petalTornado', 'mirrorClones', 'demonRequiem', 'chainBind'],
+                petal: 'demon', eye: '#ff1f8e', tempo: { speed: 1.3, cd: 0.7, dmg: 1.25 }, aggressive: 1, chainBlink: 3, stormCount: 3, volleys: 2, poisonZones: 1, burstBind: 1, burstCount: 10 }
             ] },
   // Takashi, the Master's Flow (Act III boss, act3.boss, the Fortress of Silence): the father. Long tied-back hair
   // (`hair`, a cloth tail under the hat), his Kasa, layered dark robes with a waist guard and a small gold family crest
   // (the Shinsei Yoroi, look `shinsei`; wearing it here grants nothing), and a PLAIN blade (takashi_blade), never
-  // Shinsen. Measured, grounded and economical: slower than Kage, heavier cuts, disciplined counters (Guard Return reads spam), and the
-  // family form at his own heavy tempo (`form: 'takashi'`). His moves: TAKASHI_MOVES. He is not killed: he kneels and
-  // escapes (`defeat: 'escape'`).
+  // Shinsen. His moves: TAKASHI_MOVES; his three phases (66-takashi.js draws and runs them):
+  //   1  The Unbroken Guard: his family form, Earth Cleave, golden kunai, Kunai Execution, and the Iron Guard
+  //      (`ironGuard`: a strike Kage has used in his last few moves is parried, TAKASHI_GUARD); only varied combos land
+  //   2  Yashiro Titan (`titan`): he grows to a giant, golden spectral armour forms on his own body and gold fire
+  //      swirls off him (TAKASHI_TITAN: armour, no flinch); his blows take a share of Kage's health and floor him
+  //   3  Tenrai, Heaven's Final Judgment (`huge`, `ironGuard`): the armour is gone but he stays huge, fights with his
+  //      phase 1 kit and Final Flow, and expands his domain: the arena turns gold, a shrine rises behind him, his sword
+  //      goes into the ground and the floor cracks; unless Kage breaks it in time, divine thunder kills him outright
+  // He is not killed: he kneels and escapes (`defeat: 'escape'`).
   takashi: { name: 'Takashi', title: 'the Master\'s Flow', type: 'boss', ai: 'boss', weapon: 'takashi_blade', helmet: 'kasa', armor: 'shinsei_yoroi',
             hp: 680, def: 0.14, dmg: 1.15, speed: 0.92, build: { scale: 1.1, w: 11, legs: 1.02 }, eye: '#ffe6a0', accent: '#e8c25c', body: '#16140f',
             outfit: 'gi', sash: '#4a3c22', hair: '#121110', flashEyes: 1, noGrab: 1, form: 'takashi', defeat: 'escape',
             taunt: 'You carry it like I taught you. Elbows in.', defeatLine: 'Enough. You have made your point.', win: 'Sleep, son. It is kinder.',
-            tip: 'He reads repetition: strike the same way again and again and Guard Return turns it aside and punishes. Vary your attacks. When gold gathers on his blade in his last phase, Final Flow is coming: block the cuts, dodge the last.',
+            tip: 'His guard is unbroken: any strike you used in your last few moves is parried. Only varied combos land: mix punches, kicks, weapon forms, aerials and dashes. Block or jump his golden kunai; a glint before a single kunai means an execution, so do not get pinned. When the Yashiro Titan rises its blows take half your health or more and put you on the ground: jump the low sweep, leave the marked ground, dash through the grasp and the spear, jump the pulse. In his domain the floor cracks under his planted sword: strike him hard before the thunder falls, or it kills you.',
             phases: [
-              { name: 'The Grounded Stance', at: 1, abilities: ['earthCleave', 'guardReturn'] },
-              { name: 'The Father\'s Weight', at: 0.66, abilities: ['earthCleave', 'groundSmash', 'guardReturn'] },
-              { name: 'The Master\'s Flow', at: 0.33, abilities: ['earthCleave', 'groundSmash', 'guardReturn', 'finalFlow'], aggressive: 1 }
+              { name: 'The Unbroken Guard', at: 1, abilities: ['earthCleave', 'goldKunai', 'kunaiExecution', 'guardReturn'], ironGuard: 1 },
+              { name: 'Yashiro Titan', at: 0.66, abilities: ['titanSlash', 'heavenCleaver', 'bladeRain', 'crushingGrasp', 'titanSpear', 'domainPulse'], titan: 1, aggressive: 1 },
+              { name: 'Tenrai: Heaven\'s Final Judgment', at: 0.33, abilities: ['earthCleave', 'goldKunai', 'kunaiExecution', 'guardReturn', 'finalFlow', 'tenraiJudgment'], ironGuard: 1, huge: 1, aggressive: 1 }
             ] },
   // The Witness, Mirror of the Self (final boss, core.witness): Kage's original consciousness, separated and stored in
   // the Echo System. Tall, thin, almost weightless (it hovers); a broken white mask with ONE violet eye (helmet
@@ -820,7 +906,13 @@ for (const id in ENEMIES) ENEMIES[id].id = id;
      stormBreak:     shock (shockwave damage multiplier, Raikon 0.9; 0 = none), shockLife (its reach), reach (strike width)
      redlineCounter: stance (how long the guard is held, Raikon 1 s), punish (delay before the punish cut), unb (1 = the
                      punish breaks guards, as Raikon's does) */
-const RAIKON_ABILITIES = ['thunderSwing', 'stormBreak', 'redlineCounter'];
+const RAIKON_ABILITIES = ['thunderSwing', 'stormBreak', 'redlineCounter', 'skyfall'];
+// Skyfall (BOSS_ABILITIES.skyfall in 40-ai.js; its effect: 38-skyfall.js), Raikon's move against a foe who stays far
+// away: range (he only calls it from this far), charge (seconds he holds his hand up while the mark under his foe follows
+// them and the storm cloud forms, x the mode's windup), fall (seconds from the mark locking to the bolt landing on it:
+// the dodge window), width of the strike, dmg (base damage), zap (seconds a struck foe stays electrified), color (the
+// lightning's colour)
+const RAIKON_SKYFALL = { cd: 7, range: [460, 2400], chance: 0.8, charge: 0.5, fall: 0.5, width: 130, dmg: 21, zap: 1.1, color: '#ff3b2f' };
 const RAIKON_VARIANTS = {
   // Kuroe: a brief, weaker Redline Counter whose punish can be blocked
   censure:        { base: 'redlineCounter', label: 'CENSURE', cd: 7, range: [60, 260], chance: 0.5, stance: 0.7, punish: 0.14, dmg: 0.6, unb: 0 },
@@ -843,14 +935,69 @@ const RAIKON_VARIANTS = {
      dist               how far she repositions (smokeStep, blink; phase flag chainBlink blinks twice)
      afterimages, opacity, hold   falseOpening: the decoy's offset silhouettes, its opacity, how long it stands
      dash, reach        forward speed of twinFang / petalCross; petalCross's cut width */
-const AKARI_ABILITIES = ['twinFang', 'smokeStep', 'blink', 'falseOpening', 'petalCross'];
+const AKARI_ABILITIES = ['twinFang', 'smokeStep', 'blink', 'falseOpening', 'petalCross',
+  'poisonKunai', 'shadowFlip', 'petalStorm', 'kunaiFan', 'aerialDive', 'poisonTrap', 'phantomDash', 'thousandCuts', 'petalTornado', 'mirrorClones', 'demonRequiem',
+  'reapingArc', 'chainReap', 'petalBurst', 'chainBind'];
 const AKARI_MOVES = {
   twinFang:     { label: 'TWIN FANG', cd: 3.2, range: [0, 300], chance: 0.7, windup: 0.42, dmg: [7, 12], dash: 520 },
   smokeStep:    { label: 'SMOKE STEP', cd: 5.5, range: [120, 700], chance: 0.55, windup: 0.36, dmg: 10, dist: 150, smoke: { life: 0.5, radius: 46 } },
   blink:        { label: 'BLINK', cd: 4.2, range: [80, 800], chance: 0.55, windup: 0.32, dist: 230 },
   falseOpening: { label: 'FALSE OPENING', cd: 9, range: [100, 520], chance: 0.6, windup: 0.4, dmg: 15, afterimages: 2, opacity: 0.5, hold: 1.8 },
-  petalCross:   { label: 'PETAL CROSS', cd: 7, range: [120, 520], chance: 0.7, windup: 0.72, dmg: 24, dash: 1100, reach: 190 }
+  petalCross:   { label: 'PETAL CROSS', cd: 7, range: [120, 520], chance: 0.7, windup: 0.72, dmg: 24, dash: 1100, reach: 190 },
+  // Phase 1, The Silent Assassin
+  //   poisonKunai: a fan of count kunai, spread (vertical speed) apart, each poisoning for poison seconds
+  //   shadowFlip:  from up close a backflip dist away (brief i-frames), throwing count poison kunai at the top
+  poisonKunai:  { label: 'POISON KUNAI', cd: 4.2, range: [220, 900], chance: 0.6, windup: 0.36, dmg: 5, count: 3, spread: 150, poison: 1.6 },
+  shadowFlip:   { label: 'SHADOW FLIP', cd: 4.5, range: [0, 170], chance: 0.55, windup: 0.3, dist: 300, dmg: 4, count: 2, poison: 1.2 },
+  // Phase 2, The Crimson Petal
+  //   petalStorm: petals gather on the floor under Kage (and beside him: the phase's stormCount, spacing apart) for
+  //               delay seconds, then a swirling storm radius wide cuts for dur seconds, dmg every tick seconds
+  //   kunaiFan:   a leap and, hanging at the top, count poison kunai rained down in a fan spread radians wide
+  //   aerialDive: a leap high over Kage, a mark on the floor where he stands (hang seconds), then a dive cut onto it
+  //   poisonTrap: count poison traps tossed onto the floor round him, gap apart: they arm after arm seconds, last life
+  //               seconds, and burst into poison mist (poison seconds) under whoever steps within radius
+  petalStorm:   { label: 'PETAL STORM', cd: 8, range: [150, 900], chance: 0.65, windup: 0.55, delay: 0.75, dur: 1.4, radius: 120, tick: 0.25, dmg: 3, spacing: 250 },
+  kunaiFan:     { label: 'KUNAI RAIN', cd: 6, range: [150, 750], chance: 0.55, windup: 0.4, dmg: 4, count: 5, spread: 0.9, poison: 1.2 },
+  aerialDive:   { label: 'FALLING PETAL', cd: 5.5, range: [180, 700], chance: 0.55, windup: 0.42, hang: 0.38, dmg: 16, reach: 150 },
+  poisonTrap:   { label: 'POISON TRAP', cd: 9, range: [100, 800], chance: 0.5, windup: 0.4, count: 3, gap: 110, arm: 0.5, life: 7, dmg: 4, poison: 2.4, radius: 44 },
+  // Phase 3, The Demon of Petals
+  //   phantomDash:  count near-instant dashes through Kage, gap seconds apart (each marked on the floor first), to
+  //                 "through" past him, afterimages along each path
+  //   thousandCuts: up close, hits quick cuts every seconds apart, then a heavy last cut (last damage, knockdown)
+  //   petalTornado: a tornado of petals that spins up beside her and travels toward Kage at speed for dur seconds
+  //   mirrorClones: she splits: count copies with her eyes and blades (one hit breaks one) for life seconds; only the
+  //                 real Akari sheds petals
+  //   demonRequiem: her final ultimate, once, below "at" of her health: blinks blink cuts, a rain of kunai poison
+  //                 kunai, then a petal storm over the whole floor but one clear spot gap wide
+  phantomDash:  { label: 'PHANTOM DASH', cd: 5, range: [100, 700], chance: 0.7, windup: 0.32, count: 3, gap: 0.22, dmg: 7, through: 170 },
+  thousandCuts: { label: 'THOUSAND CUTS', cd: 5.5, range: [0, 220], chance: 0.65, windup: 0.4, hits: 6, every: 0.09, dmg: 3, last: 12 },
+  petalTornado: { label: 'PETAL TORNADO', cd: 10, range: [200, 1200], chance: 0.6, windup: 0.6, speed: 260, dur: 3.2, width: 80, tick: 0.22, dmg: 3 },
+  mirrorClones: { label: 'MIRROR OF PETALS', cd: 14, range: [150, 800], chance: 0.6, windup: 0.5, count: 2, life: 7 },
+  demonRequiem: { label: 'THOUSAND PETAL REQUIEM', cd: 999, range: [0, 2400], chance: 1, windup: 0.8, at: 0.15, blinks: 3, kunai: 8, gap: 200, delay: 0.85, dur: 1.6, dmg: 3, radius: 120 },
+  // Her scythe, every phase: the blade is swung up close and flown on its chain from range (62b-akari-chain.js)
+  //   reapingArc: up close, the scythe drawn back over her shoulder (the tell), then one wide forward sweep `reach`
+  //               long with a step in (`dash`), and a rising return cut: dmg [sweep, return]. Blockable
+  //   chainReap:  from range, a wind-up swing, and the scythe's head flies off its staff on a chain at Kage's chest
+  //               (`speed`, out to `reach`), cuts the first thing it meets (dmg) and is reeled back (`back`).
+  //               Blockable; jump it or dash through it
+  reapingArc:   { label: 'REAPING ARC', cd: 3.4, range: [0, 260], chance: 0.7, windup: 0.44, dmg: [12, 8], reach: 250, dash: 360 },
+  chainReap:    { label: 'CHAIN REAP', cd: 4.6, range: [280, 980], chance: 0.6, windup: 0.5, dmg: 11, speed: 1700, reach: 900, back: 1500 },
+  // Phase 2 on, Petal Burst: the scythe raised, a bloom circle opening under her; `count` blade petals form round her
+  //   (`bloom` s, each one's path across the arena traced faintly on the air), then they swing out one after another
+  //   (`gap` s apart), each in its own wide loop round the whole arena (`lap` s a loop, `fly` s in all) cutting once
+  //   (dmg, blockable) wherever it meets him; then they all come home and burst round her (`burst`, `burstR` wide).
+  //   Phase 3 (phase flag burstBind, burstCount petals): a Binding Chain is thrown into the storm; caught, the petals
+  //   converge on Kage into a lotus and burst ON him (`bindDmg`) unless his rage art breaks the chain first
+  petalBurst:   { label: 'PETAL BURST', cd: 15, range: [0, 1400], chance: 0.6, windup: 0.6, count: 8, bloom: 0.8, gap: 0.12, lap: 2.2, fly: 2.7, dmg: 4, burst: 10, burstR: 240, bindDmg: 40 },
+  // Phase 3, Binding Chain: the chain spun overhead (the tell), then thrown at him (`speed`, out to `reach`): it
+  //   cannot be blocked (a chain wraps a guard), so jump it or dash through it. Caught, he is BOUND for `hold` s: he
+  //   cannot move, guard or attack, and only his rage art (a full rage meter, the special) breaks the chain, which
+  //   leaves her reeling. If he does not break it she reels him in and cuts: `yank` damage and a knockdown
+  chainBind:    { label: 'BINDING CHAIN', cd: 11, range: [200, 880], chance: 0.6, windup: 0.6, speed: 1800, reach: 900, dmg: 4, hold: 2.4, yank: 36 }
 };
+// the colour of her petals and rim light in each phase (the phase's petal): [base, highlight, dark]
+// (keys keep their old names; the colours are all sakura now: pink, hot pink, deep pink)
+const AKARI_PETALS = { violet: ['#ff66b2', '#ffd6ea', '#5a0a32'], crimson: ['#ff3d9a', '#ffc0e0', '#4a0626'], demon: ['#ff1493', '#ff9ccd', '#2a0214'] };
 
 /* Act II's sub-bosses fight with reduced versions of Akari's moves: each AKARI_VARIANTS entry runs its `base` ability's
    code (40-ai.js registers them as BOSS_ABILITIES next to hers) with these numbers merged over AKARI_MOVES[base]. A
@@ -904,13 +1051,58 @@ const FINAL_FLOW = {
      guardReturn: stance (how long the guard is held), unb (1 = the rising cut breaks guards)
    Guard Return reads predictability: Logic.readsPattern(history, moveId) with PATTERN_READ (the same move `streak`
    times running, or at least `share` of the `last` moves once `min` of them are known). */
-const TAKASHI_ABILITIES = ['earthCleave', 'groundSmash', 'guardReturn', 'finalFlow'];
+const TAKASHI_ABILITIES = ['earthCleave', 'groundSmash', 'guardReturn', 'finalFlow',
+  'goldKunai', 'kunaiExecution', 'titanSlash', 'heavenCleaver', 'bladeRain', 'crushingGrasp', 'titanSpear', 'domainPulse', 'tenraiJudgment'];
+/* The redesigned fight (66-takashi.js runs these; the numbers are here). Ground Smash stays for Act III's sub-bosses,
+   the Witness and Hollow Takashi, who borrow it; he no longer uses it himself.
+   Phase 1, The Unbroken Guard (and phase 3)
+     goldKunai       a fan of `count` golden kunai, `spread` radians apart, at `speed`: lethal (`dmg` each), blockable
+     kunaiExecution  a glint, then ONE fast gold kunai (`speed`, `dmg`); if it lands Kage is pinned (`pin` s, he cannot
+                     act) and Takashi steps through the air to him (`step` s) and cuts once (`cut`, a knockdown).
+                     Blocked, jumped or dodged, nothing follows
+   Phase 2, Yashiro Titan: every titan blow is unblockable and knocks Kage down; `pct` is a share of HIS max health
+     titanSlash      the titan's blade drawn back, then one low horizontal sweep `reach` long, `height` tall: jump it
+     heavenCleaver   the titan's blade raised overhead; a band `width` wide marked on the floor under Kage follows him
+                     for `track` of the wind-up, then locks and the blade falls on it: leave the mark
+     bladeRain       `count` giant golden blades marked on the floor (one under Kage, the rest `spacing` apart), each
+                     falling `delay` s after its mark, `gap` s apart, `width` wide (`dmg`)
+     crushingGrasp   the titan's hand sweeps along the floor (`speed`, out to `reach`); caught, Kage is held (`hold` s),
+                     crushed (`pct`) and slammed down. Dash through it or jump it
+     titanSpear      a spear of gold formed and thrown straight across the arena at chest height (`speed`, `dmg`):
+                     dash through it
+     domainPulse     the titan slams the floor: a shockwave runs both ways across the whole arena (`speed`, `dmg`):
+                     jump it
+   Phase 3, Tenrai: Heaven's Final Judgment
+     tenraiJudgment  his domain: the arena turns gold and a shrine rises behind him (and stays); `windup`, then his
+                     sword goes into the ground and the floor cracks for `channel` s (x the mode's windup). Deal
+                     `breakPct` of his max health to him in that time (or land the rage art) and the domain breaks: he
+                     staggers `stagger` s. Otherwise divine thunder falls on Kage and kills him outright. The first
+                     opens the phase; then one every `cd` s */
 const TAKASHI_MOVES = {
   earthCleave: { label: 'EARTH CLEAVE', cd: 4.6, range: [0, 320], chance: 0.65, windup: 0.62, dmg: 18, dash: 620, reach: 200 },
   groundSmash: { label: 'GROUND SMASH', cd: 5.4, range: [0, 300], chance: 0.6, windup: 0.66, dmg: 20, shock: 0.8, shockLife: 0.45, reach: 190 },
   guardReturn: { label: 'GUARD RETURN', cd: 2.6, range: [0, 300], chance: 0.8, windup: 0.14, stance: 0.9, dmg: 18, unb: 1 },
-  finalFlow:   { label: 'FINAL FLOW', cd: 10, range: [0, 340], chance: 0.65, windup: 0.62, dmg: 1.5, unb: 0, unbFinisher: 1 }
+  finalFlow:   { label: 'FINAL FLOW', cd: 10, range: [0, 340], chance: 0.65, windup: 0.62, dmg: 1.5, unb: 0, unbFinisher: 1 },
+  goldKunai:      { label: 'GOLDEN KUNAI', cd: 4.2, range: [200, 950], chance: 0.6, windup: 0.42, count: 3, spread: 0.13, speed: 1350, dmg: 12 },
+  kunaiExecution: { label: 'KUNAI EXECUTION', cd: 9, range: [220, 900], chance: 0.55, windup: 0.6, speed: 1750, dmg: 8, pin: 0.75, step: 0.22, cut: 26 },
+  titanSlash:     { label: 'TITAN SLASH', cd: 5.6, range: [0, 760], chance: 0.7, windup: 0.95, reach: 780, height: 118, pct: 0.5 },
+  heavenCleaver:  { label: 'HEAVEN CLEAVER', cd: 9, range: [0, 1000], chance: 0.6, windup: 1.15, track: 0.5, width: 220, pct: 0.7 },
+  bladeRain:      { label: 'BLADE RAIN', cd: 7.5, range: [0, 1600], chance: 0.6, windup: 0.6, count: 5, spacing: 230, delay: 0.8, gap: 0.16, width: 110, dmg: 18 },
+  crushingGrasp:  { label: 'CRUSHING GRASP', cd: 8, range: [0, 660], chance: 0.6, windup: 0.75, speed: 1500, reach: 680, hold: 1.0, pct: 0.3 },
+  titanSpear:     { label: 'TITAN SPEAR', cd: 8.5, range: [260, 1700], chance: 0.55, windup: 0.85, speed: 1700, dmg: 24 },
+  domainPulse:    { label: 'DOMAIN PULSE', cd: 9.5, range: [0, 1700], chance: 0.55, windup: 0.8, speed: 900, dmg: 16 },
+  tenraiJudgment: { label: 'TENRAI: HEAVEN\'S FINAL JUDGMENT', cd: 26, range: [0, 2400], chance: 1, windup: 0.9, channel: 3.4, breakPct: 0.06, stagger: 2.2 }
 };
+/* The Iron Guard (phase flag `ironGuard`): while he stands his ground and can act, a strike Kage makes from in front
+   of him is parried when its move is among Kage's previous `span` moves (FightSession.history,
+   Logic.ironGuardReads), and any kunai Kage throws is deflected. The parry staggers Kage, and `riposte` of the time
+   Takashi answers it with a quick cut (`dmg`). Only varied combos land.
+   The Yashiro Titan (phase flag `titan`): Takashi himself grows to `scale` x his size over `grow` s while golden
+   spectral armour forms on his body and gold fire swirls off him (titan-armor.js, 66-takashi.js);
+   blows on him do `armor` x their damage and only a knockdown staggers him; a titan blow keeps Kage down `down` s.
+   `huge` is his size in phase 3 (he keeps the titan's size; the armour and fire are gone). */
+const TAKASHI_GUARD = { span: 4, riposte: 0.6, dmg: 12 };
+const TAKASHI_TITAN = { scale: 1.75, huge: 1.75, grow: 1.6, armor: 0.55, down: 1.25 };
 const PATTERN_READ = { last: 8, min: 4, share: 0.5, streak: 3 };
 
 /* Act III's sub-bosses fight with reduced versions of Takashi's moves: each TAKASHI_VARIANTS entry runs its `base`

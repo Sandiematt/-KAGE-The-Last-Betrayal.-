@@ -473,11 +473,15 @@ const InputManager = {
     ctrl.dashP = this.pressed('dash');
     ctrl.specialP = this.pressed('special');
     ctrl.grabP = ctrl.blockHeld && ctrl.punchP;
+    // a fresh press of left / right this tick (-1 / 1): a double tap dashes (Fighter.update)
+    ctrl.tapDir = (this.pressed('right') ? 1 : 0) - (this.pressed('left') ? 1 : 0);
     return ctrl;
   }
 };
 
 function makeCtrl() {
-  return { dir: 0, up: false, jumpP: false, punchP: false, kickP: false, kickHeld: false, kickR: false, weaponP: false, blockHeld: false, blockP: false, dashP: false, specialP: false, grabP: false };
+  return { dir: 0, up: false, jumpP: false, punchP: false, kickP: false, kickHeld: false, kickR: false, weaponP: false, blockHeld: false, blockP: false, dashP: false, specialP: false, grabP: false, tapDir: 0, aim: null };
 }
-function clearCtrlEdges(c) { c.jumpP = c.punchP = c.kickP = c.kickR = c.weaponP = c.blockP = c.dashP = c.specialP = c.grabP = false; }
+// `aim`: a directional form the AI asks for with its weapon press (AIController.press 'w:up'...); the player's comes
+// from the keys held (Fighter.attackDir)
+function clearCtrlEdges(c) { c.jumpP = c.punchP = c.kickP = c.kickR = c.weaponP = c.blockP = c.dashP = c.specialP = c.grabP = false; c.tapDir = 0; c.aim = null; }

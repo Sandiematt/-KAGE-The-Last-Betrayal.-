@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Takashi_Crack",
+  "role": "sustained channel (Tenrai: the planted sword)",
+  "style": "stylized anime combat, additive holy gold over a dark fortress night (and his golden domain), side-view 2D, baked to sheets",
+  "dominant_shape": "the family seal turning round gold cracks that pulse",
+  "palette": {
+    "core": [
+      255,
+      250,
+      232
+    ],
+    "body": [
+      255,
+      186,
+      64
+    ],
+    "dark": [
+      40,
+      22,
+      4
+    ],
+    "matter": [
+      156,
+      132,
+      100
+    ],
+    "accent": [
+      214,
+      118,
+      22
+    ]
+  },
+  "delivery": {
+    "kind": "self"
+  },
+  "anchor": "ground",
+  "reference": {
+    "id": "user reference sheets: Takashi the Father, Yashiro Titan (phase II) and Ogon Musojin / Tenrai domain (phase III)"
+  },
+  "beats": [
+    {
+      "frame": 14,
+      "name": "arrive",
+      "expect": "seal and cracks fade in"
+    },
+    {
+      "frame": 45,
+      "name": "hold",
+      "expect": "cracks pulse, sparks shoot up"
+    },
+    {
+      "frame": 85,
+      "name": "loop",
+      "expect": "no seam"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Seal",
+      "role": "ownership: the family tomoe seal on the floor",
+      "primitive": "decal T_TomoeSeal01",
+      "exit": "gone by absolute f90"
+    },
+    {
+      "name": "1:Cracks",
+      "role": "ground: gold cracks cooling",
+      "primitive": "decal T_Crack01",
+      "exit": "gone by absolute f90"
+    },
+    {
+      "name": "2:Floor light",
+      "role": "a faint band of light on the floor",
+      "primitive": "orbit_band",
+      "exit": "gone by absolute f90"
+    },
+    {
+      "name": "3:Blade glow",
+      "role": "the planted blade glowing",
+      "primitive": "column",
+      "exit": "gone by absolute f90"
+    },
+    {
+      "name": "4:Crack sparks",
+      "role": "surface motion: sparks off the cracks at uneven times",
+      "primitive": "radial_sparks",
+      "exit": "gone by absolute f110"
+    },
+    {
+      "name": "5:Embers",
+      "role": "residue: gold embers rising and hanging",
+      "primitive": "motes",
+      "exit": "gone by absolute f149"
+    }
+  ],
+  "acceptance": [
+    "The cracks pulse instead of flashing",
+    "The seal turns slowly"
+  ],
+  "avoid": [
+    "A steady white blob"
+  ]
+}

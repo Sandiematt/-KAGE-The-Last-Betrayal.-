@@ -14,7 +14,10 @@ const keysOf = (file, objName) => {
   const body = src.slice(start, src.indexOf('\n};', start));
   return [...body.matchAll(/^ {2}([A-Za-z_]+):\s*\{/gm)].map(m => m[1]);
 };
-const BOSS_ABILITIES = keysOf('40-ai.js', 'BOSS_ABILITIES');
+// 40-ai.js declares them; Takashi's redesigned fight registers his into the same table (66-takashi.js)
+const assigned = (file, objName) => { const src = moduleSource(file), start = src.indexOf(`Object.assign(${objName}, {`); if (start < 0) return [];
+  return [...src.slice(start, src.indexOf('\n});', start)).matchAll(/^ {2}([A-Za-z_]+):\s*\{/gm)].map(m => m[1]); };
+const BOSS_ABILITIES = keysOf('40-ai.js', 'BOSS_ABILITIES').concat(assigned('66-takashi.js', 'BOSS_ABILITIES'));
 const ARENAS = keysOf('50-world.js', 'ENVS');
 
 test('every combat stage fights an enemy that exists, of the right weight class; scenes fight nobody', () => {

@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Rage_Gold_Quake",
+  "role": "rage art shockwave (Iwakudaki, Golden Earthbreaker): three per art, larger each time",
+  "style": "stylized anime combat, additive light over a dark arena, side-view 2D, baked to sheets and turned per strike in the game",
+  "dominant_shape": "gold rings racing out along the floor over a rune seal",
+  "palette": {
+    "core": [
+      255,
+      250,
+      228
+    ],
+    "body": [
+      255,
+      181,
+      31
+    ],
+    "dark": [
+      32,
+      20,
+      4
+    ],
+    "matter": [
+      140,
+      116,
+      86
+    ],
+    "accent": [
+      190,
+      110,
+      12
+    ]
+  },
+  "delivery": {
+    "kind": "area"
+  },
+  "anchor": "ground",
+  "reference": {
+    "id": "user request 2026-11-08: Kagetsu crimson moon slashes, Tsubame lightning afterimages, Shizuka purple energy slashes, Onikiri crimson ground-shattering impacts, Mizuchi giant blue water dragon, Yamigama enormous scythe crescents, Iwakudaki golden ground-impact shockwaves"
+  },
+  "beats": [
+    {
+      "frame": 1,
+      "name": "seal",
+      "expect": "the rune seal lights"
+    },
+    {
+      "frame": 2,
+      "name": "contact",
+      "expect": "white contact"
+    },
+    {
+      "frame": 18,
+      "name": "waves",
+      "expect": "three rings one after another"
+    },
+    {
+      "frame": 40,
+      "name": "tail",
+      "expect": "fault eroding, boulders landing"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Dust wall",
+      "role": "matter: a wall of dust",
+      "primitive": "smoke",
+      "exit": "gone by absolute f48"
+    },
+    {
+      "name": "1:Rune seal",
+      "role": "ownership: the golden rune seal under the hammer",
+      "primitive": "decal T_Rune02",
+      "exit": "gone by absolute f54"
+    },
+    {
+      "name": "2:Fault",
+      "role": "ground: the gold fault with a hot rim, eroding",
+      "primitive": "decal T_Crack01",
+      "exit": "gone by absolute f62"
+    },
+    {
+      "name": "3:Contact flash",
+      "role": "contact",
+      "primitive": "flash",
+      "exit": "gone by absolute f7"
+    },
+    {
+      "name": "4:Gold bloom",
+      "role": "light under the hammer",
+      "primitive": "glow",
+      "exit": "gone by absolute f18"
+    },
+    {
+      "name": "5:First wave",
+      "role": "ground: the widest wave racing out",
+      "primitive": "tilted_ring",
+      "exit": "gone by absolute f28"
+    },
+    {
+      "name": "6:Second wave",
+      "role": "a second wave behind it",
+      "primitive": "tilted_ring",
+      "exit": "gone by absolute f34"
+    },
+    {
+      "name": "7:Third wave",
+      "role": "the third, smallest wave",
+      "primitive": "tilted_ring",
+      "exit": "gone by absolute f40"
+    },
+    {
+      "name": "8:Light shaft 1",
+      "role": "short shafts of light standing up off the floor",
+      "primitive": "standing T_Glow01",
+      "exit": "gone by absolute f18"
+    },
+    {
+      "name": "9:Light shaft 2",
+      "role": "short shafts of light standing up off the floor",
+      "primitive": "standing T_Glow01",
+      "exit": "gone by absolute f20"
+    },
+    {
+      "name": "10:Light shaft 3",
+      "role": "short shafts of light standing up off the floor",
+      "primitive": "standing T_Glow01",
+      "exit": "gone by absolute f22"
+    },
+    {
+      "name": "11:Light shaft 4",
+      "role": "short shafts of light standing up off the floor",
+      "primitive": "standing T_Glow01",
+      "exit": "gone by absolute f24"
+    },
+    {
+      "name": "12:Boulders",
+      "role": "matter: heavy boulders thrown up, landing",
+      "primitive": "debris",
+      "exit": "gone by absolute f48"
+    },
+    {
+      "name": "13:Gold chips",
+      "role": "secondary: gold chips flying",
+      "primitive": "radial_sparks",
+      "exit": "gone by absolute f24"
+    },
+    {
+      "name": "14:Gold dust",
+      "role": "residue: gold dust rising and hanging",
+      "primitive": "motes",
+      "exit": "gone by absolute f50"
+    }
+  ],
+  "acceptance": [
+    "The rings run along the floor, never a pillar or a halo",
+    "Heavy matter lands"
+  ],
+  "avoid": [
+    "A recolour of Takashi's holy pulse"
+  ]
+}

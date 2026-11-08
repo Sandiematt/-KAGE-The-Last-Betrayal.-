@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Takashi_Blade_Fall",
+  "role": "targeted boss hazard (Blade Rain, one blade)",
+  "style": "stylized anime combat, additive holy gold over a dark fortress night (and his golden domain), side-view 2D, baked to sheets",
+  "dominant_shape": "a giant gold sword falling point first and standing in the floor",
+  "palette": {
+    "core": [
+      255,
+      250,
+      232
+    ],
+    "body": [
+      255,
+      186,
+      64
+    ],
+    "dark": [
+      40,
+      22,
+      4
+    ],
+    "matter": [
+      156,
+      132,
+      100
+    ],
+    "accent": [
+      214,
+      118,
+      22
+    ]
+  },
+  "delivery": {
+    "kind": "targeted"
+  },
+  "anchor": "ground",
+  "reference": {
+    "id": "user reference sheets: Takashi the Father, Yashiro Titan (phase II) and Ogon Musojin / Tenrai domain (phase III)"
+  },
+  "beats": [
+    {
+      "frame": 4,
+      "name": "mark",
+      "expect": "gold mark on the floor"
+    },
+    {
+      "frame": 16,
+      "name": "fall",
+      "expect": "the sword reads as a sword while falling"
+    },
+    {
+      "frame": 18,
+      "name": "contact",
+      "expect": "white contact, ring, cracks"
+    },
+    {
+      "frame": 40,
+      "name": "tail",
+      "expect": "the blade eaten away, halo rising"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Mark",
+      "role": "anticipation: the mark tightening on the floor",
+      "primitive": "orbit_band",
+      "exit": "gone by absolute f22"
+    },
+    {
+      "name": "1:Falling blade",
+      "role": "main shape: the giant sword falling point first",
+      "primitive": "sprite T_GiantBladeV01",
+      "exit": "gone by absolute f18"
+    },
+    {
+      "name": "2:Fall streak",
+      "role": "speed carrier above the falling sword",
+      "primitive": "sprite T_Streak01",
+      "exit": "gone by absolute f18"
+    },
+    {
+      "name": "3:Contact flash",
+      "role": "contact",
+      "primitive": "flash",
+      "exit": "gone by absolute f22"
+    },
+    {
+      "name": "4:Standing blade",
+      "role": "body: the sword standing in the floor, eaten away",
+      "primitive": "sprite T_GiantBladeV01",
+      "exit": "gone by absolute f62"
+    },
+    {
+      "name": "5:Floor ring",
+      "role": "ground feedback ring",
+      "primitive": "tilted_ring",
+      "exit": "gone by absolute f34"
+    },
+    {
+      "name": "6:Cracks",
+      "role": "ground: gold cracks cooling",
+      "primitive": "decal T_Crack01",
+      "exit": "gone by absolute f74"
+    },
+    {
+      "name": "7:Rising shards",
+      "role": "holy secondary: light shards thrown up",
+      "primitive": "radial_sparks",
+      "exit": "gone by absolute f36"
+    },
+    {
+      "name": "8:Halo",
+      "role": "holy secondary: a halo rising",
+      "primitive": "tilted_ring",
+      "exit": "gone by absolute f47"
+    },
+    {
+      "name": "9:Stone",
+      "role": "matter: stone thrown up, landing",
+      "primitive": "debris",
+      "exit": "gone by absolute f58"
+    },
+    {
+      "name": "10:Dust",
+      "role": "matter: dust",
+      "primitive": "smoke",
+      "exit": "gone by absolute f63"
+    },
+    {
+      "name": "11:Embers",
+      "role": "residue: gold embers rising and hanging",
+      "primitive": "motes",
+      "exit": "gone by absolute f70"
+    }
+  ],
+  "acceptance": [
+    "The falling sword reads as a sword, not a white streak",
+    "It stands in the floor after the hit"
+  ],
+  "avoid": [
+    "A thin needle of light"
+  ]
+}

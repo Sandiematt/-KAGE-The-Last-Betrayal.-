@@ -34,6 +34,12 @@ function stub(name) {
   });
 }
 
+// every .js under src/js, sub-folders included, as forward-slash paths relative to src/js in path order (build.mjs's order)
+function jsFiles() {
+  const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]);
+  return walk(JS_DIR).filter(f => f.endsWith('.js')).map(f => path.relative(JS_DIR, f).split(path.sep).join('/')).sort();
+}
+
 // mulberry32: tiny, fast, good enough for a reproducible stream
 function makeRng(seed) {
   let s = seed >>> 0;
@@ -47,7 +53,7 @@ function makeRng(seed) {
 // opts: { seed, exports: [extra top-level names to return], console: a console replacement }
 function loadSim(opts) {
   const o = opts || {};
-  const files = fs.readdirSync(JS_DIR).filter(f => f.endsWith('.js') && f !== '90-main.js').sort();
+  const files = jsFiles().filter(f => f !== '90-main.js');
   const src = files.map(f => fs.readFileSync(path.join(JS_DIR, f), 'utf8')).join('\n;\n');
   const rng = makeRng(o.seed || 1);
   const SimMath = Object.create(Math);
@@ -74,4 +80,4 @@ function loadSim(opts) {
   return mods;
 }
 
-module.exports = { loadSim, makeRng };
+module.exports = { loadSim, makeRng, jsFiles };

@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Takashi_Titan_Slash",
+  "role": "boss melee (Titan Slash): the arena-wide low sweep",
+  "style": "stylized anime combat, additive holy gold over a dark fortress night (and his golden domain), side-view 2D, baked to sheets",
+  "dominant_shape": "a long, flat gold crescent skimming the floor",
+  "palette": {
+    "core": [
+      255,
+      250,
+      232
+    ],
+    "body": [
+      255,
+      186,
+      64
+    ],
+    "dark": [
+      40,
+      22,
+      4
+    ],
+    "matter": [
+      156,
+      132,
+      100
+    ],
+    "accent": [
+      214,
+      118,
+      22
+    ]
+  },
+  "delivery": {
+    "kind": "melee"
+  },
+  "anchor": "ground",
+  "reference": {
+    "id": "user reference sheets: Takashi the Father, Yashiro Titan (phase II) and Ogon Musojin / Tenrai domain (phase III)"
+  },
+  "beats": [
+    {
+      "frame": 1,
+      "name": "glint",
+      "expect": "blade glint"
+    },
+    {
+      "frame": 7,
+      "name": "contact",
+      "expect": "slice line along the floor, star"
+    },
+    {
+      "frame": 12,
+      "name": "body",
+      "expect": "gold arc sweeping with a white edge"
+    },
+    {
+      "frame": 36,
+      "name": "tail",
+      "expect": "dust wall and embers"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Blade glint",
+      "role": "anticipation: where the blade starts",
+      "primitive": "glow",
+      "exit": "gone by absolute f5"
+    },
+    {
+      "name": "1:Swing plane",
+      "role": "pivot setting the blade arc into its swing plane",
+      "primitive": "swing",
+      "exit": "gone by absolute f24"
+    },
+    {
+      "name": "1:Swing plane/0:Afterimage",
+      "role": "amber motion smear lagging the blade",
+      "primitive": "slash_arc",
+      "exit": "gone by absolute f24"
+    },
+    {
+      "name": "1:Swing plane/1:Blade body",
+      "role": "main shape: saturated gold arc",
+      "primitive": "slash_arc",
+      "exit": "gone by absolute f19"
+    },
+    {
+      "name": "1:Swing plane/2:Hot edge",
+      "role": "core: thin white-hot leading edge",
+      "primitive": "slash_arc",
+      "exit": "gone by absolute f15"
+    },
+    {
+      "name": "2:Floor slice",
+      "role": "release: one long thin line along the floor",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f18"
+    },
+    {
+      "name": "3:Contact flash",
+      "role": "contact",
+      "primitive": "flash",
+      "exit": "gone by absolute f11"
+    },
+    {
+      "name": "4:Gold bloom",
+      "role": "subordinate light under the contact",
+      "primitive": "glow",
+      "exit": "gone by absolute f19"
+    },
+    {
+      "name": "5:Drag sparks",
+      "role": "secondary: sparks dragged behind the blade",
+      "primitive": "radial_sparks",
+      "exit": "gone by absolute f22"
+    },
+    {
+      "name": "6:Stone",
+      "role": "matter: stone thrown up, landing",
+      "primitive": "debris",
+      "exit": "gone by absolute f52"
+    },
+    {
+      "name": "7:Dust wall",
+      "role": "matter: a wall of dust along the cut",
+      "primitive": "smoke",
+      "exit": "gone by absolute f56"
+    },
+    {
+      "name": "8:Scar embers",
+      "role": "residue: embers rising off the scar",
+      "primitive": "motes",
+      "exit": "gone by absolute f70"
+    }
+  ],
+  "acceptance": [
+    "The arc reads as a sweep across the floor, wider than a character",
+    "White only on the leading edge"
+  ],
+  "avoid": [
+    "A small upright crescent"
+  ]
+}

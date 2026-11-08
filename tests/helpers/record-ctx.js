@@ -1,5 +1,5 @@
 // A recording 2D canvas context for drawing tests: every fill and stroke is logged with the colour, alpha and composite
-// mode in force, and every clip() and every even-odd fill (celFill's cel-shade strips, 21-anime-body.js) is counted.
+// mode in force, and every clip() and every even-odd fill (celFill's cel-shade strips, 21-characters/_shared/) is counted.
 // Paths and transforms are accepted and ignored, so any drawing code runs; nothing is rasterised.
 'use strict';
 function recordCtx() {

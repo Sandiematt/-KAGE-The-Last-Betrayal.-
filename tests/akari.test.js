@@ -8,6 +8,10 @@ const { Logic, SCENES, WEAPONS } = loadLogic();
 const clearUpTo = (L, save, id) => { for (const st of L.stages()) { if (st.id === id) break; L.completeStage(save, st.id); } };
 const win = (stageId) => ({ mode: 'campaign', stageId, win: true, ng: 0, hpLeft: 0.5, time: 70, maxCombo: 4, parries: 0, flawless: false });
 const FIVE = ['twinFang', 'smokeStep', 'blink', 'falseOpening', 'petalCross'];
+// her three-phase redesign: the moves each phase introduces
+const NEW = { 1: ['poisonKunai', 'shadowFlip', 'reapingArc', 'chainReap'], 2: ['petalStorm', 'kunaiFan', 'aerialDive', 'poisonTrap', 'petalBurst'],
+  3: ['phantomDash', 'thousandCuts', 'petalTornado', 'mirrorClones', 'demonRequiem', 'chainBind'] };
+const ALL = FIVE.concat(NEW[1], NEW[2], NEW[3]);
 
 test('Akari, the Memory Blade, is the foe of the Act II boss stage', () => {
   const cfg = Logic.stageConfig(Logic.defaultSave(), 'act2.boss');
@@ -17,21 +21,32 @@ test('Akari, the Memory Blade, is the foe of the Act II boss stage', () => {
   assert.equal(cfg.format.name, 'boss');
 });
 
-test('Akari fights in three phases with all five of her moves, escalating to Petal Cross in phase 3', () => {
+test('Akari fights in three phases, each introducing new moves, escalating to Petal Cross and her ultimate in phase 3', () => {
   const phases = Logic.bossPhases('akari');
   assert.equal(phases.length, 3);
   assert.deepEqual(phases.map(p => p.at), [1, 0.66, 0.33]);
-  assert.deepEqual(Logic.bossAbilities('akari').slice().sort(), FIVE.slice().sort());
+  assert.deepEqual(Logic.bossAbilities('akari').slice().sort(), ALL.slice().sort());
   const [p1, p2, p3] = phases;
   assert.ok(p1.abilities.includes('twinFang') && p1.abilities.includes('smokeStep'));
   assert.ok(!p1.abilities.includes('falseOpening') && !p2.abilities.includes('petalCross') && !p1.abilities.includes('petalCross'));
   assert.ok(p2.abilities.includes('falseOpening') && p2.abilities.includes('blink'));
-  for (const a of FIVE) assert.ok(p3.abilities.includes(a), `phase 3 ${a}`);
+  for (const a of ALL) assert.ok(p3.abilities.includes(a), `phase 3 ${a}`);
+  // every phase brings moves the one before did not have, and keeps the ones it had
+  [p1, p2, p3].forEach((p, i) => {
+    for (const a of NEW[i + 1]) assert.ok(p.abilities.includes(a), `phase ${i + 1} introduces ${a}`);
+    if (i) for (const a of [p1, p2][i - 1].abilities) assert.ok(p.abilities.includes(a), `phase ${i + 1} keeps ${a}`);
+    if (i) for (const a of NEW[i + 1]) assert.ok(![p1, p2][i - 1].abilities.includes(a), `${a} is new in phase ${i + 1}`);
+  });
   assert.ok(p1.abilities.length < p2.abilities.length && p2.abilities.length < p3.abilities.length, 'each phase adds moves');
+  // and her tempo rises: faster, shorter cooldowns, harder hits
+  const t = phases.map(p => p.tempo);
+  assert.ok(t[0].speed < t[1].speed && t[1].speed < t[2].speed, 'faster each phase');
+  assert.ok(t[0].cd > t[1].cd && t[1].cd > t[2].cd, 'shorter cooldowns each phase');
+  assert.ok(t[0].dmg < t[1].dmg && t[1].dmg < t[2].dmg, 'harder hits each phase');
 });
 
 test('every Akari move has a readable tell and a call-out', () => {
-  for (const id of FIVE) {
+  for (const id of ALL) {
     const m = Logic.akariMove(id);
     assert.ok(m, id);
     assert.ok(m.windup >= 0.3, `${id} winds up for a readable moment`);

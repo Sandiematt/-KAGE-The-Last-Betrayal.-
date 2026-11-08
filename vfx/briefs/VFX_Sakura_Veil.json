@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Sakura_Veil",
+  "role": "teleport vanish/arrival (Smoke Step, Blink)",
+  "style": "stylized anime combat, glowing additive sakura (Senbonzakura) over a dark night arena, side-view 2D",
+  "dominant_shape": "puff of petals round a blossom",
+  "palette": {
+    "core": [
+      255,
+      246,
+      252
+    ],
+    "body": [
+      255,
+      102,
+      178
+    ],
+    "dark": [
+      70,
+      6,
+      40
+    ],
+    "matter": [
+      255,
+      196,
+      226
+    ],
+    "accent": [
+      255,
+      20,
+      147
+    ]
+  },
+  "delivery": {
+    "kind": "self"
+  },
+  "anchor": "body",
+  "reference": {
+    "id": "gemini_generated_video_9ba223ac.mp4 (user reference: Senbonzakura boss duel)"
+  },
+  "beats": [
+    {
+      "frame": 2,
+      "name": "draw",
+      "expect": "glints rush inward"
+    },
+    {
+      "frame": 5,
+      "name": "pop",
+      "expect": "white pop and the blossom"
+    },
+    {
+      "frame": 14,
+      "name": "body",
+      "expect": "petal puff and torn strands"
+    },
+    {
+      "frame": 44,
+      "name": "tail",
+      "expect": "petals drift down"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Draw in",
+      "role": "anticipation: glints drawn inward",
+      "primitive": "motes",
+      "exit": "gone by absolute f8"
+    },
+    {
+      "name": "1:Vanish pop",
+      "role": "contact: the vanish",
+      "primitive": "flash",
+      "exit": "gone by absolute f8"
+    },
+    {
+      "name": "2:Blossom",
+      "role": "body: blossom marking where she was",
+      "primitive": "sprite T_SakuraBlossom01",
+      "exit": "gone by absolute f19"
+    },
+    {
+      "name": "3:Swirl",
+      "role": "shape change: torn swirling strands",
+      "primitive": "wisps",
+      "exit": "gone by absolute f24"
+    },
+    {
+      "name": "4:Petal puff",
+      "role": "main shape: puff of petals replacing her smoke",
+      "primitive": "sprite T_SakuraPetal01",
+      "exit": "gone by absolute f48"
+    },
+    {
+      "name": "5:Pale puff",
+      "role": "matter: pale petals in the puff",
+      "primitive": "sprite T_SakuraPetal01 Blend",
+      "exit": "gone by absolute f52"
+    }
+  ],
+  "acceptance": [
+    "Reads as petals, not smoke",
+    "The puff stays smaller than about two of her body widths"
+  ],
+  "avoid": [
+    "A grey smoke cloud",
+    "A puff big enough to hide Kage"
+  ]
+}

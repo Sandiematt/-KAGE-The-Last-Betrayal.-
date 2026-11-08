@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Sakura_Burst",
+  "role": "finisher AoE (Requiem end, Thousand Cuts last cut, clone break, phase change)",
+  "style": "stylized anime combat, glowing additive sakura (Senbonzakura) over a dark night arena, side-view 2D",
+  "dominant_shape": "dense radial petal burst with two shock rings",
+  "palette": {
+    "core": [
+      255,
+      246,
+      252
+    ],
+    "body": [
+      255,
+      102,
+      178
+    ],
+    "dark": [
+      70,
+      6,
+      40
+    ],
+    "matter": [
+      255,
+      196,
+      226
+    ],
+    "accent": [
+      255,
+      20,
+      147
+    ]
+  },
+  "delivery": {
+    "kind": "area"
+  },
+  "anchor": "body",
+  "reference": {
+    "id": "gemini_generated_video_9ba223ac.mp4 (user reference: Senbonzakura boss duel)"
+  },
+  "beats": [
+    {
+      "frame": 3,
+      "name": "draw",
+      "expect": "glints drawn in, hot glow shrinking"
+    },
+    {
+      "frame": 6,
+      "name": "contact",
+      "expect": "big white detonation"
+    },
+    {
+      "frame": 14,
+      "name": "body",
+      "expect": "rings expand, blades and petals fly outward"
+    },
+    {
+      "frame": 40,
+      "name": "hang",
+      "expect": "petals hang and start drifting"
+    },
+    {
+      "frame": 90,
+      "name": "clear",
+      "expect": "pale petals settling"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Draw in",
+      "role": "anticipation: glints drawn inward",
+      "primitive": "motes",
+      "exit": "gone by absolute f7"
+    },
+    {
+      "name": "1:Charge",
+      "role": "anticipation: shrinking hot glow",
+      "primitive": "glow",
+      "exit": "gone by absolute f6"
+    },
+    {
+      "name": "2:Detonation flash",
+      "role": "contact",
+      "primitive": "flash",
+      "exit": "gone by absolute f11"
+    },
+    {
+      "name": "3:Pink bloom",
+      "role": "subordinate light under the contact",
+      "primitive": "glow",
+      "exit": "gone by absolute f30"
+    },
+    {
+      "name": "4:Hot ring",
+      "role": "body: white ring cooling to pink",
+      "primitive": "shock_ring",
+      "exit": "gone by absolute f18"
+    },
+    {
+      "name": "5:Pink ring",
+      "role": "body: expanding pink ring",
+      "primitive": "shock_ring",
+      "exit": "gone by absolute f28"
+    },
+    {
+      "name": "6:Flung blades",
+      "role": "signature: crescent blades flung outward",
+      "primitive": "sprite T_PetalBladeV01 DirectionalBillboard",
+      "exit": "gone by absolute f32"
+    },
+    {
+      "name": "7:Petal burst",
+      "role": "main shape: dense petal burst that hangs and drifts",
+      "primitive": "sprite T_SakuraPetal01",
+      "exit": "gone by absolute f68"
+    },
+    {
+      "name": "8:Blossoms",
+      "role": "accent: blossoms popping in the burst",
+      "primitive": "sprite T_SakuraBlossom01",
+      "exit": "gone by absolute f33"
+    },
+    {
+      "name": "9:Glints",
+      "role": "accent: four-point glints",
+      "primitive": "sparkle",
+      "exit": "gone by absolute f25"
+    },
+    {
+      "name": "10:Settling petals",
+      "role": "residue: pale petals settling",
+      "primitive": "sprite T_SakuraPetal01 Blend",
+      "exit": "gone by absolute f92"
+    }
+  ],
+  "acceptance": [
+    "The white contact is gone by f12 and the rings and petals carry the shape after it",
+    "Petals burst fast then hang (eased), then drift down",
+    "Ninety-plus petals visible at f20"
+  ],
+  "avoid": [
+    "A long white screen wash",
+    "Petals moving at constant speed"
+  ]
+}
