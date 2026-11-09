@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Witness_Gravity",
+  "role": "sustained hazard (Gravity Collapse well)",
+  "style": "stylized anime combat, additive void light (the reference sheets' blue, then violet and magenta with gold) over a dark arena, side-view 2D, baked to sheets",
+  "dominant_shape": "a violet accretion band passing in front of a black core",
+  "palette": {
+    "core": [
+      252,
+      246,
+      255
+    ],
+    "body": [
+      146,
+      44,
+      248
+    ],
+    "dark": [
+      12,
+      2,
+      26
+    ],
+    "matter": [
+      128,
+      108,
+      160
+    ],
+    "accent": [
+      90,
+      170,
+      255
+    ]
+  },
+  "delivery": {
+    "kind": "area"
+  },
+  "anchor": "ground",
+  "reference": {
+    "id": "user reference sheets: The Witness, Architect of Echoes, phases I-IV (docs/art-reference/witness-phase-1..4.webp)"
+  },
+  "beats": [
+    {
+      "frame": 10,
+      "name": "arrive",
+      "expect": "bands fade in"
+    },
+    {
+      "frame": 30,
+      "name": "hold",
+      "expect": "strands and motes drawn inward"
+    },
+    {
+      "frame": 55,
+      "name": "loop",
+      "expect": "no seam"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Well glow",
+      "role": "sustained: dim violet glow of the well",
+      "primitive": "glow",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "1:Far band",
+      "role": "far half of the accretion band",
+      "primitive": "orbit_band",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "2:Far band 2",
+      "role": "far half of the accretion band",
+      "primitive": "orbit_band",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "3:Core",
+      "role": "dark: the black core",
+      "primitive": "sprite T_SoftCircle Blend",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "4:Rim",
+      "role": "hot rim round the core",
+      "primitive": "shock_ring",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "5:Near band",
+      "role": "near half of the accretion band, passing in front",
+      "primitive": "orbit_band",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "6:Near band 2",
+      "role": "near half of the accretion band, passing in front",
+      "primitive": "orbit_band",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "7:Inward strands",
+      "role": "motion: strands drawn inward",
+      "primitive": "wisps",
+      "exit": "gone by absolute f73"
+    },
+    {
+      "name": "8:Drawn motes",
+      "role": "motion: motes drawn inward",
+      "primitive": "motes",
+      "exit": "gone by absolute f82"
+    }
+  ],
+  "acceptance": [
+    "The near band passes in front of the core",
+    "Motion reads inward"
+  ],
+  "avoid": [
+    "A camera-facing vortex sticker"
+  ]
+}

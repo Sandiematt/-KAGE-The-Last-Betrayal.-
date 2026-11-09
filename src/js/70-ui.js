@@ -71,6 +71,8 @@ const BOSS_ART = {
 // The art for a boss definition: its own, or its original's for a Core echo (`echoOf`); null when it has none. An
 // image missing from src/img stays an unreplaced __IMG token in the build, which counts as no art.
 const hasBossArt = id => typeof BOSS_ART[id] === 'string' && BOSS_ART[id].startsWith('data:');
+// The Witness's card per phase: cut from the user's four reference sheets (docs/art-reference/witness-phase-1..4.webp)
+const WITNESS_ART = ['__IMG(boss_witness_p1.webp)__', '__IMG(boss_witness_p2.webp)__', '__IMG(boss_witness_p3.webp)__', '__IMG(boss_witness_p4.webp)__'];
 function bossArtFor(def) {
   if (!def) return null;
   const id = hasBossArt(def.id) ? def.id : def.echoOf && hasBossArt(def.echoOf) ? def.echoOf : null;
@@ -701,6 +703,14 @@ const UIManager = {
         <b class="bb-name" data-bname></b>
         <div class="bb-track"><i class="hb-chip"></i><i class="hb-fill"></i><i class="hb-gloss"></i><span data-bdivs></span></div>
       </div>
+      <div class="wit-plate gone" data-wplate aria-hidden="true">
+        <div class="wp-title"><span class="wp-the">The</span><b>Witness<i class="wp-slash"></i></b></div>
+        <div class="wp-sub">Architect of Echoes</div>
+        <div class="wp-phase"><span data-wpnum>Phase I</span></div>
+        <div class="wp-name" data-wpname>The Observer</div>
+        <div class="wp-orn"><i></i><b></b><b class="big"></b><b></b><i></i></div>
+      </div>
+      <div class="wit-mods" data-wmods aria-live="polite"></div>
       <div class="clock ${clockless ? 'gone' : ''}"><b data-timer>--</b><div class="round-pips" data-pips></div></div>
       <div class="hud-road ${stretch ? '' : 'gone'}" data-road><div class="rd-track"><i class="rd-fill"></i><span data-rdmarks></span><b class="rd-kage"></b></div><div class="rd-info" data-rdinfo></div></div>
       <button class="hud-btn hud-pause" data-a="pause" aria-label="Pause">${ICON.pause}</button>
@@ -725,7 +735,8 @@ const UIManager = {
         ename: $('[data-ename]', r), etitle: $('[data-etitle]', r), bname: $('[data-bname]', r), btitle: $('[data-btitle]', r), bdivs: $('[data-bdivs]', r), bart: $('[data-bart]', r),
         road: $('[data-road]', r), rdFill: $('.rd-fill', r), rdKage: $('.rd-kage', r), rdMarks: $('[data-rdmarks]', r), rdInfo: $('[data-rdinfo]', r),
         phases: $('[data-phases]', r), timer: $('[data-timer]', r), pips: $('[data-pips]', r), combo: $('[data-combo]', r), dlg: $('[data-dlg]', r), skip: $('[data-skip]', r), wave: $('[data-wave]', r),
-        pBar: bar($('[data-pp] .hbar-in', r)), eBar: bar($('[data-ep] .hbar-in', r)), bBar: bar($('[data-boss] .bb-track', r))
+        pBar: bar($('[data-pp] .hbar-in', r)), eBar: bar($('[data-ep] .hbar-in', r)), bBar: bar($('[data-boss] .bb-track', r)),
+        wplate: $('[data-wplate]', r), wpnum: $('[data-wpnum]', r), wpname: $('[data-wpname]', r), wmods: $('[data-wmods]', r)
       };
       return this.el;
     },
@@ -747,12 +758,13 @@ const UIManager = {
       if (ec && s.enemy) drawPortrait(ec, s.enemy, true);
     },
     // smooth drain: the fill eases to the new value, the bone chip waits, then follows
-    animBar(b, ratio, dt, els, side) {
-      if (ratio < b.target - 0.001) { b.delay = 0.45; this.hurt(side, Math.round((b.target - ratio) * 1000)); }
+    // o (optional): { delay, fill, chip } for a slower bar (the Witness's long fight)
+    animBar(b, ratio, dt, els, side, o) {
+      if (ratio < b.target - 0.001) { b.delay = o ? o.delay : 0.45; this.hurt(side, Math.round((b.target - ratio) * 1000)); }
       if (ratio > b.target) b.chip = Math.max(b.chip, ratio);
       b.target = ratio;
-      b.v = damp(b.v, ratio, 16, dt);
-      if (b.delay > 0) b.delay -= dt; else b.chip = damp(b.chip, b.v, 5, dt);
+      b.v = damp(b.v, ratio, o ? o.fill : 16, dt);
+      if (b.delay > 0) b.delay -= dt; else b.chip = damp(b.chip, b.v, o ? o.chip : 5, dt);
       b.chip = Math.max(b.chip, b.v);
       if (!els) return;
       els.fill.style.width = (b.v * 100).toFixed(2) + '%';
@@ -769,11 +781,15 @@ const UIManager = {
       if (UIManager.current !== 'hud') return;
       const e = this.q(), p = s.player, en = s.enemy;
       const now = performance.now(), dt = Math.min(0.1, (now - this.last) / 1000); this.last = now;
-      if (en) this.updateFoe(s, e, en, dt);
+      // the Witness's HUD presentation layer (69-witness.js): what to show, including its false readings; the real
+      // health and rage are only ever read here
+      const wv = typeof WitnessHUD !== 'undefined' ? WitnessHUD.view(s) : null, lie = wv && wv.lie;
+      if (wv || this.cache.wit) this.updateWitness(s, e, wv);
+      if (en) this.updateFoe(s, e, en, dt, wv);
       else if (s.isStretch) this.updateRoad(s, e);
-      this.animBar(this.bars.p, clamp(p.hp / p.maxHp, 0, 1), dt, e.pBar, 'p');
+      this.animBar(this.bars.p, lie && lie.p != null ? lie.p : clamp(p.hp / p.maxHp, 0, 1), dt, e.pBar, 'p');
       this.set('plow', p.hp < p.maxHp * 0.25, v => e.pp.classList.toggle('low', v));
-      this.set('phpv', Math.ceil(Math.max(0, p.hp)), v => e.php.textContent = v);
+      this.set('phpv', lie && lie.garble ? -1 : Math.ceil(Math.max(0, p.hp)), v => e.php.textContent = v < 0 ? '???' : v);
       const rage = Math.round(p.rage);
       this.set('rage', rage, v => {
         e.rageFill.style.width = clamp(v, 0, 100) + '%';
@@ -798,7 +814,7 @@ const UIManager = {
       this.set('skip', s.phase === 'intro' || s.phase === 'outro', v => e.skip.style.display = v ? 'block' : 'none');
     },
     // arena: the opponent's panel or boss bar, its phases, the round clock and pips
-    updateFoe(s, e, en, dt) {
+    updateFoe(s, e, en, dt, wv) {
       const bossy = en.def.type !== 'regular';
       this.set('who', en.uid, () => {
         e.ename.textContent = en.name; e.etitle.textContent = en.title; e.bname.textContent = en.name; e.btitle.textContent = en.title;
@@ -809,7 +825,9 @@ const UIManager = {
         const ec = $('#scr-hud canvas[data-portrait="e"]'); if (ec && ec.clientWidth) drawPortrait(ec, en, true);
         this.bossArt(e, bossy ? en : null);
       });
-      this.animBar(this.bars.e, clamp(en.hp / en.maxHp, 0, 1), dt, bossy ? e.bBar : e.eBar, 'e');
+      this.animBar(this.bars.e, wv && wv.lie && wv.lie.e != null ? wv.lie.e : clamp(en.hp / en.maxHp, 0, 1), dt, bossy ? e.bBar : e.eBar, 'e', wv ? { delay: 1.1, fill: 5, chip: 1.4 } : null);
+      // the Witness's card changes with its phase (cut from the user's reference sheets)
+      if (wv) this.set('wart', wv.look, v => { const img = e.bart && $('.bba-img', e.bart), src = WITNESS_ART[v]; if (img && typeof src === 'string' && src.startsWith('data:')) img.setAttribute('src', src); });
       this.set('ehpv', Math.ceil(Math.max(0, en.hp)), v => e.ehp.textContent = v);
       this.set('blow', bossy && en.hp < en.maxHp * 0.25, v => e.bart.classList.toggle('low', v));
       const ph = en.ai && en.ai.phases ? en.ai.phase : -1;
@@ -822,6 +840,25 @@ const UIManager = {
       if (!s.isStretch) this.set('clock', !!(s.format && s.format.timer), v => { const c = e.timer.closest('.clock'); if (c) c.classList.toggle('gone', !v); });
       const n = s.roundsToWin * 2 - 1;
       this.set('pips', `${s.rounds.p}-${s.rounds.e}-${n}`, () => { const arr = []; for (let i = 0; i < s.rounds.p; i++) arr.push('p'); for (let i = 0; i < s.rounds.e; i++) arr.push('e'); while (arr.length < n) arr.push(''); e.pips.innerHTML = arr.map(c => `<i class="${c}"></i>`).join(''); });
+    },
+    // the Witness: its plate (the reference sheets' title block), the phase styling of the whole HUD (stable blue,
+    // segmented and flickering blue, glitching violet, fractured magenta), the input modifiers and locked abilities, the
+    // rage lock, and the glitch while its HUD lies
+    updateWitness(s, e, wv) {
+      const r = $('#scr-hud');
+      this.set('wit', wv ? wv.cls : '', v => { r.classList.remove('wit', 'wit-p1', 'wit-p2', 'wit-p3', 'wit-p4'); if (v) r.classList.add('wit', v); e.wplate.classList.toggle('gone', !v); });
+      if (!wv) { this.set('wmods', '', () => { e.wmods.innerHTML = ''; }); return; }
+      this.set('wpn', wv.look, () => { e.wpnum.textContent = 'Phase ' + wv.numeral; e.wpname.textContent = wv.name; e.wplate.classList.remove('shift'); void e.wplate.offsetWidth; e.wplate.classList.add('shift'); });
+      this.set('wglitch', !!(wv.glitch > 0 || wv.lie || wv.fake), v => r.classList.toggle('wit-glitch', v));
+      this.set('wrage', wv.rageLock, v => e.rage.classList.toggle('locked', v));
+      const LOCKS = ['dash', 'jump', 'block', 'special'], anyLock = LOCKS.some(k => wv.locks[k]) || wv.mods.some(m => m.kind === 'lock');
+      const key = wv.mods.map(m => m.kind + ':' + m.label + (m.warn ? ':w' : '')).join('|') + '/' + LOCKS.filter(k => wv.locks[k]).join(',') + (wv.rageLock ? '/R' : '');
+      this.set('wmods', key, () => {
+        const chips = wv.mods.filter(m => m.kind !== 'lock').map(m => `<span class="wm ${m.warn ? 'warn' : 'on'}">${esc(m.label)}</span>`);
+        if (wv.rageLock) chips.push('<span class="wm on rage">Rage sealed</span>');
+        const locks = anyLock ? `<div class="wl-row">${LOCKS.map(k => `<span class="wl ${wv.locks[k] ? 'off' : ''} ${wv.mods.some(m => m.kind === 'lock' && m.label.toLowerCase().includes(k) && m.warn) ? 'next' : ''}">${k}</span>`).join('')}</div>` : '';
+        e.wmods.innerHTML = chips.join('') + locks;
+      });
     },
     // stretch: how far along the road Kage is, the encounter and clue marks on it, and the foes left in a fight
     updateRoad(s, e) {

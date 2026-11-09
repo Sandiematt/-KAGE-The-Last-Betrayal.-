@@ -1,0 +1,1153 @@
+{
+  "id": "VFX_Witness_Judgment",
+  "name": "Final Judgment",
+  "category": "boss",
+  "element": "void",
+  "duration": 1.9,
+  "loop": false,
+  "attach": "ground",
+  "peak": 0.9,
+  "impact": 1.0,
+  "light": [
+    0.9,
+    0.5,
+    1
+  ],
+  "seed": 1729,
+  "layers": [
+    {
+      "name": "Gather",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        255,
+        236,
+        190,
+        255
+      ],
+      "color_end": [
+        255,
+        246,
+        255,
+        255
+      ],
+      "count": 40,
+      "life": [
+        26,
+        34
+      ],
+      "delay": 18,
+      "interval": 0,
+      "billboard": "Billboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          2.8,
+          3.2
+        ],
+        "rot_x": [
+          -90,
+          90
+        ]
+      },
+      "travel": {
+        "end": [
+          0,
+          [
+            -3.0,
+            -2.2
+          ],
+          0
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "size": [
+        0.06,
+        0.12
+      ],
+      "size_end": 0,
+      "easing": "EaseInCubic",
+      "forces": [
+        {
+          "type": "Turbulence",
+          "power": 0.003,
+          "scale": 5
+        }
+      ],
+      "fade_in": 1,
+      "fade_out": 6,
+      "emissive": 1.5,
+      "position": [
+        0,
+        1.3,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Violet gather",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        240,
+        186,
+        255,
+        255
+      ],
+      "color_end": [
+        255,
+        246,
+        255,
+        255
+      ],
+      "count": 30,
+      "life": [
+        22,
+        28
+      ],
+      "delay": 24,
+      "interval": 0,
+      "billboard": "Billboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          2.2,
+          2.6
+        ],
+        "rot_x": [
+          -90,
+          90
+        ]
+      },
+      "travel": {
+        "end": [
+          0,
+          [
+            -2.4,
+            -1.6
+          ],
+          0
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "size": [
+        0.05,
+        0.1
+      ],
+      "size_end": 0,
+      "easing": "EaseInCubic",
+      "forces": [
+        {
+          "type": "Turbulence",
+          "power": 0.003,
+          "scale": 5
+        }
+      ],
+      "fade_in": 1,
+      "fade_out": 6,
+      "emissive": 1.5,
+      "position": [
+        0,
+        1.3,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Gathering point",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        255,
+        236,
+        190,
+        200
+      ],
+      "life": 54,
+      "delay": 0,
+      "size": 1.4,
+      "size_curve": [
+        [
+          0,
+          0.2
+        ],
+        [
+          90,
+          1
+        ],
+        [
+          100,
+          0.4
+        ]
+      ],
+      "billboard": "Billboard",
+      "fade_in": 10,
+      "fade_out": 2,
+      "position": [
+        0,
+        1.3,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Guide 1",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        240,
+        186,
+        255,
+        120
+      ],
+      "life": 6,
+      "delay": 24,
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale_start": [
+        4.199999999999999,
+        0.25,
+        1
+      ],
+      "scale_end": [
+        13.799999999999999,
+        0.0375,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 4.199999999999999,
+      "emissive": 2.4,
+      "position": [
+        0,
+        1.3,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Guide 2",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        240,
+        186,
+        255,
+        150
+      ],
+      "life": 6,
+      "delay": 36,
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale_start": [
+        4.199999999999999,
+        0.25,
+        1
+      ],
+      "scale_end": [
+        13.799999999999999,
+        0.0375,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 4.199999999999999,
+      "emissive": 2.4,
+      "position": [
+        0,
+        1.3,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Guide 3",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        240,
+        186,
+        255,
+        180
+      ],
+      "life": 6,
+      "delay": 46,
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale_start": [
+        4.199999999999999,
+        0.25,
+        1
+      ],
+      "scale_end": [
+        13.799999999999999,
+        0.0375,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 4.199999999999999,
+      "emissive": 2.4,
+      "position": [
+        0,
+        1.3,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Impact card",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_SoftCircle.png",
+      "color": [
+        0,
+        0,
+        0,
+        235
+      ],
+      "life": 3,
+      "delay": 54,
+      "size": 16,
+      "blend": "Blend",
+      "billboard": "Billboard",
+      "position": [
+        0,
+        1.3,
+        0
+      ],
+      "fade_in": 0,
+      "fade_out": 1,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Alpha.vfxmat.json"
+    },
+    {
+      "name": "Release star",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Flare01.png",
+      "color": [
+        255,
+        246,
+        255,
+        255
+      ],
+      "life": 6,
+      "delay": 54,
+      "size": 4.2,
+      "size_curve": [
+        [
+          0,
+          0.55
+        ],
+        [
+          25,
+          1
+        ],
+        [
+          100,
+          0.15
+        ]
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "fade_in": 0,
+      "fade_out": 3.5999999999999996,
+      "emissive": 1.6,
+      "position": [
+        0,
+        1.3,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Judgment line",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        255,
+        246,
+        255,
+        255
+      ],
+      "life": 22,
+      "delay": 54,
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale_start": [
+        4.8999999999999995,
+        1.5,
+        1
+      ],
+      "scale_end": [
+        16.099999999999998,
+        0.22499999999999998,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 15.399999999999999,
+      "emissive": 2.4,
+      "position": [
+        0,
+        1.3,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Judgment band",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        184,
+        40,
+        255,
+        255
+      ],
+      "life": 26,
+      "delay": 54,
+      "position": [
+        0,
+        1.3,
+        0
+      ],
+      "scale_start": [
+        13,
+        7,
+        1
+      ],
+      "scale_end": [
+        15,
+        1.2,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 18,
+      "emissive": 2.0,
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+      "alpha_scroll": [
+        0.05,
+        0
+      ],
+      "cutoff": {
+        "start": 0,
+        "end": 0.8,
+        "easing": "EaseInQuadratic"
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Release bloom",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        184,
+        40,
+        255,
+        220
+      ],
+      "life": 26,
+      "delay": 54,
+      "size": 8.0,
+      "size_curve": [
+        [
+          0,
+          0.25
+        ],
+        [
+          18,
+          1
+        ],
+        [
+          100,
+          1.25
+        ]
+      ],
+      "billboard": "Billboard",
+      "fade_in": 0,
+      "fade_out": 20.8,
+      "position": [
+        0,
+        1.3,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Gold ray 1",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        255,
+        236,
+        190,
+        255
+      ],
+      "life": 18,
+      "delay": 55,
+      "rotation": [
+        0,
+        0,
+        90
+      ],
+      "scale_start": [
+        0.9099999999999999,
+        0.8750000000000001,
+        1
+      ],
+      "scale_end": [
+        2.9899999999999998,
+        0.13125,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 12.6,
+      "emissive": 2.4,
+      "position": [
+        -5.2,
+        1.5,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Gold ray 2",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        255,
+        236,
+        190,
+        255
+      ],
+      "life": 18,
+      "delay": 56,
+      "rotation": [
+        0,
+        0,
+        90
+      ],
+      "scale_start": [
+        1.015,
+        0.8750000000000001,
+        1
+      ],
+      "scale_end": [
+        3.3349999999999995,
+        0.13125,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 12.6,
+      "emissive": 2.4,
+      "position": [
+        -3.6,
+        1.5,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Gold ray 3",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        255,
+        236,
+        190,
+        255
+      ],
+      "life": 18,
+      "delay": 57,
+      "rotation": [
+        0,
+        0,
+        90
+      ],
+      "scale_start": [
+        1.1199999999999999,
+        0.8750000000000001,
+        1
+      ],
+      "scale_end": [
+        3.6799999999999997,
+        0.13125,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 12.6,
+      "emissive": 2.4,
+      "position": [
+        -2.0,
+        1.5,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Gold ray 4",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        255,
+        236,
+        190,
+        255
+      ],
+      "life": 18,
+      "delay": 55,
+      "rotation": [
+        0,
+        0,
+        90
+      ],
+      "scale_start": [
+        0.9099999999999999,
+        0.8750000000000001,
+        1
+      ],
+      "scale_end": [
+        2.9899999999999998,
+        0.13125,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 12.6,
+      "emissive": 2.4,
+      "position": [
+        -0.6,
+        1.5,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Gold ray 5",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        255,
+        236,
+        190,
+        255
+      ],
+      "life": 18,
+      "delay": 56,
+      "rotation": [
+        0,
+        0,
+        90
+      ],
+      "scale_start": [
+        1.015,
+        0.8750000000000001,
+        1
+      ],
+      "scale_end": [
+        3.3349999999999995,
+        0.13125,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 12.6,
+      "emissive": 2.4,
+      "position": [
+        0.8,
+        1.5,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Gold ray 6",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        255,
+        236,
+        190,
+        255
+      ],
+      "life": 18,
+      "delay": 57,
+      "rotation": [
+        0,
+        0,
+        90
+      ],
+      "scale_start": [
+        1.1199999999999999,
+        0.8750000000000001,
+        1
+      ],
+      "scale_end": [
+        3.6799999999999997,
+        0.13125,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 12.6,
+      "emissive": 2.4,
+      "position": [
+        2.2,
+        1.5,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Gold ray 7",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        255,
+        236,
+        190,
+        255
+      ],
+      "life": 18,
+      "delay": 55,
+      "rotation": [
+        0,
+        0,
+        90
+      ],
+      "scale_start": [
+        0.9099999999999999,
+        0.8750000000000001,
+        1
+      ],
+      "scale_end": [
+        2.9899999999999998,
+        0.13125,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 12.6,
+      "emissive": 2.4,
+      "position": [
+        3.8,
+        1.5,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Gold ray 8",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        255,
+        236,
+        190,
+        255
+      ],
+      "life": 18,
+      "delay": 56,
+      "rotation": [
+        0,
+        0,
+        90
+      ],
+      "scale_start": [
+        1.015,
+        0.8750000000000001,
+        1
+      ],
+      "scale_end": [
+        3.3349999999999995,
+        0.13125,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 12.6,
+      "emissive": 2.4,
+      "position": [
+        5.4,
+        1.5,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Left ring",
+      "renderer": "Ring",
+      "color": [
+        255,
+        196,
+        110,
+        255
+      ],
+      "life": 18,
+      "delay": 56,
+      "billboard": "Billboard",
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "ring": {
+        "outer": [
+          1,
+          0
+        ],
+        "inner": {
+          "start": [
+            0.86,
+            0
+          ],
+          "end": [
+            0.97,
+            0
+          ]
+        },
+        "center_ratio": 0.8,
+        "outer_color": [
+          255,
+          196,
+          110,
+          127
+        ],
+        "center_color": [
+          255,
+          196,
+          110,
+          255
+        ],
+        "inner_color": [
+          255,
+          196,
+          110,
+          0
+        ]
+      },
+      "size": 1.6,
+      "size_curve": [
+        [
+          0,
+          0.12
+        ],
+        [
+          35,
+          0.72
+        ],
+        [
+          100,
+          1
+        ]
+      ],
+      "fade_in": 0,
+      "fade_out": 12.6,
+      "position": [
+        -6.2,
+        1.3,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Right ring",
+      "renderer": "Ring",
+      "color": [
+        255,
+        196,
+        110,
+        255
+      ],
+      "life": 18,
+      "delay": 56,
+      "billboard": "Billboard",
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "ring": {
+        "outer": [
+          1,
+          0
+        ],
+        "inner": {
+          "start": [
+            0.86,
+            0
+          ],
+          "end": [
+            0.97,
+            0
+          ]
+        },
+        "center_ratio": 0.8,
+        "outer_color": [
+          255,
+          196,
+          110,
+          127
+        ],
+        "center_color": [
+          255,
+          196,
+          110,
+          255
+        ],
+        "inner_color": [
+          255,
+          196,
+          110,
+          0
+        ]
+      },
+      "size": 1.6,
+      "size_curve": [
+        [
+          0,
+          0.12
+        ],
+        [
+          35,
+          0.72
+        ],
+        [
+          100,
+          1
+        ]
+      ],
+      "fade_in": 0,
+      "fade_out": 12.6,
+      "position": [
+        6.2,
+        1.3,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Cut source",
+      "renderer": "None",
+      "life": 83,
+      "position": [
+        0,
+        1.3,
+        0
+      ],
+      "children": [
+        {
+          "name": "Cut shards",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Spark01.png",
+          "color": [
+            255,
+            246,
+            255,
+            255
+          ],
+          "color_end": [
+            184,
+            40,
+            255,
+            0
+          ],
+          "count": 34,
+          "life": [
+            18,
+            28
+          ],
+          "delay": 55,
+          "billboard": "DirectionalBillboard",
+          "spawn": {
+            "shape": "Sphere",
+            "radius": [
+              0,
+              1.0
+            ],
+            "rotate": false
+          },
+          "travel": {
+            "end": [
+              [
+                -6.5,
+                6.5
+              ],
+              [
+                -0.6,
+                0.9
+              ],
+              [
+                -0.2,
+                0.2
+              ]
+            ],
+            "easing": "EaseOutCubic"
+          },
+          "scale_start": [
+            0.06,
+            [
+              0.2,
+              0.4
+            ],
+            1
+          ],
+          "scale_end": [
+            0.018,
+            0.04000000000000001,
+            1
+          ],
+          "easing": "EaseInQuadratic",
+          "forces": [],
+          "fade_in": 0,
+          "fade_out": 5,
+          "emissive": 1.5,
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        }
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Hanging glitch",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_GlitchPix01.png",
+      "color": [
+        240,
+        186,
+        255,
+        255
+      ],
+      "count": 16,
+      "life": [
+        16,
+        24
+      ],
+      "delay": 57,
+      "interval": 0,
+      "size": [
+        0.3,
+        0.6
+      ],
+      "billboard": "Billboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          1.65,
+          5.5
+        ],
+        "rotate": false
+      },
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 1.9,
+      "position": [
+        0,
+        1.3,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Settling smoke",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_SmokeSheet01.png",
+      "color": [
+        96,
+        70,
+        130,
+        170
+      ],
+      "color_end": [
+        96,
+        70,
+        130,
+        0
+      ],
+      "count": 8,
+      "life": [
+        40,
+        52
+      ],
+      "delay": 62,
+      "interval": 0,
+      "blend": "Blend",
+      "billboard": "RotatedBillboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0.4,
+          5.6
+        ]
+      },
+      "velocity": [
+        0,
+        [
+          0.005,
+          0.02
+        ],
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        [
+          -180,
+          180
+        ]
+      ],
+      "spin": [
+        0,
+        0,
+        [
+          -0.6,
+          0.6
+        ]
+      ],
+      "size": [
+        0.9,
+        1.4
+      ],
+      "size_end": [
+        1.71,
+        2.6599999999999997
+      ],
+      "easing": "EaseOutCubic",
+      "forces": [
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            -0.0002,
+            0
+          ]
+        }
+      ],
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseTile01.png",
+      "fade_in": 2,
+      "fade_out": 10,
+      "flipbook": {
+        "x": 4,
+        "y": 4,
+        "frame_length": 3,
+        "loop": "Once"
+      },
+      "cutoff": {
+        "start": 0,
+        "end": 0.3,
+        "easing": "EaseInCubic"
+      },
+      "position": [
+        0,
+        1.3,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Alpha.vfxmat.json"
+    }
+  ],
+  "design": "A long gather into a point with a guide line flickering across the arena, then a near-black card and white star, a hair-thin white line the width of the screen over a wide magenta band, gold rays standing up along it and rings racing out at its ends.",
+  "delivery": {
+    "kind": "area"
+  },
+  "screen": {
+    "shake": 1.0,
+    "flash_frames": 2,
+    "flash": "invert",
+    "hitstop": 0.1
+  }
+}

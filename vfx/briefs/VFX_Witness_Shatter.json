@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Witness_Shatter",
+  "role": "phase transitions and the defeat (the body breaking apart)",
+  "style": "stylized anime combat, additive void light (the reference sheets' blue, then violet and magenta with gold) over a dark arena, side-view 2D, baked to sheets",
+  "dominant_shape": "cards and shards blowing out of a cracked core and hanging",
+  "palette": {
+    "core": [
+      246,
+      248,
+      255
+    ],
+    "body": [
+      60,
+      74,
+      255
+    ],
+    "dark": [
+      6,
+      6,
+      28
+    ],
+    "matter": [
+      108,
+      114,
+      168
+    ],
+    "accent": [
+      168,
+      180,
+      255
+    ]
+  },
+  "delivery": {
+    "kind": "self"
+  },
+  "anchor": "body",
+  "reference": {
+    "id": "user reference sheets: The Witness, Architect of Echoes, phases I-IV (docs/art-reference/witness-phase-1..4.webp)"
+  },
+  "beats": [
+    {
+      "frame": 2,
+      "name": "gather",
+      "expect": "motes drawn into the core"
+    },
+    {
+      "frame": 4,
+      "name": "crack",
+      "expect": "white crack in the core"
+    },
+    {
+      "frame": 16,
+      "name": "body",
+      "expect": "cards and shards out, rings"
+    },
+    {
+      "frame": 70,
+      "name": "tail",
+      "expect": "motes lifting"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Core gather",
+      "role": "anticipation: motes drawn into the core",
+      "primitive": "motes",
+      "exit": "gone by absolute f12"
+    },
+    {
+      "name": "1:Core crack",
+      "role": "contact: the core cracking",
+      "primitive": "flash",
+      "exit": "gone by absolute f9"
+    },
+    {
+      "name": "2:Core bloom",
+      "role": "light at the crack",
+      "primitive": "glow",
+      "exit": "gone by absolute f28"
+    },
+    {
+      "name": "3:Core ring",
+      "role": "ring snapping out",
+      "primitive": "shock_ring",
+      "exit": "gone by absolute f22"
+    },
+    {
+      "name": "4:Slow ring",
+      "role": "a slower second ring",
+      "primitive": "shock_ring",
+      "exit": "gone by absolute f42"
+    },
+    {
+      "name": "5:Echo cards",
+      "role": "body: the echo bursting into cards that hang",
+      "primitive": "sprite T_EchoCard01",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "6:Body shards",
+      "role": "body: shards of the body tumbling out and hanging",
+      "primitive": "sprite T_Shard01",
+      "exit": "gone by absolute f54"
+    },
+    {
+      "name": "7:Glitch",
+      "role": "glitch pixels blinking where the shape was",
+      "primitive": "sprite T_GlitchPix01",
+      "exit": "gone by absolute f20"
+    },
+    {
+      "name": "8:Cyan glitch",
+      "role": "accent glitch pixels",
+      "primitive": "sprite T_GlitchPix01",
+      "exit": "gone by absolute f22"
+    },
+    {
+      "name": "9:Lifting motes",
+      "role": "residue: motes lifting off",
+      "primitive": "motes",
+      "exit": "gone by absolute f80"
+    }
+  ],
+  "acceptance": [
+    "Dissolving, not exploding: the pieces slow and hang"
+  ],
+  "avoid": [
+    "A fireball"
+  ]
+}

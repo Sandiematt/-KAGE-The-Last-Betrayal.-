@@ -163,6 +163,27 @@
    "post": "vfx process-texture --size 512 (alpha = luminance)",
    "source": "math mask from vfx/tools/make_takashi_textures.py",
    "prompt": "A Japanese family seal, white on pure black: a thin outer ring, a dashed inner ring and three tomoe commas (mitsudomoe) swirling round the centre. Flat greyscale mask, crisp brush-free vector edges, centred."
+  },
+  {
+   "id": "T_EchoCard01",
+   "size": 256,
+   "post": "vfx process-texture --size 256 (alpha = luminance)",
+   "source": "math mask from vfx/tools/make_witness_textures.py",
+   "prompt": "A tall rectangular tarot-like card, white on pure black: a thin rectangular frame, a short bar near each end and a diamond in the middle, long axis vertical. Flat greyscale mask, crisp vector edges, centred."
+  },
+  {
+   "id": "T_GlitchPix01",
+   "size": 256,
+   "post": "vfx process-texture --size 256 (alpha = luminance)",
+   "source": "math mask from vfx/tools/make_witness_textures.py",
+   "prompt": "A loose cluster of hard-edged square pixels and short horizontal pixel bars of mixed sizes and brightness, white on pure black, like a broken digital signal. Flat greyscale mask, no blur, centred."
+  },
+  {
+   "id": "T_EchoSeal01",
+   "size": 512,
+   "post": "vfx process-texture --size 512 (alpha = luminance)",
+   "source": "math mask from vfx/tools/make_witness_textures.py",
+   "prompt": "A circular magic seal, white on pure black: an outer ring with a band of fine tick marks, a ring of twelve thick segments with gaps, four long spokes at the quarters, an inner double ring and an upward-pointing triangle at the centre. Flat greyscale mask, crisp vector edges, centred."
   }
  ]
 }

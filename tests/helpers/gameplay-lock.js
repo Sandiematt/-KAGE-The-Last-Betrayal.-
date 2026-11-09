@@ -25,7 +25,7 @@ const FIGHTS = [
   { id: 'raikon', stage: 'act1.boss', frames: 2100 },
   { id: 'akari', stage: 'act2.boss', frames: 2100 },
   { id: 'takashi', stage: 'act3.boss', frames: 2100 },
-  { id: 'witness', stage: 'core.witness', frames: 2400 },
+  { id: 'witness', stage: 'core.witness', frames: 2400, dmgMul: 12 },
   // directional attacks and the spam read: Kage at a quarter of his usual damage, so the foe lasts the whole script
   { id: 'forms', cfg: { mode: 'campaign', enemyId: 'order_footman', env: 'highlands', diff: 1, ng: 0 }, frames: 2400, dmgMul: 0.25, order: 'forms' },
   // the perfect dodge: Kage answers the foe's wind-ups by dashing through the blow as it lands (react 'dodge')

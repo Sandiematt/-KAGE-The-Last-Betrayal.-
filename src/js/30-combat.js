@@ -576,7 +576,7 @@ const WeaponSystem = {
   },
   drop(world, f) {
     if (!f.hasWeapon || f.weaponId() === 'fists' || f.baseWeapon === 'storm_orbs' || f.baseWeapon === 'iron_fists') return;
-    if (f.def && f.def.mirrorWeapon) return;   // the Witness's shards cannot be knocked away: they re-form in its hand
+    if (f.def && f.def.witness) return;   // the Witness's greatsword is never knocked out of its hand
     f.hasWeapon = false;
     if (f.state === 'move') { f.move = null; }
     world.pickups.push({ wid: f.baseWeapon, owner: f, x: f.sk.fha.x, y: Math.min(-40, f.sk.fha.y), vx: -f.facing * rand(260, 420), vy: -rand(500, 700), rot: f.wAng, vr: rand(14, 20) * -f.facing, grounded: false, t: 0 });

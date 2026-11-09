@@ -1,0 +1,510 @@
+{
+  "id": "VFX_Witness_Anchor_Break",
+  "name": "Anchor Break",
+  "category": "boss",
+  "element": "void",
+  "duration": 1.0,
+  "loop": false,
+  "attach": "ground",
+  "peak": 0.03333333333333333,
+  "impact": 0.6,
+  "light": [
+    0.9,
+    0.6,
+    1
+  ],
+  "seed": 1729,
+  "layers": [
+    {
+      "name": "Contact star",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Flare01.png",
+      "color": [
+        255,
+        246,
+        255,
+        255
+      ],
+      "life": 4,
+      "delay": 2,
+      "size": 2.0,
+      "size_curve": [
+        [
+          0,
+          0.55
+        ],
+        [
+          25,
+          1
+        ],
+        [
+          100,
+          0.15
+        ]
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "fade_in": 0,
+      "fade_out": 2.4,
+      "emissive": 1.6,
+      "position": [
+        0,
+        1.1,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Break bloom",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        184,
+        40,
+        255,
+        200
+      ],
+      "life": 16,
+      "delay": 2,
+      "size": 3.2,
+      "size_curve": [
+        [
+          0,
+          0.25
+        ],
+        [
+          18,
+          1
+        ],
+        [
+          100,
+          1.25
+        ]
+      ],
+      "billboard": "Billboard",
+      "fade_in": 0,
+      "fade_out": 12.8,
+      "position": [
+        0,
+        1.0,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Gold ring",
+      "renderer": "Ring",
+      "color": [
+        255,
+        196,
+        110,
+        255
+      ],
+      "life": 22,
+      "delay": 2,
+      "billboard": "Fixed",
+      "rotation": [
+        -80,
+        0,
+        0
+      ],
+      "ring": {
+        "outer": [
+          1,
+          0
+        ],
+        "inner": {
+          "start": [
+            0.86,
+            0
+          ],
+          "end": [
+            0.97,
+            0
+          ]
+        },
+        "center_ratio": 0.8,
+        "outer_color": [
+          255,
+          196,
+          110,
+          127
+        ],
+        "center_color": [
+          255,
+          196,
+          110,
+          255
+        ],
+        "inner_color": [
+          255,
+          196,
+          110,
+          0
+        ]
+      },
+      "size": 2.6,
+      "size_curve": [
+        [
+          0,
+          0.12
+        ],
+        [
+          35,
+          0.72
+        ],
+        [
+          100,
+          1
+        ]
+      ],
+      "fade_in": 0,
+      "fade_out": 15.399999999999999,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Release column",
+      "renderer": "Model",
+      "procedural_model": {
+        "Name": "Release column",
+        "Shape/PrimitiveType": "Cylinder",
+        "Shape/Radius": 0.4,
+        "Mesh/Divisions/X": 40,
+        "Mesh/Divisions/Y": 12,
+        "Shape/Depth": 4.4,
+        "Shape/DepthMin": 0,
+        "Shape/DepthMax": 4.4
+      },
+      "color": [
+        240,
+        186,
+        255,
+        200
+      ],
+      "life": 30,
+      "fade_in": 0,
+      "fade_out": 24,
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak02.png",
+      "uv_scroll": [
+        0,
+        -0.08
+      ],
+      "delay": 2,
+      "culling": "Double",
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_GradientV01.png",
+      "alpha_wrap": "Clamp",
+      "falloff": {
+        "begin": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "end": [
+          255,
+          255,
+          255,
+          0
+        ],
+        "pow": 1.6,
+        "blend": "Mul"
+      },
+      "emissive": 2.0,
+      "scale_start": [
+        1,
+        1,
+        1
+      ],
+      "scale_end": [
+        0.3,
+        1,
+        0.3
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Shard source",
+      "renderer": "None",
+      "life": 40,
+      "position": [
+        0,
+        1.0,
+        0
+      ],
+      "children": [
+        {
+          "name": "Crystal shards",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Shard01.png",
+          "color": [
+            240,
+            186,
+            255,
+            255
+          ],
+          "color_end": [
+            184,
+            40,
+            255,
+            0
+          ],
+          "count": 18,
+          "life": [
+            26,
+            38
+          ],
+          "delay": 2,
+          "size": [
+            0.14,
+            0.3
+          ],
+          "rotation": [
+            0,
+            0,
+            [
+              -180,
+              180
+            ]
+          ],
+          "spin": [
+            0,
+            0,
+            [
+              -10,
+              10
+            ]
+          ],
+          "forces": [
+            {
+              "type": "Gravity",
+              "gravity": [
+                0,
+                -0.003,
+                0
+              ]
+            }
+          ],
+          "fade_in": 0,
+          "fade_out": 8,
+          "emissive": 1.7,
+          "spawn": {
+            "shape": "Sphere",
+            "radius": [
+              0,
+              0.4
+            ],
+            "rotate": false
+          },
+          "travel": {
+            "end": [
+              [
+                -1.8,
+                1.8
+              ],
+              [
+                0.2,
+                1.8
+              ],
+              [
+                -0.3,
+                0.3
+              ]
+            ],
+            "easing": "EaseOutCubic"
+          },
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Sparks",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Spark01.png",
+          "color": [
+            255,
+            246,
+            255,
+            255
+          ],
+          "color_end": [
+            255,
+            196,
+            110,
+            0
+          ],
+          "count": 14,
+          "life": [
+            10,
+            16
+          ],
+          "delay": 2,
+          "billboard": "DirectionalBillboard",
+          "spawn": {
+            "shape": "Sphere",
+            "radius": [
+              0,
+              0.08
+            ],
+            "rot_x": [
+              -90,
+              90
+            ]
+          },
+          "travel": {
+            "end": [
+              0,
+              [
+                0.8,
+                1.8
+              ],
+              0
+            ],
+            "easing": "EaseOutQuartic"
+          },
+          "scale_start": [
+            0.05,
+            [
+              0.35,
+              0.7
+            ],
+            1
+          ],
+          "scale_end": [
+            0.015,
+            0.06999999999999999,
+            1
+          ],
+          "easing": "EaseInQuadratic",
+          "forces": [],
+          "fade_in": 0,
+          "fade_out": 5,
+          "emissive": 1.5,
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        }
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Glitch",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_GlitchPix01.png",
+      "color": [
+        240,
+        186,
+        255,
+        255
+      ],
+      "count": 6,
+      "life": [
+        10,
+        14
+      ],
+      "delay": 4,
+      "interval": 0,
+      "size": [
+        0.22,
+        0.4
+      ],
+      "billboard": "Billboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0.27,
+          0.9
+        ],
+        "rotate": false
+      },
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 1.9,
+      "position": [
+        0,
+        1.0,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Gold motes",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        255,
+        236,
+        190,
+        255
+      ],
+      "color_end": [
+        255,
+        196,
+        110,
+        0
+      ],
+      "count": 14,
+      "life": [
+        30,
+        40
+      ],
+      "delay": 8,
+      "interval": 0,
+      "billboard": "Billboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0.2,
+          1.0
+        ],
+        "rot_x": [
+          -90,
+          90
+        ]
+      },
+      "travel": {
+        "end": [
+          0,
+          [
+            0.4,
+            1.2
+          ],
+          0
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "size": [
+        0.05,
+        0.09
+      ],
+      "size_end": 0,
+      "easing": "EaseInCubic",
+      "forces": [
+        {
+          "type": "Turbulence",
+          "power": 0.003,
+          "scale": 5
+        },
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            -0.0005,
+            0
+          ]
+        }
+      ],
+      "fade_in": 1,
+      "fade_out": 6,
+      "emissive": 1.5,
+      "position": [
+        0,
+        1.8,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    }
+  ],
+  "design": "A white contact high on the crystal, violet shards thrown out and falling, a gold ring snapping out along the floor, a column of light shooting up and thinning, gold motes drifting down.",
+  "delivery": {
+    "kind": "area"
+  },
+  "screen": {
+    "shake": 0.4,
+    "flash_frames": 1,
+    "flash": "white",
+    "hitstop": 0.06
+  }
+}

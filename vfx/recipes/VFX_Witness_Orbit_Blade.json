@@ -1,0 +1,292 @@
+{
+  "id": "VFX_Witness_Orbit_Blade",
+  "name": "Orbit Blade",
+  "category": "projectile",
+  "element": "void",
+  "duration": 0.8,
+  "loop": false,
+  "attach": "projectile",
+  "peak": 0.1,
+  "impact": 0,
+  "light": [
+    1,
+    0.85,
+    0.6
+  ],
+  "seed": 1729,
+  "layers": [
+    {
+      "name": "Launch ring",
+      "renderer": "Ring",
+      "color": [
+        168,
+        180,
+        255,
+        255
+      ],
+      "life": 9,
+      "delay": 0,
+      "billboard": "Billboard",
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "ring": {
+        "outer": [
+          1,
+          0
+        ],
+        "inner": {
+          "start": [
+            0.76,
+            0
+          ],
+          "end": [
+            0.97,
+            0
+          ]
+        },
+        "center_ratio": 0.8,
+        "outer_color": [
+          168,
+          180,
+          255,
+          127
+        ],
+        "center_color": [
+          168,
+          180,
+          255,
+          255
+        ],
+        "inner_color": [
+          168,
+          180,
+          255,
+          0
+        ]
+      },
+      "size": 0.3,
+      "size_curve": [
+        [
+          0,
+          0.12
+        ],
+        [
+          35,
+          0.72
+        ],
+        [
+          100,
+          1
+        ]
+      ],
+      "fade_in": 0,
+      "fade_out": 6.3,
+      "inherit": {
+        "location": "WhenCreating",
+        "rotation": "WhenCreating",
+        "scale": "WhenCreating"
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Head glow",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        60,
+        74,
+        255,
+        140
+      ],
+      "life": 6,
+      "delay": 0,
+      "size": 0.55,
+      "size_curve": [
+        [
+          0,
+          0.25
+        ],
+        [
+          18,
+          1
+        ],
+        [
+          100,
+          1.25
+        ]
+      ],
+      "billboard": "Billboard",
+      "fade_in": 1,
+      "fade_out": 3,
+      "infinite": true,
+      "interval": 3,
+      "count": 1,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Head card",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_EchoCard01.png",
+      "color": [
+        246,
+        248,
+        255,
+        255
+      ],
+      "life": 6,
+      "rotation": [
+        0,
+        0,
+        [
+          0,
+          360
+        ]
+      ],
+      "spin": [
+        0,
+        0,
+        -24
+      ],
+      "scale_start": [
+        0.42,
+        0.42,
+        1
+      ],
+      "fade_in": 1,
+      "fade_out": 2,
+      "emissive": 1.9,
+      "infinite": true,
+      "interval": 3,
+      "count": 1,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Streak",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        60,
+        74,
+        255,
+        255
+      ],
+      "color_end": [
+        28,
+        38,
+        170,
+        0
+      ],
+      "life": 10,
+      "scale_start": [
+        0.6,
+        1.9,
+        1
+      ],
+      "scale_end": [
+        0.3,
+        0.5,
+        1
+      ],
+      "easing": "EaseOutCubic",
+      "position": [
+        -0.6,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        90
+      ],
+      "fade_in": 0,
+      "fade_out": 7,
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+      "alpha_scroll": [
+        0.06,
+        0
+      ],
+      "cutoff": {
+        "start": 0.05,
+        "end": 0.7,
+        "easing": "EaseInQuadratic"
+      },
+      "emissive": 2.0,
+      "inherit": {
+        "location": "WhenCreating",
+        "rotation": "WhenCreating",
+        "scale": "WhenCreating"
+      },
+      "infinite": true,
+      "interval": 1,
+      "count": 1,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Hanging cards",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_EchoCard01.png",
+      "color": [
+        168,
+        180,
+        255,
+        200
+      ],
+      "count": 1,
+      "life": [
+        14,
+        20
+      ],
+      "delay": 0,
+      "interval": 3,
+      "size": [
+        0.08,
+        0.12
+      ],
+      "rotation": [
+        0,
+        0,
+        [
+          -35,
+          35
+        ]
+      ],
+      "spin": [
+        0,
+        0,
+        [
+          -1.2,
+          1.2
+        ]
+      ],
+      "billboard": "RotatedBillboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0.06,
+          0.15
+        ],
+        "rotate": false
+      },
+      "fade_in": 1,
+      "fade_out": 6,
+      "emissive": 1.7,
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseTile01.png",
+      "cutoff": {
+        "start": 0,
+        "end": 0.7,
+        "easing": "EaseInCubic"
+      },
+      "inherit": {
+        "location": "WhenCreating",
+        "rotation": "WhenCreating",
+        "scale": "WhenCreating"
+      },
+      "infinite": true,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    }
+  ],
+  "design": "A white-hot echo card spins flat and fast with a blue glow, drawing a long thin blue streak and leaving tiny cards hanging on its path.",
+  "delivery": {
+    "kind": "projectile"
+  },
+  "flight": 0.4
+}

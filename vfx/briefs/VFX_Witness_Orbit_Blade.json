@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Witness_Orbit_Blade",
+  "role": "projectile (Orbit Blades: one halo blade)",
+  "style": "stylized anime combat, additive void light (the reference sheets' blue, then violet and magenta with gold) over a dark arena, side-view 2D, baked to sheets",
+  "dominant_shape": "a spinning echo card with a long thin blue streak",
+  "palette": {
+    "core": [
+      246,
+      248,
+      255
+    ],
+    "body": [
+      60,
+      74,
+      255
+    ],
+    "dark": [
+      6,
+      6,
+      28
+    ],
+    "matter": [
+      108,
+      114,
+      168
+    ],
+    "accent": [
+      168,
+      180,
+      255
+    ]
+  },
+  "delivery": {
+    "kind": "projectile"
+  },
+  "anchor": "projectile",
+  "reference": {
+    "id": "user reference sheets: The Witness, Architect of Echoes, phases I-IV (docs/art-reference/witness-phase-1..4.webp)"
+  },
+  "beats": [
+    {
+      "frame": 2,
+      "name": "launch",
+      "expect": "ring at the halo"
+    },
+    {
+      "frame": 12,
+      "name": "flight",
+      "expect": "the card shape reads"
+    },
+    {
+      "frame": 24,
+      "name": "arrival",
+      "expect": "head released, cards hang"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Launch ring",
+      "role": "launch speed carrier",
+      "primitive": "shock_ring",
+      "exit": "gone by absolute f9"
+    },
+    {
+      "name": "1:Head glow",
+      "role": "head: glow round the card",
+      "primitive": "glow",
+      "exit": "gone by absolute f6"
+    },
+    {
+      "name": "2:Head card",
+      "role": "head: the spinning echo card",
+      "primitive": "sprite T_EchoCard01",
+      "exit": "gone by absolute f6"
+    },
+    {
+      "name": "3:Streak",
+      "role": "trail: long thin blue streak",
+      "primitive": "sprite T_Streak01",
+      "exit": "gone by absolute f10"
+    },
+    {
+      "name": "4:Hanging cards",
+      "role": "trail: tiny cards left hanging",
+      "primitive": "sprite T_EchoCard01",
+      "exit": "gone by absolute f20"
+    }
+  ],
+  "acceptance": [
+    "The card silhouette reads at combat distance"
+  ],
+  "avoid": [
+    "A white glow ball hiding the card"
+  ]
+}

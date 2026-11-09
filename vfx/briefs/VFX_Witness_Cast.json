@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Witness_Cast",
+  "role": "status cast (the Manipulator taking control)",
+  "style": "stylized anime combat, additive void light (the reference sheets' blue, then violet and magenta with gold) over a dark arena, side-view 2D, baked to sheets",
+  "dominant_shape": "an Echo seal flaring before the palm, threads shot at the target",
+  "palette": {
+    "core": [
+      246,
+      248,
+      255
+    ],
+    "body": [
+      60,
+      74,
+      255
+    ],
+    "dark": [
+      6,
+      6,
+      28
+    ],
+    "matter": [
+      108,
+      114,
+      168
+    ],
+    "accent": [
+      168,
+      180,
+      255
+    ]
+  },
+  "delivery": {
+    "kind": "self"
+  },
+  "anchor": "impact",
+  "reference": {
+    "id": "user reference sheets: The Witness, Architect of Echoes, phases I-IV (docs/art-reference/witness-phase-1..4.webp)"
+  },
+  "beats": [
+    {
+      "frame": 6,
+      "name": "gather",
+      "expect": "threads converge on the hand"
+    },
+    {
+      "frame": 14,
+      "name": "release",
+      "expect": "seal open, star, threads shot"
+    },
+    {
+      "frame": 40,
+      "name": "tail",
+      "expect": "seal eroding"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Converging thread 1",
+      "role": "anticipation: threads converging on the hand",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f10"
+    },
+    {
+      "name": "1:Converging thread 2",
+      "role": "anticipation: threads converging on the hand",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f12"
+    },
+    {
+      "name": "2:Converging thread 3",
+      "role": "anticipation: threads converging on the hand",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "3:Converging thread 4",
+      "role": "anticipation: threads converging on the hand",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f16"
+    },
+    {
+      "name": "4:Converging thread 5",
+      "role": "anticipation: threads converging on the hand",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f18"
+    },
+    {
+      "name": "5:Converging thread 6",
+      "role": "anticipation: threads converging on the hand",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f20"
+    },
+    {
+      "name": "6:Gather",
+      "role": "anticipation: motes drawn in",
+      "primitive": "motes",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "7:Palm seal",
+      "role": "main shape: the Echo seal flaring before the palm, eroding",
+      "primitive": "sprite T_EchoSeal01",
+      "exit": "gone by absolute f44"
+    },
+    {
+      "name": "8:Command star",
+      "role": "release",
+      "primitive": "flash",
+      "exit": "gone by absolute f18"
+    },
+    {
+      "name": "9:Command ring",
+      "role": "ring at release",
+      "primitive": "shock_ring",
+      "exit": "gone by absolute f26"
+    },
+    {
+      "name": "10:Command thread 1",
+      "role": "release: long threads shot toward the target",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f28"
+    },
+    {
+      "name": "11:Command thread 2",
+      "role": "release: long threads shot toward the target",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f29"
+    },
+    {
+      "name": "12:Command thread 3",
+      "role": "release: long threads shot toward the target",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f30"
+    },
+    {
+      "name": "13:Blue bloom",
+      "role": "light under the fold",
+      "primitive": "glow",
+      "exit": "gone by absolute f30"
+    }
+  ],
+  "acceptance": [
+    "Reads as a command, not a blast"
+  ],
+  "avoid": [
+    "Sparks thrown like a hit"
+  ]
+}

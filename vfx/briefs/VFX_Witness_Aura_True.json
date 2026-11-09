@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Witness_Aura_True",
+  "role": "sustained status, phase IV (The True Witness)",
+  "style": "stylized anime combat, additive void light (the reference sheets' blue, then violet and magenta with gold) over a dark arena, side-view 2D, baked to sheets",
+  "dominant_shape": "a turning gold-and-violet seal on the floor with gold rising",
+  "palette": {
+    "core": [
+      255,
+      246,
+      255
+    ],
+    "body": [
+      184,
+      40,
+      255
+    ],
+    "dark": [
+      16,
+      2,
+      24
+    ],
+    "matter": [
+      140,
+      110,
+      160
+    ],
+    "accent": [
+      255,
+      196,
+      110
+    ]
+  },
+  "delivery": {
+    "kind": "self"
+  },
+  "anchor": "caster_ground",
+  "reference": {
+    "id": "user reference sheets: The Witness, Architect of Echoes, phases I-IV (docs/art-reference/witness-phase-1..4.webp)"
+  },
+  "beats": [
+    {
+      "frame": 20,
+      "name": "arrive",
+      "expect": "seal and column fade in"
+    },
+    {
+      "frame": 60,
+      "name": "hold",
+      "expect": "seal turning, sparks rising"
+    },
+    {
+      "frame": 110,
+      "name": "loop",
+      "expect": "no seam"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Echo seal",
+      "role": "ownership: the Echo System seal turning on the floor",
+      "primitive": "decal T_EchoSeal01",
+      "exit": "gone by absolute f120"
+    },
+    {
+      "name": "1:Outer seal",
+      "role": "a counter-turning outer seal",
+      "primitive": "decal T_EchoSeal01",
+      "exit": "gone by absolute f120"
+    },
+    {
+      "name": "2:Mantle",
+      "role": "sustained: dim light round the body, never the brightest value",
+      "primitive": "sprite T_Glow01",
+      "exit": "gone by absolute f120"
+    },
+    {
+      "name": "3:Magenta column",
+      "role": "sustained volume: magenta column",
+      "primitive": "column",
+      "exit": "gone by absolute f120"
+    },
+    {
+      "name": "4:Magenta wisps",
+      "role": "shape change: magenta wisps rising",
+      "primitive": "wisps",
+      "exit": "gone by absolute f145"
+    },
+    {
+      "name": "5:Spark source",
+      "role": "pivot for the spark emission",
+      "primitive": "pivot",
+      "exit": "gone by absolute f157"
+    },
+    {
+      "name": "5:Spark source/0:Gold sparks",
+      "role": "secondary: gold sparks shooting up off the seal and hanging",
+      "primitive": "radial_sparks",
+      "exit": "gone by absolute f157"
+    },
+    {
+      "name": "6:Gold stars",
+      "role": "accent: gold star glints",
+      "primitive": "sparkle",
+      "exit": "gone by absolute f25"
+    },
+    {
+      "name": "7:Violet motes",
+      "role": "residue: violet motes rising",
+      "primitive": "motes",
+      "exit": "gone by absolute f172"
+    }
+  ],
+  "acceptance": [
+    "Never the brightest thing on screen; the figure reads through it",
+    "The loop has no visible seam when crossfaded"
+  ],
+  "avoid": [
+    "A flat glowing disc",
+    "Fire flipbook puffs"
+  ]
+}

@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Witness_Orb_Impact",
+  "role": "paired projectile impact (Orb Pulse)",
+  "style": "stylized anime combat, additive void light (the reference sheets' blue, then violet and magenta with gold) over a dark arena, side-view 2D, baked to sheets",
+  "dominant_shape": "rings snapping open in tilted planes, threads whipping out",
+  "palette": {
+    "core": [
+      246,
+      248,
+      255
+    ],
+    "body": [
+      60,
+      74,
+      255
+    ],
+    "dark": [
+      6,
+      6,
+      28
+    ],
+    "matter": [
+      108,
+      114,
+      168
+    ],
+    "accent": [
+      168,
+      180,
+      255
+    ]
+  },
+  "delivery": {
+    "kind": "projectile",
+    "projectile": "VFX_Witness_Orb_Shot"
+  },
+  "anchor": "impact",
+  "reference": {
+    "id": "user reference sheets: The Witness, Architect of Echoes, phases I-IV (docs/art-reference/witness-phase-1..4.webp)"
+  },
+  "beats": [
+    {
+      "frame": 1,
+      "name": "contact",
+      "expect": "white contact"
+    },
+    {
+      "frame": 6,
+      "name": "body",
+      "expect": "rings and threads"
+    },
+    {
+      "frame": 20,
+      "name": "tail",
+      "expect": "motes drawn back in"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Contact star",
+      "role": "contact",
+      "primitive": "flash",
+      "exit": "gone by absolute f5"
+    },
+    {
+      "name": "1:Blue bloom",
+      "role": "light under the fold",
+      "primitive": "glow",
+      "exit": "gone by absolute f13"
+    },
+    {
+      "name": "2:Burst ring",
+      "role": "body: the ring snapping open in its plane",
+      "primitive": "tilted_ring",
+      "exit": "gone by absolute f13"
+    },
+    {
+      "name": "3:Cross ring",
+      "role": "a second ring across it",
+      "primitive": "tilted_ring",
+      "exit": "gone by absolute f15"
+    },
+    {
+      "name": "4:Whip threads",
+      "role": "secondary: threads whipping out and curling",
+      "primitive": "wisps",
+      "exit": "gone by absolute f17"
+    },
+    {
+      "name": "5:Sparks",
+      "role": "secondary: sparks",
+      "primitive": "radial_sparks",
+      "exit": "gone by absolute f15"
+    },
+    {
+      "name": "6:Drawn motes",
+      "role": "motion: motes drawn inward",
+      "primitive": "motes",
+      "exit": "gone by absolute f21"
+    }
+  ],
+  "acceptance": [
+    "Reads as control, not fire"
+  ],
+  "avoid": [
+    "Smoke"
+  ]
+}

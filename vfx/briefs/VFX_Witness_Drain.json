@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Witness_Drain",
+  "role": "sustained status on Kage (Health Drain)",
+  "style": "stylized anime combat, additive void light (the reference sheets' blue, then violet and magenta with gold) over a dark arena, side-view 2D, baked to sheets",
+  "dominant_shape": "life motes and streaks pulled out of him toward the Witness",
+  "palette": {
+    "core": [
+      252,
+      246,
+      255
+    ],
+    "body": [
+      146,
+      44,
+      248
+    ],
+    "dark": [
+      12,
+      2,
+      26
+    ],
+    "matter": [
+      128,
+      108,
+      160
+    ],
+    "accent": [
+      90,
+      170,
+      255
+    ]
+  },
+  "delivery": {
+    "kind": "targeted"
+  },
+  "anchor": "body",
+  "reference": {
+    "id": "user reference sheets: The Witness, Architect of Echoes, phases I-IV (docs/art-reference/witness-phase-1..4.webp)"
+  },
+  "beats": [
+    {
+      "frame": 10,
+      "name": "arrive",
+      "expect": "mantle and first ring"
+    },
+    {
+      "frame": 30,
+      "name": "hold",
+      "expect": "motes streaming away"
+    },
+    {
+      "frame": 55,
+      "name": "loop",
+      "expect": "no seam"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Drain mantle",
+      "role": "sustained: dim violet on Kage",
+      "primitive": "glow",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "1:Tightening ring 1",
+      "role": "a ring tightening round his chest, eroding",
+      "primitive": "tilted_ring",
+      "exit": "gone by absolute f20"
+    },
+    {
+      "name": "2:Tightening ring 2",
+      "role": "a ring tightening round his chest, eroding",
+      "primitive": "tilted_ring",
+      "exit": "gone by absolute f40"
+    },
+    {
+      "name": "3:Tightening ring 3",
+      "role": "a ring tightening round his chest, eroding",
+      "primitive": "tilted_ring",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "4:Pull glint 1",
+      "role": "hot core: a glint as a ring closes",
+      "primitive": "flash",
+      "exit": "gone by absolute f22"
+    },
+    {
+      "name": "5:Pull glint 2",
+      "role": "hot core: a glint as a ring closes",
+      "primitive": "flash",
+      "exit": "gone by absolute f42"
+    },
+    {
+      "name": "6:Drain source",
+      "role": "pivot for the drained life",
+      "primitive": "pivot",
+      "exit": "gone by absolute f28"
+    },
+    {
+      "name": "6:Drain source/0:Life motes",
+      "role": "motion: life motes pulled away toward the Witness",
+      "primitive": "motes",
+      "exit": "gone by absolute f28"
+    },
+    {
+      "name": "6:Drain source/1:Life streaks",
+      "role": "motion: streaks pulled away toward the Witness",
+      "primitive": "radial_sparks",
+      "exit": "gone by absolute f16"
+    }
+  ],
+  "acceptance": [
+    "The motion reads OUT and away"
+  ],
+  "avoid": [
+    "Motes drawn in"
+  ]
+}

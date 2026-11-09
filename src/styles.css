@@ -920,3 +920,70 @@ body { font-family: var(--font-num); }
 .dev-badge { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); z-index: 50; padding: 6px 14px; border: 2px solid #fff;
   background: #d4142a; color: #fff; font: 700 15px/1 "KageUI", system-ui, sans-serif; letter-spacing: .12em; text-transform: uppercase;
   box-shadow: 0 4px 18px rgba(0,0,0,.5); pointer-events: none; white-space: nowrap; }
+
+/* ---- the Witness, Architect of Echoes (69-witness.js WitnessHUD, 70-ui.js updateWitness) ----
+   The title plate of the user's reference sheets (THE WITNESS with its slashed W, ARCHITECT OF ECHOES, the phase
+   ribbon, the phase name, the ornament line), top right; the whole HUD styled per phase: I stable blue, II segmented and
+   flickering blue, III glitching violet-red, IV fractured, pulsing magenta and gold. */
+.wit-plate { position: absolute; right: 2.2rem; top: 1.3rem; width: 17.5rem; text-align: center; color: #f1ecff; font-family: var(--font-display); pointer-events: none;
+  --wp-acc: #4a5cff; --wp-hot: #b8c2ff; text-shadow: 0 2px 8px rgba(0,0,0,.85); }
+.wit-plate.gone { display: none; }
+.wit-plate::before { content: ""; position: absolute; z-index: -1; inset: -.8rem -1.6rem -.6rem; background: radial-gradient(ellipse at 50% 40%, rgba(6,4,18,.72), rgba(6,4,18,0) 72%); }
+.wp-title { line-height: .9; }
+.wp-the { display: block; font-size: 1rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: #ece6ff; }
+.wp-title b { position: relative; display: inline-block; font-size: 2.35rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #fbf8ff; }
+.wp-slash { position: absolute; left: .1rem; top: -.15rem; width: 2.3rem; height: 2px; background: linear-gradient(90deg, rgba(200,35,47,0), #e8323a 40%, #ff7a6a); transform: rotate(-38deg); transform-origin: left center; box-shadow: 0 0 .4rem rgba(232,50,58,.8); translate: .3rem 2.1rem; }
+.wp-sub { margin-top: .2rem; font-size: .78rem; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: #d9d3ef; }
+.wp-phase { margin: .5rem auto .25rem; width: 12rem; }
+.wp-phase span { display: block; padding: .18rem 0 .12rem; font-size: 1.15rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #fff;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--wp-acc) 85%, #fff), var(--wp-acc) 55%, color-mix(in srgb, var(--wp-acc) 55%, #000));
+  border: 1px solid var(--wp-hot); box-shadow: 0 0 .9rem color-mix(in srgb, var(--wp-acc) 70%, transparent), inset 0 0 .5rem rgba(255,255,255,.25);
+  clip-path: polygon(0 0, 100% 0, 94% 50%, 100% 100%, 0 100%, 6% 50%); }
+.wp-name { font-size: 1.25rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #f6f2ff; }
+.wp-orn { display: flex; align-items: center; justify-content: center; gap: .35rem; margin-top: .35rem; }
+.wp-orn i { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--wp-hot)); }
+.wp-orn i:last-child { background: linear-gradient(90deg, var(--wp-hot), transparent); }
+.wp-orn b { width: .38rem; height: .38rem; rotate: 45deg; background: var(--wp-hot); box-shadow: 0 0 .5rem var(--wp-acc); }
+.wp-orn b.big { width: .62rem; height: .62rem; background: transparent; border: 2px solid var(--wp-hot); }
+.wit-plate.shift { animation: wpShift .9s steps(6) 1; }
+@keyframes wpShift { 0% { opacity: 0; transform: translateX(10px) skewX(-8deg); filter: brightness(3); } 40% { opacity: 1; transform: translateX(-6px); } 70% { transform: translateX(3px); } 100% { opacity: 1; transform: none; filter: none; } }
+/* phase I: the Observer's plate is plain and still (no ribbon), the bars the sheet's blue */
+#scr-hud.wit-p1 .wit-plate { --wp-acc: #4a5cff; --wp-hot: #a8b4ff; }
+#scr-hud.wit-p1 .wp-phase span { background: none; border: 0; box-shadow: none; clip-path: none; font-size: 1rem; font-weight: 600; letter-spacing: .4em; color: #c8d0ff; }
+#scr-hud.wit-p2 .wit-plate { --wp-acc: #3b48fd; --wp-hot: #b8c2ff; animation: wpFlicker 3.2s steps(1) infinite; }
+#scr-hud.wit-p3 .wit-plate { --wp-acc: #8a22e8; --wp-hot: #d6a8ff; }
+#scr-hud.wit-p4 .wit-plate { --wp-acc: #a01ee0; --wp-hot: #ffd58a; animation: wpPulse 1.6s ease-in-out infinite; }
+@keyframes wpFlicker { 0%, 100% { opacity: 1; } 61% { opacity: .55; } 62% { opacity: 1; } 87% { opacity: .7; } 88% { opacity: 1; } }
+@keyframes wpPulse { 0%, 100% { filter: drop-shadow(0 0 .2rem rgba(184,40,255,.4)); } 50% { filter: drop-shadow(0 0 .9rem rgba(255,196,110,.7)); } }
+/* the boss bar per phase */
+#scr-hud.wit .boss-bar .bb-name { text-shadow: 0 3px 10px #000, 0 0 1.2rem rgba(74,92,255,.55); }
+#scr-hud.wit .bb-phases i { border-color: #8090ff; }
+#scr-hud.wit .bb-phases i.on { background: #5b6bff; box-shadow: 0 0 .6rem rgba(91,107,255,.9); }
+#scr-hud.wit .bb-phases em { color: #a8b4ff; }
+#scr-hud.wit .bb-track .hb-fill { background: linear-gradient(180deg, #a8b4ff 0%, #4a5cff 40%, #1c268f 100%); box-shadow: 0 0 .8rem rgba(74,92,255,.6); }
+#scr-hud.wit-p2 .bb-track .hb-fill { background: repeating-linear-gradient(90deg, #6f80ff 0 calc(12.5% - 3px), #0b0d26 calc(12.5% - 3px) 12.5%), linear-gradient(180deg, #b8c2ff, #3b48fd 50%, #1a22a8); background-blend-mode: multiply; animation: wbFlicker 2.4s steps(1) infinite; }
+#scr-hud.wit-p3 .bb-track .hb-fill { background: linear-gradient(180deg, #e6a8ff 0%, #922cf8 38%, #8a1838 100%); box-shadow: 0 0 .8rem rgba(170,40,200,.65); }
+#scr-hud.wit-p3 .bb-phases i.on, #scr-hud.wit-p4 .bb-phases i.on { background: #b828ff; box-shadow: 0 0 .6rem rgba(184,40,255,.9); }
+#scr-hud.wit-p4 .bb-track .hb-fill { background: linear-gradient(180deg, #ffe0a0 0%, #c040ff 34%, #5a0a8a 100%); animation: wbPulse 1.3s ease-in-out infinite; }
+#scr-hud.wit-p4 .bb-track { clip-path: polygon(.6rem 0, 22% 0, 23% 40%, 24% 0, 61% 0, 62% 55%, 63% 0, calc(100% - .6rem) 0, 100% 50%, calc(100% - .6rem) 100%, 44% 100%, 43% 50%, 42% 100%, .6rem 100%, 0 50%); }
+@keyframes wbFlicker { 0%, 100% { opacity: 1; } 33% { opacity: .78; } 34% { opacity: 1; } 71% { opacity: .85; } 72% { opacity: 1; } }
+@keyframes wbPulse { 0%, 100% { box-shadow: 0 0 .5rem rgba(184,40,255,.5); } 50% { box-shadow: 0 0 1.4rem rgba(255,196,110,.85); } }
+/* a lying HUD: slices jump, colours split (phase III-IV, the False Death) */
+#scr-hud.wit-glitch .fp, #scr-hud.wit-glitch .wit-plate, #scr-hud.wit-glitch .boss-bar .bb-track { animation: hudGlitch .22s steps(2) infinite; }
+@keyframes hudGlitch { 0% { translate: 0 0; filter: none; } 25% { translate: -5px 1px; filter: hue-rotate(60deg) saturate(2); clip-path: inset(10% 0 40% 0); }
+  50% { translate: 4px -1px; filter: hue-rotate(-40deg); clip-path: inset(50% 0 5% 0); } 75% { translate: -2px 0; filter: invert(.15); clip-path: none; } 100% { translate: 0 0; filter: none; } }
+/* the input modifiers and the locked abilities (the InputModifierLayer, Null Protocol), the rage seal */
+.wit-mods { position: absolute; left: 50%; top: 5.4rem; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: .3rem; pointer-events: none; font-family: var(--font-ui); }
+.wit-mods .wm { display: inline-block; padding: .15rem .8rem; border: 1px solid #a8b4ff; background: rgba(10,12,40,.82); color: #e8ecff; font-size: 1rem; letter-spacing: .18em; text-transform: uppercase; box-shadow: 0 0 .8rem rgba(74,92,255,.5); }
+.wit-mods .wm.warn { animation: wmWarn .3s steps(2) infinite; border-style: dashed; }
+.wit-mods .wm.rage { border-color: #ffd58a; color: #ffe6b0; box-shadow: 0 0 .8rem rgba(255,196,110,.45); }
+#scr-hud.wit-p3 .wit-mods .wm, #scr-hud.wit-p4 .wit-mods .wm { border-color: #d6a8ff; box-shadow: 0 0 .8rem rgba(184,40,255,.5); }
+@keyframes wmWarn { 50% { opacity: .35; } }
+.wl-row { display: flex; gap: .4rem; }
+.wl-row .wl { padding: .1rem .55rem; border: 1px solid rgba(255,255,255,.35); color: #f1ecff; font-size: .9rem; letter-spacing: .14em; text-transform: uppercase; background: rgba(8,6,20,.75); }
+.wl-row .wl.next { border-color: #ffd58a; animation: wmWarn .3s steps(2) infinite; }
+.wl-row .wl.off { color: #ff8a9a; border-color: #ff4a6a; background: rgba(40,4,14,.85); text-decoration: line-through; }
+.rbar.locked .rb-fill { filter: grayscale(1) brightness(.55); }
+.rbar.locked .rb-ic { color: #a8b4ff; }
+.rbar.locked .rbar-in { box-shadow: inset 0 0 0 1px #a8b4ff, 0 0 .6rem rgba(74,92,255,.6); }
+@media (max-width: 900px) { .wit-plate { right: .8rem; top: .6rem; transform: scale(.72); transform-origin: top right; } .wit-mods { top: 4.2rem; } }

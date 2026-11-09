@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Witness_Aura_Observer",
+  "role": "sustained status round the Witness, phase I (The Observer)",
+  "style": "stylized anime combat, additive void light (the reference sheets' blue, then violet and magenta with gold) over a dark arena, side-view 2D, baked to sheets",
+  "dominant_shape": "slow pale-blue curls rising round the body",
+  "palette": {
+    "core": [
+      246,
+      248,
+      255
+    ],
+    "body": [
+      60,
+      74,
+      255
+    ],
+    "dark": [
+      6,
+      6,
+      28
+    ],
+    "matter": [
+      108,
+      114,
+      168
+    ],
+    "accent": [
+      168,
+      180,
+      255
+    ]
+  },
+  "delivery": {
+    "kind": "self"
+  },
+  "anchor": "caster_ground",
+  "reference": {
+    "id": "user reference sheets: The Witness, Architect of Echoes, phases I-IV (docs/art-reference/witness-phase-1..4.webp)"
+  },
+  "beats": [
+    {
+      "frame": 20,
+      "name": "arrive",
+      "expect": "mantle and floor light fade in"
+    },
+    {
+      "frame": 60,
+      "name": "hold",
+      "expect": "curls turning, a card drifting"
+    },
+    {
+      "frame": 110,
+      "name": "loop",
+      "expect": "no seam"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Mantle",
+      "role": "sustained: dim light round the body, never the brightest value",
+      "primitive": "sprite T_Glow01",
+      "exit": "gone by absolute f120"
+    },
+    {
+      "name": "1:Floor light",
+      "role": "a faint band of light on the floor",
+      "primitive": "orbit_band",
+      "exit": "gone by absolute f120"
+    },
+    {
+      "name": "2:Curls",
+      "role": "shape change: slow curls rising and turning (the reference smoke curls)",
+      "primitive": "wisps",
+      "exit": "gone by absolute f150"
+    },
+    {
+      "name": "3:Drifting cards",
+      "role": "secondary: echo cards drifting at arm length",
+      "primitive": "sprite T_EchoCard01",
+      "exit": "gone by absolute f136"
+    },
+    {
+      "name": "4:Rising motes",
+      "role": "residue: motes lifting and hanging",
+      "primitive": "motes",
+      "exit": "gone by absolute f175"
+    },
+    {
+      "name": "5:Star glint",
+      "role": "accent: the star in its eye, now and then",
+      "primitive": "sparkle",
+      "exit": "gone by absolute f26"
+    }
+  ],
+  "acceptance": [
+    "Never the brightest thing on screen; the figure reads through it",
+    "The loop has no visible seam when crossfaded"
+  ],
+  "avoid": [
+    "A flat glowing disc",
+    "Fire flipbook puffs"
+  ]
+}

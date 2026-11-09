@@ -285,6 +285,13 @@ const AudioManager = {
         this.tone({ type: 'sawtooth', f0: 82, f1: 61, dur: 2.4, vol: 0.12, lp: 420, attack: 0.3, detune: 8 });
         for (let i = 0; i < 3; i++) this.tone({ type: 'sine', f0: 110, f1: 38, dur: 0.5, vol: 0.8, delay: i * 0.42 });
         break;
+      case 'drop':
+        // the orchestral drop after Echo Genesis's silence (the Witness's domain): a low brass-like chord swelling in
+        // under a timpani hit and a high string shimmer
+        for (const [f0, v] of [[55, 0.22], [82.4, 0.16], [110, 0.12], [130.8, 0.08], [164.8, 0.06]]) this.tone({ type: 'sawtooth', f0, f1: f0 * 0.98, dur: 3.2, vol: v, lp: 900, attack: 0.08 });
+        this.tone({ type: 'sine', f0: 70, f1: 30, dur: 0.9, vol: 1 });
+        for (let i = 0; i < 4; i++) this.tone({ type: 'triangle', f0: 659 * (i % 2 ? 1.5 : 1), dur: 1.6, vol: 0.03, delay: 0.12 + i * 0.06, detune: 6 });
+        break;
       case 'round':
         this.tone({ type: 'sine', f0: 100, f1: 40, dur: 0.5, vol: 0.7 });
         this.tone({ type: 'triangle', f0: 660, dur: 0.6, vol: 0.06, delay: 0.05 });

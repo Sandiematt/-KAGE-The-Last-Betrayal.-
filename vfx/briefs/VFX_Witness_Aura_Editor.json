@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Witness_Aura_Editor",
+  "role": "sustained status, phase III (The Reality Editor)",
+  "style": "stylized anime combat, additive void light (the reference sheets' blue, then violet and magenta with gold) over a dark arena, side-view 2D, baked to sheets",
+  "dominant_shape": "hard violet and cyan glitch pixels blinking round a violet column",
+  "palette": {
+    "core": [
+      252,
+      246,
+      255
+    ],
+    "body": [
+      146,
+      44,
+      248
+    ],
+    "dark": [
+      12,
+      2,
+      26
+    ],
+    "matter": [
+      128,
+      108,
+      160
+    ],
+    "accent": [
+      90,
+      170,
+      255
+    ]
+  },
+  "delivery": {
+    "kind": "self"
+  },
+  "anchor": "caster_ground",
+  "reference": {
+    "id": "user reference sheets: The Witness, Architect of Echoes, phases I-IV (docs/art-reference/witness-phase-1..4.webp)"
+  },
+  "beats": [
+    {
+      "frame": 10,
+      "name": "arrive",
+      "expect": "column fades in"
+    },
+    {
+      "frame": 30,
+      "name": "hold",
+      "expect": "glitch pixels blink with no motion"
+    },
+    {
+      "frame": 55,
+      "name": "loop",
+      "expect": "no seam"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Mantle",
+      "role": "sustained: dim light round the body, never the brightest value",
+      "primitive": "sprite T_Glow01",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "1:Broken seal",
+      "role": "ownership: a violet seal on the floor",
+      "primitive": "decal T_EchoSeal01",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "2:Seal pixels",
+      "role": "the seal broken by glitch pixels",
+      "primitive": "decal T_GlitchPix01",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "3:Floor light",
+      "role": "a faint band of light on the floor",
+      "primitive": "orbit_band",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "4:Violet column",
+      "role": "sustained volume: violet column",
+      "primitive": "column",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "5:Torn arc 1",
+      "role": "a ring round the body torn into separate arcs",
+      "primitive": "orbit_band",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "6:Torn arc 2",
+      "role": "a ring round the body torn into separate arcs",
+      "primitive": "orbit_band",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "7:Torn arc 3",
+      "role": "a ring round the body torn into separate arcs",
+      "primitive": "orbit_band",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "8:Torn arc 4",
+      "role": "a ring round the body torn into separate arcs",
+      "primitive": "orbit_band",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "9:Torn wisps",
+      "role": "shape change: violet wisps torn from the first frame",
+      "primitive": "wisps",
+      "exit": "gone by absolute f65"
+    },
+    {
+      "name": "10:Cyan edges",
+      "role": "cyan wisp edges",
+      "primitive": "wisps",
+      "exit": "gone by absolute f64"
+    },
+    {
+      "name": "11:Glitch violet",
+      "role": "signature: hard glitch pixels blinking, no motion",
+      "primitive": "sprite T_GlitchPix01",
+      "exit": "gone by absolute f64"
+    },
+    {
+      "name": "12:Glitch cyan",
+      "role": "accent glitch pixels",
+      "primitive": "sprite T_GlitchPix01",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "13:Glitch white",
+      "role": "hot core: a few white glitch pixels",
+      "primitive": "sprite T_GlitchPix01",
+      "exit": "gone by absolute f53"
+    },
+    {
+      "name": "14:Scan 1",
+      "role": "scan lines racing up",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f15"
+    },
+    {
+      "name": "15:Scan 2",
+      "role": "scan lines racing up",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f28"
+    },
+    {
+      "name": "16:Scan 3",
+      "role": "scan lines racing up",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f41"
+    },
+    {
+      "name": "17:Scan 4",
+      "role": "scan lines racing up",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f54"
+    },
+    {
+      "name": "18:Breaking cards",
+      "role": "secondary: echo cards breaking apart",
+      "primitive": "sprite T_EchoCard01",
+      "exit": "gone by absolute f71"
+    }
+  ],
+  "acceptance": [
+    "Never the brightest thing on screen; the figure reads through it",
+    "The loop has no visible seam when crossfaded"
+  ],
+  "avoid": [
+    "A flat glowing disc",
+    "Fire flipbook puffs"
+  ]
+}

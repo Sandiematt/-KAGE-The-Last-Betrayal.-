@@ -1,0 +1,584 @@
+{
+  "id": "VFX_Witness_Shatter",
+  "name": "Echo Shatter",
+  "category": "boss",
+  "element": "void",
+  "duration": 1.6,
+  "loop": false,
+  "attach": "body",
+  "peak": 0.06666666666666667,
+  "impact": 0.8,
+  "light": [
+    0.5,
+    0.45,
+    1
+  ],
+  "seed": 1729,
+  "layers": [
+    {
+      "name": "Core gather",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        168,
+        180,
+        255,
+        255
+      ],
+      "color_end": [
+        246,
+        248,
+        255,
+        255
+      ],
+      "count": 16,
+      "life": [
+        10,
+        12
+      ],
+      "delay": 0,
+      "interval": 0,
+      "billboard": "Billboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0.9,
+          1.2
+        ],
+        "rot_x": [
+          -90,
+          90
+        ]
+      },
+      "travel": {
+        "end": [
+          0,
+          [
+            -1.0,
+            -0.7
+          ],
+          0
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "size": [
+        0.05,
+        0.1
+      ],
+      "size_end": 0,
+      "easing": "EaseInCubic",
+      "forces": [
+        {
+          "type": "Turbulence",
+          "power": 0.003,
+          "scale": 5
+        }
+      ],
+      "fade_in": 1,
+      "fade_out": 6,
+      "emissive": 1.5,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Core crack",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Flare01.png",
+      "color": [
+        246,
+        248,
+        255,
+        255
+      ],
+      "life": 5,
+      "delay": 4,
+      "size": 2.4,
+      "size_curve": [
+        [
+          0,
+          0.55
+        ],
+        [
+          25,
+          1
+        ],
+        [
+          100,
+          0.15
+        ]
+      ],
+      "rotation": [
+        0,
+        0,
+        -30
+      ],
+      "fade_in": 0,
+      "fade_out": 3.0,
+      "emissive": 1.6,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Core bloom",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        146,
+        44,
+        248,
+        210
+      ],
+      "life": 24,
+      "delay": 4,
+      "size": 3.6,
+      "size_curve": [
+        [
+          0,
+          0.25
+        ],
+        [
+          18,
+          1
+        ],
+        [
+          100,
+          1.25
+        ]
+      ],
+      "billboard": "Billboard",
+      "fade_in": 0,
+      "fade_out": 19.200000000000003,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Core ring",
+      "renderer": "Ring",
+      "color": [
+        168,
+        180,
+        255,
+        255
+      ],
+      "life": 18,
+      "delay": 4,
+      "billboard": "Billboard",
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "ring": {
+        "outer": [
+          1,
+          0
+        ],
+        "inner": {
+          "start": [
+            0.86,
+            0
+          ],
+          "end": [
+            0.97,
+            0
+          ]
+        },
+        "center_ratio": 0.8,
+        "outer_color": [
+          168,
+          180,
+          255,
+          127
+        ],
+        "center_color": [
+          168,
+          180,
+          255,
+          255
+        ],
+        "inner_color": [
+          168,
+          180,
+          255,
+          0
+        ]
+      },
+      "size": 2.6,
+      "size_curve": [
+        [
+          0,
+          0.12
+        ],
+        [
+          35,
+          0.72
+        ],
+        [
+          100,
+          1
+        ]
+      ],
+      "fade_in": 0,
+      "fade_out": 12.6,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Slow ring",
+      "renderer": "Ring",
+      "color": [
+        214,
+        168,
+        255,
+        200
+      ],
+      "life": 34,
+      "delay": 8,
+      "billboard": "Billboard",
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "ring": {
+        "outer": [
+          1,
+          0
+        ],
+        "inner": {
+          "start": [
+            0.92,
+            0
+          ],
+          "end": [
+            0.97,
+            0
+          ]
+        },
+        "center_ratio": 0.8,
+        "outer_color": [
+          214,
+          168,
+          255,
+          100
+        ],
+        "center_color": [
+          214,
+          168,
+          255,
+          200
+        ],
+        "inner_color": [
+          214,
+          168,
+          255,
+          0
+        ]
+      },
+      "size": 3.8,
+      "size_curve": [
+        [
+          0,
+          0.12
+        ],
+        [
+          35,
+          0.72
+        ],
+        [
+          100,
+          1
+        ]
+      ],
+      "fade_in": 0,
+      "fade_out": 23.799999999999997,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Echo cards",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_EchoCard01.png",
+      "color": [
+        168,
+        180,
+        255,
+        230
+      ],
+      "count": 16,
+      "life": [
+        40,
+        56
+      ],
+      "delay": 4,
+      "interval": 0,
+      "size": [
+        0.2,
+        0.34
+      ],
+      "rotation": [
+        0,
+        0,
+        [
+          -35,
+          35
+        ]
+      ],
+      "spin": [
+        0,
+        0,
+        [
+          -1.2,
+          1.2
+        ]
+      ],
+      "billboard": "RotatedBillboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          0.4
+        ],
+        "rotate": false
+      },
+      "fade_in": 1,
+      "fade_out": 6,
+      "emissive": 1.7,
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseTile01.png",
+      "cutoff": {
+        "start": 0,
+        "end": 0.7,
+        "easing": "EaseInCubic"
+      },
+      "travel": {
+        "end": [
+          [
+            -2.2,
+            2.2
+          ],
+          [
+            -1.4,
+            1.8
+          ],
+          [
+            -0.3,
+            0.3
+          ]
+        ],
+        "easing": "EaseOutQuartic"
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Body shards",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Shard01.png",
+      "color": [
+        214,
+        168,
+        255,
+        255
+      ],
+      "color_end": [
+        146,
+        44,
+        248,
+        0
+      ],
+      "count": 26,
+      "life": [
+        34,
+        50
+      ],
+      "delay": 4,
+      "size": [
+        0.12,
+        0.3
+      ],
+      "rotation": [
+        0,
+        0,
+        [
+          -180,
+          180
+        ]
+      ],
+      "spin": [
+        0,
+        0,
+        [
+          -8,
+          8
+        ]
+      ],
+      "fade_in": 0,
+      "fade_out": 12,
+      "emissive": 1.7,
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          0.5
+        ],
+        "rotate": false
+      },
+      "travel": {
+        "end": [
+          [
+            -2.6,
+            2.6
+          ],
+          [
+            -1.6,
+            2.0
+          ],
+          [
+            -0.4,
+            0.4
+          ]
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Glitch",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_GlitchPix01.png",
+      "color": [
+        214,
+        168,
+        255,
+        255
+      ],
+      "count": 12,
+      "life": [
+        8,
+        14
+      ],
+      "delay": 6,
+      "interval": 0,
+      "size": [
+        0.26,
+        0.5
+      ],
+      "billboard": "Billboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0.3,
+          1.0
+        ],
+        "rotate": false
+      },
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 1.9,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Cyan glitch",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_GlitchPix01.png",
+      "color": [
+        90,
+        170,
+        255,
+        255
+      ],
+      "count": 8,
+      "life": [
+        6,
+        10
+      ],
+      "delay": 12,
+      "interval": 0,
+      "size": [
+        0.22,
+        0.4
+      ],
+      "billboard": "Billboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0.36,
+          1.2
+        ],
+        "rotate": false
+      },
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 1.9,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Lifting motes",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        168,
+        180,
+        255,
+        255
+      ],
+      "color_end": [
+        78,
+        14,
+        160,
+        0
+      ],
+      "count": 30,
+      "life": [
+        50,
+        70
+      ],
+      "delay": 10,
+      "interval": 0,
+      "billboard": "Billboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0.2,
+          1.2
+        ],
+        "rot_x": [
+          -90,
+          90
+        ]
+      },
+      "travel": {
+        "end": [
+          0,
+          [
+            0.3,
+            1.0
+          ],
+          0
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "size": [
+        0.05,
+        0.1
+      ],
+      "size_end": 0,
+      "easing": "EaseInCubic",
+      "forces": [
+        {
+          "type": "Turbulence",
+          "power": 0.003,
+          "scale": 5
+        },
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            0.0018,
+            0
+          ]
+        }
+      ],
+      "fade_in": 1,
+      "fade_out": 6,
+      "emissive": 1.5,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    }
+  ],
+  "design": "A crack of white light in the chest core, the body's echo blowing out as cards and shards that tumble and hang, two rings snapping out, glitch pixels blinking and pale motes lifting off for a long time.",
+  "delivery": {
+    "kind": "self"
+  },
+  "screen": {
+    "shake": 0.6,
+    "flash_frames": 1,
+    "flash": "white",
+    "hitstop": 0.08
+  }
+}

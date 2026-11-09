@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Witness_Anchor_Break",
+  "role": "target destroyed (an anchor breaking)",
+  "style": "stylized anime combat, additive void light (the reference sheets' blue, then violet and magenta with gold) over a dark arena, side-view 2D, baked to sheets",
+  "dominant_shape": "crystal shards thrown out and a column of light shooting up",
+  "palette": {
+    "core": [
+      255,
+      246,
+      255
+    ],
+    "body": [
+      184,
+      40,
+      255
+    ],
+    "dark": [
+      16,
+      2,
+      24
+    ],
+    "matter": [
+      140,
+      110,
+      160
+    ],
+    "accent": [
+      255,
+      196,
+      110
+    ]
+  },
+  "delivery": {
+    "kind": "area"
+  },
+  "anchor": "ground",
+  "reference": {
+    "id": "user reference sheets: The Witness, Architect of Echoes, phases I-IV (docs/art-reference/witness-phase-1..4.webp)"
+  },
+  "beats": [
+    {
+      "frame": 2,
+      "name": "contact",
+      "expect": "white contact"
+    },
+    {
+      "frame": 10,
+      "name": "body",
+      "expect": "shards out, column up, gold ring"
+    },
+    {
+      "frame": 40,
+      "name": "tail",
+      "expect": "gold motes drifting down"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Contact star",
+      "role": "contact",
+      "primitive": "flash",
+      "exit": "gone by absolute f6"
+    },
+    {
+      "name": "1:Break bloom",
+      "role": "light at the break",
+      "primitive": "glow",
+      "exit": "gone by absolute f18"
+    },
+    {
+      "name": "2:Gold ring",
+      "role": "ground feedback: gold ring snapping out",
+      "primitive": "floor_ring",
+      "exit": "gone by absolute f24"
+    },
+    {
+      "name": "3:Release column",
+      "role": "body: a column of light shooting up and thinning",
+      "primitive": "column",
+      "exit": "gone by absolute f32"
+    },
+    {
+      "name": "4:Shard source",
+      "role": "pivot for the shard emission",
+      "primitive": "pivot",
+      "exit": "gone by absolute f40"
+    },
+    {
+      "name": "4:Shard source/0:Crystal shards",
+      "role": "secondary: crystal shards tumbling and falling",
+      "primitive": "sprite T_Shard01",
+      "exit": "gone by absolute f40"
+    },
+    {
+      "name": "4:Shard source/1:Sparks",
+      "role": "secondary: sparks",
+      "primitive": "radial_sparks",
+      "exit": "gone by absolute f18"
+    },
+    {
+      "name": "5:Glitch",
+      "role": "glitch pixels blinking where the shape was",
+      "primitive": "sprite T_GlitchPix01",
+      "exit": "gone by absolute f18"
+    },
+    {
+      "name": "6:Gold motes",
+      "role": "residue: gold motes drifting down",
+      "primitive": "motes",
+      "exit": "gone by absolute f48"
+    }
+  ],
+  "acceptance": [
+    "Light goes up and out",
+    "The white is gone within four frames"
+  ],
+  "avoid": [
+    "A dark implosion"
+  ]
+}

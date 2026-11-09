@@ -1,0 +1,501 @@
+{
+  "id": "VFX_Witness_Aura_True",
+  "name": "True Witness Aura",
+  "category": "status",
+  "element": "void",
+  "duration": 2.0,
+  "loop": true,
+  "attach": "caster_ground",
+  "peak": 0,
+  "impact": 0,
+  "light": [
+    0.8,
+    0.35,
+    1
+  ],
+  "seed": 1729,
+  "layers": [
+    {
+      "name": "Echo seal",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_EchoSeal01.png",
+      "color": [
+        255,
+        196,
+        110,
+        200
+      ],
+      "life": 120,
+      "delay": 0,
+      "size": 3.0,
+      "billboard": "Fixed",
+      "rotation": [
+        -90,
+        0,
+        0
+      ],
+      "spin": [
+        0,
+        0,
+        0.35
+      ],
+      "position": [
+        0,
+        0.05,
+        0
+      ],
+      "z_test": true,
+      "fade_in": 20,
+      "fade_out": 20,
+      "emissive": 1.6,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Outer seal",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_EchoSeal01.png",
+      "color": [
+        184,
+        40,
+        255,
+        150
+      ],
+      "life": 120,
+      "delay": 0,
+      "size": 4.4,
+      "billboard": "Fixed",
+      "rotation": [
+        -90,
+        0,
+        0
+      ],
+      "spin": [
+        0,
+        0,
+        -0.2
+      ],
+      "position": [
+        0,
+        0.04,
+        0
+      ],
+      "z_test": true,
+      "fade_in": 20,
+      "fade_out": 20,
+      "emissive": 1.4,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Mantle",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        184,
+        40,
+        255,
+        52
+      ],
+      "life": 120,
+      "size": 4.8,
+      "position": [
+        0,
+        1.3,
+        0
+      ],
+      "fade_in": 20,
+      "fade_out": 20,
+      "size_curve": [
+        [
+          0,
+          0.96
+        ],
+        [
+          50,
+          1.03
+        ],
+        [
+          100,
+          0.96
+        ]
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Magenta column",
+      "renderer": "Model",
+      "procedural_model": {
+        "Name": "Magenta column",
+        "Shape/PrimitiveType": "Cylinder",
+        "Shape/Radius": 0.75,
+        "Mesh/Divisions/X": 40,
+        "Mesh/Divisions/Y": 12,
+        "Shape/Depth": 3.0,
+        "Shape/DepthMin": 0,
+        "Shape/DepthMax": 3.0
+      },
+      "color": [
+        184,
+        40,
+        255,
+        80
+      ],
+      "life": 120,
+      "fade_in": 20,
+      "fade_out": 20,
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak02.png",
+      "uv_scroll": [
+        0.004,
+        -0.035
+      ],
+      "delay": 0,
+      "culling": "Double",
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_GradientV01.png",
+      "alpha_wrap": "Clamp",
+      "falloff": {
+        "begin": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "end": [
+          255,
+          255,
+          255,
+          0
+        ],
+        "pow": 1.6,
+        "blend": "Mul"
+      },
+      "emissive": 1.2,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Magenta wisps",
+      "renderer": "Ring",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_WispTrail01.png",
+      "color": [
+        240,
+        186,
+        255,
+        200
+      ],
+      "count": 6,
+      "interval": 19,
+      "life": [
+        36,
+        48
+      ],
+      "delay": 2,
+      "billboard": "Fixed",
+      "rotation": [
+        [
+          -20,
+          20
+        ],
+        [
+          0,
+          360
+        ],
+        [
+          60,
+          120
+        ]
+      ],
+      "size": [
+        0.7,
+        1.3
+      ],
+      "ring": {
+        "vertices": 72,
+        "outer": [
+          1.15,
+          0
+        ],
+        "inner": {
+          "start": [
+            0.9299999999999999,
+            0
+          ],
+          "end": [
+            1.0839999999999999,
+            0
+          ]
+        },
+        "center_ratio": 0.45,
+        "outer_color": [
+          240,
+          186,
+          255,
+          66
+        ],
+        "center_color": [
+          240,
+          186,
+          255,
+          200
+        ],
+        "inner_color": [
+          240,
+          186,
+          255,
+          0
+        ],
+        "angle_start": [
+          0,
+          95.0
+        ],
+        "angle_end": [
+          38.0,
+          190
+        ],
+        "angle_easing": "EaseOutCubic",
+        "angle_fade": [
+          20,
+          6
+        ]
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+      "alpha_scroll": [
+        -0.05,
+        0
+      ],
+      "cutoff": {
+        "start": 0.1,
+        "end": 0.8,
+        "easing": "EaseInQuadratic"
+      },
+      "fade_in": 1,
+      "fade_out": 21.6,
+      "wrap": "Clamp",
+      "emissive": 2.0,
+      "position": [
+        0,
+        1.5,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Spark source",
+      "renderer": "None",
+      "life": 157,
+      "position": [
+        0,
+        0.1,
+        0
+      ],
+      "children": [
+        {
+          "name": "Gold sparks",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Spark01.png",
+          "color": [
+            255,
+            236,
+            190,
+            255
+          ],
+          "color_end": [
+            255,
+            196,
+            110,
+            0
+          ],
+          "count": 30,
+          "life": [
+            30,
+            40
+          ],
+          "delay": 1,
+          "billboard": "DirectionalBillboard",
+          "spawn": {
+            "shape": "Sphere",
+            "radius": [
+              0,
+              1.1
+            ],
+            "rotate": false
+          },
+          "travel": {
+            "end": [
+              [
+                -0.9,
+                0.9
+              ],
+              [
+                1.4,
+                2.6
+              ],
+              [
+                -0.1,
+                0.1
+              ]
+            ],
+            "easing": "EaseOutCubic"
+          },
+          "scale_start": [
+            0.06,
+            [
+              0.16,
+              0.3
+            ],
+            1
+          ],
+          "scale_end": [
+            0.018,
+            0.032,
+            1
+          ],
+          "easing": "EaseInQuadratic",
+          "forces": [],
+          "fade_in": 0,
+          "fade_out": 5,
+          "emissive": 2.0,
+          "interval": 4,
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        }
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Gold stars",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Star01.png",
+      "color": [
+        255,
+        236,
+        190,
+        255
+      ],
+      "count": 1,
+      "life": 20,
+      "delay": 5,
+      "interval": 23,
+      "size": 0.26,
+      "size_curve": [
+        [
+          0,
+          0.2
+        ],
+        [
+          15,
+          1.15
+        ],
+        [
+          60,
+          1
+        ],
+        [
+          100,
+          0
+        ]
+      ],
+      "rotation": [
+        0,
+        0,
+        [
+          -20,
+          20
+        ]
+      ],
+      "spin": [
+        0,
+        0,
+        [
+          -0.8,
+          0.8
+        ]
+      ],
+      "billboard": "Billboard",
+      "fade_in": 0,
+      "fade_out": 3,
+      "emissive": 1.8,
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          1.4
+        ]
+      },
+      "position": [
+        0,
+        1.6,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Violet motes",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        240,
+        186,
+        255,
+        255
+      ],
+      "color_end": [
+        104,
+        10,
+        170,
+        0
+      ],
+      "count": 18,
+      "life": [
+        50,
+        70
+      ],
+      "delay": 0,
+      "interval": 6,
+      "billboard": "Billboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0.35,
+          1.0
+        ],
+        "rotate": false
+      },
+      "travel": {
+        "end": [
+          0,
+          [
+            0.3,
+            0.8
+          ],
+          0
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "size": [
+        0.05,
+        0.1
+      ],
+      "size_end": 0,
+      "easing": "EaseInCubic",
+      "forces": [
+        {
+          "type": "Turbulence",
+          "power": 0.003,
+          "scale": 5
+        },
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            0.0014,
+            0
+          ]
+        }
+      ],
+      "fade_in": 1,
+      "fade_out": 6,
+      "emissive": 1.5,
+      "position": [
+        0,
+        1.0,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    }
+  ],
+  "design": "A turning gold-and-violet Echo seal on the floor with a counter-turning ring outside it, a magenta column, gold sparks shooting up off the seal to hang, magenta wisps and gold star glints.",
+  "delivery": {
+    "kind": "self"
+  }
+}

@@ -1,0 +1,604 @@
+{
+  "id": "VFX_Witness_Cast",
+  "name": "Control Cast",
+  "category": "element",
+  "element": "void",
+  "duration": 0.9,
+  "loop": false,
+  "attach": "impact",
+  "peak": 0.23333333333333334,
+  "impact": 0.3,
+  "light": [
+    0.4,
+    0.45,
+    1
+  ],
+  "seed": 1729,
+  "layers": [
+    {
+      "name": "Converging thread 1",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        168,
+        180,
+        255,
+        200
+      ],
+      "life": 10,
+      "delay": 0,
+      "rotation": [
+        0,
+        0,
+        20
+      ],
+      "scale_start": [
+        0.48999999999999994,
+        0.25,
+        1
+      ],
+      "scale_end": [
+        1.6099999999999999,
+        0.0375,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 7.0,
+      "emissive": 2.4,
+      "position": [
+        0.8457233587073176,
+        0.30781812899310185,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Converging thread 2",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        168,
+        180,
+        255,
+        200
+      ],
+      "life": 10,
+      "delay": 2,
+      "rotation": [
+        0,
+        0,
+        75
+      ],
+      "scale_start": [
+        0.48999999999999994,
+        0.25,
+        1
+      ],
+      "scale_end": [
+        1.6099999999999999,
+        0.0375,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 7.0,
+      "emissive": 2.4,
+      "position": [
+        0.23293714059226867,
+        0.8693332436601615,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Converging thread 3",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        168,
+        180,
+        255,
+        200
+      ],
+      "life": 10,
+      "delay": 4,
+      "rotation": [
+        0,
+        0,
+        140
+      ],
+      "scale_start": [
+        0.48999999999999994,
+        0.25,
+        1
+      ],
+      "scale_end": [
+        1.6099999999999999,
+        0.0375,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 7.0,
+      "emissive": 2.4,
+      "position": [
+        -0.6894399988070802,
+        0.5785088487178855,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Converging thread 4",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        168,
+        180,
+        255,
+        200
+      ],
+      "life": 10,
+      "delay": 6,
+      "rotation": [
+        0,
+        0,
+        200
+      ],
+      "scale_start": [
+        0.48999999999999994,
+        0.25,
+        1
+      ],
+      "scale_end": [
+        1.6099999999999999,
+        0.0375,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 7.0,
+      "emissive": 2.4,
+      "position": [
+        -0.8457233587073176,
+        -0.3078181289931018,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Converging thread 5",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        168,
+        180,
+        255,
+        200
+      ],
+      "life": 10,
+      "delay": 8,
+      "rotation": [
+        0,
+        0,
+        250
+      ],
+      "scale_start": [
+        0.48999999999999994,
+        0.25,
+        1
+      ],
+      "scale_end": [
+        1.6099999999999999,
+        0.0375,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 7.0,
+      "emissive": 2.4,
+      "position": [
+        -0.3078181289931017,
+        -0.8457233587073176,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Converging thread 6",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        168,
+        180,
+        255,
+        200
+      ],
+      "life": 10,
+      "delay": 10,
+      "rotation": [
+        0,
+        0,
+        320
+      ],
+      "scale_start": [
+        0.48999999999999994,
+        0.25,
+        1
+      ],
+      "scale_end": [
+        1.6099999999999999,
+        0.0375,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 7.0,
+      "emissive": 2.4,
+      "position": [
+        0.6894399988070801,
+        -0.5785088487178857,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Gather",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        168,
+        180,
+        255,
+        255
+      ],
+      "color_end": [
+        246,
+        248,
+        255,
+        255
+      ],
+      "count": 16,
+      "life": [
+        10,
+        14
+      ],
+      "delay": 0,
+      "interval": 0,
+      "billboard": "Billboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          1.0,
+          1.2
+        ],
+        "rot_x": [
+          -90,
+          90
+        ]
+      },
+      "travel": {
+        "end": [
+          0,
+          [
+            -1.0,
+            -0.7
+          ],
+          0
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "size": [
+        0.04,
+        0.08
+      ],
+      "size_end": 0,
+      "easing": "EaseInCubic",
+      "forces": [
+        {
+          "type": "Turbulence",
+          "power": 0.003,
+          "scale": 5
+        }
+      ],
+      "fade_in": 1,
+      "fade_out": 6,
+      "emissive": 1.5,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Palm seal",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_EchoSeal01.png",
+      "color": [
+        168,
+        180,
+        255,
+        230
+      ],
+      "life": 34,
+      "delay": 10,
+      "size": 1.2,
+      "billboard": "Billboard",
+      "spin": [
+        0,
+        0,
+        2.4
+      ],
+      "size_curve": [
+        [
+          0,
+          0.2
+        ],
+        [
+          25,
+          1.08
+        ],
+        [
+          40,
+          1
+        ],
+        [
+          100,
+          1.05
+        ]
+      ],
+      "fade_in": 2,
+      "fade_out": 14,
+      "emissive": 1.9,
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseTile01.png",
+      "cutoff": {
+        "start": 0,
+        "end": 0.85,
+        "easing": "EaseInCubic"
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Command star",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Flare01.png",
+      "color": [
+        246,
+        248,
+        255,
+        255
+      ],
+      "life": 4,
+      "delay": 14,
+      "size": 1.3,
+      "size_curve": [
+        [
+          0,
+          0.55
+        ],
+        [
+          25,
+          1
+        ],
+        [
+          100,
+          0.15
+        ]
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "fade_in": 0,
+      "fade_out": 2.4,
+      "emissive": 1.6,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Command ring",
+      "renderer": "Ring",
+      "color": [
+        168,
+        180,
+        255,
+        255
+      ],
+      "life": 12,
+      "delay": 14,
+      "billboard": "Billboard",
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "ring": {
+        "outer": [
+          1,
+          0
+        ],
+        "inner": {
+          "start": [
+            0.86,
+            0
+          ],
+          "end": [
+            0.97,
+            0
+          ]
+        },
+        "center_ratio": 0.8,
+        "outer_color": [
+          168,
+          180,
+          255,
+          127
+        ],
+        "center_color": [
+          168,
+          180,
+          255,
+          255
+        ],
+        "inner_color": [
+          168,
+          180,
+          255,
+          0
+        ]
+      },
+      "size": 1.4,
+      "size_curve": [
+        [
+          0,
+          0.12
+        ],
+        [
+          35,
+          0.72
+        ],
+        [
+          100,
+          1
+        ]
+      ],
+      "fade_in": 0,
+      "fade_out": 8.399999999999999,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Command thread 1",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        246,
+        248,
+        255,
+        255
+      ],
+      "life": 14,
+      "delay": 14,
+      "rotation": [
+        0,
+        0,
+        -6
+      ],
+      "scale_start": [
+        1.47,
+        0.43750000000000006,
+        1
+      ],
+      "scale_end": [
+        4.83,
+        0.065625,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 9.799999999999999,
+      "emissive": 2.4,
+      "position": [
+        1.8,
+        -0.07200000000000001,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Command thread 2",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        246,
+        248,
+        255,
+        255
+      ],
+      "life": 14,
+      "delay": 15,
+      "rotation": [
+        0,
+        0,
+        2
+      ],
+      "scale_start": [
+        1.47,
+        0.43750000000000006,
+        1
+      ],
+      "scale_end": [
+        4.83,
+        0.065625,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 9.799999999999999,
+      "emissive": 2.4,
+      "position": [
+        1.8,
+        0.024,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Command thread 3",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        246,
+        248,
+        255,
+        255
+      ],
+      "life": 14,
+      "delay": 16,
+      "rotation": [
+        0,
+        0,
+        9
+      ],
+      "scale_start": [
+        1.47,
+        0.43750000000000006,
+        1
+      ],
+      "scale_end": [
+        4.83,
+        0.065625,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 9.799999999999999,
+      "emissive": 2.4,
+      "position": [
+        1.8,
+        0.108,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Blue bloom",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        60,
+        74,
+        255,
+        160
+      ],
+      "life": 16,
+      "delay": 14,
+      "size": 1.8,
+      "size_curve": [
+        [
+          0,
+          0.25
+        ],
+        [
+          18,
+          1
+        ],
+        [
+          100,
+          1.25
+        ]
+      ],
+      "billboard": "Billboard",
+      "fade_in": 0,
+      "fade_out": 12.8,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    }
+  ],
+  "design": "Threads of light converge on the hand, an Echo seal flares open before the palm and turns, a ring snaps out and three long threads shoot from the palm toward the target.",
+  "delivery": {
+    "kind": "self"
+  }
+}

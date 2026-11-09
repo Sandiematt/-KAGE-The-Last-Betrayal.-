@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Witness_Orb_Shot",
+  "role": "projectile (Orb Pulse, phase II)",
+  "style": "stylized anime combat, additive void light (the reference sheets' blue, then violet and magenta with gold) over a dark arena, side-view 2D, baked to sheets",
+  "dominant_shape": "a white orb with a tilted ring turning round it",
+  "palette": {
+    "core": [
+      246,
+      248,
+      255
+    ],
+    "body": [
+      60,
+      74,
+      255
+    ],
+    "dark": [
+      6,
+      6,
+      28
+    ],
+    "matter": [
+      108,
+      114,
+      168
+    ],
+    "accent": [
+      168,
+      180,
+      255
+    ]
+  },
+  "delivery": {
+    "kind": "projectile"
+  },
+  "anchor": "projectile",
+  "reference": {
+    "id": "user reference sheets: The Witness, Architect of Echoes, phases I-IV (docs/art-reference/witness-phase-1..4.webp)"
+  },
+  "beats": [
+    {
+      "frame": 2,
+      "name": "launch",
+      "expect": "ring at the hand"
+    },
+    {
+      "frame": 12,
+      "name": "flight",
+      "expect": "orb and ring read"
+    },
+    {
+      "frame": 27,
+      "name": "arrival",
+      "expect": "head released, threads hang"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Launch ring",
+      "role": "launch speed carrier",
+      "primitive": "shock_ring",
+      "exit": "gone by absolute f10"
+    },
+    {
+      "name": "1:Orb glow",
+      "role": "head: blue glow round the orb",
+      "primitive": "glow",
+      "exit": "gone by absolute f6"
+    },
+    {
+      "name": "2:Orb core",
+      "role": "head: the white-hot orb",
+      "primitive": "sprite T_Glow01",
+      "exit": "gone by absolute f6"
+    },
+    {
+      "name": "3:Orb ring",
+      "role": "head: the ring turning round the orb in a tilted plane",
+      "primitive": "orbit_band",
+      "exit": "gone by absolute f6"
+    },
+    {
+      "name": "4:Tail",
+      "role": "trail: soft blue tail",
+      "primitive": "sprite T_Streak01",
+      "exit": "gone by absolute f10"
+    },
+    {
+      "name": "5:Shed thread",
+      "role": "trail: fine threads shed and hanging",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f10"
+    }
+  ],
+  "acceptance": [
+    "The ring reads round the orb"
+  ],
+  "avoid": [
+    "A plain glow ball"
+  ]
+}

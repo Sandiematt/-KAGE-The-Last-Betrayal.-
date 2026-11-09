@@ -1050,5 +1050,722 @@
     "preview": "previews/VFX_Rage_Violet_Slash.png",
     "particle_budget": 36,
     "layers": 10
+  },
+  {
+    "id": "VFX_Witness_Anchor",
+    "name": "Echo Anchor",
+    "category": "status",
+    "element": "void",
+    "duration": 1.0,
+    "loop": true,
+    "attach": "ground",
+    "peak": 0,
+    "impact": 0,
+    "light": [
+      0.8,
+      0.35,
+      1
+    ],
+    "seed": 1729,
+    "design": "A tall six-sided crystal of violet light with white edges standing on a small gold seal, a gold ring turning round its waist and motes lifting off it.",
+    "delivery": {
+      "kind": "area"
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Witness_Anchor.py",
+    "file": "res://effects/VFX_Witness_Anchor.efkefc",
+    "runtime": "exports/VFX_Witness_Anchor.efk",
+    "preview": "previews/VFX_Witness_Anchor.png",
+    "particle_budget": 18,
+    "layers": 7
+  },
+  {
+    "id": "VFX_Witness_Anchor_Break",
+    "name": "Anchor Break",
+    "category": "boss",
+    "element": "void",
+    "duration": 1.0,
+    "loop": false,
+    "attach": "ground",
+    "peak": 0.03333333333333333,
+    "impact": 0.6,
+    "light": [
+      0.9,
+      0.6,
+      1
+    ],
+    "seed": 1729,
+    "design": "A white contact high on the crystal, violet shards thrown out and falling, a gold ring snapping out along the floor, a column of light shooting up and thinning, gold motes drifting down.",
+    "delivery": {
+      "kind": "area"
+    },
+    "screen": {
+      "shake": 0.4,
+      "flash_frames": 1,
+      "flash": "white",
+      "hitstop": 0.06
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Witness_Anchor_Break.py",
+    "file": "res://effects/VFX_Witness_Anchor_Break.efkefc",
+    "runtime": "exports/VFX_Witness_Anchor_Break.efk",
+    "preview": "previews/VFX_Witness_Anchor_Break.png",
+    "particle_budget": 57,
+    "layers": 9
+  },
+  {
+    "id": "VFX_Witness_Aura_Editor",
+    "name": "Reality Editor Aura",
+    "category": "status",
+    "element": "void",
+    "duration": 1.0,
+    "loop": true,
+    "attach": "caster_ground",
+    "peak": 0,
+    "impact": 0,
+    "light": [
+      0.6,
+      0.3,
+      1
+    ],
+    "seed": 1729,
+    "design": "A violet floor seal broken by glitch pixels, a wide ring round the body torn into jumping arcs, violet flame wisps with cyan edges past the crown, hard glitch pixels blinking well outside the body and cyan scan lines racing up.",
+    "delivery": {
+      "kind": "self"
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Witness_Aura_Editor.py",
+    "file": "res://effects/VFX_Witness_Aura_Editor.efkefc",
+    "runtime": "exports/VFX_Witness_Aura_Editor.efk",
+    "preview": "previews/VFX_Witness_Aura_Editor.png",
+    "particle_budget": 70,
+    "layers": 19
+  },
+  {
+    "id": "VFX_Witness_Aura_Manipulator",
+    "name": "Manipulator Aura",
+    "category": "status",
+    "element": "void",
+    "duration": 1.0,
+    "loop": true,
+    "attach": "caster_ground",
+    "peak": 0,
+    "impact": 0,
+    "light": [
+      0.35,
+      0.42,
+      1
+    ],
+    "seed": 1729,
+    "design": "A turning blue Echo seal on the floor, two wide control rings circling the body, blue flame wisps licking past the crown, long control threads thrown out and pale arcs snapping over a neon sheath.",
+    "delivery": {
+      "kind": "self"
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Witness_Aura_Manipulator.py",
+    "file": "res://effects/VFX_Witness_Aura_Manipulator.efkefc",
+    "runtime": "exports/VFX_Witness_Aura_Manipulator.efk",
+    "preview": "previews/VFX_Witness_Aura_Manipulator.png",
+    "particle_budget": 55,
+    "layers": 25
+  },
+  {
+    "id": "VFX_Witness_Aura_Observer",
+    "name": "Observer Aura",
+    "category": "status",
+    "element": "void",
+    "duration": 2.0,
+    "loop": true,
+    "attach": "caster_ground",
+    "peak": 0,
+    "impact": 0,
+    "light": [
+      0.4,
+      0.45,
+      1
+    ],
+    "seed": 1729,
+    "design": "A dim blue mantle, slow pale-blue curls rising and turning round the body, echo cards drifting at arm length, motes lifting and a single star glint now and then.",
+    "delivery": {
+      "kind": "self"
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Witness_Aura_Observer.py",
+    "file": "res://effects/VFX_Witness_Aura_Observer.efkefc",
+    "runtime": "exports/VFX_Witness_Aura_Observer.efk",
+    "preview": "previews/VFX_Witness_Aura_Observer.png",
+    "particle_budget": 34,
+    "layers": 6
+  },
+  {
+    "id": "VFX_Witness_Aura_True",
+    "name": "True Witness Aura",
+    "category": "status",
+    "element": "void",
+    "duration": 2.0,
+    "loop": true,
+    "attach": "caster_ground",
+    "peak": 0,
+    "impact": 0,
+    "light": [
+      0.8,
+      0.35,
+      1
+    ],
+    "seed": 1729,
+    "design": "A turning gold-and-violet Echo seal on the floor with a counter-turning ring outside it, a magenta column, gold sparks shooting up off the seal to hang, magenta wisps and gold star glints.",
+    "delivery": {
+      "kind": "self"
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Witness_Aura_True.py",
+    "file": "res://effects/VFX_Witness_Aura_True.efkefc",
+    "runtime": "exports/VFX_Witness_Aura_True.efk",
+    "preview": "previews/VFX_Witness_Aura_True.png",
+    "particle_budget": 60,
+    "layers": 9
+  },
+  {
+    "id": "VFX_Witness_Bind",
+    "name": "Echo Bind",
+    "category": "status",
+    "element": "void",
+    "duration": 1.1,
+    "loop": false,
+    "attach": "ground",
+    "peak": 0.16666666666666666,
+    "impact": 0.2,
+    "light": [
+      0.4,
+      0.45,
+      1
+    ],
+    "seed": 1729,
+    "design": "Thin blue threads drop onto Kage, a ring of light tightens round his feet and snaps shut with a small star, rings lock round his shins and chest and turn, over a turning seal.",
+    "delivery": {
+      "kind": "targeted"
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Witness_Bind.py",
+    "file": "res://effects/VFX_Witness_Bind.efkefc",
+    "runtime": "exports/VFX_Witness_Bind.efk",
+    "preview": "previews/VFX_Witness_Bind.png",
+    "particle_budget": 22,
+    "layers": 11
+  },
+  {
+    "id": "VFX_Witness_Echo_Step",
+    "name": "Echo Step",
+    "category": "boss",
+    "element": "void",
+    "duration": 0.75,
+    "loop": false,
+    "attach": "caster_ground",
+    "peak": 0.03333333333333333,
+    "impact": 0.35,
+    "light": [
+      0.4,
+      0.45,
+      1
+    ],
+    "seed": 1729,
+    "design": "A thin vertical slit of white light opens the height of a man, blue echo cards and shards burst sideways and hang, a ring snaps across the line of the step and motes are drawn back as it closes.",
+    "delivery": {
+      "kind": "self"
+    },
+    "screen": {
+      "shake": 0.15
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Witness_Echo_Step.py",
+    "file": "res://effects/VFX_Witness_Echo_Step.efkefc",
+    "runtime": "exports/VFX_Witness_Echo_Step.efk",
+    "preview": "previews/VFX_Witness_Echo_Step.png",
+    "particle_budget": 56,
+    "layers": 10
+  },
+  {
+    "id": "VFX_Witness_Execution",
+    "name": "Execution Frames",
+    "category": "boss",
+    "element": "void",
+    "duration": 1.2,
+    "loop": false,
+    "attach": "ground",
+    "peak": 0.05,
+    "impact": 1.0,
+    "light": [
+      0.7,
+      0.4,
+      1
+    ],
+    "seed": 1729,
+    "design": "A near-black impact card and a white star on one frame, a long white line down through the target, a huge violet crescent cutting down after it, cyan rings racing along the floor, shards thrown out low and glitch pixels hanging.",
+    "delivery": {
+      "kind": "area"
+    },
+    "screen": {
+      "shake": 1.0,
+      "flash_frames": 2,
+      "flash": "invert",
+      "hitstop": 0.12
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Witness_Execution.py",
+    "file": "res://effects/VFX_Witness_Execution.efkefc",
+    "runtime": "exports/VFX_Witness_Execution.efk",
+    "preview": "previews/VFX_Witness_Execution.png",
+    "particle_budget": 73,
+    "layers": 15
+  },
+  {
+    "id": "VFX_Witness_Genesis",
+    "name": "Echo Genesis",
+    "category": "boss",
+    "element": "void",
+    "duration": 2.2,
+    "loop": false,
+    "attach": "caster_ground",
+    "peak": 0.6666666666666666,
+    "impact": 1.0,
+    "light": [
+      0.8,
+      0.35,
+      1
+    ],
+    "seed": 1729,
+    "design": "Motes and strands drawn into a raised hand, one release: the Echo System seal flares on the floor and stands up as a giant turning ring behind it, two more rings open at other tilts, glass shards fly across the frame and hang, gold glints bloom.",
+    "delivery": {
+      "kind": "self"
+    },
+    "screen": {
+      "shake": 0.8,
+      "flash_frames": 2,
+      "flash": "white",
+      "hitstop": 0
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Witness_Genesis.py",
+    "file": "res://effects/VFX_Witness_Genesis.efkefc",
+    "runtime": "exports/VFX_Witness_Genesis.efk",
+    "preview": "previews/VFX_Witness_Genesis.png",
+    "particle_budget": 122,
+    "layers": 13
+  },
+  {
+    "id": "VFX_Witness_Gravity",
+    "name": "Gravity Collapse",
+    "category": "status",
+    "element": "void",
+    "duration": 1.0,
+    "loop": true,
+    "attach": "ground",
+    "peak": 0,
+    "impact": 0,
+    "light": [
+      0.6,
+      0.3,
+      1
+    ],
+    "seed": 1729,
+    "design": "A violet accretion band passing in front of a black core with a cyan rim, a second band at another tilt, violet strands and motes drawn inward along curved paths.",
+    "delivery": {
+      "kind": "area"
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Witness_Gravity.py",
+    "file": "res://effects/VFX_Witness_Gravity.efkefc",
+    "runtime": "exports/VFX_Witness_Gravity.efk",
+    "preview": "previews/VFX_Witness_Gravity.png",
+    "particle_budget": 42,
+    "layers": 9
+  },
+  {
+    "id": "VFX_Witness_Judgment",
+    "name": "Final Judgment",
+    "category": "boss",
+    "element": "void",
+    "duration": 1.9,
+    "loop": false,
+    "attach": "ground",
+    "peak": 0.9,
+    "impact": 1.0,
+    "light": [
+      0.9,
+      0.5,
+      1
+    ],
+    "seed": 1729,
+    "design": "A long gather into a point with a guide line flickering across the arena, then a near-black card and white star, a hair-thin white line the width of the screen over a wide magenta band, gold rays standing up along it and rings racing out at its ends.",
+    "delivery": {
+      "kind": "area"
+    },
+    "screen": {
+      "shake": 1.0,
+      "flash_frames": 2,
+      "flash": "invert",
+      "hitstop": 0.1
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Witness_Judgment.py",
+    "file": "res://effects/VFX_Witness_Judgment.efkefc",
+    "runtime": "exports/VFX_Witness_Judgment.efk",
+    "preview": "previews/VFX_Witness_Judgment.png",
+    "particle_budget": 148,
+    "layers": 25
+  },
+  {
+    "id": "VFX_Witness_Orbit_Blade",
+    "name": "Orbit Blade",
+    "category": "projectile",
+    "element": "void",
+    "duration": 0.8,
+    "loop": false,
+    "attach": "projectile",
+    "peak": 0.1,
+    "impact": 0,
+    "light": [
+      1,
+      0.85,
+      0.6
+    ],
+    "seed": 1729,
+    "design": "A white-hot echo card spins flat and fast with a blue glow, drawing a long thin blue streak and leaving tiny cards hanging on its path.",
+    "delivery": {
+      "kind": "projectile"
+    },
+    "flight": 0.4,
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Witness_Orbit_Blade.py",
+    "file": "res://effects/VFX_Witness_Orbit_Blade.efkefc",
+    "runtime": "exports/VFX_Witness_Orbit_Blade.efk",
+    "preview": "previews/VFX_Witness_Orbit_Blade.png",
+    "particle_budget": 22,
+    "layers": 5
+  },
+  {
+    "id": "VFX_Witness_Shatter",
+    "name": "Echo Shatter",
+    "category": "boss",
+    "element": "void",
+    "duration": 1.6,
+    "loop": false,
+    "attach": "body",
+    "peak": 0.06666666666666667,
+    "impact": 0.8,
+    "light": [
+      0.5,
+      0.45,
+      1
+    ],
+    "seed": 1729,
+    "design": "A crack of white light in the chest core, the body's echo blowing out as cards and shards that tumble and hang, two rings snapping out, glitch pixels blinking and pale motes lifting off for a long time.",
+    "delivery": {
+      "kind": "self"
+    },
+    "screen": {
+      "shake": 0.6,
+      "flash_frames": 1,
+      "flash": "white",
+      "hitstop": 0.08
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Witness_Shatter.py",
+    "file": "res://effects/VFX_Witness_Shatter.efkefc",
+    "runtime": "exports/VFX_Witness_Shatter.efk",
+    "preview": "previews/VFX_Witness_Shatter.png",
+    "particle_budget": 112,
+    "layers": 10
+  },
+  {
+    "id": "VFX_Witness_Void_Wave",
+    "name": "Void Wave",
+    "category": "projectile",
+    "element": "void",
+    "duration": 0.9,
+    "loop": false,
+    "attach": "projectile",
+    "peak": 0.1,
+    "impact": 0,
+    "light": [
+      1,
+      0.85,
+      0.6
+    ],
+    "seed": 1729,
+    "design": "A tall blue-violet crescent standing on the floor races forward with a white leading edge and a dark echo behind it, shedding cards and shards on its path over a thin line skimming the floor.",
+    "delivery": {
+      "kind": "projectile"
+    },
+    "flight": 0.5,
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Witness_Void_Wave.py",
+    "file": "res://effects/VFX_Witness_Void_Wave.efkefc",
+    "runtime": "exports/VFX_Witness_Void_Wave.efk",
+    "preview": "previews/VFX_Witness_Void_Wave.png",
+    "particle_budget": 28,
+    "layers": 8
+  },
+  {
+    "id": "VFX_Witness_Cast",
+    "name": "Control Cast",
+    "category": "element",
+    "element": "void",
+    "duration": 0.9,
+    "loop": false,
+    "attach": "impact",
+    "peak": 0.23333333333333334,
+    "impact": 0.3,
+    "light": [
+      0.4,
+      0.45,
+      1
+    ],
+    "seed": 1729,
+    "design": "Threads of light converge on the hand, an Echo seal flares open before the palm and turns, a ring snaps out and three long threads shoot from the palm toward the target.",
+    "delivery": {
+      "kind": "self"
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Witness_Cast.py",
+    "file": "res://effects/VFX_Witness_Cast.efkefc",
+    "runtime": "exports/VFX_Witness_Cast.efk",
+    "preview": "previews/VFX_Witness_Cast.png",
+    "particle_budget": 29,
+    "layers": 14
+  },
+  {
+    "id": "VFX_Witness_Drain",
+    "name": "Health Drain",
+    "category": "status",
+    "element": "void",
+    "duration": 1.0,
+    "loop": true,
+    "attach": "body",
+    "peak": 0,
+    "impact": 0,
+    "light": [
+      0.6,
+      0.3,
+      1
+    ],
+    "seed": 1729,
+    "design": "Pale red-violet motes and thin streaks peel off Kage and stream away toward the Witness while a violet ring tightens round his chest over and over.",
+    "delivery": {
+      "kind": "targeted"
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Witness_Drain.py",
+    "file": "res://effects/VFX_Witness_Drain.efkefc",
+    "runtime": "exports/VFX_Witness_Drain.efk",
+    "preview": "previews/VFX_Witness_Drain.png",
+    "particle_budget": 57,
+    "layers": 9
+  },
+  {
+    "id": "VFX_Witness_Hit",
+    "name": "Echo Crack",
+    "category": "hit",
+    "element": "void",
+    "duration": 0.5,
+    "loop": false,
+    "attach": "impact",
+    "peak": 0.016666666666666666,
+    "impact": 0.25,
+    "light": [
+      0.4,
+      0.45,
+      1
+    ],
+    "seed": 1729,
+    "design": "A small white contact, a blue ring snapping across the blow, echo cards and thin glass shards spraying back out of the body along the blow and hanging.",
+    "delivery": {
+      "kind": "melee"
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Witness_Hit.py",
+    "file": "res://effects/VFX_Witness_Hit.efkefc",
+    "runtime": "exports/VFX_Witness_Hit.efk",
+    "preview": "previews/VFX_Witness_Hit.png",
+    "particle_budget": 23,
+    "layers": 6
+  },
+  {
+    "id": "VFX_Witness_Hit_Glitch",
+    "name": "Glitch Hit",
+    "category": "hit",
+    "element": "void",
+    "duration": 0.45,
+    "loop": false,
+    "attach": "impact",
+    "peak": 0.016666666666666666,
+    "impact": 0.25,
+    "light": [
+      0.6,
+      0.3,
+      1
+    ],
+    "seed": 1729,
+    "design": "A violet contact, the struck spot torn into hard pixel bars that blink in and out with no motion, a cyan scan line across the hit and a few violet shards.",
+    "delivery": {
+      "kind": "melee"
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Witness_Hit_Glitch.py",
+    "file": "res://effects/VFX_Witness_Hit_Glitch.efkefc",
+    "runtime": "exports/VFX_Witness_Hit_Glitch.efk",
+    "preview": "previews/VFX_Witness_Hit_Glitch.png",
+    "particle_budget": 31,
+    "layers": 8
+  },
+  {
+    "id": "VFX_Witness_Orb_Impact",
+    "name": "Orb Burst",
+    "category": "hit",
+    "element": "void",
+    "duration": 0.6,
+    "loop": false,
+    "attach": "impact",
+    "peak": 0.016666666666666666,
+    "impact": 0.35,
+    "light": [
+      0.4,
+      0.45,
+      1
+    ],
+    "seed": 1729,
+    "design": "The orb bursts into a ring snapping open in its tilted plane and a second ring across it, blue threads whip out and curl, and motes are drawn back into the point.",
+    "delivery": {
+      "kind": "projectile",
+      "projectile": "VFX_Witness_Orb_Shot"
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Witness_Orb_Impact.py",
+    "file": "res://effects/VFX_Witness_Orb_Impact.efkefc",
+    "runtime": "exports/VFX_Witness_Orb_Impact.efk",
+    "preview": "previews/VFX_Witness_Orb_Impact.png",
+    "particle_budget": 29,
+    "layers": 7
+  },
+  {
+    "id": "VFX_Witness_Orb_Shot",
+    "name": "Orb Shot",
+    "category": "projectile",
+    "element": "void",
+    "duration": 0.8,
+    "loop": false,
+    "attach": "projectile",
+    "peak": 0.1,
+    "impact": 0,
+    "light": [
+      1,
+      0.85,
+      0.6
+    ],
+    "seed": 1729,
+    "design": "A white-hot orb in a blue glow flies with a thin ring turning round it in a tilted plane, a soft blue tail and fine threads of light shed behind it.",
+    "delivery": {
+      "kind": "projectile"
+    },
+    "flight": 0.45,
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Witness_Orb_Shot.py",
+    "file": "res://effects/VFX_Witness_Orb_Shot.efkefc",
+    "runtime": "exports/VFX_Witness_Orb_Shot.efk",
+    "preview": "previews/VFX_Witness_Orb_Shot.png",
+    "particle_budget": 21,
+    "layers": 6
+  },
+  {
+    "id": "VFX_Witness_Rewrite",
+    "name": "Rewrite Pillar",
+    "category": "element",
+    "element": "void",
+    "duration": 1.0,
+    "loop": false,
+    "attach": "ground",
+    "peak": 0.03333333333333333,
+    "impact": 0.3,
+    "light": [
+      0.6,
+      0.3,
+      1
+    ],
+    "seed": 1729,
+    "design": "A column of hard violet and cyan glitch pixels erupts from a torn strip of floor to about a man's height, scan lines race up it and it dies back into a few hanging pixels.",
+    "delivery": {
+      "kind": "area"
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Witness_Rewrite.py",
+    "file": "res://effects/VFX_Witness_Rewrite.efkefc",
+    "runtime": "exports/VFX_Witness_Rewrite.efk",
+    "preview": "previews/VFX_Witness_Rewrite.png",
+    "particle_budget": 42,
+    "layers": 11
+  },
+  {
+    "id": "VFX_Witness_Slash",
+    "name": "Echo Cut",
+    "category": "slash",
+    "element": "void",
+    "duration": 0.55,
+    "loop": false,
+    "attach": "impact",
+    "peak": 0.05,
+    "impact": 0.4,
+    "light": [
+      0.4,
+      0.45,
+      1
+    ],
+    "seed": 1729,
+    "design": "A wide blue crescent sweeps through the target with a white-hot edge, a thin pale echo of the arc trails it a beat later, echo cards burst off and hang, blue motes settle.",
+    "delivery": {
+      "kind": "melee"
+    },
+    "screen": {
+      "shake": 0.2,
+      "hitstop": 0.04
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Witness_Slash.py",
+    "file": "res://effects/VFX_Witness_Slash.efkefc",
+    "runtime": "exports/VFX_Witness_Slash.efk",
+    "preview": "previews/VFX_Witness_Slash.png",
+    "particle_budget": 34,
+    "layers": 13
+  },
+  {
+    "id": "VFX_Witness_Slash_Glitch",
+    "name": "Broken Cut",
+    "category": "slash",
+    "element": "void",
+    "duration": 0.7,
+    "loop": false,
+    "attach": "impact",
+    "peak": 0.05,
+    "impact": 0.45,
+    "light": [
+      0.6,
+      0.3,
+      1
+    ],
+    "seed": 1729,
+    "design": "A violet crescent with a cyan edge cuts through and stutters: copies of it snap in beside it two and five frames late, hard glitch pixels blink along it and violet residue lingers.",
+    "delivery": {
+      "kind": "melee"
+    },
+    "screen": {
+      "shake": 0.25,
+      "hitstop": 0.05
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Witness_Slash_Glitch.py",
+    "file": "res://effects/VFX_Witness_Slash_Glitch.efkefc",
+    "runtime": "exports/VFX_Witness_Slash_Glitch.efk",
+    "preview": "previews/VFX_Witness_Slash_Glitch.png",
+    "particle_budget": 36,
+    "layers": 13
   }
 ]

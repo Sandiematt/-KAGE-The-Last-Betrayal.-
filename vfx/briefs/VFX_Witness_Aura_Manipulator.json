@@ -1,0 +1,218 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Witness_Aura_Manipulator",
+  "role": "sustained status, phase II (The Manipulator)",
+  "style": "stylized anime combat, additive void light (the reference sheets' blue, then violet and magenta with gold) over a dark arena, side-view 2D, baked to sheets",
+  "dominant_shape": "a tight neon-blue sheath hugging the body",
+  "palette": {
+    "core": [
+      246,
+      248,
+      255
+    ],
+    "body": [
+      60,
+      74,
+      255
+    ],
+    "dark": [
+      6,
+      6,
+      28
+    ],
+    "matter": [
+      108,
+      114,
+      168
+    ],
+    "accent": [
+      168,
+      180,
+      255
+    ]
+  },
+  "delivery": {
+    "kind": "self"
+  },
+  "anchor": "caster_ground",
+  "reference": {
+    "id": "user reference sheets: The Witness, Architect of Echoes, phases I-IV (docs/art-reference/witness-phase-1..4.webp)"
+  },
+  "beats": [
+    {
+      "frame": 10,
+      "name": "arrive",
+      "expect": "sheath fades in"
+    },
+    {
+      "frame": 30,
+      "name": "hold",
+      "expect": "arcs snapping, threads thrown out"
+    },
+    {
+      "frame": 55,
+      "name": "loop",
+      "expect": "no seam"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Mantle",
+      "role": "sustained: dim light round the body, never the brightest value",
+      "primitive": "sprite T_Glow01",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "1:Control seal",
+      "role": "ownership: a turning blue Echo seal on the floor",
+      "primitive": "decal T_EchoSeal01",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "2:Floor light",
+      "role": "a faint band of light on the floor",
+      "primitive": "orbit_band",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "3:Sheath",
+      "role": "sustained volume: tight neon column hugging the body",
+      "primitive": "column",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "4:Rising dashes",
+      "role": "surface motion: hard dashes racing up the sheath",
+      "primitive": "speed_streaks",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "5:Knee ring",
+      "role": "a wide control ring circling the body low",
+      "primitive": "orbit_band",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "6:Chest ring",
+      "role": "a control ring circling the chest",
+      "primitive": "orbit_band",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "7:Blue flames",
+      "role": "shape change: blue flame wisps licking past the crown",
+      "primitive": "wisps",
+      "exit": "gone by absolute f67"
+    },
+    {
+      "name": "8:Body arc 1",
+      "role": "secondary: pale arcs snapping between points on the body",
+      "primitive": "sprite T_ArcStrand01",
+      "exit": "gone by absolute f15"
+    },
+    {
+      "name": "9:Body arc 2",
+      "role": "secondary: pale arcs snapping between points on the body",
+      "primitive": "sprite T_ArcStrand01",
+      "exit": "gone by absolute f19"
+    },
+    {
+      "name": "10:Body arc 3",
+      "role": "secondary: pale arcs snapping between points on the body",
+      "primitive": "sprite T_ArcStrand01",
+      "exit": "gone by absolute f23"
+    },
+    {
+      "name": "11:Body arc 4",
+      "role": "secondary: pale arcs snapping between points on the body",
+      "primitive": "sprite T_ArcStrand01",
+      "exit": "gone by absolute f26"
+    },
+    {
+      "name": "12:Body arc 5",
+      "role": "secondary: pale arcs snapping between points on the body",
+      "primitive": "sprite T_ArcStrand01",
+      "exit": "gone by absolute f29"
+    },
+    {
+      "name": "13:Body arc 6",
+      "role": "secondary: pale arcs snapping between points on the body",
+      "primitive": "sprite T_ArcStrand01",
+      "exit": "gone by absolute f40"
+    },
+    {
+      "name": "14:Body arc 7",
+      "role": "secondary: pale arcs snapping between points on the body",
+      "primitive": "sprite T_ArcStrand01",
+      "exit": "gone by absolute f41"
+    },
+    {
+      "name": "15:Body arc 8",
+      "role": "secondary: pale arcs snapping between points on the body",
+      "primitive": "sprite T_ArcStrand01",
+      "exit": "gone by absolute f49"
+    },
+    {
+      "name": "16:Body arc 9",
+      "role": "secondary: pale arcs snapping between points on the body",
+      "primitive": "sprite T_ArcStrand01",
+      "exit": "gone by absolute f58"
+    },
+    {
+      "name": "17:Thread 1",
+      "role": "secondary: a control thread thrown out and thinning",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f16"
+    },
+    {
+      "name": "18:Thread 2",
+      "role": "secondary: a control thread thrown out and thinning",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f25"
+    },
+    {
+      "name": "19:Thread 3",
+      "role": "secondary: a control thread thrown out and thinning",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f34"
+    },
+    {
+      "name": "20:Thread 4",
+      "role": "secondary: a control thread thrown out and thinning",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f43"
+    },
+    {
+      "name": "21:Thread 5",
+      "role": "secondary: a control thread thrown out and thinning",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f52"
+    },
+    {
+      "name": "22:Thread 6",
+      "role": "secondary: a control thread thrown out and thinning",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f61"
+    },
+    {
+      "name": "23:Thread 7",
+      "role": "secondary: a control thread thrown out and thinning",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f67"
+    },
+    {
+      "name": "24:Motes",
+      "role": "residue: motes rising",
+      "primitive": "motes",
+      "exit": "gone by absolute f80"
+    }
+  ],
+  "acceptance": [
+    "Never the brightest thing on screen; the figure reads through it",
+    "The loop has no visible seam when crossfaded"
+  ],
+  "avoid": [
+    "A flat glowing disc",
+    "Fire flipbook puffs"
+  ]
+}

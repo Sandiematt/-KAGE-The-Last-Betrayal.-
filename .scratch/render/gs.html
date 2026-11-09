@@ -1,0 +1,18 @@
+<!doctype html><meta charset="utf-8"><body style="margin:0;background:#0b0f2a">
+<canvas id="c" width="1200" height="720"></canvas>
+<script>const TAU = Math.PI * 2;
+const LOOKS = [
+  { vio: ['#1c268f', '#4a5cff', '#d0d6ff'], acc: ['#5a3a10', '#e8a64a', '#ffd98a'], edge: 'rgba(176,188,255,0.9)', glow: [74, 92, 255] },
+  { vio: ['#3a0a78', '#922cf8', '#e6ccff'], acc: ['#5a3010', '#f0a050', '#ffd090'], edge: 'rgba(206,160,255,0.9)', glow: [146, 44, 248] },
+  { vio: ['#4a0a70', '#b828ff', '#f6d0ff'], acc: ['#6a4210', '#ffc46e', '#fff0c0'], edge: 'rgba(240,176,255,0.95)', glow: [184, 40, 255] }];
+let WT_L = LOOKS[0];
+</script>
+<script src="/src/js/21-characters/bosses/witness/weapon.js"></script>
+<script>
+const ctx = document.getElementById('c').getContext('2d');
+const rows = [[210, 0, 'ink'], [430, 1, 'ink'], [620, 2, 'flat']];
+for (const [y, k, mode] of rows) {
+  WT_L = LOOKS[k];
+  ctx.save(); ctx.translate(300, y); drawWitnessGreatsword(ctx, 760, mode, 3, '#e8ecff', { time: 0.3 }); ctx.restore();
+}
+</script>

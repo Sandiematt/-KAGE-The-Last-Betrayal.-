@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Witness_Rewrite",
+  "role": "area hazard (Reality Rewrite tile)",
+  "style": "stylized anime combat, additive void light (the reference sheets' blue, then violet and magenta with gold) over a dark arena, side-view 2D, baked to sheets",
+  "dominant_shape": "a column of glitch pixels erupting from a torn strip of floor",
+  "palette": {
+    "core": [
+      252,
+      246,
+      255
+    ],
+    "body": [
+      146,
+      44,
+      248
+    ],
+    "dark": [
+      12,
+      2,
+      26
+    ],
+    "matter": [
+      128,
+      108,
+      160
+    ],
+    "accent": [
+      90,
+      170,
+      255
+    ]
+  },
+  "delivery": {
+    "kind": "area"
+  },
+  "anchor": "ground",
+  "reference": {
+    "id": "user reference sheets: The Witness, Architect of Echoes, phases I-IV (docs/art-reference/witness-phase-1..4.webp)"
+  },
+  "beats": [
+    {
+      "frame": 2,
+      "name": "tear",
+      "expect": "floor tears"
+    },
+    {
+      "frame": 12,
+      "name": "body",
+      "expect": "pixels blink up the column"
+    },
+    {
+      "frame": 40,
+      "name": "tail",
+      "expect": "hanging pixels"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Tear flash",
+      "role": "contact: the floor tearing",
+      "primitive": "flash",
+      "exit": "gone by absolute f6"
+    },
+    {
+      "name": "1:Floor tear",
+      "role": "ground: a strip of torn floor",
+      "primitive": "sprite T_Streak01",
+      "exit": "gone by absolute f36"
+    },
+    {
+      "name": "2:Glitch column",
+      "role": "body: the column the pixels climb",
+      "primitive": "column",
+      "exit": "gone by absolute f42"
+    },
+    {
+      "name": "3:Pixel source",
+      "role": "pivot for the pixel column",
+      "primitive": "pivot",
+      "exit": "gone by absolute f10"
+    },
+    {
+      "name": "3:Pixel source/0:Pixels violet",
+      "role": "body: hard pixels blinking up the column",
+      "primitive": "sprite T_GlitchPix01",
+      "exit": "gone by absolute f10"
+    },
+    {
+      "name": "3:Pixel source/1:Pixels cyan",
+      "role": "accent pixels up the column",
+      "primitive": "sprite T_GlitchPix01",
+      "exit": "gone by absolute f10"
+    },
+    {
+      "name": "4:Scan 1",
+      "role": "scan lines racing up",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f13"
+    },
+    {
+      "name": "5:Scan 2",
+      "role": "scan lines racing up",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f19"
+    },
+    {
+      "name": "6:Scan 3",
+      "role": "scan lines racing up",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f25"
+    },
+    {
+      "name": "7:Scan 4",
+      "role": "scan lines racing up",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f31"
+    },
+    {
+      "name": "8:Hanging pixels",
+      "role": "residue: pixels hanging after it dies back",
+      "primitive": "sprite T_GlitchPix01",
+      "exit": "gone by absolute f48"
+    }
+  ],
+  "acceptance": [
+    "It stands where the tile hurts"
+  ],
+  "avoid": [
+    "A smooth glowing pillar"
+  ]
+}

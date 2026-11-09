@@ -1,0 +1,430 @@
+{
+  "id": "VFX_Witness_Aura_Observer",
+  "name": "Observer Aura",
+  "category": "status",
+  "element": "void",
+  "duration": 2.0,
+  "loop": true,
+  "attach": "caster_ground",
+  "peak": 0,
+  "impact": 0,
+  "light": [
+    0.4,
+    0.45,
+    1
+  ],
+  "seed": 1729,
+  "layers": [
+    {
+      "name": "Mantle",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        60,
+        74,
+        255,
+        34
+      ],
+      "life": 120,
+      "size": 4.2,
+      "position": [
+        0,
+        1.25,
+        0
+      ],
+      "fade_in": 20,
+      "fade_out": 20,
+      "size_curve": [
+        [
+          0,
+          0.96
+        ],
+        [
+          50,
+          1.03
+        ],
+        [
+          100,
+          0.96
+        ]
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Floor light",
+      "renderer": "Ring",
+      "color": [
+        60,
+        74,
+        255,
+        110
+      ],
+      "life": 120,
+      "delay": 0,
+      "billboard": "Fixed",
+      "rotation": [
+        -80,
+        0,
+        0
+      ],
+      "ring": {
+        "vertices": 96,
+        "outer": [
+          1.3,
+          0
+        ],
+        "inner": [
+          0.98,
+          0
+        ],
+        "center_ratio": 0.3,
+        "outer_color": [
+          60,
+          74,
+          255,
+          0
+        ],
+        "center_color": [
+          60,
+          74,
+          255,
+          110
+        ],
+        "inner_color": [
+          60,
+          74,
+          255,
+          0
+        ]
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+      "alpha_scroll": [
+        -0.03,
+        0
+      ],
+      "fade_in": 20,
+      "fade_out": 20,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Curls",
+      "renderer": "Ring",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_WispTrail01.png",
+      "color": [
+        168,
+        180,
+        255,
+        190
+      ],
+      "count": 5,
+      "interval": 22,
+      "life": [
+        48,
+        60
+      ],
+      "delay": 2,
+      "billboard": "Fixed",
+      "rotation": [
+        [
+          -15,
+          15
+        ],
+        [
+          0,
+          360
+        ],
+        [
+          60,
+          120
+        ]
+      ],
+      "size": [
+        0.7,
+        1.3
+      ],
+      "ring": {
+        "vertices": 72,
+        "outer": [
+          1.0,
+          0
+        ],
+        "inner": {
+          "start": [
+            0.84,
+            0
+          ],
+          "end": [
+            0.952,
+            0
+          ]
+        },
+        "center_ratio": 0.45,
+        "outer_color": [
+          168,
+          180,
+          255,
+          63
+        ],
+        "center_color": [
+          168,
+          180,
+          255,
+          190
+        ],
+        "inner_color": [
+          168,
+          180,
+          255,
+          0
+        ],
+        "angle_start": [
+          0,
+          105.0
+        ],
+        "angle_end": [
+          42.0,
+          210
+        ],
+        "angle_easing": "EaseOutCubic",
+        "angle_fade": [
+          20,
+          6
+        ]
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+      "alpha_scroll": [
+        -0.03,
+        0
+      ],
+      "cutoff": {
+        "start": 0.1,
+        "end": 0.8,
+        "easing": "EaseInQuadratic"
+      },
+      "fade_in": 1,
+      "fade_out": 27.0,
+      "wrap": "Clamp",
+      "emissive": 2.0,
+      "position": [
+        0,
+        1.35,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Drifting cards",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_EchoCard01.png",
+      "color": [
+        168,
+        180,
+        255,
+        200
+      ],
+      "count": 4,
+      "life": [
+        40,
+        52
+      ],
+      "delay": 6,
+      "interval": 26,
+      "size": [
+        0.22,
+        0.32
+      ],
+      "rotation": [
+        0,
+        0,
+        [
+          -35,
+          35
+        ]
+      ],
+      "spin": [
+        0,
+        0,
+        [
+          -1.2,
+          1.2
+        ]
+      ],
+      "billboard": "RotatedBillboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0.5,
+          1.25
+        ],
+        "rotate": false
+      },
+      "fade_in": 1,
+      "fade_out": 6,
+      "emissive": 1.7,
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseTile01.png",
+      "cutoff": {
+        "start": 0,
+        "end": 0.7,
+        "easing": "EaseInCubic"
+      },
+      "position": [
+        0,
+        1.4,
+        0
+      ],
+      "velocity": [
+        [
+          -0.003,
+          0.003
+        ],
+        [
+          0.002,
+          0.006
+        ],
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Rising motes",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        168,
+        180,
+        255,
+        255
+      ],
+      "color_end": [
+        60,
+        74,
+        255,
+        0
+      ],
+      "count": 22,
+      "life": [
+        50,
+        70
+      ],
+      "delay": 0,
+      "interval": 5,
+      "billboard": "Billboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0.35,
+          1.0
+        ],
+        "rotate": false
+      },
+      "travel": {
+        "end": [
+          0,
+          [
+            0.2,
+            0.6
+          ],
+          0
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "size": [
+        0.04,
+        0.09
+      ],
+      "size_end": 0,
+      "easing": "EaseInCubic",
+      "forces": [
+        {
+          "type": "Turbulence",
+          "power": 0.003,
+          "scale": 5
+        },
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            0.0012,
+            0
+          ]
+        }
+      ],
+      "fade_in": 1,
+      "fade_out": 6,
+      "emissive": 1.5,
+      "position": [
+        0,
+        1.0,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Star glint",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Star01.png",
+      "color": [
+        246,
+        248,
+        255,
+        255
+      ],
+      "count": 1,
+      "life": 18,
+      "delay": 8,
+      "interval": 29,
+      "size": 0.24,
+      "size_curve": [
+        [
+          0,
+          0.2
+        ],
+        [
+          15,
+          1.15
+        ],
+        [
+          60,
+          1
+        ],
+        [
+          100,
+          0
+        ]
+      ],
+      "rotation": [
+        0,
+        0,
+        [
+          -20,
+          20
+        ]
+      ],
+      "spin": [
+        0,
+        0,
+        [
+          -0.8,
+          0.8
+        ]
+      ],
+      "billboard": "Billboard",
+      "fade_in": 0,
+      "fade_out": 3,
+      "emissive": 1.8,
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          1.1
+        ]
+      },
+      "position": [
+        0,
+        1.4,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    }
+  ],
+  "design": "A dim blue mantle, slow pale-blue curls rising and turning round the body, echo cards drifting at arm length, motes lifting and a single star glint now and then.",
+  "delivery": {
+    "kind": "self"
+  }
+}

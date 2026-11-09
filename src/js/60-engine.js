@@ -15,9 +15,9 @@ class FightSession {
     this.env = getEnv(cfg.env);
     this.history = []; this.letterbox = 1; this.fightFlash = 0;
     this.actions = []; this.spamCd = 0; this.spamTaught = false;   // the spam read (SPAM_READ, onPlayerAction)
-    // the Witness: the player's moves with whether each landed (Logic.echoReplication / mirrorSequence read it),
-    // Void Slash lines waiting to cut, and the Memory Break in progress
-    this.hitLog = []; this.voidLines = []; this.memBreak = null; this.memBreakN = 0;
+    // the player's moves with whether each landed (Mugen no Ha's Echo Replication rage art reads it), the Memory Break in
+    // progress (the Witness's Reality Rewrite), and the Witness's own fight state (69-witness.js, WitnessBoss.init)
+    this.hitLog = []; this.memBreak = null; this.memBreakN = 0; this.wit = null;
     this.rounds = { p: 0, e: 0, n: 0 };
     this.wave = cfg.wave || 1; this.trialCoins = 0; this.trialGems = 0; this.wavesCleared = 0;
     this.dialogue = null; this.combo = 0; this.comboT = 0; this.damageTaken = 0; this.fightTime = 0;
@@ -163,6 +163,7 @@ class FightSession {
   onPlayerAction(f, key) {
     if (!f.isPlayer || !key) return;
     this.actions.push({ k: key, t: this.time }); if (this.actions.length > 16) this.actions.shift();
+    WitnessBoss.track(this, key);   // the Witness's AdaptiveTracker (69-witness.js)
     if (this.phase !== 'fight' || this.time < this.spamCd) return;
     const w = f.weapon(), read = Logic.spamRead(this.actions, this.time, (w.moves || []).length);
     if (!read) return;
@@ -192,7 +193,7 @@ class FightSession {
   }
   onSpecial(f) { this.fx.slowmo(0.55, 0.35); this.fx.punch(0.05); }
   onHit(att, def, dmg) {
-    // the blow that landed marks its move in the hit log: `hit` on the boss (the Witness's Echo Replication copies those),
+    // the blow that landed marks its move in the hit log: `hit` on the boss,
     // `landed` on any foe (Kage's own Echo Replication rage art, Mugen no Ha, replays those)
     if (att.isPlayer && att.move && def.team !== att.team) { for (let i = this.hitLog.length - 1; i >= 0; i--) if (this.hitLog[i].id === att.move.id) { this.hitLog[i].landed = true; if (def === this.enemy) this.hitLog[i].hit = true; break; } }
     if (att.isPlayer) {
@@ -206,9 +207,12 @@ class FightSession {
     if (def.isPlayer) { this.damageTaken += dmg; this.combo = 0; }
     if (def === this.enemy && def.barrier > 0 && dmg > 12) { def.barrier = 0; this.fx.popText(def, 'BARRIER BROKEN', C.gold); }
     TakashiBoss.onHit(this, att, def, dmg);   // blows during his domain's channel count toward breaking it
+    WitnessBoss.onHit(this, att, def, dmg);   // blows on the Witness while its tether drains Kage break it
   }
   onParry(def) { if (def.isPlayer) AudioManager.play('coin', { pitch: 1.4 }); }
   onBossPhase(f, idx, ph) {
+    // the Witness announces its phases its own way (its banner, its lines, the halo and the arena: 69-witness.js)
+    if (WitnessBoss.is(f)) { WitnessBoss.phase(this, f, idx, ph); this.cine = { t: 1.2, target: f }; return; }   // its impact and banner come after the dialogue
     this.fx.banner(`Phase ${ROMAN[idx]}`, ph.name, f.accent || C.emberBright);
     this.fx.impactFrame(f.x, f.y - 100, 3); this.fx.shake(0.6);
     this.cine = { t: 1.2, target: f }; this.fx.elemImpact(f.elementOf(null) || 'ink', f.x, f.y - 100 * f.scale, f.facing, 3, true);
@@ -263,26 +267,10 @@ class FightSession {
       this.fighters.push(m); this.fx.embers(x, -60, 20);
     }
   }
-  /* ---- the Witness ---- */
-  // Void Slash: the cut is already made; a dark afterimage line hangs over `box` for `delay` seconds, then cuts
-  // whoever stands in it (dash i-frames and a high enough jump get through). Drawn by Effects.voidLine.
-  spawnVoidLine(owner, box, delay, dmg) {
-    this.voidLines.push({ owner, box, t: 0, delay, dmg });
-    this.fx.voidLine(box.x, box.x + box.w, box.y + box.h * 0.5, delay, owner.facing);
-  }
-  stepVoidLines(dt) {
-    for (let i = this.voidLines.length - 1; i >= 0; i--) {
-      const v = this.voidLines[i];
-      v.t += dt;
-      if (v.t < v.delay) continue;
-      this.voidLines.splice(i, 1);
-      if (this.phase !== 'fight' || !v.owner.alive) continue;
-      Combat.area(this, v.owner, v.box, { dmg: v.dmg, kb: 380, up: -260, hs: 0.5, imp: 2, hsnd: 'slash', stamp: 'VOID', dir: v.owner.facing });
-      this.fx.shake(0.3); AudioManager.play('slash', { pitch: 0.7 });
-    }
-  }
-  // Memory Break: for `m.dur` seconds the arena is a remembered place (Logic.memoryBreakEnv, in turn), seen through the
-  // memory filter, with a flat glitch (`m.glitch` seconds) as it shifts in and again as it snaps back.
+  /* ---- the Witness (69-witness.js) ---- */
+  // Memory Break (the Witness's Reality Rewrite): for `m.dur` seconds the arena is a remembered place (Logic.memoryBreakEnv,
+  // in turn), seen through the memory filter, with a flat glitch (`m.glitch` seconds) as it shifts in and again as it
+  // snaps back.
   memoryBreak(owner, m) {
     if (this.memBreak) return;
     const id = Logic.memoryBreakEnv(this.memBreakN++);
@@ -301,17 +289,6 @@ class FightSession {
     const mb = this.memBreak; if (!mb) return;
     this.env = mb.base; this.memory = mb.baseMemory; this.glitch = mb.glitch; this.memBreak = null;
     AudioManager.play('teleport', { pitch: 0.7 });
-  }
-  // Hollow copies of Kage (WITNESS_MOVES.hollowCopies): cheap minions peeling off the Witness, holding his weapon
-  spawnHollowCopies(owner, m) {
-    const alive = this.fighters.filter(x => x.minion && x.alive && x.def && x.def.id === m.enemy).length;
-    for (let i = 0; i < Math.min(m.count, m.max - alive); i++) {
-      const side = i % 2 ? 1 : -1, x = clamp(owner.x + side * rand(90, 150), this.bounds.l + 40, this.bounds.r - 40);
-      const c = this.makeEnemy(m.enemy, x, { weapon: this.player.weaponId() }, 'minion');
-      c.minion = true; c.facing = this.player.x > x ? 1 : -1;
-      this.fighters.push(c);
-      this.fx.memoryAsh(c, 18, true); this.fx.afterimage(owner, 'rgba(185,160,255,0.45)', { dur: 0.3, dx: side * 40 });
-    }
   }
   // A beaten Hollow never ragdolls: it freezes on its last frame, glitches, and comes apart into violet memory ash
   // (a flat particle burst, then a trickle while it fades). stepDissolve runs it; the fighter is dropped when gone.
@@ -343,7 +320,7 @@ class FightSession {
     }
     // the light streams: a new ribbon every few ticks, alternating violet and white, from the body into Kage's chest
     if (k < 0.8 && ((f.dissolve * 60) | 0) % 4 === 0) {
-      this.fx.lightStream(cx + rand(-26, 26) * s, cy + rand(-70, 70) * s, p, ((f.dissolve * 15) | 0) % 2 ? '#ffffff' : '#a77bff');
+      this.fx.lightStream(cx + rand(-26, 26) * s, cy + rand(-70, 70) * s, p, ((f.dissolve * 15) | 0) % 2 ? '#ffffff' : '#7c8cff');
     }
     p.glow = Math.max(p.glow || 0, k < 0.85 ? 0.6 : 0);
     if (k > 0.25 && k < 0.85 && ((f.dissolve * 60) | 0) % 18 === 0) p.flash = 0.06;   // Kage pulses with the light he takes in
@@ -373,9 +350,9 @@ class FightSession {
     StormDirector.ko(this, def);
     this.koTarget = def; this.phase = 'ko'; this.phaseT = 0;
     for (const f of this.fighters) if (f.decoy && f.alive) this.vanishDecoy(f);
-    this.voidLines.length = 0;
     for (const f of this.fighters) if ((f.clone || f.minion) && f.alive) { f.alive = false; f.hp = 0; f.setState('juggle'); f.vy = -300; if (f.clone) { f.visible = false; this.smokeCloud(f.x); } else if (f.hollow) this.dissolve(f); }
     if (def === this.player) this.rounds.e++; else { this.rounds.p++; if (this.mode === 'trials') this.waveCleared(); }
+    WitnessBoss.onKO(this, def);   // the Witness falls: the arena goes quiet, its last line, the Echo System breaking
   }
   // a boss echo fights under its story name, as an echo of that memory
   nameBossEcho() {
@@ -512,8 +489,10 @@ class FightSession {
 
     // controls
     if (this.phase === 'fight') InputManager.readCtrl(p.ctrl); else clearCtrlEdges(p.ctrl), p.ctrl.dir = 0, p.ctrl.blockHeld = false, p.ctrl.kickHeld = false;
+    WitnessBoss.input(this, p.ctrl, dt);   // the Witness's InputModifierLayer over the controls just read (69-witness.js)
     // a rage art's anticipation holds the world still round Kage (67-rage-arts.js): no other fighter acts or moves
-    const hold = RageArts.holding(this), held = (f) => hold && f !== hold && f.team !== hold.team;
+    // ... and the Witness holds Kage still while Echo Genesis opens (69-witness.js)
+    const hold = RageArts.holding(this), held = (f) => (hold && f !== hold && f.team !== hold.team) || WitnessBoss.holds(this, f);
     for (const f of this.fighters) if (f.ai) { if (this.phase === 'fight' && !held(f)) f.ai.update(dt); else { clearCtrlEdges(f.ctrl); f.ctrl.dir = 0; f.ctrl.blockHeld = false; f.ctrl.kickHeld = false; } if (f.ai.adaptT > 0) { f.ai.adaptT -= dt; if (f.ai.adaptT <= 0) f.ai.adapted = null; } }
     // auras / barriers / clone lifetime
     p.slow = 1;
@@ -522,9 +501,10 @@ class FightSession {
       if (f.aura > 0) { f.aura -= dt; if (Math.abs(p.x - f.x) < 330 && f.alive) p.slow = 0.68; }
       if (f.clone && f.alive) { f.life -= dt; if (f.life <= 0) { if (f.decoy) this.vanishDecoy(f); else { f.alive = false; f.visible = false; if (AkariSakura.cloneBreak(this, f)) AudioManager.play('smoke'); else this.smokeCloud(f.x); } } }
     }
-    this.stepVoidLines(dt); this.stepMemoryBreak(dt);
+    this.stepMemoryBreak(dt);
     this.stepHazards(dt); this.stepAkariPresence();   // Akari's storms, mist, traps, tornadoes and petals (62-akari-hazards.js)
     TakashiBoss.step(this, dt);   // Takashi's guard, size, the Yashiro Titan and his domain (66-takashi.js)
+    WitnessBoss.step(this, dt);   // the Witness's phases, hazards, domain, HUD readings and tracker (69-witness.js)
     if (p.glow > 0) p.glow = Math.max(0, p.glow - dt * 0.5);
     // simulate
     RageArts.step(this, dt);   // the rage arts' arenas, Mizuchi's dragon, Reaper's clones, Shizuka's silent cuts (67-rage-arts.js)
@@ -535,6 +515,7 @@ class FightSession {
     WeaponSystem.updatePickups(this, dt);
     this.separate();
     this.fighters = this.fighters.filter(f => f.visible || f.alive || f === p || f === e);
+    WitnessBoss.after(this);   // Rage Suppression: growth this tick is undone, what Kage had stays
     this.updateCamera(dt);
   }
 
@@ -647,6 +628,8 @@ class FightSession {
     }
     // the Yashiro Titan and Takashi's domain need a wider frame (66-takashi.js)
     if (this.phase === 'fight') { const tk = TakashiBoss.camera(this, tz, ty); if (tk) { tz = tk.tz; ty = tk.ty; } }
+    // ... and the Witness's domain and its arena-wide moves (69-witness.js)
+    if (this.phase === 'fight') { const wt = WitnessBoss.camera(this, tz, ty); if (wt) { tz = wt.tz; ty = wt.ty; } }
     // a rage art frames its own cinematic (67-rage-arts.js)
     if (this.phase === 'fight') { const ra = RageArts.camera(this, tz, ty); if (ra) { tx = ra.tx; tz = ra.tz; ty = ra.ty; } }
     const half = W / 2 / tz;

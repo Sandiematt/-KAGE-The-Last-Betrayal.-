@@ -488,14 +488,54 @@ const Logic = {
     return moveCopy(orig, v, { id, corrupt: true });
   },
   /* ---- the Witness (core.witness) ---- */
-  // One of the Witness's moves (WITNESS_MOVES) or one of Takashi's moves corrupted for Identity Collapse
-  // (WITNESS_CORRUPT: his numbers with its overrides on top, plus { base, corrupt: true }). A copy with its id; null for
-  // any other id.
-  witnessMove(id) {
-    if (WITNESS_ABILITIES.includes(id) && WITNESS_MOVES[id]) return moveCopy({ id }, WITNESS_MOVES[id]);
-    const v = WITNESS_CORRUPT[id];
-    if (!v || !TAKASHI_ABILITIES.includes(v.base)) return null;
-    return moveCopy(TAKASHI_MOVES[v.base], v, { id, corrupt: true });
+  // One of the Witness's moves (WITNESS_MOVES): a copy with its id; null for any other id.
+  witnessMove(id) { return WITNESS_MOVES[id] ? moveCopy({ id }, WITNESS_MOVES[id]) : null; },
+  // The attack state machine's timeline for one of its moves (WitnessAttack, 69-witness.js): Telegraph -> Startup ->
+  // Active -> Recovery, each { stage, at, dur } in seconds from the start. `tellMul` scales the telegraph (the difficulty
+  // mode's windup, phase IV's jitter); no telegraph is ever shorter than WITNESS_ADAPT.minTell. The cool-down follows on
+  // the AI's clock (`cd`). null for an unknown move.
+  witnessStages(id, tellMul) {
+    const m = WITNESS_MOVES[id]; if (!m) return null;
+    const durs = [Math.max(WITNESS_ADAPT.minTell, m.windup * (tellMul || 1)), m.startup || 0, m.active || 0, m.recovery || 0];
+    let at = 0;
+    return ['telegraph', 'startup', 'active', 'recovery'].map((stage, i) => { const st = { stage, at, dur: durs[i] }; at += durs[i]; return st; });
+  },
+  // The stage of a timeline at time t (seconds): 'telegraph' | 'startup' | 'active' | 'recovery' | 'cooldown' (after it).
+  witnessStageAt(stages, t) {
+    for (const st of stages || []) if (t < st.at + st.dur) return st.stage;
+    return 'cooldown';
+  },
+  // The InputModifierLayer as a pure function (WitnessInput applies it each tick): the controls Kage's character
+  // receives, given the raw controls read from the devices and the modifiers biting now. `raw` is never written.
+  // mods: [{ kind: 'bind', dir } | { kind: 'reverse' } | { kind: 'delay', keys } | { kind: 'lock', lock }]; `late` is
+  // the raw controls of `delay` seconds ago (the runtime keeps that history), read for a delay's keys.
+  // Order: delay, reverse, bind, lock (a lock always wins).
+  witnessInput(raw, mods, late) {
+    const out = Object.assign({}, raw), zero = v => (typeof v === 'number' ? 0 : typeof v === 'boolean' ? false : null);
+    const list = mods || [], of = k => list.filter(m => m.kind === k);
+    // a delayed key reads the controls of `delay` ago; before any have arrived it reads as released (never undefined)
+    for (const m of of('delay')) for (const k of m.keys || []) out[k] = late && late[k] !== undefined ? late[k] : zero(raw[k]);
+    if (of('reverse').length % 2 === 1) { out.dir = -out.dir || 0; out.tapDir = -out.tapDir || 0; }
+    for (const m of of('bind')) { if (out.dir === m.dir) out.dir = 0; if (out.tapDir === m.dir) out.tapDir = 0; }
+    for (const m of of('lock')) for (const k of WITNESS_INPUT.lockKeys[m.lock] || []) out[k] = zero(raw[k]);
+    return out;
+  },
+  // The AdaptiveTracker's read of Kage's habits: log is his recent action keys, oldest first (move keys from spamKey,
+  // and 'dash', 'jump', 'block'), weighed over the last WITNESS_ADAPT.span. { n, top, share, overused, defensive,
+  // counts }: `top` his most used attack (ties: the latest), `share` its fraction of his attacks, `overused` once at
+  // least `min` actions are in and share >= WITNESS_ADAPT.overuse, `defensive` the share of blocks and dashes.
+  witnessAdapt(log, min) {
+    const a = (log || []).slice(-WITNESS_ADAPT.span), counts = {};
+    let atk = 0, def = 0;
+    for (const k of a) {
+      if (k === 'block' || k === 'dash') { def++; continue; }
+      if (k === 'jump') continue;
+      counts[k] = (counts[k] || 0) + 1; atk++;
+    }
+    let top = null;
+    for (let i = a.length - 1; i >= 0; i--) { const k = a[i]; if (counts[k] && (!top || counts[k] > counts[top])) top = k; }
+    const share = top ? counts[top] / atk : 0;
+    return { n: a.length, top, share, overused: a.length >= (min || 5) && share >= WITNESS_ADAPT.overuse, defensive: a.length ? def / a.length : 0, counts };
   },
   // The player's moves (log: [{ id, t, hit }], oldest first) cut into strings: moves ECHO_REPLICATION.gap seconds apart
   // or less belong together. Throws and grabs are never part of a string the Witness can copy.

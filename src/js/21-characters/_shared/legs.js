@@ -2,7 +2,6 @@
 // lines, then the boot (Kage) or tabi and straw sandal (everyone else)
 Fighter.prototype.animeLeg = function (ctx, hp, kn, ft, A, skin, U, far) {
   if (skin.akari) { akariLeg(this, ctx, hp, kn, ft, A, skin, U, far); return; }   // leggings and tall boots (bosses/akari/)
-  if (skin.witness) { witnessLeg(this, ctx, hp, kn, ft, A, U, far); return; }   // the Witness's armoured legs (bosses/witness/)
   const pal = A.pal, tone = far ? pal.back : pal.fab, boot = skin.feet === 'boot', lw = (skin.hollow && skin.hollow.legW) || 1;
   const pleats = (g, a, b, os) => {
     const dx = b.x - a.x, dy = b.y - a.y, l = Math.hypot(dx, dy) || 1, nx = -dy / l, ny = dx / l;

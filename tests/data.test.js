@@ -14,10 +14,11 @@ const keysOf = (file, objName) => {
   const body = src.slice(start, src.indexOf('\n};', start));
   return [...body.matchAll(/^ {2}([A-Za-z_]+):\s*\{/gm)].map(m => m[1]);
 };
-// 40-ai.js declares them; Takashi's redesigned fight registers his into the same table (66-takashi.js)
+// 40-ai.js declares them; Takashi's and the Witness's redesigned fights register theirs into the same table (66-takashi.js,
+// 69-witness.js)
 const assigned = (file, objName) => { const src = moduleSource(file), start = src.indexOf(`Object.assign(${objName}, {`); if (start < 0) return [];
   return [...src.slice(start, src.indexOf('\n});', start)).matchAll(/^ {2}([A-Za-z_]+):\s*\{/gm)].map(m => m[1]); };
-const BOSS_ABILITIES = keysOf('40-ai.js', 'BOSS_ABILITIES').concat(assigned('66-takashi.js', 'BOSS_ABILITIES'));
+const BOSS_ABILITIES = keysOf('40-ai.js', 'BOSS_ABILITIES').concat(assigned('66-takashi.js', 'BOSS_ABILITIES'), assigned('69-witness.js', 'BOSS_ABILITIES'));
 const ARENAS = keysOf('50-world.js', 'ENVS');
 
 test('every combat stage fights an enemy that exists, of the right weight class; scenes fight nobody', () => {
@@ -50,9 +51,9 @@ test('every enemy uses a weapon, AI profile and boss abilities that exist', () =
     assert.ok(AI_PROFILES.includes(d.ai), `${id} ai ${d.ai}`);
     const abilities = [...(d.abilities || []), ...(d.phases || []).flatMap(p => p.abilities)];
     // coded abilities, or reduced Raikon, Akari or Takashi moves built on one (RAIKON_VARIANTS / AKARI_VARIANTS /
-    // TAKASHI_VARIANTS, the Witness's corrupted WITNESS_CORRUPT, the Core echoes' CORE_ECHO_MOVES, registered by 40-ai.js)
+    // TAKASHI_VARIANTS, the Core echoes' CORE_ECHO_MOVES, registered by 40-ai.js)
     for (const a of abilities) { const m = Logic.raikonMove(a) || Logic.akariDerived(a) || Logic.takashiDerived(a) || Logic.witnessMove(a) || Logic.echoMove(a); assert.ok(BOSS_ABILITIES.includes(a) || (m && BOSS_ABILITIES.includes(m.base)), `${id} ability ${a}`); }
-    if (d.type === 'boss') assert.equal((d.phases || []).length, 3, `${id} has three phases`);
+    if (d.type === 'boss') assert.equal((d.phases || []).length, id === 'witness' ? 4 : 3, `${id} has ${id === 'witness' ? 'four' : 'three'} phases`);
   }
 });
 

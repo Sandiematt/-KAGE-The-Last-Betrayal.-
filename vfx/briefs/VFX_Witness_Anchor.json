@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Witness_Anchor",
+  "role": "sustained target (an Echo Anchor)",
+  "style": "stylized anime combat, additive void light (the reference sheets' blue, then violet and magenta with gold) over a dark arena, side-view 2D, baked to sheets",
+  "dominant_shape": "a tall violet crystal with a gold ring at its waist",
+  "palette": {
+    "core": [
+      255,
+      246,
+      255
+    ],
+    "body": [
+      184,
+      40,
+      255
+    ],
+    "dark": [
+      16,
+      2,
+      24
+    ],
+    "matter": [
+      140,
+      110,
+      160
+    ],
+    "accent": [
+      255,
+      196,
+      110
+    ]
+  },
+  "delivery": {
+    "kind": "area"
+  },
+  "anchor": "ground",
+  "reference": {
+    "id": "user reference sheets: The Witness, Architect of Echoes, phases I-IV (docs/art-reference/witness-phase-1..4.webp)"
+  },
+  "beats": [
+    {
+      "frame": 10,
+      "name": "arrive",
+      "expect": "crystal fades in"
+    },
+    {
+      "frame": 30,
+      "name": "hold",
+      "expect": "pulse climbing, ring turning"
+    },
+    {
+      "frame": 55,
+      "name": "loop",
+      "expect": "no seam"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Anchor seal",
+      "role": "ownership: the seal under the anchor",
+      "primitive": "decal T_EchoSeal01",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "1:Anchor glow",
+      "role": "sustained light round the anchor",
+      "primitive": "glow",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "2:Far ring",
+      "role": "far half of the gold ring",
+      "primitive": "orbit_band",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "3:Crystal",
+      "role": "main shape: the standing crystal",
+      "primitive": "crystal",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "4:Near ring",
+      "role": "near half of the gold ring",
+      "primitive": "orbit_band",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "5:Lifting motes",
+      "role": "residue: motes lifting off",
+      "primitive": "motes",
+      "exit": "gone by absolute f87"
+    },
+    {
+      "name": "6:Tip glint",
+      "role": "accent: a glint on the tip",
+      "primitive": "sparkle",
+      "exit": "gone by absolute f20"
+    }
+  ],
+  "acceptance": [
+    "Reads as a thing to strike",
+    "The near ring passes in front of the crystal"
+  ],
+  "avoid": [
+    "Flashing every frame"
+  ]
+}

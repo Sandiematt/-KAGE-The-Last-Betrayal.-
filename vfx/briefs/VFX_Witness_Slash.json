@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Witness_Slash",
+  "role": "boss melee (Echo Combo cut, phases I-II)",
+  "style": "stylized anime combat, additive void light (the reference sheets' blue, then violet and magenta with gold) over a dark arena, side-view 2D, baked to sheets",
+  "dominant_shape": "a clean blue crescent with a pale echo arc trailing it",
+  "palette": {
+    "core": [
+      246,
+      248,
+      255
+    ],
+    "body": [
+      60,
+      74,
+      255
+    ],
+    "dark": [
+      6,
+      6,
+      28
+    ],
+    "matter": [
+      108,
+      114,
+      168
+    ],
+    "accent": [
+      168,
+      180,
+      255
+    ]
+  },
+  "delivery": {
+    "kind": "melee"
+  },
+  "anchor": "impact",
+  "reference": {
+    "id": "user reference sheets: The Witness, Architect of Echoes, phases I-IV (docs/art-reference/witness-phase-1..4.webp)"
+  },
+  "beats": [
+    {
+      "frame": 1,
+      "name": "glint",
+      "expect": "blade glint"
+    },
+    {
+      "frame": 3,
+      "name": "contact",
+      "expect": "contact flash and line"
+    },
+    {
+      "frame": 8,
+      "name": "body",
+      "expect": "crescent sweeping, echo arc following"
+    },
+    {
+      "frame": 24,
+      "name": "tail",
+      "expect": "cards hanging, motes settling"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Blade glint",
+      "role": "anticipation: where the blade starts",
+      "primitive": "glow",
+      "exit": "gone by absolute f4"
+    },
+    {
+      "name": "1:Swing plane",
+      "role": "pivot setting the arc into its swing plane",
+      "primitive": "swing",
+      "exit": "gone by absolute f23"
+    },
+    {
+      "name": "1:Swing plane/0:Afterimage",
+      "role": "motion smear lagging the blade",
+      "primitive": "slash_arc",
+      "exit": "gone by absolute f22"
+    },
+    {
+      "name": "1:Swing plane/1:Blade body",
+      "role": "main shape: the saturated crescent",
+      "primitive": "slash_arc",
+      "exit": "gone by absolute f17"
+    },
+    {
+      "name": "1:Swing plane/2:Hot edge",
+      "role": "core: white leading edge",
+      "primitive": "crescent (slash_arc held)",
+      "exit": "gone by absolute f13"
+    },
+    {
+      "name": "1:Swing plane/3:Cel crescent",
+      "role": "the painted crescent held a few frames",
+      "primitive": "sprite T_Slash02",
+      "exit": "gone by absolute f12"
+    },
+    {
+      "name": "1:Swing plane/4:Echo arc",
+      "role": "the echo: a thin pale copy of the arc trailing a beat later",
+      "primitive": "slash_arc",
+      "exit": "gone by absolute f23"
+    },
+    {
+      "name": "2:Contact flash",
+      "role": "contact",
+      "primitive": "flash",
+      "exit": "gone by absolute f7"
+    },
+    {
+      "name": "3:Contact line",
+      "role": "release: a short white line at the contact",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f13"
+    },
+    {
+      "name": "4:Blue bloom",
+      "role": "light under the fold",
+      "primitive": "glow",
+      "exit": "gone by absolute f16"
+    },
+    {
+      "name": "5:Echo cards",
+      "role": "body: the echo bursting into cards that hang",
+      "primitive": "sprite T_EchoCard01",
+      "exit": "gone by absolute f31"
+    },
+    {
+      "name": "6:Settling motes",
+      "role": "residue: motes settling",
+      "primitive": "motes",
+      "exit": "gone by absolute f27"
+    },
+    {
+      "name": "7:Glints",
+      "role": "accent: star glints",
+      "primitive": "sparkle",
+      "exit": "gone by absolute f16"
+    }
+  ],
+  "acceptance": [
+    "The crescent reads through the target",
+    "The echo arc reads as a separate later copy"
+  ],
+  "avoid": [
+    "Glitch pixels (phase III only)"
+  ]
+}

@@ -1,0 +1,461 @@
+{
+  "id": "VFX_Witness_Orb_Impact",
+  "name": "Orb Burst",
+  "category": "hit",
+  "element": "void",
+  "duration": 0.6,
+  "loop": false,
+  "attach": "impact",
+  "peak": 0.016666666666666666,
+  "impact": 0.35,
+  "light": [
+    0.4,
+    0.45,
+    1
+  ],
+  "seed": 1729,
+  "layers": [
+    {
+      "name": "Contact star",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Flare01.png",
+      "color": [
+        246,
+        248,
+        255,
+        255
+      ],
+      "life": 4,
+      "delay": 1,
+      "size": 1.4,
+      "size_curve": [
+        [
+          0,
+          0.55
+        ],
+        [
+          25,
+          1
+        ],
+        [
+          100,
+          0.15
+        ]
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "fade_in": 0,
+      "fade_out": 2.4,
+      "emissive": 1.6,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Blue bloom",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        60,
+        74,
+        255,
+        170
+      ],
+      "life": 12,
+      "delay": 1,
+      "size": 1.7,
+      "size_curve": [
+        [
+          0,
+          0.25
+        ],
+        [
+          18,
+          1
+        ],
+        [
+          100,
+          1.25
+        ]
+      ],
+      "billboard": "Billboard",
+      "fade_in": 0,
+      "fade_out": 9.600000000000001,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Burst ring",
+      "renderer": "Ring",
+      "color": [
+        168,
+        180,
+        255,
+        255
+      ],
+      "life": 12,
+      "delay": 1,
+      "billboard": "Fixed",
+      "rotation": [
+        -70,
+        0,
+        22
+      ],
+      "ring": {
+        "outer": [
+          1,
+          0
+        ],
+        "inner": {
+          "start": [
+            0.84,
+            0
+          ],
+          "end": [
+            0.97,
+            0
+          ]
+        },
+        "center_ratio": 0.8,
+        "outer_color": [
+          168,
+          180,
+          255,
+          127
+        ],
+        "center_color": [
+          168,
+          180,
+          255,
+          255
+        ],
+        "inner_color": [
+          168,
+          180,
+          255,
+          0
+        ]
+      },
+      "size": 1.1,
+      "size_curve": [
+        [
+          0,
+          0.12
+        ],
+        [
+          35,
+          0.72
+        ],
+        [
+          100,
+          1
+        ]
+      ],
+      "fade_in": 0,
+      "fade_out": 8.399999999999999,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Cross ring",
+      "renderer": "Ring",
+      "color": [
+        168,
+        180,
+        255,
+        200
+      ],
+      "life": 12,
+      "delay": 3,
+      "billboard": "Fixed",
+      "rotation": [
+        20,
+        60,
+        0
+      ],
+      "ring": {
+        "outer": [
+          1,
+          0
+        ],
+        "inner": {
+          "start": [
+            0.88,
+            0
+          ],
+          "end": [
+            0.97,
+            0
+          ]
+        },
+        "center_ratio": 0.8,
+        "outer_color": [
+          168,
+          180,
+          255,
+          100
+        ],
+        "center_color": [
+          168,
+          180,
+          255,
+          200
+        ],
+        "inner_color": [
+          168,
+          180,
+          255,
+          0
+        ]
+      },
+      "size": 0.9,
+      "size_curve": [
+        [
+          0,
+          0.12
+        ],
+        [
+          35,
+          0.72
+        ],
+        [
+          100,
+          1
+        ]
+      ],
+      "fade_in": 0,
+      "fade_out": 8.399999999999999,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Whip threads",
+      "renderer": "Ring",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_WispTrail01.png",
+      "color": [
+        168,
+        180,
+        255,
+        220
+      ],
+      "count": 5,
+      "interval": 0,
+      "life": [
+        12,
+        16
+      ],
+      "delay": 1,
+      "billboard": "Fixed",
+      "rotation": [
+        [
+          -60,
+          60
+        ],
+        [
+          0,
+          360
+        ],
+        [
+          0,
+          360
+        ]
+      ],
+      "size": [
+        0.7,
+        1.3
+      ],
+      "ring": {
+        "vertices": 72,
+        "outer": [
+          0.8,
+          0
+        ],
+        "inner": {
+          "start": [
+            0.68,
+            0
+          ],
+          "end": [
+            0.764,
+            0
+          ]
+        },
+        "center_ratio": 0.45,
+        "outer_color": [
+          168,
+          180,
+          255,
+          73
+        ],
+        "center_color": [
+          168,
+          180,
+          255,
+          220
+        ],
+        "inner_color": [
+          168,
+          180,
+          255,
+          0
+        ],
+        "angle_start": [
+          0,
+          80.0
+        ],
+        "angle_end": [
+          32.0,
+          160
+        ],
+        "angle_easing": "EaseOutCubic",
+        "angle_fade": [
+          20,
+          6
+        ]
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+      "alpha_scroll": [
+        -0.05,
+        0
+      ],
+      "cutoff": {
+        "start": 0.1,
+        "end": 0.8,
+        "easing": "EaseInQuadratic"
+      },
+      "fade_in": 1,
+      "fade_out": 7.2,
+      "wrap": "Clamp",
+      "emissive": 2.0,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Sparks",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Spark01.png",
+      "color": [
+        246,
+        248,
+        255,
+        255
+      ],
+      "color_end": [
+        60,
+        74,
+        255,
+        0
+      ],
+      "count": 10,
+      "life": [
+        8,
+        14
+      ],
+      "delay": 1,
+      "billboard": "DirectionalBillboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          0.08
+        ],
+        "rot_x": [
+          -90,
+          90
+        ]
+      },
+      "travel": {
+        "end": [
+          0,
+          [
+            0.5,
+            1.2
+          ],
+          0
+        ],
+        "easing": "EaseOutQuartic"
+      },
+      "scale_start": [
+        0.05,
+        [
+          0.35,
+          0.7
+        ],
+        1
+      ],
+      "scale_end": [
+        0.015,
+        0.06999999999999999,
+        1
+      ],
+      "easing": "EaseInQuadratic",
+      "forces": [],
+      "fade_in": 0,
+      "fade_out": 5,
+      "emissive": 1.5,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Drawn motes",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        168,
+        180,
+        255,
+        255
+      ],
+      "color_end": [
+        246,
+        248,
+        255,
+        255
+      ],
+      "count": 10,
+      "life": [
+        10,
+        14
+      ],
+      "delay": 7,
+      "interval": 0,
+      "billboard": "Billboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0.8,
+          1.0
+        ],
+        "rot_x": [
+          -90,
+          90
+        ]
+      },
+      "travel": {
+        "end": [
+          0,
+          [
+            -0.8,
+            -0.5
+          ],
+          0
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "size": [
+        0.04,
+        0.08
+      ],
+      "size_end": 0,
+      "easing": "EaseInCubic",
+      "forces": [
+        {
+          "type": "Turbulence",
+          "power": 0.003,
+          "scale": 5
+        }
+      ],
+      "fade_in": 1,
+      "fade_out": 6,
+      "emissive": 1.5,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    }
+  ],
+  "design": "The orb bursts into a ring snapping open in its tilted plane and a second ring across it, blue threads whip out and curl, and motes are drawn back into the point.",
+  "delivery": {
+    "kind": "projectile",
+    "projectile": "VFX_Witness_Orb_Shot"
+  }
+}

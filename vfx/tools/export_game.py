@@ -71,6 +71,35 @@ SHEETS = {
     'rage_tidal':          ('VFX_Rage_Tidal_Crash',    512, 512, 5.4, 2.2, 0.0, None, '0:30:2,33:48:3', .75),
     'rage_scythe':         ('VFX_Rage_Shadow_Scythe',  512, 512, 6.0, 1.8, 0.0, None, '0:24:1,26:28:2', .7),
     'rage_quake':          ('VFX_Rage_Gold_Quake',     896, 320, 4.2, 1.4, 0.0, None, '0:30:2,33:66:3', .7),
+    # the Witness, Architect of Echoes (vfx/src/VFX_Witness_*.py; 69-witness.js plays them): one aura per phase (looped)
+    'wt_aura1':            ('VFX_Witness_Aura_Observer', 256, 320, 3.8, 1.5, 0.0, None, '0:117:3', .8),
+    'wt_aura2':            ('VFX_Witness_Aura_Manipulator', 384, 320, 3.8, 1.45, 0.0, None, '0:58:2', .8),
+    'wt_aura3':            ('VFX_Witness_Aura_Editor', 384, 320, 3.8, 1.5, 0.0, None, '0:58:2', .8),
+    'wt_aura4':            ('VFX_Witness_Aura_True',   448, 320, 4.0, 1.6, 0.0, None, '0:117:3', .75),
+    # the Void Slash wave flies 5 m in its 30-frame flight; the camera keeps the head still (frames 2-30 loop in flight)
+    'wt_wave':             ('VFX_Witness_Void_Wave',   256, 256, 2.4, .95, .45, (5 / 30, 0, 30), '2:30:2', 1.0, 5.0),
+    'wt_step':             ('VFX_Witness_Echo_Step',   320, 320, 3.2, 1.0, 0.0, None, '0:44:2', .8),
+    # an orbit blade flies 4 m in its 24-frame flight (frames 2-24 loop in flight, turned along it)
+    'wt_blade':            ('VFX_Witness_Orbit_Blade', 256, 128, 1.6, 0.0, -.3, (4 / 24, 0, 24), '2:24:2', 1.0, 4.0),
+    'wt_bind':             ('VFX_Witness_Bind',        256, 320, 3.0, 1.2, 0.0, None, '0:66:2', .8),
+    'wt_gravity':          ('VFX_Witness_Gravity',     384, 320, 3.6, 1.0, 0.0, None, '0:58:2', .8),
+    'wt_exec':             ('VFX_Witness_Execution',   448, 512, 5.6, 2.0, -.4, None, '0:30:1,32:72:2', .7),
+    'wt_genesis':          ('VFX_Witness_Genesis',     768, 512, 8.0, 2.8, 0.0, None, '0:36:4,38:58:2,61:131:3', .7),
+    'wt_anchor':           ('VFX_Witness_Anchor',      256, 320, 3.4, 1.2, 0.0, None, '0:58:2', .8),
+    'wt_anchor_break':     ('VFX_Witness_Anchor_Break', 320, 448, 4.8, 2.0, 0.0, None, '0:58:2', .75),
+    'wt_judgment':         ('VFX_Witness_Judgment',    1024, 384, 5.0, 1.6, 0.0, None, '0:52:4,53:70:1,72:113:3', .6),
+    'wt_shatter':          ('VFX_Witness_Shatter',     384, 384, 4.4, 0.0, 0.0, None, '0:30:2,33:95:3', .75),
+    # the Witness's blade (Echo Combo), the blows landing on it, the Manipulator's orb and cast, the Editor's rewrite and drain
+    'wt_slash':            ('VFX_Witness_Slash',       384, 384, 4.4, .9, .3, None, '0:18:1,20:28:2', .8),
+    'wt_slash_glitch':     ('VFX_Witness_Slash_Glitch', 384, 384, 4.4, .9, .3, None, '0:22:1,24:34:2', .8),
+    'wt_hit':              ('VFX_Witness_Hit',         224, 224, 2.6, 0.0, .3, None, '0:18:1', .9),
+    'wt_hit_glitch':       ('VFX_Witness_Hit_Glitch',  224, 224, 2.6, 0.0, .3, None, '0:14:1', .9),
+    # an orb shot flies 4 m in its 27-frame flight; the camera keeps the head still (frames 2-26 loop in flight)
+    'wt_orb':              ('VFX_Witness_Orb_Shot',    256, 192, 2.0, 0.0, -.3, (4 / 27, 0, 27), '2:26:2', 1.0, 4.0),
+    'wt_orb_hit':          ('VFX_Witness_Orb_Impact',  256, 256, 2.8, 0.0, 0.0, None, '0:24:1', .9),
+    'wt_cast':             ('VFX_Witness_Cast',        512, 256, 2.4, 0.0, 1.5, None, '0:40:2', .8),
+    'wt_rewrite':          ('VFX_Witness_Rewrite',     192, 320, 3.0, 1.3, 0.0, None, '0:48:2', .8),
+    'wt_drain':            ('VFX_Witness_Drain',       448, 256, 2.6, 1.0, -1.2, None, '0:58:2', .8),
 }
 
 

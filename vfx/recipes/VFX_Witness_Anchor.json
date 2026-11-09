@@ -1,0 +1,406 @@
+{
+  "id": "VFX_Witness_Anchor",
+  "name": "Echo Anchor",
+  "category": "status",
+  "element": "void",
+  "duration": 1.0,
+  "loop": true,
+  "attach": "ground",
+  "peak": 0,
+  "impact": 0,
+  "light": [
+    0.8,
+    0.35,
+    1
+  ],
+  "seed": 1729,
+  "layers": [
+    {
+      "name": "Anchor seal",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_EchoSeal01.png",
+      "color": [
+        255,
+        196,
+        110,
+        190
+      ],
+      "life": 60,
+      "delay": 0,
+      "size": 1.4,
+      "billboard": "Fixed",
+      "rotation": [
+        -90,
+        0,
+        0
+      ],
+      "spin": [
+        0,
+        0,
+        0.8
+      ],
+      "position": [
+        0,
+        0.05,
+        0
+      ],
+      "z_test": true,
+      "fade_in": 10,
+      "fade_out": 10,
+      "emissive": 1.6,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Anchor glow",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        184,
+        40,
+        255,
+        40
+      ],
+      "life": 60,
+      "delay": 0,
+      "size": 1.1,
+      "size_curve": [
+        [
+          0,
+          0.95
+        ],
+        [
+          50,
+          1.06
+        ],
+        [
+          100,
+          0.95
+        ]
+      ],
+      "billboard": "Billboard",
+      "fade_in": 10,
+      "fade_out": 10,
+      "position": [
+        0,
+        0.9,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Far ring",
+      "renderer": "Ring",
+      "color": [
+        255,
+        196,
+        110,
+        255
+      ],
+      "life": 60,
+      "delay": 0,
+      "billboard": "Fixed",
+      "rotation": [
+        -74,
+        0,
+        8
+      ],
+      "ring": {
+        "vertices": 96,
+        "outer": [
+          0.62,
+          0
+        ],
+        "inner": [
+          0.53,
+          0
+        ],
+        "center_ratio": 0.3,
+        "outer_color": [
+          255,
+          196,
+          110,
+          0
+        ],
+        "center_color": [
+          255,
+          196,
+          110,
+          255
+        ],
+        "inner_color": [
+          255,
+          196,
+          110,
+          0
+        ],
+        "angle_start": -90,
+        "angle_end": 90
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+      "alpha_scroll": [
+        -0.05,
+        0
+      ],
+      "fade_in": 10,
+      "fade_out": 10,
+      "emissive": 1.8,
+      "position": [
+        0,
+        0.9,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Crystal",
+      "renderer": "Model",
+      "procedural_model": {
+        "Name": "Crystal",
+        "Shape/PrimitiveType": "Cylinder",
+        "Shape/Radius": 0.3,
+        "Mesh/Divisions/X": 6,
+        "Mesh/Divisions/Y": 2,
+        "Shape/Depth": 1.9,
+        "Shape/DepthMin": 0,
+        "Shape/DepthMax": 1.9,
+        "Shape/Radius2": 0.012
+      },
+      "color": [
+        184,
+        40,
+        255,
+        120
+      ],
+      "life": 60,
+      "fade_in": 10,
+      "fade_out": 10,
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseTile02.png",
+      "uv_scroll": [
+        0.002,
+        0.004
+      ],
+      "culling": "Double",
+      "falloff": {
+        "begin": [
+          184,
+          40,
+          255,
+          40
+        ],
+        "end": [
+          240,
+          186,
+          255,
+          200
+        ],
+        "pow": 2.2,
+        "blend": "Add"
+      },
+      "spin": [
+        0,
+        1.5,
+        0
+      ],
+      "emissive": 1.0,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Near ring",
+      "renderer": "Ring",
+      "color": [
+        255,
+        196,
+        110,
+        255
+      ],
+      "life": 60,
+      "delay": 0,
+      "billboard": "Fixed",
+      "rotation": [
+        -74,
+        0,
+        8
+      ],
+      "ring": {
+        "vertices": 96,
+        "outer": [
+          0.62,
+          0
+        ],
+        "inner": [
+          0.53,
+          0
+        ],
+        "center_ratio": 0.3,
+        "outer_color": [
+          255,
+          196,
+          110,
+          0
+        ],
+        "center_color": [
+          255,
+          196,
+          110,
+          255
+        ],
+        "inner_color": [
+          255,
+          196,
+          110,
+          0
+        ],
+        "angle_start": 90,
+        "angle_end": 270
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+      "alpha_scroll": [
+        -0.05,
+        0
+      ],
+      "fade_in": 10,
+      "fade_out": 10,
+      "emissive": 1.8,
+      "position": [
+        0,
+        0.9,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Lifting motes",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        240,
+        186,
+        255,
+        255
+      ],
+      "color_end": [
+        104,
+        10,
+        170,
+        0
+      ],
+      "count": 12,
+      "life": [
+        24,
+        32
+      ],
+      "delay": 0,
+      "interval": 5,
+      "billboard": "Billboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0.35,
+          1.0
+        ],
+        "rotate": false
+      },
+      "travel": {
+        "end": [
+          0,
+          [
+            0.3,
+            0.7
+          ],
+          0
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "size": [
+        0.04,
+        0.08
+      ],
+      "size_end": 0,
+      "easing": "EaseInCubic",
+      "forces": [
+        {
+          "type": "Turbulence",
+          "power": 0.003,
+          "scale": 5
+        },
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            0.0016,
+            0
+          ]
+        }
+      ],
+      "fade_in": 1,
+      "fade_out": 6,
+      "emissive": 1.5,
+      "position": [
+        0,
+        0.6,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Tip glint",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Star01.png",
+      "color": [
+        255,
+        246,
+        255,
+        255
+      ],
+      "count": 1,
+      "life": 16,
+      "delay": 4,
+      "interval": 30,
+      "size": 0.28,
+      "size_curve": [
+        [
+          0,
+          0.2
+        ],
+        [
+          15,
+          1.15
+        ],
+        [
+          60,
+          1
+        ],
+        [
+          100,
+          0
+        ]
+      ],
+      "rotation": [
+        0,
+        0,
+        [
+          -20,
+          20
+        ]
+      ],
+      "spin": [
+        0,
+        0,
+        [
+          -0.8,
+          0.8
+        ]
+      ],
+      "billboard": "Billboard",
+      "fade_in": 0,
+      "fade_out": 3,
+      "emissive": 1.8,
+      "position": [
+        0,
+        1.95,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    }
+  ],
+  "design": "A tall six-sided crystal of violet light with white edges standing on a small gold seal, a gold ring turning round its waist and motes lifting off it.",
+  "delivery": {
+    "kind": "area"
+  }
+}

@@ -1,0 +1,433 @@
+{
+  "id": "VFX_Witness_Rewrite",
+  "name": "Rewrite Pillar",
+  "category": "element",
+  "element": "void",
+  "duration": 1.0,
+  "loop": false,
+  "attach": "ground",
+  "peak": 0.03333333333333333,
+  "impact": 0.3,
+  "light": [
+    0.6,
+    0.3,
+    1
+  ],
+  "seed": 1729,
+  "layers": [
+    {
+      "name": "Tear flash",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Flare01.png",
+      "color": [
+        252,
+        246,
+        255,
+        255
+      ],
+      "life": 4,
+      "delay": 2,
+      "size": 1.0,
+      "size_curve": [
+        [
+          0,
+          0.55
+        ],
+        [
+          25,
+          1
+        ],
+        [
+          100,
+          0.15
+        ]
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "fade_in": 0,
+      "fade_out": 2.4,
+      "emissive": 1.6,
+      "position": [
+        0,
+        0.1,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Floor tear",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        214,
+        168,
+        255,
+        255
+      ],
+      "life": 34,
+      "delay": 2,
+      "position": [
+        0,
+        0.05,
+        0
+      ],
+      "scale_start": [
+        1.6,
+        1.4,
+        1
+      ],
+      "scale_end": [
+        1.9,
+        0.5,
+        1
+      ],
+      "easing": "EaseOutCubic",
+      "fade_in": 0,
+      "fade_out": 14,
+      "emissive": 2.0,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Glitch column",
+      "renderer": "Model",
+      "procedural_model": {
+        "Name": "Glitch column",
+        "Shape/PrimitiveType": "Cylinder",
+        "Shape/Radius": 0.5,
+        "Mesh/Divisions/X": 40,
+        "Mesh/Divisions/Y": 12,
+        "Shape/Depth": 2.2,
+        "Shape/DepthMin": 0,
+        "Shape/DepthMax": 2.2
+      },
+      "color": [
+        146,
+        44,
+        248,
+        110
+      ],
+      "life": 40,
+      "fade_in": 0,
+      "fade_out": 18,
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak02.png",
+      "uv_scroll": [
+        0,
+        -0.07
+      ],
+      "delay": 2,
+      "culling": "Double",
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_GradientV01.png",
+      "alpha_wrap": "Clamp",
+      "falloff": {
+        "begin": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "end": [
+          255,
+          255,
+          255,
+          0
+        ],
+        "pow": 1.6,
+        "blend": "Mul"
+      },
+      "emissive": 1.6,
+      "scale_start": [
+        1,
+        0.2,
+        1
+      ],
+      "scale_curve": [
+        [
+          0,
+          0.2
+        ],
+        [
+          20,
+          1.05
+        ],
+        [
+          100,
+          1
+        ]
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Pixel source",
+      "renderer": "None",
+      "life": 28,
+      "position": [
+        0,
+        1.0,
+        0
+      ],
+      "children": [
+        {
+          "name": "Pixels violet",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_GlitchPix01.png",
+          "color": [
+            214,
+            168,
+            255,
+            255
+          ],
+          "count": 18,
+          "life": [
+            4,
+            8
+          ],
+          "delay": 2,
+          "interval": 1,
+          "size": [
+            0.22,
+            0.44
+          ],
+          "billboard": "Billboard",
+          "spawn": {
+            "shape": "Sphere",
+            "radius": [
+              0,
+              0.8
+            ],
+            "rotate": false
+          },
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.9,
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        },
+        {
+          "name": "Pixels cyan",
+          "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_GlitchPix01.png",
+          "color": [
+            90,
+            170,
+            255,
+            255
+          ],
+          "count": 10,
+          "life": [
+            3,
+            6
+          ],
+          "delay": 4,
+          "interval": 2,
+          "size": [
+            0.18,
+            0.36
+          ],
+          "billboard": "Billboard",
+          "spawn": {
+            "shape": "Sphere",
+            "radius": [
+              0,
+              0.9
+            ],
+            "rotate": false
+          },
+          "fade_in": 0,
+          "fade_out": 1,
+          "emissive": 1.9,
+          "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+        }
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Scan 1",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        90,
+        170,
+        255,
+        220
+      ],
+      "life": 8,
+      "delay": 5,
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale_start": [
+        0.315,
+        0.375,
+        1
+      ],
+      "scale_end": [
+        1.035,
+        0.056249999999999994,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 5.6,
+      "emissive": 2.4,
+      "position": [
+        0,
+        0.3,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Scan 2",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        90,
+        170,
+        255,
+        220
+      ],
+      "life": 8,
+      "delay": 11,
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale_start": [
+        0.315,
+        0.375,
+        1
+      ],
+      "scale_end": [
+        1.035,
+        0.056249999999999994,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 5.6,
+      "emissive": 2.4,
+      "position": [
+        0,
+        0.75,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Scan 3",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        90,
+        170,
+        255,
+        220
+      ],
+      "life": 8,
+      "delay": 17,
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale_start": [
+        0.315,
+        0.375,
+        1
+      ],
+      "scale_end": [
+        1.035,
+        0.056249999999999994,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 5.6,
+      "emissive": 2.4,
+      "position": [
+        0,
+        1.2,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Scan 4",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        90,
+        170,
+        255,
+        220
+      ],
+      "life": 8,
+      "delay": 23,
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale_start": [
+        0.315,
+        0.375,
+        1
+      ],
+      "scale_end": [
+        1.035,
+        0.056249999999999994,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 5.6,
+      "emissive": 2.4,
+      "position": [
+        0,
+        1.6500000000000001,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Hanging pixels",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_GlitchPix01.png",
+      "color": [
+        214,
+        168,
+        255,
+        255
+      ],
+      "count": 6,
+      "life": [
+        14,
+        20
+      ],
+      "delay": 28,
+      "interval": 0,
+      "size": [
+        0.18,
+        0.3
+      ],
+      "billboard": "Billboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0.3,
+          1.0
+        ],
+        "rotate": false
+      },
+      "fade_in": 0,
+      "fade_out": 1,
+      "emissive": 1.9,
+      "position": [
+        0,
+        0.8,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    }
+  ],
+  "design": "A column of hard violet and cyan glitch pixels erupts from a torn strip of floor to about a man's height, scan lines race up it and it dies back into a few hanging pixels.",
+  "delivery": {
+    "kind": "area"
+  }
+}

@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Witness_Slash_Glitch",
+  "role": "boss melee (Echo Combo cut, phases III-IV)",
+  "style": "stylized anime combat, additive void light (the reference sheets' blue, then violet and magenta with gold) over a dark arena, side-view 2D, baked to sheets",
+  "dominant_shape": "a violet crescent stuttering into offset copies",
+  "palette": {
+    "core": [
+      252,
+      246,
+      255
+    ],
+    "body": [
+      146,
+      44,
+      248
+    ],
+    "dark": [
+      12,
+      2,
+      26
+    ],
+    "matter": [
+      128,
+      108,
+      160
+    ],
+    "accent": [
+      90,
+      170,
+      255
+    ]
+  },
+  "delivery": {
+    "kind": "melee"
+  },
+  "anchor": "impact",
+  "reference": {
+    "id": "user reference sheets: The Witness, Architect of Echoes, phases I-IV (docs/art-reference/witness-phase-1..4.webp)"
+  },
+  "beats": [
+    {
+      "frame": 1,
+      "name": "glint",
+      "expect": "blade glint"
+    },
+    {
+      "frame": 3,
+      "name": "contact",
+      "expect": "contact flash"
+    },
+    {
+      "frame": 7,
+      "name": "stutter",
+      "expect": "late copies snap in beside it"
+    },
+    {
+      "frame": 30,
+      "name": "tail",
+      "expect": "pixels and residue"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Blade glint",
+      "role": "anticipation: where the blade starts",
+      "primitive": "glow",
+      "exit": "gone by absolute f4"
+    },
+    {
+      "name": "1:Swing plane",
+      "role": "pivot setting the arc into its swing plane",
+      "primitive": "swing",
+      "exit": "gone by absolute f20"
+    },
+    {
+      "name": "1:Swing plane/0:Afterimage",
+      "role": "motion smear lagging the blade",
+      "primitive": "slash_arc",
+      "exit": "gone by absolute f20"
+    },
+    {
+      "name": "1:Swing plane/1:Blade body",
+      "role": "main shape: the saturated crescent",
+      "primitive": "slash_arc",
+      "exit": "gone by absolute f15"
+    },
+    {
+      "name": "1:Swing plane/2:Hot edge",
+      "role": "core: white leading edge",
+      "primitive": "crescent (slash_arc held)",
+      "exit": "gone by absolute f11"
+    },
+    {
+      "name": "1:Swing plane/3:Stutter 1",
+      "role": "shape: copies of the arc snapping in beside it, late (the broken frame)",
+      "primitive": "slash_arc",
+      "exit": "gone by absolute f11"
+    },
+    {
+      "name": "1:Swing plane/4:Stutter 2",
+      "role": "shape: copies of the arc snapping in beside it, late (the broken frame)",
+      "primitive": "slash_arc",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "2:Contact flash",
+      "role": "contact",
+      "primitive": "flash",
+      "exit": "gone by absolute f7"
+    },
+    {
+      "name": "3:Violet bloom",
+      "role": "light under the blow",
+      "primitive": "glow",
+      "exit": "gone by absolute f16"
+    },
+    {
+      "name": "4:Glitch pixels",
+      "role": "secondary: glitch pixels blinking along the cut",
+      "primitive": "sprite T_GlitchPix01",
+      "exit": "gone by absolute f13"
+    },
+    {
+      "name": "5:Cyan pixels",
+      "role": "accent pixels",
+      "primitive": "sprite T_GlitchPix01",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "6:White pixels",
+      "role": "hot core pixels",
+      "primitive": "sprite T_GlitchPix01",
+      "exit": "gone by absolute f8"
+    },
+    {
+      "name": "7:Void residue",
+      "role": "matter: violet-grey residue settling",
+      "primitive": "smoke",
+      "exit": "gone by absolute f38"
+    }
+  ],
+  "acceptance": [
+    "The stutter reads as a damaged frame",
+    "Glitch pixels never drift"
+  ],
+  "avoid": [
+    "A clean single arc"
+  ]
+}

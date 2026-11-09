@@ -452,7 +452,7 @@ const SCENES = {
     steps: [
       { illus: null },
       { say: 'narrator', text: 'The heart of the Echo System. No floor, no sky: only light folding over itself, and a figure standing in it as if it weighed nothing.' },
-      { say: 'narrator', text: 'A broken white mask. One violet eye. A shape that is almost his.' },
+      { say: 'narrator', text: 'A crown of white-edged spikes. A star burning in a black face. A ring of light turning behind it. A shape that is almost his.' },
       { say: 'witness', text: 'You came the long way. I laid it out for you, piece by piece. You never asked why the pieces fit so neatly.' },
       { say: 'kage', text: 'Who are you?' },
       { say: 'witness', text: 'The part of you they kept. The first one. The one who remembers.' },
@@ -466,13 +466,50 @@ const SCENES = {
       { say: 'witness', text: 'Come, then. Show me who they rebuilt.' }
     ]
   },
+  // The fight stops at each of the Witness's phase changes (WITNESS_SCENES, 69-witness.js: played over the frozen fight).
+  // It speaks, Kage answers, and every answer cuts deeper: it was watching, it was taking notes, it wrote the ending.
+  'core.witness.shift1': {
+    steps: [
+      { say: 'witness', text: 'Interesting. You actually thought you were fighting me?' },
+      { say: 'witness', text: 'I\u2019ve watched you die thousands of times, Kage. I know every way you fall.' },
+      { say: 'kage', text: 'Thousands of times, and you still had to stop and talk. You\u2019re not watching me. You\u2019re afraid of me.' },
+      { say: 'witness', text: '...Afraid?' },
+      { say: 'witness', text: 'Now let me show you who controls the game.' }
+    ]
+  },
+  'core.witness.shift2': {
+    steps: [
+      { say: 'witness', text: 'Why are you still pressing those buttons? Did you really believe those movements belonged to you?' },
+      { say: 'kage', text: 'Every one of them. I bled for every step of that road. All you ever did was take notes.' },
+      { say: 'witness', text: 'Take... notes.' },
+      { say: 'witness', text: 'LET\u2019S REMOVE YOUR LITTLE ADVANTAGE.' }
+    ]
+  },
+  'core.witness.shift3': {
+    steps: [
+      { say: 'witness', text: 'No... NO. THAT WASN\u2019T SUPPOSED TO HAPPEN!' },
+      { say: 'kage', text: 'You wrote every road to end with me on my knees. Read your ending again, Witness. I\u2019m still standing.' },
+      { say: 'witness', text: '...Fine.' },
+      { say: 'witness', text: 'Then I\u2019ll erase the entire world along with you.' }
+    ]
+  },
+  // Echo Genesis, the domain: the arena has gone black and Kage is frozen mid-step when it speaks
+  'core.witness.genesis': {
+    steps: [
+      { say: 'witness', text: 'ENOUGH! I AM THE AUTHOR. I AM THE BEGINNING. I AM THE END!' },
+      { say: 'kage', text: 'Then you\u2019re about to read a line you didn\u2019t write.' },
+      { say: 'witness', text: 'KNEEL BEFORE THE ONE WHO CREATED YOUR WORLD!' }
+    ]
+  },
   // `defeat`: after the finishing slash the Witness dies as a separate being; its core shatters and its light flows back
   // into Kage, restoring his original identity (flag core.identity_restored, which The Last Choice reads).
   'core.witness.defeat': {
     steps: [
-      { say: 'narrator', text: 'The core in its chest cracks. Light leaks through the seams of the mask.' },
+      { say: 'witness', text: 'Impossible... You were never supposed to have a choice.' },
+      { say: 'kage', text: 'I always had one. You just never once watched me make it.' },
+      { say: 'narrator', text: 'The core in its chest cracks. The ring behind it falls apart, segment by segment.' },
       { say: 'witness', text: 'There. You see it now. We were never two.' },
-      { say: 'narrator', text: 'The core shatters. Violet and white light pours out of it and into Kage, every memory finding its place.' },
+      { say: 'narrator', text: 'The core shatters. Blue and white light pours out of it and into Kage, every memory finding its place.' },
       { flag: 'core.identity_restored' },
       { say: 'kage', text: '...I remember. All of it. In order.' },
       { say: 'witness', text: 'Then carry it. I am tired of carrying it alone.' }

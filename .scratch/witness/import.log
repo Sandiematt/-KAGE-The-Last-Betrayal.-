@@ -1,0 +1,131 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+[   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+[   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+[  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+[  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+[  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+[  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+WARNING: Loaded resource as image file, this will not work on export: 'res://addons/effekseer/icon16.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+   at: load_from_file (core/io/image.cpp:2780)
+   GDScript backtrace (most recent call first):
+       [0] _enter_tree (res://addons/effekseer/plugin.gd:21)
+[  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+[92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+[0m
+[   0% ] [90m[1m_update_scan_actions[22m | Started Scanning actions... (5 steps)[39m[0m
+[   0% ] [90m[1m_update_scan_actions[22m | VFX_Witness_Anchor.efkefc[39m[0m
+[  16% ] [90m[1m_update_scan_actions[22m | VFX_Witness_Execution.efkefc[39m[0m
+[  33% ] [90m[1m_update_scan_actions[22m | VFX_Witness_Genesis.efkefc[39m[0m
+[  50% ] [90m[1m_update_scan_actions[22m | VFX_Witness_Judgment.efkefc[39m[0m
+[  66% ] [90m[1m_update_scan_actions[22m | VFX_Witness_Void_Wave.efkefc[39m[0m
+[92m[ DONE ][39m [1m_update_scan_actions[22m
+[0m
+[   0% ] [90m[1mreimport[22m | Started (Re)Importing Assets (47 steps)[39m[0m
+[   0% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[   2% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[   4% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[   6% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[   8% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  10% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  12% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  14% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  16% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  18% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  20% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  22% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  25% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  27% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  29% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  31% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  33% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  35% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  37% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  39% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  41% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  43% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  45% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  47% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  50% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  52% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  54% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  56% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  58% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  60% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  62% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  64% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  66% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  68% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  70% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  72% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  75% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  77% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  79% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  81% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  83% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  85% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  87% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  89% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  91% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  93% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  95% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[   0% ] [90m[1mreimport[22m | Executing pre-reimport operations...[39m[0m
+[   0% ] [90m[1mreimport[22m | T_Glow01.png[39m[0m
+[   2% ] [90m[1mreimport[22m | T_NoiseStreak01.png[39m[0m
+[   4% ] [90m[1mreimport[22m | T_NoiseTile01.png[39m[0m
+[   6% ] [90m[1mreimport[22m | T_Shard01.png[39m[0m
+[   8% ] [90m[1mreimport[22m | T_Star01.png[39m[0m
+[  10% ] [90m[1mreimport[22m | T_WispTrail01.png[39m[0m
+[  12% ] [90m[1mreimport[22m | T_Flare01.png[39m[0m
+[  14% ] [90m[1mreimport[22m | T_GlitchPix01.png[39m[0m
+[  16% ] [90m[1mreimport[22m | T_Glow01.png[39m[0m
+[  18% ] [90m[1mreimport[22m | T_NoiseStreak01.png[39m[0m
+[  20% ] [90m[1mreimport[22m | T_NoiseTile01.png[39m[0m
+[  22% ] [90m[1mreimport[22m | T_SmokeSheet01.png[39m[0m
+[  25% ] [90m[1mreimport[22m | T_SoftCircle.png[39m[0m
+[  27% ] [90m[1mreimport[22m | T_Spark01.png[39m[0m
+[  29% ] [90m[1mreimport[22m | T_Streak01.png[39m[0m
+[  31% ] [90m[1mreimport[22m | T_EchoCard01.png[39m[0m
+[  33% ] [90m[1mreimport[22m | T_Glow01.png[39m[0m
+[  35% ] [90m[1mreimport[22m | T_NoiseStreak01.png[39m[0m
+[  37% ] [90m[1mreimport[22m | T_NoiseTile01.png[39m[0m
+[  39% ] [90m[1mreimport[22m | T_Spark01.png[39m[0m
+[  41% ] [90m[1mreimport[22m | T_Streak01.png[39m[0m
+[  43% ] [90m[1mreimport[22m | T_Trail01.png[39m[0m
+[  45% ] [90m[1mreimport[22m | T_EchoSeal01.png[39m[0m
+[  47% ] [90m[1mreimport[22m | T_Glow01.png[39m[0m
+[  50% ] [90m[1mreimport[22m | T_GradientV01.png[39m[0m
+[  52% ] [90m[1mreimport[22m | T_NoiseStreak01.png[39m[0m
+[  54% ] [90m[1mreimport[22m | T_NoiseStreak02.png[39m[0m
+[  56% ] [90m[1mreimport[22m | T_NoiseTile02.png[39m[0m
+[  58% ] [90m[1mreimport[22m | T_Star01.png[39m[0m
+[  60% ] [90m[1mreimport[22m | T_Flare01.png[39m[0m
+[  62% ] [90m[1mreimport[22m | T_GlitchPix01.png[39m[0m
+[  64% ] [90m[1mreimport[22m | T_Glow01.png[39m[0m
+[  66% ] [90m[1mreimport[22m | T_NoiseStreak01.png[39m[0m
+[  68% ] [90m[1mreimport[22m | T_NoiseTile01.png[39m[0m
+[  70% ] [90m[1mreimport[22m | T_SmokeSheet01.png[39m[0m
+[  72% ] [90m[1mreimport[22m | T_SoftCircle.png[39m[0m
+[  75% ] [90m[1mreimport[22m | T_Spark01.png[39m[0m
+[  77% ] [90m[1mreimport[22m | T_Streak01.png[39m[0m
+[  79% ] [90m[1mreimport[22m | T_Trail01.png[39m[0m
+[  81% ] [90m[1mreimport[22m | T_EchoCard01.png[39m[0m
+[  83% ] [90m[1mreimport[22m | T_EchoSeal01.png[39m[0m
+[  85% ] [90m[1mreimport[22m | T_Flare01.png[39m[0m
+[  87% ] [90m[1mreimport[22m | VFX_Witness_Judgment.efkefc[39m[0m
+[  89% ] [90m[1mreimport[22m | VFX_Witness_Execution.efkefc[39m[0m
+[  91% ] [90m[1mreimport[22m | VFX_Witness_Void_Wave.efkefc[39m[0m
+[  93% ] [90m[1mreimport[22m | VFX_Witness_Genesis.efkefc[39m[0m
+[  95% ] [90m[1mreimport[22m | VFX_Witness_Anchor.efkefc[39m[0m
+[  97% ] [90m[1mreimport[22m | Finalizing Asset Import...[39m[0m
+[92m[ DONE ][39m [1mreimport[22m
+[0m
+[   0% ] [90m[1mreimport[22m | Started (Re)Importing Assets (47 steps)[39m[0m
+[   0% ] [90m[1mreimport[22m | Executing post-reimport operations...[39m[0m
+[92m[ DONE ][39m [1mreimport[22m
+[0m
+[   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+[   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+[  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+[92m[ DONE ][39m [1mloading_editor_layout[22m
+[0m

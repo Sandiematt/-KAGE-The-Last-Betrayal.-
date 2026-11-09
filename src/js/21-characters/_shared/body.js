@@ -19,7 +19,9 @@
 /* ---- the body ---- */
 Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   const sk = this.sk, s = this.scale, b = this.build, f = this.facing;
-  const skin = animeSkin(this), A = animeState(this, front, flat, opt), pal = A.pal, ord = skin.order, hol = skin.hollow;
+  const skin = animeSkin(this);
+  if (skin.witness) { witnessBody(this, ctx, front, flat, opt); return; }   // the Witness is its own mesh (bosses/witness/body.js)
+  const A = animeState(this, front, flat, opt), pal = A.pal, ord = skin.order, hol = skin.hollow;
   const big = b.w >= 16 ? 1.45 : b.w >= 13 ? 1.2 : 1;
   const L = b.w * s * 0.42 * (b.w >= 13 ? 1.15 : 1), T = L * 1.25 * big;   // the old limb units: armour overlays are sized by them
   const U = s * clamp(b.w / 10, 0.9, 1.75) * (b.w >= 13 ? 1.08 : 1);       // clothing unit (px per design unit)
@@ -40,14 +42,13 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   raikonLayer(this, ctx, A, skin, U, 'back');   // Raikon's cloak and coat skirt (bosses/raikon/)
   akariLayer(this, ctx, A, skin, U, 'back');   // Akari's ponytail, bead strings and back tail (bosses/akari/)
   takashiLayer(this, ctx, A, skin, U, 'back');   // Takashi's long cape, hat ribbon and back robe skirt (bosses/takashi/)
-  witnessLayer(this, ctx, A, skin, U, 'back');   // the Witness's high collar and coat tails (bosses/witness/)
   // --- 2. the far arm: sleeve, cuff, hand (then any off-hand weapon)
   this.animeArm(ctx, sk.shB, sk.bel, sk.bha, A, skin, U * slv, true);
   this.drawOffhand(ctx, front, flat ? Object.assign({}, opt, { color: front }) : opt);
   // --- 3. the far leg
   this.animeLeg(ctx, sk.hipB, sk.bkn, sk.bft, A, skin, U, true);
   // --- 4. the torso (Akari's fitted top is her garb's own cut, drawArmor 'mei_en': bosses/akari/)
-  if (!akari && !skin.witness) this.animeTorsoDraw(ctx, S, A, skin, U, coatT);   // the Witness's coat: drawArmor 'kysmei'
+  if (!akari) this.animeTorsoDraw(ctx, S, A, skin, U, coatT);
   if (ord) this.orderKusazuri(ctx, S, A, U, 'back');
   drawArmor(ctx, this, armInk, ov, T * 1.25);
   // --- 5. the near leg, then the coat's near flap over its thigh (the Order: the front kusazuri plates)
@@ -58,7 +59,6 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   raikonLayer(this, ctx, A, skin, U, 'front');
   akariLayer(this, ctx, A, skin, U, 'front');   // her pink sash (and the Mei-En Garb's on Kage)
   takashiLayer(this, ctx, A, skin, U, 'front');   // Takashi's front robe skirt
-  witnessLayer(this, ctx, A, skin, U, 'front');   // the Witness's front coat tail
   if (skin.coat) this.drawCoatPanel(ctx, 'flap', A, skin, U);
   if (hol) this.hollowRobe(ctx, A, skin, U, 'flap');
   if (!akari) akariLayer(this, ctx, A, skin, U, 'gear');   // the Mei-En Garb's pink sash, over Kage's coat (bosses/akari/)
@@ -69,7 +69,6 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   else if (skin.sash === 'raikon') raikonLayer(this, ctx, A, skin, U, 'waist');   // his red obi and ring (bosses/raikon/)
   else if (skin.sash === 'akari') akariLayer(this, ctx, A, skin, U, 'waist');   // her belts, buckle and pouch (bosses/akari/)
   else if (skin.sash === 'takashi') takashiLayer(this, ctx, A, skin, U, 'waist');   // his gold-corded obi and tassels (bosses/takashi/)
-  else if (skin.sash === 'witness') witnessLayer(this, ctx, A, skin, U, 'waist');   // its armoured belt and tassets (bosses/witness/)
   else if (hol) this.hollowSash(ctx, S, A, U, skin.sash);
   if (hol && hol.mantle) this.hollowMantle(ctx, S, A, U, hol.mantle);
   subLayer(this, ctx, A, skin, U, 'waist');
@@ -89,7 +88,6 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   ctx.restore();
   // --- 9. the near arm, the weapon in its hand, and the hands closed over the grip
   this.animeArm(ctx, sk.shF, sk.fel, sk.fha, A, skin, U * slv, false, true);
-  witnessLayer(this, ctx, A, skin, U, 'core');   // the Witness's chest core and rune cards, over the near arm (bosses/witness/)
   takashiLayer(this, ctx, A, skin, U, 'over');   // the Shinsei Yoroi's gold clasp and tassel at the throat (bosses/takashi/)
   if (this.weaponId() === 'iron_fists') this.drawFistGear(ctx);
   this.drawMainWeapon(ctx, front, flat ? Object.assign({}, opt, { color: front }) : opt);

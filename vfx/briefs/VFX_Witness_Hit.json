@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Witness_Hit",
+  "role": "frequent hit on the Witness (phases I-II)",
+  "style": "stylized anime combat, additive void light (the reference sheets' blue, then violet and magenta with gold) over a dark arena, side-view 2D, baked to sheets",
+  "dominant_shape": "echo cards and glass shards shed out of the body along the blow",
+  "palette": {
+    "core": [
+      246,
+      248,
+      255
+    ],
+    "body": [
+      60,
+      74,
+      255
+    ],
+    "dark": [
+      6,
+      6,
+      28
+    ],
+    "matter": [
+      108,
+      114,
+      168
+    ],
+    "accent": [
+      168,
+      180,
+      255
+    ]
+  },
+  "delivery": {
+    "kind": "melee"
+  },
+  "anchor": "impact",
+  "reference": {
+    "id": "user reference sheets: The Witness, Architect of Echoes, phases I-IV (docs/art-reference/witness-phase-1..4.webp)"
+  },
+  "beats": [
+    {
+      "frame": 1,
+      "name": "contact",
+      "expect": "small white contact"
+    },
+    {
+      "frame": 6,
+      "name": "body",
+      "expect": "ring and cards"
+    },
+    {
+      "frame": 20,
+      "name": "tail",
+      "expect": "cards hanging"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Contact star",
+      "role": "contact",
+      "primitive": "flash",
+      "exit": "gone by absolute f5"
+    },
+    {
+      "name": "1:Blue bloom",
+      "role": "light under the fold",
+      "primitive": "glow",
+      "exit": "gone by absolute f11"
+    },
+    {
+      "name": "2:Crack ring",
+      "role": "a ring snapping across the blow",
+      "primitive": "tilted_ring",
+      "exit": "gone by absolute f11"
+    },
+    {
+      "name": "3:Shed cards",
+      "role": "secondary: cards shed back out of the body along the blow",
+      "primitive": "sprite T_EchoCard01",
+      "exit": "gone by absolute f27"
+    },
+    {
+      "name": "4:Glass shards",
+      "role": "secondary: the world glass thrown across the frame",
+      "primitive": "sprite T_Shard01",
+      "exit": "gone by absolute f19"
+    },
+    {
+      "name": "5:Pale motes",
+      "role": "residue: pale motes",
+      "primitive": "motes",
+      "exit": "gone by absolute f24"
+    }
+  ],
+  "acceptance": [
+    "Never covers the figure"
+  ],
+  "avoid": [
+    "A big flash on every hit"
+  ]
+}

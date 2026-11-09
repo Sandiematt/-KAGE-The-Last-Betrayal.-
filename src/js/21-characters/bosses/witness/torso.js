@@ -1,51 +1,48 @@
-/* ---- the torso (drawArmor 'kysmei'): the Witness's armoured coat; the Kysmei Robe's chest plate on Kage ---- */
-const WT_TORSO = {
-  front: [[-0.14, 10.2], [0.1, 9.2], [0.36, 9], [0.62, 11.6], [0.82, 13.4], [0.95, 12.2], [1.03, 6.6], [1.08, 3.8]],
-  back: [[1.08, -5.4], [0.97, -14], [0.8, -14.6], [0.54, -11.2], [0.28, -10], [0.04, -11.2], [-0.14, -11.2]]
-};
-
+/* ---- the torso (witnessBody): the coat, its opening, the standing collar and the mantle flaring off the shoulders;
+   drawArmor 'kysmei' is the Kysmei Robe's chest plate on Kage ---- */
 function drawKysmeiArmor(ctx, f, ink, flat) {
   const A = f._A;
-  if (f.kageFrame) return;   // the Kage-flicker wears Kage's own coat (animeSkin)
-  const S = A.S, U = A.U, P = _sP(S, U), wit = !!animeSkin(f).witness;
-  if (!wit) { _wtKageRobe(f, ctx, A, S, U, P); return; }
-  const cp = f.corePos(), broken = !!f.coreBroken, fade = f.witFade();
-  // the coat torso, open over the breastplate
-  celFill(ctx, () => animeTorso(ctx, S, WT_TORSO, U), WT_COAT, A, { sd: 7 * U, hd: 1 * U, rim: true, detail: (g) => {
-    _strokePts(g, [P(0.8, -2.5), P(0.5, -4.2), P(0.28, -3.4)], WT_COAT[0], 1 * A.s);
-    _strokePts(g, [P(0.66, -9), P(0.4, -7.6)], WT_COAT[2], 0.8 * A.s);
-    // a violet vein up the back
-    g.save(); g.globalAlpha *= fade; _wtVein(g, _wtJag(P(0.12, -8), P(0.86, -10.5), 6, 1.2 * U, 2), 0.8 * A.s, '#9a6cf2'); g.restore();
+  if (f.kageFrame || animeSkin(f).witness) return;   // the flicker wears Kage's own coat; the Witness's coat is witnessBody's
+  const S = A.S, U = A.U, P = _sP(S, U);
+  _wtKageRobe(f, ctx, A, S, U, P);
+}
+
+// the coat torso [u along the spine, w design px to the front]: hip, waist, chest, shoulder, neck; back down
+const WT_TORSO_PTS = [[-0.04, 10.4], [0.3, 9.6], [0.6, 12.4], [0.84, 14.6], [0.98, 12.4], [1.07, 5.4], [1.07, -5], [0.97, -13.6], [0.76, -15], [0.46, -12.4], [0.18, -11], [-0.04, -12]];
+
+function _wtTorso(f, ctx, W) {
+  const P = _wtP(W), s = W.s, L = WT_L, pts = WT_TORSO_PTS.map(p => P(p[0], p[1]));
+  _wtCollar(f, ctx, W, P);
+  _wtPart(ctx, W, () => _poly(ctx, pts), L.bodyInk, { sd: 5 * s, hd: 1.2 * s, detail: W.A.flat ? null : (g) => {
+    // the coat's opening down the front: a lighter panel, the gold line along its edge, a pale crease
+    const op = [P(1.07, 5.4), P(0.98, 12.4), P(0.84, 14.6), P(0.6, 12.4), P(0.3, 9.6), P(0.02, 10.4), P(0.02, 6.6), P(0.46, 4.2), P(0.9, 2.6)];
+    g.fillStyle = L.bodyInk[2]; g.beginPath(); _poly(g, op); g.fill();
+    _wtLine(g, W, [P(1.04, 2.6), P(0.92, 2.2), P(0.46, 3.6), P(0.02, 6.2)], L.gold, 1.3 * s);
+    _wtLine(g, W, [P(0.82, -2), P(0.5, -4.2), P(0.24, -3)], L.bodyInk[2], 1 * s);
   } });
-  // the breastplate: a pointed plate from the collarbone to the ribs, edged violet
-  const plate = [P(1.02, 0.6), P(1.0, 8.4), P(0.86, 12.6), P(0.66, 12.2), P(0.5, 8.2), P(0.46, 1.4), P(0.6, -2.2), P(0.86, -2.6)];
-  celFill(ctx, () => _poly(ctx, plate), WT_ARMOR, A, { sd: 3.4 * U, hd: 1.2 * U, rim: true, detail: A.flat ? null : (g) => {
-    _strokePts(g, [plate[1], plate[2], plate[3], plate[4]], WT_EDGE, 1.1 * A.s);
-    _strokePts(g, [P(0.98, 3.6), P(0.62, 6.6)], WT_ARMOR[2], 1 * A.s);
-    // crimson veins branching from the core down the plate
-    g.save(); g.globalAlpha *= fade;
-    const c0 = [cp.x, cp.y];
-    for (const [u, w, ph] of [[0.5, 9.6, 1], [0.52, 3.2, 2], [0.94, 10.6, 3]]) _wtVein(g, _wtJag(c0, P(u, w), 4, 1.3 * U, ph), 0.9 * A.s, WT_CRIM[1], 'rgba(255,40,90,0.9)');
-    g.restore();
-    // the bezel round the core: an angular dark setting edged violet (cracked and empty once the core breaks)
-    const R = 7.4 * A.s, dia = [[cp.x, cp.y - R * 1.3], [cp.x + R * 1.1, cp.y], [cp.x, cp.y + R * 1.3], [cp.x - R * 1.1, cp.y]];
-    g.fillStyle = '#07040c'; g.beginPath(); _poly(g, dia); g.fill();
-    _strokePts(g, [dia[0], dia[1], dia[2], dia[3], dia[0]], broken ? 'rgba(120,90,190,0.6)' : WT_EDGE, 1.2 * A.s);
-    if (broken) {
-      g.fillStyle = '#000'; g.beginPath(); g.arc(cp.x, cp.y, R * 0.62, 0, TAU); g.fill();
-      _strokePts(g, [[cp.x - R * 0.5, cp.y - R * 0.9], [cp.x - R * 0.1, cp.y - R * 0.2], [cp.x + R * 0.4, cp.y - R * 0.5], [cp.x + R * 0.8, cp.y + R * 0.6]], 'rgba(167,123,255,0.55)', 0.9 * A.s);
+}
+
+// the standing collar behind the head: dark, gold along its front edge, rising past the crown's root
+function _wtCollar(f, ctx, W, P) {
+  const s = W.s, L = WT_L;
+  const c = [P(1.0, 3.4), P(1.22, 4.6), P(1.5, 1.2), P(1.46, -5), P(1.66, -11.6), P(1.3, -13.8), P(1.0, -10.8)];
+  _wtPart(ctx, W, () => _poly(ctx, c), L.bodyInk, { sd: 3 * s, hd: 0.8 * s, detail: W.A.flat ? null : (g) => {
+    _wtLine(g, W, [P(1.04, 2.6), P(1.24, 3.4), P(1.47, 0.6), P(1.43, -5.2)], L.gold, 1.4 * s);
+  } });
+}
+
+// the mantle off the upper back: three pointed flares swept back (the sheets' dark wings behind the head), a band of
+// the phase's colour inside their lower edge; they lift and settle a little with the cloth's own sway
+function _wtMantle(f, ctx, W) {
+  const P = _wtP(W), s = W.s, L = WT_L, t = W.t, sw = Math.sin(t * 1.7) * 2.2, sw2 = Math.sin(t * 1.7 + 1.2) * 2.6;
+  const m = [P(1.06, -3.2), P(1.3, -16), P(1.56, -50 + sw), P(1.08, -32), P(0.92, -58 + sw2), P(0.74, -26), P(0.78, -11)];
+  _wtPart(ctx, W, () => _poly(ctx, m), L.bodyInk, { sd: 4 * s, hd: 1 * s, detail: W.A.flat ? null : (g) => {
+    // a band of the phase's colour inside each flare's lower edge
+    for (const [a, b, c] of [[P(1.02, -10), m[3], m[2]], [P(0.82, -12), m[5], m[4]]]) {
+      const q = [a, lerp2(a, b, 1.0), lerp2(b, c, 0.62), lerp2(b, c, 0.5), [lerp(a[0], b[0], 0.86) + (b[0] - a[0]) * 0.0, lerp(a[1], b[1], 0.86) - 4 * s], [a[0], a[1] - 3 * s]];
+      g.fillStyle = L.panel[1]; g.beginPath(); _poly(g, q); g.fill();
     }
   } });
-  // the abdominal lames under the plate, then the front collar standing beside the jaw
-  for (let i = 0; i < 3; i++) {
-    const u0 = 0.46 - i * 0.12, u1 = u0 - 0.11, w0 = 8.6 - i * 0.4;
-    const q = [P(u0, -1.2), P(u0 + 0.01, w0), P(u1, w0 - 0.4), P(u1 - 0.01, -1.6)];
-    celFill(ctx, () => _poly(ctx, q), WT_ARMOR, A, { sd: 1.6 * U, hd: 0.7 * U, detail: A.flat ? null : (g) => _strokePts(g, [q[1], q[2]], 'rgba(150,110,240,0.7)', 0.9 * A.s) });
-  }
-  const hr = BODY.head * f.scale * f.build.head, n = f.sk.neck, fr = [S.nx, S.ny], up = [S.ux, S.uy];
-  const tip = [n.x + up[0] * 1.15 * hr + fr[0] * 0.15 * hr, n.y + up[1] * 1.15 * hr + fr[1] * 0.15 * hr];
-  const col = [P(0.9, 1.4), tip, P(1.06, 6.2), P(0.94, 6.8)];
-  celFill(ctx, () => _poly(ctx, col), WT_COAT, A, { sd: 2 * U, hd: 0.8 * U, rim: true, detail: A.flat ? null : (g) => _strokePts(g, [col[0], col[1], col[2]], WT_EDGE, 1.1 * A.s) });
 }
 
 // the Kysmei Robe on Kage: a standing collar behind his own, a violet-edged crossed chest plate with a gem and veins
@@ -59,19 +56,19 @@ function _wtKageRobe(f, ctx, A, S, U, P) {
   const pts = _hsp(S, U, WT_ROBE);
   celFill(ctx, () => orderShape(ctx, 1, pts), WT_COAT, A, { sd: 5 * U, hd: 1 * U, rim: true, detail: A.flat ? null : (g) => {
     g.lineJoin = 'miter';
-    _strokePts(g, pts.slice(5, 12), 'rgba(150,110,240,0.7)', 1 * A.s);
+    _strokePts(g, pts.slice(5, 12), WT_SEAM, 1 * A.s);
     _strokePts(g, [P(1.07, 0.6), P(0.62, 7.4), P(0.42, 11)], WT_ARMOR[0], 2.6 * U);
     _strokePts(g, [P(1.07, 0.6), P(0.62, 7.4), P(0.42, 11)], WT_EDGE, 1.2 * A.s);
     _strokePts(g, [P(1.04, 4.8), P(0.74, 9.6)], WT_COAT[2], 0.9 * A.s);
-    for (const [a, b, ph] of [[P(0.34, -9.4), P(0.9, -11.2), 1], [P(0.4, -4), P(0.7, -9), 2]]) _wtVein(g, _wtJag(a, b, 5, 1.1 * U, ph), 0.8 * A.s, WT_CRIM[1], 'rgba(255,40,90,0.9)');
+    for (const [a, b, ph] of [[P(0.34, -9.4), P(0.9, -11.2), 1], [P(0.4, -4), P(0.7, -9), 2]]) _wtVein(g, _wtJag(a, b, 5, 1.1 * U, ph), 0.8 * A.s, WT_CRIM[1], WT_ACC_GLOW);
     const c = P(0.66, -7.2), rr = 3.4 * U;
-    g.strokeStyle = 'rgba(190,150,255,0.85)'; g.lineWidth = 0.9 * A.s;
+    g.strokeStyle = WT_EDGE; g.lineWidth = 0.9 * A.s;
     g.beginPath(); g.arc(c[0], c[1], rr, 0, TAU); g.stroke(); g.beginPath(); g.arc(c[0], c[1], rr * 0.6, 0, TAU); g.stroke();
     g.beginPath(); g.moveTo(c[0], c[1] - rr * 0.55); g.lineTo(c[0] + rr * 0.45, c[1] + rr * 0.3); g.lineTo(c[0] - rr * 0.45, c[1] + rr * 0.3); g.closePath(); g.stroke();
     const gem = P(0.62, 7.4), R = 2.2 * U;
     g.fillStyle = '#07040c'; g.beginPath(); _poly(g, [[gem[0], gem[1] - R * 1.4], [gem[0] + R, gem[1]], [gem[0], gem[1] + R * 1.4], [gem[0] - R, gem[1]]]); g.fill();
-    g.save(); g.globalCompositeOperation = 'lighter'; g.fillStyle = 'rgba(167,123,255,0.35)'; g.beginPath(); g.arc(gem[0], gem[1], R * 1.9, 0, TAU); g.fill(); g.restore();
-    g.fillStyle = '#b48aff'; g.beginPath(); g.arc(gem[0], gem[1], R * 0.62, 0, TAU); g.fill();
+    g.save(); g.globalCompositeOperation = 'lighter'; g.fillStyle = `rgba(${WT_L.glow.join(',')},0.35)`; g.beginPath(); g.arc(gem[0], gem[1], R * 1.9, 0, TAU); g.fill(); g.restore();
+    g.fillStyle = WT_VIO[1]; g.beginPath(); g.arc(gem[0], gem[1], R * 0.62, 0, TAU); g.fill();
     g.fillStyle = '#ffffff'; g.beginPath(); g.arc(gem[0], gem[1], R * 0.3, 0, TAU); g.fill();
   } });
 }

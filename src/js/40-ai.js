@@ -60,7 +60,6 @@ class AIController {
     this.checkPhase();
     if (this.formCd > 0) this.formCd -= dt;
     if (this.running) { this.stepForm(dt, toward); return; }
-    if (f.def && f.def.mirrorWeapon) this.mirrorWeapon(p);
     if (this.playback) { this.stepPlayback(dt, toward, dist); return; }
     // disarmed: go get the weapon back
     if (!f.hasWeapon && f.weaponId() === 'fists' && f.baseWeapon !== 'fists') {
@@ -72,7 +71,7 @@ class AIController {
     if (threat && this.reactTo !== p.move) {
       this.reactTo = p.move; this.react = rand(this.p.react[0], this.p.react[1]) * (this.lastSeen === p.move.id ? 0.6 : 1); this.lastSeen = p.move.id;
       if (this.readStrike(p)) return;   // Takashi: a repeated attack is read the moment it starts
-      if (this.readEcho(p)) return;     // the Witness: the string Kage keeps landing is read the moment it starts
+      WitnessBoss.onThreat(this, p);    // the Witness: an overused move is answered by a Phantom Counter (69-witness.js)
     }
     if (!threat && p.state !== 'move') this.reactTo = null;
     if (this.reactTo && this.react > 0) {
@@ -143,7 +142,7 @@ class AIController {
   readStrike(p) {
     const f = this.f, w = this.world, list = this.phaseData ? this.phaseData.abilities : this.abilities;
     // his own Guard Return, or an Act III sub-boss's reduced one (TAKASHI_VARIANTS)
-    const variant = id => TAKASHI_VARIANTS[id] || WITNESS_CORRUPT[id] || CORE_ECHO_MOVES[id];
+    const variant = id => TAKASHI_VARIANTS[id] || CORE_ECHO_MOVES[id];
     const gid = list && list.find(id => id === 'guardReturn' || (variant(id) && variant(id).base === 'guardReturn'));
     const a = gid && BOSS_ABILITIES[gid];
     if (!a || (this.cds[gid] || 0) > 0 || !p.move || p.move.kind === 'throw') return false;
@@ -152,22 +151,10 @@ class AIController {
     this.seq = null; this.block = 0; f.move = null;
     this.cds[gid] = a.cd;
     a.run(f, w, this, p);
-    w.fx.popText(f, gid === 'guardReturn' ? 'HE READS YOU' : WITNESS_CORRUPT[gid] ? 'IT READS YOU' : 'READ', WITNESS_CORRUPT[gid] ? WITNESS_TINT : '#7fd0c8');
+    w.fx.popText(f, gid === 'guardReturn' ? 'HE READS YOU' : 'READ', '#7fd0c8');
     return true;
   }
 
-  /* ---- the Witness (final boss) ----
-     Mirror: Mugen no Ha takes whatever Kage holds. Its move-set, stance and reach become his weapon's (so the stance
-     follows on its own) and the shards re-form into that weapon's shape (`shardMorph`, 20-fighter.js). Only between
-     moves, never mid-cut. */
-  mirrorWeapon(p) {
-    const f = this.f, want = p.weaponId(), has = f.weaponId();
-    if (want === has || !(f.canAct() || f.state === 'air')) return;
-    f.baseWeapon = want === 'fists' ? 'fists' : want; f.hasWeapon = want !== 'fists';
-    f.shardMorph = 0.4; f.trail.length = 0;
-    this.world.fx.memoryAsh(f, 10, true);
-    AudioManager.play('teleport', { pitch: 1.6 });
-  }
   /* Playback: a list of [{ id, wait }] MOVES the Witness performs in order, the way Kage did (phase 1 mirrors his latest
      string with his own timing, Logic.mirrorSequence; Echo Replication plays back his last landed string). Each move
      fires once it can (a cut chains from the previous one's follow-through, an air move jumps first), closing the gap
@@ -223,22 +210,6 @@ class AIController {
     this.startPlayback(seq, { speed: 1 });
     return !!this.playback;
   }
-  /* Echo read: when Kage starts the first move of a string he has already landed ECHO_REPLICATION.spam times running
-     (Logic.echoReplication(...).punish), the Witness raises a corrupted Guard Return at once: the spammed string is
-     turned aside and punished. The chance is the mode's `punish` (+0.35). Returns true when it fires. */
-  readEcho(p) {
-    const f = this.f, w = this.world, list = this.phaseData ? this.phaseData.abilities : this.abilities;
-    if (!list || !list.includes('echoReplication') || (this.cds.echoRead || 0) > 0 || !p.move || this.playback) return false;
-    if (!f.grounded || !(f.canAct() || f.state === 'block' || (f.state === 'move' && f.mphase === 0))) return false;
-    const echo = Logic.echoReplication(w.hitLog);
-    if (!echo || !echo.punish || echo.moves[0] !== p.move.id || !chance(Math.min(1, this.p.punish + 0.35))) return false;
-    this.seq = null; this.block = 0; f.move = null;
-    this.cds.echoRead = 3;
-    BOSS_ABILITIES.guardReturn.run(f, w, this, p, WITNESS_CORRUPT.collapseReturn);
-    w.fx.popText(f, 'I KNOW THIS ONE', WITNESS_TINT);
-    return true;
-  }
-
   /* ---- the spam read (every foe; SPAM_READ in 10-data.js, FightSession.onPlayerAction) ----
      Whether this foe is free to answer a spammed action right now: not knocked down, juggled, grabbed, bound or busy
      with a committed ability, not mid-strike, and off its own cool-down. A foe reeling from the spammed blows (hit)
@@ -260,7 +231,7 @@ class AIController {
      true when the read fires. */
   spamPunish(p, read) {
     const f = this.f, w = this.world, R = SPAM_READ, role = this.role();
-    if (!this.canReadSpam() || !chance(Math.min(R.cap[role], R.chance[role] + this.p.punish))) return false;
+    if (!this.canReadSpam() || !chance(Math.min(R.cap[role], R.chance[role] + this.p.punish + WitnessBoss.readBonus(this, read)))) return false;
     this.cds.spamRead = R.cd[role];
     this.seq = null; this.block = 0; this.reactTo = p.move || null; this.punishedThis = true;
     if (f.state === 'move') f.endMove();
@@ -512,6 +483,7 @@ class AIController {
 const BOSS_ABILITIES = {
   roar: { id: 'roar', cd: 0, range: [0, 9999], chance: 1,
     run(f, w) {
+      if (WitnessBoss.is(f)) return WitnessBoss.shift(f, w);   // the Witness's own phase shift (69-witness.js)
       f.startAbility({ dur: 1.1, uninterruptible: true, pose: POSES.castUp, rate: 10,
         start(f) { f.invuln = 1.2; AudioManager.play('boss'); w.fx.ring(f.x, f.y - 100, 320, f.accent, 0.6, 8); w.fx.shake(0.5); w.fx.slowmo(0.5, 0.5);
           const pl = w.player; if (pl && Math.abs(pl.x - f.x) < 300 && pl.alive) { pl.vx = Math.sign(pl.x - f.x) * 700; if (pl.isNeutral() || pl.state === 'block') { pl.setState('hit'); pl.hitstun = 0.3; } } } });
@@ -1580,66 +1552,6 @@ const BOSS_ABILITIES = {
         },
         end(f) { f.superArmor = false; AkariChain.end(w, f); if (w.akLotus && w.akLotus.owner === f) w.akLotus = null; } });
     } },
-  /* ---- The Witness, Mirror of the Self (final boss). Numbers come from WITNESS_MOVES (10-data.js). Every tell is
-     `windup x Logic.aiTuning(...).windup` seconds with the violet eye flaring white (telegraph) and a violet glint. ---- */
-  // Echo Replication: Kage's own last SUCCESSFUL string played back at him (Logic.echoReplication over the fight's hit
-  // log, FightSession.hitLog). A held stance in Kage's own guard with his silhouette ghosting over the Witness, then the
-  // copied moves in order (AIController.startPlayback). If he has landed that same string three times running it was
-  // spam: it comes back harder (`punishMul`), and the Witness also reads its first move (AIController.readStrike).
-  echoReplication: { id: 'echoReplication', cd: WITNESS_MOVES.echoReplication.cd, range: WITNESS_MOVES.echoReplication.range, chance: WITNESS_MOVES.echoReplication.chance,
-    cond: (f, w) => !!Logic.echoReplication(w.hitLog),
-    run(f, w, ai) {
-      const m = WITNESS_MOVES.echoReplication, echo = Logic.echoReplication(w.hitLog); if (!echo) return;
-      const W = m.windup * ai.p.windup;
-      f.telegraph = W;
-      f.startAbility({ dur: W, rate: 16,
-        start(f) {
-          f.facing = w.player.x > f.x ? 1 : -1; f.kageFlicker = W;
-          w.fx.popText(f, echo.punish ? 'YOUR PATTERN' : m.label, WITNESS_TINT); AudioManager.play('teleport', { pitch: 1.3 });
-          w.fx.afterimage(w.player, 'rgba(167,123,255,0.4)', { dur: W });
-        },
-        update(f, w, t) { if (!this.glint && t > W - 0.16) { this.glint = 1; witnessGlint(f, w); } },
-        end(f) { ai.startPlayback(echo.moves.map((id, i) => ({ id, wait: i ? 0.06 : 0 })), { speed: m.speed, dmg: echo.punish ? m.punishMul : 1, echo: true }); } });
-    } },
-  // Void Slash: a cut from far away. The blade is drawn back low (the tell), then one flat sweep; a dark afterimage line
-  // stays hanging across the floor ahead (`len` long, at chest height) for `delay` seconds, then it cuts
-  // (FightSession.spawnVoidLine). Jump it, dash through it or step off its end.
-  voidSlash: { id: 'voidSlash', cd: WITNESS_MOVES.voidSlash.cd, range: WITNESS_MOVES.voidSlash.range, chance: WITNESS_MOVES.voidSlash.chance,
-    run(f, w, ai) {
-      const m = WITNESS_MOVES.voidSlash, W = m.windup * ai.p.windup, D = m.delay * Math.max(1, ai.p.windup);
-      f.telegraph = W;
-      f.startAbility({ dur: W + 0.5, rate: 22, trail: true, el: 'void',
-        pose: (f, t) => (t < W ? TAKASHI_POSE.cleaveLow : RAIKON_POSE.swingThrough),
-        start(f) { f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, m.label, WITNESS_TINT); AudioManager.play('teleport', { pitch: 0.55 }); },
-        update(f, w, t, dt) {
-          f.vx = damp(f.vx, 0, 12, dt);
-          if (t < W) { if (!this.glint && t > W - 0.16) { this.glint = 1; witnessGlint(f, w); } return; }
-          if (!this.cut) {
-            this.cut = 1; AudioManager.play('heavyswing', { pitch: 0.7 });
-            w.spawnVoidLine(f, fbox(f, 40, -128, m.len, 48), D, m.dmg * f.dmgMul);
-          }
-        } });
-    } },
-  // Memory Break (phase 2): the Witness lifts its hand and the arena becomes a remembered place for a few seconds
-  // (FightSession.memoryBreak: Hoshimura, the City of Echoes, the Fortress, the training yard, in turn), with a flat
-  // glitch in and out.
-  memoryBreak: { id: 'memoryBreak', cd: WITNESS_MOVES.memoryBreak.cd, range: WITNESS_MOVES.memoryBreak.range, chance: WITNESS_MOVES.memoryBreak.chance,
-    cond: (f, w) => !w.memBreak,
-    run(f, w, ai) {
-      const m = WITNESS_MOVES.memoryBreak, W = m.windup * ai.p.windup;
-      f.startAbility({ dur: W + 0.25, pose: POSES.castUp, rate: 12, uninterruptible: true,
-        start(f) { f.invuln = W + 0.25; w.fx.popText(f, m.label, WITNESS_TINT); AudioManager.play('boss'); },
-        update(f, w, t) { if (!this.done && t > W) { this.done = 1; w.memoryBreak(f, m); } } });
-    } },
-  // Hollow copies (phase 2): one or two thin Hollow silhouettes of Kage peel off the Witness (cheap, never more than `max`)
-  hollowCopies: { id: 'hollowCopies', cd: WITNESS_MOVES.hollowCopies.cd, range: WITNESS_MOVES.hollowCopies.range, chance: WITNESS_MOVES.hollowCopies.chance,
-    cond: (f, w) => w.fighters.filter(x => x.minion && x.alive && x.def && x.def.id === WITNESS_MOVES.hollowCopies.enemy).length < WITNESS_MOVES.hollowCopies.max,
-    run(f, w, ai) {
-      const m = WITNESS_MOVES.hollowCopies, W = m.windup * ai.p.windup;
-      f.startAbility({ dur: W + 0.2, pose: POSES.castUp, rate: 14, uninterruptible: true,
-        start(f) { f.invuln = W + 0.2; f.kageFlicker = W; w.fx.popText(f, m.label, WITNESS_TINT); AudioManager.play('teleport', { pitch: 0.8 }); },
-        update(f, w, t) { if (!this.done && t > W) { this.done = 1; w.spawnHollowCopies(f, m); } } });
-    } },
   summon: { id: 'summon', cd: 15, range: [0, 1200], chance: 0.7, cond: (f, w) => w.fighters.filter(x => x.minion && x.alive).length === 0,
     run(f, w) {
       f.startAbility({ dur: 1.0, pose: POSES.castUp, rate: 12, uninterruptible: true,
@@ -1667,14 +1579,6 @@ for (const id in AKARI_VARIANTS) {
    AIController.readStrike like his. ---- */
 for (const id in TAKASHI_VARIANTS) {
   const v = TAKASHI_VARIANTS[id], base = BOSS_ABILITIES[v.base];
-  BOSS_ABILITIES[id] = { id, cd: v.cd || base.cd, range: v.range || base.range, chance: v.chance || base.chance, cond: base.cond,
-    run(f, w, ai, p) { base.run(f, w, ai, p, v); } };
-}
-/* ---- the Witness's corrupted Takashi moves (WITNESS_CORRUPT in 10-data.js, Identity Collapse): his own ability code
-   with the corrupted numbers merged over his (takashiOpt), a violet tint for every gold accent and glitch frames.
-   A corrupted Guard Return keeps his `cond` and is raised by AIController.readStrike like his. ---- */
-for (const id in WITNESS_CORRUPT) {
-  const v = WITNESS_CORRUPT[id], base = BOSS_ABILITIES[v.base];
   BOSS_ABILITIES[id] = { id, cd: v.cd || base.cd, range: v.range || base.range, chance: v.chance || base.chance, cond: base.cond,
     run(f, w, ai, p) { base.run(f, w, ai, p, v); } };
 }
@@ -1790,7 +1694,7 @@ function takashiGather(f, w, t, low, tint) {
 function takashiGlint(f, w, tint) { w.fx.glint(f.sk.wt.x, f.sk.wt.y, tint ? '#e4d6ff' : '#ffe6a0'); AudioManager.play('orb', { pitch: tint ? 1.2 : 1.5 }); }
 // the Witness's violet glint: the moment before a cut or a playback is released
 function witnessGlint(f, w) { w.fx.glint(f.sk.wt.x, f.sk.wt.y, '#e4d6ff'); AudioManager.play('orb', { pitch: 1.1 }); }
-// a corrupted move (the Witness's Identity Collapse, `o.glitch`) glitches the fighter's frames while it runs
+// a corrupted move (a Core echo's, `o.glitch`) glitches the fighter's frames while it runs
 function corruptFrames(f, o) { if (o && o.glitch) f.corruptUntil = f.time + 1.8; }
 // a violet glint on one of her blades ('wt' Kagehira, 'w2t' Yūrei): the moment before that blade cuts
 function akariGlint(f, w, tip) { w.fx.glint(f.sk[tip].x, f.sk[tip].y, AkariSakura.glint(f) || '#e0ccff'); AudioManager.play('orb', { pitch: 1.9 }); }

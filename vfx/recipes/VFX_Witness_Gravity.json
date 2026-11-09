@@ -1,0 +1,591 @@
+{
+  "id": "VFX_Witness_Gravity",
+  "name": "Gravity Collapse",
+  "category": "status",
+  "element": "void",
+  "duration": 1.0,
+  "loop": true,
+  "attach": "ground",
+  "peak": 0,
+  "impact": 0,
+  "light": [
+    0.6,
+    0.3,
+    1
+  ],
+  "seed": 1729,
+  "layers": [
+    {
+      "name": "Well glow",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        146,
+        44,
+        248,
+        90
+      ],
+      "life": 60,
+      "delay": 0,
+      "size": 3.4,
+      "size_curve": [
+        [
+          0,
+          1
+        ],
+        [
+          100,
+          1
+        ]
+      ],
+      "billboard": "Billboard",
+      "fade_in": 10,
+      "fade_out": 10,
+      "position": [
+        0,
+        1.0,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Far band",
+      "renderer": "Ring",
+      "color": [
+        214,
+        168,
+        255,
+        255
+      ],
+      "life": 60,
+      "delay": 0,
+      "billboard": "Fixed",
+      "rotation": [
+        -70,
+        0,
+        12
+      ],
+      "ring": {
+        "vertices": 96,
+        "outer": [
+          1.3,
+          0
+        ],
+        "inner": [
+          0.8,
+          0
+        ],
+        "center_ratio": 0.3,
+        "outer_color": [
+          78,
+          14,
+          160,
+          0
+        ],
+        "center_color": [
+          214,
+          168,
+          255,
+          255
+        ],
+        "inner_color": [
+          146,
+          44,
+          248,
+          0
+        ],
+        "angle_start": -90,
+        "angle_end": 90
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+      "alpha_scroll": [
+        -0.06,
+        0
+      ],
+      "fade_in": 10,
+      "fade_out": 10,
+      "position": [
+        0,
+        1.0,
+        0
+      ],
+      "emissive": 1.8,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Far band 2",
+      "renderer": "Ring",
+      "color": [
+        90,
+        170,
+        255,
+        200
+      ],
+      "life": 60,
+      "delay": 0,
+      "billboard": "Fixed",
+      "rotation": [
+        -62,
+        0,
+        -28
+      ],
+      "ring": {
+        "vertices": 96,
+        "outer": [
+          1.0,
+          0
+        ],
+        "inner": [
+          0.7,
+          0
+        ],
+        "center_ratio": 0.3,
+        "outer_color": [
+          78,
+          14,
+          160,
+          0
+        ],
+        "center_color": [
+          90,
+          170,
+          255,
+          200
+        ],
+        "inner_color": [
+          90,
+          170,
+          255,
+          0
+        ],
+        "angle_start": -90,
+        "angle_end": 90
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+      "alpha_scroll": [
+        -0.06,
+        0
+      ],
+      "fade_in": 10,
+      "fade_out": 10,
+      "position": [
+        0,
+        1.0,
+        0
+      ],
+      "emissive": 1.8,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Core",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_SoftCircle.png",
+      "color": [
+        12,
+        2,
+        26,
+        255
+      ],
+      "life": 60,
+      "size": 1.0,
+      "blend": "Blend",
+      "billboard": "Billboard",
+      "position": [
+        0,
+        1.0,
+        0
+      ],
+      "fade_in": 10,
+      "fade_out": 10,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Alpha.vfxmat.json"
+    },
+    {
+      "name": "Rim",
+      "renderer": "Ring",
+      "color": [
+        214,
+        168,
+        255,
+        255
+      ],
+      "life": 60,
+      "delay": 0,
+      "billboard": "Billboard",
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "ring": {
+        "outer": [
+          1,
+          0
+        ],
+        "inner": {
+          "start": [
+            0.9,
+            0
+          ],
+          "end": [
+            0.97,
+            0
+          ]
+        },
+        "center_ratio": 0.8,
+        "outer_color": [
+          214,
+          168,
+          255,
+          127
+        ],
+        "center_color": [
+          214,
+          168,
+          255,
+          255
+        ],
+        "inner_color": [
+          214,
+          168,
+          255,
+          0
+        ]
+      },
+      "size": 0.55,
+      "size_curve": [
+        [
+          0,
+          1
+        ],
+        [
+          50,
+          1.05
+        ],
+        [
+          100,
+          1
+        ]
+      ],
+      "fade_in": 10,
+      "fade_out": 10,
+      "position": [
+        0,
+        1.0,
+        0
+      ],
+      "emissive": 2.0,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Near band",
+      "renderer": "Ring",
+      "color": [
+        214,
+        168,
+        255,
+        255
+      ],
+      "life": 60,
+      "delay": 0,
+      "billboard": "Fixed",
+      "rotation": [
+        -70,
+        0,
+        12
+      ],
+      "ring": {
+        "vertices": 96,
+        "outer": [
+          1.3,
+          0
+        ],
+        "inner": [
+          0.8,
+          0
+        ],
+        "center_ratio": 0.3,
+        "outer_color": [
+          78,
+          14,
+          160,
+          0
+        ],
+        "center_color": [
+          214,
+          168,
+          255,
+          255
+        ],
+        "inner_color": [
+          146,
+          44,
+          248,
+          0
+        ],
+        "angle_start": 90,
+        "angle_end": 270
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+      "alpha_scroll": [
+        -0.06,
+        0
+      ],
+      "fade_in": 10,
+      "fade_out": 10,
+      "position": [
+        0,
+        1.0,
+        0
+      ],
+      "emissive": 1.8,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Near band 2",
+      "renderer": "Ring",
+      "color": [
+        90,
+        170,
+        255,
+        200
+      ],
+      "life": 60,
+      "delay": 0,
+      "billboard": "Fixed",
+      "rotation": [
+        -62,
+        0,
+        -28
+      ],
+      "ring": {
+        "vertices": 96,
+        "outer": [
+          1.0,
+          0
+        ],
+        "inner": [
+          0.7,
+          0
+        ],
+        "center_ratio": 0.3,
+        "outer_color": [
+          78,
+          14,
+          160,
+          0
+        ],
+        "center_color": [
+          90,
+          170,
+          255,
+          200
+        ],
+        "inner_color": [
+          90,
+          170,
+          255,
+          0
+        ],
+        "angle_start": 90,
+        "angle_end": 270
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+      "alpha_scroll": [
+        -0.06,
+        0
+      ],
+      "fade_in": 10,
+      "fade_out": 10,
+      "position": [
+        0,
+        1.0,
+        0
+      ],
+      "emissive": 1.8,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Inward strands",
+      "renderer": "Ring",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_WispTrail01.png",
+      "color": [
+        214,
+        168,
+        255,
+        210
+      ],
+      "count": 5,
+      "interval": 11,
+      "life": [
+        20,
+        28
+      ],
+      "delay": 1,
+      "billboard": "Fixed",
+      "rotation": [
+        [
+          -80,
+          -60
+        ],
+        [
+          0,
+          360
+        ],
+        [
+          0,
+          360
+        ]
+      ],
+      "size": 1.0,
+      "ring": {
+        "vertices": 72,
+        "outer": [
+          1.6,
+          0
+        ],
+        "inner": {
+          "start": [
+            1.36,
+            0
+          ],
+          "end": [
+            1.528,
+            0
+          ]
+        },
+        "center_ratio": 0.45,
+        "outer_color": [
+          214,
+          168,
+          255,
+          70
+        ],
+        "center_color": [
+          214,
+          168,
+          255,
+          210
+        ],
+        "inner_color": [
+          214,
+          168,
+          255,
+          0
+        ],
+        "angle_start": [
+          0,
+          70.0
+        ],
+        "angle_end": [
+          28.0,
+          140
+        ],
+        "angle_easing": "EaseOutCubic",
+        "angle_fade": [
+          20,
+          6
+        ]
+      },
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseStreak01.png",
+      "alpha_scroll": [
+        -0.05,
+        0
+      ],
+      "cutoff": {
+        "start": 0.1,
+        "end": 0.8,
+        "easing": "EaseInQuadratic"
+      },
+      "fade_in": 1,
+      "fade_out": 12.6,
+      "wrap": "Clamp",
+      "emissive": 2.0,
+      "position": [
+        0,
+        1.0,
+        0
+      ],
+      "size_curve": [
+        [
+          0,
+          1.2
+        ],
+        [
+          100,
+          0.45
+        ]
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Drawn motes",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        214,
+        168,
+        255,
+        255
+      ],
+      "color_end": [
+        252,
+        246,
+        255,
+        255
+      ],
+      "count": 30,
+      "life": [
+        18,
+        24
+      ],
+      "delay": 0,
+      "interval": 2,
+      "billboard": "Billboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          2.0,
+          2.4
+        ],
+        "rot_x": [
+          -90,
+          90
+        ]
+      },
+      "travel": {
+        "end": [
+          0,
+          [
+            -2.2,
+            -1.6
+          ],
+          0
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "size": [
+        0.05,
+        0.1
+      ],
+      "size_end": 0,
+      "easing": "EaseInCubic",
+      "forces": [
+        {
+          "type": "Turbulence",
+          "power": 0.003,
+          "scale": 5
+        }
+      ],
+      "fade_in": 1,
+      "fade_out": 6,
+      "emissive": 1.5,
+      "position": [
+        0,
+        1.0,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    }
+  ],
+  "design": "A violet accretion band passing in front of a black core with a cyan rim, a second band at another tilt, violet strands and motes drawn inward along curved paths.",
+  "delivery": {
+    "kind": "area"
+  }
+}

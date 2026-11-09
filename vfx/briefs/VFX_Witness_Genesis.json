@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Witness_Genesis",
+  "role": "domain activation (Echo Genesis)",
+  "style": "stylized anime combat, additive void light (the reference sheets' blue, then violet and magenta with gold) over a dark arena, side-view 2D, baked to sheets",
+  "dominant_shape": "the Echo System seal standing up as a giant turning ring",
+  "palette": {
+    "core": [
+      255,
+      246,
+      255
+    ],
+    "body": [
+      184,
+      40,
+      255
+    ],
+    "dark": [
+      16,
+      2,
+      24
+    ],
+    "matter": [
+      140,
+      110,
+      160
+    ],
+    "accent": [
+      255,
+      196,
+      110
+    ]
+  },
+  "delivery": {
+    "kind": "self"
+  },
+  "anchor": "caster_ground",
+  "reference": {
+    "id": "user reference sheets: The Witness, Architect of Echoes, phases I-IV (docs/art-reference/witness-phase-1..4.webp)"
+  },
+  "beats": [
+    {
+      "frame": 20,
+      "name": "gather",
+      "expect": "motes and strands drawn into the hand"
+    },
+    {
+      "frame": 40,
+      "name": "release",
+      "expect": "star, the seal flares"
+    },
+    {
+      "frame": 60,
+      "name": "body",
+      "expect": "rings standing and turning, glass hanging"
+    },
+    {
+      "frame": 120,
+      "name": "tail",
+      "expect": "rings still turning, fading"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Gather",
+      "role": "anticipation: motes drawn in",
+      "primitive": "motes",
+      "exit": "gone by absolute f38"
+    },
+    {
+      "name": "1:Drawn strands",
+      "role": "anticipation: strands drawn into the hand",
+      "primitive": "wisps",
+      "exit": "gone by absolute f59"
+    },
+    {
+      "name": "2:Release star",
+      "role": "release",
+      "primitive": "flash",
+      "exit": "gone by absolute f44"
+    },
+    {
+      "name": "3:Release bloom",
+      "role": "light at release",
+      "primitive": "glow",
+      "exit": "gone by absolute f76"
+    },
+    {
+      "name": "4:Floor seal",
+      "role": "ownership: the Echo System seal flaring on the floor",
+      "primitive": "decal T_EchoSeal01",
+      "exit": "gone by absolute f126"
+    },
+    {
+      "name": "5:Standing ring",
+      "role": "main shape: the giant Echo System ring standing up behind it",
+      "primitive": "sprite T_EchoSeal01",
+      "exit": "gone by absolute f130"
+    },
+    {
+      "name": "6:Ring 2",
+      "role": "more Echo System rings at other tilts",
+      "primitive": "orbit_band",
+      "exit": "gone by absolute f129"
+    },
+    {
+      "name": "7:Ring 3",
+      "role": "more Echo System rings at other tilts",
+      "primitive": "orbit_band",
+      "exit": "gone by absolute f128"
+    },
+    {
+      "name": "8:Release ring",
+      "role": "the release shock ring",
+      "primitive": "shock_ring",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "9:Glass source",
+      "role": "pivot for the glass burst",
+      "primitive": "pivot",
+      "exit": "gone by absolute f100"
+    },
+    {
+      "name": "9:Glass source/0:Glass shards",
+      "role": "secondary: the world glass thrown across the frame",
+      "primitive": "sprite T_Shard01",
+      "exit": "gone by absolute f100"
+    },
+    {
+      "name": "10:Gold glints",
+      "role": "accent: gold glints round the rings",
+      "primitive": "sparkle",
+      "exit": "gone by absolute f72"
+    },
+    {
+      "name": "11:Card storm",
+      "role": "secondary: a storm of echo cards",
+      "primitive": "sprite T_EchoCard01",
+      "exit": "gone by absolute f102"
+    }
+  ],
+  "acceptance": [
+    "The gather reads before the release",
+    "The standing ring reads as the Echo System"
+  ],
+  "avoid": [
+    "A white screen for more than three frames"
+  ]
+}

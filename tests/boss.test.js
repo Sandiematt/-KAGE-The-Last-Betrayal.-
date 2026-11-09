@@ -46,13 +46,13 @@ test('Raikon is armoured: light hits do not make him flinch, and he cannot be th
 
 /* ---------------- the boss format ---------------- */
 
-test('story boss stages are one round with one health bar, three phases and no round clock', () => {
+test('story boss stages are one round with one health bar, three phases (the Witness four) and no round clock', () => {
   for (const id of ['act1.boss', 'act2.boss', 'act3.boss', 'core.witness']) {
     const f = Logic.stageConfig(Logic.defaultSave(), id).format;
     assert.equal(f.name, 'boss', id);
     assert.equal(f.roundsToWin, 1, id);
     assert.equal(f.timer, 0, `${id} has no timer, so no time-out loss`);
-    assert.equal(f.phases, 3, id);
+    assert.equal(f.phases, id === 'core.witness' ? 4 : 3, id);
   }
 });
 

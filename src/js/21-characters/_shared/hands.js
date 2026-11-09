@@ -9,7 +9,7 @@ function animeHandPath(ctx, el, ha, r) {
 Fighter.prototype.animeHand = function (ctx, el, ha, A, U, far) {
   if (this.weaponId() === 'iron_fists' && this.hollow && animeSkin(this).hollow) { this.hollowFist(ctx, el, ha, A, U, far); return; }
   if (this.weaponId() === 'iron_fists') { this.subFist(ctx, el, ha, A, U, far); return; }   // the iron tekko (sub-bosses/)
-  const pal = A.pal, glove = animeSkin(this).witness ? (far ? WT_FAR : WT_ARMOR) : far ? [ANIME.cloth0, ANIME.cloth0, ANIME.cloth1] : [ANIME.cloth0, ANIME.cloth1, ANIME.cloth2];
+  const pal = A.pal, glove = far ? [ANIME.cloth0, ANIME.cloth0, ANIME.cloth1] : [ANIME.cloth0, ANIME.cloth1, ANIME.cloth2];
   celFill(ctx, () => animeHandPath(ctx, el, ha, 2.9 * U), this.weaponId() === 'iron_fists' ? pal.metal : glove, A, { sd: 1.4 * U, hd: 0.6 * U, detail: (g) => {
     const dx = ha.x - el.x, dy = ha.y - el.y, l = Math.hypot(dx, dy) || 1, ux = dx / l, uy = dy / l;
     g.strokeStyle = ANIME.cloth2; g.lineWidth = 0.7 * A.s; g.beginPath();

@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Witness_Execution",
+  "role": "boss finisher hit (Execution Frames)",
+  "style": "stylized anime combat, additive void light (the reference sheets' blue, then violet and magenta with gold) over a dark arena, side-view 2D, baked to sheets",
+  "dominant_shape": "a long white line and a huge violet crescent cutting down",
+  "palette": {
+    "core": [
+      252,
+      246,
+      255
+    ],
+    "body": [
+      146,
+      44,
+      248
+    ],
+    "dark": [
+      12,
+      2,
+      26
+    ],
+    "matter": [
+      128,
+      108,
+      160
+    ],
+    "accent": [
+      90,
+      170,
+      255
+    ]
+  },
+  "delivery": {
+    "kind": "area"
+  },
+  "anchor": "ground",
+  "reference": {
+    "id": "user reference sheets: The Witness, Architect of Echoes, phases I-IV (docs/art-reference/witness-phase-1..4.webp)"
+  },
+  "beats": [
+    {
+      "frame": 1,
+      "name": "guide",
+      "expect": "thin guide line"
+    },
+    {
+      "frame": 3,
+      "name": "contact",
+      "expect": "impact card and star on one frame"
+    },
+    {
+      "frame": 10,
+      "name": "body",
+      "expect": "crescent cutting down, rings racing out"
+    },
+    {
+      "frame": 40,
+      "name": "tail",
+      "expect": "glitch hanging, motes settling"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Guide line",
+      "role": "anticipation: guide line where the cut will fall",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f5"
+    },
+    {
+      "name": "1:Impact card",
+      "role": "impact frame: near-black card on the release frame",
+      "primitive": "sprite T_SoftCircle Blend",
+      "exit": "gone by absolute f6"
+    },
+    {
+      "name": "2:Contact star",
+      "role": "contact",
+      "primitive": "flash",
+      "exit": "gone by absolute f8"
+    },
+    {
+      "name": "3:Kill line",
+      "role": "release: one long white line down through the target",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f17"
+    },
+    {
+      "name": "4:Crescent body",
+      "role": "main shape: the huge violet crescent cutting down",
+      "primitive": "slash_arc",
+      "exit": "gone by absolute f22"
+    },
+    {
+      "name": "5:Crescent edge",
+      "role": "core: white leading edge",
+      "primitive": "slash_arc",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "6:Violet bloom",
+      "role": "light under the blow",
+      "primitive": "glow",
+      "exit": "gone by absolute f25"
+    },
+    {
+      "name": "7:Floor shock",
+      "role": "ground feedback ring",
+      "primitive": "floor_ring",
+      "exit": "gone by absolute f27"
+    },
+    {
+      "name": "8:Second shock",
+      "role": "a second ring behind it",
+      "primitive": "floor_ring",
+      "exit": "gone by absolute f27"
+    },
+    {
+      "name": "9:Shard source",
+      "role": "pivot for the shard emission",
+      "primitive": "pivot",
+      "exit": "gone by absolute f25"
+    },
+    {
+      "name": "9:Shard source/0:Thrown shards",
+      "role": "secondary: shards thrown low and sideways",
+      "primitive": "radial_sparks",
+      "exit": "gone by absolute f25"
+    },
+    {
+      "name": "10:Hanging glitch",
+      "role": "residue: glitch pixels hanging in the cut",
+      "primitive": "sprite T_GlitchPix01",
+      "exit": "gone by absolute f27"
+    },
+    {
+      "name": "11:Cyan glitch",
+      "role": "accent glitch pixels",
+      "primitive": "sprite T_GlitchPix01",
+      "exit": "gone by absolute f24"
+    },
+    {
+      "name": "12:Settling motes",
+      "role": "residue: motes settling",
+      "primitive": "motes",
+      "exit": "gone by absolute f55"
+    },
+    {
+      "name": "13:Void residue",
+      "role": "matter: violet-grey residue settling",
+      "primitive": "smoke",
+      "exit": "gone by absolute f53"
+    }
+  ],
+  "acceptance": [
+    "The white is gone within five frames",
+    "The crescent keeps its violet after the flash"
+  ],
+  "avoid": [
+    "A white wash"
+  ]
+}

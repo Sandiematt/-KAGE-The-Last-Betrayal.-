@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Witness_Void_Wave",
+  "role": "projectile (Void Slash: one of three crossing waves)",
+  "style": "stylized anime combat, additive void light (the reference sheets' blue, then violet and magenta with gold) over a dark arena, side-view 2D, baked to sheets",
+  "dominant_shape": "a tall blue crescent standing on the floor, racing forward",
+  "palette": {
+    "core": [
+      246,
+      248,
+      255
+    ],
+    "body": [
+      60,
+      74,
+      255
+    ],
+    "dark": [
+      6,
+      6,
+      28
+    ],
+    "matter": [
+      108,
+      114,
+      168
+    ],
+    "accent": [
+      168,
+      180,
+      255
+    ]
+  },
+  "delivery": {
+    "kind": "projectile"
+  },
+  "anchor": "projectile",
+  "reference": {
+    "id": "user reference sheets: The Witness, Architect of Echoes, phases I-IV (docs/art-reference/witness-phase-1..4.webp)"
+  },
+  "beats": [
+    {
+      "frame": 2,
+      "name": "launch",
+      "expect": "ring, the crescent stands"
+    },
+    {
+      "frame": 16,
+      "name": "flight",
+      "expect": "crescent reads with a white leading edge"
+    },
+    {
+      "frame": 30,
+      "name": "arrival",
+      "expect": "head released; cards hang on the path"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Launch ring",
+      "role": "launch speed carrier",
+      "primitive": "shock_ring",
+      "exit": "gone by absolute f10"
+    },
+    {
+      "name": "1:Wave glow",
+      "role": "head: glow round the crescent",
+      "primitive": "glow",
+      "exit": "gone by absolute f6"
+    },
+    {
+      "name": "2:Dark echo",
+      "role": "dark: the crescent echo lagging behind",
+      "primitive": "crescent (slash_arc held)",
+      "exit": "gone by absolute f6"
+    },
+    {
+      "name": "3:Wave body",
+      "role": "main shape: the standing blue crescent",
+      "primitive": "crescent (slash_arc held)",
+      "exit": "gone by absolute f6"
+    },
+    {
+      "name": "4:Hot edge",
+      "role": "core: white leading edge",
+      "primitive": "crescent (slash_arc held)",
+      "exit": "gone by absolute f6"
+    },
+    {
+      "name": "5:Floor skim",
+      "role": "ground feedback: a thin line skimming the floor",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f10"
+    },
+    {
+      "name": "6:Peeling cards",
+      "role": "trail: cards peeling off the back and hanging",
+      "primitive": "sprite T_EchoCard01",
+      "exit": "gone by absolute f22"
+    },
+    {
+      "name": "7:Shed shards",
+      "role": "trail: shards shed on the path",
+      "primitive": "radial_sparks",
+      "exit": "gone by absolute f18"
+    }
+  ],
+  "acceptance": [
+    "The crescent reads as a wall to jump or dash through",
+    "The leading edge faces the way it travels"
+  ],
+  "avoid": [
+    "A flat glowing ball"
+  ]
+}

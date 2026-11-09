@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Witness_Bind",
+  "role": "control lock on the player (Echo Bind and the other modifiers)",
+  "style": "stylized anime combat, additive void light (the reference sheets' blue, then violet and magenta with gold) over a dark arena, side-view 2D, baked to sheets",
+  "dominant_shape": "rings of light locking round Kage",
+  "palette": {
+    "core": [
+      246,
+      248,
+      255
+    ],
+    "body": [
+      60,
+      74,
+      255
+    ],
+    "dark": [
+      6,
+      6,
+      28
+    ],
+    "matter": [
+      108,
+      114,
+      168
+    ],
+    "accent": [
+      168,
+      180,
+      255
+    ]
+  },
+  "delivery": {
+    "kind": "targeted"
+  },
+  "anchor": "ground",
+  "reference": {
+    "id": "user reference sheets: The Witness, Architect of Echoes, phases I-IV (docs/art-reference/witness-phase-1..4.webp)"
+  },
+  "beats": [
+    {
+      "frame": 4,
+      "name": "threads",
+      "expect": "threads drop onto him"
+    },
+    {
+      "frame": 10,
+      "name": "lock",
+      "expect": "the floor ring snaps shut with a small star"
+    },
+    {
+      "frame": 40,
+      "name": "hold",
+      "expect": "lock rings turning"
+    },
+    {
+      "frame": 64,
+      "name": "tail",
+      "expect": "lock fades"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Thread 1",
+      "role": "secondary: a control thread thrown out and thinning",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f12"
+    },
+    {
+      "name": "1:Thread 2",
+      "role": "secondary: a control thread thrown out and thinning",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "2:Thread 3",
+      "role": "secondary: a control thread thrown out and thinning",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f16"
+    },
+    {
+      "name": "3:Thread 4",
+      "role": "secondary: a control thread thrown out and thinning",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f18"
+    },
+    {
+      "name": "4:Closing ring",
+      "role": "anticipation: a ring tightening round the feet",
+      "primitive": "floor_ring",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "5:Lock star",
+      "role": "contact: the lock snapping shut",
+      "primitive": "flash",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "6:Ankle lock",
+      "role": "body: the lock ring at the feet",
+      "primitive": "orbit_band",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "7:Shin lock",
+      "role": "body: lock ring at the shins",
+      "primitive": "orbit_band",
+      "exit": "gone by absolute f58"
+    },
+    {
+      "name": "8:Chest lock",
+      "role": "body: lock ring at the chest",
+      "primitive": "orbit_band",
+      "exit": "gone by absolute f56"
+    },
+    {
+      "name": "9:Seal",
+      "role": "ownership: the seal under the bound man",
+      "primitive": "decal T_EchoSeal01",
+      "exit": "gone by absolute f64"
+    },
+    {
+      "name": "10:Sinking motes",
+      "role": "residue: motes sinking",
+      "primitive": "motes",
+      "exit": "gone by absolute f44"
+    }
+  ],
+  "acceptance": [
+    "Reads as a seal, not a hit",
+    "The lock is visible for its whole hold"
+  ],
+  "avoid": [
+    "Sparks thrown like a hit"
+  ]
+}

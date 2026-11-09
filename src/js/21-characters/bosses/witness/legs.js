@@ -1,28 +1,18 @@
-/* ---- the legs: slim black legs, a cuisse, a pointed knee cop, a veined greave and a pointed sabaton ---- */
-function witnessLeg(f, ctx, hp, kn, ft, A, U, far) {
-  const fc = f.facing, cloth = far ? WT_FAR : WT_CLOTH, arm = far ? WT_FAR : WT_ARMOR, fade = f.witFade();
-  const se = { x: lerp(kn.x, ft.x, 0.9), y: lerp(kn.y, ft.y, 0.9) };
-  celFill(ctx, () => animeCapsule(ctx, kn, se, 7.4 * U, 5.6 * U, 0.6 * U, 0.4), cloth, A, { sd: 3.4 * U, hd: far ? 0 : 0.7 * U, rim: !far });
-  celFill(ctx, () => animeCapsule(ctx, hp, kn, 9.4 * U, 7.6 * U, 1.2 * U, 0.42), cloth, A, { sd: 4.2 * U, hd: far ? 0 : 0.8 * U, rim: !far });
-  // the cuisse: a plate down the front of the thigh
-  const T = _wtLimb(hp, kn, fc), cu = [T.at(0.18, 9.6 * U), T.at(0.84, 8.2 * U), T.at(0.92, 2 * U), T.at(0.7, -2.6 * U), T.at(0.22, -1 * U)];
-  celFill(ctx, () => _poly(ctx, cu), arm, A, { sd: 2.6 * U, hd: far ? 0 : 0.9 * U, detail: far || A.flat ? null : (g) => {
-    _strokePts(g, [cu[0], cu[1], cu[2]], 'rgba(150,110,240,0.7)', 0.9 * A.s);
-    _strokePts(g, [T.at(0.5, 8.8 * U), T.at(0.48, -1.6 * U)], WT_ARMOR[0], 1.1 * A.s);
+/* ---- the legs (witnessBody): slim dark trousers, one shape from hip to ankle, a crimson stripe down the near shin,
+   and pointed boots. In each limb's frame: o design px toward the front of the leg (the way it faces). ---- */
+function _wtLeg(f, ctx, W, hp, kn, ft, far) {
+  const s = W.s, L = WT_L, fc = W.fc, lw = far ? W.lwFar : W.lw, line = far ? L.dim : L.line, ink = far ? WT_FAR : L.bodyInk;
+  const T = _wtLimb(hp, kn, fc), G = _wtLimb(kn, ft, fc);
+  const knee = (o) => lerp2(T.at(1, o * s), G.at(0, o * s), 0.5);
+  const leg = [T.at(-0.06, 12 * s), T.at(0.5, 10.8 * s), knee(8), G.at(0.5, 6.4 * s), G.at(0.86, 5 * s), G.at(0.86, -5 * s), G.at(0.36, -7.2 * s), knee(-8), T.at(0.44, -11.4 * s), T.at(-0.06, -13 * s)];
+  _wtPart(ctx, W, () => _poly(ctx, leg), ink, { lw, line, sd: 4 * s, hd: far ? 0 : 1 * s, detail: W.A.flat ? null : (g) => {
+    _wtLine(g, W, [knee(-1.4), T.at(0.42, -2.6 * s)], far ? L.bodyInk[0] : L.bodyInk[2], 1 * s);   // a crease down the thigh
+    if (!far) _wtLine(g, W, [G.at(0.06, -4.8 * s), G.at(0.84, -3.4 * s)], '#c0303c', 1.3 * s);    // the crimson stripe
   } });
-  // the greave: down the front of the shin, a crimson vein along it
-  const G = _wtLimb(kn, ft, fc), gr = [G.at(0.12, 7.6 * U), G.at(0.86, 6.2 * U), G.at(0.92, -1.4 * U), G.at(0.5, -4.6 * U), G.at(0.14, -3 * U)];
-  celFill(ctx, () => _poly(ctx, gr), arm, A, { sd: 2.4 * U, hd: far ? 0 : 1 * U, rim: !far, detail: far || A.flat ? null : (g) => {
-    _strokePts(g, [gr[0], gr[1]], WT_EDGE, 1 * A.s);
-    g.save(); g.globalAlpha *= fade; _wtVein(g, _wtJag(G.at(0.2, 3 * U), G.at(0.86, 2.4 * U), 5, 1 * U, 9), 0.8 * A.s, WT_CRIM[1], 'rgba(255,40,90,0.9)'); g.restore();
-  } });
-  // the knee cop: a pointed plate, its point forward and up
-  const kc = [G.at(-0.1, 7.6 * U), G.at(-0.3, 12 * U), G.at(0.16, 9.4 * U), G.at(0.2, -2.2 * U), G.at(-0.12, -3.6 * U)];
-  celFill(ctx, () => _poly(ctx, kc), arm, A, { sd: 1.8 * U, hd: far ? 0 : 0.8 * U, rim: !far, detail: far || A.flat ? null : (g) => _strokePts(g, [kc[0], kc[1], kc[2]], WT_EDGE, 0.9 * A.s) });
-  // the sabaton: long, pointed
-  celFill(ctx, () => animeFootPath(ctx, kn, ft, fc, 4.8 * U, 15 * U), arm, A, { sd: 1.8 * U, hd: far ? 0 : 0.7 * U, detail: far || A.flat ? null : (g) => {
-    let sx = ft.x - kn.x, sy = ft.y - kn.y; const sl = Math.hypot(sx, sy) || 1; sx /= sl; sy /= sl;
-    const fx = fc > 0 ? sy : -sy, fy = fc > 0 ? -sx : sx;
-    _strokePts(g, [[ft.x + fx * 2 * U - sx * 2 * U, ft.y + fy * 2 * U - sy * 2 * U], [ft.x + fx * 13 * U + sx * 3 * U, ft.y + fy * 13 * U + sy * 3 * U]], 'rgba(150,110,240,0.7)', 0.9 * A.s);
+  // the boot: the shaft over the ankle, a long pointed toe, a low heel
+  const fx = G.nx, fy = G.ny, dx = G.ux, dy = G.uy, at = (a, b) => [ft.x + fx * a * s + dx * b * s, ft.y + fy * a * s + dy * b * s];
+  const boot = [G.at(0.74, 5.4 * s), at(5.4, -1.2), at(10, 0.6), at(17.4, 2.6), at(10.4, 3.6), at(-3.2, 3.6), at(-5.2, 1.6), at(-5.6, -3.4), G.at(0.74, -5.4 * s)];
+  _wtPart(ctx, W, () => _poly(ctx, boot), ink, { lw, line, sd: 2 * s, hd: far ? 0 : 0.8 * s, detail: W.A.flat || far ? null : (g) => {
+    _wtLine(g, W, [G.at(0.8, 5.2 * s), G.at(0.8, -5.2 * s)], L.bodyInk[2], 1 * s);   // the top of the boot
   } });
 }

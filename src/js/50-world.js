@@ -763,6 +763,7 @@ const Renderer = {
     RageArts.drawSky(ctx, s, toScreen, realT);   // a rage art's arena: the blood moon, the storm, the hell sky ... (67-rage-arts.js)
     this.drawFloor(ctx, env, cam.x, realT, GROUND - cam.y * zoom + fx.shakeY);
     TakashiDomain.drawFloor(ctx, s, toScreen, realT);
+    WitnessArena.drawBack(ctx, s, toScreen, realT);   // the Witness's phase light over the stage and its domain (69b-witness-draw.js)
     // world
     AkariGL.tickTo(s.time || 0);   // her scythe's sparks, petals and trails age on the fight's clock (64-akari-gl.js)
     ctx.save(); this.worldTransform(ctx, s, zoom);
@@ -772,6 +773,7 @@ const Renderer = {
     drawAkariHazards(ctx, s, realT);   // Akari's storms, mist, traps and tornadoes (62-akari-hazards.js)
     if (s.isStretch) this.drawStretchProps(ctx, s, realT);
     TakashiBoss.drawBehind(ctx, s, realT);   // the floor cracks, blade marks and the Yashiro Titan behind him (66-takashi.js)
+    WitnessDraw.behind(ctx, s, realT);   // the Witness's floor, marks, well and anchors (69b-witness-draw.js)
     RageArts.drawBehind(ctx, s, realT);   // rage arts: floor cracks, rocks, the dragon's far coils, the shadow clones, chains
     for (const f of s.fighters) f.drawShadow(ctx);
     for (const f of s.fighters) this.drawAuras(ctx, f, realT);
@@ -788,6 +790,7 @@ const Renderer = {
     fx.drawStormWorld(ctx);
     fx.drawSkyfallWorld(ctx, (70 - GROUND - fx.shakeY) / zoom + s.cam.y);   // its storm cloud near the top of the frame, and the bolt
     TakashiBoss.drawFront(ctx, s, realT);   // falling blades and the divine thunder when their sheets are not ready
+    WitnessDraw.front(ctx, s, realT);   // the Witness's waves, blades, threads and tether when their sheets are not playing
     fx.drawSheets(ctx);   // baked Effekseer effects (37-vfx-sheets.js)
     RageArts.drawFront(ctx, s, realT);   // rage arts: the flood, the dragon's near coils and head, the crescents and cuts
     AkariGL.drawEffects(ctx);   // Akari's scythe: its energy trails, sparks and petals (64-akari-gl.js)
@@ -810,6 +813,7 @@ const Renderer = {
     RageArts.drawScreen(ctx, s, toScreen, realT);   // a rage art's grade, darkness, frozen petals and its cut-in band
     if (s.letterbox > 0.01) { const h = 70 * s.letterbox; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, h); ctx.fillRect(0, H - h, W, h); }
     TakashiDomain.drawScreen(ctx, s);   // the domain's flash, its name and the break prompt
+    WitnessDraw.screen(ctx, s, realT);   // the Witness's input warnings, frozen frames and false screens
     fx.drawScreen(ctx, toScreen);
   },
   // The City of Echoes skips as Kage crosses a seam where its street starts over (StretchSession: `glitch` seconds):
@@ -863,8 +867,8 @@ const Renderer = {
   drawAuras(ctx, f, t) {
     if (!f.visible || f.alpha <= 0.05 || f.decoy) return;   // a hidden fighter (Akari in her smoke) or her afterimage gives nothing away
     // glowing energy around a fighter performing a special art or a boss changing phase
-    // (not Takashi: his gold fire and gathering motes are his, 66-takashi.js)
-    if (!(f.def && f.def.id === 'takashi' && !f.clone) && !f.rageArt && ((f.state === 'ability' && (f.isPlayer || (f.def && (f.def.type === 'boss' || f.def.type === 'sub')))) || (f.def && f.def.type === 'boss' && f.state === 'pose'))) {
+    // (not Takashi: his gold fire and gathering motes are his, 66-takashi.js; not the Witness: its phase aura, 69-witness.js)
+    if (!(f.def && (f.def.id === 'takashi' || f.def.witness) && !f.clone) && !f.rageArt && ((f.state === 'ability' && (f.isPlayer || (f.def && (f.def.type === 'boss' || f.def.type === 'sub')))) || (f.def && f.def.type === 'boss' && f.state === 'pose'))) {
       const E = ELEMENTS[f.elementOf(null) || 'ink'] || ELEMENTS.ink, c = E.glow || E.smear, cy = f.y - 100 * f.scale, R = 150 * f.scale * (1 + Math.sin(t * 9) * 0.05);
       ctx.save(); ctx.globalCompositeOperation = 'source-over';
       const g = ctx.createRadialGradient(f.x, cy, 10, f.x, cy, R * 0.75);   // fades out inside the ellipse: no hard rim

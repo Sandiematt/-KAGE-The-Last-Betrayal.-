@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Witness_Echo_Step",
+  "role": "teleport out and in (Echo Step, Forced Echo Step)",
+  "style": "stylized anime combat, additive void light (the reference sheets' blue, then violet and magenta with gold) over a dark arena, side-view 2D, baked to sheets",
+  "dominant_shape": "a vertical slit of light the echo folds into",
+  "palette": {
+    "core": [
+      246,
+      248,
+      255
+    ],
+    "body": [
+      60,
+      74,
+      255
+    ],
+    "dark": [
+      6,
+      6,
+      28
+    ],
+    "matter": [
+      108,
+      114,
+      168
+    ],
+    "accent": [
+      168,
+      180,
+      255
+    ]
+  },
+  "delivery": {
+    "kind": "self"
+  },
+  "anchor": "caster_ground",
+  "reference": {
+    "id": "user reference sheets: The Witness, Architect of Echoes, phases I-IV (docs/art-reference/witness-phase-1..4.webp)"
+  },
+  "beats": [
+    {
+      "frame": 1,
+      "name": "gather",
+      "expect": "motes drawn in"
+    },
+    {
+      "frame": 3,
+      "name": "fold",
+      "expect": "slit and star"
+    },
+    {
+      "frame": 12,
+      "name": "body",
+      "expect": "cards burst sideways and hang"
+    },
+    {
+      "frame": 34,
+      "name": "tail",
+      "expect": "motes drifting"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Gather",
+      "role": "anticipation: motes drawn in",
+      "primitive": "motes",
+      "exit": "gone by absolute f12"
+    },
+    {
+      "name": "1:Slit",
+      "role": "main shape: the vertical slit of light the echo folds into",
+      "primitive": "sprite T_Streak01",
+      "exit": "gone by absolute f16"
+    },
+    {
+      "name": "2:Fold star",
+      "role": "contact: the fold",
+      "primitive": "flash",
+      "exit": "gone by absolute f6"
+    },
+    {
+      "name": "3:Blue bloom",
+      "role": "light under the fold",
+      "primitive": "glow",
+      "exit": "gone by absolute f16"
+    },
+    {
+      "name": "4:Step ring",
+      "role": "a ring snapping across the line of the step",
+      "primitive": "tilted_ring",
+      "exit": "gone by absolute f16"
+    },
+    {
+      "name": "5:Echo source",
+      "role": "pivot for the echo burst",
+      "primitive": "pivot",
+      "exit": "gone by absolute f32"
+    },
+    {
+      "name": "5:Echo source/0:Echo cards",
+      "role": "body: the echo bursting into cards that hang",
+      "primitive": "sprite T_EchoCard01",
+      "exit": "gone by absolute f32"
+    },
+    {
+      "name": "5:Echo source/1:Shards",
+      "role": "secondary: shards sprayed sideways",
+      "primitive": "radial_sparks",
+      "exit": "gone by absolute f20"
+    },
+    {
+      "name": "6:Glints",
+      "role": "accent: star glints",
+      "primitive": "sparkle",
+      "exit": "gone by absolute f20"
+    },
+    {
+      "name": "7:Drift",
+      "role": "residue: motes drifting",
+      "primitive": "motes",
+      "exit": "gone by absolute f42"
+    }
+  ],
+  "acceptance": [
+    "The slit reads before the cards take over",
+    "No smoke"
+  ],
+  "avoid": [
+    "A smoke cloud"
+  ]
+}

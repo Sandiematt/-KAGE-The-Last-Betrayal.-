@@ -2,9 +2,9 @@
 // elbow and flares to its opening (Kage's ends in a crimson cuff), a dark strapped kote under it and a small glove on
 // the grip. `far` is the arm behind the body: one tone darker and no detail lines.
 Fighter.prototype.animeArm = function (ctx, sh, el, ha, A, skin, U, far, noHand) {
-  if (skin.akari || skin.witness) {   // Akari's fitted sleeve and long arm guard (bosses/akari/); the Witness's pauldron and gauntlet (bosses/witness/)
-    if (skin.akari) akariArm(this, ctx, sh, el, ha, A, U, far); else witnessArm(this, ctx, sh, el, ha, A, U, far);
-    if (!noHand && !(far && this.pose.ik > 0.5 && IK_OFF[this.shape()] != null)) this.animeHand(ctx, el, ha, A, U * (skin.akari ? 0.88 : 1), far);
+  if (skin.akari) {   // Akari's fitted sleeve and long arm guard (bosses/akari/)
+    akariArm(this, ctx, sh, el, ha, A, U, far);
+    if (!noHand && !(far && this.pose.ik > 0.5 && IK_OFF[this.shape()] != null)) this.animeHand(ctx, el, ha, A, U * 0.88, far);
     return;
   }
   const pal = A.pal, tone = far ? pal.back : skin.top === 'coat' ? pal.coat : pal.fab, gi = skin.top !== 'coat';

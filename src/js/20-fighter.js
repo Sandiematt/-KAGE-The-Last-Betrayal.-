@@ -3,7 +3,7 @@
 const BODY = { torso: 60, neck: 7, head: 18, upper: 36, fore: 34, thigh: 45, shin: 47 };
 const SHAPE = {
   fists: 'none', tsubame: 'short', kagetsu: 'katana', shizuka: 'katana', onikiri: 'cleaver', mizuchi: 'spear',
-  yamigama: 'sickle', iwakudaki: 'hammer', shinsen: 'shinsen', raiko_no_tachi: 'odachi', raikon_tachi: 'odachi', takashi_blade: 'katana', kagehira_yurei: 'short', akari_blades: 'short', mugen_no_ha: 'katana', mugen_shards: 'katana',
+  yamigama: 'sickle', iwakudaki: 'hammer', shinsen: 'shinsen', raiko_no_tachi: 'odachi', raikon_tachi: 'odachi', takashi_blade: 'katana', kagehira_yurei: 'short', akari_blades: 'short', mugen_no_ha: 'katana', witness_greatsword: 'cleaver',
   shadow_daggers: 'short', hollow_crescents: 'crescent', mist_fans: 'fan',
   courier_kunai: 'short', quiet_kodachi: 'katana', echo_crescents: 'crescent', ledger_kusari: 'sickle',
   gate_kanabo: 'hammer', disciple_blade: 'katana', conduit_naginata: 'spear', silent_odachi: 'katana',
@@ -217,21 +217,16 @@ class Fighter {
       this.cloths.push({ kind: 'scarf', c: new Cloth(9, 6.4 * this.scale, { ph: 3.2, wind: 520, grav: 900, stiff: 1.8 }), at: 'head', color: this.def.hair, rim: 'rgba(236,229,211,0.45)', w: 5.4 * this.scale, w1: 2.4 * this.scale, dy: 4, dx: 14 });
       this.cloths.push({ kind: 'scarf', c: new Cloth(2, 3 * this.scale, { ph: 6, wind: 760, grav: 760, stiff: 1.9 }), at: 'head', color: '#c9a45c', w: 2.2 * this.scale, w1: 1.2 * this.scale, dy: 5, dx: 15 });
     }
-    // the Witness: long violet strands streaming back off the spiked crown (violet strands of different length, two dark
-    // ones underneath for depth), and its long tattered coat: blade-shaped tails (kind 'wcoat', drawn by
-    // the Witness's own layer inside the body, 21-characters/bosses/witness/) from the upper back and the waist, violet fading out of black
-    // with crimson veins and glowing rune circles. `depth` -1 hangs behind the body, +1 in front of it.
+    // the Witness's long coat (21-characters/bosses/witness/coat.js): blade-shaped tails streaming back off the upper
+    // back and the hips (kind 'wcoat': dark ones, and ones in the phase's colour with the wave pattern) and the front
+    // flap hanging over the far thigh. `depth` -1 hangs behind the body, +1 in front of the far leg.
     if (this.def && this.def.witness) {
       const sc = this.scale;
-      [[12, 7.6, 2.2, 6.4, -12, 8, '#140c22'], [10, 7.4, 6.6, 5.4, -4, 10, '#140c22'],
-       [14, 8, 3.6, 5.2, -16, 6, '#5a34b8'], [12, 7.6, 5.1, 4.4, -8, 9, '#6c44d2'], [16, 8.2, 1.4, 5.6, -1, 11, '#4e2ca4'], [10, 7, 7.7, 3.4, -18, 3, '#7d56e6']]
-        .forEach(([n, seg, ph, w, dy, dx, color], i) =>
-          this.cloths.push({ kind: 'scarf', witness: true, c: new Cloth(n, seg * sc, { ph, wind: 900 + i * 90, grav: 380 + i * 40, stiff: 1.88 }), at: 'head', color, rim: color === '#140c22' ? 'rgba(120,80,220,0.6)' : 'rgba(176,138,255,0.8)', w: w * sc, w1: 0.7 * sc, dy, dx }));
-      // [links, link length, phase, max width, dy, dx (back from the anchor), anchor, depth, rune circle]
-      [[9, 13.6, 1.1, 30, 12, 8, 'neck', -1, 1], [9, 12.8, 4.2, 24, 20, 4, 'neck', -1, 0],
-       [8, 13, 2.6, 28, -2, 10, 'hip', -1, 1], [8, 12.2, 5.6, 24, 0, 16, 'hip', -1, 1], [7, 12.4, 3.3, 20, 3, 4, 'hip', -1, 0],
-       [6, 11, 0.4, 16, -1, -4, 'hip', 1, 0]].forEach(([n, seg, ph, w, dy, dx, at, depth, rune], i) =>
-        this.cloths.push({ kind: 'wcoat', witness: true, c: new Cloth(n, seg * sc, { ph, wind: depth < 0 ? 1500 + i * 180 : 420, grav: 1000, stiff: 1.96 }), at, w: w * sc, dy, dx, depth, rune }));
+      // [links, link length, phase, width, dy, dx (back from the anchor), anchor, depth, patterned, low, wind, gravity]
+      [[9, 19, 1.1, 34, 14, 8, 'neck', -1, 0, 0, 3200, 520], [8, 18, 4.2, 32, 30, 10, 'neck', -1, 1, 0, 3000, 600],
+       [8, 17, 2.6, 30, -12, 10, 'hip', -1, 1, 0, 2700, 700], [8, 16, 5.6, 28, -4, 12, 'hip', -1, 0, 1, 2400, 780], [7, 15, 3.3, 26, 2, 9, 'hip', -1, 1, 1, 2000, 900],
+       [5, 13, 0.4, 30, 0, -7, 'hip', 1, 0, 0, 300, 1100]].forEach(([n, seg, ph, w, dy, dx, at, depth, pat, low, wind, grav]) =>
+        this.cloths.push({ kind: 'wcoat', witness: true, c: new Cloth(n, seg * sc, { ph, wind, grav, stiff: 1.96, hang: depth > 0 ? 0.2 : 0 }), at, w: w * sc, dy, dx, depth, pat, low }));
     }
     // Rem's travel coat is the anime body's own coat panels (ANIME_SKINS.rem / hollow_rem, 21-characters/bosses/rem/)
     // the Shinsei Yoroi's robes, capelet and cape: Takashi's cloth and drawShinsei (21-characters/bosses/takashi/)
@@ -243,7 +238,7 @@ class Fighter {
   elementOf(m) {
     if (m && (m.kind === 'punch' || m.kind === 'kick' || m.kind === 'grab' || m.kind === 'throw')) return this.isPlayer ? 'wind' : null;
     if (!this.hasWeapon && this.baseWeapon !== 'storm_orbs' && this.baseWeapon !== 'iron_fists') return this.isPlayer ? 'wind' : null;
-    if (this.def && this.def.el) return this.def.el;   // the Witness cuts in violet void whatever weapon it copies
+    if (this.def && this.def.el) return this.def.witness ? WitnessBoss.element(this) : this.def.el;   // the Witness cuts in its phase's element whatever weapon it copies
     return this.weapon().el || (this.isPlayer ? 'wind' : 'shade');
   }
   weaponId() { return this.hasWeapon ? this.baseWeapon : (this.baseWeapon === 'storm_orbs' || this.baseWeapon === 'iron_fists' ? this.baseWeapon : 'fists'); }
@@ -1356,7 +1351,7 @@ Fighter.prototype.drawFlipArcs = function (ctx, front) {
 
 // soft ground shadow under the body plus a darker contact patch under each foot that is on the floor
 Fighter.prototype.drawShadow = function (ctx) {
-  if (!this.visible || this.alpha <= 0.01) return;
+  if (!this.visible || this.alpha <= 0.01 || this.wDecoy) return;   // a Mirror Self copy casts no shadow; the real Witness does (69-witness.js)
   const sk = this.sk, s = this.scale, h = Math.max(0, -this.y), k = clamp(1 - h / 320, 0.2, 1);
   const lying = this.state === 'down' || this.state === 'dead';
   const cx = lying ? (sk.hip.x + sk.neck.x) / 2 : lerp(sk.hip.x, (sk.fft.x + sk.bft.x) / 2, 0.6);
@@ -1396,12 +1391,13 @@ Fighter.prototype.draw = function (ctx, opt) {
   // glitches too (all the time while a corrupted move runs), and now and then its outline flickers to Kage's own
   // silhouette (face-wrap, red sash, no robe shards: `kageFrame`), more often while it copies him (`kageFlicker`).
   const wit = this.def && this.def.witness;
+  const wl = witnessPalette(this);   // the Witness's colours for its phase (or the Kysmei Robe's own), 21-characters/bosses/witness/
   if (wit) this.kageFrame = !opt.color && this.alive && !this.coreBroken && this.witnessFlicker();
   const corrupt = (wit || this.hollow) && this.corruptUntil > this.time;   // a corrupted move (the Witness, the Core's echoes)
   const glitch = (this.hollow || (wit && !this.kageFrame)) && !opt.color && !opt.noGlitch ? this.glitchAmount(corrupt ? 0.6 : 0) : 0;
   // the Witness glitches like a broken signal (drawWitnessGlitch); Hollows keep their offset ghost below
   if (wit && glitch && !opt.rimPass && this.drawWitnessGlitch(ctx, opt, glitch, corrupt)) return;
-  const gcol = this.hollow ? this.family.trim : '#7b5ad6';
+  const gcol = this.hollow ? this.family.trim : wl.vio[1];
   ctx.save();
   ctx.globalAlpha *= this.alpha;
   // the Witness hovers, almost weightless: a slow bob a hand's width above the floor
@@ -1433,9 +1429,16 @@ Fighter.prototype.draw = function (ctx, opt) {
     Object.assign(ro, opt, { rimPass: true });
     const di = 1.5 * s * gk, dr = 1.1 * s * gk;
     for (const [dx, dy] of OUTLINE_DIRS) { ctx.save(); ctx.translate(dx * di, dy * di); this.silhouette(ctx, C.ink, C.ink, true, ro); ctx.restore(); }
-    for (const [dx, dy] of OUTLINE_DIRS) {
+    // (the Witness's own look carries its pale line on every part, as its sheets do: no stage rim over it)
+    if (!witArt) for (const [dx, dy] of OUTLINE_DIRS) {
       if (-dx * f * 0.6 - dy * 0.8 < 0.05) continue;   // the back and top edges, away from the camera light
       ctx.save(); ctx.translate(dx * dr, dy * dr); this.silhouette(ctx, oc, oc, true, ro); ctx.restore();
+    }
+    // the Witness's outline glow in its later phases (the neon blue of the Manipulator's sheet, then violet, magenta)
+    if (witArt && wl.outline && !SaveManager.data.settings.reduceFlash) {
+      ctx.save(); ctx.globalCompositeOperation = 'lighter'; const dg = 3.6 * s;
+      for (const [dx, dy] of OUTLINE_DIRS) { ctx.save(); ctx.translate(dx * dg, dy * dg); this.silhouette(ctx, wl.outline, wl.outline, true, ro); ctx.restore(); }
+      ctx.restore();
     }
   }
   for (const cl of this.cloths) if (cl.kind === 'scarf' || cl.kind === 'ribbon' || cl.kind === 'belt') {
@@ -1481,7 +1484,7 @@ Fighter.prototype.witnessFlicker = function () {
   return h < (this.kageFlicker > 0 ? 0.5 : 0.07);
 };
 // The Kysmei Robe's drifting fragments (Fighter.drawKysmei), the Witness's halo, core, rune cards, coat tails and its
-// shard weapon (drawShardWeapon): 21-characters/bosses/witness/
+// the Witness's greatsword (drawWitnessGreatsword): 21-characters/bosses/witness/
 // Which story boss's own look a fighter wears: the boss itself or its Core echo (echoOf) give that boss's id
 // ('raikon', 'akari', 'takashi', 'witness'); anyone else gives their own id or null. The bosses' redesigns key on this,
 // so the gear they drop (the Raijin Kabuto, the Kasa) keeps its own look on Kage.
@@ -1606,7 +1609,10 @@ function twinShape(w, sh, offhand) {
 }
 /* ---- weapon art: origin at the grip, +x along the blade ---- */
 function drawWeaponShape(ctx, sh, L, mode, s, ink, f) {
-  if (f && f.def && f.def.mirrorWeapon && !f.kageFrame && mode !== 'art') return drawShardWeapon(ctx, sh, L, mode, s, ink, f);
+  if (f && f.def && f.def.witness && f.weaponId() === 'witness_greatsword' && mode !== 'art') {   // 21-characters/bosses/witness/weapon.js
+    if (!f.kageFrame) return drawWitnessGreatsword(ctx, L, mode, s, ink, f);
+    sh = 'katana'; L *= 0.62;   // a Kage-flicker frame holds Kage's own katana
+  }
   if (mode === 'ink' && f && SUB_WEAPON_ART[f.weaponId()] && SUB_WEAPON_ART[f.weaponId()](ctx, sh, L, s, f)) return;   // 21-characters/sub-bosses/
   if ((mode === 'flat' || mode === 'rim') && f && SUBB_WEAPON_FLAT[f.weaponId()] && SUBB_WEAPON_FLAT[f.weaponId()](ctx, L, s, ink, mode === 'rim', f)) return;   // 21-characters/sub-bosses/
   if (KAGE_BLADES[sh]) { ctx.lineCap = 'round'; ctx.lineJoin = 'round'; KAGE_BLADES[sh](ctx, L, mode, s, ink, f); return; }   // 21-characters/kage/weapons.js

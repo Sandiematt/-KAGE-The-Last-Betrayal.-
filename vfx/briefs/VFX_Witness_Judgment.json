@@ -1,0 +1,222 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Witness_Judgment",
+  "role": "screen-wide boss attack (Final Judgment)",
+  "style": "stylized anime combat, additive void light (the reference sheets' blue, then violet and magenta with gold) over a dark arena, side-view 2D, baked to sheets",
+  "dominant_shape": "a hair-thin white line the width of the screen over a magenta band",
+  "palette": {
+    "core": [
+      255,
+      246,
+      255
+    ],
+    "body": [
+      184,
+      40,
+      255
+    ],
+    "dark": [
+      16,
+      2,
+      24
+    ],
+    "matter": [
+      140,
+      110,
+      160
+    ],
+    "accent": [
+      255,
+      196,
+      110
+    ]
+  },
+  "delivery": {
+    "kind": "area"
+  },
+  "anchor": "ground",
+  "reference": {
+    "id": "user reference sheets: The Witness, Architect of Echoes, phases I-IV (docs/art-reference/witness-phase-1..4.webp)"
+  },
+  "beats": [
+    {
+      "frame": 30,
+      "name": "gather",
+      "expect": "motes drawn in, guide lines flicker"
+    },
+    {
+      "frame": 54,
+      "name": "release",
+      "expect": "impact card and star on one frame"
+    },
+    {
+      "frame": 62,
+      "name": "body",
+      "expect": "line and band across the arena, gold rays"
+    },
+    {
+      "frame": 100,
+      "name": "tail",
+      "expect": "smoke settling, glitch hanging"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Gather",
+      "role": "anticipation: motes drawn in",
+      "primitive": "motes",
+      "exit": "gone by absolute f52"
+    },
+    {
+      "name": "1:Violet gather",
+      "role": "anticipation: second tier drawn in",
+      "primitive": "motes",
+      "exit": "gone by absolute f52"
+    },
+    {
+      "name": "2:Gathering point",
+      "role": "anticipation: the point it gathers into",
+      "primitive": "glow",
+      "exit": "gone by absolute f54"
+    },
+    {
+      "name": "3:Guide 1",
+      "role": "anticipation: a guide line flickering across the arena",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f30"
+    },
+    {
+      "name": "4:Guide 2",
+      "role": "anticipation: a guide line flickering across the arena",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f42"
+    },
+    {
+      "name": "5:Guide 3",
+      "role": "anticipation: a guide line flickering across the arena",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f52"
+    },
+    {
+      "name": "6:Impact card",
+      "role": "impact frame: near-black card on the release frame",
+      "primitive": "sprite T_SoftCircle Blend",
+      "exit": "gone by absolute f57"
+    },
+    {
+      "name": "7:Release star",
+      "role": "release",
+      "primitive": "flash",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "8:Judgment line",
+      "role": "release: hair-thin white line the width of the screen",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f76"
+    },
+    {
+      "name": "9:Judgment band",
+      "role": "main shape: the wide magenta band under the line",
+      "primitive": "sprite T_Streak01",
+      "exit": "gone by absolute f80"
+    },
+    {
+      "name": "10:Release bloom",
+      "role": "light at release",
+      "primitive": "glow",
+      "exit": "gone by absolute f80"
+    },
+    {
+      "name": "11:Gold ray 1",
+      "role": "secondary: gold rays standing up along the cut",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f73"
+    },
+    {
+      "name": "12:Gold ray 2",
+      "role": "secondary: gold rays standing up along the cut",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f74"
+    },
+    {
+      "name": "13:Gold ray 3",
+      "role": "secondary: gold rays standing up along the cut",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f75"
+    },
+    {
+      "name": "14:Gold ray 4",
+      "role": "secondary: gold rays standing up along the cut",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f73"
+    },
+    {
+      "name": "15:Gold ray 5",
+      "role": "secondary: gold rays standing up along the cut",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f74"
+    },
+    {
+      "name": "16:Gold ray 6",
+      "role": "secondary: gold rays standing up along the cut",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f75"
+    },
+    {
+      "name": "17:Gold ray 7",
+      "role": "secondary: gold rays standing up along the cut",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f73"
+    },
+    {
+      "name": "18:Gold ray 8",
+      "role": "secondary: gold rays standing up along the cut",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f74"
+    },
+    {
+      "name": "19:Left ring",
+      "role": "the end of the cut: ring racing outward",
+      "primitive": "shock_ring",
+      "exit": "gone by absolute f74"
+    },
+    {
+      "name": "20:Right ring",
+      "role": "the end of the cut: ring racing outward",
+      "primitive": "shock_ring",
+      "exit": "gone by absolute f74"
+    },
+    {
+      "name": "21:Cut source",
+      "role": "pivot along the cut",
+      "primitive": "pivot",
+      "exit": "gone by absolute f83"
+    },
+    {
+      "name": "21:Cut source/0:Cut shards",
+      "role": "secondary: shards along the cut",
+      "primitive": "radial_sparks",
+      "exit": "gone by absolute f83"
+    },
+    {
+      "name": "22:Hanging glitch",
+      "role": "residue: glitch pixels hanging in the cut",
+      "primitive": "sprite T_GlitchPix01",
+      "exit": "gone by absolute f81"
+    },
+    {
+      "name": "23:Settling smoke",
+      "role": "matter: violet smoke settling along the line",
+      "primitive": "smoke",
+      "exit": "gone by absolute f114"
+    }
+  ],
+  "acceptance": [
+    "The guide lines warn where the cut will fall",
+    "The band keeps its magenta after the flash"
+  ],
+  "avoid": [
+    "A white screen for more than three frames"
+  ]
+}

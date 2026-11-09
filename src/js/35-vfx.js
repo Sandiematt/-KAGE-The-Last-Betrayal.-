@@ -23,9 +23,13 @@ const ELEMENTS = {
   petal:     { smear: [255, 102, 178], edge: 'rgba(255,244,250,1)', glow: [214, 90, 160], alpha: 0.55, narrow: 0.32 },
   // Shinsen and the Tachibana father style (Takashi): a broad GOLD slash with a pale-gold outer band and a white core
   gold:      { smear: [232, 186, 84], alt: [255, 226, 150], edge: 'rgba(255,250,232,1)', glow: [240, 196, 90], alpha: 0.56, layers: 1 },
-  // the Witness (Mugen no Ha, whatever weapon it copies): a deep violet slash over a near-black outer band, white core,
-  // shedding flat memory shards
-  void:      { smear: [140, 100, 255], alt: [22, 14, 40], edge: 'rgba(240,232,255,1)', glow: [150, 110, 255], alpha: 0.58, layers: 1 }
+  // the void (the Witness's Reality Editor, Hollow Takashi's broken flow): a deep violet slash over a near-black outer
+  // band, white core, shedding flat memory shards
+  void:      { smear: [140, 100, 255], alt: [22, 14, 40], edge: 'rgba(240,232,255,1)', glow: [150, 110, 255], alpha: 0.58, layers: 1 },
+  // the Witness's echo (Mugen no Ha in its first two phases): the reference sheets' blue over a near-black band
+  echo:      { smear: [66, 84, 255], alt: [10, 10, 40], edge: 'rgba(236,240,255,1)', glow: [74, 92, 255], alpha: 0.6, layers: 1 },
+  // the True Witness's crown: magenta-violet with a gold outer band
+  crown:     { smear: [184, 40, 255], alt: [255, 196, 110], edge: 'rgba(255,246,255,1)', glow: [200, 60, 255], alpha: 0.6, layers: 1 }
 };
 const _sp = [];
 function smearSamples(arr) {
@@ -118,6 +122,8 @@ const VFX = {
     else if (el === 'moon' || el === 'blood' || el === 'crimson' || el === 'violet') fx.part({ x: tx + rand(-6, 6), y: ty + rand(-6, 6), vx: vx * 0.1, vy: vy * 0.1, life: rand(0.3, 0.55), size: rand(2.5, 4.5), color: el === 'moon' ? (chance(0.5) ? '#d9ccff' : '#ff6a82') : el === 'crimson' ? (chance(0.5) ? '#ff4a5e' : '#ffd0d4') : el === 'violet' ? (chance(0.5) ? '#b88cff' : '#f0e6ff') : (chance(0.6) ? '#ff5470' : '#cdbfff'), type: 'star', grav: 0, drag: 3, add: true });
     else if (el === 'gold') fx.part({ x: tx + rand(-5, 5), y: ty + rand(-5, 5), vx: vx * 0.1 + rand(-30, 30), vy: vy * 0.1 - rand(10, 40), life: rand(0.3, 0.55), size: rand(1.6, 3), color: chance(0.6) ? '#ffd27a' : '#fff4d6', type: 'spark', grav: 120, drag: 3, add: true });
     else if (el === 'void') { if (chance(0.6)) fx.part({ x: tx + rand(-5, 5), y: ty + rand(-5, 5), vx: vx * 0.08 + rand(-40, 40), vy: vy * 0.08 - rand(10, 40), life: rand(0.3, 0.55), size: rand(2.4, 4), color: chance(0.5) ? '#a77bff' : (chance(0.5) ? '#ece6ff' : '#1a1228'), type: 'ash', grav: 40, drag: 2.4, rot: rand(0, TAU), vr: rand(-12, 12) }); }
+    else if (el === 'echo') { if (chance(0.6)) fx.part({ x: tx + rand(-5, 5), y: ty + rand(-5, 5), vx: vx * 0.08 + rand(-40, 40), vy: vy * 0.08 - rand(10, 40), life: rand(0.3, 0.55), size: rand(2.4, 4), color: chance(0.5) ? '#5b6bff' : (chance(0.5) ? '#dfe4ff' : '#0c1030'), type: 'ash', grav: 40, drag: 2.4, rot: rand(0, TAU), vr: rand(-12, 12) }); }
+    else if (el === 'crown') { if (chance(0.6)) fx.part({ x: tx + rand(-5, 5), y: ty + rand(-5, 5), vx: vx * 0.08 + rand(-40, 40), vy: vy * 0.08 - rand(10, 40), life: rand(0.3, 0.55), size: rand(2.4, 4), color: chance(0.5) ? '#c040ff' : (chance(0.5) ? '#ffd68a' : '#1c0828'), type: 'ash', grav: 40, drag: 2.4, rot: rand(0, TAU), vr: rand(-12, 12) }); }
     else if (el === 'petal') { if (chance(0.5)) fx.part({ x: tx + rand(-5, 5), y: ty + rand(-5, 5), vx: vx * 0.08 + rand(-40, 40), vy: vy * 0.08 - rand(10, 50), life: rand(0.35, 0.6), size: rand(2.6, 4.2), color: chance(0.6) ? '#ff66b2' : '#ffd6ea', type: 'ash', grav: 60, drag: 2.4, rot: rand(0, TAU), vr: rand(-10, 10) }); }
     else if (el === 'redline') fx.part({ x: tx, y: ty, vx: rand(-220, 220), vy: rand(-220, 120), life: rand(0.08, 0.18), size: rand(1.2, 2.4), color: chance(0.6) ? '#ff5a46' : '#ffffff', type: 'spark', grav: 0, drag: 4, add: true });
     else if (el === 'lightning') fx.part({ x: tx, y: ty, vx: rand(-200, 200), vy: rand(-200, 200), life: rand(0.08, 0.16), size: rand(1, 2), color: '#cfeeff', type: 'spark', grav: 0, drag: 4, add: true });
@@ -129,7 +135,7 @@ const VFX = {
 /* ---- Effects extensions: elemental impacts, rings, finisher slash, clash flare, heat haze ---- */
 Object.assign(Effects.prototype, {
   vfx() {
-    return this._v || (this._v = { dslash: [], cuts: [], puffs: [], marks: [], crosses: [], zaps: [], glints: [], fire: [], ripples: [], bolts: [], cres: [], streaks: [], shards: [], rings: [], flares: [], rise: [], trail: [], lburst: [], voids: [], cshards: [], streams: [], finisher: null, tint: null });
+    return this._v || (this._v = { dslash: [], cuts: [], puffs: [], marks: [], crosses: [], zaps: [], glints: [], fire: [], ripples: [], bolts: [], cres: [], streaks: [], shards: [], rings: [], flares: [], rise: [], trail: [], lburst: [], cshards: [], streams: [], finisher: null, tint: null });
   },
   elemImpact(el, x, y, dir, tier, crit) {
     const V = this.vfx(), big = crit ? 1.4 : 1, t = clamp(tier, 0, 3);
@@ -244,15 +250,11 @@ Object.assign(Effects.prototype, {
     for (let i = 0; i < 14; i++) { const g = rand(0, TAU), v = rand(80, 320); this.part({ x, y, vx: Math.cos(g) * v + dir * 80, vy: Math.sin(g) * v - 60, life: rand(0.5, 0.9), size: rand(3, 5.2), color: chance(0.55) ? '#b48ae6' : '#ece2ff', type: 'ash', grav: 70, drag: 1.8, rot: rand(0, TAU), vr: rand(-10, 10) }); }
   },
   /* ---- the Witness ---- */
-  // Void Slash's afterimage: a dark line hanging across the floor from x0 to x1 at height y. It is drawn in at once,
-  // trembles and thickens while it waits (`delay`, the readable beat), then cuts: a flash of white along it, a violet
-  // band and flat shards thrown off the length of the line.
-  voidLine(x0, x1, y, delay, dir) { this.vfx().voids.push({ x0, x1, y, t: 0, delay, dur: delay + 0.32, dir: dir || 1, seed: (Math.random() * 999) | 0 }); },
-  // the chest core shattering: a white flash and flat triangular shards (white, violet, near-black) flung out of it
+  // the chest core shattering: a white flash and flat triangular shards (white, the Witness's blue, near-black) flung out of it
   coreShatter(x, y, k) {
     const V = this.vfx(); k = k || 1;
     for (let i = 0; i < 26; i++) {
-      const a = rand(0, TAU), v = rand(160, 620) * k, c = i % 3 === 0 ? '#ffffff' : i % 3 === 1 ? '#a77bff' : '#1a1228';
+      const a = rand(0, TAU), v = rand(160, 620) * k, c = i % 3 === 0 ? '#ffffff' : i % 3 === 1 ? '#6f80ff' : '#10122a';
       V.cshards.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 120, r: rand(0, TAU), vr: rand(-14, 14), sz: rand(5, 13) * k, c, t: 0, dur: rand(0.8, 1.4) });
     }
     V.flares.push({ x, y, t: 0, dur: 0.4, r: 160 * k });
@@ -365,7 +367,7 @@ Object.assign(Effects.prototype, {
     const tick = (arr, d) => { for (let i = arr.length - 1; i >= 0; i--) { arr[i].t += d; if (arr[i].t >= arr[i].dur) arr.splice(i, 1); } };
     tick(V.dslash, dt); tick(V.cuts, dt);
     tick(V.zaps, dt); tick(V.glints, dt); tick(V.puffs, dt); tick(V.marks, dt); tick(V.crosses, dt);
-    tick(V.fire, dt); tick(V.ripples, dt); tick(V.bolts, dt); tick(V.cres, dt); tick(V.streaks, dt); tick(V.shards, dt); tick(V.rings, dt); tick(V.flares, realDt); tick(V.rise, dt); tick(V.trail, dt); tick(V.lburst, dt); tick(V.voids, dt); tick(V.streams, dt);
+    tick(V.fire, dt); tick(V.ripples, dt); tick(V.bolts, dt); tick(V.cres, dt); tick(V.streaks, dt); tick(V.shards, dt); tick(V.rings, dt); tick(V.flares, realDt); tick(V.rise, dt); tick(V.trail, dt); tick(V.lburst, dt); tick(V.streams, dt);
     for (let i = V.cshards.length - 1; i >= 0; i--) { const c = V.cshards[i]; c.t += dt; c.x += c.vx * dt; c.y += c.vy * dt; c.vx *= 1 - 1.6 * dt; c.vy = c.vy * (1 - 1.6 * dt) + 200 * dt; c.r += c.vr * dt; if (c.t >= c.dur) V.cshards.splice(i, 1); }
     if (V.finisher) { V.finisher.t += realDt; if (V.finisher.t >= V.finisher.dur) V.finisher = null; }
     if (V.tint) { V.tint.t += realDt; if (V.tint.t >= V.tint.dur) V.tint = null; }
@@ -532,33 +534,6 @@ Object.assign(Effects.prototype, {
       ctx.globalAlpha = k > 0.7 ? 1 - (k - 0.7) / 0.3 : 1;
       for (const L of p.lobes) { ctx.fillStyle = 'rgba(214,200,236,0.55)'; ctx.beginPath(); ctx.arc(p.x + L.dx * p.R * sc, p.y + L.dy * p.R - rise, L.r * p.R * sc + 2, 0, TAU); ctx.fill(); }
       for (const L of p.lobes) { ctx.fillStyle = L.c; ctx.beginPath(); ctx.arc(p.x + L.dx * p.R * sc, p.y + L.dy * p.R - rise, L.r * p.R * sc, 0, TAU); ctx.fill(); }
-      ctx.globalAlpha = 1;
-    }
-    // the Witness: Void Slash lines waiting to cut, then cutting
-    for (const v of V.voids) {
-      const R = prng(v.seed + ((v.t * 24) | 0)), wait = v.t < v.delay, k = wait ? v.t / v.delay : (v.t - v.delay) / (v.dur - v.delay);
-      const n = 10, L = v.x1 - v.x0;
-      if (wait) {
-        // the afterimage: a jittering near-black line, edged violet, thickening toward the cut
-        const th = 3 + 5 * k, j = 2 + 3 * k;
-        ctx.globalAlpha = 0.55 + 0.45 * k;
-        for (const [col, w] of [['rgba(167,123,255,0.7)', th + 4], ['#07050c', th]]) {
-          ctx.strokeStyle = col; ctx.lineWidth = w; ctx.beginPath();
-          for (let i = 0; i <= n; i++) { const x = v.x0 + L * i / n, y = v.y + (i && i < n ? (R() - 0.5) * j : 0); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
-          ctx.stroke();
-        }
-        // a slash afterimage at the near end, fading: the cut that was already made
-        ctx.fillStyle = `rgba(20,12,34,${0.5 * (1 - k)})`; ctx.beginPath(); ctx.ellipse(v.x0 + L * 0.08, v.y, Math.abs(L) * 0.1, 26, 0, 0, TAU); ctx.fill();
-        if (k > 0.75) { ctx.strokeStyle = `rgba(255,255,255,${(k - 0.75) * 3})`; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(v.x0, v.y); ctx.lineTo(v.x1, v.y); ctx.stroke(); }
-      } else {
-        // the cut: a white flash along the line, a violet band opening and closing, flat shards thrown up off it
-        const a = 1 - k, open = Math.sin(Math.min(1, k * 2.2) * Math.PI) * 18;
-        ctx.globalAlpha = a;
-        ctx.fillStyle = '#a77bff'; ctx.beginPath(); ctx.moveTo(v.x0, v.y); ctx.quadraticCurveTo((v.x0 + v.x1) / 2, v.y - open, v.x1, v.y); ctx.quadraticCurveTo((v.x0 + v.x1) / 2, v.y + open, v.x0, v.y); ctx.fill();
-        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3 * a + 1; ctx.beginPath(); ctx.moveTo(v.x0, v.y); ctx.lineTo(v.x1, v.y); ctx.stroke();
-        ctx.fillStyle = '#120c1e';
-        for (let i = 0; i < 9; i++) { const x = v.x0 + L * (i + 0.5) / 9, h = (10 + R() * 18) * a; ctx.beginPath(); ctx.moveTo(x - 5, v.y); ctx.lineTo(x + (R() - 0.5) * 10, v.y - h - k * 30); ctx.lineTo(x + 5, v.y); ctx.closePath(); ctx.fill(); }
-      }
       ctx.globalAlpha = 1;
     }
     // the shattered core: flat spinning triangles

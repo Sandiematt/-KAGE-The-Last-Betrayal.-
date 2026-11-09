@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Witness_Hit_Glitch",
+  "role": "frequent hit on the Witness (phases III-IV)",
+  "style": "stylized anime combat, additive void light (the reference sheets' blue, then violet and magenta with gold) over a dark arena, side-view 2D, baked to sheets",
+  "dominant_shape": "pixel bars blinking where it was struck",
+  "palette": {
+    "core": [
+      252,
+      246,
+      255
+    ],
+    "body": [
+      146,
+      44,
+      248
+    ],
+    "dark": [
+      12,
+      2,
+      26
+    ],
+    "matter": [
+      128,
+      108,
+      160
+    ],
+    "accent": [
+      90,
+      170,
+      255
+    ]
+  },
+  "delivery": {
+    "kind": "melee"
+  },
+  "anchor": "impact",
+  "reference": {
+    "id": "user reference sheets: The Witness, Architect of Echoes, phases I-IV (docs/art-reference/witness-phase-1..4.webp)"
+  },
+  "beats": [
+    {
+      "frame": 1,
+      "name": "contact",
+      "expect": "violet contact"
+    },
+    {
+      "frame": 4,
+      "name": "body",
+      "expect": "bars blinking, scan line"
+    },
+    {
+      "frame": 14,
+      "name": "tail",
+      "expect": "late bars"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Contact star",
+      "role": "contact",
+      "primitive": "flash",
+      "exit": "gone by absolute f4"
+    },
+    {
+      "name": "1:Violet bloom",
+      "role": "light under the blow",
+      "primitive": "glow",
+      "exit": "gone by absolute f10"
+    },
+    {
+      "name": "2:Scan line",
+      "role": "a scan line across the hit",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f8"
+    },
+    {
+      "name": "3:Scan line 2",
+      "role": "a scan line across the hit",
+      "primitive": "slice_line",
+      "exit": "gone by absolute f10"
+    },
+    {
+      "name": "4:Torn bars",
+      "role": "body: the struck spot torn into pixel bars",
+      "primitive": "sprite T_GlitchPix01",
+      "exit": "gone by absolute f7"
+    },
+    {
+      "name": "5:Late bars",
+      "role": "pixel bars blinking in late",
+      "primitive": "sprite T_GlitchPix01",
+      "exit": "gone by absolute f10"
+    },
+    {
+      "name": "6:White bars",
+      "role": "hot core bars",
+      "primitive": "sprite T_GlitchPix01",
+      "exit": "gone by absolute f6"
+    },
+    {
+      "name": "7:Shards",
+      "role": "secondary: shards sprayed sideways",
+      "primitive": "radial_sparks",
+      "exit": "gone by absolute f13"
+    }
+  ],
+  "acceptance": [
+    "Bars blink with no motion"
+  ],
+  "avoid": [
+    "Drifting particles"
+  ]
+}
