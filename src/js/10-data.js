@@ -498,28 +498,48 @@ const HELMETS = {
   kasa:         { name: 'Kasa', tier: 'trophy', def: 0.2, hp: 40, exclusive: true, hint: 'Defeat Takashi', look: 'straw_kasa', perks: { ammo: 3, rage: 0.15 },
     lore: 'Takashi\'s battered straw travel hat. He wore it on the long road into exile, before he was a father or the maker of anything, and never told his sons where that road led.' }
 };
+/* The shop's armour is one line of eight cuts of Kage's own coat, scarf and belt, each strictly better than the one
+   before it (21-characters/kage/armory/ draws them; `hue` is the Armory card's diamond and glow). The id
+   tachibana_yoroi is kept for the starting Shinobi Garb because saves store it. The shop armour sold before this line
+   stays in the table, `enemy` and `retired`: never sold or owned again (a save that owned one is refunded, see
+   Logic.normalizeSave), still worn by the sub-bosses that wear it. */
 const ARMORS = {
-  tachibana_yoroi: { name: 'Tachibana Yoroi', tier: 'starter', def: 0.02, hp: 8, price: 0, look: 'tachibana', perks: {},
-    lore: 'Compact shoulder and forearm guards of the Tachibana house, its family crest lacquered small and half-hidden.' },
-  kawa_do:      { name: 'Kawa-dō', tier: 'common', def: 0.05, hp: 15, price: 350, look: 'jerkin', perks: {},
+  tachibana_yoroi: { name: 'Shinobi Garb', tier: 'starter', def: 0.02, hp: 8, price: 0, look: 'tachibana', hue: '#e0303c', perks: {},
+    lore: 'The plain black coat Kage left Hoshimura in, its hem stitched with crimson cloud scrolls by his mother. It has never been mended by anyone else.' },
+  ronin_yoroi:  { name: 'Ronin Armor', tier: 'common', def: 0.05, hp: 15, price: 400, look: 'ronin', hue: '#e0763a', perks: { dash: 0.1 },
+    lore: 'Rust-dyed rags, a rope-bound waist and a farmer\'s straw kasa: the road clothes of the swordsmen the Order turned out of the outer districts.' },
+  yami_yoroi:   { name: 'Yami Armor', tier: 'common', def: 0.06, hp: 18, price: 750, look: 'yami', hue: '#b04bff', perks: { speed: 0.04, dash: 0.1 },
+    lore: 'A shadow-runner\'s coat cut to ribbons on purpose. The violet tomoe on its tail glows only in the dark, for the eyes of the one behind.' },
+  shinsen_yoroi:{ name: 'Shinsen Armor', tier: 'rare', def: 0.09, hp: 26, price: 1200, look: 'shinsen', hue: '#f2ecf0', perks: { stunRes: 0.15, rage: 0.1 },
+    lore: 'White war-coat of the mountain shrine guard, painted with red ink wards and a silver pauldron. It was meant to be buried with its last wearer.' },
+  raiko_yoroi:  { name: 'Raikō Armor', tier: 'rare', def: 0.11, hp: 32, price: 1700, look: 'raiko', hue: '#ffc23a', perks: { speed: 0.04, kunai: 0.4 },
+    lore: 'Storm-silk from the Silent War\'s signal towers, its veins still carrying the last of the lightning. Kunai leave it already charged.' },
+  kagehira_yoroi:{ name: 'Kagehira Armor', tier: 'epic', def: 0.13, hp: 40, price: 2400, look: 'kagehira', hue: '#ff2a36', perks: { dmg: 0.05, blockRage: 1 },
+    lore: 'A crimson coat whose hem burns like the petals of the Kagehira blade. Every blow it turns aside is paid back in rage.' },
+  yurei_yoroi:  { name: 'Yūrei Armor', tier: 'epic', def: 0.14, hp: 46, price: 3100, look: 'yurei', hue: '#8fc2ff', perks: { dash: 0.2, rage: 0.2 },
+    lore: 'Pale burial silk worked with blue spirit clouds. Hollows hesitate before it, as if they were looking at one of their own.' },
+  mugen_yoroi:  { name: 'Mugen Armor', tier: 'epic', def: 0.16, hp: 55, price: 4200, gems: 25, look: 'mugen', hue: '#c04bff', perks: { dmg: 0.07, rage: 0.2, stunRes: 0.2 },
+    lore: 'Woven in the Memory Core from the echo of every armour Kage has worn. A crescent moon wakes behind him, and the violet fire on its hem never goes out.' },
+  // ---- retired shop armour (enemy: never sold or owned; still worn by the sub-bosses below) ----
+  kawa_do:      { name: 'Kawa-dō', tier: 'common', enemy: true, retired: true, def: 0.05, hp: 15, price: 350, look: 'jerkin', perks: {},
     lore: 'A boiled-leather cuirass from the Hoshimura tannery, stitched by the last family that stayed.' },
-  hai_haori:    { name: 'Hai Haori', tier: 'common', def: 0.04, hp: 12, price: 650, look: 'shadow_cloak', perks: { speed: 0.06 },
+  hai_haori:    { name: 'Hai Haori', tier: 'common', enemy: true, retired: true, def: 0.04, hp: 12, price: 650, look: 'shadow_cloak', perks: { speed: 0.06 },
     lore: 'A coat woven from the memory ash left after Hollow fights. It moves like smoke.' },
-  kasumi_shroud:{ name: 'Kasumi Shroud', tier: 'common', def: 0.05, hp: 14, price: 800, look: 'mist_shroud', perks: { dash: 0.15 },
+  kasumi_shroud:{ name: 'Kasumi Shroud', tier: 'common', enemy: true, retired: true, def: 0.05, hp: 14, price: 800, look: 'mist_shroud', perks: { dash: 0.15 },
     lore: 'Travelling shroud of the outer-district ferrymen, who carry the dead past the Order\'s checkpoints.' },
-  soryo_e:      { name: 'Sōryo-e', tier: 'common', def: 0.05, hp: 18, price: 950, look: 'robe', perks: { rage: 0.1 },
+  soryo_e:      { name: 'Sōryo-e', tier: 'common', enemy: true, retired: true, def: 0.05, hp: 18, price: 950, look: 'robe', perks: { rage: 0.1 },
     lore: 'Robe of the mountain temples that hid memory scrolls from the Order through the Silent War.' },
-  kozane_do:    { name: 'Kozane-dō', tier: 'rare', def: 0.1, hp: 28, price: 1300, look: 'lamellar', perks: { speed: -0.03 },
+  kozane_do:    { name: 'Kozane-dō', tier: 'rare', enemy: true, retired: true, def: 0.1, hp: 28, price: 1300, look: 'lamellar', perks: { speed: -0.03 },
     lore: 'Laced iron scales of an Order Warden, re-laced in Hoshimura colours.' },
-  raiun_mantle: { name: 'Raiun Mantle', tier: 'rare', def: 0.08, hp: 22, gems: 15, look: 'storm_mantle', perks: { kunai: 0.6, speed: 0.03 },
+  raiun_mantle: { name: 'Raiun Mantle', tier: 'rare', enemy: true, retired: true, def: 0.08, hp: 22, gems: 15, look: 'storm_mantle', perks: { kunai: 0.6, speed: 0.03 },
     lore: 'Storm-silk ribbons salvaged from a Silent War signal tower. Kunai thrown from it crackle.' },
-  shikko_garb:  { name: 'Shikkō Garb', tier: 'rare', def: 0.1, hp: 30, price: 1750, look: 'executioner_garb', perks: { blockRage: 1 },
+  shikko_garb:  { name: 'Shikkō Garb', tier: 'rare', enemy: true, retired: true, def: 0.1, hp: 30, price: 1750, look: 'executioner_garb', perks: { blockRage: 1 },
     lore: 'Chain-wrapped leathers of the Order\'s Silencers. Every blow it turns aside feeds the wearer\'s rage.' },
-  o_sode:       { name: 'Ō-sode Yoroi', tier: 'epic', def: 0.14, hp: 45, price: 2400, look: 'pauldrons', perks: { speed: -0.05, stunRes: 0.15 },
+  o_sode:       { name: 'Ō-sode Yoroi', tier: 'epic', enemy: true, retired: true, def: 0.14, hp: 45, price: 2400, look: 'pauldrons', perks: { speed: -0.05, stunRes: 0.15 },
     lore: 'Great shoulder plates of a Silent War general, dragged out of the moat of the Fortress of Silence.' },
-  kurogane_do:  { name: 'Kurogane-dō', tier: 'epic', def: 0.16, hp: 55, price: 3100, look: 'colossus_plate', perks: { speed: -0.08, stunRes: 0.25 },
+  kurogane_do:  { name: 'Kurogane-dō', tier: 'epic', enemy: true, retired: true, def: 0.16, hp: 55, price: 3100, look: 'colossus_plate', perks: { speed: -0.08, stunRes: 0.25 },
     lore: 'Black-iron plate from the Fortress foundries, made for the guards at the doors of the Memory Core.' },
-  goka_yoroi:   { name: 'Gōka Yoroi', tier: 'epic', def: 0.14, hp: 40, gems: 30, look: 'tyrant', perks: { dmg: 0.06 },
+  goka_yoroi:   { name: 'Gōka Yoroi', tier: 'epic', enemy: true, retired: true, def: 0.14, hp: 40, gems: 30, look: 'tyrant', perks: { dmg: 0.06 },
     lore: 'Ember-edged plate quenched in burning memory ash. It hits back harder for every scar it carries.' },
   // ---- trophies (locked) ----
   // Act I sub-boss trophies

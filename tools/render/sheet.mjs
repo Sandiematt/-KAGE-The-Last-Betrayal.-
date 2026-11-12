@@ -4,7 +4,9 @@
 //   node tools/render/sheet.mjs --ids raikon,akari,kage --out .scratch/<you>/sheet.png
 //
 // Options (all optional except --ids and --out):
-//   --ids a,b,c        ENEMIES ids; `kage` is the player (his equipped gear), `young_kage` the spar's young Kage
+//   --ids a,b,c        ENEMIES ids; `kage` is the player (his equipped gear), `kage@<armour id>` the player in that
+//                      armour with his bare hair (e.g. kage@mugen_yoroi), or in a helmet too (kage@mugen_yoroi+hachigane);
+//                      `young_kage` the spar's young Kage
 //   --poses a,b,c      idle (default), guard, hit, stun, taunt, attack (first weapon move's strike), windup, or any
 //                      POSES name, or `move:<MOVES id>` / `wind:<MOVES id>` for a move's strike / wind-up keyframe
 //   --head 1           crop every cell to the head (a close-up of the face); --zoom then defaults to 4.6
@@ -61,6 +63,7 @@ const page = `<script>
       document.body.appendChild(cv); document.body.style.background = CFG.bg;
       const ctx = cv.getContext('2d'); ctx.fillStyle = CFG.bg; ctx.fillRect(0, 0, W, H);
       const make = (id) => id === 'kage' ? K.makePlayerFighter(K.SaveManager.data, { x: 0, facing: CFG.face })
+        : id.startsWith('kage@') ? K.makePlayerFighter(K.SaveManager.data, { x: 0, facing: CFG.face, armor: id.slice(5).split('+')[0], helmet: id.split('+')[1] || 'shiro_maki' })
         : id === 'young_kage' ? K.makeYoungKage({ x: 0, facing: CFG.face })
         : K.makeFighterFromEnemy(id, { x: 0, team: 1, facing: CFG.face });
       const POSE_OF = { idle: null, guard: 'blockArmed', hit: 'hit', stun: 'stun', taunt: 'taunt' };

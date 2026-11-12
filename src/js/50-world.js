@@ -687,6 +687,8 @@ const Renderer = {
     const ctx = this.ctx;
     const gy0 = opts.ground || GROUND;
     env.back(ctx, 0, t); this.drawFloor(ctx, env, 0, t, gy0);
+    // opts.grade: recolour the backdrop (not the fighters) toward one hue, e.g. Prepare for Battle's crimson
+    if (opts.grade) { ctx.save(); ctx.globalCompositeOperation = 'color'; ctx.fillStyle = opts.grade; ctx.fillRect(0, 0, W, H); ctx.restore(); }
     if (opts.tint) { ctx.fillStyle = opts.tint; ctx.fillRect(0, 0, W, H); }
     for (const l of opts.lights || []) {
       const g = ctx.createRadialGradient(l.x, l.y, 0, l.x, l.y, l.r); g.addColorStop(0, l.c); g.addColorStop(1, 'rgba(0,0,0,0)');

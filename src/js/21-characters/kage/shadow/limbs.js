@@ -14,6 +14,7 @@ function _ksArm(f, ctx, K, sh, el, ha, far, U) {
     _kgLine(g, [Fa.at(0.9, 7 * s), Fa.at(0.93, -7 * s)], KS.core, 1.1 * s);
   } });
   // the gear's shoulder plates over the sleeve (sub-bosses/, bosses/raikon/, bosses/takashi/, kage/gear/)
+  kageArmorSode(f, ctx, K, sh, el, far, ha);   // the Armory armour's shoulder piece (../armory/)
   subSode(f, ctx, sh, el, K.A, U, far); subBSode(f, ctx, sh, el, K.A, U, far); raikonSode(f, ctx, sh, el, K.A, U, far); takashiSode(f, ctx, sh, el, K.A, U, far); gearSode(f, ctx, sh, el, K.A, U, far);
 }
 
@@ -53,4 +54,5 @@ function _ksLeg(f, ctx, K, hp, kn, ft, far) {
     _kgLine(g, [G.at(0.31, 12 * s), G.at(0.31, -12 * s)], KS.cloth, 2 * s);
     _kgFill(g, [T.at(0.1, -2 * s), T.at(0.9, -7.4 * s), T.at(0.96, -3 * s)], KS.clothLo);
   } });
+  if (mugenArtOn(f, K)) mugenShin(f, ctx, K, kn, ft, far);   // the Mugen Armor's shin guard and boot (../armory/mugen.js)
 }

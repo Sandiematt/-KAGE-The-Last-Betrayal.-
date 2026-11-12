@@ -960,6 +960,8 @@ const Game = {
     document.documentElement.style.setProperty('--u', u.toFixed(4));
     document.documentElement.style.setProperty('--vw', vw + 'px');
     document.documentElement.style.setProperty('--vh', vh + 'px');
+    // the Wonder menus are laid out on a 1600 x 900 design stage, scaled to fit (wonder.css .w-stage)
+    document.documentElement.style.setProperty('--ks', Math.min(vw / 1600, vh / 900).toFixed(4));
     UIManager.onResize && UIManager.onResize();
   },
   inFight() { return this.scene === 'fight' && !!this.session && !this.paused; },

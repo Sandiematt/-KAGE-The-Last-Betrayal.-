@@ -284,13 +284,6 @@ const Splash = (() => {
       spaced('THE LAST BETRAYAL', 0, 0, 10);
       ctx.restore();
     }
-    const tk = clamp((t - TAG_T) / 0.45, 0, 1);
-    if (tk > 0) {
-      ctx.save(); ctx.globalAlpha = Ease.outCubic(tk);
-      ctx.fillStyle = '#c9a45c'; ctx.font = 'italic 600 30px KageSerif, serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText('Brothers until the end.', 887, 762 + 8 * (1 - tk));
-      ctx.restore();
-    }
     // 8) prompt, gently pulsing
     const pk = clamp((t - PROMPT_T) / 0.45, 0, 1);
     if (pk > 0) {

@@ -3,7 +3,14 @@
    shorter one behind it cut to a swallow tail. Each tail is one ribbon with a lit ridge along its upper side and a
    darker fold along its underside, as on the reference sheet. ---- */
 function _ksScarfTails(f, ctx, K) {
+  const th = K.th;
+  // an Armory armour's extra torn strands streaming with the tails (../armory/), behind them
+  if (th && th.strands) kageArmorStrands(f, ctx, K, th);
+  // the short tail in the armour's second scarf colour, if it has one (the Shinsen's white streamer)
+  const sw = th && th.scarf2 ? [KS.scarf, KS.scarfLo, KS.scarfHi] : null;
+  if (sw) { KS.scarf = th.scarf2[0]; KS.scarfLo = th.scarf2[1]; KS.scarfHi = th.scarf2[2]; }
   _ksRibbon(f, ctx, K, 'scarfB', 4.6, 10.6, true);
+  if (sw) { KS.scarf = sw[0]; KS.scarfLo = sw[1]; KS.scarfHi = sw[2]; }
   _ksRibbon(f, ctx, K, 'scarfA', 5.2, 12.6, false);
 }
 
@@ -14,8 +21,9 @@ function _ksThrough(ctx, pts, from, to) {
   ctx.lineTo(pts[to][0], pts[to][1]);
 }
 
+// part: a cloth part name, or a chain-like { n, px, py, o: { ph } } (an armour's strands)
 function _ksRibbon(f, ctx, K, part, w0, w1, fork) {
-  const c = _ksCloth(f, part); if (!c) return;
+  const c = typeof part === 'string' ? _ksCloth(f, part) : part; if (!c) return;
   const s = K.s, fc = K.fc, n = c.n, T = [], B = [], M = [], floor = K.floor - 2 * s;
   let ex = 0, ey = 0;
   for (let i = 0; i < n; i++) {

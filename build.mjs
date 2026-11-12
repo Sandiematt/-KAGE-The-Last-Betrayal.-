@@ -7,7 +7,8 @@ import { fileURLToPath } from 'node:url';
 const root = path.dirname(fileURLToPath(import.meta.url));
 const src = path.join(root, 'src');
 const template = fs.readFileSync(path.join(src, 'index.template.html'), 'utf8');
-const css = fs.readFileSync(path.join(src, 'styles.css'), 'utf8');
+// styles.css (base, HUD, story, legacy screens) then wonder.css (the Wonder "Vole" menus and the act palettes)
+const css = ['styles.css', 'wonder.css'].filter(f => fs.existsSync(path.join(src, f))).map(f => fs.readFileSync(path.join(src, f), 'utf8')).join('\n');
 const jsDir = path.join(src, 'js');
 // every .js under src/js, sub-folders included (src/js/21-characters/<character>/<part>.js), in path order
 const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]);
@@ -23,7 +24,14 @@ const FONTS = [
   ['teko-600.woff2', 'KageUI', 600],
   ['rajdhani-600.woff2', 'KageNum', 600],  // Rajdhani — HUD numbers & body text
   ['rajdhani-700.woff2', 'KageNum', 700],
-  ['yuji-kanji.woff2', 'KageKanji', 400]   // Yuji Boku (subset) — brush calligraphy kanji
+  ['yuji-kanji.woff2', 'KageKanji', 400],  // Yuji Boku (subset) — brush calligraphy kanji
+  // the Wonder design's type (Vole file tokens font/title, font/mincho, font/body, font/ui, font/brush), subset
+  ['cinzel-700.woff2', 'KageSerif', 700],  // Cinzel 700 — font/title
+  ['mincho-400.woff2', 'KageMincho', 400], // Shippori Mincho B1 (Latin + the UI's kanji) — font/mincho
+  ['mincho-700.woff2', 'KageMincho', 700],
+  ['barlow-400.woff2', 'KageBody', 400],   // Barlow — font/body
+  ['barlowc-600.woff2', 'KageCond', 600],  // Barlow Condensed — font/ui (key caps, chip keys)
+  ['syuku-kanji.woff2', 'KageSyuku', 400]  // Yuji Syuku (subset) — font/brush (影, 対, 戦, weapon kanji)
 ];
 const fontDir = path.join(src, 'fonts');
 const fontCss = FONTS.filter(([f]) => fs.existsSync(path.join(fontDir, f))).map(([f, fam, w]) =>

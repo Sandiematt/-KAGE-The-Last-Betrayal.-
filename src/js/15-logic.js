@@ -183,9 +183,16 @@ const Logic = {
     for (const k of ['weapons', 'helmets', 'armors']) d.owned[k] = Object.assign({}, this.defaultSave().owned[k], (s.owned || {})[k] || {});
     // gear ids the tables no longer know (renamed or removed items, enemy-only arms) are dropped; a slot
     // left wearing something unowned or unknown goes back to the starting item
+    // Retired shop gear (the armour sold before the eight-armour line) is refunded first: what was paid for it and for
+    // every upgrade, coins and gems, once (the item is dropped with the rest below, so the next load finds nothing)
     const start = this.defaultSave().equipped;
     for (const k of ['weapons', 'helmets', 'armors']) for (const id in d.owned[k]) {
-      const it = gearTable(k)[id];
+      const it = gearTable(k)[id], lvl = Math.floor(+d.owned[k][id]) || 0;
+      if (it && it.retired && lvl > 0) {
+        d.coins = (+d.coins || 0) + (it.price || 0);
+        d.gems = (+d.gems || 0) + (it.gems || 0);
+        for (let l = 1; l < Math.min(lvl, maxLevel(k, id)); l++) d.coins += upgradeCost(k, id, l);
+      }
       if (!it || it.enemy || id === 'fists' || !(d.owned[k][id] > 0)) delete d.owned[k][id];
     }
     d.equipped = Object.assign({}, start, s.equipped || {});
@@ -838,8 +845,11 @@ const Logic = {
   // Shop actions: each checks the rule, updates the save in place and returns whether it happened.
   buyItem(save, kind, id) {
     const it = gearTable(kind)[id];
-    if (save.owned[kind][id] || it.exclusive) return false;
-    if (it.gems) { if (save.gems < it.gems) return false; save.gems -= it.gems; } else { if (save.coins < it.price) return false; save.coins -= it.price; }
+    if (!it || save.owned[kind][id] || it.exclusive || it.enemy) return false;
+    // an item may cost coins, gems or both (the Mugen Armor)
+    const coins = it.price || 0, gems = it.gems || 0;
+    if (save.coins < coins || save.gems < gems) return false;
+    save.coins -= coins; save.gems -= gems;
     save.owned[kind][id] = 1;
     return true;
   },

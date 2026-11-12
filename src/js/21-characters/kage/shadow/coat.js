@@ -33,50 +33,62 @@ function _ksBackTail(f, ctx, K) {
   };
   const Ct = bow(At, Et, El, 0.15), Cl = bow(Al, El, Et, 0.03);
   const hm = [(El[0] + Et[0]) / 2, (El[1] + Et[1]) / 2], Ch = [hm[0] + (apex[0] - hm[0]) * 0.36, hm[1] + (apex[1] - hm[1]) * 0.36];
+  // the hem: H(h) runs along it (0 the low corner, 1 the far tip), N(h) is the way in from it (toward the waist)
+  const H = (h) => _ksQ(El, Ch, Et, h);
+  const N = (h) => {
+    const a = H(h - 0.02), b = H(h + 0.02); let ex = b[0] - a[0], ey = b[1] - a[1]; const el = Math.hypot(ex, ey) || 1; ex /= el; ey /= el;
+    const o = H(h); let ux = -ey, uy = ex; if (ux * (apex[0] - o[0]) + uy * (apex[1] - o[1]) < 0) { ux = -ux; uy = -uy; }
+    return [o, ex, ey, ux, uy];
+  };
+  const hemLen = Math.hypot(Et[0] - El[0], Et[1] - El[1]), q = clamp(hemLen / (86 * s), 0.5, 1.12) * s;
+  // an Armory armour may cut the hem ragged (../armory/): the points from the low corner to the far tip
+  const th = K.th, rag = th && th.hem ? kageArmorHemPts(th, H, N, q, K) : null;
+  K.hem = { El, Ch, Et, apex, q, H, N, rag };   // the armour's effects read the hem
+  if (mugenArtOn(f, K)) { mugenCoat(ctx, K, Al, At, El, Et); return; }   // the Mugen Armor's flame-cut coat (../armory/mugen.js)
   const path = () => {
     ctx.moveTo(Al[0], Al[1]);
     ctx.quadraticCurveTo(Cl[0], Cl[1], El[0], El[1]);
-    ctx.quadraticCurveTo(Ch[0], Ch[1], Et[0], Et[1]);
+    if (rag) for (const p of rag) ctx.lineTo(p[0], p[1]);
+    else ctx.quadraticCurveTo(Ch[0], Ch[1], Et[0], Et[1]);
     ctx.quadraticCurveTo(Ct[0], Ct[1], At[0], At[1]);
     ctx.closePath();
   };
   const edge = (g, a, c, b, col, lw) => { g.strokeStyle = col; g.lineWidth = lw; g.beginPath(); g.moveTo(a[0], a[1]); g.quadraticCurveTo(c[0], c[1], b[0], b[1]); g.stroke(); };
-  _ksPart(ctx, K, path, KS.cloth, { detail: (g) => {
+  _ksPart(ctx, K, path, KS.coat, { detail: (g) => {
     g.lineCap = 'round'; g.lineJoin = 'round';
     // a fold falling from the waist, and the dark crimson piping just inside the leading edge
-    _kgFill(g, [apex, _ksQ(El, Ch, Et, 0.42), _ksQ(El, Ch, Et, 0.5)], KS.clothLo);
-    edge(g, Al, Cl, El, KS.redLo, 10 * s); edge(g, Al, Cl, El, KS.cloth, 6.6 * s);
-    // the hem: H(h) runs along it, N(h) is the way in from it (toward the waist)
-    const H = (h) => _ksQ(El, Ch, Et, h);
-    const N = (h) => {
-      const a = H(h - 0.02), b = H(h + 0.02); let ex = b[0] - a[0], ey = b[1] - a[1]; const el = Math.hypot(ex, ey) || 1; ex /= el; ey /= el;
-      const o = H(h); let ux = -ey, uy = ex; if (ux * (apex[0] - o[0]) + uy * (apex[1] - o[1]) < 0) { ux = -ux; uy = -uy; }
-      return [o, ex, ey, ux, uy];
-    };
-    const hemLen = Math.hypot(Et[0] - El[0], Et[1] - El[1]), q = clamp(hemLen / (86 * s), 0.5, 1.12) * s;
-    g.fillStyle = KS.red; g.strokeStyle = KS.red;
-    g.beginPath();
-    for (let i = 0; i <= 16; i++) { const p = H(i / 16 * 1.04 - 0.02); i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1]); }
-    for (let i = 16; i >= 0; i--) { const h = i / 16, [o, , , ux, uy] = N(h), d = _ksBandD(h) * q; g.lineTo(o[0] + ux * d, o[1] + uy * d); }
-    g.closePath(); g.fill();
-    // the cloud scrolls: each rises from the band, turns over and curls in on itself, with a small flick beside it
-    for (const [h0, R0] of KS_SCROLLS) {
-      const R = R0 * q, [O, ex, ey, ux, uy] = N(h0), bh = _ksBandD(h0) * q, cy = bh + R * 0.9;
-      const W = (x, y) => [O[0] + ex * x + ux * y, O[1] + ey * x + uy * y];
-      g.lineWidth = R * 0.5; g.beginPath();
-      let p = W(-R * 1.25, bh * 0.5); g.moveTo(p[0], p[1]);
-      for (let i = 0; i <= 26; i++) {
-        const k = i / 26, ph = (205 - 430 * k) * DEG, rr = R * (1 - 0.64 * k);
-        p = W(Math.cos(ph) * rr, cy + Math.sin(ph) * rr); g.lineTo(p[0], p[1]);
-      }
-      g.stroke();
-      g.beginPath(); g.arc(p[0], p[1], R * 0.3, 0, TAU); g.fill();
-      const f0 = W(R * 0.9, bh * 0.6), f1 = W(R * 1.58, bh + R * 0.1), f2 = W(R * 1.36, bh + R * 0.8);
-      g.lineWidth = R * 0.3; g.beginPath(); g.moveTo(f0[0], f0[1]); g.quadraticCurveTo(f1[0], f1[1], f2[0], f2[1]); g.stroke();
+    _kgFill(g, [apex, _ksQ(El, Ch, Et, 0.42), _ksQ(El, Ch, Et, 0.5)], KS.coatLo);
+    edge(g, Al, Cl, El, KS.redLo, 10 * s); edge(g, Al, Cl, El, KS.coat, 6.6 * s);
+    if (th && th.motif) kageArmorHem(g, K, th);   // the armour's own hem art
+    else {
+      g.fillStyle = KS.red; g.strokeStyle = KS.red;
+      g.beginPath();
+      for (let i = 0; i <= 16; i++) { const p = H(i / 16 * 1.04 - 0.02); i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1]); }
+      for (let i = 16; i >= 0; i--) { const h = i / 16, [o, , , ux, uy] = N(h), d = _ksBandD(h) * q; g.lineTo(o[0] + ux * d, o[1] + uy * d); }
+      g.closePath(); g.fill();
+      // the cloud scrolls: each rises from the band, turns over and curls in on itself, with a small flick beside it
+      for (const [h0, R0] of KS_SCROLLS) _ksScroll(g, N, h0, R0 * q, _ksBandD(h0) * q);
     }
     // the back light along both long edges
-    edge(g, At, Ct, Et, KS.tan, 2.8 * s); edge(g, Al, Cl, El, KS.tan, 2.6 * s);
+    edge(g, At, Ct, Et, KS.coatTan, 2.8 * s); edge(g, Al, Cl, El, KS.coatTan, 2.6 * s);
   } });
+}
+
+// one cloud scroll on the hem at h0 (radius R, rising from a band bh deep), in the current fill / stroke colour:
+// it rises from the band, turns over and curls in on itself, with a small flick beside it
+function _ksScroll(g, N, h0, R, bh) {
+  const [O, ex, ey, ux, uy] = N(h0), cy = bh + R * 0.9;
+  const W = (x, y) => [O[0] + ex * x + ux * y, O[1] + ey * x + uy * y];
+  g.lineWidth = R * 0.5; g.beginPath();
+  let p = W(-R * 1.25, bh * 0.5); g.moveTo(p[0], p[1]);
+  for (let i = 0; i <= 26; i++) {
+    const k = i / 26, ph = (205 - 430 * k) * DEG, rr = R * (1 - 0.64 * k);
+    p = W(Math.cos(ph) * rr, cy + Math.sin(ph) * rr); g.lineTo(p[0], p[1]);
+  }
+  g.stroke();
+  g.beginPath(); g.arc(p[0], p[1], R * 0.3, 0, TAU); g.fill();
+  const f0 = W(R * 0.9, bh * 0.6), f1 = W(R * 1.58, bh + R * 0.1), f2 = W(R * 1.36, bh + R * 0.8);
+  g.lineWidth = R * 0.3; g.beginPath(); g.moveTo(f0[0], f0[1]); g.quadraticCurveTo(f1[0], f1[1], f2[0], f2[1]); g.stroke();
 }
 
 // a hanging panel from the waist edge a0 (front) - a1 (back) to the end E: returns its frame
@@ -100,7 +112,7 @@ function _ksDrape(f, ctx, K) {
     ctx.quadraticCurveTo((a1[0] + e1[0]) / 2 - F.nx * 2 * s, (a1[1] + e1[1]) / 2 - F.ny * 2 * s, a1[0], a1[1]);
     ctx.closePath();
   };
-  _ksPart(ctx, K, path, KS.clothLo, { tan: 1.4 * s, tanCol: KS.tanFar, red: 1 * s, redCol: KS.rimFar });
+  _ksPart(ctx, K, path, KS.coatLo, { tan: 1.4 * s, tanCol: KS.tanFar, red: 1 * s, redCol: KS.rimFar });
 }
 
 function _ksFlap(f, ctx, K) {
@@ -117,11 +129,11 @@ function _ksFlap(f, ctx, K) {
     ctx.quadraticCurveTo((a1[0] + e1[0]) / 2 - F.nx * 1.5 * s, (a1[1] + e1[1]) / 2 - F.ny * 1.5 * s, a1[0], a1[1]);
     ctx.closePath();
   };
-  _ksPart(ctx, K, path, KS.cloth, { red: 1.9 * s, tan: 0.9 * s, tanCol: KS.tanFar, detail: (g) => {
+  _ksPart(ctx, K, path, KS.coat, { red: 1.9 * s, tan: 0.9 * s, tanCol: KS.tanFar, detail: (g) => {
     const up = (p, k) => [p[0] - F.dx * k * s, p[1] - F.dy * k * s], mix = (a, b, k) => [lerp(a[0], b[0], k), lerp(a[1], b[1], k)];
     // the dark crimson band above the hem, and two folds from the belt
     _kgLine(g, [up(mix(e0, e1, -0.2), 5), up(mix(e0, e1, 1.2), 5)], KS.redLo, 3 * s);
     _kgFill(g, [mix(a0, a1, 0.42), up(mix(e0, e1, 0.36), 8), up(mix(e0, e1, 0.48), 8)], KS.core);
-    _kgFill(g, [mix(a0, a1, 0.78), up(mix(e0, e1, 0.74), 14), up(mix(e0, e1, 0.84), 14)], KS.clothLo);
+    _kgFill(g, [mix(a0, a1, 0.78), up(mix(e0, e1, 0.74), 14), up(mix(e0, e1, 0.84), 14)], KS.coatLo);
   } });
 }

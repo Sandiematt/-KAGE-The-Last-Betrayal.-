@@ -20,8 +20,11 @@ const KS = {
   tan: '#bd8171', tanFar: '#7d564d',                  // the warm back light
   red: '#7d181a', redLo: '#401212',                   // the hem's cloud scrolls, pipings
   scarf: '#8a191d', scarfLo: '#571214', scarfHi: '#e2504a',
-  belt: '#5c1517', beltLo: '#2c0f10', beltHi: '#8e1e21'
+  belt: '#5c1517', beltLo: '#2c0f10', beltHi: '#8e1e21',
+  coat: '#141011', coatLo: '#0b0809', coatTan: '#bd8171'   // the coat's panels and their back light (an armour may pale them)
 };
+// the tones as drawn without armour: an Armory armour (../armory/) swaps some of KS for one body draw and puts these back
+const KS_BASE = Object.assign({}, KS);
 
 /* ---- the design switch ----
    shadow: true  the silhouette design (this folder)       false  the earlier armoured design (../body.js)
@@ -97,6 +100,12 @@ function kageShadowCloths(f, k) {
   add('flap', new KsChain(6, 8.6 * s, { ph: 4.7, wind: 110, grav: 1400, gust: 0.08, stiff: 1.8, soft: 0.3, ease: 0.3 }), 'hip', -6, -5);
   // the scarf's two tails: light, long, fluttering toward their tips
   add('scarfA', new KsChain(13, 8.2 * s, { ph: 9, wind: 1500, grav: 430, gust: 0.1, wave: 230, wf: 4.6, wk: 0.7, stiff: 1.94, damp: 0.86, dampY: 0.72, soft: 0.3 }), 'neck', 7, 0);
+  // the long hair some armours' styles stream back from the head (../armory/hair.js): heavier than the scarf, slower
+  add('hair', new KsChain(11, 7.6 * s, { ph: 3.3, wind: 640, grav: 1150, gust: 0.1, wave: 140, wf: 3.6, wk: 0.8, stiff: 1.9, damp: 0.88, dampY: 0.78, soft: 0.3 }), 'head', 10, -4);
+  // the long hair designed in Godot (Yūrei's, Mugen's): longer, blown back further (godot/hair-design Design.gd Chain)
+  add('hairLong', new KsChain(13, 7.6 * s, { ph: 3.3, wind: 900, grav: 950, gust: 0.1, wave: 160, wf: 3.6, wk: 0.8, stiff: 1.9, damp: 0.88, dampY: 0.78, soft: 0.3 }), 'head', 10, -4);
+  // the Mugen Armor's art locks (../armory/mugen.js): streaming straight back, as on the user's card art
+  add('hairArt', new KsChain(13, 7.6 * s, { ph: 4.1, wind: 1500, grav: 520, gust: 0.1, wave: 190, wf: 3.9, wk: 0.8, stiff: 1.9, damp: 0.88, dampY: 0.76, soft: 0.3 }), 'head', 10, -4);
   add('scarfB', new KsChain(9, 7.8 * s, { ph: 12.5, wind: 1500, grav: 150, gust: 0.1, wave: 190, wf: 5.3, wk: 0.85, stiff: 1.94, damp: 0.86, dampY: 0.72, soft: 0.3 }), 'neck', 7, -4);
 }
 

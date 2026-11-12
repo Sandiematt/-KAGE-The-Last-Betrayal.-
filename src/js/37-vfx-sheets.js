@@ -53,6 +53,9 @@ const VfxSheets = {
   }
 };
 VfxSheets.preload();
+ArmorGlow.preload();   // the Armory armours' Godot-baked glow (21-characters/kage/armory/glow.js), decoded up front too
+HairTex.preload();     // and the Godot-designed hair textures (21-characters/kage/armory/hair.js)
+MugenArt.ready();      // and the Mugen Armor's parts cut from the user's art in Godot (21-characters/kage/armory/mugen.js)
 
 /* ---- Effects extension: baked-effect instances ---- */
 Object.assign(Effects.prototype, {

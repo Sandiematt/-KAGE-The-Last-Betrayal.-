@@ -7,15 +7,16 @@ const { loadLogic } = require('./helpers/load-logic');
 
 const { Logic, WEAPONS, HELMETS, ARMORS, CAMPAIGN } = loadLogic();
 const KINDS = ['weapons', 'helmets', 'armors'];
+const GEAR_RANK = (tier) => ({ starter: 0, common: 1, rare: 2, epic: 3, trophy: 4, boss: 5 })[tier];
 
-test('a new save owns and wears Kagetsu, the Crimson Scarf and the Tachibana Yoroi', () => {
+test('a new save owns and wears Kagetsu, the Crimson Scarf and the Shinobi Garb', () => {
   const s = Logic.defaultSave();
   assert.deepEqual(s.equipped, { weapon: 'kagetsu', helmet: 'shiro_maki', armor: 'tachibana_yoroi' });
   assert.equal(s.owned.weapons.kagetsu, 1);
   assert.equal(s.owned.helmets.shiro_maki, 1);
   assert.equal(s.owned.armors.tachibana_yoroi, 1);
   assert.equal(WEAPONS.kagetsu.name, 'Kagetsu');
-  assert.equal(ARMORS.tachibana_yoroi.name, 'Tachibana Yoroi');
+  assert.equal(ARMORS.tachibana_yoroi.name, 'Shinobi Garb', 'the starting armour keeps its saved id');
   assert.equal(HELMETS.shiro_maki.name, 'Crimson Scarf');
 });
 
@@ -47,12 +48,12 @@ test('Kagetsu climbs from Common to Rare to Epic as it is upgraded', () => {
 test('upgrades stop at each item\'s cap: shop weapons 8, helmets and armour 5, trophies cannot be upgraded', () => {
   assert.equal(Logic.maxLevel('weapons', 'tsubame'), 8);
   assert.equal(Logic.maxLevel('helmets', 'tetsu_kabuto'), 5);
-  assert.equal(Logic.maxLevel('armors', 'kozane_do'), 5);
+  assert.equal(Logic.maxLevel('armors', 'raiko_yoroi'), 5);
   assert.equal(Logic.maxLevel('helmets', 'kasa'), 1);
   const s = Logic.defaultSave(); s.coins = 1e9;
-  s.owned.armors.kozane_do = 1; s.owned.weapons.raiko_no_tachi = 1;
-  while (Logic.upgradeItem(s, 'armors', 'kozane_do'));
-  assert.equal(s.owned.armors.kozane_do, 5);
+  s.owned.armors.raiko_yoroi = 1; s.owned.weapons.raiko_no_tachi = 1;
+  while (Logic.upgradeItem(s, 'armors', 'raiko_yoroi'));
+  assert.equal(s.owned.armors.raiko_yoroi, 5);
   assert.equal(Logic.upgradeItem(s, 'weapons', 'raiko_no_tachi'), false);
   assert.equal(s.owned.weapons.raiko_no_tachi, 1);
 });
@@ -63,20 +64,20 @@ test('even the starting gear gets tougher when upgraded', () => {
 });
 
 test('armour and helmets add defence and health that grow with each upgrade', () => {
-  assert.equal(Logic.gearDef('armors', 'kozane_do', 1), 0.1);
-  assert.ok(Math.abs(Logic.gearDef('armors', 'kozane_do', 5) - 0.148) < 1e-9);
-  assert.equal(Logic.gearHp('armors', 'kozane_do', 1), 28);
-  assert.equal(Logic.gearHp('armors', 'kozane_do', 5), 39);
+  assert.equal(Logic.gearDef('armors', 'raiko_yoroi', 1), 0.11);
+  assert.ok(Math.abs(Logic.gearDef('armors', 'raiko_yoroi', 5) - 0.158) < 1e-9);
+  assert.equal(Logic.gearHp('armors', 'raiko_yoroi', 1), 32);
+  assert.equal(Logic.gearHp('armors', 'raiko_yoroi', 5), 45);
 });
 
 test('better gear noticeably raises Kage\'s health, defence and damage', () => {
   const s = Logic.defaultSave();
   const start = Logic.playerCombatStats(s);
-  assert.equal(start.hp, 232, '220 base + 8 from the Tachibana Yoroi + 4 from the Crimson Scarf');
+  assert.equal(start.hp, 232, '220 base + 8 from the Shinobi Garb + 4 from the Crimson Scarf');
   assert.ok(Math.abs(start.defense - 0.03) < 1e-9);
   assert.equal(start.weaponDmg, 1);
-  s.owned.armors.kurogane_do = 5; s.owned.helmets.shika_kabuto = 5; s.owned.weapons.iwakudaki = 8;
-  s.equipped = { weapon: 'iwakudaki', helmet: 'shika_kabuto', armor: 'kurogane_do' };
+  s.owned.armors.mugen_yoroi = 5; s.owned.helmets.shika_kabuto = 5; s.owned.weapons.iwakudaki = 8;
+  s.equipped = { weapon: 'iwakudaki', helmet: 'shika_kabuto', armor: 'mugen_yoroi' };
   const geared = Logic.playerCombatStats(s);
   assert.equal(geared.hp, 220 + 77 + 31);
   assert.ok(Math.abs(geared.defense - 0.376) < 1e-9);
@@ -116,12 +117,62 @@ test('every weapon, helmet and armour carries a lore line', () => {
   }
 });
 
-test('the shop sells ten helmets and ten armours across Common, Rare and Epic', () => {
-  for (const kind of ['helmets', 'armors']) {
-    const t = Logic.gearTable(kind), shop = Object.keys(t).filter(id => !Logic.isLocked(Logic.defaultSave(), kind, id) && t[id].tier !== 'starter');
-    assert.equal(shop.length, 10, kind);
+test('the shop sells ten helmets and the seven armours after the Shinobi Garb, across Common, Rare and Epic', () => {
+  for (const [kind, n] of [['helmets', 10], ['armors', 7]]) {
+    const t = Logic.gearTable(kind), shop = Object.keys(t).filter(id => !t[id].enemy && !Logic.isLocked(Logic.defaultSave(), kind, id) && t[id].tier !== 'starter');
+    assert.equal(shop.length, n, kind);
     assert.deepEqual([...new Set(shop.map(id => t[id].tier))].sort(), ['common', 'epic', 'rare'], kind);
   }
+});
+
+// The armour line, as on the user's armory sheet: Shinobi Garb (the start) up to the Mugen Armor, each better than
+// the one before it.
+const ARMOR_LINE = ['tachibana_yoroi', 'ronin_yoroi', 'yami_yoroi', 'shinsen_yoroi', 'raiko_yoroi', 'kagehira_yoroi', 'yurei_yoroi', 'mugen_yoroi'];
+
+test('the armour line climbs: each armour beats the one before it in defence, health, perks and price', () => {
+  assert.deepEqual(ARMOR_LINE.map(id => ARMORS[id].name), ['Shinobi Garb', 'Ronin Armor', 'Yami Armor', 'Shinsen Armor', 'Raikō Armor', 'Kagehira Armor', 'Yūrei Armor', 'Mugen Armor']);
+  for (let i = 1; i < ARMOR_LINE.length; i++) {
+    const a = ARMORS[ARMOR_LINE[i - 1]], b = ARMORS[ARMOR_LINE[i]];
+    assert.ok(b.def > a.def, `${b.name} defence`);
+    assert.ok(b.hp > a.hp, `${b.name} health`);
+    assert.ok(b.price > a.price, `${b.name} price`);
+    assert.ok(Object.keys(b.perks).length >= Object.keys(a.perks).length, `${b.name} perks`);
+    assert.ok(Object.values(b.perks).every(v => v > 0), `${b.name} has no drawback perks`);
+    assert.ok(GEAR_RANK(b.tier) >= GEAR_RANK(a.tier), `${b.name} tier`);
+    assert.match(b.hue, /^#[0-9a-f]{6}$/, `${b.name} card colour`);
+  }
+  const m = ARMORS.mugen_yoroi;
+  assert.equal(m.price, 4200); assert.equal(m.gems, 25);
+  assert.deepEqual(m.perks, { dmg: 0.07, rage: 0.2, stunRes: 0.2 });
+});
+
+test('the Mugen Armor takes coins and gems, and needs both', () => {
+  const s = Logic.defaultSave(); s.coins = 4200; s.gems = 24;
+  assert.equal(Logic.buyItem(s, 'armors', 'mugen_yoroi'), false, 'one gem short');
+  s.gems = 25; s.coins = 4199;
+  assert.equal(Logic.buyItem(s, 'armors', 'mugen_yoroi'), false, 'one coin short');
+  s.coins = 5000;
+  assert.equal(Logic.buyItem(s, 'armors', 'mugen_yoroi'), true);
+  assert.equal(s.coins, 800); assert.equal(s.gems, 0); assert.equal(s.owned.armors.mugen_yoroi, 1);
+});
+
+test('the shop armour retired by the line is never sold, and a save that owned it is refunded and dressed again', () => {
+  const retired = Object.keys(ARMORS).filter(id => ARMORS[id].retired);
+  assert.equal(retired.length, 10, 'the old shop armour: Kawa-dō to Gōka Yoroi');
+  const s0 = Logic.defaultSave(); s0.coins = 1e9; s0.gems = 1e9;
+  for (const id of retired) assert.equal(Logic.buyItem(s0, 'armors', id), false, id);
+  const old = Logic.defaultSave();
+  old.coins = 10; old.gems = 1;
+  old.owned.armors = { tachibana_yoroi: 1, kozane_do: 3, raiun_mantle: 1 };
+  old.equipped.armor = 'kozane_do';
+  const s = Logic.normalizeSave(JSON.parse(JSON.stringify(old)));
+  assert.equal(s.coins, 10 + 1300 + Logic.upgradeCost('armors', 'kozane_do', 1) + Logic.upgradeCost('armors', 'kozane_do', 2));
+  assert.equal(s.gems, 1 + 15);
+  assert.deepEqual(s.owned.armors, { tachibana_yoroi: 1 });
+  assert.equal(s.equipped.armor, 'tachibana_yoroi');
+  // loading the refunded save again pays nothing more
+  const again = Logic.normalizeSave(JSON.parse(JSON.stringify(s)));
+  assert.equal(again.coins, s.coins); assert.equal(again.gems, s.gems);
 });
 
 test('boss weapons and trophies are in the Armory but locked, with a hint, and cannot be bought', () => {

@@ -1,0 +1,16 @@
+; Engine configuration file for the KAGE Mugen Armor cut project (Godot 4.7).
+config_version=5
+
+[application]
+config/name="KAGE Mugen Armor"
+run/main_scene="res://Cut.tscn"
+config/features=PackedStringArray("4.7")
+
+[display]
+window/size/viewport_width=320
+window/size/viewport_height=240
+window/stretch/mode="disabled"
+
+[rendering]
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"

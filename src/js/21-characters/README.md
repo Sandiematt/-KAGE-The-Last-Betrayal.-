@@ -17,6 +17,9 @@ joint or touches gameplay.
     eyes.js  neck.js  torso.js  arms.js  hands.js  waist.js  legs.js  feet.js  saya.js
     shapes.js  head-shapes.js  part-helpers.js  cloth-panels.js  wear-and-tear.js  accent.js  afterimage.js
   kage/               _skin.js  hair.js  scarf.js  coat.js  skirt.js  embroidery.js  sash.js
+    armory/           the Armory's armour line on the shadow design (Shinobi Garb to Mugen Armor): _themes.js (each
+                      armour's tones and pieces), hem.js (the cut hem and the art along it), pieces.js (chest, shoulder,
+                      kasa, scarf strands), glow.js (the Godot-baked halo, fire, wisps and crackle; godot/armor-glow)
     gear/             the shop helmets and armour drawn on Kage (_skin.js head.js torso.js arms.js)
     shadow/           Kage's silhouette design (the default): _design.js body.js head.js torso.js limbs.js coat.js scarf.js
                       a flat ink figure read by a crimson key light and a tan back light, a cloud-hemmed coat, a

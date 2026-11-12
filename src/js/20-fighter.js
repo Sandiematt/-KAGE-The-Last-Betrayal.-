@@ -1465,6 +1465,7 @@ Fighter.prototype.draw = function (ctx, opt) {
     if (cl.witness && this.kageFrame) continue;
     if (cl.kageOnly && !this.kageFrame) continue;   // Kage's scarf tails, only on the Witness's Kage-flicker frames
     if (shadowKage && (cl.kind === 'belt' || (cl.kind === 'scarf' && cl.at === 'neck'))) continue;   // drawn with the body
+    if (shadowKage && cl.kind === 'scarf' && cl.at === 'head' && kageArmorArtHead(this)) continue;   // a helmet's tails, hidden under the Mugen art's own head
     const col = opt.color || (flashing ? ink : cl.color);
     if (cl.rim && !opt.color && cl.w1) cl.c.ribbon(ctx, cl.rim, cl.w + 3 * s, cl.w1 + 3 * s);
     if (cl.w1) cl.c.ribbon(ctx, col, cl.w, cl.w1); else cl.c.strand(ctx, col, cl.w);
@@ -1957,6 +1958,11 @@ function drawArmor(ctx, f, ink, opt, Ut) {
       // Kage's starting Tachibana Yoroi: the far shoulder's three dark lames laced in crimson; the near pauldron is drawn
       // over his arm by his own body (21-characters/kage/)
       drawTachibana(ctx, f, ink, flat);
+      break;
+    case 'ronin': case 'yami': case 'shinsen': case 'raiko': case 'kagehira': case 'yurei': case 'mugen':
+      // the Armory's armour line, cut from Kage's own coat: the chest pieces here; the coat, scarf, hem art, shoulder
+      // pieces, kasa and glow are drawn by his body through the armour's theme (21-characters/kage/armory/)
+      drawKageArmor(ctx, f, f.armor, opt);
       break;
     case 'jerkin': case 'gate_plate': case 'conduit_harness': case 'ledger_coat': case 'pauldrons': case 'tyrant': case 'cloak':
       // the Act II / III sub-bosses' armour, also gear (21-characters/sub-bosses/)
