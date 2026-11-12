@@ -1,0 +1,3 @@
+[{ "q": "stage=act2.boss", "pre": 60, "shots": [
+  { "js": "hold(); place(620); adv(40); force('reapingArc'); adv(20); const R=e._akRig; window.dbg={st:e.state,tele:e.telegraph,P:R&&R.out,cur:R&&R.cur,w:[e.wVec.x,e.wVec.y],fc:e.facing,art:e._akArt&&Math.atan2(e._akArt.M[5][1],e._akArt.M[5][0])}; console.log(JSON.stringify(window.dbg)); document.title=JSON.stringify(window.dbg)", "out": ".scratch/akari-game/p2.png" }
+]}]

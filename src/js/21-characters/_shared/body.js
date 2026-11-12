@@ -22,6 +22,7 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   const skin = animeSkin(this);
   if (skin.witness) { witnessBody(this, ctx, front, flat, opt); return; }   // the Witness is its own mesh (bosses/witness/body.js)
   if (skin.kage) { kageBody(this, ctx, front, flat, opt); return; }   // so is Kage (kage/body.js)
+  if (skin.akari === 'boss' && AkariArt.on(this) && akariArtBody(this, ctx, front, flat, opt)) return;   // Akari from the user's art (bosses/akari/art.js)
   const A = animeState(this, front, flat, opt), pal = A.pal, ord = skin.order, hol = skin.hollow;
   const big = b.w >= 16 ? 1.45 : b.w >= 13 ? 1.2 : 1;
   const L = b.w * s * 0.42 * (b.w >= 13 ? 1.15 : 1), T = L * 1.25 * big;   // the old limb units: armour overlays are sized by them

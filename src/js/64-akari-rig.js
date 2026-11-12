@@ -17,17 +17,20 @@
 // offset from the shoulders in body units (x forward, y down); `swing` clips draw the energy trail
 const AK_CLIPS = {
   idle:    { loop: 2.4, keys: [[0, 142, 13, 5], [1.2, 149, 14, 3], [2.4, 142, 13, 5]] },
-  ready:   { keys: [[0, 170, 10, -2], [0.24, 262, 0, -12, [0.2, 0.9, 0.3, 1]]] },                      // drawn back over the shoulder
+  // the wind-up coils: drawn back past the shoulder with a little overshoot, held there trembling under the tell
+  ready:   { keys: [[0, 170, 10, -2], [0.2, 280, -4, -14, [0.3, 1.45, 0.5, 1]], [0.5, 276, -3, -13]] },
   low:     { keys: [[0, 140, 13, 5], [0.3, 38, 10, 16]] },                                              // lowered, guard open
   cross:   { keys: [[0, 150, 12, 2], [0.28, 184, 12, -6]] },                                            // upright before her face
-  spin:    { loop: 0.34, keys: [[0, 190, 8, -16, 'linear'], [0.34, -170, 8, -16, 'linear']] },          // twirled overhead
-  raise:   { keys: [[0, 170, 10, -2], [0.2, 218, 2, -18]] },
+  spin:    { loop: 0.28, keys: [[0, 190, 8, -16, 'linear'], [0.28, -170, 8, -16, 'linear']] },          // twirled overhead
+  raise:   { keys: [[0, 170, 10, -2], [0.16, 228, 2, -20, [0.3, 1.4, 0.5, 1]]] },
   throw:   { free: true, keys: [[0, 150, 12, 3], [0.2, 212, 4, -8]] },                                  // back hand free to throw
-  sweep:   { swing: 1, keys: [[0, 262, 0, -12], [0.05, 190, 14, -6, [0.6, 0, 0.8, 0.5]], [0.11, 95, 24, 3, 'linear'], [0.17, 40, 20, 10, [0.1, 0.6, 0.3, 1]], [0.3, 22, 16, 13, [0.2, 0.8, 0.4, 1]]] },
-  rising:  { swing: 1, keys: [[0, 28, 18, 12], [0.06, 70, 24, 6, [0.6, 0, 0.8, 0.5]], [0.12, 150, 18, -8, 'linear'], [0.18, 212, 8, -16, [0.1, 0.6, 0.3, 1]], [0.3, 226, 6, -16]] },
-  chop:    { swing: 1, keys: [[0, 218, 2, -18], [0.06, 172, 14, -12, [0.6, 0, 0.8, 0.5]], [0.12, 92, 24, 0, 'linear'], [0.18, 38, 20, 12, [0.1, 0.6, 0.3, 1]], [0.3, 28, 16, 14]] },
-  thrust:  { swing: 1, keys: [[0, 128, 4, -2], [0.07, 96, 28, -3, [0.2, 0.9, 0.3, 1]], [0.2, 102, 22, 0]] },
-  flurry:  { swing: 1, loop: 0.18, keys: [[0, 262, 4, -10, 'linear'], [0.09, 82, 22, 4, 'linear'], [0.18, -98, 4, -10, 'linear']] },
+  // the cuts: the blade is already through the target three frames after the release (when the hit lands), drives on
+  // past it into the floor or the sky, and recoils
+  sweep:   { swing: 1, keys: [[0, 280, -4, -14], [0.02, 178, 14, -12, [0.7, 0, 1, 0.6]], [0.045, 88, 28, 0, 'linear'], [0.085, 28, 24, 12, 'linear'], [0.13, -12, 18, 17, [0.1, 0.7, 0.3, 1]], [0.36, 22, 16, 13, [0.3, 0, 0.3, 1]]] },
+  rising:  { swing: 1, keys: [[0, 22, 16, 13], [0.025, 52, 26, 8, [0.7, 0, 1, 0.6]], [0.06, 142, 22, -8, 'linear'], [0.1, 226, 8, -18, 'linear'], [0.15, 252, 4, -21, [0.1, 0.7, 0.3, 1]], [0.34, 232, 6, -17, [0.3, 0, 0.3, 1]]] },
+  chop:    { swing: 1, keys: [[0, 228, 2, -20], [0.025, 190, 12, -16, [0.7, 0, 1, 0.6]], [0.05, 108, 26, -4, 'linear'], [0.085, 38, 24, 12, 'linear'], [0.12, 2, 18, 19, [0.1, 0.7, 0.3, 1]], [0.32, 26, 16, 15, [0.3, 0, 0.3, 1]]] },
+  thrust:  { swing: 1, keys: [[0, 140, 2, -2], [0.04, 92, 36, -3, [0.2, 0.9, 0.3, 1]], [0.22, 100, 24, 0]] },
+  flurry:  { swing: 1, loop: 0.15, keys: [[0, 262, 4, -10, 'linear'], [0.075, 82, 24, 4, 'linear'], [0.15, -98, 4, -10, 'linear']] },
   hurt:    { keys: [[0, 150, 8, 2], [0.16, 168, 2, 8]] },
   block:   { keys: [[0, 150, 13, 2], [0.12, 172, 18, -6]] },
   drag:    { keys: [[0, 150, 10, 2], [0.14, 300, -6, 8]] }                                              // trailed behind on a dash
@@ -59,6 +62,8 @@ const AK_SCHED = {
   petalBurst:   { wind: ['raise'], rel: [[['raise', 0], ['sweep', 0.8], ['raise', 1.15], ['chop', 4.7]]] }
 };
 const AK_SCHED_DEFAULT = { wind: ['ready'], rel: [[['sweep', 0]]] };
+// how far ahead of the hit her swing starts (s): the blade reaches the target as the hit lands
+const AK_LEAD = 0.045;
 
 // a CSS-style cubic bezier easing: x(t) solved by Newton steps, y returned
 function _akBezier(c, x) {
@@ -102,17 +107,23 @@ const AkariRig = {
       if (R.prevTele > 0 && tele <= 0) { R.rel++; R.relT = a.t; }
       R.prevTele = tele;
       if (S.throw) return ['throw', a.t];
+      // the last frames of a tell already swing (AK_LEAD): the blade is through the target when the hit lands and
+      // the hit-stop freezes the frame
+      if (tele > 0 && tele <= AK_LEAD) {
+        const nx = S.rel[Math.min(S.rel.length - 1, Math.max(0, R.rel + 1))] || [], first = nx.find(sw => sw[1] === 0);
+        if (first) return [first[0], AK_LEAD - tele, first];
+      }
       if (tele > 0) { const w = S.wind[Math.min(S.wind.length - 1, R.rel + 1)]; return [w, a.t - (R.windT && R.windAbil === a && R.windRel === R.rel ? R.windT : (R.windT = a.t, R.windAbil = a, R.windRel = R.rel, a.t))]; }
       const rel = S.rel[Math.min(S.rel.length - 1, Math.max(0, R.rel))] || [], el = a.t - (R.relT ?? a.t);
       let pick = null; for (const sw of rel) if (sw[1] <= el) pick = sw;
-      if (pick) return [pick[0], el - pick[1], pick];
+      if (pick) return [pick[0], el - pick[1] + (pick[1] === 0 ? AK_LEAD : 0), pick];
       return [S.wind[Math.min(S.wind.length - 1, Math.max(0, R.rel))], 9];   // between release and the first swing: hold the wind-up
     }
     R.abil = null;
     if (st === 'move' && f.move) {
       const d = f.mdur || [0.1, 0.1, 0.1];
-      if (f.mphase === 0) return ['ready', f.mt];
-      return ['sweep', f.mt - d[0]];
+      if (f.mphase === 0) return d[0] - f.mt <= AK_LEAD ? ['sweep', AK_LEAD - (d[0] - f.mt)] : ['ready', f.mt];
+      return ['sweep', f.mt - d[0] + AK_LEAD];
     }
     if (st === 'dash' || Math.abs(f.vx || 0) > 700) return ['drag', f.time - (R.dragT ?? (R.dragT = f.time))];
     R.dragT = null;
@@ -162,6 +173,13 @@ const AkariRig = {
     sk.wt.x = sk.fha.x + dir[0] * L; sk.wt.y = sk.fha.y + dir[1] * L; sk.wb.x = sk.fha.x + dir[0] * L * 0.55; sk.wb.y = sk.fha.y + dir[1] * L * 0.55;
     // where the head of the scythe is (her chain runs from it: 62b-akari-chain.js)
     const hk = typeof AK_SCY_HEAD === 'number' ? AK_SCY_HEAD : 1; f._akHeadW = { x: sk.fha.x + dir[0] * L * hk, y: sk.fha.y + dir[1] * L * hk, t: f.time };
+    // drawn from the user's art (21-characters/bosses/akari/art.js): its hand, blade and socket are where the art's are
+    if (AkariArt.on(f)) {
+      const S = AkariArt.pose(f, P);
+      sk.fha.x = S.hand.x; sk.fha.y = S.hand.y;
+      sk.wt.x = sk.fha.x + dir[0] * L; sk.wt.y = sk.fha.y + dir[1] * L; sk.wb.x = sk.fha.x + dir[0] * L * 0.55; sk.wb.y = sk.fha.y + dir[1] * L * 0.55;
+      f._akHeadW = { x: S.sock.x, y: S.sock.y, t: f.time };
+    }
     // the energy trail and the sparks and petals off the blade (once per simulated frame)
     if (typeof AkariGL !== 'undefined' && R_last(f) && AkariGL.live()) AkariGL.feed(f, P, L);
     return rec;
@@ -178,6 +196,7 @@ function R_last(f) { const R = f._akRig; if (!R || R.fed === f.time) return fals
 // the blade's two trail points in the weapon frame (units of L, y toward the blade; drawMainWeapon flips y facing left)
 const AK_BLADE_IN = [1.06, 0.1], AK_BLADE_OUT = [1.98, 0.7];
 function akBladePoint(f, L, p) {
+  if (AkariArt.on(f)) { const q = AkariArt.bladePoints(f, L); p = p === AK_BLADE_IN ? q[0] : q[1]; }   // the art's blade
   const a = f.wAng, c = Math.cos(a), s = Math.sin(a), x = p[0] * L, y = p[1] * L * (f.facing < 0 ? -1 : 1);
   return [f.sk.fha.x + x * c - y * s, f.sk.fha.y + x * s + y * c];
 }
@@ -199,3 +218,6 @@ for (const id of Object.keys(AK_SCHED)) {
   a.run = function (f) { const r = run0.apply(this, arguments); if (f && f.abil) f._akAbil = { id, abil: f.abil }; return r; };
   a._akTag = 1;
 }
+
+// start decoding Akari's art atlas as the game loads, so her first frame is already the art (21-characters/bosses/akari/art.js)
+if (typeof document !== 'undefined' && typeof Image !== 'undefined') AkariArt.ready();

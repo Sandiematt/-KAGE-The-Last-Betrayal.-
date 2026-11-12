@@ -1,0 +1,4 @@
+[{ "q": "stage=act2.boss", "pre": 60, "shots": [
+  { "js": "hold(); place(330); adv(30)", "out": ".scratch/akari-game/f_idle.png" },
+  { "js": "adv(40)", "out": ".scratch/akari-game/f_idle2.png" }
+]}]

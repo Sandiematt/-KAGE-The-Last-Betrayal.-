@@ -37,6 +37,10 @@ joint or touches gameplay.
     rem/              _skin.js hair.js head.js coat.js waist.js
     raikon/           _skin.js head.js fur-mantle.js torso.js arms.js waist.js skirts.js cloak.js emblem.js layers.js
     akari/            _skin.js head.js hair.js torso.js arms.js legs.js waist.js sash.js tail.js sakura.js cloth-strips.js layers.js
+                      art.js: the boss is drawn from the user's art, cut and rigged in Godot (godot/akari-rig, exported by
+                      tools/akari-rig/game.py to AKARI_PARTS + akari_parts.webp): skinned parts posed on her skeleton,
+                      spring-bone hair and cloth, spinning scythe flowers; the drawn files above stand in before the atlas
+                      decodes, under Node, and for Hollow Akari
     takashi/          _skin.js head.js hair.js torso.js arms.js waist.js skirts.js cape.js ribbons.js embroidery.js weapon.js layers.js
     witness/          _skin.js body.js head.js torso.js arms.js legs.js waist.js coat.js core.js halo.js kysmei-shards.js veins.js weapon.js
                       (the Witness is its own mesh: body.js draws its whole figure, no _shared/ part is used)

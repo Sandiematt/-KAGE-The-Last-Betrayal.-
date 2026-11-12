@@ -1,0 +1,5 @@
+[{ "q": "stage=act2.boss", "pre": 60, "shots": [
+  { "js": "hold(); place(200); adv(30); force('reapingArc'); adv(20)", "out": ".scratch/akari-game/p_a.png" },
+  { "js": "window._on=K.AkariArt.on; K.AkariArt.on=()=>false", "out": ".scratch/akari-game/p_b.png" },
+  { "js": "K.AkariArt.on=window._on; window._gl=K.AkariGL.drawEffects; K.AkariGL.drawEffects=function(){}", "out": ".scratch/akari-game/p_c.png" }
+]}]

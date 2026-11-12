@@ -298,7 +298,7 @@ const AkariChain = {
         if (tr.length > 4) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.strokeStyle = 'rgba(255,90,170,0.45)'; ctx.lineWidth = 16 * sc; ctx.beginPath(); for (let i = 0; i < tr.length; i += 2) i ? ctx.lineTo(tr[i], tr[i + 1]) : ctx.moveTo(tr[i], tr[i + 1]); ctx.stroke(); ctx.restore(); }
         const L = f.weaponLen ? f.weaponLen() : 70 * sc, rot = Math.atan2(c.vy, c.vx) + (c.phase === 'back' ? c.spin : 0);
         ctx.save(); ctx.translate(c.x, c.y); ctx.rotate(rot); if (c.dir < 0) ctx.scale(1, -1);   // the chain holds the socket; the blade runs on ahead and hooks down
-        drawAkariScytheHead(ctx, L, sc);
+        if (!AkariArt.drawHead(ctx, f)) drawAkariScytheHead(ctx, L, sc);   // the art's head (bosses/akari/art.js)
         ctx.restore();
       }
     }

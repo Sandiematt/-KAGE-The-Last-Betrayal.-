@@ -1,0 +1,8 @@
+[{ "q": "stage=act2.boss", "pre": 60, "shots": [
+  { "js": "hold(); place(220); adv(30); force('falseOpening'); adv(40)", "out": ".scratch/akari-game/s8_false.png" },
+  { "js": "adv(60)", "out": ".scratch/akari-game/s8_false2.png" },
+  { "js": "adv(90); place(260); force('mirrorClones'); adv(70)", "out": ".scratch/akari-game/s8_clones.png" },
+  { "js": "adv(30); e.hp=1; K.Combat.area(s, s.player, {x:e.x-200,y:e.y-400,w:400,h:400}, {dmg:50,kb:500,up:-500,hs:0.2,kd:1}); adv(10)", "out": ".scratch/akari-game/s8_hit.png" },
+  { "js": "adv(40)", "out": ".scratch/akari-game/s8_down.png" },
+  { "js": "adv(120)", "out": ".scratch/akari-game/s8_after.png" }
+]}]
