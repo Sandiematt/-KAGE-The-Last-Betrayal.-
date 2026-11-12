@@ -1,0 +1,42 @@
+garan vs turtle bot · act1.sub2 · normal · gear 2 · style: Karate · Sumō
+  Kage wins 0/6, loses 6, timeouts 0 · avg 40.4s · Kage hp left 0% · foe hp left 83% (foe 470 hp, Kage 249 hp)
+  per run: kageParries 1.5 · foeParries 0.3 · kageCrits 1.7 · foeCrits 5.3 · foeBroken 0 · kageBroken 3.8 · spamPunish 0 · throws 5.2 · styleStrings 7.3 · dmgToFoe 76 · dmgToKage 242
+  abilities: stormBreak×33 stormFist×33 garanTsuppari×28
+COVER {
+ "decide.true": 17,
+ "hit.?": 31,
+ "hit.?@ab": 21,
+ "hit.BREAK@ab": 3,
+ "hit.TSUPPARI@ab": 9,
+ "hit.dp_fwd": 6,
+ "hit.hk": 1,
+ "hit.p1": 26,
+ "hit.p2": 3,
+ "hit.p3_up": 1,
+ "hit.pa1": 5,
+ "hit.pa2": 7,
+ "hit.slide_diagDown": 5,
+ "on.block": 8,
+ "on.blocked": 49,
+ "on.hurt": 40,
+ "on.parried": 9,
+ "respond.true": 10,
+ "seq.dash weapon": 3,
+ "seq.grab": 36,
+ "seq.heavy": 3,
+ "seq.punch punch w:up": 3,
+ "seq.punch punch": 26,
+ "seq.w:diagDown": 8,
+ "seq.w:down": 1,
+ "seq.w:fwd punch": 10,
+ "seq.w:up": 1,
+ "seq.weapon weapon": 14,
+ "str.grab": 5,
+ "str.heavy": 3,
+ "str.punch punch w:up": 3,
+ "str.w:diagDown": 8,
+ "str.w:down": 1,
+ "str.w:fwd punch": 10,
+ "str.w:up": 1,
+ "str.weapon weapon": 13
+}

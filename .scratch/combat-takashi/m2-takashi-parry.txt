@@ -1,0 +1,4 @@
+takashi vs parry bot · act3.boss · normal · gear 6 · style: Ittō-ryū · iaijutsu
+  Kage wins 9/16, loses 7, timeouts 0 · avg 53.5s · Kage hp left 23% · foe hp left 13% (foe 830 hp, Kage 283 hp)
+  per run: kageParries 15.6 · foeParries 0.3 · kageCrits 13.3 · foeCrits 0.8 · foeBroken 0.7 · kageBroken 0.2 · spamPunish 0.1 · throws 0.1 · styleStrings 12.3 · dmgToFoe 729 · dmgToKage 226
+  abilities: goldKunai×5 kataKesa×52 kataTsuki×28 kataNidan×43 roar×28 heavenCleaver×5 titanKata×45 tenraiJudgment×12 kataKaratake×19 kataDraw×11 earthCleave×12 titanSpear×2 domainPulse×4 kunaiExecution×8 titanSlash×9 crushingGrasp×9 finalFlow×2 bladeRain×4 guardReturn×1

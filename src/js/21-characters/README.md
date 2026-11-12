@@ -12,10 +12,16 @@ joint or touches gameplay.
     cel-shading.js    celFill (base / shadow / highlight / red rim), animeFold
     skins.js          ANIME_SKINS (+ the shared fallback), animeSkin, animeCloths
     registries.js     SUB_WEAPON_ART, SUB_HEADS, SUB_ARMORS, ... the tables character folders register into
-    face.js  eyes.js  neck.js  torso.js  arms.js  hands.js  waist.js  legs.js  feet.js  saya.js
+    face.js           the profile every fighter wears (brow, nose, lips, chin, a strip of light down it); a skin picks
+                      its own with `face:` (a FACE_PROFILES name or an object of the same fields)
+    eyes.js  neck.js  torso.js  arms.js  hands.js  waist.js  legs.js  feet.js  saya.js
     shapes.js  head-shapes.js  part-helpers.js  cloth-panels.js  wear-and-tear.js  accent.js  afterimage.js
   kage/               _skin.js  hair.js  scarf.js  coat.js  skirt.js  embroidery.js  sash.js
     gear/             the shop helmets and armour drawn on Kage (_skin.js head.js torso.js arms.js)
+    shadow/           Kage's silhouette design (the default): _design.js body.js head.js torso.js limbs.js coat.js scarf.js
+                      a flat ink figure read by a crimson key light and a tan back light, a cloud-hemmed coat, a
+                      two-tailed scarf. `KAGE_DESIGN.shadow` (_design.js) picks it over the armoured design in kage/*.js;
+                      `?kage=classic` in the URL starts on the armoured one, F8 flips between the two in a fight
   enemies/
     order/            the Order of Silence: _skin.js head.js torso.js arms.js waist.js legs.js shield.js
     hollow/           the Hollows: _skin.js head.js torso.js robe.js mantle.js arms.js hands.js waist.js

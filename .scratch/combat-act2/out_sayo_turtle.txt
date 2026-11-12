@@ -1,0 +1,4 @@
+sayo vs turtle bot · act2.sub2 · normal · gear 4 · style: Kodachijutsu
+  Kage wins 0/12, loses 12, timeouts 0 · avg 33.7s · Kage hp left 0% · foe hp left 62% (foe 448 hp, Kage 267 hp)
+  per run: kageParries 3.9 · foeParries 5.2 · kageCrits 4.4 · foeCrits 5.7 · foeBroken 0 · kageBroken 1.4 · spamPunish 0 · throws 1.4 · styleStrings 10.4 · dmgToFoe 169 · dmgToKage 265
+  abilities: twinFang×64 halfFang×64 sayoSlowHand×36 roar×4 counterStance×7

@@ -35,7 +35,8 @@ const VfxSheets = {
     if (alpha <= 0.003) return;
     const s = VFX_PPM * scale / d.ppm, sx = (i % d.cols) * d.cw, sy = ((i / d.cols) | 0) * d.ch;
     ctx.save();
-    ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = Math.min(1, alpha);
+    // additive light (black adds nothing), or an RGBA matte (d.alpha: the anime toon smoke) drawn normally
+    ctx.globalCompositeOperation = d.alpha ? 'source-over' : 'lighter'; ctx.globalAlpha = Math.min(1, alpha);
     if (rot) ctx.rotate(rot * dir);
     ctx.scale(dir * s, s);
     ctx.drawImage(this.img[name], sx, sy, d.cw, d.ch, -d.ox, -d.oy, d.cw, d.ch);
@@ -61,17 +62,18 @@ Object.assign(Effects.prototype, {
        'wt', the blade tip), start (seconds of the effect to skip), delay (seconds before it shows), rate (playback
        speed), loop (repeat until stopped, crossfading two copies half a cycle apart so the seam never shows),
        alpha, rot (radians, turned the way the effect faces), ox / oy (pixels added to the anchor), vx (pixels per
-       second the origin moves for `until` seconds of effect time: a travelling front), life (seconds, then it fades) }
+       second the origin moves for `until` seconds of effect time: a travelling front), life (seconds, then it fades),
+       back (drawn on the floor behind the fighters: drawSheets(ctx, true)) }
      An instance following a fighter (`at`) is not drawn while that fighter is invisible and fades when it dies.
      Returns the instance: set .stop = true to fade it out over .fadeDur seconds (default 0.15). */
   playSheet(name, x, y, o) {
     o = o || {};
     if (!VfxSheets.ready(name)) return null;
     const list = this.sheetFx();
-    if (list.length > 24) list.shift();
+    if (list.length > 48) list.shift();
     const h = { name, x, y, t: (o.start || 0) - (o.delay || 0), rate: o.rate || 1, dir: o.dir || 1, scale: o.scale || 1, at: o.at || null,
       anchor: o.anchor || 'feet', loop: !!o.loop, alpha: o.alpha != null ? o.alpha : 1, stop: false, fade: 1, fadeDur: 0.15,
-      rot: o.rot || 0, ox: o.ox || 0, oy: o.oy || 0, vx: o.vx || 0, until: o.until != null ? o.until : Infinity, life: o.life || 0 };
+      rot: o.rot || 0, ox: o.ox || 0, oy: o.oy || 0, vx: o.vx || 0, until: o.until != null ? o.until : Infinity, life: o.life || 0, back: !!o.back };
     list.push(h);
     return h;
   },
@@ -87,12 +89,13 @@ Object.assign(Effects.prototype, {
       if (h.fade <= 0 || (!h.loop && h.t > d.duration) || (h.at && !h.at.visible && !h.loop)) list.splice(i, 1);
     }
   },
-  drawSheets(ctx) {
+  // back: the instances played with `back` (floor cracks, mist), drawn before the fighters; otherwise the rest
+  drawSheets(ctx, back) {
     const list = this.sheetFx();
     if (!list.length) return;
     const rf = SaveManager.data.settings.reduceFlash ? 0.8 : 1;
     for (const h of list) {
-      if (h.t < 0) continue;
+      if (h.t < 0 || h.back !== !!back) continue;
       const d = VfxSheets.ready(h.name);
       if (!d) continue;
       let x = h.x, y = h.y;

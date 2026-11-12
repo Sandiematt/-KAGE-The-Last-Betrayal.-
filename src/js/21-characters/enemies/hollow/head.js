@@ -2,9 +2,23 @@
 const HOLLOW_COWL = [[0.66, -0.78], [0.2, -1.16], [-0.55, -1.12], [-1.08, -0.6], [-1.2, 0.2], [-1.06, 0.86], [-1.42, 1.42, 1], [-0.86, 1.1], [-0.78, 1.62, 1],
   [-0.4, 1.12], [-0.12, 1.46, 1], [0.04, 1.0], [0.42, 1.02, 1], [0.2, 0.62], [0.0, 0.2], [0.06, -0.32], [0.4, -0.62]];
 
-const HOLLOW_HALF = [[0.02, -0.86, 1], [0.5, -0.98], [0.92, -0.62], [1.03, -0.1, 1], [0.98, 0.3, 1], [0.8, 0.2, 1], [0.68, 0.44, 1], [0.46, 0.24, 1], [0.3, 0.4, 1], [0.16, 0.12, 1], [0.04, 0.22, 1]];
+/* The masks are sculpted on faces (enemyFaceMask, ../order/head.js: a face.js profile, grown a little, cut along a
+   break), so a mask carries a brow and a nose ridge in the silhouette, and each one breaks off before the mouth: the
+   gaunt, parted mouth and the chin under it are always the Hollow's own face. */
 
-const HOLLOW_JAW = [[0.52, 0.58, 1], [0.94, 0.44, 1], [0.88, 0.76, 1], [0.6, 0.98, 1]];
+// where each mask is broken (sharp polygons the mask is clipped to)
+const HOLLOW_HALF_CUT = [[0.06, -1.6, 1], [1.8, -1.6, 1], [1.8, 0.36, 1], [1.02, 0.42, 1], [0.86, 0.28, 1], [0.66, 0.42, 1], [0.48, 0.22, 1], [0.3, 0.34, 1], [0.12, 0.14, 1], [0.0, -0.4, 1]];
+const HOLLOW_VISOR_CUT = [[0.08, -0.26, 1], [0.5, -0.3, 1], [1.8, -0.26, 1], [1.8, 0.12, 1], [0.86, 0.16, 1], [0.7, 0.06, 1], [0.48, 0.2, 1], [0.12, 0.16, 1]];
+const HOLLOW_FULL_CUT = [[-0.08, -1.6, 1], [1.8, -1.6, 1], [1.8, 0.5, 1], [1.0, 0.54, 1], [0.84, 0.44, 1], [0.64, 0.62, 1], [0.42, 0.48, 1], [0.22, 0.64, 1], [-0.06, 0.42, 1], [-0.14, -0.4, 1]];
+const HOLLOW_BROW_CUT = [[-0.12, -1.6, 1], [1.8, -1.6, 1], [1.8, -0.02, 1], [1.0, 0.0, 1], [0.86, -0.1, 1], [0.7, 0.02, 1], [0.24, -0.04, 1], [0.08, 0.1, 1], [-0.1, -0.2, 1]];
+
+// the mimic's mask: a calm, smooth-browed face with a small lifted nose (not its own)
+const HOLLOW_MIMIC_MASK = Object.assign({}, FACE_PROFILES.fem, { nose: 0.95, lip: 1.0, brow: 0.3 });
+
+// a cracked mask on the face: `prof` the profile it is sculpted on, cut along `cut`, a glowing crack across it
+function _hollowMask(ctx, A, r, prof, cut, crack, holes, k) {
+  enemyFaceMask(ctx, A, r, prof, cut, HOLLOW_MASK, { k: k || 1.06, holes, light: A.pal.accHi, detail: crack ? (g) => hollowCrack(g, A, r, crack, Math.max(0.6, r * 0.035)) : null });
+}
 
 const HOLLOW_SHARDS = [
   [[-0.62, -1.2, 1], [-1.2, -1.86, 1], [-0.92, -2.0, 1], [-0.3, -1.3, 1]],
@@ -21,19 +35,19 @@ function _shards(ctx, A, r, t, list) {
 
 function drawHollowHead(ctx, f, r, ink, flat) {
   const A = f && f._A, sk = f && animeSkin(f), h = sk && sk.hollow;
-  if (!A) { ctx.fillStyle = ink; ctx.beginPath(); orderShape(ctx, r, HOLLOW_COWL); ctx.fill(); ctx.beginPath(); orderShape(ctx, r, HOLLOW_HALF); ctx.fill(); return; }
-  const kind = h ? h.head : 'shade', pal = A.pal, sv = _headLight(A, f), t = f.time || 0;
+  if (!A) { ctx.fillStyle = ink; ctx.beginPath(); orderShape(ctx, r, HOLLOW_COWL); ctx.fill(); return; }
+  const kind = h ? h.head : 'shade', pal = A.pal, sv = _headLight(A, f), t = f.time || 0, face = faceProfile(sk);
   const cowl = (pts) => celFill(ctx, () => orderShape(ctx, r, pts || HOLLOW_COWL), pal.fab, A, { sd: r * 0.3, hd: r * 0.05, rim: true, detail: (g) => {
     g.strokeStyle = pal.acc; g.lineWidth = r * 0.06; g.setLineDash([r * 0.3, r * 0.14]); g.beginPath(); g.moveTo(r * 0.5, -r * 0.72); g.quadraticCurveTo(-r * 0.2, -r * 0.6, -r * 0.5, r * 0.6); g.stroke(); g.setLineDash([]);
   } });
   switch (kind) {
     case 'shade': {
-      // a ragged cowl, a crown of floating shards (the old Hollow spikes, now pieces of its broken mask), a cracked half-mask
+      // a ragged cowl, a crown of floating shards (the old Hollow spikes, now pieces of its broken mask), and the upper
+      // half of its mask on its own face (brow, eyes, nose), broken off over the parted mouth
       _shards(ctx, A, r, t, HOLLOW_SHARDS.slice(0, 2));
       cowl();
       _shards(ctx, A, r, t + 1, HOLLOW_SHARDS.slice(2));
-      _maskPiece(ctx, A, r, HOLLOW_HALF, [[0.56, -0.97], [0.62, -0.58], [0.5, -0.36], [0.64, -0.12], [0.58, 0.1]], true);
-      _maskPiece(ctx, A, r, HOLLOW_JAW, [[0.74, 0.5], [0.7, 0.8]], false);
+      _hollowMask(ctx, A, r, face, HOLLOW_HALF_CUT, [[0.56, -0.97], [0.62, -0.58], [0.5, -0.36], [0.64, -0.12], [0.6, 0.12]], true);
       break;
     }
     case 'sack': {
@@ -62,10 +76,11 @@ function drawHollowHead(ctx, f, r, ink, flat) {
         ctx.moveTo(-r * 0.9, r * 0.7); ctx.lineTo(-r * 1.3, r * 1.3); ctx.lineTo(-r * 1.16, r * 1.36); ctx.lineTo(-r * 0.8, r * 0.78); ctx.closePath();
         ctx.moveTo(-r * 0.86, r * 0.72); ctx.lineTo(-r * 0.96, r * 1.46); ctx.lineTo(-r * 0.82, r * 1.46); ctx.lineTo(-r * 0.74, r * 0.78); ctx.closePath();
       }, HOLLOW_ROPE, A, { sd: r * 0.06 });
-      _maskPiece(ctx, A, r, [[0.08, -0.4, 1], [1.04, -0.38, 1], [1.02, 0.28, 1], [0.86, 0.2, 1], [0.7, 0.3, 1], [0.1, 0.26, 1]], [[0.24, -0.4], [0.32, -0.1], [0.22, 0.26]], true);
+      // the plank: a narrow board across the eyes only, so the snub nose, the parted mouth and the chin show under it
+      _maskPiece(ctx, A, r, [[0.08, -0.42, 1], [1.02, -0.4, 1], [1.0, 0.08, 1], [0.84, 0.03, 1], [0.7, 0.12, 1], [0.1, 0.12, 1]], [[0.24, -0.42], [0.32, -0.14], [0.22, 0.12]], true);
       if (!A.flat) {
         // it is a board: wood grain and two nails
-        ctx.strokeStyle = HOLLOW_WOOD[0]; ctx.lineWidth = Math.max(0.6, r * 0.03); ctx.beginPath(); ctx.moveTo(r * 0.12, -r * 0.24); ctx.lineTo(r * 1.0, -r * 0.22); ctx.moveTo(r * 0.12, r * 0.18); ctx.lineTo(r * 0.66, r * 0.2); ctx.stroke();
+        ctx.strokeStyle = HOLLOW_WOOD[0]; ctx.lineWidth = Math.max(0.6, r * 0.03); ctx.beginPath(); ctx.moveTo(r * 0.12, -r * 0.24); ctx.lineTo(r * 1.0, -r * 0.22); ctx.stroke();
         ctx.fillStyle = HOLLOW_MASK[2]; for (const x of [0.16, 0.96]) { ctx.beginPath(); ctx.arc(x * r, -r * 0.3, r * 0.045, 0, TAU); ctx.fill(); }
       }
       break;
@@ -76,13 +91,16 @@ function drawHollowHead(ctx, f, r, ink, flat) {
       celFill(ctx, () => orderShape(ctx, r, HOOD), pal.fab, A, { sd: r * 0.3, hd: r * 0.05, rim: true, detail: (g) => {
         g.strokeStyle = pal.acc; g.lineWidth = r * 0.06; g.beginPath(); g.moveTo(r * 1.2, -r * 0.48); g.quadraticCurveTo(r * 0.5, -r * 0.6, r * 0.1, -r * 0.24); g.stroke();
       } });
-      _maskPiece(ctx, A, r, [[0.1, -0.26, 1], [1.02, -0.3, 1], [1.1, 0.04, 1], [0.84, 0.2, 1], [0.7, 0.08, 1], [0.48, 0.24, 1], [0.12, 0.18, 1]], [[0.66, -0.3], [0.6, -0.06], [0.7, 0.08]], true);
+      // the visor: a band of mask over the eyes that follows the brow and the bridge of the hooked nose
+      _hollowMask(ctx, A, r, face, HOLLOW_VISOR_CUT, [[0.66, -0.3], [0.6, -0.06], [0.7, 0.08]], true, 1.07);
       break;
     }
     case 'tengai': {
-      // the komusō basket hat, woven, broken open over the face so the eyes look out of the hole
-      const DOME = [[1.0, 0.56, 1], [1.12, -0.4], [0.94, -1.34], [0.32, -1.86], [-0.5, -1.86], [-1.1, -1.34], [-1.24, -0.4], [-1.08, 0.64, 1], [-0.4, 0.86], [0.36, 0.84]];
-      const HOLE = [[1.2, -0.66], [0.74, -0.52], [0.56, -0.24], [0.26, -0.12], [0.16, 0.28], [0.42, 0.48], [0.34, 0.9], [1.2, 0.9]];
+      // the komusō basket hat, woven, its front broken away: the rim comes down over the forehead and the gaunt hooked
+      // profile looks out from the break, nose, parted mouth and chin clear of it
+      const DOME = [[0.96, -0.5, 1], [1.08, -0.9], [0.94, -1.34], [0.32, -1.86], [-0.5, -1.86], [-1.1, -1.34], [-1.24, -0.4], [-1.08, 0.64, 1], [-0.4, 0.88],
+        [-0.06, 0.84, 1], [0.08, 0.56, 1], [-0.04, 0.3, 1], [0.2, 0.08, 1], [0.22, -0.2, 1], [0.48, -0.26, 1], [0.64, -0.42, 1]];
+      const HOLE = [[0.96, -0.5], [0.64, -0.42], [0.48, -0.26], [0.22, -0.2], [0.2, 0.08], [-0.04, 0.3], [0.08, 0.56], [-0.06, 0.84]];
       celFill(ctx, () => orderShape(ctx, r, DOME), HOLLOW_WEAVE, A, { sd: r * 0.34, hd: r * 0.07, rim: true, detail: (g) => {
         g.strokeStyle = ANIME.outline; g.lineWidth = Math.max(0.7, r * 0.04); g.beginPath();
         for (const y of [-1.5, -1.12, -0.74, -0.36, 0.02, 0.4]) { g.moveTo(-r * 1.3, y * r + r * 0.1); g.quadraticCurveTo(0, y * r - r * 0.12, r * 1.3, y * r + r * 0.1); }
@@ -90,9 +108,8 @@ function drawHollowHead(ctx, f, r, ink, flat) {
         g.strokeStyle = HOLLOW_WEAVE[2]; g.lineWidth = Math.max(0.5, r * 0.025); g.beginPath();
         for (let i = 0; i < 6; i++) for (let j = 0; j < 9; j++) { const x = (-1.1 + j * 0.28 + (i % 2) * 0.14) * r, y = (-1.32 + i * 0.38) * r; g.moveTo(x, y); g.lineTo(x + r * 0.1, y + r * 0.2); }
         g.stroke();
-        // the broken hole: the black face shows through, its lip frayed violet
-        g.fillStyle = ANIME.face; g.beginPath(); for (let i = 0; i < HOLE.length; i++) i ? g.lineTo(HOLE[i][0] * r, HOLE[i][1] * r) : g.moveTo(HOLE[i][0] * r, HOLE[i][1] * r); g.closePath(); g.fill();
-        hollowCrack(g, A, r, HOLE.slice(0, 7), Math.max(0.6, r * 0.03));
+        // the broken edge glows violet
+        hollowCrack(g, A, r, HOLE, Math.max(0.6, r * 0.03));
         hollowCrack(g, A, r, [[0.32, -1.86], [0.2, -1.4], [0.36, -1.1]], Math.max(0.5, r * 0.025));
       } });
       break;
@@ -108,16 +125,15 @@ function drawHollowHead(ctx, f, r, ink, flat) {
         ctx.quadraticCurveTo(r * 1.06, -r * 1.56 + o, r * 0.02, -r * 1.06 + o);
         ctx.closePath();
       }, HOLLOW_MASK, A, { sd: r * 0.12, hd: r * 0.05, rim: true, detail: (g) => hollowCrack(g, A, r, [[1.1, -1.9], [0.96, -1.66], [1.08, -1.4]], Math.max(0.6, r * 0.03)) });
-      _maskPiece(ctx, A, r, [[-0.04, -0.9, 1], [0.5, -1.0], [0.92, -0.66], [1.04, -0.1, 1], [1.0, 0.36, 1], [0.84, 0.3, 1], [0.76, 0.56, 1], [0.54, 0.36, 1], [0.36, 0.62, 1], [0.2, 0.3, 1], [-0.02, 0.4, 1]],
-        [[0.3, -0.98], [0.36, -0.6], [0.24, -0.3], [0.4, 0.0], [0.34, 0.5]], true);
+      // the mask: someone else's calm face (a smooth brow, a small lifted nose), its mouth broken away over its own
+      _hollowMask(ctx, A, r, HOLLOW_MIMIC_MASK, HOLLOW_FULL_CUT, [[0.3, -0.98], [0.36, -0.6], [0.24, -0.3], [0.4, 0.0], [0.34, 0.5]], true, 1.08);
       break;
     }
     case 'brute': {
-      // a heavy cowl, a horned brow mask with broken horn stubs, cracks running down it
+      // a heavy cowl, a horned brow mask with broken horn stubs (it stops over the eyes: the heavy jaw hangs open below)
       _maskPiece(ctx, A, r, [[-0.36, -0.86, 1], [-0.74, -1.42, 1], [-0.5, -1.46, 1], [-0.14, -0.98, 1]], null, false, true);
-      cowl([[0.6, -0.84], [0.1, -1.2], [-0.7, -1.12], [-1.24, -0.5], [-1.34, 0.4], [-1.2, 1.1], [-0.4, 1.3], [0.2, 1.2], [0.36, 0.82], [0.04, 0.3], [0.04, -0.3], [0.36, -0.66]]);
-      _maskPiece(ctx, A, r, [[-0.1, -0.94, 1], [0.6, -1.02], [1.08, -0.62], [1.14, -0.1, 1], [1.02, 0.5, 1], [0.84, 0.34, 1], [0.7, 0.7, 1], [0.44, 0.42, 1], [0.16, 0.52, 1], [0.0, 0.0]],
-        [[0.78, -1.0], [0.68, -0.6], [0.8, -0.34], [0.66, 0.1], [0.76, 0.5]], true);
+      cowl([[0.6, -0.84], [0.1, -1.2], [-0.7, -1.12], [-1.24, -0.5], [-1.34, 0.4], [-1.2, 1.1], [-0.4, 1.3], [0.1, 1.22], [-0.04, 0.8], [-0.12, 0.3], [-0.04, -0.3], [0.36, -0.66]]);
+      _hollowMask(ctx, A, r, face, HOLLOW_BROW_CUT, [[0.78, -1.0], [0.68, -0.6], [0.8, -0.34], [0.7, -0.04]], true, 1.1);
       _maskPiece(ctx, A, r, [[0.2, -0.92, 1], [0.08, -1.54, 1], [0.32, -1.62, 1], [0.38, -1.36, 1], [0.54, -0.96, 1]], null, false);
       break;
     }

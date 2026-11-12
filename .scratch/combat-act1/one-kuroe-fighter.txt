@@ -1,0 +1,3 @@
+[kuroe fighter] kuroe vs fighter bot · act1.sub1 · normal · gear 2 · style: Bōjutsu · Kukishin-ryū
+[kuroe fighter]   Kage wins 41/70, loses 29, timeouts 0 · avg 46.3s · Kage hp left 16% · foe hp left 9% (foe 403 hp, Kage 249 hp)
+[kuroe fighter]   per run: kageParries 1.3 · foeParries 3.9 · kageCrits 4.9 · foeCrits 3.3 · foeBroken 0 · kageBroken 0.1 · spamPunish 0.6 · throws 0.1 · styleStrings 19.6 · dmgToFoe 369 · dmgToKage 209

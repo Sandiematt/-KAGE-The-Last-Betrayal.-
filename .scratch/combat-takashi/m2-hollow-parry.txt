@@ -1,0 +1,4 @@
+hollow_takashi vs parry bot · core.echo3 · normal · gear 8 · style: Ittō-ryū · a broken memory
+  Kage wins 16/16, loses 0, timeouts 0 · avg 36.9s · Kage hp left 65% · foe hp left 0% (foe 739 hp, Kage 301 hp)
+  per run: kageParries 10.5 · foeParries 0 · kageCrits 7.6 · foeCrits 0.6 · foeBroken 0.4 · kageBroken 0.1 · spamPunish 0 · throws 0 · styleStrings 13 · dmgToFoe 756 · dmgToKage 103
+  abilities: echoDraw×22 echoNidan×57 echoKesa×69 echoKaratake×45 earthCleave×16 hollowCleave×16 roar×16 finalFlow×4 hollowFlow×4

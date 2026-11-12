@@ -1,0 +1,4 @@
+hollow_akari vs turtle bot · core.echo2 · normal · gear 8 · style: none
+  Kage wins 6/8, loses 2, timeouts 0 · avg 51.2s · Kage hp left 25% · foe hp left 10% (foe 493 hp, Kage 301 hp)
+  per run: kageParries 5.8 · foeParries 0.5 · kageCrits 7.8 · foeCrits 6.4 · foeBroken 0.3 · kageBroken 4.3 · spamPunish 0 · throws 0.5 · styleStrings 0 · dmgToFoe 453 · dmgToKage 199
+  abilities: smokeStep×38 hollowStep×38 twinFang×60 hollowFang×60 roar×7 falseOpening×6 hollowOpening×6

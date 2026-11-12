@@ -1,0 +1,4 @@
+sayo vs turtle bot · act2.sub2 · normal · gear 4 · style: none
+  Kage wins 0/24, loses 24, timeouts 0 · avg 52.9s · Kage hp left 0% · foe hp left 34% (foe 476 hp, Kage 267 hp)
+  per run: kageParries 4.5 · foeParries 2.8 · kageCrits 7.5 · foeCrits 5.2 · foeBroken 0.2 · kageBroken 3.1 · spamPunish 0 · throws 1.6 · styleStrings 0 · dmgToFoe 316 · dmgToKage 247
+  abilities: twinFang×237 halfFang×237 roar×22 counterStance×63

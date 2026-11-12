@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Anime_Smoke_Burst",
+  "role": "ground blast for slams, knockdowns, wall hits and heavy landings (frequent, scaled by force)",
+  "style": "stylized anime combat, flat cel-shaded toon smoke (solid white, lavender shadow, hard-edged break-up) and saturated cyan energy with a white-hot core; side-view 2D, baked to sprite sheets for the Canvas game",
+  "dominant_shape": "two cel-shaded white cloud banks left and right with a hollow dome of clear air between them",
+  "palette": {
+    "core": [
+      255,
+      255,
+      255
+    ],
+    "body": [
+      255,
+      255,
+      255
+    ],
+    "dark": [
+      190,
+      186,
+      228
+    ],
+    "matter": [
+      78,
+      86,
+      104
+    ]
+  },
+  "delivery": {
+    "kind": "area"
+  },
+  "anchor": "ground",
+  "reference": {
+    "id": "user request 2026-11-12: two reference images, a cel-shaded white cartoon smoke blast with a hollow dome and ground swooshes, and a glowing cyan ground crack web with light rays and flying rock shards; apply across all combat, atmosphere and special anime effects"
+  },
+  "beats": [
+    {
+      "frame": 2,
+      "name": "contact",
+      "expect": "hard white starburst and flash on the floor, dome strokes and streaks at their widest"
+    },
+    {
+      "frame": 12,
+      "name": "body",
+      "expect": "the banks have burst out either side, the dome is hollow, streaks fan along the floor"
+    },
+    {
+      "frame": 26,
+      "name": "banks",
+      "expect": "the banks reach their full spread either side, spat blobs falling"
+    },
+    {
+      "frame": 52,
+      "name": "break",
+      "expect": "the banks tear into hard-edged chunks"
+    },
+    {
+      "frame": 66,
+      "name": "clear",
+      "expect": "gone"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Left bank",
+      "role": "main shape: the left cloud bank, bursting out and piling up, then tearing apart",
+      "primitive": "toon_puffs T_ToonPuffSheet01",
+      "exit": "gone by absolute f70"
+    },
+    {
+      "name": "1:Right bank",
+      "role": "main shape: the right cloud bank (the hollow dome lies between the banks)",
+      "primitive": "toon_puffs T_ToonPuffSheet01",
+      "exit": "gone by absolute f70"
+    },
+    {
+      "name": "2:Low rollers",
+      "role": "secondary: small puffs racing further along the floor",
+      "primitive": "toon_puffs T_ToonPuffSheet01",
+      "exit": "gone by absolute f60"
+    },
+    {
+      "name": "3:Contact pop",
+      "role": "contact: a squat puff swelling over the hit for a few frames",
+      "primitive": "sprite T_ToonPuff01",
+      "exit": "gone by absolute f10"
+    },
+    {
+      "name": "4:Contact burst",
+      "role": "contact: a hard white starburst squashed on the floor, gone by f7",
+      "primitive": "sprite T_Impact01 + hard_edge",
+      "exit": "gone by absolute f6"
+    },
+    {
+      "name": "5:Contact flash",
+      "role": "contact",
+      "primitive": "flash",
+      "exit": "gone by absolute f5"
+    },
+    {
+      "name": "6:Dome stroke left",
+      "role": "shape accent: a broken stroke tracing the dome of shoved air",
+      "primitive": "dome_arc ring",
+      "exit": "gone by absolute f12"
+    },
+    {
+      "name": "7:Dome stroke right",
+      "role": "shape accent: a broken stroke tracing the dome of shoved air",
+      "primitive": "dome_arc ring",
+      "exit": "gone by absolute f12"
+    },
+    {
+      "name": "8:Outer stroke left",
+      "role": "shape accent: a thinner outer stroke a beat later",
+      "primitive": "dome_arc ring",
+      "exit": "gone by absolute f15"
+    },
+    {
+      "name": "9:Outer stroke right",
+      "role": "shape accent: a thinner outer stroke a beat later",
+      "primitive": "dome_arc ring",
+      "exit": "gone by absolute f15"
+    },
+    {
+      "name": "10:Ground streaks",
+      "role": "ground feedback: wind streaks fanning out along the floor",
+      "primitive": "sprite T_ToonSwoosh01",
+      "exit": "gone by absolute f16"
+    },
+    {
+      "name": "11:Floor shove",
+      "role": "ground feedback: a thin white ring shoved out along the floor",
+      "primitive": "tilted_ring",
+      "exit": "gone by absolute f11"
+    },
+    {
+      "name": "12:Spat blobs",
+      "role": "secondary: blobs of smoke spat up that arc and fall",
+      "primitive": "sprite T_ToonPuff01",
+      "exit": "gone by absolute f36"
+    }
+  ],
+  "acceptance": [
+    "The centre over the contact stays clear while the banks pile up either side",
+    "The smoke reads as solid flat white with a lavender underside, not grey haze",
+    "The banks break into hard-edged chunks instead of fading"
+  ],
+  "avoid": [
+    "A grey soft-glow haze",
+    "One round blob covering the fighter",
+    "A full closed ring for the dome"
+  ]
+}

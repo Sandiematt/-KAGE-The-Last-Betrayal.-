@@ -1,0 +1,4 @@
+tsugumi vs turtle bot · act2.sub1 · normal · gear 4 · style: Shurikenjutsu
+  Kage wins 0/12, loses 12, timeouts 0 · avg 46.2s · Kage hp left 0% · foe hp left 42% (foe 426 hp, Kage 267 hp)
+  per run: kageParries 4.2 · foeParries 0.2 · kageCrits 6.7 · foeCrits 3.9 · foeBroken 0.2 · kageBroken 3.2 · spamPunish 0 · throws 0.1 · styleStrings 23.4 · dmgToFoe 247 · dmgToKage 244
+  abilities: smokeStep×57 courierStep×57 tsugumiFan×14 roar×8 lunge×17

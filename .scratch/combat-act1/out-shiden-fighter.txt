@@ -1,0 +1,4 @@
+[shiden fighter] shiden vs fighter bot · act1.sub4 · normal · gear 2 · style: Sōjutsu · Hōzōin-ryū
+[shiden fighter]   Kage wins 12/30, loses 18, timeouts 0 · avg 51.5s · Kage hp left 9% · foe hp left 15% (foe 470 hp, Kage 249 hp)
+[shiden fighter]   per run: kageParries 2.9 · foeParries 2.3 · kageCrits 6 · foeCrits 5.8 · foeBroken 0 · kageBroken 1.6 · spamPunish 0.5 · throws 0 · styleStrings 15.1 · dmgToFoe 403 · dmgToKage 226
+[shiden fighter]   abilities: stormBreak×136 vanguardBreak×136 shidenBrace×98 roar×30 vanguardGuard×33

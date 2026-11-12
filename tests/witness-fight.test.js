@@ -193,13 +193,19 @@ test('Final Judgment: standing in it is ruinous; a guard raised at the flash den
   F.run(13); reset(F); S.WitnessInput.clear(s); if (s.wit.domain) s.wit.domain.rules.input = false;
   S.BOSS_ABILITIES.finalJudgment.run(e, s, e.ai, p);
   F.run(3);
-  assert.ok(p.maxHp - p.hp >= S.WITNESS_MOVES.finalJudgment.dmg * 0.9, `it landed (${p.maxHp - p.hp})`);
+  // (its damage as the Witness deals it: the move's number through its damage multiplier (the hazard passes `dmg * dmgMul`
+  // and Combat.applyHit scales the blow by the attacker's multiplier once more) and Kage's defence)
+  assert.ok(p.maxHp - p.hp >= S.WITNESS_MOVES.finalJudgment.dmg * e.dmgMul * e.dmgMul * (1 - p.defense) * 0.9, `it landed (${p.maxHp - p.hp})`);
   const G = fight(0.2); G.run(13); reset(G); G.S.WitnessInput.clear(G.s); if (G.s.wit.domain) Object.assign(G.s.wit.domain.rules, { input: false, zones: false, fakes: false }); G.s.wit.tiles = null;
   G.S.BOSS_ABILITIES.finalJudgment.run(G.e, G.s, G.e.ai, G.p);
   const j = G.s.wit.haz.find(h => h.kind === 'judgment');
-  G.run(3, () => { if (j.t >= j.delay - 0.08 && !j.cut && G.p.state !== 'block') { G.p.setState('block'); } });
+  // the stagger is the move's own (WITNESS_MOVES.finalJudgment.stagger, long: the biggest opening of the fight), however long
+  // its telegraph ran: it reels from the flash for that long, and its posture is torn
+  let reeled = 0;
+  G.run(5, () => { if (j.t >= j.delay - 0.08 && !j.cut && G.p.state !== 'block') { G.p.setState('block'); } if (G.e.state === 'stun') reeled += 1 / 60; });
   assert.equal(G.p.hp, G.p.maxHp, 'the perfect guard took nothing');
-  assert.equal(G.e.state, 'stun', 'the Witness reeled');
+  assert.ok(reeled >= S.WITNESS_MOVES.finalJudgment.stagger - 0.2, `the Witness reeled for ${reeled.toFixed(2)} s`);
+  assert.ok(G.e.guard < 100 || G.e.broken, 'and its posture was torn');
 });
 
 test('pattern learning: an overused move draws a Phantom Counter; a varied kit does not', () => {
@@ -291,10 +297,13 @@ test('the director: left to itself the Witness never stands free longer than its
     const s = new S.FightSession(S.Logic.stageConfig(S.SaveManager.data, 'core.witness'));
     for (let i = 0; i < 900 && s.phase !== 'fight'; i++) { s.phaseT = Math.max(s.phaseT, 4); s.step(DT); }
     const e = s.enemy, p = s.player; p.maxHp = p.hp = 1e6; e.hp = e.maxHp * hp;
-    let idle = 0, longest = 0, attacks = 0, last = null;
+    let idle = 0, longest = 0, attacks = 0, busy = false;
     for (let i = 0; i < 60 * 20; i++) {
       s.step(DT);
-      if (e.wAtk && e.wAtk !== last) { attacks++; last = e.wAtk; }
+      // an attack: one of its abilities, or one of its own strings / the mirror (a move of the blade)
+      const now = e.state === 'ability' || e.state === 'move';
+      if (now && !busy) attacks++;
+      busy = now;
       if (s.wit.state === 'fight' && !e.abil && e.canAct() && p.state !== 'down' && p.state !== 'getup') { idle += DT; longest = Math.max(longest, idle); } else idle = 0;
     }
     assert.ok(longest <= 1.25, `at ${hp}: longest free stretch ${longest.toFixed(2)} s`);
@@ -302,8 +311,11 @@ test('the director: left to itself the Witness never stands free longer than its
   }
 });
 
-test('a long fight: the Witness has several times a story boss\'s health', () => {
+test('a long fight: the Witness has several times a story boss\'s health (and a good player still finishes it in a few minutes)', () => {
   const { S } = fight();
-  assert.ok(S.ENEMIES.witness.hp >= 3000);
-  assert.ok(S.ENEMIES.witness.hp >= S.ENEMIES.takashi.hp * 4);
+  const bosses = ['raikon', 'akari', 'takashi'].map(id => S.ENEMIES[id].hp);
+  assert.ok(S.ENEMIES.witness.hp >= Math.max(...bosses) * 2, 'at least twice the sturdiest story boss');
+  assert.ok(S.ENEMIES.witness.hp >= Math.min(...bosses) * 2.5);
+  // its health is posture's work: the opening of a denied Final Judgment, with its posture torn, is the biggest of the fight
+  assert.ok(S.WITNESS_MOVES.finalJudgment.stagger >= 1.5);
 });

@@ -47,10 +47,15 @@ const TK_RED = ['#4a0910', '#a3172a', '#d8434c'];             // the ribbon
 const TK_RED_H = ['#1e1638', '#4a3a86', '#8f80ee'];
 
 /* ---- skins ---- */
+// his face (_shared/face.js): an old master's, a long straight nose dropping a little at the tip, thin lips, a firm
+// chin under the beard, the forehead leaning back; lit down the profile in gold (the echo's in violet)
+const TK_FACE = { of: 'elder', nose: 1.34, hook: 0.07, lip: 0.74, chin: 1.12, jaw: 0.96, brow: 1.4, slope: 0.05, light: '#ffcc5c', depth: 0.1 };
+
 ANIME_SKINS.takashi = { top: 'gi', feet: 'sandal', sleeve: 1.18, kote: false, collar: false, cuff: true, cuffTone: TK_GOLD, sash: 'takashi', noGiSash: true,
-  takashi: 'boss', rimTint: [226, 170, 70] };
+  takashi: 'boss', rimTint: [226, 170, 70], face: TK_FACE };
 
 ANIME_SKINS.hollow_takashi = { top: 'gi', feet: 'sandal', sleeve: 1.18, kote: false, collar: false, sash: 'takashi', noGiSash: true, takashi: 'hollow',
+  face: Object.assign({}, TK_FACE, { light: '#9c80ff' }),
   hollow: { fray: 1, robe: {} } };   // `hollow` gives the deep palette and the torn cuffs; the robes and cape are his own
 
 const _tkH = (f) => !!f.hollow;

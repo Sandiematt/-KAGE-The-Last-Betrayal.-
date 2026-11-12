@@ -1,0 +1,4 @@
+hollow_akari vs parry bot · core.echo2 · normal · gear 8 · style: none
+  Kage wins 2/8, loses 6, timeouts 0 · avg 32.7s · Kage hp left 10% · foe hp left 19% (foe 672 hp, Kage 301 hp)
+  per run: kageParries 2.5 · foeParries 0 · kageCrits 3.8 · foeCrits 1.9 · foeBroken 0 · kageBroken 0 · spamPunish 0.1 · throws 0 · styleStrings 0 · dmgToFoe 549 · dmgToKage 279
+  abilities: twinFang×23 hollowFang×23 smokeStep×11 hollowStep×11 roar×8 falseOpening×5 hollowOpening×5

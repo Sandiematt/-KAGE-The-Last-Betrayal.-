@@ -1,0 +1,6 @@
+akari vs parry bot · act2.boss · normal · gear 4 · style: Kasumi-ryū ninjutsu
+  Kage wins 0/8, loses 8, timeouts 0 · avg 46.6s · Kage hp left 0% · foe hp left 24% (foe 634 hp, Kage 267 hp)
+  per run: kageParries 4.3 · foeParries 1.4 · kageCrits 7.9 · foeCrits 5 · foeBroken 0.3 · kageBroken 0 · spamPunish 0 · throws 0 · styleStrings 17.5 · dmgToFoe 481 · dmgToKage 264
+  abilities: smokeStep×5 poisonKunai×4 chainReap×10 akariCross×40 shadowFlip×2 blink×8 roar×14 poisonTrap×1 kunaiFan×2 twinFang×3 aerialDive×2 petalBurst×3 petalStorm×2 phantomDash×1 reapingArc×1 petalTornado×1
+  texts/run: R:none 4.3 · UTSUSEMI 3.0 · R:cross/kw 2.0 · OPENING 3.0 · R:back 1.6 · S:READ 1.4 · CAUGHT 0.5 · RISING FANG 0.5 · R:move 0.5 · S:URA 0.1 · S:GUARD BREAK 0.3 · READ 0.3
+  dmg to Kage by source/run: tw1_fwd 62 · tw2 55 · tw1 52 · tw2_diagDown 23 · cross 16 · tw4_diagUp 9 · PETAL BURST 9 · proj:ab:petalBurst 6 · tw3_up 5 · FALLING PETAL 4 · proj:CHAIN REAP 4 · ab:phantomDash 3 · ab:undefined 3 · p1 2 · proj:ab:poisonKunai 2 · p2 1 · ? 1 · dp 1 · TRAP 1 · proj:ab:kunaiFan 1 · proj:ab:shadowFlip 1 · SLASH 1 · proj:? 1

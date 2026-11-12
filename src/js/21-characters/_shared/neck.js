@@ -8,5 +8,4 @@ Fighter.prototype.animeNeck = function (ctx, S, A, skin, U, hr) {
     const c0 = { x: spX(S, 0.95, -2.6 * U), y: spY(S, 0.95, -2.6 * U) }, c1 = { x: lerp(sk.neck.x, sk.head.x, 0.55) - S.nx * 3 * U, y: lerp(sk.neck.y, sk.head.y, 0.55) - S.ny * 3 * U };
     celFill(ctx, () => animeCapsule(ctx, c0, c1, 5.6 * U, 4.6 * U, 0.4 * U, 0.5), pal.coat, A, { sd: 2.6 * U, hd: 0.7 * U, rim: true });
   }
-  if (skin.wrap) animeScarfWrap(ctx, S, A, U, n0, n1);   // Kage's scarf (kage/scarf.js)
 };

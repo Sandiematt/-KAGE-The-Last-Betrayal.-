@@ -1,0 +1,4 @@
+utsushi vs parry bot · act2.sub3 · normal · gear 4 · style: Utsushi · the borrowed forms
+  Kage wins 7/12, loses 5, timeouts 0 · avg 34.6s · Kage hp left 24% · foe hp left 8% (foe 426 hp, Kage 267 hp)
+  per run: kageParries 2.2 · foeParries 1 · kageCrits 4.7 · foeCrits 3 · foeBroken 0 · kageBroken 0 · spamPunish 0.1 · throws 0 · styleStrings 14.6 · dmgToFoe 397 · dmgToKage 205
+  abilities: blink×59 stolenBlink×59 roar×12 twinFang×25 stolenFang×25 utsushiMoon×11

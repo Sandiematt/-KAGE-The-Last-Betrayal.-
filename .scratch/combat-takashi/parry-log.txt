@@ -1,0 +1,85 @@
+5.8s ability goldKunai
+6.4s CRIT kage -> takashi (riposte)
+7.1s string ab:kataKesa
+7.5s ability kataKesa
+7.8s parry kage parries takashi (T posture 79)
+7.8s   beat kesa -> kage idle
+8.2s deflect takashi turns kage's cut (posture K 22 T 79)
+8.9s parry kage parries takashi (T posture 53)
+8.9s   beat iai -> kage idle
+9.2s deflect takashi turns kage's cut (posture K 6 T 53)
+9.9s parry kage parries takashi (T posture 28)
+9.9s   beat iai -> kage idle
+10.3s CRIT kage -> takashi (riposte)
+10.7s string ab:kataTsuki
+11.3s ability kataTsuki
+12.6s string ab:kataKesa
+15.3s ability kataKesa
+15.4s deflect takashi turns kage's cut (posture K 56 T 46)
+15.7s parry kage parries takashi (T posture 20)
+15.7s   beat kesa -> kage idle
+16.1s CRIT kage -> takashi (riposte)
+16.9s string ab:kataNidan
+17.2s ability kataNidan
+17.5s BREAK takashi
+17.5s parry kage parries takashi (T posture 60)
+17.5s   beat gyaku -> kage idle
+17.9s CRIT kage -> takashi (broken)
+18.7s string ab:kataKesa
+22.4s ability kataKesa
+22.5s CRIT kage -> takashi (back)
+23.9s string ab:kataTsuki
+24.4s ability kataTsuki
+24.4s deflect takashi turns kage's cut (posture K 84 T 100)
+24.8s   beat kesa -> kage juggle
+27.7s PHASE 2
+27.7s ability roar
+31.9s ability heavenCleaver
+33.3s CRIT takashi -> kage (counter)
+37.0s string ab:titanKata
+39.1s ability titanKata
+39.8s parry kage parries takashi (T posture 79)
+39.8s   beat titanKesa -> kage idle
+40.1s CRIT kage -> takashi (riposte)
+41.4s parry kage parries takashi (T posture 58)
+41.4s   beat titanRise -> kage idle
+41.7s CRIT kage -> takashi (riposte)
+42.6s CRIT kage -> takashi (riposte)
+47.0s parry kage parries takashi (T posture 79)
+47.4s CRIT kage -> takashi (riposte)
+48.1s CRIT kage -> takashi (riposte)
+49.0s CRIT kage -> takashi (riposte)
+50.3s CRIT kage -> takashi (riposte)
+52.5s string ab:titanKata
+54.5s ability titanKata
+55.2s parry kage parries takashi (T posture 79)
+55.2s   beat titanKesa -> kage idle
+55.5s CRIT kage -> takashi (riposte)
+55.9s PHASE 3
+55.9s ability roar
+57.8s   beat titanRise -> kage juggle
+58.7s ability tenraiJudgment
+63.8s string ab:kataKaratake
+64.7s ability kataKaratake
+66.3s string ab:kataKesa
+68.6s ability kataKesa
+68.9s parry kage parries takashi (T posture 79)
+68.9s   beat kesa -> kage idle
+69.3s deflect takashi turns kage's cut (posture K 84 T 79)
+70.0s parry kage parries takashi (T posture 53)
+70.0s   beat iai -> kage idle
+70.3s deflect takashi turns kage's cut (posture K 68 T 53)
+71.0s parry kage parries takashi (T posture 28)
+71.0s   beat iai -> kage idle
+71.3s CRIT kage -> takashi (riposte)
+71.7s string ab:kataNidan
+72.5s ability kataNidan
+73.7s string ab:kataKesa
+76.8s CRIT kage -> takashi (riposte)
+77.9s string ab:kataNidan
+78.3s ability kataNidan
+78.4s deflect takashi turns kage's cut (posture K 62 T 56)
+78.7s   beat gyaku -> kage juggle
+80.2s string ab:kataKesa
+81.6s ability kataKesa
+81.9s   beat kesa -> kage juggle

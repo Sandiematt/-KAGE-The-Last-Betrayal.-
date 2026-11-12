@@ -1,14 +1,27 @@
 /* ---- the head (drawHelmet 'witness_mask', and witnessBody): crown, face and the star in its eye ----
    In the head frame: +x the way it faces, y down, in head radii (r). From the sheets:
-     face   a small dark wedge pointing forward and down, its point below the brow (no mouth, no nose, no hair)
+     face   a mask: Kage's own profile cut in hard planes (it is his mirror), a jutting brow over the eye, the ridge
+            of the nose to a sharp tip, a closed mouth notched under it, a pointed chin; dark, a pale line down the
+            whole profile with the phase's light inside it, a lit cheek plane, the mouth a short slit of light
      eye    a four-point star at the front of the face, its long points up and down, reaching past the face's edge
      crown  a burst of lightning spikes far bigger than the face: pale ones thrown forward and up (a zigzag), dark
             ones between, coloured ones swept back (blue I-II, violet III, violet with gold IV), every one inside the
             pale line
    On a Kage-flicker frame the head is Kage's own hair (drawEyes adds his eyes). */
-// the face: a slim wedge from under the crown down to its point, forward and below the brow
-const WT_FACE = [[-0.62, -0.5], [0.2, -0.24], [0.84, 0.22], [1.26, 0.62], [0.72, 0.6], [0.16, 0.74], [-0.46, 0.64], [-0.78, 0.06]];
-const WT_BROW = [[-0.62, -0.5], [0.2, -0.24], [0.84, 0.22], [1.26, 0.62]];
+// the mask in profile: from under the crown, the forehead, the brow, the socket of the eye, the nose, the lips with the
+// mouth between them, the chin, back along the jaw. The first eleven points are the profile (lit), the rest the jaw
+// It is Kage's own face (FACE_PROFILES.base, _shared/face.js) a little sharpened, as a mask: WT_MASK is its profile,
+// drawn at WT_MASK_K head radii. The Witness stands leaning far forward, its head with it, so the mask is tipped back
+// by WT_TILT about the middle of the head: the profile then stands near upright on screen and reads as a face, not as
+// one more spike of the crown
+const WT_MASK = { nose: 1.2, brow: 1.4, lip: 1.0, chin: 1.12, jaw: 0.98 };
+const WT_MASK_K = 0.96, WT_TILT = -0.32;
+// the lit plane of the cheek (in face radii): under the eye's socket from the nose back toward the jaw
+const WT_CHEEK = [[0.86, 0.22], [0.92, 0.46], [0.78, 0.6], [0.36, 0.8], [0.16, 0.42]];
+// the mouth: a short slit running back from between the lips (face radii)
+const WT_MOUTH = [[0.95, 0.65], [0.6, 0.71], [0.92, 0.69]];
+// tip the head frame back for the mask
+function _wtMaskFrame(ctx, r0) { ctx.translate(r0 * 0.1, r0 * 0.3); ctx.rotate(WT_TILT); ctx.translate(-r0 * 0.1, -r0 * 0.3); }
 // a group of spikes on the crown's root: bases B0..Bn along the root, tip i standing between bases i and i+1, a notch
 // partway up each spike's leading edge (the bolt's zigzag); closed back through the root's inside points
 function _wtSpikes(bases, tips, inside, notch) {
@@ -44,7 +57,8 @@ function drawWitnessHead(ctx, f, r, ink, flat) {
   const poly = (pts) => () => _wtHP(ctx, r, pts);
   if (flat || !A || A.flat) {
     ctx.fillStyle = flat ? ink : WT_CROWN[1]; ctx.strokeStyle = ctx.fillStyle; ctx.lineWidth = Math.max(1, r * 0.06); ctx.lineJoin = 'miter'; ctx.miterLimit = 5;
-    for (const pts of [WT_CROWN_BACK, WT_CROWN_DARK, WT_CROWN_PALE, WT_FACE]) { ctx.beginPath(); _wtHP(ctx, r, pts); ctx.fill(); ctx.stroke(); }
+    for (const pts of [WT_CROWN_BACK, WT_CROWN_DARK, WT_CROWN_PALE]) { ctx.beginPath(); _wtHP(ctx, r, pts); ctx.fill(); ctx.stroke(); }
+    ctx.save(); _wtMaskFrame(ctx, r0); ctx.beginPath(); animeFacePath(ctx, r0 * WT_MASK_K, WT_MASK); ctx.fill(); ctx.stroke(); ctx.restore();
     ctx.lineJoin = 'round';
     return;
   }
@@ -54,6 +68,21 @@ function drawWitnessHead(ctx, f, r, ink, flat) {
     ctx.lineJoin = 'miter'; ctx.miterLimit = 5; ctx.strokeStyle = line; ctx.lineWidth = lw; ctx.beginPath(); _wtHP(ctx, r, pts); ctx.stroke(); ctx.lineJoin = 'round';
   };
   const stroke = (g, segs, col, w) => { g.strokeStyle = col; g.lineWidth = w; g.beginPath(); for (const [[x0, y0], [x1, y1]] of segs) { g.moveTo(x0 * r, y0 * r); g.lineTo(x1 * r, y1 * r); } g.stroke(); };
+  // the mask first, the crown's roots over the back of its skull (tipped back, _wtMaskFrame): Kage's profile in
+  // near-black, the cheek a plane in the phase's deep tone, a strip of the phase's light down the front of the profile,
+  // the mouth a slit of the pale line's colour; then the pale line down the profile, brow to chin (the back of the jaw
+  // melts into the collar)
+  const rf = r0 * WT_MASK_K, d = rf * 0.12, P = () => animeFacePath(ctx, rf, WT_MASK);
+  ctx.save(); _wtMaskFrame(ctx, r0);
+  ctx.beginPath(); P(); ctx.fillStyle = ANIME.face; ctx.fill();
+  ctx.save(); ctx.clip();
+  ctx.fillStyle = L.panel[0]; ctx.beginPath(); _wtHP(ctx, rf, WT_CHEEK); ctx.fill();
+  ctx.fillStyle = L.back[1]; ctx.beginPath(); ctx.rect(-1e5, -1e5, 2e5, 2e5); ctx.translate(-d, d * 0.14); P(); ctx.translate(d, -d * 0.14); ctx.fill('evenodd');
+  ctx.fillStyle = L.line; ctx.beginPath(); _wtHP(ctx, rf, WT_MOUTH); ctx.fill();
+  ctx.restore();
+  ctx.beginPath(); ctx.rect(rf * 0.2, -rf * 0.9, rf * 4, rf * 1.8); ctx.rect(rf * 0.5, rf * 0.9, rf * 4, rf * 0.6); ctx.clip();
+  ctx.lineJoin = 'miter'; ctx.strokeStyle = L.line; ctx.lineWidth = lw; ctx.beginPath(); P(); ctx.stroke(); ctx.lineJoin = 'round';
+  ctx.restore();
   // the swept-back spikes: the phase's colour, a light stroke up each one (gold edges on the True Witness)
   part(WT_CROWN_BACK, L.back, _wtLookKey === 3 ? L.gold : L.line, (g) => { g.lineCap = 'round'; stroke(g, WT_CROWN_VEINS, L.back[2], r * 0.07); });
   // the dark spikes in the middle
@@ -62,14 +91,13 @@ function drawWitnessHead(ctx, f, r, ink, flat) {
   part(WT_CROWN_PALE, L.pale, '#ffffff', _wtLookKey === 2 || _wtLookKey === 3 ? (g) => {
     g.fillStyle = L.gold; g.beginPath(); _wtHP(g, r, WT_CROWN_GOLD); g.fill();
   } : null);
-  // the face: the black wedge, a pale line along its brow only (its underside melts into the collar)
-  celFill(ctx, poly(WT_FACE), [ANIME.face, ANIME.face, '#14122a'], A, { sd: r * 0.12, hd: r * 0.05, rim: false, seam: false });
-  ctx.lineJoin = 'miter'; ctx.strokeStyle = L.line; ctx.lineWidth = lw; ctx.beginPath(); WT_BROW.forEach(([x, y], i) => i ? ctx.lineTo(x * r, y * r) : ctx.moveTo(x * r, y * r)); ctx.stroke(); ctx.lineJoin = 'round';
   A.lx = sv[0]; A.ly = sv[1];
   if (f.eye === 'rgba(0,0,0,0)' || (A.opt && A.opt.noEyes)) return;
+  ctx.save(); _wtMaskFrame(ctx, r0);
   // the star in its eye: long points up and down, short ones fore and aft, a white core; brighter and larger on a tell
-  const hot = f.telegraph > 0, sx = r * 0.8, sy = r * 0.32;
-  const squint = f.state === 'hit' || f.state === 'stun' ? 0.7 : 1, sz = r * (hot ? 0.78 : 0.56) * squint * (1 + 0.06 * Math.sin(t * 6));
+  // (in the socket under the brow where Kage's eye is, kept clear of the nose so the mask's profile reads past it)
+  const hot = f.telegraph > 0, sx = rf * 0.56, sy = rf * 0.08;
+  const squint = f.state === 'hit' || f.state === 'stun' ? 0.7 : 1, sz = r0 * (hot ? 0.66 : 0.46) * squint * (1 + 0.06 * Math.sin(t * 6));
   const star = (k, w) => {
     const a = sz * k, b = sz * k * 0.62, q = sz * k * w;
     ctx.beginPath(); ctx.moveTo(sx, sy - a); ctx.lineTo(sx + q, sy - q); ctx.lineTo(sx + b, sy); ctx.lineTo(sx + q, sy + q); ctx.lineTo(sx, sy + a);
@@ -81,4 +109,5 @@ function drawWitnessHead(ctx, f, r, ink, flat) {
   ctx.restore();
   ctx.fillStyle = L.eye; star(1.14, 0.17); ctx.fill();
   ctx.fillStyle = '#ffffff'; star(0.9, 0.11); ctx.fill();
+  ctx.restore();
 }

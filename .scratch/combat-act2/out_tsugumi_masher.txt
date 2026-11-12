@@ -1,0 +1,4 @@
+tsugumi vs masher bot · act2.sub1 · normal · gear 4 · style: Shurikenjutsu
+  Kage wins 3/12, loses 9, timeouts 0 · avg 29.2s · Kage hp left 13% · foe hp left 36% (foe 426 hp, Kage 267 hp)
+  per run: kageParries 0 · foeParries 9 · kageCrits 1.6 · foeCrits 3.4 · foeBroken 0 · kageBroken 0.8 · spamPunish 1.6 · throws 0 · styleStrings 8.2 · dmgToFoe 272 · dmgToKage 237
+  abilities: smokeStep×13 courierStep×13 tsugumiFan×11 roar×8

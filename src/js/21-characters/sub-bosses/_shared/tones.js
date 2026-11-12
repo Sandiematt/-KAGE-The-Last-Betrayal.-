@@ -4,18 +4,23 @@
      kuroe    the Ink Censor: a tall black lacquered eboshi slashed with a pale ink stroke and hung with a redaction
               slip, a monk's robe to the ankles with huge sleeves, a gold-trimmed kesa across the chest, a ringed
               shakujō staff with an ink-brush tassel
-     garan    the Stormbroken: a horned iron brow band and wild mane over a snarling red oni menpō, a half dō burnt
+   Every face is its own profile (the skin's `face`, _shared/face.js); a mask follows it (_subShell, head.js here).
+     garan    the Stormbroken: a horned iron brow band and wild mane over a snarling red oni menpō (his jaw from under
+              the broken nose, the snarl cut at his mouth), a half dō burnt
               ragged down the middle with a glowing lightning scar, one huge laced sode, heavy iron tekko gauntlets
-     hisame   the Rain Courier: a close hood with a stiff oiled visor and a face cloth, a fringed rain capelet and a
+     hisame   the Rain Courier: a close hood with a stiff oiled visor, its face cloth pulled down round the throat, a fringed rain capelet and a
               long fringed rain cape (mino) from the shoulders, a message tube across the back, slim bound legs,
               lacquered war fans with rain-streaked paper
-     shiden   the Last Lieutenant: a star-riveted hoshi kabuto with a forked lightning maedate, a full dō laced in
+     shiden   the Last Lieutenant: a star-riveted hoshi kabuto with a forked lightning maedate and an iron hōate on the
+              chin, a full dō laced in
               violet, stacked sode, kusazuri, and a sashimono banner on his back; a violet-tasselled yari
      tsugumi  the Memory Courier: a wide flat hakobi-gasa hung with three glowing memory vials, an ash haori to the
               knee flecked pale, a satchel of vials at the hip, ring-pommel kunai
-     sayo     the Quiet Hand: a close hood with a silver brow band and a mist face cloth, a long drape from the back of
+     sayo     the Quiet Hand: a close hood with a silver brow band and a mist gauze drawn tight over her nose, lips and
+              chin from under the eyes, a long drape from the back of
               the head, a strip vest with a strap of message slips, a small shoulder guard, a kodachi in its saya
-     utsushi  the Borrowed Face (Hollow): a borrowed white mask that does not quite fit, cracked, its painted face
+     utsushi  the Borrowed Face (Hollow): a borrowed white mask in the operative's own profile that does not quite fit
+              (set forward and tilted), cracked, its painted face
               slipping between expressions, the eyes glowing through its holes; torn robes and long torn hood tails,
               scraps of the operative's vest it copied
    Each helmet and armour look is also gear Kage can wear (sumi_eboshi, hisame_zukin, hoshi_kabuto, hakobi_gasa,
@@ -45,16 +50,16 @@ const SUB_GLASS = ['#1a1626', '#2c2640', '#5a5078'];
               ledger entry, violet band tails), a knee-length haori shingled with pasted ledger pages, some struck through
               in violet, a bound ledger at the hip, a kusarigama whose chain hangs from the butt
      gonryu   the Gate Warden: a tetsu kabuto with a ribbed iron bowl, a deep laced shikoro and great gold kuwagata over an
-              iron menpō; a flat-fronted dō built like the Fortress door (iron boards, straps, gold gate studs and the
+              iron hōate on his great jaw and laced throat lames; a flat-fronted dō built like the Fortress door (iron boards, straps, gold gate studs and the
               kannuki bar across it), one huge studded sode, a rope belt with a gate-knocker ring; a studded iron kanabo
      shizune  the First Disciple: a dull cotton tenugui knotted over her bound hair (the Tachibana ring half unpicked), a
               long ponytail, a fitted leather kawa-dō laced pale gold over her training gi, a plain brown obi, a katana
               with a pale-gold wrap and the school ring on its tsuba
-     moro     the Conduit Warden: a close hood under an iron brow plate with two short horns and a dark oni menpō cracked
-              with violet light, a conduit tube from the hood into a canister on his back, a leather harness coiled with
+     moro     the Conduit Warden: a close hood under an iron brow plate with two short horns and a dark oni jaw guard with
+              two bone tusks beside his open mouth, cracked with violet light, a conduit tube from the hood into a canister on his back, a leather harness coiled with
               glowing glass tubes; a naginata with a conduit running up its shaft
      soma     the Silent Blademaster: a tall mokushi kabuto with a straight pale-gold blade crest laid across the brow, a wide
-              swept shikoro and a closed menpō bound shut with a gold cord (the oath); a full dō and two great ō-sode laced
+              swept shikoro and a closed menpō on his own jaw, bound shut across the mouth with a gold cord (the oath); a full dō and two great ō-sode laced
               gold; an odachi with a paper seal round its grip
      echo_sentinel / echo_warden (the placeholders): a violet-lit oni. The sentinel is light: a hood, a full oni mask with
               long swept horns, a long ragged cloak and violet crescents. The warden is heavy: a spiked oni kabuto with long

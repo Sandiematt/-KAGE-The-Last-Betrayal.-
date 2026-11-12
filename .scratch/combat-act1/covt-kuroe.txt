@@ -1,0 +1,38 @@
+kuroe vs turtle bot · act1.sub1 · normal · gear 2 · style: Bōjutsu · Kukishin-ryū
+  Kage wins 0/6, loses 6, timeouts 0 · avg 48.3s · Kage hp left 0% · foe hp left 63% (foe 403 hp, Kage 249 hp)
+  per run: kageParries 3.8 · foeParries 7.5 · kageCrits 4 · foeCrits 3.2 · foeBroken 0 · kageBroken 1.7 · spamPunish 0 · throws 1.7 · styleStrings 24.5 · dmgToFoe 146 · dmgToKage 245
+  abilities: censure×33 roar×2
+COVER {
+ "decide.true": 2,
+ "hit.?": 10,
+ "hit.REDLINE@ab": 14,
+ "hit.p1": 5,
+ "hit.p2": 1,
+ "hit.s1": 88,
+ "hit.s1_dash": 1,
+ "hit.s2": 5,
+ "hit.s2_diagUp": 3,
+ "hit.s3": 7,
+ "hit.s3_down": 5,
+ "on.block": 4,
+ "on.parried": 23,
+ "on.parry": 45,
+ "respond.true": 21,
+ "seq.back wait:0.14 move:s1": 35,
+ "seq.dash weapon": 2,
+ "seq.grab": 10,
+ "seq.move:s1": 27,
+ "seq.punch punch": 6,
+ "seq.w:diagUp back": 18,
+ "seq.w:down": 26,
+ "seq.weapon weapon weapon": 20,
+ "seq.weapon weapon": 27,
+ "seq.weapon": 37,
+ "str.back wait:0.14 move:s1": 35,
+ "str.dash weapon": 2,
+ "str.move:s1": 26,
+ "str.w:diagUp back": 18,
+ "str.w:down": 26,
+ "str.weapon weapon weapon": 20,
+ "str.weapon weapon": 20
+}

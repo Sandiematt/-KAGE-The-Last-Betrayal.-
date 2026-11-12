@@ -2,8 +2,6 @@ Fighter.prototype.drawCoatPanel = function (ctx, part, A, skin, U) {
   const cl = this.cloths.find(c => c.kind === 'coat' && c.part === part);
   if (!cl || !cl.c.init) return;
   const back = part === 'back', co = skin.coat;
-  // Kage's embroidered coat is one full skirt (skirt.js), drawn in the flap's slot over both legs
-  if (co.embroider) { if (!back) this.drawKageSkirt(ctx, A, skin, U); return; }
   const n = coatEdges(cl, (back ? co.w0 : co.fw0) * U, (back ? co.w1 : co.fw1) * U, this.y + 2 * A.s);
   const pal = A.pal, f = this.facing;
   const accRGB = _hexRGB(pal.acc) || [185, 28, 36];

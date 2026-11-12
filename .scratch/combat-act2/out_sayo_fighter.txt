@@ -1,0 +1,4 @@
+sayo vs fighter bot · act2.sub2 · normal · gear 4 · style: Kodachijutsu
+  Kage wins 8/12, loses 4, timeouts 0 · avg 36.9s · Kage hp left 32% · foe hp left 6% (foe 448 hp, Kage 267 hp)
+  per run: kageParries 4.7 · foeParries 6.3 · kageCrits 6.1 · foeCrits 1.8 · foeBroken 0.1 · kageBroken 0.2 · spamPunish 0.2 · throws 0 · styleStrings 8.9 · dmgToFoe 427 · dmgToKage 181
+  abilities: twinFang×37 halfFang×37 roar×12 counterStance×18 sayoSlowHand×26

@@ -1,0 +1,41 @@
+shiden vs turtle bot · act1.sub4 · normal · gear 2 · style: Sōjutsu · Hōzōin-ryū
+  Kage wins 0/6, loses 6, timeouts 0 · avg 53.3s · Kage hp left 0% · foe hp left 64% (foe 470 hp, Kage 249 hp)
+  per run: kageParries 5.2 · foeParries 2.8 · kageCrits 3.7 · foeCrits 9.2 · foeBroken 0 · kageBroken 6 · spamPunish 0 · throws 0.5 · styleStrings 17.7 · dmgToFoe 170 · dmgToKage 232
+  abilities: stormBreak×44 vanguardBreak×44 shidenBrace×29 roar×1 vanguardGuard×1
+COVER {
+ "decide.true": 15,
+ "hit.?": 3,
+ "hit.?@ab": 1,
+ "hit.BRACED@ab": 16,
+ "hit.BREAK@ab": 12,
+ "hit.p1": 32,
+ "hit.pa1": 1,
+ "hit.pa2": 1,
+ "hit.s1": 41,
+ "hit.s1_fwd": 9,
+ "hit.s3": 10,
+ "hit.s3_diagDown": 2,
+ "hit.s3_down": 2,
+ "on.block": 1,
+ "on.parried": 31,
+ "on.parry": 17,
+ "respond.true": 9,
+ "seq.back wait:0.12 weapon weapon": 13,
+ "seq.dash weapon": 1,
+ "seq.grab": 3,
+ "seq.punch punch": 34,
+ "seq.w:diagDown": 18,
+ "seq.w:down": 21,
+ "seq.w:fwd": 10,
+ "seq.weapon weapon back": 16,
+ "seq.weapon weapon weapon": 42,
+ "seq.weapon weapon": 3,
+ "seq.weapon": 14,
+ "str.back wait:0.12 weapon weapon": 13,
+ "str.dash weapon": 1,
+ "str.w:diagDown": 18,
+ "str.w:down": 21,
+ "str.w:fwd": 10,
+ "str.weapon weapon back": 16,
+ "str.weapon weapon weapon": 27
+}

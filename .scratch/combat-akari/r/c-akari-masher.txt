@@ -1,0 +1,13 @@
+akari vs masher bot · act2.boss · normal · gear 4 · style: Kasumi-ryū ninjutsu
+  Kage wins 0/12, loses 12, timeouts 0 · avg 29.7s · Kage hp left 0% · foe hp left 36% (foe 610 hp, Kage 267 hp)
+  per run: kageParries 0 · foeParries 1 · kageCrits 1.8 · foeCrits 6.2 · foeBroken 0 · kageBroken 0 · spamPunish 3.4 · throws 0 · styleStrings 11.9 · dmgToFoe 393 · dmgToKage 284
+  abilities: poisonKunai×3 akariKawarimi×18 akariCross×57 roar×18 petalStorm×4 petalBurst×3 blink×5 smokeStep×5 falseOpening×2 chainReap×7 kunaiFan×5 poisonTrap×2 petalTornado×1 mirrorClones×1
+  texts/run: R:back 2.2 · KAWARIMI 1.5 · R:cross/kw 2.3 · S:READ 5.2 · SPAM READ: MIX W / A / S / D + ATTACK 1.0 · R:none 5.8 · UTSUSEMI 3.9 · S:URA 0.3 · OPENING 2.2 · CAUGHT 0.5 · FALSE OPENING 0.2 · S:KAWARIMI 0.1
+  dmg to Kage by source/run: twc 144 · twc_dash 53 · tw1 14 · cross 12 · tw1_fwd 10 · tw2 10 · proj:ab:petalBurst 7 · tw2_diagDown 6 · PUNISH 4 · kawarimi 4 · proj:CHAIN REAP 3 · p1 2 · tw4_diagUp 2 · ? 2 · PETAL BURST 2 · proj:ab:kunaiFan 2 · p2 1 · ab:smokeStep 1 · ab:undefined 1 · proj:ab:poisonKunai 0 · TRAP 0
+  strings/run:
+    4.3  fwd move:tw1_fwd move:tw2 back
+    4.1  ab:akariCross
+    1.3  move:tw1 wait:0.3 move:tw2_diagDown back
+    1.3  move:tw1 move:tw2 back
+    0.7  move:tw1 move:tw2 wait:0.24 move:tw4_diagUp back
+    0.3  move:tw2 wait:0.28 move:tw1 move:tw2_diagDown back

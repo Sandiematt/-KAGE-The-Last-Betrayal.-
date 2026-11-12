@@ -153,6 +153,10 @@ class Fighter {
     this.bodyRot = 0; this.bodyRotVel = 0; this.tuckT = 0; this.flipT = 0; this.flipLand = false; this.landT = 0.08; this.landDepth = 0.5; this.jumpDir = 0;
     this.poison = 0; this.slow = 1; this.abil = null; this.grabbedBy = null; this.grabbing = null; this.boundBy = null; this.boundT = 0;
     this.turnDelay = o.turnDelay || 0; this.turnT = 0; this.superArmor = false;
+    // Budo (13-budo.js): posture comes back after a pause (postureDelay) at postureRegen a second; `broken` while the
+    // guard is broken, `deflected` while a deflected cut recoils, reelT while thrown back by a critical, `riposte` on
+    // the cut that answers a parry
+    this.postureDelay = 0; this.postureRegen = BUDO.posture.regen; this.broken = false; this.deflected = false; this.reelT = 0; this.riposte = false; this.critCd = 0;
     // directional attacks: the form asked for with the latest weapon press (attackDir), whether a left / right tap came
     // just before it (a forward form inside a string needs a fresh tap), and the last tap (a double tap dashes)
     this.bufAim = null; this.bufSide = 0; this.bufAimTap = false; this.tapD = 0; this.tapT = -9; this.dirTapT = -9; this.lateAim = false; this.punishMove = null;
@@ -268,7 +272,10 @@ class Fighter {
     if (this.counterT > 0) this.counterT -= dt;
     if (this.dashCd > 0) this.dashCd -= dt;
     if (this.comboT > 0) { this.comboT -= dt; if (this.comboT <= 0) this.comboHits = 0; }
-    if (this.guard < 100 && this.state !== 'block') this.guard = Math.min(100, this.guard + 22 * dt);
+    if (this.postureDelay > 0) this.postureDelay -= dt;
+    else if (this.guard < 100 && this.state !== 'block') this.guard = Math.min(100, this.guard + this.postureRegen * dt);
+    if (this.reelT > 0) this.reelT -= dt;
+    if (this.state !== 'stun') { this.broken = false; this.deflected = false; }
     if (this.poison > 0 && this.alive) {
       this.poison -= dt;
       if (((this.time * 4) | 0) !== (((this.time - dt) * 4) | 0)) { this.hp = Math.max(1, this.hp - 2.2); world && world.fx.poisonPuff(this); }
@@ -307,7 +314,10 @@ class Fighter {
       case 'dash': this.updateDash(dt, world); break;
       case 'air': this.updateAir(dt, world); break;
       case 'move': this.updateMove(dt, world); break;
-      case 'hit': this.hitstun -= dt; this.friction(dt, 8); if (this.hitstun <= 0) this.setState(this.grounded ? 'idle' : 'air'); break;
+      case 'hit':   // (thrown back by a critical he slides further: BUDO.crit.reel.slide)
+        this.hitstun -= dt; this.friction(dt, this.reelT > 0 ? BUDO.crit.reel.slide : 8);
+        if (this.hitstun <= 0) this.setState(this.grounded ? 'idle' : 'air');
+        break;
       case 'juggle': if (this.grounded && this.st > 0.05) this.onLandHard(world); break;
       case 'down':
         this.friction(dt, 10); this.invuln = Math.max(this.invuln, 0.1);
@@ -315,7 +325,12 @@ class Fighter {
         if (this.st > this.downT) { this.setState('getup'); this.invuln = 0.45; }
         break;
       case 'getup': if (this.st > 0.36) this.setState('idle'); break;
-      case 'stun': this.stunT -= dt; this.friction(dt, 10); if (this.stunT <= 0) this.setState('idle'); break;
+      case 'stun':
+        this.stunT -= dt; this.friction(dt, 10);
+        // a deflected cut (Budo.deflect): a fresh guard press ends the recoil early, in time to turn the answer aside
+        if (this.deflected && c.blockP && this.grounded && this.st >= BUDO.deflect.guardAfter) { this.setState('block'); this.blockT = 0; break; }
+        if (this.stunT <= 0) this.setState('idle');
+        break;
       case 'grabbed': break;
       case 'bound': this.updateBound(dt, world); break;
       case 'throwing': this.updateThrow(dt, world); break;
@@ -396,7 +411,7 @@ class Fighter {
     if (b.weapon > 0) {
       b.weapon = 0;
       const w = this.weapon();
-      if (this.counterT > 0 && w.counter) return this.startMove(w.counter, world);
+      if (this.counterT > 0 && w.counter) { const ok = this.startMove(w.counter, world); this.riposte = ok; return ok; }
       const id = this.weaponMove('ground');
       const ok = this.startMove(id, world);
       // a direction pressed a frame or two after the button still counts (lateAim, updateMove)
@@ -446,7 +461,7 @@ class Fighter {
     const c = this.ctrl;
     this.blockT += dt; this.friction(dt, 20);
     if (c.grabP) { this.buf.punch = 0; this.startMove('grab', world); return; }
-    if (this.buf.weapon > 0 && this.counterT > 0) { this.buf.weapon = 0; const w = this.weapon(); if (w.counter) { this.startMove(w.counter, world); return; } }
+    if (this.buf.weapon > 0 && this.counterT > 0) { this.buf.weapon = 0; const w = this.weapon(); if (w.counter) { this.riposte = !!this.startMove(w.counter, world); return; } }
     // down + attack (S is the guard): the downward slash, or the low sweep with toward held
     if (this.buf.weapon > 0 && (this.isPlayer || this.bufAim)) { this.buf.weapon = 0; const id = this.weaponMove('ground'); if (id) { this.startMove(id, world); return; } }
     if (this.buf.dash > 0 && this.dashCd <= 0) { this.buf.dash = 0; this.startDash(c.dir || -this.facing, world); return; }
@@ -527,7 +542,7 @@ class Fighter {
     const m = MOVES[id];
     if (!m) return false;
     if (m.kind === 'throw') { if (this.ammo <= 0) { world && world.fx.popText(this, 'NO KUNAI', C.muted); return false; } }
-    this.punishMove = null; this.lateAim = false;
+    this.punishMove = null; this.lateAim = false; this.riposte = false;
     const now = world ? world.time : 0;
     // a horizontal, diagonal or dash cut goes to the side pressed: he turns to face it (a clean 2D turn, never a spin)
     const sided = !!(this.isPlayer && this.bufSide && (m.kind === 'weapon' || m.kind === 'air') && (DIR_SIDED[m.aim] || (m.kind === 'air' && !m.aim && this.bufAim === 'fwd')));
@@ -885,7 +900,11 @@ class Fighter {
         if (m.id === 'hk') t.lean -= this.moveCharge * 6;
         break;
       }
-      case 'hit': copy(this.hitGut ? POSES.hitGut : POSES.hit); rate = 34; break;
+      case 'hit':
+        copy(this.hitGut ? POSES.hitGut : POSES.hit); rate = 34;
+        // thrown back by a critical (Budo.reel): the whole body goes over backward, arms flung out
+        if (this.reelT > 0) { t.lean -= 20; t.head -= 12; t.fs -= 28; t.bs -= 20; }
+        break;
       case 'juggle': {
         const T = this.tumble;
         if (T && T.full && this.alive) {
@@ -1422,7 +1441,8 @@ Fighter.prototype.draw = function (ctx, opt) {
   for (const cl of this.cloths) if (cl.kind === 'cape' || cl.kind === 'robe') cl.c.draw(ctx, opt.color || cl.color, cl.w0, cl.w1, null);
   // the outline: the silhouette stamped around itself as a thin near-black ink line, then a thinner rim in the stage's
   // rim colour (deepened toward crimson, animeRimColor) on the back and top edges only, then the body on top
-  if (opt.rim && !opt.color) {
+  const shadowKage = kageShadowOn(this);   // Kage's silhouette design carries its own light on every part (21-characters/kage/shadow/)
+  if (opt.rim && !opt.color && !shadowKage) {
     const gk = glitch ? 1 + Math.abs(glitch) * 3 : 1, src = (this.hollow && this.family.outline) || opt.outline || (typeof opt.rim === 'string' ? opt.rim : '#f1ebe0');
     const oc = animeRimColor(src, this.hollow, animeSkin(this).rimTint), ro = this._rimOpt || (this._rimOpt = {}), f = this.facing;
     for (const k in ro) delete ro[k];
@@ -1444,6 +1464,7 @@ Fighter.prototype.draw = function (ctx, opt) {
   for (const cl of this.cloths) if (cl.kind === 'scarf' || cl.kind === 'ribbon' || cl.kind === 'belt') {
     if (cl.witness && this.kageFrame) continue;
     if (cl.kageOnly && !this.kageFrame) continue;   // Kage's scarf tails, only on the Witness's Kage-flicker frames
+    if (shadowKage && (cl.kind === 'belt' || (cl.kind === 'scarf' && cl.at === 'neck'))) continue;   // drawn with the body
     const col = opt.color || (flashing ? ink : cl.color);
     if (cl.rim && !opt.color && cl.w1) cl.c.ribbon(ctx, cl.rim, cl.w + 3 * s, cl.w1 + 3 * s);
     if (cl.w1) cl.c.ribbon(ctx, col, cl.w, cl.w1); else cl.c.strand(ctx, col, cl.w);
@@ -1932,25 +1953,11 @@ function drawArmor(ctx, f, ink, opt, Ut) {
       // Rem's worn travel coat, wrapped shut under a violet collar band (21-characters/bosses/rem/)
       drawRemCoat(ctx, f, ink, flat);
       break;
-    case 'tachibana': {
-      // Kage's starting Tachibana Yoroi: a compact dark-metal shoulder guard of three lames laced in crimson, and the
-      // small family crest, half-hidden behind the near arm
-      const r = Ut * 0.5, a = ang + Math.PI / 2;
-      for (let i = 2; i >= 0; i--) {
-        const cx = sk.sh.x - fc * r * 0.18 + Math.cos(ang) * -r * 0.45 * i, cy = sk.sh.y + r * 0.2 + Math.sin(ang) * -r * 0.45 * i;
-        ctx.fillStyle = flat ? ink : i === 0 ? ANIME.metal1 : ANIME.metal0;
-        ctx.beginPath(); ctx.ellipse(cx, cy, r * (1.12 - i * 0.06), r * 0.62, a, Math.PI * 0.95, Math.PI * 2.05); ctx.closePath(); ctx.fill();
-        if (!flat) {
-          ctx.strokeStyle = ANIME.metal2; ctx.lineWidth = 0.9 * s; ctx.beginPath(); ctx.ellipse(cx, cy, r * (1.12 - i * 0.06), r * 0.62, a, Math.PI * 1.2, Math.PI * 1.8); ctx.stroke();
-          ctx.fillStyle = ANIME.crimson; for (const k of [-0.5, 0, 0.5]) { ctx.beginPath(); ctx.arc(cx + Math.cos(a) * k * r, cy + Math.sin(a) * k * r + r * 0.15, 0.8 * s, 0, TAU); ctx.fill(); }
-        }
-      }
-      if (!flat) {
-        const px = lerp(hx, nx, 0.72) - fc * Ut * 0.3, py = lerp(hy, ny, 0.72);
-        ctx.fillStyle = 'rgba(169,173,179,0.55)'; ctx.beginPath(); ctx.arc(px, py, 1.4 * s, 0, TAU); ctx.fill();
-      }
+    case 'tachibana':
+      // Kage's starting Tachibana Yoroi: the far shoulder's three dark lames laced in crimson; the near pauldron is drawn
+      // over his arm by his own body (21-characters/kage/)
+      drawTachibana(ctx, f, ink, flat);
       break;
-    }
     case 'jerkin': case 'gate_plate': case 'conduit_harness': case 'ledger_coat': case 'pauldrons': case 'tyrant': case 'cloak':
       // the Act II / III sub-bosses' armour, also gear (21-characters/sub-bosses/)
       drawSubBArmor(ctx, f, f.armor);

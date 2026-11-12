@@ -1,0 +1,48 @@
+[kuroe fighter] kuroe vs fighter bot · act1.sub1 · normal · gear 2 · style: none
+[kuroe fighter]   Kage wins 10/10, loses 0, timeouts 0 · avg 41.1s · Kage hp left 42% · foe hp left 0% (foe 403 hp, Kage 249 hp)
+[kuroe fighter]   per run: kageParries 0.8 · foeParries 2.4 · kageCrits 6.9 · foeCrits 2.5 · foeBroken 0 · kageBroken 0.1 · spamPunish 0.5 · throws 0 · styleStrings 0 · dmgToFoe 410 · dmgToKage 142
+[kuroe fighter]   abilities: censure×29 roar×10
+[kuroe masher] kuroe vs masher bot · act1.sub1 · normal · gear 2 · style: none
+[kuroe masher]   Kage wins 8/10, loses 2, timeouts 0 · avg 36.8s · Kage hp left 23% · foe hp left 5% (foe 403 hp, Kage 249 hp)
+[kuroe masher]   per run: kageParries 0 · foeParries 4.9 · kageCrits 6.6 · foeCrits 8.7 · foeBroken 0 · kageBroken 0 · spamPunish 4.9 · throws 0.1 · styleStrings 0 · dmgToFoe 385 · dmgToKage 192
+[kuroe masher]   abilities: roar×10 censure×22
+[kuroe turtle] kuroe vs turtle bot · act1.sub1 · normal · gear 2 · style: none
+[kuroe turtle]   Kage wins 0/10, loses 10, timeouts 0 · avg 64.8s · Kage hp left 0% · foe hp left 43% (foe 403 hp, Kage 249 hp)
+[kuroe turtle]   per run: kageParries 5.2 · foeParries 5.1 · kageCrits 6.4 · foeCrits 5.1 · foeBroken 0 · kageBroken 2.2 · spamPunish 0 · throws 1.9 · styleStrings 0 · dmgToFoe 227 · dmgToKage 233
+[kuroe turtle]   abilities: censure×74 roar×7
+[garan fighter] garan vs fighter bot · act1.sub2 · normal · gear 2 · style: none
+[garan fighter]   Kage wins 8/10, loses 2, timeouts 0 · avg 41.5s · Kage hp left 24% · foe hp left 2% (foe 470 hp, Kage 249 hp)
+[garan fighter]   per run: kageParries 2.5 · foeParries 0 · kageCrits 7.3 · foeCrits 3.9 · foeBroken 0 · kageBroken 0.9 · spamPunish 0.6 · throws 0 · styleStrings 0 · dmgToFoe 466 · dmgToKage 190
+[garan fighter]   abilities: stormBreak×29 stormFist×29 garanTsuppari×20 roar×10 charge×5
+[garan masher] garan vs masher bot · act1.sub2 · normal · gear 2 · style: none
+[garan masher]   Kage wins 10/10, loses 0, timeouts 0 · avg 27.9s · Kage hp left 52% · foe hp left 0% (foe 470 hp, Kage 249 hp)
+[garan masher]   per run: kageParries 0 · foeParries 0 · kageCrits 4.5 · foeCrits 4 · foeBroken 0 · kageBroken 0 · spamPunish 2.6 · throws 0 · styleStrings 0 · dmgToFoe 477 · dmgToKage 120
+[garan masher]   abilities: roar×10 stormBreak×8 stormFist×8 garanTsuppari×6 charge×4
+[garan turtle] garan vs turtle bot · act1.sub2 · normal · gear 2 · style: none
+[garan turtle]   Kage wins 0/10, loses 10, timeouts 0 · avg 50.4s · Kage hp left 0% · foe hp left 56% (foe 470 hp, Kage 249 hp)
+[garan turtle]   per run: kageParries 6.2 · foeParries 0 · kageCrits 5.8 · foeCrits 8.1 · foeBroken 0 · kageBroken 6.9 · spamPunish 0 · throws 0.3 · styleStrings 0 · dmgToFoe 205 · dmgToKage 225
+[garan turtle]   abilities: stormBreak×61 stormFist×61 garanTsuppari×58 roar×4 charge×2
+[hisame fighter] hisame vs fighter bot · act1.sub3 · normal · gear 2 · style: none
+[hisame fighter]   Kage wins 5/10, loses 5, timeouts 0 · avg 37.6s · Kage hp left 20% · foe hp left 9% (foe 370 hp, Kage 249 hp)
+[hisame fighter]   per run: kageParries 0.7 · foeParries 0.1 · kageCrits 3.8 · foeCrits 4.2 · foeBroken 0 · kageBroken 0 · spamPunish 0.4 · throws 0 · styleStrings 0 · dmgToFoe 345 · dmgToKage 200
+[hisame fighter]   abilities: thunderSwing×38 lightningCut×38 roar×10 smokeBomb×6
+[hisame masher] hisame vs masher bot · act1.sub3 · normal · gear 2 · style: none
+[hisame masher]   Kage wins 10/10, loses 0, timeouts 0 · avg 24.4s · Kage hp left 35% · foe hp left 0% (foe 370 hp, Kage 249 hp)
+[hisame masher]   per run: kageParries 0 · foeParries 0.4 · kageCrits 3.8 · foeCrits 5 · foeBroken 0 · kageBroken 0 · spamPunish 3.1 · throws 0 · styleStrings 0 · dmgToFoe 376 · dmgToKage 163
+[hisame masher]   abilities: thunderSwing×25 lightningCut×25 roar×10 smokeBomb×12
+[hisame turtle] hisame vs turtle bot · act1.sub3 · normal · gear 2 · style: none
+[hisame turtle]   Kage wins 1/10, loses 9, timeouts 0 · avg 52.2s · Kage hp left 3% · foe hp left 37% (foe 370 hp, Kage 249 hp)
+[hisame turtle]   per run: kageParries 6.4 · foeParries 0.5 · kageCrits 6 · foeCrits 8.6 · foeBroken 0 · kageBroken 6.6 · spamPunish 0 · throws 0.4 · styleStrings 0 · dmgToFoe 234 · dmgToKage 218
+[hisame turtle]   abilities: thunderSwing×78 lightningCut×78 roar×8 smokeBomb×16
+[shiden fighter] shiden vs fighter bot · act1.sub4 · normal · gear 2 · style: none
+[shiden fighter]   Kage wins 4/10, loses 6, timeouts 0 · avg 48.2s · Kage hp left 13% · foe hp left 16% (foe 515 hp, Kage 249 hp)
+[shiden fighter]   per run: kageParries 1.9 · foeParries 1.4 · kageCrits 6.2 · foeCrits 4.4 · foeBroken 0 · kageBroken 2.1 · spamPunish 0.8 · throws 0 · styleStrings 0 · dmgToFoe 437 · dmgToKage 214
+[shiden fighter]   abilities: stormBreak×41 vanguardBreak×41 roar×9 vanguardGuard×13
+[shiden masher] shiden vs masher bot · act1.sub4 · normal · gear 2 · style: none
+[shiden masher]   Kage wins 2/10, loses 8, timeouts 0 · avg 34.3s · Kage hp left 3% · foe hp left 24% (foe 515 hp, Kage 249 hp)
+[shiden masher]   per run: kageParries 0 · foeParries 2.6 · kageCrits 4.8 · foeCrits 8.6 · foeBroken 0 · kageBroken 0 · spamPunish 5 · throws 0 · styleStrings 0 · dmgToFoe 393 · dmgToKage 247
+[shiden masher]   abilities: roar×10 stormBreak×22 vanguardBreak×22 vanguardGuard×4
+[shiden turtle] shiden vs turtle bot · act1.sub4 · normal · gear 2 · style: none
+[shiden turtle]   Kage wins 0/10, loses 10, timeouts 0 · avg 58.8s · Kage hp left 0% · foe hp left 47% (foe 515 hp, Kage 249 hp)
+[shiden turtle]   per run: kageParries 7.2 · foeParries 1.1 · kageCrits 8.1 · foeCrits 7.6 · foeBroken 0.4 · kageBroken 6.1 · spamPunish 0 · throws 0.8 · styleStrings 0 · dmgToFoe 270 · dmgToKage 220
+[shiden turtle]   abilities: stormBreak×81 vanguardBreak×81 roar×6 vanguardGuard×8

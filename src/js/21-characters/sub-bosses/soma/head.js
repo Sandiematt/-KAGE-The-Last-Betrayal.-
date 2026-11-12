@@ -1,19 +1,19 @@
 SUBB_HEADS.blademaster_kabuto = function (ctx, key, f, r, ink, flat, A, sv, t, acc, sub, fill, studs, shikoro) {
-  // Soma's mokushi kabuto: a wide swept shikoro, a closed menpō bound with the gold oath cord, a tall bowl, a
+  // Soma's mokushi kabuto: a wide swept shikoro, a closed menpō on his own jaw (the nose bare) bound with the gold oath
+  // cord, a tall bowl, a
   // straight pale-gold blade crest laid across the brow
   if (f.isPlayer) drawKageHair(ctx, r * 0.9, ink, flat, f);
   shikoro([[0.1, -0.6], [-0.92, -0.92], [-1.74, -0.24], [-2.3, 0.56, 1], [-1.94, 0.92], [-0.92, 0.92], [-0.42, 0.42], [-0.2, -0.2]], SUB_LACQ, 0.92, 0.95, acc[1]);
-  fill([[0.0, 0.16], [0.8, 0.12], [1.18, 0.26, 1], [1.1, 0.6], [0.7, 0.98], [0.3, 1.06, 1], [0.0, 0.66]], SUB_IRON, { sd: r * 0.18, hd: r * 0.06, rim: true, detail: (g) => {
-    g.strokeStyle = ANIME.outline; g.lineWidth = r * 0.04; g.beginPath(); g.moveTo(r * 0.36, r * 0.6); g.lineTo(r * 1.06, r * 0.56); g.stroke();
-    g.strokeStyle = SUB_IRON[2]; g.lineWidth = r * 0.025; g.beginPath(); g.moveTo(r * 0.36, r * 0.64); g.lineTo(r * 1.04, r * 0.6); g.stroke();
-    // the oath cord: wound across the mouth, knotted at the cheek
-    g.strokeStyle = acc[0]; g.lineWidth = r * 0.09; g.beginPath(); g.moveTo(-r * 0.05, r * 0.46); g.quadraticCurveTo(r * 0.6, r * 0.4, r * 1.2, r * 0.5); g.stroke();
-    g.strokeStyle = acc[2]; g.lineWidth = r * 0.04; g.beginPath(); g.moveTo(-r * 0.05, r * 0.44); g.quadraticCurveTo(r * 0.6, r * 0.38, r * 1.2, r * 0.48); g.stroke();
+  // the closed menpō: his own mouth and jaw in iron from under the nose, no opening; the oath cord bound across it on
+  // the line of his mouth, knotted at the cheek, its ends hanging
+  _subShell(ctx, A, r, f, 'mouth', SUB_IRON, { sd: r * 0.18, hd: r * 0.07, rim: true, detail: (g) => {
+    g.strokeStyle = acc[0]; g.lineWidth = r * 0.1; g.beginPath(); g.moveTo(r * 0.04, r * 0.5); g.quadraticCurveTo(r * 0.6, r * 0.6, r * 1.3, r * 0.64); g.stroke();
+    g.strokeStyle = acc[2]; g.lineWidth = r * 0.04; g.beginPath(); g.moveTo(r * 0.04, r * 0.47); g.quadraticCurveTo(r * 0.6, r * 0.57, r * 1.3, r * 0.61); g.stroke();
   } });
   if (!A.flat) {
-    ctx.fillStyle = acc[1]; ctx.beginPath(); ctx.arc(r * 0.06, r * 0.5, r * 0.1, 0, TAU); ctx.fill();
+    ctx.fillStyle = acc[1]; ctx.beginPath(); ctx.arc(r * 0.08, r * 0.52, r * 0.1, 0, TAU); ctx.fill();
     ctx.strokeStyle = acc[0]; ctx.lineWidth = Math.max(1, r * 0.06); const sw = Math.sin(t * 2.2) * r * 0.05;
-    ctx.beginPath(); ctx.moveTo(r * 0.04, r * 0.56); ctx.lineTo(-r * 0.02 + sw, r * 1.0); ctx.moveTo(r * 0.1, r * 0.56); ctx.lineTo(r * 0.12 + sw, r * 0.92); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(r * 0.06, r * 0.58); ctx.lineTo(sw, r * 1.02); ctx.moveTo(r * 0.12, r * 0.58); ctx.lineTo(r * 0.14 + sw, r * 0.94); ctx.stroke();
   }
   fill([[1.06, -0.36, 1], [0.98, -1.12], [0.52, -1.8], [-0.2, -2.0], [-0.82, -1.62], [-1.14, -0.4, 1]], SUB_LACQ, { sd: r * 0.34, hd: r * 0.08, rim: true, detail: (g) => {
     g.strokeStyle = ANIME.outline; g.lineWidth = r * 0.04; g.beginPath();

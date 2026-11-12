@@ -1,0 +1,14 @@
+akari vs fighter bot · act2.boss · normal · gear 4 · style: Kasumi-ryū ninjutsu
+  Kage wins 6/30, loses 24, timeouts 0 · avg 44.6s · Kage hp left 5% · foe hp left 18% (foe 610 hp, Kage 267 hp)
+  per run: kageParries 2.6 · foeParries 0.6 · kageCrits 6.9 · foeCrits 4.2 · foeBroken 0.2 · kageBroken 0 · spamPunish 0.3 · throws 0 · styleStrings 16.7 · dmgToFoe 502 · dmgToKage 248
+  abilities: akariCross×177 blink×18 roar×53 kunaiFan×4 petalTornado×3 poisonTrap×4 demonRequiem×1 chainReap×9 smokeStep×21 poisonKunai×20 petalBurst×10 twinFang×15 shadowFlip×4 phantomDash×1 petalCross×3 falseOpening×7 aerialDive×7 petalStorm×5 reapingArc×7 mirrorClones×2
+  texts/run: R:none 3.6 · UTSUSEMI 4.0 · R:cross/kw 1.9 · S:READ 1.6 · S:GUARD BREAK 0.2 · READ 0.2 · R:back 1.1 · CAUGHT 1.0 · OPENING 2.8 · RISING FANG 0.3 · R:move 0.3 · FALSE OPENING 0.2 · SPAM READ: MIX W / A / S / D + ATTACK 0.3
+  dmg to Kage by source/run: tw1_fwd 51 · tw2 49 · tw1 42 · tw2_diagDown 24 · cross 16 · tw4_diagUp 11 · twc 8 · proj:ab:petalBurst 7 · PETAL BURST 5 · twc_dash 5 · tw3_up 3 · proj:ab:poisonKunai 3 · p1 3 · ? 2 · ab:undefined 2 · proj:CHAIN REAP 2 · REAP 2 · p2 1 · REQUIEM 1 · PUNISH 1 · ab:smokeStep 1 · proj:ab:kunaiFan 1 · ab:reapingArc 1 · FALLING PETAL 1 · TRAP 1 · proj:ab:shadowFlip 0 · SLASH 0 · dp_fwd 0 · ab:phantomDash 0 · FANG 0 · dp 0 · ab:akariCross 0 · ab:petalTornado 0
+  strings/run:
+    5.3  fwd move:tw1_fwd move:tw2 back
+    4.2  ab:akariCross
+    2.9  move:tw1 move:tw2 back
+    2.4  move:tw1 wait:0.3 move:tw2_diagDown back
+    0.9  move:tw1 move:tw2 wait:0.24 move:tw4_diagUp back
+    0.7  move:tw2 wait:0.28 move:tw1 move:tw2_diagDown back
+    0.3  move:tw1 move:tw2 move:tw1 wait:0.22 move:tw3_up ab:akariCross

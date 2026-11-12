@@ -1,0 +1,844 @@
+{
+  "id": "VFX_Anime_Smoke_Burst",
+  "name": "Anime Smoke Burst",
+  "category": "element",
+  "element": "physical",
+  "duration": 1.2,
+  "loop": false,
+  "attach": "ground",
+  "peak": 0.016666666666666666,
+  "impact": 0.5,
+  "light": [
+    1,
+    1,
+    1
+  ],
+  "seed": 1729,
+  "layers": [
+    {
+      "name": "Left bank",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ToonPuffSheet01.png",
+      "color": [
+        255,
+        255,
+        255,
+        255
+      ],
+      "count": 3,
+      "life": [
+        62,
+        68
+      ],
+      "delay": 2,
+      "blend": "Blend",
+      "billboard": "Billboard",
+      "rotation": [
+        0,
+        0,
+        [
+          -6,
+          6
+        ]
+      ],
+      "size": [
+        1.35,
+        1.75
+      ],
+      "size_end": [
+        1.593,
+        2.065
+      ],
+      "flipbook": {
+        "x": 4,
+        "y": 4,
+        "frame_length": 4,
+        "loop": "Once",
+        "lerp": false
+      },
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          0.12
+        ],
+        "rotate": false
+      },
+      "travel": {
+        "end": [
+          [
+            -2.2,
+            -1.1
+          ],
+          [
+            0.45,
+            1.0
+          ],
+          [
+            -0.5,
+            -0.2
+          ]
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "fade_in": 0,
+      "fade_out": 3,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Alpha.vfxmat.json"
+    },
+    {
+      "name": "Right bank",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ToonPuffSheet01.png",
+      "color": [
+        255,
+        255,
+        255,
+        255
+      ],
+      "count": 3,
+      "life": [
+        62,
+        68
+      ],
+      "delay": 2,
+      "blend": "Blend",
+      "billboard": "Billboard",
+      "rotation": [
+        0,
+        0,
+        [
+          -6,
+          6
+        ]
+      ],
+      "size": [
+        1.35,
+        1.75
+      ],
+      "size_end": [
+        1.593,
+        2.065
+      ],
+      "flipbook": {
+        "x": 4,
+        "y": 4,
+        "frame_length": 4,
+        "loop": "Once",
+        "lerp": false
+      },
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          0.12
+        ],
+        "rotate": false
+      },
+      "travel": {
+        "end": [
+          [
+            1.1,
+            2.2
+          ],
+          [
+            0.45,
+            1.0
+          ],
+          [
+            -0.5,
+            -0.2
+          ]
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "fade_in": 0,
+      "fade_out": 3,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Alpha.vfxmat.json"
+    },
+    {
+      "name": "Low rollers",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ToonPuffSheet01.png",
+      "color": [
+        255,
+        255,
+        255,
+        255
+      ],
+      "count": 6,
+      "life": [
+        50,
+        58
+      ],
+      "delay": 2,
+      "blend": "Blend",
+      "billboard": "Billboard",
+      "rotation": [
+        0,
+        0,
+        [
+          -6,
+          6
+        ]
+      ],
+      "size": [
+        0.6,
+        0.9
+      ],
+      "size_end": [
+        0.708,
+        1.062
+      ],
+      "flipbook": {
+        "x": 4,
+        "y": 4,
+        "frame_length": 3,
+        "loop": "Once",
+        "lerp": false
+      },
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          0.3
+        ],
+        "rotate": false
+      },
+      "travel": {
+        "end": [
+          [
+            -3.0,
+            3.0
+          ],
+          [
+            0.22,
+            0.4
+          ],
+          [
+            0.1,
+            0.5
+          ]
+        ],
+        "easing": "EaseOutQuartic"
+      },
+      "fade_in": 0,
+      "fade_out": 3,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Alpha.vfxmat.json"
+    },
+    {
+      "name": "Contact pop",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ToonPuff01.png",
+      "color": [
+        255,
+        255,
+        255,
+        255
+      ],
+      "life": 9,
+      "delay": 1,
+      "blend": "Blend",
+      "billboard": "Billboard",
+      "position": [
+        0,
+        0.32,
+        0
+      ],
+      "scale_start": [
+        1.2,
+        0.7,
+        1
+      ],
+      "scale_end": [
+        2.3,
+        1.1,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 4,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Alpha.vfxmat.json"
+    },
+    {
+      "name": "Contact burst",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Impact01.png",
+      "color": [
+        255,
+        255,
+        255,
+        255
+      ],
+      "life": 6,
+      "delay": 0,
+      "blend": "Blend",
+      "billboard": "Billboard",
+      "position": [
+        0,
+        0.3,
+        0
+      ],
+      "scale_start": [
+        1.4,
+        0.7,
+        1
+      ],
+      "scale_end": [
+        2.8,
+        1.2,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseTile01.png",
+      "fade_in": 0,
+      "fade_out": 2,
+      "cutoff": {
+        "start": 0.2,
+        "end": 0.95,
+        "easing": "EaseInQuadratic"
+      },
+      "edge": {
+        "color": [
+          190,
+          186,
+          228,
+          255
+        ],
+        "threshold": 0.06,
+        "scaling": 1
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Alpha.vfxmat.json"
+    },
+    {
+      "name": "Contact flash",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Flare01.png",
+      "color": [
+        255,
+        255,
+        255,
+        255
+      ],
+      "life": 4,
+      "delay": 1,
+      "size": 1.8,
+      "size_curve": [
+        [
+          0,
+          0.55
+        ],
+        [
+          25,
+          1
+        ],
+        [
+          100,
+          0.15
+        ]
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "fade_in": 0,
+      "fade_out": 2.4,
+      "emissive": 1.2,
+      "position": [
+        0,
+        0.3,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Dome stroke left",
+      "renderer": "Ring",
+      "color": [
+        255,
+        255,
+        255,
+        255
+      ],
+      "life": 12,
+      "delay": 0,
+      "billboard": "Billboard",
+      "blend": "Blend",
+      "ring": {
+        "vertices": 64,
+        "outer": [
+          1.5,
+          0
+        ],
+        "inner": [
+          1.44,
+          0
+        ],
+        "center_ratio": 0.5,
+        "outer_color": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "center_color": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "inner_color": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "angle_start": [
+          -88,
+          -63.0
+        ],
+        "angle_end": [
+          -30,
+          -55.0
+        ],
+        "angle_easing": "EaseInQuadratic",
+        "angle_fade": [
+          0,
+          6
+        ]
+      },
+      "size_curve": [
+        [
+          0,
+          0.75
+        ],
+        [
+          22,
+          1.0
+        ],
+        [
+          100,
+          1.1
+        ]
+      ],
+      "fade_in": 0,
+      "fade_out": 4.800000000000001,
+      "position": [
+        0,
+        0.2,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Alpha.vfxmat.json"
+    },
+    {
+      "name": "Dome stroke right",
+      "renderer": "Ring",
+      "color": [
+        255,
+        255,
+        255,
+        255
+      ],
+      "life": 12,
+      "delay": 0,
+      "billboard": "Billboard",
+      "blend": "Blend",
+      "ring": {
+        "vertices": 64,
+        "outer": [
+          1.5,
+          0
+        ],
+        "inner": [
+          1.44,
+          0
+        ],
+        "center_ratio": 0.5,
+        "outer_color": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "center_color": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "inner_color": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "angle_start": [
+          30,
+          55.0
+        ],
+        "angle_end": [
+          88,
+          63.0
+        ],
+        "angle_easing": "EaseInQuadratic",
+        "angle_fade": [
+          0,
+          6
+        ]
+      },
+      "size_curve": [
+        [
+          0,
+          0.75
+        ],
+        [
+          22,
+          1.0
+        ],
+        [
+          100,
+          1.1
+        ]
+      ],
+      "fade_in": 0,
+      "fade_out": 4.800000000000001,
+      "position": [
+        0,
+        0.2,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Alpha.vfxmat.json"
+    },
+    {
+      "name": "Outer stroke left",
+      "renderer": "Ring",
+      "color": [
+        255,
+        255,
+        255,
+        255
+      ],
+      "life": 12,
+      "delay": 3,
+      "billboard": "Billboard",
+      "blend": "Blend",
+      "ring": {
+        "vertices": 64,
+        "outer": [
+          2.05,
+          0
+        ],
+        "inner": [
+          2.01,
+          0
+        ],
+        "center_ratio": 0.5,
+        "outer_color": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "center_color": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "inner_color": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "angle_start": [
+          -80,
+          -68.0
+        ],
+        "angle_end": [
+          -48,
+          -60.0
+        ],
+        "angle_easing": "EaseInQuadratic",
+        "angle_fade": [
+          0,
+          6
+        ]
+      },
+      "size_curve": [
+        [
+          0,
+          0.55
+        ],
+        [
+          35,
+          0.95
+        ],
+        [
+          100,
+          1.12
+        ]
+      ],
+      "fade_in": 0,
+      "fade_out": 4.800000000000001,
+      "position": [
+        0,
+        0.2,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Alpha.vfxmat.json"
+    },
+    {
+      "name": "Outer stroke right",
+      "renderer": "Ring",
+      "color": [
+        255,
+        255,
+        255,
+        255
+      ],
+      "life": 12,
+      "delay": 3,
+      "billboard": "Billboard",
+      "blend": "Blend",
+      "ring": {
+        "vertices": 64,
+        "outer": [
+          2.05,
+          0
+        ],
+        "inner": [
+          2.01,
+          0
+        ],
+        "center_ratio": 0.5,
+        "outer_color": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "center_color": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "inner_color": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "angle_start": [
+          48,
+          60.0
+        ],
+        "angle_end": [
+          80,
+          68.0
+        ],
+        "angle_easing": "EaseInQuadratic",
+        "angle_fade": [
+          0,
+          6
+        ]
+      },
+      "size_curve": [
+        [
+          0,
+          0.55
+        ],
+        [
+          35,
+          0.95
+        ],
+        [
+          100,
+          1.12
+        ]
+      ],
+      "fade_in": 0,
+      "fade_out": 4.800000000000001,
+      "position": [
+        0,
+        0.2,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Alpha.vfxmat.json"
+    },
+    {
+      "name": "Ground streaks",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ToonSwoosh01.png",
+      "color": [
+        255,
+        255,
+        255,
+        255
+      ],
+      "life": 16,
+      "delay": 0,
+      "blend": "Blend",
+      "billboard": "Billboard",
+      "position": [
+        0,
+        0.14,
+        0
+      ],
+      "scale_start": [
+        4.0,
+        2.6,
+        1
+      ],
+      "scale_end": [
+        6.6,
+        3.2,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 8,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Alpha.vfxmat.json"
+    },
+    {
+      "name": "Floor shove",
+      "renderer": "Ring",
+      "color": [
+        255,
+        255,
+        255,
+        170
+      ],
+      "life": 10,
+      "delay": 1,
+      "billboard": "Fixed",
+      "rotation": [
+        -80,
+        0,
+        0
+      ],
+      "ring": {
+        "outer": [
+          1,
+          0
+        ],
+        "inner": {
+          "start": [
+            0.9,
+            0
+          ],
+          "end": [
+            0.97,
+            0
+          ]
+        },
+        "center_ratio": 0.8,
+        "outer_color": [
+          255,
+          255,
+          255,
+          85
+        ],
+        "center_color": [
+          255,
+          255,
+          255,
+          170
+        ],
+        "inner_color": [
+          255,
+          255,
+          255,
+          0
+        ]
+      },
+      "size": 2.1,
+      "size_curve": [
+        [
+          0,
+          0.12
+        ],
+        [
+          35,
+          0.72
+        ],
+        [
+          100,
+          1
+        ]
+      ],
+      "fade_in": 0,
+      "fade_out": 7.0,
+      "blend": "Blend",
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Alpha.vfxmat.json"
+    },
+    {
+      "name": "Spat blobs",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ToonPuff01.png",
+      "color": [
+        255,
+        255,
+        255,
+        255
+      ],
+      "count": 9,
+      "life": [
+        24,
+        34
+      ],
+      "delay": 2,
+      "blend": "Blend",
+      "billboard": "Billboard",
+      "size": [
+        0.14,
+        0.26
+      ],
+      "size_end": [
+        0.06,
+        0.12
+      ],
+      "easing": "EaseInQuadratic",
+      "forces": [
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            -0.0032,
+            0
+          ]
+        }
+      ],
+      "fade_in": 0,
+      "fade_out": 6,
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          0.2
+        ],
+        "rotate": false
+      },
+      "travel": {
+        "end": [
+          [
+            -1.8,
+            1.8
+          ],
+          [
+            1.6,
+            2.8
+          ],
+          [
+            -0.2,
+            0.2
+          ]
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Alpha.vfxmat.json"
+    }
+  ],
+  "design": "A hard white starburst and flash squash onto the floor; cel-shaded white cloud banks then ease out left and right, leaving a hollow dome of clear air traced by broken white strokes; wind streaks fan along the floor, blobs of smoke spit up and fall, and the banks tear into hard-edged chunks.",
+  "delivery": {
+    "kind": "area"
+  },
+  "screen": {
+    "shake": 0.4,
+    "flash_frames": 0,
+    "hitstop": 0.03
+  }
+}

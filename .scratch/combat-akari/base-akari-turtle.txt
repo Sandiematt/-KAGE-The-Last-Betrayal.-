@@ -1,0 +1,4 @@
+akari vs turtle bot · act2.boss · normal · gear 4 · style: none
+  Kage wins 0/8, loses 8, timeouts 0 · avg 30.3s · Kage hp left 0% · foe hp left 81% (foe 732 hp, Kage 267 hp)
+  per run: kageParries 3.1 · foeParries 0.5 · kageCrits 3.1 · foeCrits 3.5 · foeBroken 0 · kageBroken 2.6 · spamPunish 0 · throws 0.1 · styleStrings 0 · dmgToFoe 142 · dmgToKage 234
+  abilities: blink×15 smokeStep×18 reapingArc×18 shadowFlip×9 twinFang×17 poisonKunai×8 chainReap×5 roar×1 poisonTrap×1

@@ -1,0 +1,4 @@
+[kuroe turtle] kuroe vs turtle bot · act1.sub1 · normal · gear 2 · style: Bōjutsu · Kukishin-ryū
+[kuroe turtle]   Kage wins 0/20, loses 20, timeouts 0 · avg 47.9s · Kage hp left 0% · foe hp left 71% (foe 403 hp, Kage 249 hp)
+[kuroe turtle]   per run: kageParries 4 · foeParries 8.1 · kageCrits 3.3 · foeCrits 3.8 · foeBroken 0 · kageBroken 2 · spamPunish 0 · throws 1.4 · styleStrings 24.2 · dmgToFoe 116 · dmgToKage 241
+[kuroe turtle]   abilities: censure×110 roar×2

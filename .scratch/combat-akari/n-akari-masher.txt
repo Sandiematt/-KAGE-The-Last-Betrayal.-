@@ -1,0 +1,4 @@
+akari vs masher bot · act2.boss · normal · gear 4 · style: none
+  Kage wins 0/8, loses 8, timeouts 0 · avg 29.6s · Kage hp left 0% · foe hp left 39% (foe 634 hp, Kage 267 hp)
+  per run: kageParries 0 · foeParries 1.8 · kageCrits 3 · foeCrits 6.3 · foeBroken 0 · kageBroken 0 · spamPunish 2.6 · throws 0 · styleStrings 0 · dmgToFoe 389 · dmgToKage 275
+  abilities: blink×9 twinFang×4 poisonKunai×8 roar×11 petalBurst×1 kunaiFan×3 reapingArc×3 falseOpening×2 chainReap×7 poisonTrap×1 petalStorm×1 smokeStep×3 aerialDive×3 shadowFlip×1 petalCross×1

@@ -1,0 +1,48 @@
+tsugumi vs masher bot · act2.sub1 · normal · gear 4 · style: none
+  Kage wins 8/8, loses 0, timeouts 0 · avg 20.2s · Kage hp left 66% · foe hp left 0% (foe 381 hp, Kage 267 hp)
+  per run: kageParries 0 · foeParries 0 · kageCrits 4.6 · foeCrits 3.6 · foeBroken 0 · kageBroken 0 · spamPunish 1 · throws 0 · styleStrings 0 · dmgToFoe 386 · dmgToKage 90
+  abilities: smokeStep×15 courierStep×15 roar×8 lunge×3
+tsugumi vs fighter bot · act2.sub1 · normal · gear 4 · style: none
+  Kage wins 8/8, loses 0, timeouts 0 · avg 29.3s · Kage hp left 44% · foe hp left 0% (foe 381 hp, Kage 267 hp)
+  per run: kageParries 1.4 · foeParries 0 · kageCrits 4.3 · foeCrits 2.3 · foeBroken 0 · kageBroken 0 · spamPunish 0.5 · throws 0 · styleStrings 0 · dmgToFoe 396 · dmgToKage 150
+  abilities: smokeStep×18 courierStep×18 roar×8 lunge×4
+tsugumi vs turtle bot · act2.sub1 · normal · gear 4 · style: none
+  Kage wins 2/8, loses 6, timeouts 0 · avg 48.2s · Kage hp left 2% · foe hp left 34% (foe 381 hp, Kage 267 hp)
+  per run: kageParries 7.8 · foeParries 1.5 · kageCrits 5.4 · foeCrits 7 · foeBroken 0 · kageBroken 5.1 · spamPunish 0 · throws 0 · styleStrings 0 · dmgToFoe 255 · dmgToKage 240
+  abilities: smokeStep×37 courierStep×37 roar×5 lunge×10
+sayo vs masher bot · act2.sub2 · normal · gear 4 · style: none
+  Kage wins 3/8, loses 5, timeouts 0 · avg 22s · Kage hp left 12% · foe hp left 15% (foe 426 hp, Kage 267 hp)
+  per run: kageParries 0 · foeParries 1.1 · kageCrits 3 · foeCrits 5.1 · foeBroken 0 · kageBroken 0 · spamPunish 3.9 · throws 0 · styleStrings 0 · dmgToFoe 366 · dmgToKage 241
+  abilities: twinFang×21 halfFang×21 roar×8 counterStance×5
+sayo vs fighter bot · act2.sub2 · normal · gear 4 · style: none
+  Kage wins 7/8, loses 1, timeouts 0 · avg 36.7s · Kage hp left 27% · foe hp left 1% (foe 426 hp, Kage 267 hp)
+  per run: kageParries 1.1 · foeParries 1.3 · kageCrits 5 · foeCrits 1.6 · foeBroken 0 · kageBroken 0 · spamPunish 0.6 · throws 0 · styleStrings 0 · dmgToFoe 432 · dmgToKage 192
+  abilities: twinFang×34 halfFang×34 roar×8 counterStance×7
+sayo vs turtle bot · act2.sub2 · normal · gear 4 · style: none
+  Kage wins 1/8, loses 7, timeouts 0 · avg 53.3s · Kage hp left 3% · foe hp left 39% (foe 426 hp, Kage 267 hp)
+  per run: kageParries 3.8 · foeParries 2.6 · kageCrits 6 · foeCrits 4 · foeBroken 0 · kageBroken 1.9 · spamPunish 0 · throws 2.5 · styleStrings 0 · dmgToFoe 260 · dmgToKage 241
+  abilities: twinFang×81 halfFang×81 roar×5 counterStance×18
+utsushi vs masher bot · act2.sub3 · normal · gear 4 · style: none
+  Kage wins 7/8, loses 1, timeouts 0 · avg 22.8s · Kage hp left 31% · foe hp left 1% (foe 392 hp, Kage 267 hp)
+  per run: kageParries 0 · foeParries 0.5 · kageCrits 3 · foeCrits 5 · foeBroken 0 · kageBroken 0 · spamPunish 3.3 · throws 0 · styleStrings 0 · dmgToFoe 395 · dmgToKage 189
+  abilities: blink×18 stolenBlink×18 roar×8 twinFang×11 stolenFang×11
+utsushi vs fighter bot · act2.sub3 · normal · gear 4 · style: none
+  Kage wins 8/8, loses 0, timeouts 0 · avg 33.1s · Kage hp left 34% · foe hp left 0% (foe 392 hp, Kage 267 hp)
+  per run: kageParries 0.9 · foeParries 0 · kageCrits 3.4 · foeCrits 3.8 · foeBroken 0 · kageBroken 0 · spamPunish 0.3 · throws 0 · styleStrings 0 · dmgToFoe 400 · dmgToKage 176
+  abilities: blink×22 stolenBlink×22 roar×8 twinFang×11 stolenFang×11
+utsushi vs turtle bot · act2.sub3 · normal · gear 4 · style: none
+  Kage wins 2/8, loses 6, timeouts 0 · avg 47.5s · Kage hp left 1% · foe hp left 17% (foe 392 hp, Kage 267 hp)
+  per run: kageParries 7.4 · foeParries 0.4 · kageCrits 8.1 · foeCrits 5.6 · foeBroken 0 · kageBroken 4.3 · spamPunish 0 · throws 0.3 · styleStrings 0 · dmgToFoe 327 · dmgToKage 241
+  abilities: blink×50 stolenBlink×50 roar×7 twinFang×24 stolenFang×24
+kasane vs masher bot · act2.sub4 · normal · gear 4 · style: none
+  Kage wins 4/8, loses 4, timeouts 0 · avg 31.6s · Kage hp left 4% · foe hp left 17% (foe 515 hp, Kage 267 hp)
+  per run: kageParries 0 · foeParries 1.6 · kageCrits 3.4 · foeCrits 7.1 · foeBroken 0 · kageBroken 0 · spamPunish 4.5 · throws 0 · styleStrings 0 · dmgToFoe 429 · dmgToKage 261
+  abilities: twinFang×19 ledgerFang×19 roar×7 smokeStep×7 ledgerStep×7
+kasane vs fighter bot · act2.sub4 · normal · gear 4 · style: none
+  Kage wins 5/8, loses 3, timeouts 0 · avg 37.1s · Kage hp left 17% · foe hp left 7% (foe 515 hp, Kage 267 hp)
+  per run: kageParries 1.1 · foeParries 0 · kageCrits 5.8 · foeCrits 2 · foeBroken 0 · kageBroken 0 · spamPunish 0.5 · throws 0 · styleStrings 0 · dmgToFoe 487 · dmgToKage 220
+  abilities: twinFang×23 ledgerFang×23 roar×8 smokeStep×7 ledgerStep×7
+kasane vs turtle bot · act2.sub4 · normal · gear 4 · style: none
+  Kage wins 0/8, loses 8, timeouts 0 · avg 50.1s · Kage hp left 0% · foe hp left 41% (foe 515 hp, Kage 267 hp)
+  per run: kageParries 5.8 · foeParries 1 · kageCrits 7.4 · foeCrits 5.4 · foeBroken 0 · kageBroken 3.5 · spamPunish 0 · throws 0.9 · styleStrings 0 · dmgToFoe 306 · dmgToKage 239
+  abilities: twinFang×67 ledgerFang×67 roar×4 smokeStep×6 ledgerStep×6

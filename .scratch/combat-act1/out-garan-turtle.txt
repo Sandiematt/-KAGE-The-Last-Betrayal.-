@@ -1,0 +1,4 @@
+[garan turtle] garan vs turtle bot · act1.sub2 · normal · gear 2 · style: Karate · Sumō
+[garan turtle]   Kage wins 0/20, loses 20, timeouts 0 · avg 39.6s · Kage hp left 0% · foe hp left 82% (foe 470 hp, Kage 249 hp)
+[garan turtle]   per run: kageParries 2 · foeParries 0.7 · kageCrits 2.5 · foeCrits 5 · foeBroken 0.2 · kageBroken 3.7 · spamPunish 0 · throws 4.5 · styleStrings 8.8 · dmgToFoe 80 · dmgToKage 240
+[garan turtle]   abilities: stormBreak×101 stormFist×101 garanTsuppari×88

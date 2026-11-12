@@ -1,0 +1,3 @@
+[shiden turtle] shiden vs turtle bot · act1.sub4 · normal · gear 2 · style: Sōjutsu · Hōzōin-ryū
+[shiden turtle]   Kage wins 0/70, loses 70, timeouts 0 · avg 51.3s · Kage hp left 0% · foe hp left 65% (foe 448 hp, Kage 249 hp)
+[shiden turtle]   per run: kageParries 3.8 · foeParries 3.5 · kageCrits 4.1 · foeCrits 9.2 · foeBroken 0 · kageBroken 6.2 · spamPunish 0 · throws 0.6 · styleStrings 16.4 · dmgToFoe 158 · dmgToKage 235

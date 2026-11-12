@@ -1,10 +1,19 @@
-// the scarf: a red band wound twice round the neck (n0 the neck's base, n1 up toward the head). Its two long tails are
-// cloth (the Cloth chains set up in 20-fighter.js), so they stream with the wind; this draws only the wound band.
-function animeScarfWrap(ctx, S, A, U, n0, n1) {
-  const w0 = { x: lerp(n0.x, n1.x, 0.05), y: lerp(n0.y, n1.y, 0.05) }, w1 = { x: lerp(n0.x, n1.x, 0.75), y: lerp(n0.y, n1.y, 0.75) };
-  celFill(ctx, () => animeCapsule(ctx, w0, w1, 6.2 * U, 5.2 * U, 0.6 * U, 0.5), ['#8e1a1f', ANIME.scarf, '#ea6a5f'], A, { sd: 3.4 * U, hd: 1 * U, detail: (g) => {
-    g.strokeStyle = '#6e1216'; g.lineWidth = 1 * A.s; g.beginPath();
-    const mx = lerp(w0.x, w1.x, 0.5), my = lerp(w0.y, w1.y, 0.5);
-    g.moveTo(mx + S.nx * 6 * U - S.ux * 1.4 * U, my + S.ny * 6 * U - S.uy * 1.4 * U); g.quadraticCurveTo(mx, my + 1.6 * U, mx - S.nx * 6 * U + S.ux * 1.6 * U, my - S.ny * 6 * U + S.uy * 1.6 * U); g.stroke();
+/* ---- Kage's scarf (kageBody): a red scarf wound high round the neck. Its two long tails are cloth (the chains set up
+   in 20-fighter.js), so they stream with the wind; this draws the wound band in two passes: the cowl standing behind
+   the nape (before the head), then the fold crossing under the jaw (after it), so the chin sits down into the scarf. ---- */
+function _kgScarf(f, ctx, K, front) {
+  const P = _kgP(K), s = K.s, flat = K.A.flat;
+  if (!front) {
+    const cowl = [P(0.94, -9.4), P(1.14, -13.2), P(1.36, -10.6, 1), P(1.3, -2), P(1.2, 5), P(1.0, 8), P(0.9, 0)];
+    _kgPart(ctx, K, () => _kgShape(ctx, cowl), KG.scarf, { sd: 4 * s, hd: 1 * s, line: KG.lineScarf, detail: flat ? null : (g) => {
+      _kgLine(g, [P(1.3, -9.6), P(1.1, -6), P(0.98, -8.4)], KG.scarf[0], 1.1 * s);
+    } });
+    return;
+  }
+  const fold = [P(1.25, -10, 1), P(1.16, -2), P(1.22, 10, 1), P(1.06, 12.8), P(0.82, 8.4, 1), P(0.93, -1), P(0.96, -11.4, 1)];
+  _kgPart(ctx, K, () => _kgShape(ctx, fold), KG.scarf, { sd: 4.2 * s, hd: 1.3 * s, line: KG.lineScarf, detail: flat ? null : (g) => {
+    _kgLine(g, [P(1.17, -9), P(1.06, 0), P(1.1, 10.6)], KG.scarf[0], 1.1 * s);
+    _kgLine(g, [P(1.05, -10), P(0.96, 0), P(0.9, 7)], KG.scarf[0], 1 * s);
+    _kgLine(g, [P(1.1, 5), P(0.98, 9.4)], KG.scarf[2], 0.9 * s);
   } });
 }

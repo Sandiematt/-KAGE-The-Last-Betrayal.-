@@ -111,6 +111,7 @@ class FightSession {
     f.baseSpeed = f.speedMul; f.role = role || null;
     f.ai = new AIController(f, this, { level: st.level, ng: st.ng, difficulty: st.difficulty, role });
     f.windupMul = f.ai.p.windup; f.recoveryMul = f.ai.p.recovery;
+    Budo.join(f, this);   // its fighting style's own posture and set-up (13-budo.js)
     return f;
   }
   enemyStats(id, role) { return Logic.enemyStats(SaveManager.data, this.cfg, id, { wave: this.wave, role }); }
@@ -188,7 +189,8 @@ class FightSession {
     this.hitLog.push({ id: m.id, t: this.time, hit: false }); if (this.hitLog.length > 24) this.hitLog.shift();
     const h = this.history, L = h.length;
     if (L >= 3 && h[L - 1] === h[L - 2] && h[L - 2] === h[L - 3]) {
-      for (const e of this.fighters) if (e.ai && e.def && e.def.adapts && e.alive && e.ai.adapted !== m.id) { e.ai.adapted = m.id; e.ai.adaptT = 8; this.fx.popText(e, 'He reads you', '#7fd0c8'); }
+      // sub-bosses and bosses read a move thrown three times running (BUDO.adapt), as any foe with `adapts` does
+      for (const e of this.fighters) if (e.ai && e.def && (e.def.adapts || BUDO.adapt[Budo.role(e)]) && e.alive && e.ai.adapted !== m.id) { e.ai.adapted = m.id; e.ai.adaptT = 8; this.fx.popText(e, 'He reads you', '#7fd0c8'); }
     }
   }
   onSpecial(f) { this.fx.slowmo(0.55, 0.35); this.fx.punch(0.05); }
@@ -442,7 +444,7 @@ class FightSession {
         StormDirector.intro(this, e);
         if (this.phaseT > 0.5 && !this.dialogue && this.mode !== 'trials') {
           this.dialogue = { id: e.def.id, name: e.name, title: e.title, text: e.def.taunt, t: 0 };
-          if (this.isBoss || this.isSub) this.fx.banner(e.name, e.title, e.accent || C.emberBright);
+          if (this.isBoss || this.isSub) { const sty = Budo.style(e); this.fx.banner(e.name, sty && sty.art ? `${e.title} · ${sty.art}` : e.title, e.accent || C.emberBright); }   // its school (FIGHT_STYLES art)
         }
         const skip = this.phaseT > 0.6 && (InputManager.pressed('punch') || InputManager.pressed('jump') || InputManager.pressed('weapon') || UIManager.skipRequested());
         if (this.phaseT > dur || skip) { this.dialogue = null; this.phase = 'round'; this.phaseT = 0; e.state = 'idle'; p.state = 'idle'; if (this.isBoss && !e.grounded) { e.y = 0; e.grounded = true; } }
@@ -507,6 +509,7 @@ class FightSession {
     WitnessBoss.step(this, dt);   // the Witness's phases, hazards, domain, HUD readings and tracker (69-witness.js)
     if (p.glow > 0) p.glow = Math.max(0, p.glow - dt * 0.5);
     // simulate
+    Budo.step(this, dt);       // reeling fighters (13-budo.js)
     RageArts.step(this, dt);   // the rage arts' arenas, Mizuchi's dragon, Reaper's clones, Shizuka's silent cuts (67-rage-arts.js)
     for (const f of this.fighters) { if (f.dissolve) { this.stepDissolve(f, dt); continue; } if (held(f)) continue; f.update(dt, this); VFX.emit(f, this.fx); }
     if (this.phase === 'fight' || this.phase === 'ko') Combat.resolve(this);

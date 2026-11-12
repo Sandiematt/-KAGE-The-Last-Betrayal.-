@@ -1,0 +1,32 @@
+[kuroe fighter] kuroe vs fighter bot · act1.sub1 · normal · gear 2 · style: Bōjutsu · Kukishin-ryū
+[kuroe fighter]   Kage wins 19/30, loses 11, timeouts 0 · avg 46.4s · Kage hp left 17% · foe hp left 8% (foe 403 hp, Kage 249 hp)
+[kuroe fighter]   per run: kageParries 1.2 · foeParries 3.9 · kageCrits 4.9 · foeCrits 3.3 · foeBroken 0 · kageBroken 0.1 · spamPunish 0.6 · throws 0 · styleStrings 19.3 · dmgToFoe 377 · dmgToKage 205
+[kuroe fighter]   abilities: censure×117 roar×30
+[kuroe parry] kuroe vs parry bot · act1.sub1 · normal · gear 2 · style: Bōjutsu · Kukishin-ryū
+[kuroe parry]   Kage wins 21/30, loses 9, timeouts 0 · avg 45.6s · Kage hp left 17% · foe hp left 6% (foe 403 hp, Kage 249 hp)
+[kuroe parry]   per run: kageParries 1.2 · foeParries 4.3 · kageCrits 5.2 · foeCrits 2.7 · foeBroken 0 · kageBroken 0 · spamPunish 0.2 · throws 0.1 · styleStrings 19.1 · dmgToFoe 383 · dmgToKage 206
+[kuroe parry]   abilities: censure×118 roar×30
+[garan fighter] garan vs fighter bot · act1.sub2 · normal · gear 2 · style: Karate · Sumō
+[garan fighter]   Kage wins 16/30, loses 14, timeouts 0 · avg 42s · Kage hp left 16% · foe hp left 11% (foe 470 hp, Kage 249 hp)
+[garan fighter]   per run: kageParries 1.8 · foeParries 0.2 · kageCrits 6.3 · foeCrits 4 · foeBroken 0.1 · kageBroken 0.7 · spamPunish 0.2 · throws 0.6 · styleStrings 10.8 · dmgToFoe 423 · dmgToKage 208
+[garan fighter]   abilities: stormBreak×85 stormFist×85 garanTsuppari×87 roar×29 charge×16
+[garan parry] garan vs parry bot · act1.sub2 · normal · gear 2 · style: Karate · Sumō
+[garan parry]   Kage wins 28/30, loses 2, timeouts 0 · avg 39.6s · Kage hp left 34% · foe hp left 1% (foe 470 hp, Kage 249 hp)
+[garan parry]   per run: kageParries 4.5 · foeParries 0.4 · kageCrits 8.1 · foeCrits 3.9 · foeBroken 0.4 · kageBroken 0.1 · spamPunish 0.1 · throws 0.4 · styleStrings 10.8 · dmgToFoe 474 · dmgToKage 164
+[garan parry]   abilities: stormBreak×79 stormFist×79 garanTsuppari×72 roar×30 charge×13
+[hisame fighter] hisame vs fighter bot · act1.sub3 · normal · gear 2 · style: Tessenjutsu
+[hisame fighter]   Kage wins 13/30, loses 17, timeouts 0 · avg 41.5s · Kage hp left 10% · foe hp left 12% (foe 426 hp, Kage 249 hp)
+[hisame fighter]   per run: kageParries 2.1 · foeParries 1.9 · kageCrits 4.4 · foeCrits 4.3 · foeBroken 0 · kageBroken 0.1 · spamPunish 0.3 · throws 0 · styleStrings 13.6 · dmgToFoe 378 · dmgToKage 227
+[hisame fighter]   abilities: thunderSwing×120 lightningCut×120 roar×29 smokeBomb×29 hisameKocho×68
+[hisame parry] hisame vs parry bot · act1.sub3 · normal · gear 2 · style: Tessenjutsu
+[hisame parry]   Kage wins 15/30, loses 15, timeouts 0 · avg 39.3s · Kage hp left 17% · foe hp left 12% (foe 426 hp, Kage 249 hp)
+[hisame parry]   per run: kageParries 3.4 · foeParries 1.6 · kageCrits 4.6 · foeCrits 4.4 · foeBroken 0 · kageBroken 0 · spamPunish 0.1 · throws 0 · styleStrings 12.8 · dmgToFoe 380 · dmgToKage 210
+[hisame parry]   abilities: hisameKocho×69 thunderSwing×93 lightningCut×93 roar×29 smokeBomb×33
+[shiden fighter] shiden vs fighter bot · act1.sub4 · normal · gear 2 · style: Sōjutsu · Hōzōin-ryū
+[shiden fighter]   Kage wins 12/30, loses 18, timeouts 0 · avg 51.5s · Kage hp left 9% · foe hp left 15% (foe 470 hp, Kage 249 hp)
+[shiden fighter]   per run: kageParries 2.9 · foeParries 2.3 · kageCrits 6 · foeCrits 5.8 · foeBroken 0 · kageBroken 1.6 · spamPunish 0.5 · throws 0 · styleStrings 15.1 · dmgToFoe 403 · dmgToKage 226
+[shiden fighter]   abilities: stormBreak×136 vanguardBreak×136 shidenBrace×98 roar×30 vanguardGuard×33
+[shiden parry] shiden vs parry bot · act1.sub4 · normal · gear 2 · style: Sōjutsu · Hōzōin-ryū
+[shiden parry]   Kage wins 27/30, loses 3, timeouts 0 · avg 46s · Kage hp left 27% · foe hp left 1% (foe 470 hp, Kage 249 hp)
+[shiden parry]   per run: kageParries 5.3 · foeParries 2.3 · kageCrits 8.4 · foeCrits 3.8 · foeBroken 0 · kageBroken 0.4 · spamPunish 0.1 · throws 0 · styleStrings 14.5 · dmgToFoe 470 · dmgToKage 180
+[shiden parry]   abilities: stormBreak×120 vanguardBreak×120 shidenBrace×85 roar×30 vanguardGuard×40

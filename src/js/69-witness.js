@@ -26,6 +26,14 @@
    WitnessBoss is the glue the engine calls (step, input, phase, onHit, onKO, camera, track); its hazards are drawn in
    69b-witness-draw.js. As with Takashi's and Akari's, a sheet plays only once its image has really decoded; until then,
    and always in the headless tests, the canvas effect draws instead.
+   The combat redesign (its martial art, 41-styles/witness.js, FIGHT_STYLES.witness) adds, here:
+     WitnessStyle    posture of a very long fight: poise by phase (it falls as they advance, and is worse in its own
+                     recovery or after a swing at nothing), the long stagger of a broken posture, the string that resumes
+                     after a parried beat, the riposte after a cut it turned aside
+     WitnessBoss.mirror   phase I's mirror: Kage's latest string translated to the greatsword and played back (a repeated
+                     string is read instead); WitnessBoss.calm and WITNESS_CONTROL: the fair window after a modifier and
+                     the gap between control moves; WitnessBoss.onThreat: the duel's early read of a cut
+     Echo Combo      beat by beat parryable (BOSS_ABILITIES.echoCombo, `from`), Mirror Guard (counter stance and riposte)
    Sim-side code changes fighters and session state; everything named draw* only reads. */
 
 const WTC = {
@@ -237,7 +245,13 @@ const WitnessAttack = {
     const m = WITNESS_MOVES[id], W = w.wit;
     let mul = (ai && ai.p ? ai.p.windup : 1) * (spec.tellMul || 1);
     if (W && W.phase >= 3 && f === w.enemy) mul *= rand(WITNESS_ADAPT.jitter[0], WITNESS_ADAPT.jitter[1]);   // phase IV varies its timing
-    const st = Logic.witnessStages(id, mul), total = st[3].at + st[3].dur;
+    const st = Logic.witnessStages(id, mul);
+    // spec.durs: { telegraph, active } seconds in place of the move's own (a string resumed after a parried beat)
+    if (spec.durs) {
+      let at = 0;
+      for (const S of st) { if (spec.durs[S.stage] != null) S.dur = spec.durs[S.stage]; S.at = at; at += S.dur; }
+    }
+    const total = st[3].at + st[3].dur;
     const atk = { id, m, stages: st, stage: null, t: 0, data: {}, log: [] };
     if (W && f === w.enemy) { W.atkLog.push(atk.log); if (W.atkLog.length > 30) W.atkLog.shift(); if (id !== 'timelineBreak' && id !== 'echoGenesis' && id !== 'phantomCounter') W.history.push(id); }
     const L = WitnessFX.look(f);
@@ -247,6 +261,7 @@ const WitnessAttack = {
         const p = typeof spec.pose === 'function' ? spec.pose(atk.stage || 'telegraph', atk.u || 0, f) : spec.pose;
         return p || (atk.stage === 'telegraph' ? WT_POSE.hand : atk.stage === 'active' ? WT_POSE.cut : WT_POSE.hand);
       },
+      onCounter: spec.onCounter,
       start(f) {
         if (w.player && !spec.noFace) f.facing = w.player.x > f.x ? 1 : -1;
         if (!spec.quiet) { w.fx.popText(f, m.label, L.hot); AudioManager.play('teleport', { pitch: 0.7 }); }
@@ -258,6 +273,7 @@ const WitnessAttack = {
           atk.stage = stage; atk.log.push(stage);
           f.superArmor = !!spec.armor && (stage === 'startup' || stage === 'active');
           if (spec.invuln) f.invuln = stage === 'telegraph' || stage === 'startup' ? Math.max(f.invuln, 0.1) : f.invuln;
+          if (stage === 'recovery' && f === w.enemy) f.wOver = w.time + st[3].dur;   // in its own recovery its posture gives way sooner (WitnessStyle)
           if (spec.enter) spec.enter(stage, f, w, atk);
         }
         const S = st.find(x => x.stage === stage);
@@ -286,7 +302,8 @@ const WitnessPhases = {
     W.phase = idx; W.state = 'shift'; W.shiftT = 0;
     W.haloDir = idx === 1 ? -1 : idx === 3 ? 2 : 1;        // the halo reverses at 75%, races in the last phase
     W.gradeFrom = W.grade; W.gradeK = 0;                    // the arena's light crossfades into the new phase's
-    WitnessInput.clear(s); W.rageLock = 0; W.lie = null;
+    WitnessInput.clear(s); W.rageLock = 0; W.lie = null; W.comboFrom = null;
+    f.guard = 100; f.wOpen = 0; f.broken = false;   // a new phase starts with its posture whole
     this.clearHaz(s);
     W.hudGlitch = 0.8;
     if (idx === 3) W.domainNext = true;                     // the last phase opens with Echo Genesis
@@ -422,6 +439,49 @@ const WitnessDomain = {
   }
 };
 function D_OPEN() { return WITNESS_DOMAIN.open; }
+
+/* ======================================================================== */
+/* WitnessStyle: posture on a very long fight (the sim half of FIGHT_STYLES.witness, 41-styles/witness.js)   */
+/* ======================================================================== */
+// Budo.postureHit scales every blow on its posture by FIGHT_STYLES.witness.poise, which reads WitnessStyle.k: high in
+// the first phase (the Observer is hard to break) and falling as the phases advance, and worse for a moment whenever
+// it is in the recovery of its own attack or has just swung at nothing (over-committed).
+const WitnessStyle = {
+  k: 0.72,
+  base: [0.72, 0.8, 0.9, 1],
+  // a swing that found nothing: it loses `amount` posture outright (a whiffed finisher more than a whiffed cut)
+  overcommit(w, f, amount) {
+    if (!f.alive || f.broken || f.state === 'stun') return;
+    Budo.postureHit(w, f, amount / this.k, f.x, f.y - 140 * f.scale, -f.facing, w.player);
+  },
+  // every tick (WitnessBoss.step): the poise of the moment, the long stagger of a broken posture, and the string that
+  // resumes after a parried beat
+  step(s, f) {
+    const W = s.wit; if (!f.alive) return;
+    this.k = this.base[W.phase] * (f.wOver > s.time ? 1.3 : 1);
+    // broken posture: the Witness stays open (a blow that would only knock it into a short hit-stun keeps it staggered)
+    if (f.wOpen > s.time) {
+      if (f.state === 'hit') { f.setState('stun'); f.stunT = Math.max(0.1, f.wOpen - s.time); f.broken = true; }
+      else if (f.state !== 'stun') f.wOpen = 0;
+    }
+    // the answer to a cut it turned aside: the counter cut, slowed to a readable tell (a parry of it reverses the duel)
+    if (W.rip != null) {
+      if (s.time > W.rip || !f.alive || f.broken) W.rip = null;
+      else if (f.canAct() && !f.abil && !f.ai.playback && s.phase === 'fight') {
+        W.rip = null; f.facing = Math.sign(s.player.x - f.x) || f.facing;
+        const id = f.weapon().counter || 'c2';
+        if (MOVES[id] && f.startMove(id, s)) {
+          f.mdur[0] = Math.max(f.mdur[0], FIGHT_STYLES.witness ? WITNESS_DUEL.riposte : 0.36); f.telegraph = f.mdur[0]; f.wRipUntil = s.time + 1.2; f.wRipId = id;
+          s.fx.popText(f, 'DEFLECTED', WitnessFX.look(f).hot); WitnessFX.glint(f, s);
+        }
+      }
+    }
+    if (W.comboFrom != null && s.phase === 'fight' && W.state === 'fight') {
+      if (s.time > W.comboT || !f.alive) W.comboFrom = null;
+      else if (f.canAct() && !f.abil && !f.ai.playback) { const k = W.comboFrom; W.comboFrom = null; BOSS_ABILITIES.echoCombo.run(f, s, f.ai, k); }
+    }
+  }
+};
 const _wtBox = { x: 0, y: 0, w: 0, h: 0 };
 
 /* ======================================================================== */
@@ -444,7 +504,8 @@ const WitnessBoss = {
       log: [], pState: null, tauntT: 0, mods: [], hist: [], raw: null, frame: 0,
       haz: [], tiles: null, tether: null, well: null, orbit: null, frames: null,
       atkLog: [], history: [], lie: null, lieT: 6, hudGlitch: 0, fake: null, rageLock: 0, rage0: 0,
-      domain: null, domainNext: false, aura: null, auraName: null, counterT: 0, defeat: null };
+      domain: null, domainNext: false, aura: null, auraName: null, counterT: 0, defeat: null,
+      ctrlT: 0, comboFrom: null, comboT: 0, lastAb: null, mirrorT: 0 };
     return s.wit;
   },
   // FightSession.simulate, after the devices were read: the InputModifierLayer
@@ -469,6 +530,7 @@ const WitnessBoss = {
     if (W.domain) WitnessDomain.step(s, f, dt);
     // Timeline Break's replay, the moment the rewind is over
     if (W.replayNext && s.phase === 'fight' && f.alive && !f.abil && f.canAct()) { const id = W.replayNext; W.replayNext = null; BOSS_ABILITIES[id].run(f, s, f.ai, p); }
+    WitnessStyle.step(s, f);
     this.direct(s, f, p, dt);
     this.stepHaz(s, f, dt);
     if (W.fake) { W.fake.t += dt; }
@@ -477,7 +539,10 @@ const WitnessBoss = {
   },
   /* The intensity director: whenever the Witness has stood free for its phase's pace (WITNESS_PACE.idle, shorter every
      phase) it acts at once. Within reach its blade (Echo Combo) is the likeliest answer; otherwise any of its phase's
-     attacks that is off cool-down and in range. The cool-down it sets follows the phase's tempo. */
+     attacks that is off cool-down and in range, the control moves (the input modifiers, the floor, the tether, the well,
+     the pull and the rest of CONTROL_MOVES) never one on top of another: after one, the next waits CONTROL_GAP seconds
+     and none starts while a modifier is still in force (the fair window: every one is warned, has its counter-play, and
+     is never stacked on a string of cuts). The cool-down it sets follows the phase's tempo. */
   direct(s, f, p, dt) {
     const W = s.wit, ai = f.ai;
     const free = s.phase === 'fight' && W.state === 'fight' && f.alive && !f.abil && f.canAct() && !ai.playback && !ai.seq && p.alive
@@ -485,14 +550,57 @@ const WitnessBoss = {
     if (!free) { W.idleT = 0; return; }
     W.idleT = (W.idleT || 0) + dt;
     if (W.idleT < WITNESS_PACE.idle[W.phase]) return;
+    if (this.calm(s)) return;   // a modifier has just bitten: Kage gets a moment to take it in
     const dist = Math.abs(p.x - f.x), list = (ai.phaseData && ai.phaseData.abilities) || [];
     const ok = id => { const a = BOSS_ABILITIES[id]; return a && id !== 'phantomCounter' && (ai.cds[id] || 0) <= 0 && dist >= a.range[0] && dist <= a.range[1] && (!a.cond || a.cond(f, s, ai, p, dist)); };
     const ready = list.filter(ok);
     if (!ready.length) return;
-    const id = ready.includes('echoCombo') && chance(WITNESS_PACE.combo) ? 'echoCombo' : pick(ready);
-    W.idleT = 0;
+    const id = ready.includes('echoCombo') && chance(WITNESS_PACE.combo) ? 'echoCombo' : pick(ready.filter(x => x !== W.lastAb).length ? ready.filter(x => x !== W.lastAb) : ready);
+    W.idleT = 0; W.lastAb = id;
     ai.cds[id] = BOSS_ABILITIES[id].cd * ((ai.phaseData.tempo && ai.phaseData.tempo.cd) || 1);
     BOSS_ABILITIES[id].run(f, s, ai, p);
+  },
+  // the fair window: a modifier is warning or has only just bitten
+  calm(s) { const W = s.wit; return !!W && W.mods.some(m => m.t < m.warn + WITNESS_PACE.calm); },
+  // whether a control move may start now (its `cond` is wrapped with this below)
+  controlOk(s) { const W = s.wit; return !!W && s.time >= W.ctrlT && !W.mods.length && !W.tiles && !W.tether && !W.well; },
+  /* The mirror (phase I, and now and then in IV): Kage's own latest string, played back at him with his own rhythm. His
+     moves are translated to the greatsword's (a cut in a direction becomes Mugen no Ha's cut in that direction, the weapon
+     string its string, a kick or a punch stays one), a little slower than he threw them and a little lighter. Parry it
+     and its posture goes: it is his own timing, he knows it. Returns true when it started. */
+  mirrorSteps(w, p) {
+    const f = w.enemy, gs = f.weapon(), kw = p.weapon(), seq = Logic.mirrorSequence(w.hitLog), out = [];
+    for (const st of seq) {
+      const m = MOVES[st.id]; if (!m) continue;
+      let id = null;
+      if (UNARMED[st.id]) id = m.kind === 'punch' || m.kind === 'kick' ? st.id : null;
+      else if (m.aim) id = gs.dirs && gs.dirs[m.aim] && MOVES[gs.dirs[m.aim]] && MOVES[gs.dirs[m.aim]].kind === 'weapon' ? gs.dirs[m.aim] : null;
+      else if (m.kind === 'weapon') { const i = (kw.moves || []).indexOf(st.id); id = (gs.moves || [])[Math.max(0, Math.min(i, (gs.moves || []).length - 1))] || null; }
+      if (id) out.push({ id, wait: Math.max(0.1, st.wait * 1.2) });
+    }
+    return out.slice(0, 4);
+  },
+  mirror(ai, p) {
+    const f = ai.f, w = ai.world, W = w.wit;
+    if (!W || W.mirrorT > w.time || ai.playback || !f.canAct()) return false;
+    const steps = this.mirrorSteps(w, p);
+    if (!steps.length) return false;
+    // the same string a second time running: the mirror does not play it back, it has read it. The opening move of the
+    // string is adapted to (it is turned aside the moment it starts, FIGHT_STYLES.witness.respond) and it says so
+    const seq = Logic.mirrorSequence(w.hitLog), key = seq.map(x => x.id).join(' ');
+    if (W.mirrorKey === key && seq.length) {
+      W.mirrorKey = null; W.mirrorT = w.time + WITNESS_PACE.mirrorCd;
+      ai.adapted = seq[0].id; ai.adaptT = 8;
+      WitnessTracker.taunt(w, f, 'overuse'); w.fx.popText(f, 'READ', WitnessFX.look(f).hot);
+      return false;
+    }
+    W.mirrorKey = key;
+    W.mirrorT = w.time + WITNESS_PACE.mirrorCd;
+    steps[0].wait = Math.max(steps[0].wait, WITNESS_PACE.mirrorTell * ai.p.windup);
+    f.telegraph = steps[0].wait; f.facing = p.x > f.x ? 1 : -1;
+    w.fx.popText(f, 'MIRROR', WitnessFX.look(f).hot); AudioManager.play('orb', { pitch: 0.9 });
+    ai.seq = null; ai.startPlayback(steps, { speed: WITNESS_PACE.mirrorSpeed, dmg: WITNESS_PACE.mirrorDmg });
+    return !!ai.playback;
   },
   // end of FightSession.simulate: rage suppression (growth stopped, what Kage had stays)
   after(s) {
@@ -548,10 +656,12 @@ const WitnessBoss = {
   randomMod(s, f, kind) {
     const p = s.player, k = kind || pick(['bind', 'reverse', 'delay']);
     const toward = Math.sign(f.x - p.x) || 1;
+    // each carries its counter-play in its label: a bound way is only the way away (the other is free, so is the guard);
+    // a reversal leaves guard, jump and every cut alone (stand firm); a delay is led (cut or step a beat early)
     if (k === 'bind') return WitnessInput.add(s, { kind: 'bind', dir: -toward, warn: 0.55, dur: 1.1, label: `BOUND: ${-toward > 0 ? 'RIGHT' : 'LEFT'} LOCKED` });
-    if (k === 'reverse') return WitnessInput.add(s, { kind: 'reverse', warn: 0.7, dur: 1.2, label: 'REVERSED' });
+    if (k === 'reverse') return WitnessInput.add(s, { kind: 'reverse', warn: 0.7, dur: 1.2, label: 'REVERSED: STAND FIRM' });
     const set = chance(0.5) ? 'attacks' : 'movement';
-    return WitnessInput.add(s, { kind: 'delay', keys: WITNESS_INPUT.delayKeys[set], delay: WITNESS_MOVES.inputDelay.delay, warn: 0.6, dur: 1.2, label: `DELAYED: ${set.toUpperCase()}` });
+    return WitnessInput.add(s, { kind: 'delay', keys: WITNESS_INPUT.delayKeys[set], delay: WITNESS_MOVES.inputDelay.delay, warn: 0.6, dur: 1.2, label: set === 'attacks' ? 'DELAYED: CUT EARLY' : 'DELAYED: STEP EARLY' });
   },
   breakTether(s, why) {
     const t = s.wit.tether; if (!t) return;
@@ -563,7 +673,11 @@ const WitnessBoss = {
   },
   // a hit from one of the Witness's hazards (dash i-frames get through: Combat.area skips invulnerable fighters)
   strike(s, f, box, o) {
+    // o.from: a copy's cut thrown as its owner's: for the blow the owner stands where the copy does (front or back is judged
+    // from there)
+    const x0 = f.x; if (o && o.from) f.x = o.from.x;
     const hit = Combat.area(s, f, box, Object.assign({ kb: 380, up: -260, hs: 0.4, imp: 2, hsnd: 'slash', dir: f.facing }, o));
+    f.x = x0;
     if (hit && s.fx.impact && s.fx.impact.t < 0.02) s.fx.impact.col = WitnessFX.look(f).body;   // its impact frames in its phase's colour (drawing only)
     return hit;
   },
@@ -695,7 +809,8 @@ const WitnessBoss = {
             s.fx.stamp('PERFECT GUARD', p.x, p.y - 200, 3, WTC.goldHot, 'JUDGMENT DENIED');
             s.fx.impactFrame(p.x, p.y - 120, 3); s.fx.slowmo(0.35, 0.6); AudioManager.play('parry');
             p.rage = Math.min(100, p.rage + (WitnessHUD.rageLocked(s) ? 0 : 20));
-            if (f.alive) { if (f.abil) { f.abil.uninterruptible = false; f.endAbility(s); } f.setState('stun'); f.stunT = WITNESS_MOVES.finalJudgment.stagger; }
+            // the denied judgment is the Witness's greatest opening: a long stagger and its posture torn
+            if (f.alive) { if (f.abil) { f.abil.uninterruptible = false; f.endAbility(s); } f.setState('stun'); f.stunT = WITNESS_MOVES.finalJudgment.stagger; Budo.postureHit(s, f, WITNESS_MOVES.finalJudgment.posture / WitnessStyle.k, f.x, f.y - 140 * f.scale, -f.facing, p); if (f.state === 'stun') f.stunT = Math.max(f.stunT, WITNESS_MOVES.finalJudgment.stagger); }
           } else if (p.alive && p.invuln > 0 && p.state === 'dash') {
             s.fx.stamp('THROUGH', p.x, p.y - 200, 2, WTC.goldHot); s.fx.slowmo(0.4, 0.4);
           } else {
@@ -728,6 +843,13 @@ const WitnessBoss = {
   onThreat(ai, p) {
     const f = ai.f, w = ai.world;
     if (!this.is(f) || !w.wit || w.wit.state !== 'fight' || !p.move || p.move.kind === 'throw') return false;
+    // the duel (phases II-IV): it reads some of Kage's cuts the moment they start and turns them aside (FIGHT_STYLES.witness.respond
+    // raises the guard at once, so the blow falls inside the parry window); its answer follows (the style's on.parry)
+    const D = typeof WITNESS_DUEL !== 'undefined' && WITNESS_DUEL.deflect[ai.phase];
+    const can = f.grounded && f.canAct() && !f.abil && !p.move.unb && !p.move.proj && f.guard > 18;
+    // a move it has already adapted to (Kage threw it three times running) is read the moment it starts: the mirror has seen it
+    if (can && ai.adapted && ai.adapted === p.move.id) { ai.react = 0.015; ai.wDeflect = w.time; }
+    else if (D && can && chance(D)) { ai.react = 0.015; ai.wDeflect = w.time; }
     const list = ai.phaseData ? ai.phaseData.abilities : [];
     if (!list.includes('phantomCounter') || (ai.cds.phantomCounter || 0) > 0 || w.wit.counterT > w.time) return false;
     const r = WitnessTracker.read(w), key = Logic.spamKey(p.move);
@@ -756,7 +878,9 @@ const WitnessBoss = {
       pose: (stage) => (stage === 'telegraph' ? WT_POSE.low : WT_POSE.cut),
       start(c, w) { w.fx.popText(c, 'PHANTOM COUNTER', WitnessFX.look(f).hot); },
       enter(stage, c, w) { if (stage === 'startup') WitnessFX.glint(c, w); if (stage === 'active') { c.vx = c.facing * 560; AudioManager.play('swing', { pitch: 1.2 }); } },
-      active(c, w, atk) { if (!atk.data.hit) atk.data.hit = WitnessBoss.strike(w, c, fbox(c, -10, -220, 190, 220), { dmg: m.dmg * f.dmgMul, kb: 320, up: -200, stamp: 'COUNTER' }); },
+      // the cut is the owner's (Combat.area attacker f, the copy's box): the Witness's own blow, so it can be a critical
+      // (FIGHT_STYLES.witness.crit: tech 'phantom') and a parry of it turns on the Witness itself
+      active(c, w, atk) { if (!atk.data.hit) atk.data.hit = WitnessBoss.strike(w, f, fbox(c, -10, -220, 190, 220), { dmg: m.dmg * f.dmgMul, kb: 320, up: -200, stamp: 'COUNTER', tech: 'phantom', dir: c.facing, phantom: c, from: c }); },
       recovery(c, w, atk, u, dt) { c.vx = damp(c.vx, 0, 10, dt); },
       end(c) { c.life = Math.min(c.life, 0.05); } });
   },
@@ -778,46 +902,57 @@ const WitnessBoss = {
 const wtSide = (w, x) => clamp(x, w.bounds.l + 40, w.bounds.r - 40);
 Object.assign(BOSS_ABILITIES, {
   /* ---- every phase: its own blade ---- */
-  // Echo Combo: a string of cuts (3 in phase I, 4 in II and III, 5 in IV), each dashing in with its own slash; from
-  // phase III it blinks to Kage's other side between cuts. The last cut is a heavy finisher that floors him. Blockable.
+  // Echo Combo: Mugen no Ha's string, the school's heart. `cuts[look]` heavy beats (3, 3, 4, 4), each a full-body heave of
+  // the greatsword that glints a moment before it falls, lunges in and crushes a guard (`gb`); from phase III it blinks
+  // through Kage between beats. The last is an overhead cleave driven into the floor that knocks down and sends floor
+  // waves out (jump them).
+  // How to beat it: every beat can be PARRIED (a guard raised as the glint breaks). A parried beat costs its posture and
+  // it reels; in the duel phases (III and IV) the string does not end there: it comes back on the next beat, so the whole
+  // string has to be turned aside in rhythm, and each parry brings it nearer to breaking. Blocking each beat instead
+  // breaks Kage's guard by the third. A beat that whiffs leaves it over-committed (its posture takes more, WitnessStyle).
+  // `from`: the beat to resume on after a parry (a number; a fighter or nothing means the first).
   echoCombo: { id: 'echoCombo', cd: WITNESS_MOVES.echoCombo.cd, range: WITNESS_MOVES.echoCombo.range, chance: WITNESS_MOVES.echoCombo.chance,
-    // Mugen no Ha's string (21-characters/bosses/witness/weapon.js): every cut a full-body heave of the greatsword that
-    // lunges in, crushes a guard (`gb`) and shakes the floor; from phase III it blinks through Kage between cuts. The last
-    // is an overhead cleave driven into the floor that knocks down and sends floor waves out (jump them).
-    run(f, w, ai) {
-      const m = WITNESS_MOVES.echoCombo, p = w.player, look = WitnessBoss.lookOf(f), n = m.cuts[look] || 3;
+    run(f, w, ai, from) {
+      const m = WITNESS_MOVES.echoCombo, p = w.player, look = WitnessBoss.lookOf(f), total = m.cuts[look] || 3;
+      const k0 = typeof from === 'number' ? from : 0, n = total - k0, E = m.every, span = n * E + 0.04;
       const poses = [RAIKON_POSE.swingThrough, TAKASHI_POSE.cleaveLow, WT_POSE.cut, RAIKON_POSE.swingThrough], rots = [-0.3, 0.42, -0.1, 0.5];
       const reach = () => 70 * f.scale + f.weaponLen();
-      WitnessAttack.run(f, w, ai, 'echoCombo', { trail: true,
+      // the wind-up of a beat, from its start to the cut; in the last phase the heave of each beat before the cleave varies
+      // (it keeps no rhythm: WITNESS_ADAPT.jitter's spirit, a beat may come early)
+      const jit = []; for (let i = 0; i < total; i++) jit.push(look >= 3 && i < total - 1 ? rand(0.78, 1) : 1);
+      const heave = (last, kk) => (last ? m.heaveLast : m.heave) * E * jit[kk];
+      WitnessAttack.run(f, w, ai, 'echoCombo', { trail: true, quiet: k0 > 0, durs: { telegraph: k0 ? 0.14 : null, active: span },
         pose: (stage, u) => {
           if (stage === 'telegraph') return RAIKON_POSE.swingBack;
           if (stage !== 'active') return WT_POSE.cut;
-          const t = u * m.active, k = Math.min(n - 1, Math.floor(t / m.every)), v = (t - k * m.every) / m.every;
-          if (k === n - 1) return v < 0.3 ? RAIKON_POSE.overhead : RAIKON_POSE.slam;   // the cleave: raised, then driven down
-          return v < 0.22 ? RAIKON_POSE.swingBack : poses[k % poses.length];              // a heave back, then the cut thrown through
+          const t = u * span, k = Math.min(n - 1, Math.floor(t / E)), v = t - k * E, last = k0 + k === total - 1;
+          if (last) return v < heave(true, k0 + k) ? RAIKON_POSE.overhead : RAIKON_POSE.slam;   // the cleave: raised, then driven down
+          return v < heave(false, k0 + k) ? RAIKON_POSE.swingBack : poses[(k0 + k) % poses.length];   // a heave back, then the cut thrown through
         },
         telegraph(f, w, atk, u) { if (u > 0.6 && !atk.data.glint) { atk.data.glint = 1; WitnessFX.glint(f, w); } },
         active(f, w, atk, u, dt) {
-          const t = u * m.active, k = Math.floor(t / m.every), last = k === n - 1;
+          const t = u * span, k = Math.floor(t / E), kk = k0 + k, last = kk === total - 1;
           if (k < n && k !== atk.data.k) {
-            atk.data.k = k; atk.data.hit = false; atk.data.t0 = t; atk.data.fx = false;
-            if (look >= 2 && k % 2 === 1) {   // a blink through Kage to his other side
+            atk.data.k = k; atk.data.hit = false; atk.data.t0 = t; atk.data.fx = false; atk.data.glint = k === 0 && !k0 ? 1 : 0;
+            if (look >= 2 && kk % 2 === 1) {   // a blink through Kage to his other side
               WitnessFX.step(w, f, f.x);
               f.x = wtSide(w, p.x + Math.sign(p.x - f.x || 1) * 120 * f.scale);
               WitnessFX.step(w, f, f.x);
             }
             f.facing = p.x > f.x ? 1 : -1;
             f.vx = f.facing * Math.min(m.dash, Math.max(0, Math.abs(p.x - f.x) - 110 * f.scale)) / 0.16;
-            AudioManager.play('heavyswing', { pitch: last ? 0.6 : 0.78 + k * 0.05 });
+            f.telegraph = Math.max(f.telegraph, heave(last, kk));   // the eyes flash on every beat
+            AudioManager.play('heavyswing', { pitch: last ? 0.6 : 0.78 + kk * 0.05 });
           }
           f.vx = damp(f.vx, 0, 8, dt);
           if (k >= n) return;
-          const since = t - atk.data.t0, swing = last ? 0.3 * m.every : 0.22 * m.every;
+          const since = t - atk.data.t0, swing = heave(last, kk);
+          if (!atk.data.glint && since > swing - 0.15) { atk.data.glint = 1; WitnessFX.glint(f, w); }   // the glint a parry reads
           if (since < swing) return;   // the heave back before each cut
           if (!atk.data.fx) {
             atk.data.fx = true;
             const sx = f.x + f.facing * 110 * f.scale, sy = f.y - (last ? 90 : 120) * f.scale;
-            if (!WitnessFX.play(w, look >= 2 ? 'wt_slash_glitch' : 'wt_slash', sx, sy, { dir: f.facing, scale: f.scale * (last ? 1.4 : 1.05), rot: last ? 1.1 : rots[k % rots.length] })) w.fx.ring(sx, sy, 120, WitnessFX.look(f).hot, 0.25, 4);
+            if (!WitnessFX.play(w, look >= 2 ? 'wt_slash_glitch' : 'wt_slash', sx, sy, { dir: f.facing, scale: f.scale * (last ? 1.4 : 1.05), rot: last ? 1.1 : rots[kk % rots.length] })) w.fx.ring(sx, sy, 120, WitnessFX.look(f).hot, 0.25, 4);
             w.fx.shake(last ? 0.3 : 0.12);
             if (last) {   // the cleave lands: the floor splits and waves run out from the blade
               const x = f.x + f.facing * f.weaponLen() * 0.9, L = WitnessFX.look(f);
@@ -833,10 +968,12 @@ Object.assign(BOSS_ABILITIES, {
           if (!atk.data.hit && since - swing < 0.13) {
             const box = last ? fbox(f, -20, -280, reach() + 20 * f.scale, 280) : fbox(f, -30, -260, reach(), 260);
             atk.data.hit = WitnessBoss.strike(w, f, box, last
-              ? { dmg: m.finisher * f.dmgMul, kb: 600, up: -520, hs: 0.55, imp: 3, kd: 1, hsnd: 'heavy', stamp: 'ECHO CLEAVE', gb: m.finisher * m.gb }
-              : { dmg: m.dmg * f.dmgMul, kb: 320, up: -140, hs: 0.26, imp: 2, hsnd: 'heavy', gb: m.dmg * m.gb });
+              ? { dmg: m.finisher * f.dmgMul, kb: 600, up: -520, hs: 0.55, imp: 3, kd: 1, hsnd: 'heavy', stamp: 'ECHO CLEAVE', gb: m.finisher * m.gb, tech: 'echoCut', beat: kk, last: true }
+              : { dmg: m.dmg * f.dmgMul, kb: 320, up: -140, hs: 0.26, imp: 2, hsnd: 'heavy', gb: m.dmg * m.gb, tech: 'echoCut', beat: kk });
             if (atk.data.hit) { w.fx.shake(last ? 0.7 : 0.3); if (last) w.fx.slowmo(0.45, 0.35); }
           }
+          // a beat that found nothing: it has over-committed (once per beat)
+          if (!atk.data.hit && !atk.data.spent && since - swing >= 0.13) { atk.data.spent = k; WitnessStyle.overcommit(w, f, last ? 14 : 6); }
         },
         recovery(f, w, atk, u, dt) { f.vx = damp(f.vx, 0, 10, dt); } });
     } },
@@ -1210,6 +1347,48 @@ Object.assign(BOSS_ABILITIES, {
         },
         telegraph(f, w, atk, u) { if (((u * 100) | 0) % 4 === 0) WitnessFX.gather(w, f.x, f.y - f.height() * 0.7, 220, 2, chance(0.5) ? WTC.goldHot : WitnessFX.look(f).hot); } });
     } },
+  /* Mirror Guard (phases III and IV): the Witness's counter stance, Kage's own lesson from Raikon turned on him. The blade
+     comes across the body and the halo goes still (a long, readable beat: `windup`, then the stance for `stance` s).
+     Any blow from the front is turned aside (Kage is deflected, the recoil a fresh guard press can end) and answered
+     after `riposte` s by a cut that is a critical if it lands, and PARRYABLE: guard again as its glint breaks and the
+     Witness is the one who staggers, its posture torn. Left alone the stance is spent: the Witness loses `spent` posture
+     and stands open. Bait it, wait it out, or turn the riposte back. */
+  mirrorGuard: { id: 'mirrorGuard', cd: WITNESS_MOVES.mirrorGuard.cd, range: WITNESS_MOVES.mirrorGuard.range, chance: WITNESS_MOVES.mirrorGuard.chance,
+    cond: (f, w, ai) => ai.phase >= 2,
+    run(f, w, ai) {
+      const m = WITNESS_MOVES.mirrorGuard, L = WitnessFX.look(f), T = Math.max(WITNESS_ADAPT.minTell, m.windup * ai.p.windup), S = m.stance * (ai.phase >= 3 ? m.stance4 : 1);
+      f.telegraph = T;
+      f.startAbility({ dur: T + S + m.spentT, rate: 18, el: L.el,
+        pose: f => (f.abil && f.abil.cut ? WT_POSE.cut : f.abil && f.abil.rip != null ? WT_POSE.low : f.abil && f.abil.spentAt != null ? WT_POSE.hand : RAIKON_POSE.guard),
+        start(f) { f.facing = w.player.x > f.x ? 1 : -1; w.fx.popText(f, m.label, L.hot); AudioManager.play('block', { pitch: 1.3 }); f.guardTint = L.hot; },
+        update(f, w, t, dt) {
+          f.vx = damp(f.vx, 0, 12, dt);
+          if (this.rip == null) {
+            if (t < T) { if (((t * 60) | 0) % 6 === 0) WitnessFX.gather(w, f.x, f.y - f.height() * 0.6, 110, 1, L.hot); return; }
+            if (this.spentAt == null) {
+              if (!this.set) { this.set = 1; f.counterStance = true; w.fx.ring(f.x, f.y - 110 * f.scale, 120, L.hot, 0.3, 3); }
+              if (t < T + S) { if (((t * 60) | 0) % 8 === 0) WitnessFX.gather(w, f.x + f.facing * 40, f.y - 120 * f.scale, 70, 1, L.hot); return; }
+              // the stance is spent: the guard drops, posture torn, the body open
+              this.spentAt = t; f.counterStance = false; f.wOver = w.time + m.spentT;
+              WitnessStyle.overcommit(w, f, m.spent);
+              if (f.abil === this) { w.fx.popText(f, 'SPENT', C.gold); AudioManager.play('land'); }
+            }
+            return;
+          }
+          // the riposte: its tell, the glint, then the cut that answers a turned blow
+          const k = t - this.rip;
+          if (k < m.riposte) { if (!this.g && k > m.riposte - 0.14) { this.g = 1; WitnessFX.glint(f, w); } return; }
+          if (!this.cut) { this.cut = 1; f.vx = f.facing * 880; AudioManager.play('heavyswing', { pitch: 0.9 }); w.fx.shake(0.2); }
+          if (!this.hit && k < m.riposte + 0.16) this.hit = Combat.area(w, f, fbox(f, -10, -250, 215, 250), { dmg: m.dmg * f.dmgMul, kb: 420, up: -220, hs: 0.45, imp: 3, hsnd: 'slash', stamp: 'RIPOSTE', gb: m.gb, tech: 'riposte' });
+          if (f.abil !== this) return;
+          if (k > m.riposte + 0.16) f.vx = damp(f.vx, 0, 12, dt);
+        },
+        onCounter(f) {
+          f.counterStance = false; this.rip = this.t; this.dur = this.t + m.riposte + 0.6; f.telegraph = m.riposte;
+          WitnessFX.glint(f, w, f.sk.wt.x, f.sk.wt.y);
+        },
+        end(f) { f.counterStance = false; f.guardTint = null; } });
+    } },
   // Echo Genesis: the domain, opened once as the last phase begins (WitnessDomain runs it)
   echoGenesis: { id: 'echoGenesis', cd: 600, range: [0, 9999], chance: 0, cond: () => false,
     run(f, w, ai) {
@@ -1223,3 +1402,14 @@ Object.assign(BOSS_ABILITIES, {
         startup(f, w, atk, u, dt) { f.vx = damp(f.vx, 0, 10, dt); f.invuln = Math.max(f.invuln, 0.1); } });
     } }
 });
+
+/* The control moves (the input modifiers, the floor, the tether, the well, the pulls, the lockouts, the frames): never
+   one on top of another, never while a modifier is in force (WitnessBoss.controlOk), and each one stamps the gap before
+   the next (WITNESS_PACE.ctrlGap by phase). Wrapped here so the director and the AI's own ability pick obey the same rule. */
+const WITNESS_CONTROL = ['echoBind', 'reversal', 'inputDelay', 'rageSuppression', 'forcedEchoStep', 'realityRewrite', 'healthDrain', 'gravityCollapse',
+  'executionFrames', 'absoluteControl', 'nullProtocol', 'echoExecution', 'mirrorSelf', 'timelineBreak', 'finalJudgment'];
+for (const id of WITNESS_CONTROL) {
+  const a = BOSS_ABILITIES[id], cond = a.cond, run = a.run;
+  a.cond = (f, w, ...r) => WitnessBoss.controlOk(w) && (!cond || cond(f, w, ...r));
+  a.run = function (f, w, ...r) { if (w.wit) w.wit.ctrlT = w.time + WITNESS_PACE.ctrlGap[w.wit.phase]; return run.call(this, f, w, ...r); };
+}

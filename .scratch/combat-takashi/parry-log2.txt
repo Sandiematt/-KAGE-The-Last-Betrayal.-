@@ -1,0 +1,69 @@
+takashi vs parry bot · act3.boss · normal · gear 6 · style: Ittō-ryū · iaijutsu
+  Kage wins 0/1, loses 1, timeouts 0 · avg 55.1s · Kage hp left 0% · foe hp left 1% (foe 830 hp, Kage 283 hp)
+  per run: kageParries 12 · foeParries 0 · kageCrits 15 · foeCrits 1 · foeBroken 1 · kageBroken 0 · spamPunish 0 · throws 0 · styleStrings 14 · dmgToFoe 820 · dmgToKage 279
+  abilities: goldKunai×1 kataKesa×5 kataTsuki×2 kataNidan×3 roar×2 heavenCleaver×1 titanKata×2 tenraiJudgment×1 kataKaratake×1
+
+--- run 1 log ---
+5.8s ability goldKunai
+6.4s CRIT kage -> takashi (riposte)
+7.1s string ab:kataKesa
+7.5s ability kataKesa
+7.8s parry kage parries takashi
+8.9s parry kage parries takashi
+9.9s parry kage parries takashi
+10.3s CRIT kage -> takashi (riposte)
+10.7s string ab:kataTsuki
+11.3s ability kataTsuki
+12.6s string ab:kataKesa
+15.3s ability kataKesa
+15.7s parry kage parries takashi
+16.1s CRIT kage -> takashi (riposte)
+16.9s string ab:kataNidan
+17.2s ability kataNidan
+17.5s BREAK takashi
+17.5s parry kage parries takashi
+17.9s CRIT kage -> takashi (broken)
+18.7s string ab:kataKesa
+22.4s ability kataKesa
+22.5s CRIT kage -> takashi (back)
+23.9s string ab:kataTsuki
+24.4s ability kataTsuki
+27.7s PHASE 2
+27.7s ability roar
+31.9s ability heavenCleaver
+33.3s CRIT takashi -> kage (counter)
+37.0s string ab:titanKata
+39.1s ability titanKata
+39.8s parry kage parries takashi
+40.1s CRIT kage -> takashi (riposte)
+41.4s parry kage parries takashi
+41.7s CRIT kage -> takashi (riposte)
+42.6s CRIT kage -> takashi (riposte)
+47.0s parry kage parries takashi
+47.4s CRIT kage -> takashi (riposte)
+48.1s CRIT kage -> takashi (riposte)
+49.0s CRIT kage -> takashi (riposte)
+50.3s CRIT kage -> takashi (riposte)
+52.5s string ab:titanKata
+54.5s ability titanKata
+55.2s parry kage parries takashi
+55.5s CRIT kage -> takashi (riposte)
+55.9s PHASE 3
+55.9s ability roar
+58.7s ability tenraiJudgment
+63.8s string ab:kataKaratake
+64.7s ability kataKaratake
+66.3s string ab:kataKesa
+68.6s ability kataKesa
+68.9s parry kage parries takashi
+70.0s parry kage parries takashi
+71.0s parry kage parries takashi
+71.3s CRIT kage -> takashi (riposte)
+71.7s string ab:kataNidan
+72.5s ability kataNidan
+73.7s string ab:kataKesa
+76.8s CRIT kage -> takashi (riposte)
+77.9s string ab:kataNidan
+78.3s ability kataNidan
+80.2s string ab:kataKesa
+81.6s ability kataKesa

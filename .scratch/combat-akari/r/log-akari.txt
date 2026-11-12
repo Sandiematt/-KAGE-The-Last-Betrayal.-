@@ -1,0 +1,63 @@
+akari vs fighter bot · act2.boss · normal · gear 4 · style: Kasumi-ryū ninjutsu
+  Kage wins 0/2, loses 2, timeouts 0 · avg 51.1s · Kage hp left 0% · foe hp left 13% (foe 634 hp, Kage 267 hp)
+  per run: kageParries 4.5 · foeParries 1 · kageCrits 8 · foeCrits 4.5 · foeBroken 0.5 · kageBroken 0 · spamPunish 0 · throws 0 · styleStrings 20 · dmgToFoe 549 · dmgToKage 261
+  abilities: akariCross×12 blink×2 roar×4 kunaiFan×1 poisonKunai×2 chainReap×2 smokeStep×1
+
+--- run 1 log ---
+7.8s string fwd move:tw1_fwd move:tw2 back
+9.8s string move:tw1 wait:0.3 move:tw2_diagDown back
+12.8s string ab:akariCross
+12.8s ability akariCross
+14.0s ability blink
+14.6s CRIT kage -> akari (clean)
+15.4s string move:tw1 move:tw2 back
+17.0s CRIT akari -> kage (punish)
+18.0s string move:tw1 wait:0.3 move:tw2_diagDown back
+18.6s ability akariCross
+19.0s parry kage parries akari
+20.2s string move:tw1 move:tw2 back
+23.4s string fwd move:tw1_fwd move:tw2 back
+24.6s string fwd move:tw1_fwd move:tw2 back
+25.7s string move:tw1 move:tw2 back
+26.5s string move:tw1 wait:0.3 move:tw2_diagDown back
+28.4s parry kage parries akari
+28.7s CRIT kage -> akari (riposte)
+30.6s string move:tw1 move:tw2 back
+33.2s CRIT akari -> kage (punish)
+34.3s string ab:akariCross
+34.3s ability akariCross
+35.0s CRIT kage -> akari (riposte)
+35.4s PHASE 2
+35.4s ability roar
+36.9s ability kunaiFan
+39.0s ability akariCross
+39.4s parry kage parries akari
+39.7s string move:tw1 wait:0.3 move:tw2_diagDown back
+39.8s CRIT kage -> akari (riposte)
+46.1s string move:tw1 move:tw2 back
+46.3s ability akariCross
+46.6s parry kage parries akari
+47.5s string fwd move:tw1_fwd move:tw2 back
+48.0s parry akari parries kage
+48.5s BREAK akari
+48.5s parry kage parries akari
+48.8s CRIT kage -> akari (broken)
+54.1s string move:tw2 wait:0.28 move:tw1 move:tw2_diagDown back
+54.6s parry kage parries akari
+54.9s CRIT kage -> akari (riposte)
+55.7s string fwd move:tw1_fwd move:tw2 back
+56.2s CRIT akari -> kage (counter)
+57.5s string ab:akariCross
+57.5s ability akariCross
+58.3s CRIT kage -> akari (riposte)
+58.5s PHASE 3
+58.5s ability roar
+60.3s string move:tw1 move:tw2 move:tw1 wait:0.22 move:tw3_up ab:akariCross
+65.9s ability akariCross
+66.6s CRIT akari -> kage (style)
+68.0s string move:tw1 move:tw2 wait:0.24 move:tw4_diagUp back
+68.1s ability akariCross
+69.2s ability poisonKunai
+69.8s CRIT kage -> akari (riposte)
+70.5s string fwd move:tw1_fwd move:tw2 back
+71.6s string move:tw1 move:tw2 wait:0.24 move:tw4_diagUp back

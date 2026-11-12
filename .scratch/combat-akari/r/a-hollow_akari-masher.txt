@@ -1,0 +1,4 @@
+hollow_akari vs masher bot · core.echo2 · normal · gear 8 · style: Kasumi-ryū, half-remembered
+  Kage wins 1/12, loses 11, timeouts 0 · avg 19.8s · Kage hp left 0% · foe hp left 47% (foe 672 hp, Kage 301 hp)
+  per run: kageParries 0 · foeParries 1.1 · kageCrits 2 · foeCrits 4.8 · foeBroken 0 · kageBroken 0.1 · spamPunish 3.5 · throws 0 · styleStrings 8.4 · dmgToFoe 355 · dmgToKage 329
+  abilities: smokeStep×20 hollowStep×20 hollowCross×29 roar×8 twinFang×4 hollowFang×4 falseOpening×2 hollowOpening×2

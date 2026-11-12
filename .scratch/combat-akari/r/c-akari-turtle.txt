@@ -1,0 +1,13 @@
+akari vs turtle bot · act2.boss · normal · gear 4 · style: Kasumi-ryū ninjutsu
+  Kage wins 0/12, loses 12, timeouts 0 · avg 61.7s · Kage hp left 0% · foe hp left 50% (foe 610 hp, Kage 267 hp)
+  per run: kageParries 9.2 · foeParries 0.7 · kageCrits 8.6 · foeCrits 7.2 · foeBroken 2.5 · kageBroken 1.7 · spamPunish 0 · throws 0 · styleStrings 23.3 · dmgToFoe 303 · dmgToKage 232
+  abilities: poisonKunai×13 akariCross×80 smokeStep×13 akariKawarimi×20 blink×12 akariSweep×10 shadowFlip×4 roar×11 petalBurst×4 petalStorm×3 twinFang×15 chainReap×12 kunaiFan×5 falseOpening×3 reapingArc×4 chainBind×3 aerialDive×2 poisonTrap×2
+  texts/run: UTSUSEMI 5.8 · OPENING 8.3 · S:GUARD BREAK 4.2 · READ 2.5 · KAWARIMI 1.7 · R:cross/kw 2.6 · ASHIBARI 0.8 · R:none 1.8 · CAUGHT 1.1 · R:back 0.3 · FALSE OPENING 0.3
+  dmg to Kage by source/run: tw2 41 · cross 37 · tw1 30 · tw1_fwd 23 · tw2_diagDown 20 · tw4_diagUp 11 · proj:ab:poisonKunai 11 · twc 9 · kawarimi 7 · proj:CHAIN REAP 7 · p1 7 · FANG 4 · REAPED 3 · sweep 3 · ? 3 · p2 3 · proj:ab:petalBurst 2 · ab:twinFang 2 · proj:ab:shadowFlip 2 · dp 2 · ab:reapingArc 1 · twa 1 · TRAP 1 · ab:smokeStep 1 · slide 1 · PETAL BURST 1 · proj:ab:chainBind 0 · proj:ab:kunaiFan 0
+  strings/run:
+    5.8  fwd move:tw1_fwd move:tw2 back
+    5.8  ab:akariCross
+    4.9  move:tw1 move:tw2 back
+    4.4  move:tw1 wait:0.3 move:tw2_diagDown back
+    1.6  move:tw1 move:tw2 wait:0.24 move:tw4_diagUp back
+    0.8  move:tw2 wait:0.28 move:tw1 move:tw2_diagDown back

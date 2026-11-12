@@ -1,0 +1,4 @@
+kasane vs fighter bot · act2.sub4 · normal · gear 4 · style: Kusarigamajutsu
+  Kage wins 6/12, loses 6, timeouts 0 · avg 42.6s · Kage hp left 18% · foe hp left 12% (foe 560 hp, Kage 267 hp)
+  per run: kageParries 3 · foeParries 2.6 · kageCrits 6.8 · foeCrits 3 · foeBroken 0 · kageBroken 0.1 · spamPunish 0.4 · throws 0 · styleStrings 11.7 · dmgToFoe 498 · dmgToKage 219
+  abilities: kasaneChain×49 twinFang×36 ledgerFang×36 roar×11 smokeStep×11 ledgerStep×11

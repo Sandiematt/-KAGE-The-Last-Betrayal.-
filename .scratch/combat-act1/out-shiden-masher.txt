@@ -1,0 +1,4 @@
+[shiden masher] shiden vs masher bot · act1.sub4 · normal · gear 2 · style: Sōjutsu · Hōzōin-ryū
+[shiden masher]   Kage wins 0/20, loses 20, timeouts 0 · avg 35.8s · Kage hp left 0% · foe hp left 42% (foe 470 hp, Kage 249 hp)
+[shiden masher]   per run: kageParries 0 · foeParries 7.8 · kageCrits 3.3 · foeCrits 8.8 · foeBroken 0 · kageBroken 0.3 · spamPunish 5 · throws 0 · styleStrings 10.4 · dmgToFoe 271 · dmgToKage 255
+[shiden masher]   abilities: shidenBrace×59 roar×14 stormBreak×34 vanguardBreak×34 vanguardGuard×5

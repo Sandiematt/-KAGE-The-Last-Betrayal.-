@@ -30,12 +30,20 @@ const REM_RING = ['#4a4c52', ANIME.silver, ANIME.silverHi];
 const REM_TASUKI = ['#2c1a4c', '#6a44b0', '#9a74e0'];
 
 /* ---- skins ---- */
-ANIME_SKINS.young_rem = { top: 'gi', feet: 'sandal', sleeve: 0.94, kote: 'wrap', collar: false, sash: 'obi', acc: REM_ACC, rem: 'young' };
+// his face (_shared/face.js): his brother's profile (Kage's is FACE_PROFILES.base). The boy's is soft, a short snub
+// nose, a small round chin; the man's is Kage's sharpened, a little longer in the nose and the chin, the brow firmer.
+// Lit down the profile in his violet (the echo's a colder violet)
+const REM_FACE_YOUNG = { of: 'youth', nose: 0.86, up: 0.04, chin: 0.86, light: '#c8a2ff', depth: 0.1 };
+
+const REM_FACE = { of: 'base', nose: 1.1, brow: 1.3, lip: 0.92, chin: 1.12, jaw: 0.96, light: '#b892ff', depth: 0.1 };
+
+ANIME_SKINS.young_rem = { top: 'gi', feet: 'sandal', sleeve: 0.94, kote: 'wrap', collar: false, sash: 'obi', acc: REM_ACC, rem: 'young', face: REM_FACE_YOUNG };
 
 ANIME_SKINS.rem = { top: 'coat', coat: { w0: 20, w1: 38, fw0: 15, fw1: 28, len: 0.74, plain: true }, feet: 'sandal', wrapShin: true, sleeve: 1, sash: 'obi',
-  saya: true, collar: false, kote: true, cuff: false, acc: REM_ACC, rem: 'adult' };
+  saya: true, collar: false, kote: true, cuff: false, acc: REM_ACC, rem: 'adult', face: REM_FACE };
 
 ANIME_SKINS.hollow_rem = { top: 'coat', feet: 'sandal', wrapShin: true, sleeve: 1, sash: 'hollow', saya: true, collar: false, kote: 'wrap', rem: 'hollow',
+  face: Object.assign({}, REM_FACE, { light: '#9c80ff' }),
   coatPlain: true, hollow: { head: 'rem', top: 'rem', fray: 0.9, robe: { back: [7, 11, 20, 44], flap: [6, 10.4, 15, 28], teeth: 6, rag: 9 } } };
 
 // the band's two long tails, streaming back from the knot (Hollow Rem's are ashen); called from animeCloths

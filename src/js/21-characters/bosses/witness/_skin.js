@@ -105,8 +105,7 @@ function witnessPal(pal) {
 function witnessCloths(f, sk) {
   if (!sk.witness) return;
   const s = f.scale;
-  f.cloths.push({ kind: 'coat', part: 'back', kageOnly: 1, c: new Cloth(8, 12 * s, { ph: 2.2, wind: 1150, grav: 1000, stiff: 1.5, hang: 0.55 }), at: 'hip', dx: 6, dy: -4 });
-  f.cloths.push({ kind: 'coat', part: 'flap', kageOnly: 1, c: new Cloth(7, 11.4 * s, { ph: 4.7, wind: 260, grav: 1250, stiff: 1.5, hang: 0.15 }), at: 'hip', dx: 1, dy: -3 });
+  kageCloths(f, sk, true);   // his coat tails and front flap (kage/_skin.js)
   f.cloths.push({ kind: 'scarf', kageOnly: 1, c: new Cloth(12, 7.4 * s, { ph: 9, wind: 1400, grav: 430, stiff: 1.85 }), at: 'neck', color: ANIME.scarf, rim: 'rgba(24,6,6,0.7)', w: 6.4 * s, w1: 2.2 * s, dy: -2, dx: 7 });
   f.cloths.push({ kind: 'scarf', kageOnly: 1, c: new Cloth(10, 7 * s, { ph: 12.5, wind: 1250, grav: 480, stiff: 1.85 }), at: 'neck', color: '#a8262c', rim: 'rgba(24,6,6,0.7)', w: 4.8 * s, w1: 1.6 * s, dy: 1, dx: 6 });
 }

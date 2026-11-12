@@ -1,0 +1,5 @@
+<!doctype html><meta charset="utf-8"><body style="margin:0;background:#000;overflow:hidden">
+<script>
+const Q=new URLSearchParams(location.search);const z=+(Q.get('z')||3),x=+(Q.get('x')||0),y=+(Q.get('y')||0);
+const im=new Image();im.onload=()=>{im.style.cssText=`position:absolute;left:${-x*z}px;top:${-y*z}px;width:${im.naturalWidth*z}px;image-rendering:auto`;document.body.appendChild(im);document.title='ok';};im.src=Q.get('f');
+</script>

@@ -44,9 +44,14 @@ const RAI_RING_H = ['#2a2732', '#55505f', '#7d778a'];
 const RAI_CLOAK = ['#050303', '#0d0808', '#211313'];
 
 /* ---- skins ---- */
-ANIME_SKINS.raikon = { top: 'coat', feet: 'boot', sleeve: 1.08, kote: true, collar: false, cuff: false, sash: 'raikon', acc: '#c3161e', raikon: 'boss' };
+// his face (_shared/face.js): a warlord's, aquiline, the brow a shelf under the brim, a long hooked nose, a hard square
+// jaw and a chin that juts; lit down the profile in crimson (the echo's in violet)
+const RAI_FACE = { of: 'hawk', nose: 1.36, hook: 0.12, brow: 2.4, lip: 0.84, chin: 1.3, jaw: 1.34, light: '#ff4a3a', depth: 0.1 };
+
+ANIME_SKINS.raikon = { top: 'coat', feet: 'boot', sleeve: 1.08, kote: true, collar: false, cuff: false, sash: 'raikon', acc: '#c3161e', raikon: 'boss', face: RAI_FACE };
 
 ANIME_SKINS.hollow_raikon = { top: 'coat', feet: 'boot', sleeve: 1.08, kote: true, collar: false, cuff: false, sash: 'raikon', raikon: 'hollow',
+  face: Object.assign({}, RAI_FACE, { light: '#9c80ff' }),
   hollow: { fray: 1, robe: {} } };   // `hollow` gives the deep palette and frayed cuffs; the robes are his own (rcoat, rcloak)
 
 const _raiH = (f) => animeSkin(f).raikon === 'hollow';

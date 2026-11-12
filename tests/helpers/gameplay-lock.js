@@ -24,7 +24,7 @@ const FIGHTS = [
   { id: 'garan', stage: 'act1.sub2', frames: 1800 },
   { id: 'raikon', stage: 'act1.boss', frames: 2100 },
   { id: 'akari', stage: 'act2.boss', frames: 2100 },
-  { id: 'takashi', stage: 'act3.boss', frames: 2100 },
+  { id: 'takashi', stage: 'act3.boss', frames: 2400, dmgMul: 9 },   // his Iron Guard turns most cuts aside: a stronger Kage reaches phase II
   { id: 'witness', stage: 'core.witness', frames: 2400, dmgMul: 12 },
   // directional attacks and the spam read: Kage at a quarter of his usual damage, so the foe lasts the whole script
   { id: 'forms', cfg: { mode: 'campaign', enemyId: 'order_footman', env: 'highlands', diff: 1, ng: 0 }, frames: 2400, dmgMul: 0.25, order: 'forms' },
@@ -73,7 +73,7 @@ const ORDER = ['punch3', 'kickCharge', 'weapon3', 'kunai', 'jumpWeapon', 'dashPu
 // the 'forms' fight: the directional weapon forms and the spam read, against a sturdy foe so the whole list runs
 // (dirUp lifts Kage, so a walk lets him land before the grounded forms; the kesa diagonal comes before the guard, whose
 // block would turn it into the counter-slash; dirAway turns him round to cut the other way, so the walk back faces him again)
-const FORMS_ORDER = ['dirUp', 'walkBack', 'dirDown', 'dirDiagDown', 'dirFwd', 'dirAway', 'walkBack', 'guard', 'dashStrike', 'dirDiagUp', 'airPlunge', 'spam',
+const FORMS_ORDER = ['dirUp', 'walkBack', 'jumpKick', 'walkBack', 'dirDown', 'dirDiagDown', 'dirFwd', 'dirAway', 'walkBack', 'guard', 'dashStrike', 'dirDiagUp', 'airPlunge', 'spam',
   'walkBack', 'dirCombo', 'dirUp', 'airPlunge', 'weapon3', 'dirDown', 'dirDiagDown', 'spam', 'dirFwd', 'dirDiagUp'];
 const MELEE_RANGE = 150;
 

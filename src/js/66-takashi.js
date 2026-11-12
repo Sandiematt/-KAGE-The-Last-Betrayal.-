@@ -1,11 +1,15 @@
 /* KAGE — Takashi, the Master's Flow (Act III boss): the redesigned three-phase fight. Numbers: TAKASHI_MOVES,
    TAKASHI_GUARD and TAKASHI_TITAN in 10-data.js; the phases are data on ENEMIES.takashi.
 
-     I    The Unbroken Guard   the Iron Guard (TakashiGuard: a strike Kage has used in his last few moves is parried,
-                               only varied combos land), golden kunai, Kunai Execution, Earth Cleave, Guard Return
+     I    The Unbroken Guard   the deflection duel (TakashiGuard, TakashiKata; his style in 41-styles/takashi.js): a
+                               strike Kage repeats is always turned aside, a varied one at a chance that falls with his
+                               posture; he answers at a fixed tempo and runs into his kata, beat by beat, and each beat
+                               Kage parries wears his posture down. Golden kunai, Kunai Execution, Earth Cleave, Guard
+                               Return
      II   Yashiro Titan        he grows, and the golden spectral armour of the Yashiro Titan rises round him
                                (TakashiTitan: its rig and its art). Titan Slash, Heaven Cleaver, Blade Rain, Crushing
-                               Grasp, Titan Spear, Domain Pulse: unblockable, a share of Kage's health, a knockdown
+                               Grasp, Titan Spear, Domain Pulse: unblockable, a share of Kage's health, a knockdown;
+                               between them the titan's own sword strokes (titanKata), slow and parriable
      III  Tenrai               the Titan breaks apart but he stays huge; his phase I kit, Final Flow, and his domain:
                                Tenrai, Heaven's Final Judgment (TakashiDomain: the golden arena, the shrine behind him,
                                the cracking floor and the divine thunder that kills unless the domain is broken)
@@ -61,50 +65,221 @@ function tkTitanBlow(w, f, box, o) {
 }
 
 /* ======================================================================== */
-/* The Iron Guard (phase flag ironGuard)                                      */
+/* The Iron Guard and the kata: the deflection duel (phase flag ironGuard)   */
 /* ======================================================================== */
+/* Two samurai with the same katana: the fight is decided blade on blade. Kage's cut meets the Iron Guard and is
+   turned aside (the core's Budo.deflect: a short recoil a fresh guard press ends after BUDO.deflect.guardAfter); the
+   father answers at a FIXED tempo (TK_DUEL.riposte after the deflection, a gold glint just before it) and runs on
+   into his kata, beat after beat (TK_BEATS). Kage's guard raised in the parry window turns each beat back and costs
+   HIM posture; a held guard only blocks and bleeds Kage's own; at 0 posture the father's guard breaks and the next
+   clean cut is a critical. The numbers per foe are its style's `duel` (41-styles/takashi.js, hollow_takashi.js) over
+   TK_DUEL. */
+const TK_DUEL = {
+  deflect: 0.5,     // chance a VARIED cut is turned aside while he stands settled at full posture (scaled down to 0 at `floor`)
+  floor: 32,        // below this posture his guard is cracking: no varied deflections, his kata's wind-ups lie open
+  kageCost: 16,     // posture Kage loses when the Iron Guard turns his cut (the core's deflect costs BUDO.posture.playerParried)
+  selfCost: 5,      // posture a varied deflection costs him (a strong cut still weighs on the guard; a repeat costs nothing)
+  kataGuard: 1,     // chance a cut thrown into his kata's wind-up is turned aside (while his posture is above the floor)
+  riposte: 0.42,    // seconds from the deflection to the riposte's cut: the fixed, learnable tempo
+  recoil: 0.14,     // a beat parried mid-kata: his recoil before the next beat
+  open: 0.6,        // the last beat of a kata parried: how long he stands open (the moment to cut him)
+  tempo: 1,         // a factor on every beat's wind-up
+  hitch: 0,         // seconds of stutter added to every other beat's wind-up (Hollow Takashi's broken timing)
+  dmg: 1,           // a factor on every beat's damage
+  extra: [1, 3],    // how many beats follow the riposte (fewer as his posture falls)
+  // what follows the riposte: kata fragments with their own rhythm
+  cont: [['kesa'], ['gyaku', 'delay'], ['double', 'rise'], ['overhead'], ['kesa', 'thrust'], ['delay', 'double', 'rise'], ['gyaku', 'kesa', 'overhead']],
+  tint: null,       // the echo's violet in place of his gold
+  // the father's voice (fx.popText): when he reads a repeat, turns a varied cut, is turned back, has his guard broken
+  words: { read: ['YOU REPEAT YOURSELF', 'I HAVE SEEN THAT ONE'], deflect: ['TOO STRAIGHT', 'YOUR SHOULDER TOLD ME', 'AGAIN. CLEANER', 'ELBOWS IN'],
+    parried: ['GOOD', 'YES. AGAIN', 'BETTER', 'MEET IT, DO NOT HIDE'], blocked: ['A WALL IS NOT A GUARD', 'MEET THE BLADE'], broken: ['WELL STRUCK, SON', 'THAT IS IT'] }
+};
+/* The beats of his kata (Itto-ryu / iai forms on Shinsen's cuts): T wind-up (s, x the duel's tempo), R recovery when it is
+   not turned back, the strike pose (MOVES id or a named pose), lunge (px/s), box (fbox), and the blow. `crush` (the
+   overhead) costs a blocking Kage most of his posture: parry it. `perilous` (the thrust) cannot be blocked or parried:
+   step out of it. */
+const TK_BEATS = {
+  iai:       { name: 'NUKITSUKE', T: 0.42, R: 0.3, pose: 'sh1', lunge: 520, box: [-10, -230, 200, 230], dmg: 11, gb: 26, kb: 320, up: -160, hs: 0.42, imp: 2, stamp: 'RIPOSTE' },
+  kesa:      { name: 'KESA', T: 0.36, R: 0.3, pose: 'sh1', lunge: 330, box: [-6, -236, 190, 220], dmg: 10, gb: 24, kb: 280, up: -120, hs: 0.4, imp: 2 },
+  gyaku:     { name: 'GYAKU-KESA', T: 0.36, R: 0.3, pose: 'sh2', lunge: 300, box: [-6, -246, 180, 226], dmg: 10, gb: 24, kb: 160, up: -360, hs: 0.4, imp: 2 },
+  delay:     { name: 'HELD KESA', T: 0.68, R: 0.32, pose: 'sh1', held: 1, lunge: 360, box: [-6, -236, 190, 220], dmg: 12, gb: 28, kb: 300, up: -140, hs: 0.42, imp: 2 },
+  double:    { name: 'NIDAN', T: 0.2, R: 0.28, pose: 'sh3', lunge: 260, box: [10, -190, 200, 120], dmg: 8, gb: 18, kb: 260, up: -80, hs: 0.36, imp: 1 },
+  rise:      { name: 'KIRIAGE', T: 0.38, R: 0.4, pose: 'sh2', lunge: 340, box: [-6, -250, 180, 240], dmg: 12, gb: 26, kb: 200, up: -560, hs: 0.5, imp: 2 },
+  overhead:  { name: 'KARATAKE-WARI', T: 0.52, R: 0.42, pose: 'over', crush: 1, lunge: 300, box: [0, -260, 190, 260], dmg: 14, gb: 72, kb: 360, up: -200, hs: 0.5, imp: 3, call: '上 PARRY IT' },
+  draw:      { name: 'NUKITSUKE', T: 0.46, R: 0.42, pose: 'sh3', lunge: 1250, box: [-10, -210, 210, 200], dmg: 12, gb: 26, kb: 340, up: -140, hs: 0.44, imp: 2, call: '抜' },
+  thrust:    { name: 'TSUKI', T: 0.5, R: 0.55, pose: 'thrust', perilous: 1, lunge: 980, box: [0, -196, 236, 80], dmg: 14, unb: 1, kb: 460, up: -160, hs: 0.5, imp: 2, call: '危 TSUKI' },
+  // the Yashiro Titan's own sword strokes: slow and huge, but steel all the same: parry them
+  titanKesa: { name: 'TITAN KESA', T: 0.7, R: 0.5, pose: 'sh1', lunge: 240, box: [-6, -236, 200, 236], dmg: 18, gb: 44, kb: 380, up: -220, hs: 0.5, imp: 3, titan: 1 },
+  titanRise: { name: 'TITAN KIRIAGE', T: 0.56, R: 0.6, pose: 'sh2', lunge: 220, box: [-6, -250, 190, 250], dmg: 16, gb: 40, kb: 260, up: -520, hs: 0.5, imp: 3, titan: 1 }
+};
+// a foe of Takashi's school (himself, or his echo)
+const tkSchool = f => !!(f && f.def && !f.clone && (f.def.id === 'takashi' || f.def.echoOf === 'takashi'));
+
 const TakashiGuard = {
+  // the duel's numbers for this fighter: its style's `duel` over TK_DUEL
+  cfg(f) { const st = Budo.style(f); if (!st || !st.duel) return TK_DUEL; return st._duel || (st._duel = Object.assign({}, TK_DUEL, st.duel)); },
   // whether his guard is up: grounded, alive, not reeling, not open (the domain channel, a broken domain)
   up(def) {
     if (!def.ironGuard || !def.alive || !def.grounded || def.tkOpen > 0) return false;
     return !['stun', 'hit', 'juggle', 'down', 'getup', 'dead', 'bound', 'grabbed'].includes(def.state);
   },
-  /* Combat.applyHit asks first: does the Iron Guard turn this blow aside? A rage art (unblockable) and a blow from
-     behind always land; any kunai from the front is deflected; a strike is parried when Kage has used that move in
-     his last TAKASHI_GUARD.span moves (Logic.ironGuardReads). Returns true when it did. */
+  // settled in his stance (kamae), or in the wind-up of a kata beat while his posture holds: a varied cut can be read
+  settled(def) {
+    if (def.isNeutral() || def.state === 'block' || def.state === 'land') return true;
+    return def.state === 'ability' && !!(def.abil && def.abil.tkGuard && !def.abil.cut);
+  },
+  // the chance a varied cut is turned aside now: falls with his posture, nothing below the floor
+  chance(def) {
+    const D = this.cfg(def), k = clamp((def.guard - D.floor) / (100 - D.floor), 0, 1);
+    return D.deflect * Math.pow(k, 0.7);
+  },
+  // a guard-breaking blow: Kage's downward slash and the like, or a charged spinning kick: it cannot be turned aside
+  breaker(att, m) { return (m.gb || 0) >= 50 || !!m.armor || (m.id === 'hk' && (att.moveCharge || 0) > 0.5); },
+  /* Combat.applyHit asks first: does the Iron Guard turn this blow aside? A rage art (unblockable), a guard-breaking
+     blow and a blow from behind always get through; any kunai from the front is deflected; a strike Kage has used in
+     his last TAKASHI_GUARD.span moves is read and turned aside (certain); any other cut is turned aside at
+     TakashiGuard.chance while he stands settled. A turned cut is Budo.deflect, and the father answers (on.parry in his
+     style starts TakashiKata.riposte). Returns true when it did. */
   parries(world, att, def, m, front, ix, iy, dir) {
-    if (!att.isPlayer || !front || m.unb || m.kind === 'grab' || !this.up(def)) return false;
-    const fx = world.fx;
+    if (!att.isPlayer || !front || m.unb || m.kind === 'grab' || !def.ironGuard) return false;
+    // mid-kata, the recoil from a turned-back beat is not an opening: his guard comes straight back (kataGuard) while
+    // his posture holds. Only the last beat, or a broken posture, leaves him open.
+    const D0 = this.cfg(def);
+    if (def.state === 'stun' && def.tkx && def.tkx.pending && !def.broken && def.alive && def.grounded && !(def.tkOpen > 0) && !m.proj
+      && def.guard >= D0.floor && !this.breaker(att, m) && chance(D0.kataGuard)) { this.deflect(world, att, def, m, ix, iy, dir, false); return true; }
+    if (!this.up(def)) return false;
+    const fx = world.fx, D = this.cfg(def), gold = D.tint || TKV_GOLD, hot = D.tint ? '#e4d6ff' : TKV_HOT;
     if (m.proj) {
-      fx.sparks(ix, iy, -dir, 10, TKV_HOT); AudioManager.play('clang', { pitch: 1.2 });
-      if (!TakashiFX.play(world, 'tk_parry', ix, iy, { dir: def.facing, scale: def.scale * 0.6 })) fx.ring(ix, iy, 40, 'rgba(255,226,140,0.8)', 0.18, 2);
-      fx.popText(def, 'DEFLECT', TKV_GOLD);
+      fx.sparks(ix, iy, -dir, 10, hot); AudioManager.play('clang', { pitch: 1.2 });
+      if (D.tint || !TakashiFX.play(world, 'tk_parry', ix, iy, { dir: def.facing, scale: def.scale * 0.6 })) fx.ring(ix, iy, 40, 'rgba(255,226,140,0.8)', 0.18, 2);
+      fx.popText(def, 'DEFLECT', gold);
       return true;
     }
-    if (!m.id || !Logic.ironGuardReads(world.history || [], m.id)) return false;
-    // turned aside: Kage reels, and Takashi (if he stands free) may answer with a short cut
-    att.move = null; att.abil = null; att.setState('stun'); att.stunT = 0.55 * (1 - att.stunRes * 0.5); att.vx = -att.facing * 300;
-    def.stats.parries++;
-    fx.sparks(ix, iy, -dir, 22, TKV_HOT, 1.4); fx.clashFlare(ix, iy); fx.stop(0.09); fx.shake(0.28); fx.punch(0.05);
-    if (!TakashiFX.play(world, 'tk_parry', ix, iy, { dir: def.facing, scale: def.scale * 0.75 })) fx.enso(ix, iy, 110, 'rgba(255,214,120,0.95)', 0.5);
-    fx.stamp('PARRY', ix, iy, 2, TKV_GOLD);
-    AudioManager.play('parry');
-    world.tkReads = (world.tkReads || 0) + 1;
-    if (world.tkReads === 1 || world.tkReads % 6 === 0) fx.popText(att, 'READ: VARY YOUR STRIKES', TKV_GOLD);
-    if (def.isNeutral() && (def.tkRiposte || 0) <= world.time && chance(TAKASHI_GUARD.riposte)) { def.tkRiposte = world.time + 1.4; this.riposte(def, world); }
+    if (this.breaker(att, m)) return false;
+    const read = !!m.id && Logic.ironGuardReads(world.history || [], m.id);
+    // mid-kata (a beat's wind-up) his guard holds at kataGuard while his posture is above the floor
+    const kata = def.state === 'ability' && def.abil && def.abil.tkGuard && !def.abil.cut && def.guard >= D.floor;
+    if (!read && !(kata ? chance(D.kataGuard) : this.settled(def) && chance(this.chance(def)))) return false;
+    this.deflect(world, att, def, m, ix, iy, dir, read);
     return true;
   },
-  // the answer to a parried strike: one short iai cut
+  // Kage's cut turned aside: the core's deflect (a lighter share of his posture), the gold flare, the father's word, and
+  // the answer (Budo.emit 'parry': his style's on.parry runs the riposte)
+  deflect(world, att, def, m, ix, iy, dir, read) {
+    const fx = world.fx, D = this.cfg(def), gold = D.tint || TKV_GOLD, hot = D.tint ? '#e4d6ff' : TKV_HOT;
+    att.abil = null;
+    att.guard += BUDO.posture.playerParried - D.kageCost;   // Budo.deflect takes the core's share; his costs kageCost
+    Budo.deflect(world, att, def, ix, iy, dir);
+    att.vx = -att.facing * 300;
+    def.stats.parries++;
+    if (!read && D.selfCost) Budo.postureHit(world, def, D.selfCost / ((Budo.style(def) || {}).poise || 1), ix, iy, dir, att);
+    fx.sparks(ix, iy, -dir, 22, hot, 1.4); fx.clashFlare(ix, iy); fx.stop(0.09); fx.shake(0.28); fx.punch(0.05);
+    if (D.tint || !TakashiFX.play(world, 'tk_parry', ix, iy, { dir: def.facing, scale: def.scale * 0.75 })) fx.enso(ix, iy, 110, D.tint ? 'rgba(200,170,255,0.95)' : 'rgba(255,214,120,0.95)', 0.5);
+    fx.stamp(read ? 'READ' : 'DEFLECT', ix, iy, 2, gold);
+    AudioManager.play('parry');
+    world.tkReads = (world.tkReads || 0) + (read ? 1 : 0);
+    if (read && (world.tkReads === 1 || world.tkReads % 6 === 0)) fx.popText(att, 'READ: VARY YOUR STRIKES', gold);
+    else TakashiKata.say(world, def, read ? 'read' : 'deflect');
+    if (def.broken) return;
+    Budo.emit(world, def, 'parry', att, m);
+  }
+};
+
+/* ---- the kata: his strings, beat by beat ----
+   A kata is a list of beats (TK_BEATS) run as abilities one after another (f.tkx: { beats, i, pending, ... }). A beat
+   that is blocked, dodged or lands runs to its end and the next follows; a beat Kage parries (his style's on.parried)
+   recoils TK_DUEL.recoil and the next follows; the LAST beat parried leaves him open TK_DUEL.open. A beat that lands
+   clean ends the kata. Each beat's wind-up is f.telegraph (his eyes flash) with a glint just before the cut. */
+const TakashiKata = {
+  is: tkSchool,
+  cfg(f) { return TakashiGuard.cfg(f); },
+  active(f) { return !!(f && f.tkx); },
+  // start a kata (`beats`: TK_BEATS ids); o: { riposte: true } when it answers a deflection (its first beat at the
+  // fixed tempo, its wind-up guarded from the first frame)
+  start(f, w, beats, o) {
+    if (!beats || !beats.length || !f.alive) return false;
+    f.tkx = { beats: beats.slice(), i: 0, pending: false, riposte: !!(o && o.riposte), n: 0 };
+    if (f.ai) { f.ai.seq = null; f.ai.block = 0; }
+    // deferred: the first beat starts on the next step (TakashiKata.tick), once whatever turned the blow has settled
+    if (o && o.defer) f.tkx.pending = true; else this.beat(f, w);
+    return true;
+  },
+  // the answer to a deflection: the draw cut at the fixed tempo, then a fragment of kata (fewer beats as his posture
+  // falls), never the same fragment twice running
   riposte(f, w) {
+    const D = this.cfg(f), k = clamp((f.guard - D.floor) / (100 - D.floor), 0, 1);
+    const n = Math.round(lerp(D.extra[0], D.extra[1], k * (0.4 + Math.random() * 0.6)));
+    let beats = ['iai'];
+    if (n > 0) {
+      const list = D.cont.filter(c => c.length <= n && c !== f.tkLastCont);
+      const c = list.length ? pick(list) : D.cont[0];
+      f.tkLastCont = c; beats = beats.concat(c);
+    }
+    return this.start(f, w, beats, { riposte: true, defer: true });
+  },
+  // the current beat as an ability
+  beat(f, w) {
+    const x = f.tkx, kind = x.beats[x.i], B = TK_BEATS[kind], D = this.cfg(f);
+    if (!B) { f.tkx = null; return; }
+    x.pending = false; x.landed = false; x.blocked = false; x.n++;
+    const hitch = D.hitch && x.i % 2 === 1 ? D.hitch : 0;
+    const T = (kind === 'iai' && x.riposte ? D.riposte : B.T * D.tempo) + hitch, A = 0.1, last = x.i >= x.beats.length - 1;
+    const gold = D.tint || TKV_GOLD, glow = D.tint ? '#e4d6ff' : '#fff0b8';
     tkFace(f, w);
-    f.startAbility({ dur: 0.5, rate: 34, trail: true,
-      pose: (f, t) => (t < 0.12 ? TAKASHI_POSE.guard : MOVES.sh1.s),
+    f.telegraph = T;
+    const wind = B.pose === 'over' ? RAIKON_POSE.overhead : B.pose === 'thrust' ? TAKASHI_POSE.guard : (MOVES[B.pose].w || MOVES[B.pose].a);
+    const strike = B.pose === 'over' ? MOVES.sh1.s : B.pose === 'thrust' ? MOVES.sh3.s : MOVES[B.pose].s;
+    const follow = B.pose === 'over' || B.pose === 'thrust' ? strike : (MOVES[B.pose].f || strike);
+    f.startAbility({ dur: T + A + B.R + (last ? 0.12 : 0), rate: 30, trail: true, tkBeat: kind, tkGuard: true,
+      pose: (f, t) => (t < T ? wind : t < T + 0.16 ? strike : follow),
+      start(f) {
+        if (B.call) w.fx.popText(f, B.call, B.perilous ? '#ff3b2f' : gold);
+        if (B.perilous) AudioManager.play('teleport', { pitch: 0.8 });
+      },
       update(f, w, t, dt) {
-        if (t < 0.12) { f.vx = 0; return; }
-        if (!this.cut) { this.cut = 1; f.vx = f.facing * 520; AudioManager.play('swing', { pitch: 0.95 }); }
-        f.vx = damp(f.vx, 0, 10, dt);
-        if (!this.hit && t < 0.3) this.hit = Combat.area(w, f, fbox(f, -10, -230, 200, 230), { dmg: TAKASHI_GUARD.dmg * f.dmgMul, kb: 320, up: -180, hs: 0.4, imp: 2, hsnd: 'slash', stamp: 'RIPOSTE' });
-      } });
+        if (t < T) {
+          f.vx = damp(f.vx, 0, 12, dt);
+          if (!this.g && t > T - 0.13) { this.g = 1; w.fx.glint(f.sk.wt.x, f.sk.wt.y, B.perilous ? '#ff6a50' : glow); AudioManager.play('orb', { pitch: B.perilous ? 0.9 : 1.45 }); }
+          return;
+        }
+        if (!this.cut) { this.cut = 1; f.vx = f.facing * B.lunge; AudioManager.play(B.crush || B.titan ? 'heavyswing' : 'swing', { pitch: B.titan ? 0.6 : 0.95 }); }
+        f.vx = damp(f.vx, 0, B.perilous ? 7 : 10, dt);
+        if (!this.hit && t < T + A) {
+          this.hit = Combat.area(w, f, fbox(f, B.box[0], B.box[1], B.box[2], B.box[3]), { dmg: B.dmg * D.dmg * f.dmgMul, kb: B.kb, up: B.up, hs: B.hs, imp: B.imp,
+            hsnd: 'slash', gb: B.gb, unb: B.unb || 0, stamp: B.stamp || null, tkBeat: kind, tkRiposte: kind === 'iai' && x.riposte });
+        }
+      },
+      end(f) { TakashiKata.after(f); } });
+  },
+  // a beat ran to its end (blocked, dodged, or it landed): the next beat, or the kata is over
+  after(f) {
+    const x = f.tkx; if (!x) return;
+    if (x.landed || x.i >= x.beats.length - 1 || !f.alive) { f.tkx = null; return; }
+    x.i++; x.pending = true;
+  },
+  // his style's on.parried: Kage turned the beat back. He recoils briefly and the kata goes on; the last beat leaves
+  // him open. Returns true when it was a kata beat.
+  parried(f, w, m) {
+    const x = f.tkx; if (!x || !m || !m.tkBeat) return false;
+    const D = this.cfg(f);
+    this.say(w, f, 'parried');
+    if (f.broken || !f.alive) { f.tkx = null; return true; }
+    if (x.i >= x.beats.length - 1) { f.stunT = D.open * (1 - f.stunRes * 0.5); f.tkx = null; return true; }
+    f.stunT = D.recoil; x.i++; x.pending = true;
+    return true;
+  },
+  // per step (TakashiBoss.step): the next beat as soon as he can act; nothing while the fight is not on
+  tick(s, f, dt) {
+    const x = f.tkx; if (!x) return;
+    if (!f.alive || s.phase !== 'fight' || ['juggle', 'down', 'getup', 'grabbed', 'bound', 'hit'].includes(f.state) || f.broken) { f.tkx = null; return; }
+    if (x.pending && f.canAct()) { if (f.ai) f.ai.seq = null; this.beat(f, s); }
+  },
+  // the father's voice, rate-limited
+  say(w, f, what) {
+    const D = this.cfg(f), list = D.words && D.words[what];
+    if (!list || !list.length || (f.tkSaid || 0) > w.time) return;
+    f.tkSaid = w.time + 1.8;
+    w.fx.popText(f, list[(f.tkSayI = ((f.tkSayI || 0) + 1)) % list.length], D.tint || TKV_GOLD);
   }
 };
 
@@ -394,6 +569,7 @@ const TakashiBoss = {
   // FightSession.simulate, every step of any fight
   step(s, dt) {
     const f = s.enemy;
+    if (tkSchool(f) && f.ai) { TakashiKata.tick(s, f, dt); const st = Budo.style(f); if (st && st.tick) st.tick(f.ai, s, dt); }
     if (!TakashiFX.is(f) || !f.ai) return;
     const t = this.init(f), ph = f.ai.phaseData || {};
     f.ironGuard = !!ph.ironGuard;
@@ -903,3 +1079,8 @@ const TakashiProj = {
     return false;
   }
 };
+
+/* ---- the duel's pacing (FIGHT_STYLES.takashi, 41-styles/takashi.js): the Yashiro Titan's unblockable blows come less
+   often than TAKASHI_MOVES' cool-downs, so its parriable sword strokes (the titanKata) have room between them: the
+   spectacle stays, the parry game runs through it ---- */
+for (const [id, k] of [['titanSlash', 1.35], ['heavenCleaver', 1.5], ['bladeRain', 1.3], ['crushingGrasp', 1.3], ['titanSpear', 1.2], ['domainPulse', 1.25]]) BOSS_ABILITIES[id].cd = TAKASHI_MOVES[id].cd * k;

@@ -37,8 +37,11 @@ test('the Iron Guard: a strike Kage used in his last few moves is parried; a fre
   S.Combat.applyHit(s, p, e, blow, 60, -120, -1);
   assert.equal(e.hp, hp0, 'the repeated strike was parried');
   assert.equal(p.state, 'stun', 'and Kage reels');
-  p.setState('idle'); e.abil = null; e.setState('idle');
+  p.setState('idle'); e.abil = null; e.setState('idle'); e.tkx = null;
   s.history = ['p1', 'k2', 'kk', 'ak', 'k1'];
+  // since the deflection duel (41-styles/takashi.js) a varied strike is turned aside at a chance that falls with his
+  // posture; with his posture cracking (below the duel's floor) it always lands
+  e.guard = 10;
   S.Combat.applyHit(s, p, e, blow, 60, -120, -1);
   assert.ok(e.hp < hp0, 'a varied strike lands');
 });

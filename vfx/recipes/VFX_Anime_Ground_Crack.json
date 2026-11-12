@@ -1,0 +1,1048 @@
+{
+  "id": "VFX_Anime_Ground_Crack",
+  "name": "Anime Ground Crack",
+  "category": "element",
+  "element": "lightning",
+  "duration": 1.45,
+  "loop": false,
+  "attach": "ground",
+  "peak": 0.03333333333333333,
+  "impact": 0.85,
+  "light": [
+    0.3,
+    0.85,
+    1
+  ],
+  "seed": 1729,
+  "layers": [
+    {
+      "name": "Floor pool",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_SoftCircle.png",
+      "color": [
+        60,
+        224,
+        255,
+        120
+      ],
+      "life": 74,
+      "delay": 2,
+      "size": 5.4,
+      "billboard": "Fixed",
+      "rotation": [
+        -90,
+        0,
+        0
+      ],
+      "spin": [
+        0,
+        0,
+        0
+      ],
+      "position": [
+        0,
+        0.05,
+        0
+      ],
+      "z_test": true,
+      "fade_in": 2,
+      "fade_out": 36,
+      "emissive": 1.1,
+      "color_curve": {
+        "R": [
+          [
+            0,
+            60
+          ],
+          [
+            40,
+            24
+          ],
+          [
+            100,
+            8
+          ]
+        ],
+        "G": [
+          [
+            0,
+            224
+          ],
+          [
+            40,
+            96
+          ],
+          [
+            100,
+            22
+          ]
+        ],
+        "B": [
+          [
+            0,
+            255
+          ],
+          [
+            40,
+            255
+          ],
+          [
+            100,
+            70
+          ]
+        ],
+        "A": [
+          [
+            0,
+            140
+          ],
+          [
+            40,
+            110
+          ],
+          [
+            100,
+            0
+          ]
+        ]
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Crack halo",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_CrackWeb01Glow.png",
+      "color": [
+        60,
+        224,
+        255,
+        210
+      ],
+      "life": 76,
+      "delay": 2,
+      "size": 4.9,
+      "billboard": "Fixed",
+      "rotation": [
+        -90,
+        0,
+        0
+      ],
+      "spin": [
+        0,
+        0,
+        0
+      ],
+      "position": [
+        0,
+        0.05,
+        0
+      ],
+      "z_test": true,
+      "fade_in": 0,
+      "fade_out": 30,
+      "emissive": 1.7,
+      "size_curve": [
+        [
+          0,
+          0.5
+        ],
+        [
+          7,
+          1.0
+        ],
+        [
+          100,
+          1.04
+        ]
+      ],
+      "color_curve": {
+        "R": [
+          [
+            0,
+            60
+          ],
+          [
+            12,
+            60
+          ],
+          [
+            55,
+            24
+          ],
+          [
+            100,
+            8
+          ]
+        ],
+        "G": [
+          [
+            0,
+            224
+          ],
+          [
+            12,
+            224
+          ],
+          [
+            55,
+            96
+          ],
+          [
+            100,
+            22
+          ]
+        ],
+        "B": [
+          [
+            0,
+            255
+          ],
+          [
+            12,
+            255
+          ],
+          [
+            55,
+            255
+          ],
+          [
+            100,
+            70
+          ]
+        ],
+        "A": [
+          [
+            0,
+            230
+          ],
+          [
+            12,
+            190
+          ],
+          [
+            55,
+            150
+          ],
+          [
+            100,
+            0
+          ]
+        ]
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Crack web",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_CrackWeb01.png",
+      "color": [
+        236,
+        255,
+        255,
+        255
+      ],
+      "life": 80,
+      "delay": 2,
+      "size": 4.5,
+      "billboard": "Fixed",
+      "rotation": [
+        -90,
+        0,
+        0
+      ],
+      "spin": [
+        0,
+        0,
+        0
+      ],
+      "position": [
+        0,
+        0.05,
+        0
+      ],
+      "z_test": true,
+      "fade_in": 0,
+      "fade_out": 12,
+      "emissive": 2.6,
+      "size_curve": [
+        [
+          0,
+          0.45
+        ],
+        [
+          6,
+          1.0
+        ],
+        [
+          100,
+          1.02
+        ]
+      ],
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseTile01.png",
+      "cutoff": {
+        "start": 0.02,
+        "end": 0.92,
+        "easing": "EaseInQuartic"
+      },
+      "edge": {
+        "color": [
+          60,
+          224,
+          255,
+          255
+        ],
+        "threshold": 0.1,
+        "scaling": 2
+      },
+      "color_curve": {
+        "R": [
+          [
+            0,
+            236
+          ],
+          [
+            7,
+            60
+          ],
+          [
+            55,
+            24
+          ],
+          [
+            100,
+            8
+          ]
+        ],
+        "G": [
+          [
+            0,
+            255
+          ],
+          [
+            7,
+            224
+          ],
+          [
+            55,
+            96
+          ],
+          [
+            100,
+            22
+          ]
+        ],
+        "B": [
+          [
+            0,
+            255
+          ],
+          [
+            7,
+            255
+          ],
+          [
+            55,
+            255
+          ],
+          [
+            100,
+            70
+          ]
+        ],
+        "A": [
+          [
+            0,
+            255
+          ],
+          [
+            7,
+            255
+          ],
+          [
+            55,
+            255
+          ],
+          [
+            100,
+            160
+          ]
+        ]
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Contact flash",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Flare01.png",
+      "color": [
+        236,
+        255,
+        255,
+        255
+      ],
+      "life": 4,
+      "delay": 2,
+      "size": 2.2,
+      "size_curve": [
+        [
+          0,
+          0.55
+        ],
+        [
+          25,
+          1
+        ],
+        [
+          100,
+          0.15
+        ]
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "fade_in": 0,
+      "fade_out": 2.4,
+      "emissive": 1.6,
+      "position": [
+        0,
+        0.25,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Break bloom",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        60,
+        224,
+        255,
+        110
+      ],
+      "life": 14,
+      "delay": 2,
+      "size": 2.6,
+      "size_curve": [
+        [
+          0,
+          0.25
+        ],
+        [
+          18,
+          1
+        ],
+        [
+          100,
+          1.25
+        ]
+      ],
+      "billboard": "Billboard",
+      "fade_in": 0,
+      "fade_out": 11.200000000000001,
+      "position": [
+        0,
+        0.3,
+        0
+      ],
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Ray fan",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_LightRays01.png",
+      "color": [
+        60,
+        224,
+        255,
+        220
+      ],
+      "life": 44,
+      "delay": 3,
+      "billboard": "YAxisFixed",
+      "pivot": "bottom",
+      "scale_start": [
+        4.2,
+        1.4,
+        1
+      ],
+      "fade_in": 2,
+      "fade_out": 26,
+      "position": [
+        0,
+        -0.45,
+        0
+      ],
+      "scale_end": [
+        5.0,
+        4.0,
+        1
+      ],
+      "easing": "EaseOutCubic",
+      "emissive": 1.6,
+      "color_curve": {
+        "R": [
+          [
+            0,
+            236
+          ],
+          [
+            20,
+            60
+          ],
+          [
+            100,
+            24
+          ]
+        ],
+        "G": [
+          [
+            0,
+            255
+          ],
+          [
+            20,
+            224
+          ],
+          [
+            100,
+            96
+          ]
+        ],
+        "B": [
+          [
+            0,
+            255
+          ],
+          [
+            20,
+            255
+          ],
+          [
+            100,
+            255
+          ]
+        ],
+        "A": [
+          [
+            0,
+            230
+          ],
+          [
+            20,
+            220
+          ],
+          [
+            100,
+            0
+          ]
+        ]
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Ray core",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_LightRays01.png",
+      "color": [
+        236,
+        255,
+        255,
+        180
+      ],
+      "life": 16,
+      "delay": 2,
+      "billboard": "YAxisFixed",
+      "pivot": "bottom",
+      "scale_start": [
+        2.2,
+        1.0,
+        1
+      ],
+      "fade_in": 0,
+      "fade_out": 12,
+      "position": [
+        0,
+        -0.3,
+        0
+      ],
+      "scale_end": [
+        2.6,
+        3.0,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "emissive": 1.8,
+      "color_curve": {
+        "R": [
+          [
+            0,
+            236
+          ],
+          [
+            30,
+            60
+          ],
+          [
+            100,
+            60
+          ]
+        ],
+        "G": [
+          [
+            0,
+            255
+          ],
+          [
+            30,
+            224
+          ],
+          [
+            100,
+            224
+          ]
+        ],
+        "B": [
+          [
+            0,
+            255
+          ],
+          [
+            30,
+            255
+          ],
+          [
+            100,
+            255
+          ]
+        ],
+        "A": [
+          [
+            0,
+            180
+          ],
+          [
+            30,
+            170
+          ],
+          [
+            100,
+            0
+          ]
+        ]
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Shock ring",
+      "renderer": "Ring",
+      "color": [
+        60,
+        224,
+        255,
+        255
+      ],
+      "life": 14,
+      "delay": 2,
+      "billboard": "Fixed",
+      "rotation": [
+        -80,
+        0,
+        0
+      ],
+      "ring": {
+        "outer": [
+          1,
+          0
+        ],
+        "inner": {
+          "start": [
+            0.9,
+            0
+          ],
+          "end": [
+            0.97,
+            0
+          ]
+        },
+        "center_ratio": 0.8,
+        "outer_color": [
+          60,
+          224,
+          255,
+          127
+        ],
+        "center_color": [
+          60,
+          224,
+          255,
+          255
+        ],
+        "inner_color": [
+          60,
+          224,
+          255,
+          0
+        ]
+      },
+      "size": 3.6,
+      "size_curve": [
+        [
+          0,
+          0.12
+        ],
+        [
+          35,
+          0.72
+        ],
+        [
+          100,
+          1
+        ]
+      ],
+      "fade_in": 0,
+      "fade_out": 9.799999999999999,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Rock chunks",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Shard01.png",
+      "color": [
+        30,
+        34,
+        46,
+        255
+      ],
+      "color_end": [
+        18,
+        20,
+        27,
+        255
+      ],
+      "count": 9,
+      "life": [
+        46,
+        50
+      ],
+      "delay": 2,
+      "blend": "Blend",
+      "rotation": [
+        0,
+        0,
+        [
+          -180,
+          180
+        ]
+      ],
+      "spin": [
+        0,
+        0,
+        [
+          -12,
+          12
+        ]
+      ],
+      "size": [
+        0.3,
+        0.6
+      ],
+      "size_end": [
+        0.24,
+        0.48
+      ],
+      "forces": [
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            -0.0055,
+            0
+          ]
+        }
+      ],
+      "fade_in": 0,
+      "fade_out": 6,
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          0.1
+        ],
+        "rotate": false
+      },
+      "travel": {
+        "end": [
+          [
+            -2.6,
+            2.6
+          ],
+          [
+            1.0,
+            2.2
+          ],
+          [
+            -0.4,
+            0.4
+          ]
+        ],
+        "easing": "EaseOutQuartic"
+      },
+      "collide": {
+        "height": 0.05,
+        "bounce": [
+          0.15,
+          0.35
+        ],
+        "friction": 0.6,
+        "reduction": 0.2
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Alpha.vfxmat.json"
+    },
+    {
+      "name": "Rock chips",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Shard01.png",
+      "color": [
+        78,
+        86,
+        104,
+        255
+      ],
+      "color_end": [
+        46,
+        51,
+        62,
+        255
+      ],
+      "count": 12,
+      "life": [
+        36,
+        46
+      ],
+      "delay": 2,
+      "blend": "Blend",
+      "rotation": [
+        0,
+        0,
+        [
+          -180,
+          180
+        ]
+      ],
+      "spin": [
+        0,
+        0,
+        [
+          -12,
+          12
+        ]
+      ],
+      "size": [
+        0.12,
+        0.3
+      ],
+      "size_end": [
+        0.096,
+        0.24
+      ],
+      "forces": [
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            -0.004,
+            0
+          ]
+        }
+      ],
+      "fade_in": 0,
+      "fade_out": 6,
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          0.1
+        ],
+        "rotate": false
+      },
+      "travel": {
+        "end": [
+          [
+            -2.4,
+            2.4
+          ],
+          [
+            1.2,
+            3.0
+          ],
+          [
+            -0.4,
+            0.4
+          ]
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "collide": {
+        "height": 0.02,
+        "bounce": [
+          0.15,
+          0.35
+        ],
+        "friction": 0.6,
+        "reduction": 0.2
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Alpha.vfxmat.json"
+    },
+    {
+      "name": "Spit sparks",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Spark01.png",
+      "color": [
+        236,
+        255,
+        255,
+        255
+      ],
+      "color_end": [
+        60,
+        224,
+        255,
+        255
+      ],
+      "count": 16,
+      "life": [
+        12,
+        20
+      ],
+      "delay": 2,
+      "billboard": "DirectionalBillboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          0.6
+        ],
+        "rotate": false
+      },
+      "travel": {
+        "end": [
+          [
+            -2.0,
+            2.0
+          ],
+          [
+            1.2,
+            2.8
+          ],
+          [
+            -0.3,
+            0.3
+          ]
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "scale_start": [
+        0.06,
+        [
+          0.3,
+          0.6
+        ],
+        1
+      ],
+      "scale_end": [
+        0.018,
+        0.06,
+        1
+      ],
+      "easing": "EaseInQuadratic",
+      "forces": [
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            -0.0022,
+            0
+          ]
+        }
+      ],
+      "fade_in": 0,
+      "fade_out": 5,
+      "emissive": 1.5,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Rising motes",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        60,
+        224,
+        255,
+        255
+      ],
+      "color_end": [
+        24,
+        96,
+        255,
+        0
+      ],
+      "count": 14,
+      "life": [
+        40,
+        60
+      ],
+      "delay": 10,
+      "interval": 0,
+      "billboard": "Billboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          1.8
+        ],
+        "rot_x": [
+          0,
+          90
+        ]
+      },
+      "travel": {
+        "end": [
+          0,
+          [
+            0.6,
+            1.6
+          ],
+          0
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "size": [
+        0.06,
+        0.12
+      ],
+      "size_end": 0,
+      "easing": "EaseInCubic",
+      "forces": [
+        {
+          "type": "Turbulence",
+          "power": 0.003,
+          "scale": 5
+        },
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            0.0012,
+            0
+          ]
+        }
+      ],
+      "fade_in": 1,
+      "fade_out": 6,
+      "emissive": 1.5,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    }
+  ],
+  "design": "A white contact, then a shattered web of fissures snaps open across the floor, white-hot in the centre and cyan outward, light shafts fan up out of the break, a shock ring races out, rock chips fly and land, and the fissures cool to deep blue and erode while cyan motes drift up.",
+  "delivery": {
+    "kind": "area"
+  },
+  "screen": {
+    "shake": 0.6,
+    "flash_frames": 1,
+    "flash": "white",
+    "hitstop": 0.06
+  }
+}

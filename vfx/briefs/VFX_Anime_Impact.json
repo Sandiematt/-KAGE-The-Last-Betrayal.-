@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Anime_Impact",
+  "role": "heavy-hit and critical impact frame at the hit point (tier 2+ hits)",
+  "style": "stylized anime combat, flat cel-shaded toon smoke (solid white, lavender shadow, hard-edged break-up) and saturated cyan energy with a white-hot core; side-view 2D, baked to sprite sheets for the Canvas game",
+  "dominant_shape": "a jagged impact star: white core, cream spikes over a saturated amber body, with radial speed lines",
+  "palette": {
+    "core": [
+      255,
+      255,
+      255
+    ],
+    "body": [
+      255,
+      244,
+      214
+    ],
+    "dark": [
+      255,
+      120,
+      40
+    ],
+    "matter": [
+      255,
+      196,
+      110
+    ]
+  },
+  "delivery": {
+    "kind": "melee"
+  },
+  "anchor": "impact",
+  "reference": {
+    "id": "user request 2026-11-12: two reference images, a cel-shaded white cartoon smoke blast with a hollow dome and ground swooshes, and a glowing cyan ground crack web with light rays and flying rock shards; apply across all combat, atmosphere and special anime effects"
+  },
+  "beats": [
+    {
+      "frame": 1,
+      "name": "pinch",
+      "expect": "a small pinch of light"
+    },
+    {
+      "frame": 3,
+      "name": "contact",
+      "expect": "white star, burst snapping open"
+    },
+    {
+      "frame": 8,
+      "name": "body",
+      "expect": "burst eroding from its spikes, speed lines and ring out"
+    },
+    {
+      "frame": 16,
+      "name": "glints",
+      "expect": "glints pop, sparks drooping"
+    },
+    {
+      "frame": 27,
+      "name": "clear",
+      "expect": "gone"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Pinch",
+      "role": "anticipation: a two-frame pinch of light",
+      "primitive": "glow",
+      "exit": "gone by absolute f3"
+    },
+    {
+      "name": "1:Contact flash",
+      "role": "contact",
+      "primitive": "flash",
+      "exit": "gone by absolute f5"
+    },
+    {
+      "name": "2:Amber body",
+      "role": "body: a larger saturated amber burst behind the cream spikes, cooling to a deep orange rim",
+      "primitive": "sprite T_Impact01 + hard_edge",
+      "exit": "gone by absolute f18"
+    },
+    {
+      "name": "3:Impact burst",
+      "role": "main shape: the jagged cream burst, eroding from its spikes with a hard edge",
+      "primitive": "sprite T_Impact01 + hard_edge",
+      "exit": "gone by absolute f17"
+    },
+    {
+      "name": "4:Speed lines",
+      "role": "contact accent: radial speed lines",
+      "primitive": "sprite T_SpeedLines01",
+      "exit": "gone by absolute f10"
+    },
+    {
+      "name": "5:Air ring",
+      "role": "body: a thin air ring crossing the blow",
+      "primitive": "tilted_ring",
+      "exit": "gone by absolute f13"
+    },
+    {
+      "name": "6:Sparks streaks",
+      "role": "secondary: warm sparks in tiers through the target",
+      "primitive": "spark_burst",
+      "exit": "gone by absolute f12"
+    },
+    {
+      "name": "7:Sparks",
+      "role": "secondary: warm sparks in tiers through the target",
+      "primitive": "spark_burst",
+      "exit": "gone by absolute f14"
+    },
+    {
+      "name": "8:Sparks heavy",
+      "role": "secondary: warm sparks in tiers through the target",
+      "primitive": "spark_burst",
+      "exit": "gone by absolute f22"
+    },
+    {
+      "name": "9:Glints",
+      "role": "accent: four-point glints as it clears",
+      "primitive": "sparkle",
+      "exit": "gone by absolute f21"
+    }
+  ],
+  "acceptance": [
+    "The burst is white only for the first frames, then cream and eroding with a hard edge",
+    "The contact is clearer than its neighbours"
+  ],
+  "avoid": [
+    "A lingering white blob",
+    "Fireworks: sparks in every direction"
+  ]
+}

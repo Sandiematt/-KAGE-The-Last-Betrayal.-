@@ -1,6 +1,6 @@
 SUB_HEADS.sentinel_helm = function (ctx, key, f, r, ink, flat, A, sv, t, acc, fill) {
   // a hoshi kabuto: a star-riveted bowl, a flared shikoro laced violet, turned-back wings, a forked lightning
-  // maedate in silver, an iron half menpō
+  // maedate in silver, an iron hōate (a guard on the chin and cheeks: the nose and the lips bare) with laced throat lames
   const SH = [[0.12, -0.56], [-0.86, -0.82], [-1.5, 0.0], [-1.8, 0.7, 1], [-0.9, 0.9], [-0.42, 0.46], [-0.2, -0.2]];
   fill(SH, SUB_LACQ, { sd: r * 0.26, hd: r * 0.05, rim: true, detail: (g) => {
     for (let i = 1; i <= 3; i++) {
@@ -12,7 +12,8 @@ SUB_HEADS.sentinel_helm = function (ctx, key, f, r, ink, flat, A, sv, t, acc, fi
       g.beginPath(); g.moveTo(r * (-0.3 - k * 0.2), r * (-0.4 + k * 0.95)); g.quadraticCurveTo(r * (-0.9 - k * 0.3), r * (-0.62 + k), r * (-1.2 - k * 0.6), r * (-0.5 + k * 1.25)); g.stroke();
     }
   } });
-  _halfMask(ctx, A, r);
+  _subThroat(ctx, A, r, SUB_LACQ, acc[1]);
+  _subShell(ctx, A, r, f, 'chin', SUB_LACQ, { sd: r * 0.16, hd: r * 0.07, rim: true });
   fill(KABUTO_BOWL, SUB_LACQ, { sd: r * 0.3, hd: r * 0.08, rim: true, detail: (g) => {
     g.fillStyle = ANIME.silver;
     for (const [x, y0] of [[-0.62, -0.98], [-0.2, -1.18], [0.24, -1.16], [0.62, -0.96]]) for (let j = 0; j < 3; j++) { g.beginPath(); g.arc(r * x * (1 + j * 0.12), r * (y0 + j * 0.2), r * 0.04, 0, TAU); g.fill(); }

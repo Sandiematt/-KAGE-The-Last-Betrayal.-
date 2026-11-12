@@ -1,0 +1,73 @@
+  /* ---- every phase: its own blade ---- */
+  // Echo Combo: Mugen no Ha's string, the school's heart. `cuts[look]` heavy beats (3, 3, 4, 4), each a full-body heave of
+  // the greatsword that glints a moment before it falls, lunges in and crushes a guard (`gb`); from phase III it blinks
+  // through Kage between beats. The last is an overhead cleave driven into the floor that knocks down and sends floor
+  // waves out (jump them).
+  // How to beat it: every beat can be PARRIED (a guard raised as the glint breaks). A parried beat costs its posture and
+  // it reels; in the duel phases (III and IV) the string does not end there: it comes back on the next beat, so the whole
+  // string has to be turned aside in rhythm, and each parry brings it nearer to breaking. Blocking each beat instead
+  // breaks Kage's guard by the third. A beat that whiffs leaves it over-committed (its posture takes more, WitnessStyle).
+  // `from`: the beat to resume on after a parry (a number; a fighter or nothing means the first).
+  echoCombo: { id: 'echoCombo', cd: WITNESS_MOVES.echoCombo.cd, range: WITNESS_MOVES.echoCombo.range, chance: WITNESS_MOVES.echoCombo.chance,
+    run(f, w, ai, from) {
+      const m = WITNESS_MOVES.echoCombo, p = w.player, look = WitnessBoss.lookOf(f), total = m.cuts[look] || 3;
+      const k0 = typeof from === 'number' ? from : 0, n = total - k0, E = m.every, span = n * E + 0.04;
+      const poses = [RAIKON_POSE.swingThrough, TAKASHI_POSE.cleaveLow, WT_POSE.cut, RAIKON_POSE.swingThrough], rots = [-0.3, 0.42, -0.1, 0.5];
+      const reach = () => 70 * f.scale + f.weaponLen();
+      const heave = last => (last ? m.heaveLast : m.heave) * E;   // the wind-up of a beat, from its start to the cut
+      WitnessAttack.run(f, w, ai, 'echoCombo', { trail: true, quiet: k0 > 0, durs: { telegraph: k0 ? 0.14 : null, active: span },
+        pose: (stage, u) => {
+          if (stage === 'telegraph') return RAIKON_POSE.swingBack;
+          if (stage !== 'active') return WT_POSE.cut;
+          const t = u * span, k = Math.min(n - 1, Math.floor(t / E)), v = t - k * E, last = k0 + k === total - 1;
+          if (last) return v < heave(true) ? RAIKON_POSE.overhead : RAIKON_POSE.slam;   // the cleave: raised, then driven down
+          return v < heave(false) ? RAIKON_POSE.swingBack : poses[(k0 + k) % poses.length];   // a heave back, then the cut thrown through
+        },
+        telegraph(f, w, atk, u) { if (u > 0.6 && !atk.data.glint) { atk.data.glint = 1; WitnessFX.glint(f, w); } },
+        active(f, w, atk, u, dt) {
+          const t = u * span, k = Math.floor(t / E), kk = k0 + k, last = kk === total - 1;
+          if (k < n && k !== atk.data.k) {
+            atk.data.k = k; atk.data.hit = false; atk.data.t0 = t; atk.data.fx = false; atk.data.glint = k === 0 && !k0 ? 1 : 0;
+            if (look >= 2 && kk % 2 === 1) {   // a blink through Kage to his other side
+              WitnessFX.step(w, f, f.x);
+              f.x = wtSide(w, p.x + Math.sign(p.x - f.x || 1) * 120 * f.scale);
+              WitnessFX.step(w, f, f.x);
+            }
+            f.facing = p.x > f.x ? 1 : -1;
+            f.vx = f.facing * Math.min(m.dash, Math.max(0, Math.abs(p.x - f.x) - 110 * f.scale)) / 0.16;
+            f.telegraph = Math.max(f.telegraph, heave(last));   // the eyes flash on every beat
+            AudioManager.play('heavyswing', { pitch: last ? 0.6 : 0.78 + kk * 0.05 });
+          }
+          f.vx = damp(f.vx, 0, 8, dt);
+          if (k >= n) return;
+          const since = t - atk.data.t0, swing = heave(last);
+          if (!atk.data.glint && since > swing - 0.15) { atk.data.glint = 1; WitnessFX.glint(f, w); }   // the glint a parry reads
+          if (since < swing) return;   // the heave back before each cut
+          if (!atk.data.fx) {
+            atk.data.fx = true;
+            const sx = f.x + f.facing * 110 * f.scale, sy = f.y - (last ? 90 : 120) * f.scale;
+            if (!WitnessFX.play(w, look >= 2 ? 'wt_slash_glitch' : 'wt_slash', sx, sy, { dir: f.facing, scale: f.scale * (last ? 1.4 : 1.05), rot: last ? 1.1 : rots[kk % rots.length] })) w.fx.ring(sx, sy, 120, WitnessFX.look(f).hot, 0.25, 4);
+            w.fx.shake(last ? 0.3 : 0.12);
+            if (last) {   // the cleave lands: the floor splits and waves run out from the blade
+              const x = f.x + f.facing * f.weaponLen() * 0.9, L = WitnessFX.look(f);
+              w.fx.dust(x, 0, 16); w.fx.ring(x, -6, 150, L.hot, 0.3, 4); WitnessFX.burst(w, x, -10, 12, L.hot, 0.8);
+              AudioManager.play('slam', { pitch: 0.8 });
+              for (let i = 0; i < (m.waves[look] || 1); i++) {
+                const dir = i === 0 ? f.facing : -f.facing;
+                const h = WitnessBoss.haz(w, { kind: 'wave', x, dir, speed: m.wave.speed, h: m.wave.h, dmg: m.wave.dmg, life: 2.4 });
+                h.sheet = WitnessFX.play(w, 'wt_wave', x, 0, { dir, scale: 0.56, loop: true }) || 1;
+              }
+            }
+          }
+          if (!atk.data.hit && since - swing < 0.13) {
+            const box = last ? fbox(f, -20, -280, reach() + 20 * f.scale, 280) : fbox(f, -30, -260, reach(), 260);
+            atk.data.hit = WitnessBoss.strike(w, f, box, last
+              ? { dmg: m.finisher * f.dmgMul, kb: 600, up: -520, hs: 0.55, imp: 3, kd: 1, hsnd: 'heavy', stamp: 'ECHO CLEAVE', gb: m.finisher * m.gb, tech: 'echoCut', beat: kk, last: true }
+              : { dmg: m.dmg * f.dmgMul, kb: 320, up: -140, hs: 0.26, imp: 2, hsnd: 'heavy', gb: m.dmg * m.gb, tech: 'echoCut', beat: kk });
+            if (atk.data.hit) { w.fx.shake(last ? 0.7 : 0.3); if (last) w.fx.slowmo(0.45, 0.35); }
+          }
+          // a beat that found nothing: it has over-committed (once per beat)
+          if (!atk.data.hit && !atk.data.spent && since - swing >= 0.13) { atk.data.spent = k; WitnessStyle.overcommit(w, f, last ? 14 : 6); }
+        },
+        recovery(f, w, atk, u, dt) { f.vx = damp(f.vx, 0, 10, dt); } });
+    } },

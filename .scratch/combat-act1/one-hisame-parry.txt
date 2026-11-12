@@ -1,0 +1,3 @@
+[hisame parry] hisame vs parry bot · act1.sub3 · normal · gear 2 · style: Tessenjutsu
+[hisame parry]   Kage wins 26/40, loses 14, timeouts 0 · avg 38s · Kage hp left 19% · foe hp left 8% (foe 403 hp, Kage 249 hp)
+[hisame parry]   per run: kageParries 3.1 · foeParries 1.6 · kageCrits 4.3 · foeCrits 4.4 · foeBroken 0 · kageBroken 0 · spamPunish 0.1 · throws 0 · styleStrings 12.2 · dmgToFoe 375 · dmgToKage 205

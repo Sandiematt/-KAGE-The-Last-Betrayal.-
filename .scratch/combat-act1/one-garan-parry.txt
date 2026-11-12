@@ -1,0 +1,3 @@
+[garan parry] garan vs parry bot · act1.sub2 · normal · gear 2 · style: Karate · Sumō
+[garan parry]   Kage wins 38/40, loses 2, timeouts 0 · avg 37.2s · Kage hp left 34% · foe hp left 2% (foe 448 hp, Kage 249 hp)
+[garan parry]   per run: kageParries 4.7 · foeParries 0.3 · kageCrits 7.5 · foeCrits 3.6 · foeBroken 0.8 · kageBroken 0.1 · spamPunish 0 · throws 0.6 · styleStrings 9.9 · dmgToFoe 447 · dmgToKage 165

@@ -1,0 +1,4 @@
+[garan masher] garan vs masher bot · act1.sub2 · normal · gear 2 · style: Karate · Sumō
+[garan masher]   Kage wins 1/20, loses 19, timeouts 0 · avg 31s · Kage hp left 2% · foe hp left 30% (foe 470 hp, Kage 249 hp)
+[garan masher]   per run: kageParries 0 · foeParries 0.6 · kageCrits 2.1 · foeCrits 5.8 · foeBroken 0.3 · kageBroken 0 · spamPunish 1.9 · throws 2.4 · styleStrings 6.3 · dmgToFoe 307 · dmgToKage 255
+[garan masher]   abilities: stormBreak×38 stormFist×38 roar×19 garanTsuppari×28 charge×7

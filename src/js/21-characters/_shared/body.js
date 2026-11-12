@@ -21,6 +21,7 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   const sk = this.sk, s = this.scale, b = this.build, f = this.facing;
   const skin = animeSkin(this);
   if (skin.witness) { witnessBody(this, ctx, front, flat, opt); return; }   // the Witness is its own mesh (bosses/witness/body.js)
+  if (skin.kage) { kageBody(this, ctx, front, flat, opt); return; }   // so is Kage (kage/body.js)
   const A = animeState(this, front, flat, opt), pal = A.pal, ord = skin.order, hol = skin.hollow;
   const big = b.w >= 16 ? 1.45 : b.w >= 13 ? 1.2 : 1;
   const L = b.w * s * 0.42 * (b.w >= 13 ? 1.15 : 1), T = L * 1.25 * big;   // the old limb units: armour overlays are sized by them
@@ -34,8 +35,7 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   this.headRot = this._ghostHead != null ? this._ghostHead : (this.pose.lean + this.pose.head + this.pose.rot + this.extraRot) * DEG * f;
 
   // --- 1. the coat's back panel, behind everything
-  // (Kage's embroidered coat is one full skirt over both legs: drawn in the flap's slot, kage/skirt.js)
-  if (skin.coat && !skin.coat.embroider) this.drawCoatPanel(ctx, 'back', A, skin, U);
+  if (skin.coat) this.drawCoatPanel(ctx, 'back', A, skin, U);
   if (hol) { this.hollowRobe(ctx, A, skin, U, 'cape'); this.hollowRobe(ctx, A, skin, U, 'back'); }   // enemies/hollow/
   subLayer(this, ctx, A, skin, U, 'back');   // capes, banners, robes behind the body (sub-bosses/)
   subBLayer(this, ctx, A, skin, U, 'back');   // sub-bosses/
@@ -63,8 +63,7 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   if (hol) this.hollowRobe(ctx, A, skin, U, 'flap');
   if (!akari) akariLayer(this, ctx, A, skin, U, 'gear');   // the Mei-En Garb's pink sash, over Kage's coat (bosses/akari/)
   // --- 6. sash / obi and the saya at the hip
-  if (skin.sash === 'kage') this.animeSash(ctx, S, A, U);
-  else if (skin.sash === 'obi' && !akari) this.animeObi(ctx, S, A, U);
+  if (skin.sash === 'obi' && !akari) this.animeObi(ctx, S, A, U);
   else if (skin.sash === 'order') this.orderBelt(ctx, S, A, U);
   else if (skin.sash === 'raikon') raikonLayer(this, ctx, A, skin, U, 'waist');   // his red obi and ring (bosses/raikon/)
   else if (skin.sash === 'akari') akariLayer(this, ctx, A, skin, U, 'waist');   // her belts, buckle and pouch (bosses/akari/)
@@ -74,15 +73,14 @@ Fighter.prototype.silhouette = function (ctx, front, back, flat, opt) {
   subLayer(this, ctx, A, skin, U, 'waist');
   subBLayer(this, ctx, A, skin, U, 'waist');
   remLayer(this, ctx, A, skin, U, 'waist');   // young Rem's tasuki (bosses/rem/)
-  if (this.outfit === 'gi' && !flat && skin.sash !== 'kage' && !skin.noGiSash) this.drawSash(ctx, T);
+  if (this.outfit === 'gi' && !flat && !skin.noGiSash) this.drawSash(ctx, T);
   if (skin.saya && this.hasWeapon) this.animeSaya(ctx, S, A, U);
   // --- 7. neck, collar and scarf wrap
   this.animeNeck(ctx, S, A, skin, U, hr);
   // --- 8. the head: black face, hair or helmet, white eyes
   ctx.save(); ctx.translate(sk.head.x, sk.head.y); ctx.rotate(this.headRot); ctx.scale(f, 1);
-  ctx.fillStyle = flat ? front : ANIME.face; ctx.beginPath();
-  animeHeadPath(ctx, hr * (akari ? 0.86 : 0.9));   // Takashi's hair and beard are drawn with his kasa (bosses/takashi/)
-  ctx.fill();
+  // the profile: brow, nose, lips, chin (face.js); hair, beards and masks are each character's own head.js
+  animeFace(this, ctx, A, hr * (akari ? 0.86 : 0.9), skin);
   drawHelmet(ctx, this.helmet, hr, flat ? front : this.isPlayer ? pal.metal[1] : (pal.armor || front), ov, this);
   if (!flat && !opt.noEyes) drawEyes(ctx, this, hr, opt);
   ctx.restore();

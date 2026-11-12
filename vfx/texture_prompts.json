@@ -184,6 +184,42 @@
    "post": "vfx process-texture --size 512 (alpha = luminance)",
    "source": "math mask from vfx/tools/make_witness_textures.py",
    "prompt": "A circular magic seal, white on pure black: an outer ring with a band of fine tick marks, a ring of twelve thick segments with gaps, four long spokes at the quarters, an inner double ring and an upward-pointing triangle at the centre. Flat greyscale mask, crisp vector edges, centred."
+  },
+  {
+   "id": "T_ToonPuffSheet01",
+   "size": 1024,
+   "prompt": "Use case: stylized-concept. Asset type: game VFX flipbook, 4x4 grid of 16 frames. ONE anime cel-shaded cloud puff animating left to right, top to bottom: it pops in small, billows open into a round cluster of overlapping circular lobes, then breaks apart into hard-edged torn chunks and vanishes. Solid flat white lobes with a cool lavender shadow crescent on each lobe's lower-right rim, crisp edges, no outline, no gradient. Each frame centred in its cell on a transparent background with a margin. No sky, no scene, no text.",
+   "source": "math texture: vfx/tools/make_anime_textures.py (analytic shapes); the prompt is for a painted replacement under the same name"
+  },
+  {
+   "id": "T_ToonPuff01",
+   "size": 256,
+   "prompt": "Use case: stylized-concept. Asset type: game VFX sprite. ONE anime cel-shaded cloud puff, a squat cluster of overlapping round lobes, wider than tall, solid flat white with a cool lavender shadow crescent on each lobe's lower-right rim, crisp edges, centred on a transparent background with a margin. No sky, no scene, no text.",
+   "source": "math texture: vfx/tools/make_anime_textures.py (analytic shapes); the prompt is for a painted replacement under the same name"
+  },
+  {
+   "id": "T_ToonSwoosh01",
+   "size": 512,
+   "prompt": "Use case: stylized-concept. Asset type: game VFX MASK. Anime ground wind streaks: four thin tapered white strokes fanning out to the left and four to the right from the centre, lying flat along the ground and lifting slightly at their outer ends, symmetric, crisp hard edges, white on pure black. No dust, no ground, no text.",
+   "source": "math texture: vfx/tools/make_anime_textures.py (analytic shapes); the prompt is for a painted replacement under the same name"
+  },
+  {
+   "id": "T_CrackWeb01",
+   "size": 512,
+   "prompt": "Use case: stylized-concept. Asset type: game VFX ground crack MASK seen exactly from above. A round shattered fracture web: a network of polygonal cells, small and dense in the centre and larger outward, with jagged radial cracks running past the edge of the web, white fissures on pure black, sharp lines, grayscale only. No stone surface, no perspective, no text.",
+   "source": "math texture: vfx/tools/make_anime_textures.py (analytic shapes); the prompt is for a painted replacement under the same name"
+  },
+  {
+   "id": "T_CrackWeb01Glow",
+   "size": 512,
+   "prompt": "Use case: stylized-concept. Asset type: game VFX glow MASK. The soft blurred halo of a round shattered crack web seen from above: brightest in the centre, soft glow following the cell network and the radial cracks, white on pure black. No hard lines, no text.",
+   "source": "math texture: vfx/tools/make_anime_textures.py (analytic shapes); the prompt is for a painted replacement under the same name"
+  },
+  {
+   "id": "T_LightRays01",
+   "size": 256,
+   "prompt": "Use case: stylized-concept. Asset type: game VFX MASK. A fan of soft vertical light shafts rising from a wide base at the bottom edge, spreading slightly outward, uneven widths and brightness, fading to black toward the top and the sides, white on pure black. No source object, no text.",
+   "source": "math texture: vfx/tools/make_anime_textures.py (analytic shapes); the prompt is for a painted replacement under the same name"
   }
  ]
 }

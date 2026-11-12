@@ -1,0 +1,4 @@
+utsushi vs turtle bot · act2.sub3 · normal · gear 4 · style: none
+  Kage wins 1/24, loses 23, timeouts 0 · avg 33.7s · Kage hp left 2% · foe hp left 49% (foe 448 hp, Kage 267 hp)
+  per run: kageParries 5.1 · foeParries 0.2 · kageCrits 5.8 · foeCrits 4 · foeBroken 0 · kageBroken 2.5 · spamPunish 0 · throws 0.3 · styleStrings 0 · dmgToFoe 229 · dmgToKage 245
+  abilities: blink×98 stolenBlink×98 roar×12 twinFang×24 stolenFang×24

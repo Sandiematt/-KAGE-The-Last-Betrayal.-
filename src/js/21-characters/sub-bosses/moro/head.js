@@ -34,23 +34,20 @@ SUBB_HEADS.oni_mask = SUBB_HEADS.oni_echo = function (ctx, key, f, r, ink, flat,
       g.strokeStyle = acc[1]; g.lineWidth = r * 0.04; g.beginPath(); g.moveTo(-r * 0.9, -r * 0.44); g.quadraticCurveTo(0, -r * 0.56, r * 1.0, -r * 0.38); g.stroke();
     } });
   }
-  // the menpō (the sentinel's covers the whole face, the eyes glowing through its holes)
-  const full = echo && !warden;
-  const MASK = full ? [[0.0, -0.78], [0.78, -0.74], [1.08, -0.3], [1.22, 0.32, 1], [1.02, 0.72], [0.6, 1.12], [0.16, 1.02], [-0.12, 0.4]]
-    : [[-0.12, 0.2], [0.55, 0.12], [1.04, 0.2], [1.24, 0.42, 1], [1.08, 0.64], [0.98, 0.94], [0.56, 1.12], [0.12, 1.02], [-0.16, 0.6]];
-  fill(MASK, echo || moro ? VIOLET_LACQ : SUB_IRON, { sd: r * 0.18, hd: r * 0.06, rim: true, detail: (g) => {
-    if (full) {
-      _eyeHoles(g, r);
-      g.strokeStyle = acc[1]; g.lineWidth = r * 0.05; g.beginPath(); g.moveTo(r * 0.2, -r * 0.22); g.quadraticCurveTo(r * 0.5, -r * 0.4, r * 0.98, -r * 0.2); g.stroke();
-    }
-    const y0 = full ? 0.54 : 0.5;
-    g.fillStyle = '#060406'; g.beginPath(); orderShape(g, r, [[0.42, y0, 1], [1.12, y0 - 0.04, 1], [1.0, y0 + 0.28], [0.5, y0 + 0.3]]); g.fill();
-    g.fillStyle = SUB_PAPER[0];
-    for (const x of [0.56, 0.98]) { g.beginPath(); g.moveTo(r * (x - 0.07), r * (y0 - 0.01)); g.lineTo(r * (x + 0.07), r * (y0 - 0.02)); g.lineTo(r * x, r * (y0 + 0.18)); g.closePath(); g.fill(); }
-    for (const x of [0.7, 0.86]) { g.beginPath(); g.moveTo(r * (x - 0.06), r * (y0 + 0.28)); g.lineTo(r * (x + 0.06), r * (y0 + 0.28)); g.lineTo(r * x, r * (y0 + 0.14)); g.closePath(); g.fill(); }
-    g.strokeStyle = acc[1]; g.lineWidth = r * 0.05; g.beginPath(); g.moveTo(r * 0.38, r * (y0 - 0.04)); g.quadraticCurveTo(r * 0.8, r * (y0 - 0.14), r * 1.16, r * (y0 - 0.06)); g.stroke();
-    g.strokeStyle = ANIME.outline; g.lineWidth = r * 0.045; g.beginPath(); g.moveTo(r * 0.2, r * 0.36); g.quadraticCurveTo(r * 0.3, r * 0.6, r * 0.22, r * 0.84); g.stroke();
-  } });
-  // a crack of violet memory light through the iron (Moro is half a Hollow; the echoes are memory)
-  if (!A.flat && (moro || echo)) _bolt(ctx, [[r * 0.3, r * (full ? -0.62 : 0.2)], [r * 0.38, r * (full ? -0.3 : 0.42)], [r * 0.26, r * (full ? -0.1 : 0.56)], [r * 0.36, r * (full ? 0.3 : 0.8)]], r * 0.025, acc[2]);
+  // the menpō, always the wearer's own face in lacquer so the nose, the mouth and the chin read through it:
+  //   the sentinel's covers the whole face (brow, nose, lips, chin), the eyes glowing through its holes, a snarl at the mouth
+  //   the warden's covers the jaw from under the nose, the snarl cut at the mouth
+  //   Moro's (and the Oni Menpō on Kage) is a jaw guard below the lips, two bone tusks rising beside the mouth
+  const full = echo && !warden, tone = echo || moro ? VIOLET_LACQ : SUB_IRON;
+  if (echo) {
+    _subShell(ctx, A, r, f, full ? 'full' : 'mouth', tone, { sd: r * 0.18, hd: r * 0.07, rim: true, detail: (g) => {
+      if (full) _eyeHoles(g, r);
+      _subSnarl(g, r, 0.61, acc[1]);
+    } });
+  } else {
+    _subShell(ctx, A, r, f, 'chin', tone, { sd: r * 0.18, hd: r * 0.07, rim: true });
+    if (!A.flat) _subFangs(ctx, r, [[0.66, 0.8, -0.26, 0.06], [0.5, 0.78, -0.18, 0.05]]);
+  }
+  // a crack of violet memory light through the lacquer (Moro is half a Hollow; the echoes are memory)
+  if (!A.flat && (moro || echo)) _bolt(ctx, full ? [[r * 0.32, -r * 0.7], [r * 0.4, -r * 0.4], [r * 0.3, -r * 0.24], [r * 0.4, r * 0.3]] : [[r * 0.22, r * 0.36], [r * 0.3, r * 0.6], [r * 0.2, r * 0.74], [r * 0.3, r * 0.98]], r * 0.025, acc[2]);
 };

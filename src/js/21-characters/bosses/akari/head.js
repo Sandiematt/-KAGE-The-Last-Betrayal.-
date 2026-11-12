@@ -1,5 +1,19 @@
-// the half-mask over the lower face (clipped to the face): its top edge under the eyes, across the bridge
-const AK_MASK_PTS = [[0.02, 0.16, 1], [0.5, 0.14], [1.1, 0.06, 1], [1.1, 1.2, 1], [0.0, 1.2, 1]];
+// the half-mask over the lower face: its top edge under the eyes, across the bridge of the nose. It is clipped to her
+// face's profile (AK_FACE, _skin.js), so the cloth is cut to the nose, the lips and the chin and they read in the
+// silhouette as on Kage
+const AK_MASK_PTS = [[0.02, 0.16, 1], [0.5, 0.15], [1.2, 0.08, 1], [1.2, 1.3, 1], [0.0, 1.3, 1]];
+
+// the light down her profile: her phase's petal pink (AKARI_PETALS), violet on the echo
+function _akFaceLight(f) { return f.hollow ? '#8064ec' : (AKARI_PETALS[f.petal] || AKARI_PETALS.violet)[0]; }
+
+// a strip of `col` along the front of the face (face.js's technique: what a copy shifted back leaves bare), clipped to it
+function _akFaceStrip(ctx, rf, prof, col, d) {
+  ctx.save(); ctx.beginPath(); animeFacePath(ctx, rf, prof); ctx.clip();
+  ctx.beginPath(); ctx.rect(-1e5, -1e5, 2e5, 2e5);
+  ctx.translate(-d, d * 0.14); animeFacePath(ctx, rf, prof); ctx.translate(d, -d * 0.14);
+  ctx.fillStyle = col; ctx.fill('evenodd');
+  ctx.restore();
+}
 
 function drawAkariHead(ctx, f, r, ink, flat) {
   const A = f && f._A;
@@ -7,18 +21,22 @@ function drawAkariHead(ctx, f, r, ink, flat) {
     ctx.fillStyle = flat ? ink : AK_HAIR[1];
     ctx.beginPath(); orderShape(ctx, r, AK_HAIR_CAP); orderShape(ctx, r, AK_SIDE); ctx.fill();
     ctx.beginPath(); ctx.arc(-0.5 * r, -0.98 * r, 0.3 * r, 0, TAU); ctx.fill();
+    if (f) { ctx.save(); ctx.beginPath(); orderShape(ctx, r, AK_MASK_PTS); ctx.clip(); ctx.beginPath(); animeFacePath(ctx, r * 0.86 * 1.05, faceProfile(animeSkin(f))); ctx.fill(); ctx.restore(); }   // the mask's shell
     return;
   }
-  const hol = f.hollow, vio = _akV(f), t = f.time || 0, sv = _headLight(A, f), rf = r * 0.86;
-  // the mask, clipped to the face, with two soft folds and a pink-lit top edge; the echo's cracked across
-  ctx.save(); ctx.beginPath(); animeHeadPath(ctx, rf); ctx.clip();
-  celFill(ctx, () => orderShape(ctx, r, AK_MASK_PTS), AK_MASK, A, { sd: r * 0.14, hd: r * 0.05, detail: (g) => {
-    g.strokeStyle = AK_MASK[0]; g.lineWidth = Math.max(0.7, r * 0.04); g.beginPath();
-    g.moveTo(0.3 * r, 0.4 * r); g.quadraticCurveTo(0.6 * r, 0.34 * r, 0.9 * r, 0.36 * r);
-    g.moveTo(0.24 * r, 0.62 * r); g.quadraticCurveTo(0.5 * r, 0.56 * r, 0.8 * r, 0.62 * r); g.stroke();
-    if (hol) hollowCrack(g, A, r, [[0.32, 0.2], [0.44, 0.42], [0.38, 0.6], [0.52, 0.86]], Math.max(0.6, r * 0.035));
-  } });
-  ctx.strokeStyle = vio[2]; ctx.globalAlpha *= 0.85; ctx.lineWidth = Math.max(0.8, r * 0.05); ctx.beginPath(); ctx.moveTo(0.04 * r, 0.16 * r); ctx.quadraticCurveTo(0.5 * r, 0.12 * r, 1.0 * r, 0.06 * r); ctx.stroke(); ctx.globalAlpha /= 0.85;
+  const hol = f.hollow, vio = _akV(f), t = f.time || 0, sv = _headLight(A, f), rf = r * 0.86, prof = faceProfile(animeSkin(f));
+  const lit = _akFaceLight(f), dep = Math.max(0.8, rf * (prof.depth || 0.06)), rm = rf * 1.05;
+  // the light down the profile above the mask: the brow and the bridge of the nose
+  _akFaceStrip(ctx, rf, prof, lit, dep);
+  // the mask: her own face grown a little (the cloth stands just proud of it), cut below the eyes, so the nose, the
+  // lips and the chin show through it; the same pink light down its front, a pink-lit top edge; the echo's cracked
+  ctx.save(); ctx.beginPath(); orderShape(ctx, r, AK_MASK_PTS); ctx.clip();
+  celFill(ctx, () => animeFacePath(ctx, rm, prof), AK_MASK, A, { sd: r * 0.12, hd: 0, seam: false, detail: hol ? (g) => {
+    hollowCrack(g, A, r, [[0.32, 0.2], [0.44, 0.42], [0.38, 0.6], [0.52, 0.86]], Math.max(0.6, r * 0.035));
+  } : null });
+  _akFaceStrip(ctx, rm, prof, lit, dep);
+  ctx.beginPath(); animeFacePath(ctx, rm, prof); ctx.clip();
+  ctx.strokeStyle = vio[2]; ctx.globalAlpha *= 0.85; ctx.lineWidth = Math.max(0.8, r * 0.05); ctx.beginPath(); ctx.moveTo(0.04 * r, 0.16 * r); ctx.quadraticCurveTo(0.5 * r, 0.14 * r, 1.2 * r, 0.08 * r); ctx.stroke(); ctx.globalAlpha /= 0.85;
   ctx.restore();
   // the eyes: white almonds above the mask, a soft halo (pink-tinged; stronger on the echo), narrowed when striking
   if (f.eye !== 'rgba(0,0,0,0)') {

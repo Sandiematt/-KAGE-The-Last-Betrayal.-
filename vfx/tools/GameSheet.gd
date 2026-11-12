@@ -12,6 +12,9 @@ extends Node3D
 ## --cx shifts the view right (metres); --track moves the camera +X that many metres per effect frame (less --decel
 ## per frame squared, until --stop), so a travelling front stays put in the frame while what it leaves behind slides
 ## back (the game moves the sprite).
+## --bg=V renders on a flat grey V (0..1) instead of black, and --flat switches the HDR glow off with a linear tonemap:
+## export_game.py renders alpha-blended effects (the toon smoke) twice, on black and on white, and recovers their real
+## alpha from the difference (a two-background matte), so the game draws them normally instead of adding them.
 ## Writes DIR/fNNN.png per sampled frame and DIR/capture.json (pixels per metre, where the effect origin lands).
 
 var id := ""
@@ -27,6 +30,8 @@ var launch_dist := 0.0
 var origin0 := Vector2.ZERO
 var cam0 := Vector3.ZERO
 var pitch_deg := 10.0
+var bg := 0.0
+var flat := false
 var frame := -1
 var last_sample := 0
 var camera: Camera3D
@@ -43,6 +48,8 @@ func _ready() -> void:
 		elif arg.begins_with("--stop="): stop_frame = int(arg.trim_prefix("--stop="))
 		elif arg.begins_with("--pitch="): pitch_deg = float(arg.trim_prefix("--pitch="))
 		elif arg.begins_with("--launch="): launch_dist = float(arg.trim_prefix("--launch="))
+		elif arg.begins_with("--bg="): bg = float(arg.trim_prefix("--bg="))
+		elif arg == "--flat": flat = true
 		elif arg.begins_with("--frames="):
 			for span in arg.trim_prefix("--frames=").split(","):
 				var p := span.split(":")
@@ -56,7 +63,7 @@ func _ready() -> void:
 	var world := WorldEnvironment.new()
 	var env := Environment.new()
 	env.background_mode = Environment.BG_COLOR
-	env.background_color = Color(0, 0, 0)
+	env.background_color = Color(bg, bg, bg)
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	env.ambient_light_color = Color(0, 0, 0)
 	# The Lab's measured HDR bloom and tonemapping (vfx/godot/scripts/VfxLab.gd), so the effect looks as reviewed.
@@ -76,6 +83,10 @@ func _ready() -> void:
 	env.set_glow_level(4, 0.6)
 	env.set_glow_level(5, 0.35)
 	env.glow_blend_mode = Environment.GLOW_BLEND_MODE_ADDITIVE
+	if flat:
+		env.glow_enabled = false
+		env.tonemap_mode = Environment.TONE_MAPPER_LINEAR
+		env.tonemap_white = 1.0
 	world.environment = env
 	add_child(world)
 	camera = Camera3D.new()

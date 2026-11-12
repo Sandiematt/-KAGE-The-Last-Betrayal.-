@@ -1,0 +1,4 @@
+tsugumi vs turtle bot · act2.sub1 · normal · gear 4 · style: none
+  Kage wins 8/24, loses 16, timeouts 0 · avg 46.7s · Kage hp left 8% · foe hp left 21% (foe 426 hp, Kage 267 hp)
+  per run: kageParries 8.4 · foeParries 0.4 · kageCrits 9 · foeCrits 5.5 · foeBroken 0.6 · kageBroken 4.3 · spamPunish 0 · throws 0.2 · styleStrings 0 · dmgToFoe 343 · dmgToKage 222
+  abilities: smokeStep×117 courierStep×117 roar×20 lunge×25

@@ -9,13 +9,6 @@ SUB_HEADS.oni = function (ctx, key, f, r, ink, flat, A, sv, t, acc, fill) {
   fill([[0.05, -0.85], [0.6, -1.06], [1.02, -1.5], [1.08, -2.5, 1], [0.84, -1.72], [0.56, -1.38], [0.0, -1.16]], ORDER_HORN, { sd: r * 0.16, hd: r * 0.05, rim: true, detail: (g) => {
     g.strokeStyle = acc[1]; g.lineWidth = r * 0.12; g.beginPath(); g.moveTo(r * 0.44, -r * 0.88); g.lineTo(r * 0.3, -r * 1.24); g.stroke();
   } });
-  fill([[-0.12, 0.2], [0.55, 0.12], [1.02, 0.22], [1.22, 0.42, 1], [1.06, 0.62], [0.96, 0.92], [0.56, 1.12], [0.14, 1.02], [-0.16, 0.62]], SUB_RED_LACQ, { sd: r * 0.18, hd: r * 0.06, rim: true, detail: (g) => {
-    // the snarl: a dark mouth, bone fangs, a bright lip line, wrinkles on the cheek
-    g.fillStyle = '#060303'; g.beginPath(); orderShape(g, r, [[0.42, 0.5, 1], [1.12, 0.46, 1], [1.0, 0.76], [0.5, 0.78]]); g.fill();
-    g.fillStyle = SUB_PAPER[1];
-    for (const [x, d] of [[0.56, 1], [0.78, 1], [0.98, 1]]) { g.beginPath(); g.moveTo(r * (x - 0.07), r * 0.49); g.lineTo(r * (x + 0.07), r * 0.48); g.lineTo(r * x, r * (0.49 + 0.17 * d)); g.closePath(); g.fill(); }
-    for (const x of [0.66, 0.88]) { g.beginPath(); g.moveTo(r * (x - 0.06), r * 0.77); g.lineTo(r * (x + 0.06), r * 0.77); g.lineTo(r * x, r * 0.64); g.closePath(); g.fill(); }
-    g.strokeStyle = acc[1]; g.lineWidth = r * 0.05; g.beginPath(); g.moveTo(r * 0.38, r * 0.46); g.quadraticCurveTo(r * 0.8, r * 0.36, r * 1.16, r * 0.44); g.stroke();
-    g.strokeStyle = ANIME.outline; g.lineWidth = r * 0.045; g.beginPath(); g.moveTo(r * 0.2, r * 0.36); g.quadraticCurveTo(r * 0.3, r * 0.6, r * 0.22, r * 0.84); g.moveTo(r * 0.5, r * 0.26); g.quadraticCurveTo(r * 0.7, r * 0.3, r * 0.9, r * 0.28); g.stroke();
-  } });
+  // the red oni menpō: his own jaw in lacquer from under the broken nose, the snarl cut where his mouth is
+  _subShell(ctx, A, r, f, 'mouth', SUB_RED_LACQ, { sd: r * 0.18, hd: r * 0.07, rim: true, detail: (g) => _subSnarl(g, r, 0.61, acc[1]) });
 };

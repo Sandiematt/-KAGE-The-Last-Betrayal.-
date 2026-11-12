@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Anime_Mist_Bank",
+  "role": "arena atmosphere: low toon mist banks rolling across the floor, several staggered per stage",
+  "style": "stylized anime combat, flat cel-shaded toon smoke (solid white, lavender shadow, hard-edged break-up) and saturated cyan energy with a white-hot core; side-view 2D, baked to sprite sheets for the Canvas game",
+  "dominant_shape": "flattened translucent toon cloud lobes along the floor",
+  "palette": {
+    "core": [
+      214,
+      220,
+      240
+    ],
+    "body": [
+      214,
+      220,
+      240
+    ],
+    "dark": [
+      190,
+      186,
+      228
+    ],
+    "matter": [
+      214,
+      220,
+      240
+    ]
+  },
+  "delivery": {
+    "kind": "area"
+  },
+  "anchor": "ground",
+  "reference": {
+    "id": "user request 2026-11-12: two reference images, a cel-shaded white cartoon smoke blast with a hollow dome and ground swooshes, and a glowing cyan ground crack web with light rays and flying rock shards; apply across all combat, atmosphere and special anime effects"
+  },
+  "beats": [
+    {
+      "frame": 20,
+      "name": "fade-in",
+      "expect": "banks fading in along the floor"
+    },
+    {
+      "frame": 80,
+      "name": "drift",
+      "expect": "banks drift downwind, edges nibbled"
+    },
+    {
+      "frame": 150,
+      "name": "break",
+      "expect": "banks tearing into scraps"
+    },
+    {
+      "frame": 200,
+      "name": "clear",
+      "expect": "gone"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Bank 1",
+      "role": "main shape: a flattened toon mist lobe drifting downwind, nibbled and torn",
+      "primitive": "sprite T_ToonPuff01",
+      "exit": "gone by absolute f200"
+    },
+    {
+      "name": "1:Bank 2",
+      "role": "main shape: a flattened toon mist lobe drifting downwind, nibbled and torn",
+      "primitive": "sprite T_ToonPuff01",
+      "exit": "gone by absolute f200"
+    },
+    {
+      "name": "2:Bank 3",
+      "role": "main shape: a flattened toon mist lobe drifting downwind, nibbled and torn",
+      "primitive": "sprite T_ToonPuff01",
+      "exit": "gone by absolute f200"
+    },
+    {
+      "name": "3:Bank 4",
+      "role": "main shape: a flattened toon mist lobe drifting downwind, nibbled and torn",
+      "primitive": "sprite T_ToonPuff01",
+      "exit": "gone by absolute f200"
+    },
+    {
+      "name": "4:Wisps",
+      "role": "secondary: small mist scraps drifting a little faster",
+      "primitive": "sprite T_ToonPuff01",
+      "exit": "gone by absolute f130"
+    }
+  ],
+  "acceptance": [
+    "Low and translucent: the fighters' feet and legs stay readable",
+    "Moves and changes shape the whole time"
+  ],
+  "avoid": [
+    "An opaque white wall",
+    "A static sticker band"
+  ]
+}

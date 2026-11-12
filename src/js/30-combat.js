@@ -726,7 +726,6 @@ const Combat = {
       if (def.blockT < PARRY_WINDOW && !m.proj) return this.parry(world, att, def, m, ix, iy, dir);
       const chip = m.dmg * 0.12 * att.dmgMul;
       def.hp = Math.max(1, def.hp - chip);
-      def.guard -= (m.gb || m.dmg * 1.3);
       def.vx = dir * (m.kb || 150) * 0.45;
       def.counterT = 0.45;
       def.rage = Math.min(100, def.rage + m.dmg * 0.4 * def.rageMul * (1 + (def.blockRage || 0)));
@@ -734,11 +733,9 @@ const Combat = {
       fx.sparks(ix, iy, -dir, 7, att.hasWeapon && m.kind === 'weapon' ? C.gold : C.bone);
       fx.stop(0.04); fx.shake(0.1);
       AudioManager.play(m.kind === 'weapon' || m.proj ? 'clang' : 'block');
-      if (def.guard <= 0) {
-        def.guard = 60; def.setState('stun'); def.stunT = 1.0 * (1 - def.stunRes * 0.5);
-        fx.stamp('GUARD BREAK', ix, iy, 2); AudioManager.play('guardbreak'); fx.hit(ix, iy, dir, 2, 'blunt');
-        if (chance(0.5)) world.dropWeapon(def);
-      }
+      // the blow lands on his posture (a repeated move wears it down less each time); posture gone, the guard breaks
+      if (Budo.postureHit(world, def, (m.gb || m.dmg * 1.3) * (m.proj ? 1 : Budo.stale(att)), ix, iy, dir, att)) { if (chance(0.5)) world.dropWeapon(def); }
+      else { Budo.emit(world, att, 'blocked', def, m); Budo.emit(world, def, 'block', att, m); }
       return;
     }
     // ---- clean hit ----
@@ -749,10 +746,11 @@ const Combat = {
     if (!m.proj) dmg *= Math.max(0.55, Math.pow(0.86, att.repeat));
     let counter = def.state === 'move' && def.mphase === 0;
     if (counter) dmg *= 1.2;
-    // critical strikes: counter-hits, blows from behind and the occasional clean strike
+    // critical strikes (Budo.crit, 13-budo.js): counter-hits, blows from behind, the cut that answers a parry, a blow
+    // on a broken guard, and a boss's or sub-boss's punish of a whiff
     // (a rage art's lesser blows are `quiet`: no critical, no counter tier, so only its finisher lands an impact frame)
-    const crit = att.isPlayer && !m.proj && !m.quiet && (counter || !front || chance(0.1));
-    if (crit) dmg *= 1.4;
+    const crit = Budo.crit(world, att, def, m, front, counter);
+    if (crit) dmg *= crit.mul;
     if (!front && !m.proj) dmg *= 1.1;
     if (def.def && def.def.heavyArmor && (m.imp || 0) <= 1) dmg *= 0.75;
     if (def.barrier > 0) { dmg *= 0.25; fx.popText(def, 'BARRIER', '#7fd0c8'); }
@@ -760,7 +758,7 @@ const Combat = {
     if (def.titanArmor) dmg *= def.titanArmor;
     // the spam read's answer (AIController.spamPunish): the punish cut lands harder and says so
     const punish = !!att.punishMove && att.punishMove === att.move && !m.proj;
-    if (punish) { dmg *= SPAM_READ.punishMul; att.punishMove = null; }
+    if (punish) { dmg *= (BUDO.roles[Budo.role(att)] || {}).punish1 || SPAM_READ.punishMul; att.punishMove = null; }
     // a blow that takes a share of its target's health (the Yashiro Titan's: `pct` of max health, whatever else applies)
     if (m.pct) dmg = m.pct * def.maxHp / Math.max(0.05, 1 - def.defense);
     let tier = m.imp || 0;
@@ -777,12 +775,14 @@ const Combat = {
     if (punish) { tier = 3; fx.stamp('PUNISHED', ix, iy, 3, att.accent || C.emberBright, 'SPAM PUNISHED'); fx.slowmo(0.45, 0.35); world.onSpamPunish && world.onSpamPunish(att, def); }
     else if (counter && att.isPlayer && !m.quiet) fx.stamp('COUNTER', ix, iy, Math.max(2, tier), C.gold);
     else if (crit) fx.stamp('CRITICAL', ix, iy, Math.max(2, tier), C.emberBright);
-    this.damage(world, att, def, dmg * (1 - def.defense), m, ix, iy, dir, tier, crit);
+    this.damage(world, att, def, dmg * (1 - def.defense), m, ix, iy, dir, tier, !!crit);
     if (!def.alive) return;
+    // a critical holds the screen still, and (below) throws the struck fighter back
+    if (crit) Budo.critFx(world, att, def, crit, ix, iy, dir);
     // Shizuka's silent cut: a blade with `echo` leaves a cut that opens on the foe a beat later (67-rage-arts.js)
     if (m.echo && !m.proj) RageArts.echo(world, att, def, m, dir);
     // reaction
-    const armored = def.superArmor && (def.state === 'move' || def.state === 'ability') || (def.def && def.def.heavyArmor && (m.imp || 0) <= 1 && !m.kd && def.grounded) || (def.titanArmor && !m.kd);
+    const armored = def.superArmor && (def.state === 'move' || def.state === 'ability') || (def.def && def.def.heavyArmor && (m.imp || 0) <= 1 && !m.kd && def.grounded && !crit) || (def.titanArmor && !m.kd);   // a critical staggers even heavy armour
     if (armored && !m.unb) { def.flash = 0.08; return; }
     def.move = null;
     if (def.abil) { const keep = def.abil.uninterruptible; if (!keep) def.endAbility(world); else { def.flash = 0.08; return; } }
@@ -804,14 +804,16 @@ const Combat = {
       def.setState('hit'); def.hitstun = (m.hs || 0.3) * (1 - def.stunRes * 0.4); def.vx = dir * (m.kb || 150) * kbMul; def.hitGut = chance(0.4);
     }
     if (m.stun) { def.setState('stun'); def.stunT = m.stun * (1 - def.stunRes); }
+    if (crit) Budo.reel(world, att, def, dir);
     if (m.disarm && chance(m.disarm * (def.def && def.def.type === 'boss' ? 0.4 : 1))) world.dropWeapon(def);
     if (m.id === 'hk' && att.moveCharge > 0.8 && chance(0.25)) world.dropWeapon(def);
   },
   parry(world, att, def, m, ix, iy, dir) {
     const fx = world.fx;
     att.move = null; att.abil = null; att.setState('stun');
-    att.stunT = (att.def && att.def.type === 'boss' ? 0.6 : 0.85) * (1 - att.stunRes * 0.5);
     att.vx = -att.facing * 260;
+    // how long the parried fighter reels and what it costs his posture; Kage's own cut is only deflected (Budo.parried)
+    Budo.parried(world, att, def, m, ix, iy, dir);
     def.counterT = 0.75; def.rage = Math.min(100, def.rage + 14 * def.rageMul); def.stats.parries++;
     def.setState('idle');
     fx.sparks(ix, iy, -dir, 26, '#ffe2a8', 1.5); fx.clashFlare(ix, iy); fx.enso(ix, iy, 120, 'rgba(201,164,92,0.95)', 0.6);
@@ -852,6 +854,7 @@ const Combat = {
     if (tier >= 3) AudioManager.play('impact');
     if (m.stamp && !lethal && tier >= 3 && !crit) fx.stamp(m.stamp, ix, iy, tier);
     world.onHit && world.onHit(att, def, dmg, m);
+    Budo.emit(world, att, 'land', def, m); Budo.emit(world, def, 'hurt', att, m);
     this.checkKO(world, att, def, m);
   },
   checkKO(world, att, def, m) {

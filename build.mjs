@@ -52,5 +52,9 @@ const out = template
   .replace('/*__CSS__*/', () => fontCss + '\n' + cssInlined)
   .replace('/*__JS__*/', () => `(function(){\n'use strict';\n${jsInlined}\n})();`);
 
-fs.writeFileSync(path.join(root, 'index.html'), out);
-console.log(`index.html written: ${(out.length / 1024).toFixed(1)} KB from ${files.length} modules + ${FONTS.length} fonts + ${images} images`);
+// `--out <file>` writes the build somewhere else (render tools and parallel work build their own copy)
+const outArg = process.argv.indexOf('--out');
+const outFile = outArg > 0 && process.argv[outArg + 1] ? path.resolve(process.argv[outArg + 1]) : path.join(root, 'index.html');
+fs.mkdirSync(path.dirname(outFile), { recursive: true });
+fs.writeFileSync(outFile, out);
+console.log(`${path.relative(root, outFile) || outFile} written: ${(out.length / 1024).toFixed(1)} KB from ${files.length} modules + ${FONTS.length} fonts + ${images} images`);

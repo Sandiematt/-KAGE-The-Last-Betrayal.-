@@ -1,0 +1,3 @@
+[hisame fighter] hisame vs fighter bot · act1.sub3 · normal · gear 2 · style: Tessenjutsu
+[hisame fighter]   Kage wins 21/40, loses 19, timeouts 0 · avg 40.7s · Kage hp left 14% · foe hp left 11% (foe 420 hp, Kage 249 hp)
+[hisame fighter]   per run: kageParries 2.3 · foeParries 1.6 · kageCrits 4.4 · foeCrits 4.5 · foeBroken 0 · kageBroken 0.1 · spamPunish 0.5 · throws 0 · styleStrings 13.3 · dmgToFoe 380 · dmgToKage 216

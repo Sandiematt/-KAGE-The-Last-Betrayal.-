@@ -1,0 +1,4 @@
+[shiden parry] shiden vs parry bot · act1.sub4 · normal · gear 2 · style: Sōjutsu · Hōzōin-ryū
+[shiden parry]   Kage wins 27/30, loses 3, timeouts 0 · avg 46s · Kage hp left 27% · foe hp left 1% (foe 470 hp, Kage 249 hp)
+[shiden parry]   per run: kageParries 5.3 · foeParries 2.3 · kageCrits 8.4 · foeCrits 3.8 · foeBroken 0 · kageBroken 0.4 · spamPunish 0.1 · throws 0 · styleStrings 14.5 · dmgToFoe 470 · dmgToKage 180
+[shiden parry]   abilities: stormBreak×120 vanguardBreak×120 shidenBrace×85 roar×30 vanguardGuard×40

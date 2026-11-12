@@ -775,6 +775,8 @@ const Renderer = {
     TakashiBoss.drawBehind(ctx, s, realT);   // the floor cracks, blade marks and the Yashiro Titan behind him (66-takashi.js)
     WitnessDraw.behind(ctx, s, realT);   // the Witness's floor, marks, well and anchors (69b-witness-draw.js)
     RageArts.drawBehind(ctx, s, realT);   // rage arts: floor cracks, rocks, the dragon's far coils, the shadow clones, chains
+    AnimeFx.ambient(s, realT);   // low anime mist banks rolling across the floor (39-anime-fx.js)
+    fx.drawSheets(ctx, true);   // baked effects that lie on the floor behind the fighters: the ground crack, the mist
     for (const f of s.fighters) f.drawShadow(ctx);
     for (const f of s.fighters) this.drawAuras(ctx, f, realT);
     const order = s.fighters.slice().sort((a, b) => (a.alive ? 1 : 0) - (b.alive ? 1 : 0) || (a.isPlayer ? 1 : 0) - (b.isPlayer ? 1 : 0));
@@ -785,6 +787,7 @@ const Renderer = {
     }
     for (const f of order) this.drawTrails(ctx, f, realT);
     WeaponSystem.draw(ctx, s);
+    Budo.drawWorld(ctx, s);   // posture bars over fighters whose guard is hurt or broken (13-budo.js)
     AkariChain.draw(ctx, s, realT);   // Akari's chain, Petal Burst's petals and lotus, the bound prompt (62b-akari-chain.js)
     fx.drawWorld(ctx);
     fx.drawStormWorld(ctx);

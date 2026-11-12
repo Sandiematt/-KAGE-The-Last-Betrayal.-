@@ -1,0 +1,4 @@
+hollow_akari vs masher bot · core.echo2 · normal · gear 8 · style: none
+  Kage wins 8/8, loses 0, timeouts 0 · avg 21.9s · Kage hp left 24% · foe hp left 0% (foe 493 hp, Kage 301 hp)
+  per run: kageParries 0 · foeParries 0.6 · kageCrits 1.9 · foeCrits 6.4 · foeBroken 0 · kageBroken 0 · spamPunish 4.3 · throws 0 · styleStrings 0 · dmgToFoe 505 · dmgToKage 228
+  abilities: smokeStep×15 hollowStep×15 roar×8 falseOpening×6 hollowOpening×6 twinFang×16 hollowFang×16

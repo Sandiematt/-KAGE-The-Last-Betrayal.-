@@ -1767,5 +1767,162 @@
     "preview": "previews/VFX_Witness_Slash_Glitch.png",
     "particle_budget": 36,
     "layers": 13
+  },
+  {
+    "id": "VFX_Anime_Dust_Kick",
+    "name": "Anime Dust Kick",
+    "category": "hit",
+    "element": "physical",
+    "duration": 0.6,
+    "loop": false,
+    "attach": "ground",
+    "peak": 0,
+    "impact": 0.1,
+    "light": [
+      1,
+      1,
+      1
+    ],
+    "seed": 1729,
+    "design": "A short spurt of cel-shaded dust bursts back along the floor from the foot and hangs, a white streak skims the floor and a few pebbles skip.",
+    "delivery": {
+      "kind": "self"
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Anime_Dust_Kick.py",
+    "file": "res://effects/VFX_Anime_Dust_Kick.efkefc",
+    "runtime": "exports/VFX_Anime_Dust_Kick.efk",
+    "preview": "previews/VFX_Anime_Dust_Kick.png",
+    "particle_budget": 12,
+    "layers": 4
+  },
+  {
+    "id": "VFX_Anime_Ground_Crack",
+    "name": "Anime Ground Crack",
+    "category": "element",
+    "element": "lightning",
+    "duration": 1.45,
+    "loop": false,
+    "attach": "ground",
+    "peak": 0.03333333333333333,
+    "impact": 0.85,
+    "light": [
+      0.3,
+      0.85,
+      1
+    ],
+    "seed": 1729,
+    "design": "A white contact, then a shattered web of fissures snaps open across the floor, white-hot in the centre and cyan outward, light shafts fan up out of the break, a shock ring races out, rock chips fly and land, and the fissures cool to deep blue and erode while cyan motes drift up.",
+    "delivery": {
+      "kind": "area"
+    },
+    "screen": {
+      "shake": 0.6,
+      "flash_frames": 1,
+      "flash": "white",
+      "hitstop": 0.06
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Anime_Ground_Crack.py",
+    "file": "res://effects/VFX_Anime_Ground_Crack.efkefc",
+    "runtime": "exports/VFX_Anime_Ground_Crack.efk",
+    "preview": "previews/VFX_Anime_Ground_Crack.png",
+    "particle_budget": 59,
+    "layers": 12
+  },
+  {
+    "id": "VFX_Anime_Impact",
+    "name": "Anime Impact",
+    "category": "hit",
+    "element": "physical",
+    "duration": 0.38,
+    "loop": false,
+    "attach": "impact",
+    "peak": 0.03333333333333333,
+    "impact": 0.8,
+    "light": [
+      1,
+      0.9,
+      0.7
+    ],
+    "seed": 1729,
+    "design": "A two-frame pinch, a white contact star, a jagged cream burst over a larger amber body that snap open and erode from their spikes, radial speed lines and an air ring, warm sparks through the target and three glints that pop and pinch out.",
+    "delivery": {
+      "kind": "melee"
+    },
+    "screen": {
+      "shake": 0.3,
+      "flash_frames": 1,
+      "flash": "white",
+      "hitstop": 0.05
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Anime_Impact.py",
+    "file": "res://effects/VFX_Anime_Impact.efkefc",
+    "runtime": "exports/VFX_Anime_Impact.efk",
+    "preview": "previews/VFX_Anime_Impact.png",
+    "particle_budget": 27,
+    "layers": 10
+  },
+  {
+    "id": "VFX_Anime_Mist_Bank",
+    "name": "Anime Mist Bank",
+    "category": "status",
+    "element": "physical",
+    "duration": 3.3333333333333335,
+    "loop": false,
+    "attach": "ground",
+    "peak": 0,
+    "impact": 0,
+    "light": [
+      1,
+      1,
+      1
+    ],
+    "seed": 1729,
+    "design": "Flattened pale blue-white toon cloud lobes fade in low along the floor, billow slowly as they drift downwind, and tear into hard-edged scraps as they go.",
+    "delivery": {
+      "kind": "area"
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Anime_Mist_Bank.py",
+    "file": "res://effects/VFX_Anime_Mist_Bank.efkefc",
+    "runtime": "exports/VFX_Anime_Mist_Bank.efk",
+    "preview": "previews/VFX_Anime_Mist_Bank.png",
+    "particle_budget": 10,
+    "layers": 5
+  },
+  {
+    "id": "VFX_Anime_Smoke_Burst",
+    "name": "Anime Smoke Burst",
+    "category": "element",
+    "element": "physical",
+    "duration": 1.2,
+    "loop": false,
+    "attach": "ground",
+    "peak": 0.016666666666666666,
+    "impact": 0.5,
+    "light": [
+      1,
+      1,
+      1
+    ],
+    "seed": 1729,
+    "design": "A hard white starburst and flash squash onto the floor; cel-shaded white cloud banks then ease out left and right, leaving a hollow dome of clear air traced by broken white strokes; wind streaks fan along the floor, blobs of smoke spit up and fall, and the banks tear into hard-edged chunks.",
+    "delivery": {
+      "kind": "area"
+    },
+    "screen": {
+      "shake": 0.4,
+      "flash_frames": 0,
+      "hitstop": 0.03
+    },
+    "built_by": "effekseer-vfx",
+    "source": "vfx/src/VFX_Anime_Smoke_Burst.py",
+    "file": "res://effects/VFX_Anime_Smoke_Burst.efkefc",
+    "runtime": "exports/VFX_Anime_Smoke_Burst.efk",
+    "preview": "previews/VFX_Anime_Smoke_Burst.png",
+    "particle_budget": 30,
+    "layers": 13
   }
 ]

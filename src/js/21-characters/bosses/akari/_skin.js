@@ -44,9 +44,13 @@ const AK_SAKURA = ['#b8326f', '#ff7ab8', '#fff0f6'];           // petals shadow 
 const AK_SAKURA_H = ['#483440', '#846676', '#c8b2bd'];         // ash
 
 /* ---- skins ---- */
-ANIME_SKINS.akari = { top: 'gi', feet: 'boot', sleeve: 1, kote: false, collar: false, sash: 'akari', noGiSash: true, akari: 'boss', rimTint: [255, 110, 180] };
+// her face (_shared/face.js): a woman's, a fine nose lifted at the tip, full lips, a small pointed chin. The mask is
+// cut to it (head.js), and her head draws the light down the profile itself, in her phase's petal pink
+const AK_FACE = { of: 'fem', nose: 0.9, up: 0.06, lip: 1.45, chin: 0.86, jaw: 0.88, brow: 0.4, light: false, depth: 0.1 };
 
-ANIME_SKINS.hollow_akari = { top: 'gi', feet: 'boot', sleeve: 1, kote: false, collar: false, sash: 'akari', noGiSash: true, akari: 'hollow',
+ANIME_SKINS.akari = { top: 'gi', feet: 'boot', sleeve: 1, kote: false, collar: false, sash: 'akari', noGiSash: true, akari: 'boss', rimTint: [255, 110, 180], face: AK_FACE };
+
+ANIME_SKINS.hollow_akari = { top: 'gi', feet: 'boot', sleeve: 1, kote: false, collar: false, sash: 'akari', noGiSash: true, akari: 'hollow', face: AK_FACE,
   hollow: { fray: 1, robe: {} } };   // `hollow` gives the deep palette; her cloth is her own (ahair, asash, atail)
 
 const _akH = (f) => animeSkin(f).akari === 'hollow';

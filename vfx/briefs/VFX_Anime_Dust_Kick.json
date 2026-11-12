@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Anime_Dust_Kick",
+  "role": "footwork dust: dashes, step-ins, skids, sharp turns (very frequent, small)",
+  "style": "stylized anime combat, flat cel-shaded toon smoke (solid white, lavender shadow, hard-edged break-up) and saturated cyan energy with a white-hot core; side-view 2D, baked to sprite sheets for the Canvas game",
+  "dominant_shape": "a short low spurt of cel-shaded dust thrown back along the floor",
+  "palette": {
+    "core": [
+      255,
+      255,
+      255
+    ],
+    "body": [
+      255,
+      255,
+      255
+    ],
+    "dark": [
+      190,
+      186,
+      228
+    ],
+    "matter": [
+      78,
+      86,
+      104
+    ]
+  },
+  "delivery": {
+    "kind": "self"
+  },
+  "anchor": "ground",
+  "reference": {
+    "id": "user request 2026-11-12: two reference images, a cel-shaded white cartoon smoke blast with a hollow dome and ground swooshes, and a glowing cyan ground crack web with light rays and flying rock shards; apply across all combat, atmosphere and special anime effects"
+  },
+  "beats": [
+    {
+      "frame": 1,
+      "name": "kick",
+      "expect": "puffs burst out low, streak skims"
+    },
+    {
+      "frame": 10,
+      "name": "hang",
+      "expect": "puffs hang and billow"
+    },
+    {
+      "frame": 26,
+      "name": "break",
+      "expect": "puffs tear apart"
+    },
+    {
+      "frame": 36,
+      "name": "clear",
+      "expect": "gone"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Kick puffs",
+      "role": "main shape: the dust spurt thrown back along the floor",
+      "primitive": "toon_puffs T_ToonPuffSheet01",
+      "exit": "gone by absolute f32"
+    },
+    {
+      "name": "1:Heel puffs",
+      "role": "small puffs at the heel",
+      "primitive": "toon_puffs T_ToonPuffSheet01",
+      "exit": "gone by absolute f25"
+    },
+    {
+      "name": "2:Floor streak",
+      "role": "ground feedback: a white streak skimming the floor",
+      "primitive": "sprite T_Streak01",
+      "exit": "gone by absolute f9"
+    },
+    {
+      "name": "3:Pebbles",
+      "role": "matter: pebbles skipping",
+      "primitive": "debris",
+      "exit": "gone by absolute f28"
+    }
+  ],
+  "acceptance": [
+    "Small: stays under knee height and never hides the feet",
+    "Reads as the same toon smoke as the ground blast"
+  ],
+  "avoid": [
+    "A big cloud for a step",
+    "Soft grey dust"
+  ]
+}

@@ -1,0 +1,287 @@
+{
+  "id": "VFX_Anime_Dust_Kick",
+  "name": "Anime Dust Kick",
+  "category": "hit",
+  "element": "physical",
+  "duration": 0.6,
+  "loop": false,
+  "attach": "ground",
+  "peak": 0,
+  "impact": 0.1,
+  "light": [
+    1,
+    1,
+    1
+  ],
+  "seed": 1729,
+  "layers": [
+    {
+      "name": "Kick puffs",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ToonPuffSheet01.png",
+      "color": [
+        255,
+        255,
+        255,
+        255
+      ],
+      "count": 4,
+      "life": [
+        26,
+        32
+      ],
+      "delay": 0,
+      "blend": "Blend",
+      "billboard": "Billboard",
+      "rotation": [
+        0,
+        0,
+        [
+          -6,
+          6
+        ]
+      ],
+      "size": [
+        0.36,
+        0.58
+      ],
+      "size_end": [
+        0.42479999999999996,
+        0.6843999999999999
+      ],
+      "flipbook": {
+        "x": 4,
+        "y": 4,
+        "frame_length": 2,
+        "loop": "Once",
+        "lerp": false
+      },
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          0.12
+        ],
+        "rotate": false
+      },
+      "travel": {
+        "end": [
+          [
+            0.35,
+            1.25
+          ],
+          [
+            0.12,
+            0.42
+          ],
+          [
+            -0.15,
+            0.2
+          ]
+        ],
+        "easing": "EaseOutQuartic"
+      },
+      "fade_in": 0,
+      "fade_out": 3,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Alpha.vfxmat.json"
+    },
+    {
+      "name": "Heel puffs",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ToonPuffSheet01.png",
+      "color": [
+        255,
+        255,
+        255,
+        255
+      ],
+      "count": 2,
+      "life": [
+        20,
+        24
+      ],
+      "delay": 1,
+      "blend": "Blend",
+      "billboard": "Billboard",
+      "rotation": [
+        0,
+        0,
+        [
+          -6,
+          6
+        ]
+      ],
+      "size": [
+        0.24,
+        0.34
+      ],
+      "size_end": [
+        0.28319999999999995,
+        0.4012
+      ],
+      "flipbook": {
+        "x": 4,
+        "y": 4,
+        "frame_length": 1,
+        "loop": "Once",
+        "lerp": false
+      },
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          0.05
+        ],
+        "rotate": false
+      },
+      "travel": {
+        "end": [
+          [
+            -0.1,
+            0.3
+          ],
+          [
+            0.1,
+            0.22
+          ],
+          [
+            0,
+            0.2
+          ]
+        ],
+        "easing": "EaseOutQuartic"
+      },
+      "fade_in": 0,
+      "fade_out": 3,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Alpha.vfxmat.json"
+    },
+    {
+      "name": "Floor streak",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Streak01.png",
+      "color": [
+        255,
+        255,
+        255,
+        255
+      ],
+      "life": 9,
+      "delay": 0,
+      "blend": "Blend",
+      "position": [
+        0.5,
+        0.05,
+        0.1
+      ],
+      "scale_start": [
+        0.8,
+        0.9,
+        1
+      ],
+      "scale_end": [
+        2.0,
+        0.2,
+        1
+      ],
+      "easing": "EaseOutQuartic",
+      "fade_in": 0,
+      "fade_out": 5,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Alpha.vfxmat.json"
+    },
+    {
+      "name": "Pebbles",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Shard01.png",
+      "color": [
+        78,
+        86,
+        104,
+        255
+      ],
+      "color_end": [
+        46,
+        51,
+        62,
+        255
+      ],
+      "count": 5,
+      "life": [
+        20,
+        28
+      ],
+      "delay": 0,
+      "blend": "Blend",
+      "rotation": [
+        0,
+        0,
+        [
+          -180,
+          180
+        ]
+      ],
+      "spin": [
+        0,
+        0,
+        [
+          -12,
+          12
+        ]
+      ],
+      "size": [
+        0.04,
+        0.08
+      ],
+      "size_end": [
+        0.032,
+        0.064
+      ],
+      "forces": [
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            -0.004,
+            0
+          ]
+        }
+      ],
+      "fade_in": 0,
+      "fade_out": 6,
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          0.1
+        ],
+        "rotate": false
+      },
+      "travel": {
+        "end": [
+          [
+            0.4,
+            1.4
+          ],
+          [
+            0.25,
+            0.7
+          ],
+          [
+            -0.1,
+            0.2
+          ]
+        ],
+        "easing": "EaseOutCubic"
+      },
+      "collide": {
+        "height": 0.02,
+        "bounce": [
+          0.15,
+          0.35
+        ],
+        "friction": 0.6,
+        "reduction": 0.2
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Alpha.vfxmat.json"
+    }
+  ],
+  "design": "A short spurt of cel-shaded dust bursts back along the floor from the foot and hangs, a white streak skims the floor and a few pebbles skip.",
+  "delivery": {
+    "kind": "self"
+  }
+}

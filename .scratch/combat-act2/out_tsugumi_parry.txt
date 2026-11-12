@@ -1,0 +1,4 @@
+tsugumi vs parry bot · act2.sub1 · normal · gear 4 · style: Shurikenjutsu
+  Kage wins 11/12, loses 1, timeouts 0 · avg 34.5s · Kage hp left 33% · foe hp left 4% (foe 426 hp, Kage 267 hp)
+  per run: kageParries 3.3 · foeParries 0 · kageCrits 5.9 · foeCrits 2.3 · foeBroken 0 · kageBroken 0 · spamPunish 0.3 · throws 0 · styleStrings 12.8 · dmgToFoe 421 · dmgToKage 178
+  abilities: smokeStep×30 courierStep×30 roar×11 lunge×13 tsugumiFan×10

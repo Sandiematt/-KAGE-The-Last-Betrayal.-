@@ -1,13 +1,12 @@
 SUBB_HEADS.iron_kabuto = function (ctx, key, f, r, ink, flat, A, sv, t, acc, sub, fill, studs, shikoro) {
   // Gonryu's tetsu kabuto: a deep laced shikoro, an iron menpō, a ribbed bowl banded gold, the visor, and great
-  // gold kuwagata rising off the brow round a gate stud
+  // gold kuwagata rising off the brow round a gate stud; the menpō is cut down to a hōate, so his face shows
   if (f.isPlayer) drawKageHair(ctx, r * 0.9, ink, flat, f);
   shikoro([[0.12, -0.56], [-0.9, -0.84], [-1.62, 0.0], [-2.0, 0.82, 1], [-0.96, 1.02], [-0.42, 0.5], [-0.2, -0.2]], SUB_IRON, 1.0, 0.72, acc[0]);
-  fill([[0.02, 0.22], [0.8, 0.16], [1.22, 0.34, 1], [1.04, 0.64], [0.66, 0.94], [0.3, 1.02, 1], [0.02, 0.66]], SUB_IRON, { sd: r * 0.18, hd: r * 0.06, rim: true, detail: (g) => {
-    g.strokeStyle = acc[1]; g.lineWidth = r * 0.06; g.beginPath(); g.moveTo(r * 0.5, r * 0.5); g.quadraticCurveTo(r * 0.86, r * 0.4, r * 1.12, r * 0.52); g.stroke();
-    g.strokeStyle = ANIME.outline; g.lineWidth = r * 0.04; g.beginPath();
-    for (const x of [0.4, 0.55, 0.7]) { g.moveTo(r * x, r * 0.7); g.lineTo(r * (x + 0.02), r * 0.88); }
-    g.moveTo(r * 0.98, r * 0.3); g.lineTo(r * 0.9, r * 0.46); g.stroke();
+  // the iron hōate on the jaw and cheeks (nose and lips bare), its gold-edged rim, laced throat lames under it
+  _subThroat(ctx, A, r, SUB_IRON, acc[0]);
+  _subShell(ctx, A, r, f, 'chin', SUB_IRON, { sd: r * 0.18, hd: r * 0.07, rim: true, detail: (g) => {
+    g.strokeStyle = acc[1]; g.lineWidth = r * 0.06; g.beginPath(); g.moveTo(r * 0.2, r * 0.3); g.lineTo(r * 0.58, r * 0.8); g.lineTo(r * 1.4, r * 0.82); g.stroke();
   } });
   fill([[1.1, -0.34, 1], [0.98, -1.02], [0.2, -1.46], [-0.72, -1.26], [-1.18, -0.4, 1]], SUB_IRON, { sd: r * 0.32, hd: r * 0.08, rim: true, detail: (g) => {
     g.strokeStyle = ANIME.outline; g.lineWidth = r * 0.045; g.beginPath();

@@ -1,0 +1,56 @@
+takashi vs fighter bot · act3.boss · normal · gear 6 · style: Ittō-ryū · iaijutsu
+  Kage wins 4/12, loses 8, timeouts 0 · avg 49.8s · Kage hp left 5% · foe hp left 36% (foe 830 hp, Kage 283 hp)
+  per run: kageParries 10.1 · foeParries 0.7 · kageCrits 8.2 · foeCrits 1.3 · foeBroken 0.2 · kageBroken 0.7 · spamPunish 0.3 · throws 0 · styleStrings 10.7 · dmgToFoe 531 · dmgToKage 284
+  abilities: goldKunai×6 earthCleave×19 kataKesa×31 kataDraw×9 kataTsuki×22 kataKaratake×16 kataNidan×21 guardReturn×1 roar×16 titanSpear×1 titanKata×29 titanSlash×3 tenraiJudgment×4 finalFlow×1 kunaiExecution×6 crushingGrasp×6 heavenCleaver×6 bladeRain×3 domainPulse×2
+takashi vs fighter bot · act3.boss · normal · gear 6 · style: none
+  Kage wins 0/12, loses 12, timeouts 0 · avg 34.9s · Kage hp left 0% · foe hp left 53% (foe 830 hp, Kage 283 hp)
+  per run: kageParries 2.6 · foeParries 0.2 · kageCrits 6.5 · foeCrits 1.6 · foeBroken 0 · kageBroken 0.8 · spamPunish 0.2 · throws 0 · styleStrings 0 · dmgToFoe 389 · dmgToKage 337
+takashi vs parry bot · act3.boss · normal · gear 6 · style: Ittō-ryū · iaijutsu
+  Kage wins 8/12, loses 4, timeouts 0 · avg 56.2s · Kage hp left 26% · foe hp left 6% (foe 830 hp, Kage 283 hp)
+  per run: kageParries 17 · foeParries 0.3 · kageCrits 14.4 · foeCrits 0.7 · foeBroken 0.8 · kageBroken 0 · spamPunish 0.2 · throws 0.1 · styleStrings 13.2 · dmgToFoe 784 · dmgToKage 209
+  abilities: goldKunai×3 kataKesa×44 kataTsuki×22 kataNidan×34 roar×23 heavenCleaver×4 titanKata×37 tenraiJudgment×11 kataKaratake×13 kataDraw×8 earthCleave×11 titanSpear×2 domainPulse×3 kunaiExecution×6 titanSlash×5 crushingGrasp×7 finalFlow×2 bladeRain×2
+takashi vs parry bot · act3.boss · normal · gear 6 · style: none
+  Kage wins 1/12, loses 11, timeouts 0 · avg 32.1s · Kage hp left 4% · foe hp left 45% (foe 830 hp, Kage 283 hp)
+  per run: kageParries 4.2 · foeParries 0.3 · kageCrits 7.8 · foeCrits 0.7 · foeBroken 0 · kageBroken 0.2 · spamPunish 0 · throws 0 · styleStrings 0 · dmgToFoe 454 · dmgToKage 324
+takashi vs masher bot · act3.boss · normal · gear 6 · style: Ittō-ryū · iaijutsu
+  Kage wins 0/12, loses 12, timeouts 0 · avg 19s · Kage hp left 0% · foe hp left 93% (foe 830 hp, Kage 283 hp)
+  per run: kageParries 0 · foeParries 0.3 · kageCrits 0.7 · foeCrits 3 · foeBroken 0 · kageBroken 0.3 · spamPunish 1.1 · throws 0 · styleStrings 2 · dmgToFoe 61 · dmgToKage 305
+  abilities: kunaiExecution×9 goldKunai×18 kataTsuki×2 guardReturn×36 kataDraw×5 kataNidan×2 kataKesa×5 earthCleave×4 kataKaratake×3
+takashi vs masher bot · act3.boss · normal · gear 6 · style: none
+  Kage wins 0/12, loses 12, timeouts 0 · avg 15.7s · Kage hp left 0% · foe hp left 97% (foe 830 hp, Kage 283 hp)
+  per run: kageParries 0 · foeParries 0 · kageCrits 0.4 · foeCrits 1.8 · foeBroken 0 · kageBroken 0.5 · spamPunish 1.4 · throws 0 · styleStrings 0 · dmgToFoe 26 · dmgToKage 301
+takashi vs turtle bot · act3.boss · normal · gear 6 · style: Ittō-ryū · iaijutsu
+  Kage wins 0/12, loses 12, timeouts 0 · avg 31.1s · Kage hp left 0% · foe hp left 94% (foe 830 hp, Kage 283 hp)
+  per run: kageParries 0.8 · foeParries 0 · kageCrits 1.2 · foeCrits 4.8 · foeBroken 0 · kageBroken 3 · spamPunish 0 · throws 0.1 · styleStrings 3.9 · dmgToFoe 46 · dmgToKage 276
+  abilities: goldKunai×12 earthCleave×34 kataKaratake×31 kataTsuki×10 kataNidan×11 kunaiExecution×11 guardReturn×39 kataKesa×18 kataDraw×4
+takashi vs turtle bot · act3.boss · normal · gear 6 · style: none
+  Kage wins 0/12, loses 12, timeouts 0 · avg 31.8s · Kage hp left 0% · foe hp left 91% (foe 830 hp, Kage 283 hp)
+  per run: kageParries 1.5 · foeParries 0.2 · kageCrits 1.8 · foeCrits 3 · foeBroken 0 · kageBroken 2.8 · spamPunish 0 · throws 0.1 · styleStrings 0 · dmgToFoe 74 · dmgToKage 278
+hollow_takashi vs fighter bot · core.echo3 · normal · gear 8 · style: Ittō-ryū · a broken memory
+  Kage wins 6/12, loses 6, timeouts 0 · avg 45.2s · Kage hp left 11% · foe hp left 13% (foe 739 hp, Kage 301 hp)
+  per run: kageParries 5.8 · foeParries 0.2 · kageCrits 4.4 · foeCrits 1.3 · foeBroken 0 · kageBroken 0.6 · spamPunish 0.3 · throws 0 · styleStrings 12.8 · dmgToFoe 651 · dmgToKage 262
+  abilities: echoDraw×10 echoNidan×42 echoKaratake×27 earthCleave×25 hollowCleave×25 echoKesa×59 roar×11 finalFlow×10 hollowFlow×10 guardReturn×1 hollowReturn×1
+hollow_takashi vs fighter bot · core.echo3 · normal · gear 8 · style: none
+  Kage wins 11/12, loses 1, timeouts 0 · avg 35.9s · Kage hp left 41% · foe hp left 1% (foe 739 hp, Kage 301 hp)
+  per run: kageParries 2.8 · foeParries 0.1 · kageCrits 7.3 · foeCrits 1.2 · foeBroken 0 · kageBroken 0.2 · spamPunish 0.6 · throws 0 · styleStrings 0 · dmgToFoe 740 · dmgToKage 172
+hollow_takashi vs parry bot · core.echo3 · normal · gear 8 · style: Ittō-ryū · a broken memory
+  Kage wins 12/12, loses 0, timeouts 0 · avg 36.3s · Kage hp left 69% · foe hp left 0% (foe 739 hp, Kage 301 hp)
+  per run: kageParries 10.5 · foeParries 0 · kageCrits 7.6 · foeCrits 0.5 · foeBroken 0.3 · kageBroken 0.2 · spamPunish 0 · throws 0 · styleStrings 12.8 · dmgToFoe 756 · dmgToKage 91
+  abilities: echoDraw×16 echoNidan×42 echoKesa×52 echoKaratake×34 earthCleave×15 hollowCleave×15 roar×12 finalFlow×2 hollowFlow×2
+hollow_takashi vs parry bot · core.echo3 · normal · gear 8 · style: none
+  Kage wins 12/12, loses 0, timeouts 0 · avg 34.2s · Kage hp left 63% · foe hp left 0% (foe 739 hp, Kage 301 hp)
+  per run: kageParries 5.5 · foeParries 0.1 · kageCrits 7.3 · foeCrits 1 · foeBroken 0 · kageBroken 0.1 · spamPunish 0 · throws 0 · styleStrings 0 · dmgToFoe 753 · dmgToKage 109
+hollow_takashi vs masher bot · core.echo3 · normal · gear 8 · style: Ittō-ryū · a broken memory
+  Kage wins 0/12, loses 12, timeouts 0 · avg 17.1s · Kage hp left 0% · foe hp left 95% (foe 739 hp, Kage 301 hp)
+  per run: kageParries 0 · foeParries 0.2 · kageCrits 0.3 · foeCrits 3.6 · foeBroken 0 · kageBroken 1.3 · spamPunish 0.8 · throws 0 · styleStrings 2.2 · dmgToFoe 37 · dmgToKage 315
+  abilities: echoDraw×18 guardReturn×26 hollowReturn×26 earthCleave×4 hollowCleave×4 echoNidan×3
+hollow_takashi vs masher bot · core.echo3 · normal · gear 8 · style: none
+  Kage wins 0/12, loses 12, timeouts 0 · avg 14.6s · Kage hp left 0% · foe hp left 70% (foe 739 hp, Kage 301 hp)
+  per run: kageParries 0 · foeParries 2.8 · kageCrits 1.6 · foeCrits 3 · foeBroken 0 · kageBroken 0 · spamPunish 1.6 · throws 0 · styleStrings 0 · dmgToFoe 224 · dmgToKage 325
+hollow_takashi vs turtle bot · core.echo3 · normal · gear 8 · style: Ittō-ryū · a broken memory
+  Kage wins 0/12, loses 12, timeouts 0 · avg 27.6s · Kage hp left 0% · foe hp left 89% (foe 739 hp, Kage 301 hp)
+  per run: kageParries 1.1 · foeParries 0.2 · kageCrits 1.5 · foeCrits 2.8 · foeBroken 0 · kageBroken 2 · spamPunish 0 · throws 0.3 · styleStrings 5.7 · dmgToFoe 79 · dmgToKage 293
+  abilities: echoDraw×9 earthCleave×31 hollowCleave×31 echoKesa×29 echoKaratake×12 guardReturn×26 hollowReturn×26 echoNidan×18
+hollow_takashi vs turtle bot · core.echo3 · normal · gear 8 · style: none
+  Kage wins 0/12, loses 12, timeouts 0 · avg 32.1s · Kage hp left 0% · foe hp left 72% (foe 739 hp, Kage 301 hp)
+  per run: kageParries 2 · foeParries 3.2 · kageCrits 4.1 · foeCrits 3.8 · foeBroken 0 · kageBroken 3.6 · spamPunish 0 · throws 0.4 · styleStrings 0 · dmgToFoe 205 · dmgToKage 283

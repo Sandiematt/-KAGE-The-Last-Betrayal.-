@@ -1,0 +1,3 @@
+[garan fighter] garan vs fighter bot · act1.sub2 · normal · gear 2 · style: Karate · Sumō
+[garan fighter]   Kage wins 37/70, loses 33, timeouts 0 · avg 42s · Kage hp left 13% · foe hp left 9% (foe 442 hp, Kage 249 hp)
+[garan fighter]   per run: kageParries 1.9 · foeParries 0.2 · kageCrits 5.8 · foeCrits 4.4 · foeBroken 0.1 · kageBroken 0.9 · spamPunish 0.3 · throws 0.8 · styleStrings 10.6 · dmgToFoe 404 · dmgToKage 218

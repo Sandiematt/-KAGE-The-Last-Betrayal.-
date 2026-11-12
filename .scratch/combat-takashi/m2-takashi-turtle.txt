@@ -1,0 +1,4 @@
+takashi vs turtle bot · act3.boss · normal · gear 6 · style: Ittō-ryū · iaijutsu
+  Kage wins 0/16, loses 16, timeouts 0 · avg 32.1s · Kage hp left 0% · foe hp left 94% (foe 830 hp, Kage 283 hp)
+  per run: kageParries 0.8 · foeParries 0 · kageCrits 1.2 · foeCrits 5.2 · foeBroken 0 · kageBroken 3.4 · spamPunish 0 · throws 0.1 · styleStrings 3.6 · dmgToFoe 50 · dmgToKage 274
+  abilities: goldKunai×17 earthCleave×47 kataKaratake×48 kataTsuki×10 kataNidan×12 kunaiExecution×15 guardReturn×54 kataKesa×21 kataDraw×7

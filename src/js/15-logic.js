@@ -751,6 +751,9 @@ const Logic = {
     if (role === 'elite') { hpMul *= TRIALS.elite.hp; dmgMul *= TRIALS.elite.dmg; }
     hpMul *= bossy ? mode.bossHp : mode.hp;
     dmgMul *= bossy ? mode.bossDmg : mode.dmg;
+    // the role (BUDO.roles): the rank and file are easier, sub-bosses a little harder, bosses harder
+    const rk = BUDO.roles[Budo.roleOf(d, !!role && role !== 'elite')];
+    hpMul *= rk.hp; dmgMul *= rk.dmg;
     let hp = Math.round(d.hp * hpMul);
     if (role === 'minion') { hp = Math.round(70 * mode.hp); dmgMul *= 0.6; }
     if (role === 'clone') { hp = 1; dmgMul *= 0.5; }
@@ -761,13 +764,15 @@ const Logic = {
       speedMul: d.speed || 1, level: this.stageLevel(cfg, enemyId, wave), ng, difficulty: mode.id
     };
   },
-  // An enemy's AI tuning: a fresh copy of AI_PROFILES[profile], sharpened by the authored curve (stage level, New
-  // Game+) and scaled by the mode, plus the mode's timing fields the AI and fighter read (windup, recovery, idle,
-  // branch, unique). Clones and minions use a fixed aggression (0.8 / 0.6) scaled by the mode. On Normal this is
-  // exactly the original tuning.
+  // An enemy's AI tuning: a fresh copy of AI_PROFILES[profile] (with the foe's own fighting style on top: opts.style,
+  // FIGHT_STYLES[id].tune), sharpened by the authored curve (stage level, New Game+), scaled by the mode and by the
+  // foe's role (opts.rank 'regular' | 'sub' | 'boss', BUDO.roles: the rank and file are slower and tamer, sub-bosses
+  // a little sharper, bosses sharper), plus the timing fields the AI and fighter read (windup, recovery, idle, branch,
+  // unique, spam). Clones and minions use a fixed aggression (0.8 / 0.6) scaled by the mode. Without a rank it is the
+  // mode's tuning alone.
   aiTuning(profile, opts) {
     opts = opts || {};
-    const base = AI_PROFILES[profile] || AI_PROFILES.regular, m = this.difficulty(opts.difficulty);
+    const base = Object.assign({}, AI_PROFILES[profile] || AI_PROFILES.regular, opts.style || {}), m = this.difficulty(opts.difficulty);
     const p = Object.assign({}, base, { react: base.react.slice(), combo: base.combo.slice() });
     const lvl = opts.level || 1, ng = opts.ng || 0;
     const k = Math.min(1.4, Math.max(0, (lvl - 1) / 4)) + ng * 0.35;
@@ -778,7 +783,14 @@ const Logic = {
     p.punish = Math.min(m.cap, p.punish * (0.85 + k * 0.2) * m.punish);
     if (opts.role === 'clone') p.aggr = Math.min(m.cap, 0.8 * m.aggr);
     if (opts.role === 'minion') p.aggr = Math.min(m.cap, 0.6 * m.aggr);
-    Object.assign(p, { windup: m.windup, recovery: m.recovery, idle: m.idle, branch: m.branch, unique: m.unique });
+    Object.assign(p, { windup: m.windup, recovery: m.recovery, idle: m.idle, branch: m.branch, unique: m.unique, spam: 1 });
+    const rk = opts.rank && BUDO.roles[opts.rank];
+    if (rk) {
+      p.aggr = Math.min(m.cap, p.aggr * rk.aggr); p.block = Math.min(0.88, p.block * rk.guard); p.parry = Math.min(0.5, p.parry * rk.parry);
+      p.react = [p.react[0] * rk.react, p.react[1] * rk.react]; p.punish = Math.min(m.cap, p.punish * rk.punish);
+      p.combo = [p.combo[0], Math.max(p.combo[0], p.combo[1] + rk.combo)];
+      p.windup *= rk.windup; p.recovery *= rk.recovery; p.idle *= rk.idle; p.spam = rk.spam;
+    }
     return p;
   },
   // The player's choice (new-game picker, pause menu, Settings). Returns false for an unknown mode.

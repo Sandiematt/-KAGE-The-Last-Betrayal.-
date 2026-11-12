@@ -1,0 +1,7 @@
+  { const st = S.FIGHT_STYLES[foe]; if (st) { global.CV = global.CV || {}; const CV = global.CV; const bump = k => { CV[k] = (CV[k] || 0) + 1; };
+    for (const k of Object.keys(st.on || {})) { const o = st.on[k]; st.on[k] = function (...a) { bump('on.' + k); return o.apply(this, a); }; }
+    for (const k of ['decide', 'respond']) { const o = st[k]; if (o) st[k] = function (...a) { const r = o.apply(this, a); if (r) bump(k + '.true'); return r; }; }
+    wrap(S.AIController.prototype, 'tryString', function (a, out) { if (out && this.lastString) bump('str.' + this.lastString.seq.join(' ')); });
+    wrap(S.AIController.prototype, 'startSeq', ([l]) => { bump('seq.' + l.join(' ')); });
+    wrap(S.Combat, 'damage', ([w, att, def, dmg, m]) => { if (def.isPlayer) { const k = 'hit.' + ((m && (m.id || m.stamp)) || '?') + (att.abil ? '@ab' : ''); CV[k] = (CV[k] || 0) + 1; } });
+  } }

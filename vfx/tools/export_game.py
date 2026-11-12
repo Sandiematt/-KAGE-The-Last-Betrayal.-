@@ -100,15 +100,26 @@ SHEETS = {
     'wt_cast':             ('VFX_Witness_Cast',        512, 256, 2.4, 0.0, 1.5, None, '0:40:2', .8),
     'wt_rewrite':          ('VFX_Witness_Rewrite',     192, 320, 3.0, 1.3, 0.0, None, '0:48:2', .8),
     'wt_drain':            ('VFX_Witness_Drain',       448, 256, 2.6, 1.0, -1.2, None, '0:58:2', .8),
+    # the shared anime combat set (vfx/src/VFX_Anime_*.py; 39-anime-fx.js plays them): toon smoke, the cyan ground
+    # crack, the footwork dust, the heavy-hit impact frame and the arena's rolling mist
+    'anime_smoke':         ('VFX_Anime_Smoke_Burst',   768, 320, 3.4, 1.4, 0.0, None, '0:20:2,23:71:3', .75),
+    'anime_crack':         ('VFX_Anime_Ground_Crack',  640, 448, 4.6, 1.8, 0.0, None, '0:30:2,33:87:3', .75),
+    'anime_dust':          ('VFX_Anime_Dust_Kick',     256, 160, 1.2, .45, .7, None, '0:36:2', 1.0),
+    'anime_impact':        ('VFX_Anime_Impact',        384, 384, 4.6, 0.0, 0.0, None, '0:22:1', .7),
+    'anime_mist':          ('VFX_Anime_Mist_Bank',     896, 160, 1.6, .5, .6, None, '0:200:5', .6),
 }
+# Sheets baked with a two-background matte: rendered flat (no glow, linear tonemap) on black and on white, packed as
+# RGBA (alpha = 1 - (white - black), colour = black / alpha) and drawn with normal alpha blending (VfxSheets, d.alpha).
+# For alpha-blended, solid effects: the white toon smoke would wash out if it were added to the arena.
+MATTE = {'anime_smoke', 'anime_dust', 'anime_mist'}
 
 
-def render(work, name, spec, out):
+def render(work, name, spec, out, extra=()):
     eid, w, h, size, cy, cx, track, frames = spec[:8]
     godot = os.environ.get('GODOT') or 'godot'
     cmd = [godot, '--path', str(work), 'res://GameSheet.tscn', '--fixed-fps', '60', '--resolution', f'{w}x{h}', '--',
            f'--id={eid}', f'--out={out}', f'--frames={frames}', f'--size={size}', f'--cy={cy}', f'--cx={cx}',
-           '--pitch=10'] + ([f'--track={track[0]}', f'--decel={track[1]}', f'--stop={track[2]}'] if track else []) +           ([f'--launch={spec[9]}'] if len(spec) > 9 else [])
+           '--pitch=10'] + ([f'--track={track[0]}', f'--decel={track[1]}', f'--stop={track[2]}'] if track else []) +           ([f'--launch={spec[9]}'] if len(spec) > 9 else []) + list(extra)
     subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=180)
     return json.loads((out / 'capture.json').read_text())
 
@@ -130,23 +141,43 @@ def clean(cell, feather=32, floor=9, gamma=1.6):
     return Image.composite(cell, Image.new('RGB', (w, h)), mask)
 
 
-def pack(name, spec, out, cap):
+def matte(black, white, feather=24):
+    """RGBA from one frame rendered on black and on white: alpha = 1 - (white - black), colour = black / alpha, with
+    the cell border feathered to transparent like clean() does for the additive sheets."""
+    import numpy as np
+    b = np.asarray(black, np.float64) / 255
+    w = np.asarray(white, np.float64) / 255
+    a = np.clip(1 - (w - b).mean(axis=2), 0, 1)
+    a[a < .02] = 0
+    col = np.where(a[..., None] > 1e-3, np.clip(b / np.maximum(a[..., None], 1e-3), 0, 1), 0)
+    h, wd = a.shape
+    yy, xx = np.mgrid[0:h, 0:wd]
+    edge = np.minimum(np.minimum(xx, yy), np.minimum(wd - 1 - xx, h - 1 - yy))
+    a = a * np.clip(edge / feather, 0, 1)
+    return Image.fromarray(np.round(np.dstack([col, a]) * 255).astype(np.uint8), 'RGBA')
+
+
+def pack(name, spec, out, cap, white=None):
     scale = spec[8]
     samples = cap['samples']
-    cells = [Image.open(out / f'f{n:03d}.png').convert('RGB') for n in samples]
     cw, ch = round(cap['width'] * scale), round(cap['height'] * scale)
-    if scale != 1:
-        cells = [c.resize((cw, ch), Image.LANCZOS) for c in cells]
-    cells = [clean(c) for c in cells]
+    if white is None:
+        cells = [clean(Image.open(out / f'f{n:03d}.png').convert('RGB').resize((cw, ch), Image.LANCZOS)) for n in samples]
+    else:
+        cells = [matte(Image.open(out / f'f{n:03d}.png').convert('RGB'), Image.open(white / f'f{n:03d}.png').convert('RGB'))
+                 .resize((cw, ch), Image.LANCZOS) for n in samples]
     cols = max(1, min(len(cells), 4096 // cw, math.ceil(math.sqrt(len(cells) * ch / cw))))
     rows = math.ceil(len(cells) / cols)
-    sheet = Image.new('RGB', (cols * cw, rows * ch))
+    sheet = Image.new('RGB' if white is None else 'RGBA', (cols * cw, rows * ch))
     for i, c in enumerate(cells):
         sheet.paste(c, ((i % cols) * cw, (i // cols) * ch))
     IMG.mkdir(parents=True, exist_ok=True)
-    sheet.save(IMG / f'{name}.webp', 'WEBP', quality=86, method=6)
-    return {'img': f'__IMG({name}.webp)__', 'id': spec[0], 'cols': cols, 'cw': cw, 'ch': ch, 'frames': samples,
+    sheet.save(IMG / f'{name}.webp', 'WEBP', quality=86, method=6, **({} if white is None else {'alpha_quality': 90}))
+    entry = {'img': f'__IMG({name}.webp)__', 'id': spec[0], 'cols': cols, 'cw': cw, 'ch': ch, 'frames': samples,
             'ppm': round(cap['ppm'] * scale, 3), 'ox': round(cap['origin'][0] * scale, 1), 'oy': round(cap['origin'][1] * scale, 1)}
+    if white is not None:
+        entry['alpha'] = 1
+    return entry
 
 
 def main(ids):
@@ -161,8 +192,14 @@ def main(ids):
             if ids and name not in ids and spec[0] not in ids:
                 continue
             out = Path(tmp) / name
-            cap = render(work, name, spec, out)
-            entry = pack(name, spec, out, cap)
+            if name in MATTE:
+                cap = render(work, name, spec, out, ['--bg=0', '--flat'])
+                white = Path(tmp) / (name + '_white')
+                render(work, name, spec, white, ['--bg=1', '--flat'])
+                entry = pack(name, spec, out, cap, white)
+            else:
+                cap = render(work, name, spec, out)
+                entry = pack(name, spec, out, cap)
             entry['duration'] = manifest[spec[0]]['duration']
             entry['peak'] = manifest[spec[0]]['peak']
             if spec[6]:
@@ -174,7 +211,8 @@ def main(ids):
     OUT_JS.write_text('/* KAGE: Effekseer VFX baked to sprite sheets (generated by vfx/tools/export_game.py; do not edit).\n'
                       '   Each sheet: cols, cell size cw x ch, frames (60 FPS effect frame of each cell), ppm (cell pixels per\n'
                       '   metre), ox/oy (the effect origin in a cell), duration and peak (s), track ([m/frame, m/frame^2, stop frame] of the front the camera\n'
-                      '   followed a travelling front). Played additively by VfxSheets (37-vfx-sheets.js). */\n'
+                      '   followed a travelling front), alpha (1: an RGBA matte drawn with normal blending, not added).\n'
+                      '   Played by VfxSheets (37-vfx-sheets.js). */\n'
                       f'const VFX_SHEETS = {body};\n', encoding='utf-8')
 
 

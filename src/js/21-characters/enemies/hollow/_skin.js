@@ -1,7 +1,8 @@
 /* KAGE — the Hollows as torn, spectral anime samurai (anime redesign, ticket 04).
    A Hollow is a memory of a samurai coming apart: the same black-faced, white-eyed figure as everyone else, but its
    robes are ragged and layered, the hems torn into points, the sleeves frayed, the limbs bound in wraps, and the face
-   half hidden by cracked mask fragments that glow violet along the breaks. Violet replaces crimson as the accent, in
+   half hidden by cracked mask fragments that glow violet along the breaks. Under them each has a gaunt face of its own
+   (the `face` of its skin, _shared/face.js), and every mask breaks off before the parted mouth and the chin. Violet replaces crimson as the accent, in
    near-black cloth. The glitch, offset ghost, violet flicker, outline and memory-ash dissolve of Fighter.draw sit on top.
    Each type reads apart by its silhouette at gameplay zoom:
      hollow_shade     the cutter: a ragged cowl with a crown of floating shards, a cracked half-mask, a torn haori skirt
@@ -47,25 +48,38 @@ const HOLLOW_GLOW = 'rgba(140,110,240,0.42)';
 // one design per Hollow type; robe parts are [links, link length px, width at the waist, width at the hem] (design units)
 const _hollowBase = { top: 'gi', feet: 'sandal', kote: 'wrap', collar: false, sash: 'hollow', wrapShin: true };
 
+// the faces (_shared/face.js): gaunt and hollow-cheeked, the mouth a little parted, a violet light down the profile;
+// each type its own (the masks of head.js are sculpted on faces too, and stop short of the mouth and chin)
+const HOLLOW_FACE_LIGHT = '#9a80f6';
+const _hollowFace = (o) => Object.assign({ of: 'gaunt', light: HOLLOW_FACE_LIGHT, depth: 0.1 }, o);
+
 ANIME_SKINS.hollow_shade = Object.assign({}, _hollowBase, { sleeve: 1.04, saya: true,
+  face: _hollowFace({ nose: 1.15, open: 0.1 }),
   hollow: { head: 'shade', top: 'rip', fray: 1, robe: { back: [7, 11, 22, 50], flap: [6, 10.5, 15, 30], teeth: 6, rag: 9 } } });
 
 ANIME_SKINS.hollow_tutorial = Object.assign({}, _hollowBase, { sleeve: 1, sash: 'rope',
+  face: _hollowFace({ nose: 0.92, up: 0.03, lip: 0.85, chin: 0.9, jaw: 0.94, brow: 0.8, open: 0.07 }),
   hollow: { head: 'sack', top: 'rope', fray: 'straw', robe: { back: [4, 10, 22, 32], flap: [4, 9.5, 16, 24], teeth: 4, rag: 6 } } });
 
 ANIME_SKINS.hollow_flicker = Object.assign({}, _hollowBase, { sleeve: 0.82,
+  face: _hollowFace({ nose: 1.3, hook: 0.05, lip: 0.6, chin: 0.86, jaw: 0.78, slope: 0.04, open: 0.13 }),
   hollow: { head: 'beak', top: 'wrap', fray: 0.8, legW: 0.84, tails: true, mantle: 'hunch', robe: { back: [8, 10, 12, 20], teeth: 3, rag: 11 } } });
 
 ANIME_SKINS.hollow_ward = Object.assign({}, _hollowBase, { sleeve: 1.26, wrapShin: false,
+  face: _hollowFace({ nose: 1.36, hook: 0.08, lip: 0.6, chin: 1.14, jaw: 0.9, brow: 1.4, slope: 0.03, open: 0.07 }),
   hollow: { head: 'tengai', top: 'kesa', fray: 1.25, robe: { back: [9, 10.5, 26, 60], flap: [8, 10.5, 20, 40], teeth: 7, rag: 8 } } });
 
 ANIME_SKINS.hollow_mimic = Object.assign({}, _hollowBase, { sleeve: 1.1,
+  face: _hollowFace({ nose: 1.0, lip: 0.7, chin: 0.96, jaw: 0.86, open: 0.15 }),
   hollow: { head: 'crescent', top: 'mirror', fray: 1.3, cape: true, robe: { back: [6, 10.5, 20, 40], flap: [5, 10, 14, 26], teeth: 5, rag: 8 } } });
 
 ANIME_SKINS.hollow_husk = Object.assign({}, _hollowBase, { sleeve: 1.12, sash: 'shimenawa',
+  face: _hollowFace({ nose: 0.98, lip: 0.95, chin: 1.35, jaw: 1.35, brow: 2.1, open: 0.13 }),
   hollow: { head: 'brute', top: 'veins', fray: 1, bare: true, mantle: true, fist: true, robe: { back: [5, 11, 30, 46], flap: [5, 10.5, 22, 34], teeth: 6, rag: 7 } } });
 
+// Kage's own profile (the short straight nose, the pointed chin), drawn thin: the lips pressed, the mouth just parted
 ANIME_SKINS.hollow_kage = Object.assign({}, _hollowBase, { top: 'coat', collar: true, sleeve: 1, feet: 'boot', saya: true, wrapShin: false,
+  face: _hollowFace({ of: 'base', lip: 0.8, jaw: 0.9, open: 0.06 }),
   hollow: { head: 'ronin', top: 'coat', fray: 0.9, robe: { back: [8, 12, 22, 58], flap: [7, 11.4, 16, 34], teeth: 6, rag: 10 } } });
 
 // cloth the Hollow designs need (from animeCloths): the torn robe panels from the waist, the mimic's cape from the

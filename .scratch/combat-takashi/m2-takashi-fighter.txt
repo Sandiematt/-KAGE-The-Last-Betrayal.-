@@ -1,0 +1,4 @@
+takashi vs fighter bot · act3.boss · normal · gear 6 · style: Ittō-ryū · iaijutsu
+  Kage wins 5/16, loses 11, timeouts 0 · avg 49.7s · Kage hp left 5% · foe hp left 39% (foe 830 hp, Kage 283 hp)
+  per run: kageParries 10.7 · foeParries 0.6 · kageCrits 7.4 · foeCrits 1.6 · foeBroken 0.1 · kageBroken 0.8 · spamPunish 0.4 · throws 0 · styleStrings 10.9 · dmgToFoe 507 · dmgToKage 279
+  abilities: goldKunai×9 earthCleave×26 kataKesa×42 kataDraw×14 kataTsuki×30 kataKaratake×22 kataNidan×32 guardReturn×3 roar×20 titanSpear×1 titanKata×34 titanSlash×5 tenraiJudgment×5 finalFlow×1 kunaiExecution×8 crushingGrasp×7 heavenCleaver×7 bladeRain×4 domainPulse×3

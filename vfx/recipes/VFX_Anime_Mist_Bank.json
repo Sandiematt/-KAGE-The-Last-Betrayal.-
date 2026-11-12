@@ -1,0 +1,261 @@
+{
+  "id": "VFX_Anime_Mist_Bank",
+  "name": "Anime Mist Bank",
+  "category": "status",
+  "element": "physical",
+  "duration": 3.3333333333333335,
+  "loop": false,
+  "attach": "ground",
+  "peak": 0,
+  "impact": 0,
+  "light": [
+    1,
+    1,
+    1
+  ],
+  "seed": 1729,
+  "layers": [
+    {
+      "name": "Bank 1",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ToonPuffSheet01.png",
+      "color": [
+        214,
+        220,
+        240,
+        110
+      ],
+      "life": 200,
+      "delay": 0,
+      "blend": "Blend",
+      "billboard": "Billboard",
+      "position": [
+        -1.9,
+        0.21000000000000002,
+        -0.0
+      ],
+      "scale_start": [
+        2.4,
+        0.75,
+        1
+      ],
+      "scale_end": [
+        3.0,
+        0.8250000000000001,
+        1
+      ],
+      "easing": "Linear",
+      "flipbook": {
+        "x": 4,
+        "y": 4,
+        "frame_length": 12,
+        "loop": "Once",
+        "lerp": true
+      },
+      "velocity": [
+        0.006,
+        0,
+        0
+      ],
+      "fade_in": 40,
+      "fade_out": 50,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Alpha.vfxmat.json"
+    },
+    {
+      "name": "Bank 2",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ToonPuffSheet01.png",
+      "color": [
+        214,
+        220,
+        240,
+        110
+      ],
+      "life": 182,
+      "delay": 18,
+      "blend": "Blend",
+      "billboard": "Billboard",
+      "position": [
+        -0.4,
+        0.25200000000000006,
+        -0.2
+      ],
+      "scale_start": [
+        3.0,
+        0.9,
+        1
+      ],
+      "scale_end": [
+        3.75,
+        0.9900000000000001,
+        1
+      ],
+      "easing": "Linear",
+      "flipbook": {
+        "x": 4,
+        "y": 4,
+        "frame_length": 11,
+        "loop": "Once",
+        "lerp": true
+      },
+      "velocity": [
+        0.006,
+        0,
+        0
+      ],
+      "fade_in": 40,
+      "fade_out": 50,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Alpha.vfxmat.json"
+    },
+    {
+      "name": "Bank 3",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ToonPuffSheet01.png",
+      "color": [
+        214,
+        220,
+        240,
+        110
+      ],
+      "life": 166,
+      "delay": 34,
+      "blend": "Blend",
+      "billboard": "Billboard",
+      "position": [
+        1.3,
+        0.196,
+        -0.4
+      ],
+      "scale_start": [
+        2.2,
+        0.7,
+        1
+      ],
+      "scale_end": [
+        2.75,
+        0.77,
+        1
+      ],
+      "easing": "Linear",
+      "flipbook": {
+        "x": 4,
+        "y": 4,
+        "frame_length": 10,
+        "loop": "Once",
+        "lerp": true
+      },
+      "velocity": [
+        0.006,
+        0,
+        0
+      ],
+      "fade_in": 40,
+      "fade_out": 50,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Alpha.vfxmat.json"
+    },
+    {
+      "name": "Bank 4",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ToonPuffSheet01.png",
+      "color": [
+        214,
+        220,
+        240,
+        110
+      ],
+      "life": 150,
+      "delay": 50,
+      "blend": "Blend",
+      "billboard": "Billboard",
+      "position": [
+        2.6,
+        0.168,
+        -0.6000000000000001
+      ],
+      "scale_start": [
+        1.8,
+        0.6,
+        1
+      ],
+      "scale_end": [
+        2.25,
+        0.66,
+        1
+      ],
+      "easing": "Linear",
+      "flipbook": {
+        "x": 4,
+        "y": 4,
+        "frame_length": 9,
+        "loop": "Once",
+        "lerp": true
+      },
+      "velocity": [
+        0.006,
+        0,
+        0
+      ],
+      "fade_in": 40,
+      "fade_out": 50,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Alpha.vfxmat.json"
+    },
+    {
+      "name": "Wisps",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_ToonPuff01.png",
+      "color": [
+        214,
+        220,
+        240,
+        80
+      ],
+      "count": 6,
+      "life": [
+        90,
+        120
+      ],
+      "delay": 10,
+      "blend": "Blend",
+      "billboard": "Billboard",
+      "scale_start": [
+        0.7,
+        0.3,
+        1
+      ],
+      "scale_end": [
+        1.1,
+        0.4,
+        1
+      ],
+      "easing": "Linear",
+      "velocity": [
+        0.009,
+        0.0006,
+        0
+      ],
+      "spawn": {
+        "shape": "Line",
+        "start": [
+          -2.4,
+          0,
+          0
+        ],
+        "end": [
+          2.4,
+          0,
+          0
+        ],
+        "division": 8,
+        "order": "Random",
+        "noise": 0.2
+      },
+      "position": [
+        0,
+        0.3,
+        0.2
+      ],
+      "fade_in": 25,
+      "fade_out": 35,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Alpha.vfxmat.json"
+    }
+  ],
+  "design": "Flattened pale blue-white toon cloud lobes fade in low along the floor, billow slowly as they drift downwind, and tear into hard-edged scraps as they go.",
+  "delivery": {
+    "kind": "area"
+  }
+}

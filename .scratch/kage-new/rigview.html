@@ -1,0 +1,10 @@
+<!doctype html><meta charset="utf-8"><body style="margin:0;background:#fff"><canvas id="c" width="1500" height="900"></canvas>
+<script src="rig-core.js"></script>
+<script>
+const Q=new URLSearchParams(location.search);
+const c=document.getElementById('c'),ctx=c.getContext('2d');
+const states=(Q.get('s')||'pose,idle,run,slash').split(',');
+ctx.fillStyle=Q.get('bg')||'#ffffff';ctx.fillRect(0,0,1500,900);
+states.forEach((s,i)=>{const r=new KageCharacterRig();r.characterScale=+(Q.get('z')||1.25);r.setState(s);const n=+(Q.get('n')||(s==='pose'?2:40));for(let k=0;k<n;k++)r.update(1/60);r.cameraShake=0;r.afterimages=[];r.render(ctx,250+i*370,620);});
+document.title='ok';
+</script>

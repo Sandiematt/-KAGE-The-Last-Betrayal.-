@@ -1,0 +1,663 @@
+{
+  "id": "VFX_Anime_Impact",
+  "name": "Anime Impact",
+  "category": "hit",
+  "element": "physical",
+  "duration": 0.38,
+  "loop": false,
+  "attach": "impact",
+  "peak": 0.03333333333333333,
+  "impact": 0.8,
+  "light": [
+    1,
+    0.9,
+    0.7
+  ],
+  "seed": 1729,
+  "layers": [
+    {
+      "name": "Pinch",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Glow01.png",
+      "color": [
+        255,
+        244,
+        214,
+        200
+      ],
+      "life": 3,
+      "delay": 0,
+      "size": 0.6,
+      "size_curve": [
+        [
+          0,
+          1.0
+        ],
+        [
+          100,
+          0.3
+        ]
+      ],
+      "billboard": "Billboard",
+      "fade_in": 0,
+      "fade_out": 2.4000000000000004,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Contact flash",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Flare01.png",
+      "color": [
+        255,
+        255,
+        255,
+        255
+      ],
+      "life": 3,
+      "delay": 2,
+      "size": 1.5,
+      "size_curve": [
+        [
+          0,
+          0.55
+        ],
+        [
+          25,
+          1
+        ],
+        [
+          100,
+          0.15
+        ]
+      ],
+      "rotation": [
+        0,
+        0,
+        14
+      ],
+      "fade_in": 0,
+      "fade_out": 1.7999999999999998,
+      "emissive": 1.6,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Amber body",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Impact01.png",
+      "color": [
+        255,
+        132,
+        30,
+        255
+      ],
+      "delay": 2,
+      "life": 16,
+      "size": 3.3,
+      "size_curve": [
+        [
+          0,
+          0.85
+        ],
+        [
+          12,
+          1.0
+        ],
+        [
+          100,
+          1.12
+        ]
+      ],
+      "rotation": [
+        0,
+        0,
+        [
+          150,
+          200
+        ]
+      ],
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseTile01.png",
+      "color_curve": {
+        "R": [
+          [
+            0,
+            255
+          ],
+          [
+            35,
+            255
+          ],
+          [
+            65,
+            190
+          ],
+          [
+            100,
+            190
+          ]
+        ],
+        "G": [
+          [
+            0,
+            132
+          ],
+          [
+            35,
+            132
+          ],
+          [
+            65,
+            56
+          ],
+          [
+            100,
+            56
+          ]
+        ],
+        "B": [
+          [
+            0,
+            30
+          ],
+          [
+            35,
+            30
+          ],
+          [
+            65,
+            16
+          ],
+          [
+            100,
+            16
+          ]
+        ],
+        "A": [
+          [
+            0,
+            255
+          ],
+          [
+            35,
+            255
+          ],
+          [
+            65,
+            255
+          ],
+          [
+            100,
+            200
+          ]
+        ]
+      },
+      "fade_in": 0,
+      "fade_out": 4,
+      "emissive": 1.7,
+      "cutoff": {
+        "start": 0.25,
+        "end": 0.95,
+        "easing": "EaseInQuadratic"
+      },
+      "edge": {
+        "color": [
+          190,
+          56,
+          16,
+          255
+        ],
+        "threshold": 0.1,
+        "scaling": 1
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Impact burst",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Impact01.png",
+      "color": [
+        255,
+        244,
+        214,
+        255
+      ],
+      "color_end": [
+        255,
+        196,
+        110,
+        255
+      ],
+      "delay": 3,
+      "life": 14,
+      "size": 2.3,
+      "size_curve": [
+        [
+          0,
+          0.3
+        ],
+        [
+          20,
+          1.0
+        ],
+        [
+          100,
+          1.1
+        ]
+      ],
+      "rotation": [
+        0,
+        0,
+        [
+          -25,
+          25
+        ]
+      ],
+      "alpha_texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_NoiseTile01.png",
+      "fade_in": 0,
+      "fade_out": 3,
+      "emissive": 1.4,
+      "cutoff": {
+        "start": 0.1,
+        "end": 0.95,
+        "easing": "EaseInQuadratic"
+      },
+      "edge": {
+        "color": [
+          255,
+          196,
+          110,
+          255
+        ],
+        "threshold": 0.06,
+        "scaling": 1
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Speed lines",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_SpeedLines01.png",
+      "color": [
+        255,
+        244,
+        214,
+        255
+      ],
+      "delay": 2,
+      "life": 8,
+      "size": 4.6,
+      "size_curve": [
+        [
+          0,
+          0.45
+        ],
+        [
+          40,
+          1.0
+        ],
+        [
+          100,
+          1.2
+        ]
+      ],
+      "rotation": [
+        0,
+        0,
+        [
+          0,
+          360
+        ]
+      ],
+      "fade_in": 0,
+      "fade_out": 5,
+      "emissive": 1.2,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Air ring",
+      "renderer": "Ring",
+      "color": [
+        255,
+        244,
+        214,
+        200
+      ],
+      "life": 10,
+      "delay": 3,
+      "billboard": "Fixed",
+      "rotation": [
+        0,
+        58,
+        0
+      ],
+      "ring": {
+        "outer": [
+          1,
+          0
+        ],
+        "inner": {
+          "start": [
+            0.86,
+            0
+          ],
+          "end": [
+            0.97,
+            0
+          ]
+        },
+        "center_ratio": 0.8,
+        "outer_color": [
+          255,
+          244,
+          214,
+          100
+        ],
+        "center_color": [
+          255,
+          244,
+          214,
+          200
+        ],
+        "inner_color": [
+          255,
+          244,
+          214,
+          0
+        ]
+      },
+      "size": 1.8,
+      "size_curve": [
+        [
+          0,
+          0.12
+        ],
+        [
+          35,
+          0.72
+        ],
+        [
+          100,
+          1
+        ]
+      ],
+      "fade_in": 0,
+      "fade_out": 7.0,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Sparks streaks",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Spark01.png",
+      "color": [
+        255,
+        255,
+        255,
+        255
+      ],
+      "color_end": [
+        255,
+        244,
+        214,
+        255
+      ],
+      "count": 4,
+      "life": [
+        6,
+        10
+      ],
+      "delay": 2,
+      "billboard": "DirectionalBillboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          0.08
+        ],
+        "rot_x": [
+          -90,
+          90
+        ]
+      },
+      "travel": {
+        "end": [
+          0,
+          [
+            1.3,
+            3.36
+          ],
+          0
+        ],
+        "easing": "EaseOutQuartic"
+      },
+      "scale_start": [
+        0.05,
+        [
+          0.675,
+          1.4400000000000002
+        ],
+        1
+      ],
+      "scale_end": [
+        0.015,
+        0.135,
+        1
+      ],
+      "easing": "EaseInQuadratic",
+      "forces": [],
+      "fade_in": 0,
+      "fade_out": 3,
+      "emissive": 2.2,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Sparks",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Spark01.png",
+      "color": [
+        255,
+        244,
+        214,
+        255
+      ],
+      "color_end": [
+        255,
+        120,
+        40,
+        255
+      ],
+      "count": 12,
+      "life": [
+        8,
+        12
+      ],
+      "delay": 2,
+      "billboard": "DirectionalBillboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          0.08
+        ],
+        "rot_x": [
+          -90,
+          90
+        ]
+      },
+      "travel": {
+        "end": [
+          0,
+          [
+            1.0,
+            2.4
+          ],
+          0
+        ],
+        "easing": "EaseOutQuartic"
+      },
+      "scale_start": [
+        0.1,
+        [
+          0.45,
+          0.9
+        ],
+        1
+      ],
+      "scale_end": [
+        0.03,
+        0.09000000000000001,
+        1
+      ],
+      "easing": "EaseInQuadratic",
+      "forces": [
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            -0.0015,
+            0
+          ]
+        }
+      ],
+      "fade_in": 0,
+      "fade_out": 5,
+      "emissive": 1.5,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Sparks heavy",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Spark01.png",
+      "color": [
+        255,
+        244,
+        214,
+        255
+      ],
+      "color_end": [
+        255,
+        120,
+        40,
+        255
+      ],
+      "count": 2,
+      "life": [
+        14,
+        20
+      ],
+      "delay": 2,
+      "billboard": "DirectionalBillboard",
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          0.08
+        ],
+        "rot_x": [
+          -90,
+          90
+        ]
+      },
+      "travel": {
+        "end": [
+          0,
+          [
+            0.7,
+            2.16
+          ],
+          0
+        ],
+        "easing": "EaseOutQuartic"
+      },
+      "scale_start": [
+        0.15,
+        [
+          0.27,
+          0.63
+        ],
+        1
+      ],
+      "scale_end": [
+        0.045,
+        0.054000000000000006,
+        1
+      ],
+      "easing": "EaseInQuadratic",
+      "forces": [
+        {
+          "type": "Gravity",
+          "gravity": [
+            0,
+            -0.0033000000000000004,
+            0
+          ]
+        }
+      ],
+      "fade_in": 0,
+      "fade_out": 5,
+      "emissive": 1.5,
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    },
+    {
+      "name": "Glints",
+      "texture": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\textures\\processed\\T_Star01.png",
+      "color": [
+        255,
+        244,
+        214,
+        255
+      ],
+      "count": 3,
+      "life": 14,
+      "delay": 7,
+      "interval": 0,
+      "size": 0.7,
+      "size_curve": [
+        [
+          0,
+          0.2
+        ],
+        [
+          15,
+          1.15
+        ],
+        [
+          60,
+          1
+        ],
+        [
+          100,
+          0
+        ]
+      ],
+      "rotation": [
+        0,
+        0,
+        [
+          -20,
+          20
+        ]
+      ],
+      "spin": [
+        0,
+        0,
+        [
+          -0.8,
+          0.8
+        ]
+      ],
+      "billboard": "Billboard",
+      "fade_in": 0,
+      "fade_out": 3,
+      "emissive": 1.8,
+      "spawn": {
+        "shape": "Sphere",
+        "radius": [
+          0,
+          0.9
+        ]
+      },
+      "material_profile": "E:\\PROJECTS\\KAGE\\KAGE\\vfx\\materials\\M_Additive.vfxmat.json"
+    }
+  ],
+  "design": "A two-frame pinch, a white contact star, a jagged cream burst over a larger amber body that snap open and erode from their spikes, radial speed lines and an air ring, warm sparks through the target and three glints that pop and pinch out.",
+  "delivery": {
+    "kind": "melee"
+  },
+  "screen": {
+    "shake": 0.3,
+    "flash_frames": 1,
+    "flash": "white",
+    "hitstop": 0.05
+  }
+}

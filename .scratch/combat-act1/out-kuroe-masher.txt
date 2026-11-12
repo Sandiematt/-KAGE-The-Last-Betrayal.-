@@ -1,0 +1,4 @@
+[kuroe masher] kuroe vs masher bot · act1.sub1 · normal · gear 2 · style: Bōjutsu · Kukishin-ryū
+[kuroe masher]   Kage wins 2/20, loses 18, timeouts 0 · avg 36.3s · Kage hp left 1% · foe hp left 39% (foe 403 hp, Kage 249 hp)
+[kuroe masher]   per run: kageParries 0 · foeParries 8.3 · kageCrits 3.1 · foeCrits 8.6 · foeBroken 0 · kageBroken 0.4 · spamPunish 4.3 · throws 0.1 · styleStrings 14.7 · dmgToFoe 243 · dmgToKage 252
+[kuroe masher]   abilities: censure×37 roar×14

@@ -1,0 +1,7 @@
+akari vs fighter bot · act2.boss · normal · gear 4 · style: none
+  Kage wins 2/12, loses 10, timeouts 0 · avg 38.3s · Kage hp left 1% · foe hp left 33% (foe 634 hp, Kage 267 hp)
+  per run: kageParries 1.4 · foeParries 0.1 · kageCrits 3.5 · foeCrits 2 · foeBroken 0 · kageBroken 0 · spamPunish 0.9 · throws 0 · styleStrings 0 · dmgToFoe 425 · dmgToKage 259
+  abilities: blink×13 shadowFlip×5 roar×16 twinFang×15 poisonTrap×2 smokeStep×11 chainReap×4 reapingArc×21 aerialDive×3 poisonKunai×5 kunaiFan×1 demonRequiem×2 petalBurst×4 falseOpening×1 petalStorm×1 phantomDash×1
+  texts/run: S:READ 1.9 · OPENING 2.0 · SPAM READ: MIX W / A / S / D + ATTACK 0.7 · FALSE OPENING 0.1
+  dmg to Kage by source/run: tw2_diagDown 36 · tw1_fwd 28 · tw3_up 27 · twc 25 · tw4_diagUp 19 · tw1 18 · twa_airDown 11 · tw1_down 9 · twc_dash 8 · tw2 8 · p1 6 · tw3 5 · REAP 5 · REQUIEM 5 · tw4 5 · FANG 5 · rk 4 · proj:ab:petalBurst 4 · proj:CHAIN REAP 3 · ab:reapingArc 3 · ab:twinFang 3 · PETAL BURST 3 · p2 3 · twa 2 · proj:ab:poisonKunai 2 · tw5 2 · dp_fwd 2 · proj:ab:shadowFlip 2 · proj:ab:demonRequiem 1 · ab:smokeStep 1 · proj:ab:kunaiFan 1 · TRAP 1
+  strings/run:

@@ -1,0 +1,4 @@
+utsushi vs masher bot · act2.sub3 · normal · gear 4 · style: Utsushi · the borrowed forms
+  Kage wins 3/12, loses 9, timeouts 0 · avg 27s · Kage hp left 8% · foe hp left 27% (foe 426 hp, Kage 267 hp)
+  per run: kageParries 0 · foeParries 6.3 · kageCrits 1.4 · foeCrits 6.2 · foeBroken 0 · kageBroken 0.4 · spamPunish 2 · throws 0 · styleStrings 11.5 · dmgToFoe 311 · dmgToKage 252
+  abilities: blink×54 stolenBlink×54 utsushiMoon×21 roar×11 twinFang×21 stolenFang×21

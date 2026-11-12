@@ -37,10 +37,11 @@ function drawRaikonHead(ctx, f, r, ink, flat) {
     return;
   }
   const red = _raiRed(f), sv = _headLight(A, f);
-  // the faint red rim light round the eye sockets (his key art's red eyes, kept as light under the white-eyes rule)
-  ctx.save(); ctx.beginPath(); animeHeadPath(ctx, r0 * 0.9); ctx.clip();
+  // the faint red rim light round the eye socket (his key art's red eyes, kept as light under the white-eyes rule),
+  // kept off the nose so the profile stays clean; clipped to his face
+  ctx.save(); ctx.beginPath(); animeFacePath(ctx, r0 * 0.9, faceProfile(animeSkin(f))); ctx.clip();
   ctx.globalCompositeOperation = 'lighter';
-  ctx.fillStyle = hol ? 'rgba(120,90,230,0.16)' : 'rgba(255,36,28,0.17)'; ctx.beginPath(); ctx.ellipse(r0 * 0.62, r0 * 0.04, r0 * 0.48, r0 * 0.24, -0.08, 0, TAU); ctx.fill();
+  ctx.fillStyle = hol ? 'rgba(120,90,230,0.14)' : 'rgba(255,36,28,0.15)'; ctx.beginPath(); ctx.ellipse(r0 * 0.5, r0 * 0.04, r0 * 0.32, r0 * 0.17, -0.08, 0, TAU); ctx.fill();
   ctx.fillStyle = hol ? 'rgba(120,90,230,0.12)' : 'rgba(255,36,28,0.12)'; ctx.beginPath(); ctx.ellipse(r0 * 0.3, -r0 * 0.36, r0 * 1.0, r0 * 0.18, 0.08, 0, TAU); ctx.fill();
   ctx.globalCompositeOperation = 'source-over'; ctx.restore();
   // the crest behind the hat's crown

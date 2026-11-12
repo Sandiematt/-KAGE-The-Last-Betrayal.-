@@ -51,3 +51,18 @@ function plumBlossom(ctx, x, y, r, col, lw) {
   ctx.fillStyle = col; ctx.beginPath(); ctx.arc(0, 0, lw * 0.6, 0, TAU); ctx.fill();
   ctx.restore();
 }
+
+// the 4-pointed Kage diamond: a silver star outline round a crimson core (the pauldron, the back tail)
+function kageEmblem(g, cx, cy, rad, rot, line, core, U) {
+  g.save(); g.translate(cx, cy); g.rotate(rot);
+  g.strokeStyle = line; g.lineWidth = 0.85 * U; g.lineJoin = 'miter';
+  g.beginPath();
+  for (let k = 0; k < 4; k++) {
+    const a = k * Math.PI / 2, ma = a + Math.PI / 4, ro = (k % 2 ? 0.95 : 1.15) * rad, ri = 0.28 * rad;
+    k ? g.lineTo(Math.cos(a) * ro, Math.sin(a) * ro) : g.moveTo(Math.cos(a) * ro, Math.sin(a) * ro);
+    g.lineTo(Math.cos(ma) * ri, Math.sin(ma) * ri);
+  }
+  g.closePath(); g.stroke();
+  g.fillStyle = core; g.beginPath(); g.arc(0, 0, 0.2 * rad, 0, TAU); g.fill();
+  g.restore();
+}

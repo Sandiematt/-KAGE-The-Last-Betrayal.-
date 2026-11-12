@@ -1,0 +1,6 @@
+gonryu     fighter W12/L24/T0 t27.4 kHp0.13 fHp0.25 kPar2.2 fPar0 kCr4.7 fCr1.2 fBrk0 kBrk2.1 spam0.3 thr0 str0 dF356 dK249 {"groundSmash":54,"gateSmash":54,"roar":29,"gonryuShove":32,"charge":18} err0
+shizune    fighter W29/L7/T0 t30.9 kHp0.3 fHp0.04 kPar1.3 fPar0.3 kCr4.6 fCr1.7 fBrk0 kBrk0 spam0.4 thr0.2 str0 dF481 dK196 {"shizuneDraw":62,"roar":36,"lunge":31,"guardReturn":4,"stillReturn":4} err0
+moro       fighter W11/L25/T0 t29.2 kHp0.07 fHp0.14 kPar0.9 fPar0.1 kCr5 fCr1.8 fBrk0 kBrk0 spam0.2 thr0 str0 dF435 dK269 {"roar":34,"earthCleave":63,"conduitCleave":63,"teleport":30,"moroSpin":52} err0
+soma       fighter W15/L21/T0 t27.8 kHp0.16 fHp0.21 kPar2.7 fPar0 kCr5.8 fCr0.8 fBrk0 kBrk0 spam0.4 thr0 str0 dF463 dK245 {"earthCleave":61,"severingCleave":61,"somaTwoBeat":53,"roar":30} err0
+hollow_rem fighter W15/L21/T0 t27.7 kHp0.12 fHp0.14 kPar0.7 fPar0 kCr4 fCr1.7 fBrk0 kBrk0 spam0.2 thr0 str0 dF457 dK266 {"hollowCross":71,"roar":35,"lunge":28} err0
+young_rem  fighter W36/L0/T0 t36.8 kHp0.62 fHp0.28 kPar1.3 fPar0 kCr7.8 fCr3.6 fBrk0 kBrk0 spam0.7 thr0 str0 dF241 dK97 {} err0

@@ -1,0 +1,4 @@
+kasane vs turtle bot · act2.sub4 · normal · gear 4 · style: Kusarigamajutsu
+  Kage wins 0/12, loses 12, timeouts 0 · avg 40.3s · Kage hp left 0% · foe hp left 62% (foe 560 hp, Kage 267 hp)
+  per run: kageParries 5.3 · foeParries 2.3 · kageCrits 6.6 · foeCrits 6.4 · foeBroken 0.3 · kageBroken 3.3 · spamPunish 0 · throws 0.1 · styleStrings 16.1 · dmgToFoe 214 · dmgToKage 252
+  abilities: twinFang×57 ledgerFang×57 kasaneChain×63 roar×3 smokeStep×2 ledgerStep×2

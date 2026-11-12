@@ -3,7 +3,8 @@ SUBB_HEADS.disciple_wrap = function (ctx, key, f, r, ink, flat, A, sv, t, acc, s
   if (f.isPlayer) drawKageHair(ctx, r, ink, flat, f);
   else {
     fill([[-0.24, -0.46], [-1.0, -0.42], [-1.08, 0.36], [-0.78, 0.92, 1], [-0.58, 0.36], [-0.3, 0.02]], A.pal.hair, { sd: r * 0.2, hd: r * 0.05, rim: true });
-    fill([[0.62, -0.42], [0.86, 0.1], [0.76, 0.66, 1], [0.6, 0.12], [0.44, -0.36]], A.pal.hair, { sd: r * 0.06 });
+    // the side lock falls at the temple, in front of the ear (clear of the eye and the profile)
+    fill([[0.2, -0.42], [0.34, 0.1], [0.22, 0.7, 1], [0.08, 0.14], [0.0, -0.36]], A.pal.hair, { sd: r * 0.06, rim: true });
     celFill(ctx, () => { ctx.ellipse(-r * 1.08, -r * 0.18, r * 0.3, r * 0.26, 0.3, 0, TAU); }, A.pal.hair, A, { sd: r * 0.1, rim: true });
   }
   // the cotton tenugui pulled over the crown: a folded hem, creases, the school's ring half unpicked

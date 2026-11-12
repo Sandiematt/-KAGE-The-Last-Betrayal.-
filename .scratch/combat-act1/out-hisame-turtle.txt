@@ -1,0 +1,4 @@
+[hisame turtle] hisame vs turtle bot · act1.sub3 · normal · gear 2 · style: Tessenjutsu
+[hisame turtle]   Kage wins 1/20, loses 19, timeouts 0 · avg 47.7s · Kage hp left 1% · foe hp left 45% (foe 426 hp, Kage 249 hp)
+[hisame turtle]   per run: kageParries 7 · foeParries 1.8 · kageCrits 7.3 · foeCrits 6.8 · foeBroken 0 · kageBroken 4.8 · spamPunish 0 · throws 1.2 · styleStrings 19.7 · dmgToFoe 236 · dmgToKage 228
+[hisame turtle]   abilities: hisameKocho×95 thunderSwing×128 lightningCut×128 roar×13 smokeBomb×22

@@ -31,7 +31,12 @@ class AIController {
     else { f.ammo = this.p.kunai > 0.3 ? 30 : 3; f.turnDelay = d.ai === 'heavy' ? 0.4 : d.ai === 'defensive' ? 0.25 : 0.1; }
     if (this.p.ranged && f.baseWeapon === 'storm_orbs') this.abilities = this.abilities.concat(['orbVolley']);
   }
-  retune(opts) { this.opts = opts || {}; this.p = Logic.aiTuning((this.f.def || {}).ai || 'regular', this.opts); }
+  // the foe's own fighting style (FIGHT_STYLES, 13-budo.js) and its role sharpen or tame the archetype
+  retune(opts) {
+    this.opts = opts || {}; this.style = Budo.style(this.f);
+    this.p = Logic.aiTuning((this.f.def || {}).ai || 'regular', Object.assign({}, this.opts, { rank: Budo.role(this.f), style: this.style && this.style.tune }));
+    this.fw = Budo.footwork(this.f);
+  }
   target() { return this.world.player; }
   reachOf(f, kind) {
     if (kind === 'weapon') { const m = MOVES[f.weapon().moves[0]]; return (m.box[0] + m.box[2]) * f.scale * (f.hasWeapon ? weaponMul(f.weaponId(), f.wlvl).reach : 1); }
@@ -46,7 +51,44 @@ class AIController {
     else if (btn.startsWith('w:')) { c.weaponP = true; c.aim = btn.slice(2); }   // a directional form (DIR_FORMS)
     else if (btn === 'heavy') { c.kickP = true; this.kickHold = rand(0.35, 0.75); }
   }
-  startSeq(list, delay) { this.seq = list; this.seqI = 0; this.seqT = delay || 0; this.plan = 'attack'; }
+  startSeq(list, delay) { this.seq = list; this.seqI = 0; this.seqT = delay || 0; this.seqWait = 0; this.plan = 'attack'; }
+  /* One step of a string. Besides the buttons of press(): 'fwd' holds toward Kage, 'back' dashes away from him,
+     'wait:0.3' holds the string, 'move:<id>' starts that MOVES entry outright (from neutral, or chained from the
+     recovery of the move before it), 'ab:<id>' runs that BOSS_ABILITIES entry and ends the string. Returns false when
+     the step cannot fire yet (the executor tries again next frame, and gives the string up after a while). */
+  stepSeq(btn, p, toward) {
+    const f = this.f, c = f.ctrl, w = this.world;
+    if (btn === 'fwd') { c.dir = toward; return true; }
+    if (btn === 'back') { c.dir = -toward; c.dashP = true; return true; }
+    if (btn.startsWith('wait:')) { this.seqT = +btn.slice(5) || 0.1; return true; }
+    if (btn.startsWith('move:')) {
+      const id = btn.slice(5);
+      if (!MOVES[id]) return true;
+      if (f.state === 'move') { if (f.mphase < 2 || !f.grounded) return false; f.endMove(); f.setState('idle'); }
+      else if (!f.canAct()) return false;
+      f.facing = toward; f.startMove(id, w);
+      return true;
+    }
+    if (btn.startsWith('ab:')) {
+      const a = BOSS_ABILITIES[btn.slice(3)];
+      if (a) { if (f.state === 'move') { if (f.mphase < 2) return false; f.endMove(); f.setState('idle'); } else if (!f.canAct()) return false; this.cds[a.id] = a.cd; a.run(f, w, this, p); }
+      this.seq = null;
+      return true;
+    }
+    this.press(btn);
+    return true;
+  }
+  // a string of the foe's own style for this distance (FIGHT_STYLES strings, Budo.pickString); false when it has none
+  tryString(p, dist) {
+    const s = Budo.pickString(this, p, dist);
+    if (!s) return false;
+    const f = this.f, tell = s.tell ? s.tell * this.p.windup : 0;
+    if (tell) { f.telegraph = Math.max(f.telegraph, tell); AudioManager.play('teleport'); }
+    if (this.phaseData && this.phaseData.unblockable) f.unblockable = true;
+    this.lastString = s;
+    this.startSeq(s.seq.slice(), tell);
+    return true;
+  }
 
   update(dt) {
     const f = this.f, c = f.ctrl, w = this.world, p = this.target();
@@ -92,9 +134,14 @@ class AIController {
       this.seqT -= dt;
       if (this.seqT <= 0 && (f.canAct() || (f.state === 'move' && f.mphase >= 1) || f.state === 'dash' || f.state === 'air')) {
         const btn = this.seq[this.seqI++];
-        if (btn) { if (btn === 'fwd') c.dir = toward; else this.press(btn); }
         this.seqT = 0.1;
-        if (this.seqI >= this.seq.length) { this.seq = null; this.t = rand(0.15, 0.35) * this.p.idle; }
+        if (btn && !this.stepSeq(btn, p, toward)) { this.seqI--; this.seqT = 0.03; if ((this.seqWait = (this.seqWait || 0) + 1) > 40) this.seq = null; }
+        else this.seqWait = 0;
+        if (this.seq && this.seqI >= this.seq.length) {
+          this.seq = null; this.t = rand(0.15, 0.35) * this.p.idle;
+          // zanshin: after the string, step back out of the pocket instead of standing in it (BUDO.footwork)
+          if (this.fw.away && chance(this.fw.away) && dist < 240) { this.plan = 'retreat'; this.t = rand(0.22, 0.4); }
+        }
       }
       if (this.seq && f.isNeutral() && dist > this.reachOf(f, 'weapon') + 60) c.dir = toward;
       return;
@@ -105,6 +152,10 @@ class AIController {
     if (opening && f.canAct() && !this.punishedThis) {
       const reach = Math.max(this.reachOf(f, 'weapon'), this.reachOf(f, 'punch'));
       if (dist < reach + 20 && chance(this.p.punish)) { this.punishedThis = true; this.attack(dist, true); return; }
+      // a whiff just out of reach: step in on it (BUDO.footwork.stepIn; sub-bosses and bosses)
+      if (this.fw.stepIn && dist < reach + this.fw.stepIn && f.dashCd <= 0 && (p.state === 'move' || p.state === 'land') && chance(this.p.punish * 0.75)) {
+        this.punishedThis = true; this.startSeq(['dash', f.hasWeapon ? 'weapon' : 'punch']); return;
+      }
     }
     if (p.state !== 'move' && p.state !== 'stun') this.punishedThis = false;
     // ---- decide ----
@@ -231,7 +282,7 @@ class AIController {
      true when the read fires. */
   spamPunish(p, read) {
     const f = this.f, w = this.world, R = SPAM_READ, role = this.role();
-    if (!this.canReadSpam() || !chance(Math.min(R.cap[role], R.chance[role] + this.p.punish + WitnessBoss.readBonus(this, read)))) return false;
+    if (!this.canReadSpam() || !chance(Math.min(R.cap[role], (R.chance[role] + this.p.punish) * this.p.spam + WitnessBoss.readBonus(this, read)))) return false;
     this.cds.spamRead = R.cd[role];
     this.seq = null; this.block = 0; this.reactTo = p.move || null; this.punishedThis = true;
     if (f.state === 'move') f.endMove();
@@ -278,6 +329,7 @@ class AIController {
 
   respond(p, dist, toward) {
     const f = this.f, c = f.ctrl, m = p.move;
+    if (this.style && this.style.respond && this.style.respond(this, p, dist, toward, m) === true) return;
     let block = this.p.block, parry = this.p.parry, dodge = this.p.dodge;
     // punish predictable behaviour: spammed moves get read
     const pred = this.world.predictability(m.id);
@@ -312,6 +364,12 @@ class AIController {
     if (p.state === 'down' || p.state === 'getup') { this.plan = 'hold'; return; }
     // stretches: only a couple of foes press the attack at once (world.mayEngage); the rest circle at a distance
     if (w.mayEngage && !w.mayEngage(f)) { this.waitTurn(dist, toward); return; }
+    // the foe's own fighting style decides first (FIGHT_STYLES decide, 13-budo.js)
+    const st = this.style, role = this.role();
+    if (st && st.decide && st.decide(this, p, dist, toward) === true) return;
+    // a guard held too long is thrown (BUDO.turtle): turtling never stalls a fight
+    const T = BUDO.turtle;
+    if (p.state === 'block' && p.st > T.hold && dist < T.range * f.scale && f.canAct() && chance(T.chance[role])) { this.startSeq(['grab']); return; }
     // boss / sub-boss signature abilities
     if (this.tryAbility(p, dist, toward)) return;
     // the family form: from dash range, open with the whole chain
@@ -324,6 +382,7 @@ class AIController {
     const reachW = this.reachOf(f, 'weapon'), reachP = this.reachOf(f, 'punch');
     const reach = Math.max(reachW, reachP);
     if (dist > reach + 30) {
+      if (st && st.strings && chance(aggr) && this.tryString(p, dist)) return;   // the style's openers from range
       if (pr.dashIn && chance(pr.dashIn) && dist < 420) { this.startSeq(['dash', chance(0.5) ? 'punch' : 'kick']); return; }
       if (pr.jump && chance(pr.jump) && dist < 380) { this.startSeq(['jump', 'fwd', 'fwd', chance(0.5) ? 'kick' : 'weapon']); return; }
       if (dist > 300 && f.ammo > 0 && chance(pr.kunai * 0.6)) { this.startSeq(['special']); return; }
@@ -358,6 +417,8 @@ class AIController {
       // Impossible: punishes run on into a launcher
       this.startSeq(pr.unique && chance(0.6) ? q.concat(hasW ? ['weapon'] : ['kick']) : q); return;
     }
+    // the foe's own strings (FIGHT_STYLES strings) come before the generic ones
+    if (this.style && this.style.strings && this.tryString(this.target(), dist)) return;
     const flash = f.def && f.def.flashEyes, tell = pr.windup;
     const delay = flash ? 0.32 * tell : 0;
     if (flash) { f.telegraph = 0.32 * tell; AudioManager.play('teleport'); }

@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "effect_id": "VFX_Anime_Ground_Crack",
+  "role": "finisher ground break: criticals, slams, finishers (rare, high importance)",
+  "style": "stylized anime combat, flat cel-shaded toon smoke (solid white, lavender shadow, hard-edged break-up) and saturated cyan energy with a white-hot core; side-view 2D, baked to sprite sheets for the Canvas game",
+  "dominant_shape": "a shattered web of glowing fissures across the floor with a fan of light shafts rising out of it",
+  "palette": {
+    "core": [
+      236,
+      255,
+      255
+    ],
+    "body": [
+      60,
+      224,
+      255
+    ],
+    "dark": [
+      8,
+      22,
+      70
+    ],
+    "matter": [
+      78,
+      86,
+      104
+    ]
+  },
+  "delivery": {
+    "kind": "area"
+  },
+  "anchor": "ground",
+  "reference": {
+    "id": "user request 2026-11-12: two reference images, a cel-shaded white cartoon smoke blast with a hollow dome and ground swooshes, and a glowing cyan ground crack web with light rays and flying rock shards; apply across all combat, atmosphere and special anime effects"
+  },
+  "beats": [
+    {
+      "frame": 2,
+      "name": "contact",
+      "expect": "white contact and the web snaps open white-hot"
+    },
+    {
+      "frame": 10,
+      "name": "body",
+      "expect": "cyan web, light fan climbing, chips flying"
+    },
+    {
+      "frame": 30,
+      "name": "cool",
+      "expect": "web cooled to cyan-blue, fan fading, chips landing"
+    },
+    {
+      "frame": 60,
+      "name": "erode",
+      "expect": "deep-blue fissures eroding from their thin ends, motes drifting"
+    },
+    {
+      "frame": 87,
+      "name": "clear",
+      "expect": "gone"
+    }
+  ],
+  "layer_plan": [
+    {
+      "name": "0:Floor pool",
+      "role": "light on the floor: the soft cyan pool under the break",
+      "primitive": "decal T_SoftCircle",
+      "exit": "gone by absolute f76"
+    },
+    {
+      "name": "1:Crack halo",
+      "role": "body light: the glow following the fissures",
+      "primitive": "decal T_CrackWeb01Glow",
+      "exit": "gone by absolute f78"
+    },
+    {
+      "name": "2:Crack web",
+      "role": "main shape: the shattered fissure web, white-hot to cyan to deep blue, eroding",
+      "primitive": "decal T_CrackWeb01",
+      "exit": "gone by absolute f82"
+    },
+    {
+      "name": "3:Contact flash",
+      "role": "contact",
+      "primitive": "flash",
+      "exit": "gone by absolute f6"
+    },
+    {
+      "name": "4:Break bloom",
+      "role": "subordinate light over the break",
+      "primitive": "glow",
+      "exit": "gone by absolute f16"
+    },
+    {
+      "name": "5:Ray fan",
+      "role": "body: the wide fan of light shafts climbing out of the break",
+      "primitive": "standing T_LightRays01",
+      "exit": "gone by absolute f47"
+    },
+    {
+      "name": "6:Ray core",
+      "role": "core: the narrow white-hot fan, gone sooner",
+      "primitive": "standing T_LightRays01",
+      "exit": "gone by absolute f18"
+    },
+    {
+      "name": "7:Shock ring",
+      "role": "ground feedback: a thin cyan ring racing out along the floor",
+      "primitive": "tilted_ring",
+      "exit": "gone by absolute f16"
+    },
+    {
+      "name": "8:Rock chunks",
+      "role": "matter: big near-black rock chunks bursting out and up, settling by f48",
+      "primitive": "debris",
+      "exit": "gone by absolute f52"
+    },
+    {
+      "name": "9:Rock chips",
+      "role": "matter: dark rock chips thrown up, landing",
+      "primitive": "debris",
+      "exit": "gone by absolute f48"
+    },
+    {
+      "name": "10:Spit sparks",
+      "role": "secondary: cyan sparks spat up out of the break",
+      "primitive": "radial_sparks",
+      "exit": "gone by absolute f22"
+    },
+    {
+      "name": "11:Rising motes",
+      "role": "residue: cyan motes drifting up after the light",
+      "primitive": "motes",
+      "exit": "gone by absolute f70"
+    }
+  ],
+  "acceptance": [
+    "The fissure web reads as a shattered cell network, white in the centre and cyan outward",
+    "Light visibly pours up out of the break",
+    "The fissures cool and erode instead of switching off"
+  ],
+  "avoid": [
+    "A flat cyan disc",
+    "A white blob over the whole floor",
+    "Light shafts that read as a solid wall"
+  ]
+}

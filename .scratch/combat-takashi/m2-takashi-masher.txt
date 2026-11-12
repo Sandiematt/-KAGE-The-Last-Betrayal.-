@@ -1,0 +1,4 @@
+takashi vs masher bot · act3.boss · normal · gear 6 · style: Ittō-ryū · iaijutsu
+  Kage wins 0/16, loses 16, timeouts 0 · avg 18.3s · Kage hp left 0% · foe hp left 93% (foe 830 hp, Kage 283 hp)
+  per run: kageParries 0 · foeParries 0.3 · kageCrits 0.6 · foeCrits 3.3 · foeBroken 0 · kageBroken 0.4 · spamPunish 1.1 · throws 0 · styleStrings 2.1 · dmgToFoe 57 · dmgToKage 301
+  abilities: kunaiExecution×11 goldKunai×22 kataTsuki×3 guardReturn×46 kataDraw×9 kataNidan×4 kataKesa×7 earthCleave×5 kataKaratake×3

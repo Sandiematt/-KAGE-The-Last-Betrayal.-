@@ -22,6 +22,7 @@ function animeCloths(f) {
     f.cloths.push({ kind: 'coat', part: 'back', c: new Cloth(8, 12 * s * k, { ph: 2.2, wind: 1150, grav: 1000, stiff: 1.5, hang: 0.55 }), at: 'hip', dx: 6, dy: -4 });
     f.cloths.push({ kind: 'coat', part: 'flap', c: new Cloth(7, 11.4 * s * k, { ph: 4.7, wind: 260, grav: 1250, stiff: 1.5, hang: 0.15 }), at: 'hip', dx: 1, dy: -3 });
   }
+  kageCloths(f, sk);   // Kage's coat tails and front flap (kage/)
   if (sk.order) orderCloths(f, sk);   // the Order's hood tails and hat cords (enemies/order/)
   if (sk.hollow) hollowCloths(f, sk);   // the Hollows' torn robes, cape and hood tails (enemies/hollow/)
   subCloths(f, sk);   // the sub-bosses' robes, capes, hood tails and cords, by look (sub-bosses/)

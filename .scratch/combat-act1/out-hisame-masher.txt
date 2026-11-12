@@ -1,0 +1,4 @@
+[hisame masher] hisame vs masher bot · act1.sub3 · normal · gear 2 · style: Tessenjutsu
+[hisame masher]   Kage wins 0/20, loses 20, timeouts 0 · avg 24.2s · Kage hp left 0% · foe hp left 47% (foe 426 hp, Kage 249 hp)
+[hisame masher]   per run: kageParries 0 · foeParries 6.5 · kageCrits 1.1 · foeCrits 5.8 · foeBroken 0 · kageBroken 0.4 · spamPunish 3.1 · throws 0 · styleStrings 7 · dmgToFoe 226 · dmgToKage 258
+[hisame masher]   abilities: thunderSwing×61 lightningCut×61 roar×11 smokeBomb×8

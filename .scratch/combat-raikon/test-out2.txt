@@ -1,0 +1,751 @@
+✔ Act I has four distinct sub-bosses, one at the end of each stretch, each a named fighter with a title (5.3211ms)
+✔ every Act I sub-boss fights in the single-bar boss format with one or two phases and leaves by the finisher (0.2872ms)
+✔ each Act I sub-boss uses at least one reduced Raikon move, and none has the full Thunder Swing wave (0.327ms)
+✔ Raikon keeps his own full moves: the Thunder Swing wave is his alone in Act I (0.1404ms)
+✔ every ability an Act I fighter names exists, and every reduced move is built on ability code that exists (0.2437ms)
+✔ each Act I sub-boss drops one trophy helmet or armour, in the trophy tier, with a lore line (0.238ms)
+✔ beating an Act I sub-boss grants its trophy once: the first win gives it, a replay gives nothing more (9.3474ms)
+✔ Act I unlocks in order: stretch1, sub1, stretch2 ... sub4, then the Raikon arena (0.6174ms)
+✔ clearing the fourth sub-boss opens the Raikon arena (0.4581ms)
+✔ the four Act I stretches are authored levels: escalating encounters of mostly Order soldiers with some Hollows (0.349ms)
+✔ Act I holds the three clues, each with a scene: the torn report, the two sword marks and Takashi's recording (0.3769ms)
+✔ survivors' story beats: Rem was declared dead ten years ago, and the official story says he betrayed Kage (0.2021ms)
+✔ Act II has four distinct sub-bosses, one at the end of each stretch, each a named fighter with a title and lore (0.5197ms)
+✔ every Act II sub-boss fights in the single-bar boss format with one or two phases and leaves by the finisher (0.2581ms)
+✔ each Act II sub-boss uses at least one reduced Akari move, and none has False Opening or Petal Cross (0.5123ms)
+✔ a reduced Akari move telegraphs at least as long as hers and never hits harder (0.4736ms)
+✔ Akari keeps her own moves: Logic.akariDerived names them unreduced and ignores other abilities (0.1542ms)
+✔ every ability an Act II fighter names exists, and every reduced move is built on Akari ability code that exists (0.464ms)
+✔ each Act II sub-boss drops one trophy helmet or armour, in the trophy tier, with a lore line (0.2279ms)
+✔ beating an Act II sub-boss grants its trophy once: the first win gives it, a replay gives nothing more (29.7025ms)
+✔ Act II unlocks in order: stretch1, sub1, stretch2 ... sub4, then the Akari arena (9.0981ms)
+✔ clearing the fourth sub-boss opens the Akari arena (0.3873ms)
+✔ the four Act II stretches are authored levels in the City of Echoes: escalating encounters of mostly Hollows (0.3205ms)
+✔ the City of Echoes repeats itself: every stretch's street block recurs, with a visible seam where it loops (0.5756ms)
+✔ streetProps expands a loop into copies and seams, keeps the hand-placed props, and sorts by x (0.223ms)
+✔ a sign only changes while it is off screen: it reads differently each time it comes back into view (0.1717ms)
+✔ dialogue beats: residents remember different versions of the same night, without giving Akari's secret away (0.338ms)
+✔ the City of Echoes holds one clue, with its scene (0.1435ms)
+✔ Act III has four distinct sub-bosses, one at the end of each stretch, each a named fighter with a title and lore (0.2263ms)
+✔ every Act III sub-boss fights in the single-bar boss format with one or two phases and leaves by the finisher (0.1117ms)
+✔ each Act III sub-boss uses at least one reduced Takashi move, and none has Final Flow (0.3099ms)
+✔ a reduced Takashi move telegraphs longer than his, never hits harder, and its counter never breaks a guard (0.3425ms)
+✔ Takashi keeps his own moves: Logic.takashiDerived names them unreduced and ignores other abilities (0.1114ms)
+✔ every ability an Act III fighter names exists, and every reduced move is built on Takashi ability code that exists (0.3191ms)
+✔ each Act III sub-boss drops one trophy helmet or armour, in the trophy tier, with a lore line (0.2184ms)
+✔ beating an Act III sub-boss grants its trophy once: the first win gives it, a replay gives nothing more (27.4685ms)
+✔ Act III unlocks in order: stretch1, sub1, stretch2 ... sub4, then the Takashi arena (0.4354ms)
+✔ clearing the fourth sub-boss opens the Takashi arena (0.2952ms)
+✔ the four Act III stretches are authored Fortress levels: mostly the Order's elite, with Hollows rising stretch by stretch (0.3658ms)
+✔ Act III holds the hardest regular encounters in the game: its last stretch outnumbers every other stretch (0.2007ms)
+✔ the Fortress is dressed with Order banners and violet memory conduits (0.1321ms)
+✔ dialogue beats build toward Takashi being alive, without giving away who waits in the Core (0.3174ms)
+✔ the Fortress holds one clue, with its scene (0.1213ms)
+✔ her phases carry the scythe: Reaping Arc and Chain Reap from the start, Petal Burst from phase 2, Binding Chain in phase 3 (130.5434ms)
+✔ Reaping Arc: up close, one wide sweep and a return cut land on a standing Kage (147.5559ms)
+✔ Chain Reap: the blade flies on its chain across the arena, cuts him and is reeled home (79.2674ms)
+✔ Chain Reap is blockable: a guard takes chip damage only (76.3794ms)
+✔ Binding Chain: caught, he cannot move; when the hold runs out she reels him in for heavy damage (98.1857ms)
+✔ Binding Chain: without full rage the special does not free him (83.9558ms)
+✔ Binding Chain: his rage art breaks the chain, spares him the cut and leaves her reeling (93.2334ms)
+✔ Binding Chain can be jumped or dashed through (66.5498ms)
+✔ Petal Burst (phase 2): blade petals ring her, swing round the arena cutting him, and burst home (89.3527ms)
+✔ Petal Burst (phase 3): the chain goes into the storm and the lotus bursts on a bound Kage (97.102ms)
+✔ Akari, the Memory Blade, is the foe of the Act II boss stage (0.1916ms)
+✔ Akari fights in three phases, each introducing new moves, escalating to Petal Cross and her ultimate in phase 3 (0.6605ms)
+✔ every Akari move has a readable tell and a call-out (0.3342ms)
+✔ her smoke is compact and never hides the player for more than a brief moment (0.1699ms)
+✔ Akari is defeated with the finisher and recorded as killed (0.4105ms)
+✔ clearing Akari's stage grants the Mei-En Garb, Kagehira & Yūrei and Shinsen exactly once (0.3382ms)
+✔ Kagehira & Yūrei's rage art is Smoke Step (0.0733ms)
+✔ Akari intercepts Kage before the fight; her dying reveal hands over Shinsen (0.211ms)
+✔ every fighter def has its own anime design (no def falls back to the shared base skin) (4.2282ms)
+✔ every fighter is drawn as cel-shaded anime parts with a black face and white eyes, idle, hurt and dead (352.0852ms)
+✔ the flat passes are a single clean colour for every fighter (28.0716ms)
+✔ every helmet look reaches cel-shaded anime art (equippable items and every look a def wears) (29.4442ms)
+✔ every armour look reaches cel-shaded anime art (equippable items and every look a def wears) (38.1943ms)
+✔ Kage wearing each helmet and each armour is still the anime body: face, eyes, parts, clean flat pass (26.8667ms)
+✔ every weapon a fighter can hold is drawn in the hand: coloured steel on the normal pass, one colour on the flat pass (62.6117ms)
+✔ every story bust and illustration figure with an in-game design is the live anime fighter (25.153ms)
+✔ every speaker portrait and illustration paints without falling back; code-drawn civilians keep black faces and white eyes (34.502ms)
+✔ the deleted primitive drawing code does not come back (24.7082ms)
+✔ Raikon, the Lightning Ascendant, is the foe of the Act I boss stage (0.1299ms)
+✔ Raikon fights in three phases that open at two-thirds and one-third health (0.1756ms)
+✔ Raikon swings Thunder Swing and Storm Break from the start, adds Redline Counter, and chains a delayed second wave in phase 3 (0.1214ms)
+✔ Raikon is armoured: light hits do not make him flinch, and he cannot be thrown (7.3372ms)
+✔ story boss stages are one round with one health bar, three phases (the Witness four) and no round clock (0.2182ms)
+✔ other arena fights keep their rounds and timers (0.1168ms)
+✔ how a boss is defeated is read from its data (6.5334ms)
+✔ beating Raikon records him as killed; an escaping boss is recorded as escaped (6.3926ms)
+✔ a lost boss fight records no fate, and a recorded fate survives saving and loading (0.5976ms)
+✔ clearing Raikon's stage grants Raijin Kabuto and Raikō no Tachi exactly once (0.2584ms)
+✔ Raikō no Tachi's rage art is Thunder Swing (7.0096ms)
+✔ Raikon has a before scene and a defeat scene; the defeat scene hands over the damaged access token (12.1997ms)
+✔ only the story bosses (kind boss) have a fate: sub-bosses and the Core echoes record none (0.5411ms)
+✔ a fresh save lists every boss, all locked, and has no run to start (0.3233ms)
+✔ the roster is the 12 sub-bosses, Raikon, Akari, Takashi, the 4 Core echoes and the Witness, in story order (0.1807ms)
+✔ a boss becomes available only once beaten in the story, and a run takes the available ones in story order (0.3555ms)
+✔ Echo Trials boss echoes are the available part of the roster (0.1946ms)
+✔ every rush fight is the story boss format in its own arena: one bar, no clock, phases, no reabsorb (0.4145ms)
+✔ health carries over between fights with +30% of max health restored, capped at max (0.1139ms)
+✔ advancing a run: a win moves on with carried health, a loss or the last boss ends it (0.2097ms)
+✔ the best record: more bosses beaten wins, then a faster time; it survives a save reload (0.3429ms)
+✔ a run pays a modest coin purse per boss and never touches story progress, rewards or fates (0.2469ms)
+✔ the chapters run Prologue, Act I, Interlude, Act II, Act III, The Core, Epilogue (0.1188ms)
+✔ the Prologue is a single stretch (0.0921ms)
+✔ each act is four stretches, each followed by its sub-boss, then the main boss (0.1928ms)
+✔ the Interlude is the Rem spar and sits between Act I and Act II (0.0937ms)
+✔ The Core is one stretch, four echoes (Hollow Rem last), then the Witness (0.1156ms)
+✔ the Epilogue has no combat stage (0.1048ms)
+✔ every stage has a unique id, a known kind and a chapter; every combat stage names a foe (0.1986ms)
+✔ the old 21-fight roster is gone (6.3808ms)
+✔ a new player can only play the Prologue (0.1662ms)
+✔ completing the Prologue unlocks Act I stretch 1 and opens Act I (0.1478ms)
+✔ a stretch unlocks its own sub-boss next, and the fourth sub-boss unlocks the act boss (0.1914ms)
+✔ beating Raikon opens the Interlude, and the spar opens Act II (0.1969ms)
+✔ a stage cannot be completed while it is locked (0.0786ms)
+✔ a cleared stage stays unlocked for replay, and replaying it is not a first clear and unlocks nothing (0.0884ms)
+✔ chapter progress counts cleared stages (0.1624ms)
+✔ the Witness opens the Epilogue; finishing the Epilogue completes the story and unlocks New Game+ (0.2789ms)
+✔ a stage config names the foe, the arena, the chapter difficulty and the New Game+ cycle (0.1007ms)
+✔ New Game+ needs the story finished, then resets campaign progress only (0.241ms)
+✔ saves keep clears by stage id and drop clear keys the map does not know (0.1999ms)
+✔ every weapon carries the eight directional cuts of its family (0.4066ms)
+✔ each cut does what its direction says (0.1945ms)
+✔ no attack turns the whole body: no spin, no rotation, no squash, in any move (0.442ms)
+✔ blade cuts move the hands along the arc (IK) and sweep their hitbox the way the blade travels (0.3187ms)
+✔ finishing the weapon string is not spam; one press past its end is (0.232ms)
+✔ punches, kicks, dashes, jumps and a repeated directional cut are read too (0.1364ms)
+✔ a pause, a different direction or a different button breaks the streak (0.1387ms)
+✔ W / S / A / D + attack pick the cut on the screen; A and D cut to that side, turning to face it (457.1023ms)
+✔ a cut never turns the whole body: the skeleton stays upright through every direction (352.8903ms)
+✔ the double-jump flip still turns the whole body over (51.9258ms)
+✔ directional combo: a cut flows into a cut in a new direction, faster and harder; a repeat does not chain (122.168ms)
+✔ two cuts meeting in flight clash, whatever their directions (each arc full box) (218.0372ms)
+✔ the downward slash spikes a foe in the air into the floor (47.8703ms)
+✔ W + attack is the rising slash, not a jump; in the air W / S + attack rise or plunge (54.9329ms)
+✔ double tapping toward dashes, and attack out of the dash is the dash strike (47.4882ms)
+✔ mashing attack runs the string; a direction mid-string branches it (55.6525ms)
+✔ spamming the attack button against an Order soldier: it reads the spam, slips to Kage's other side and punishes (79.3673ms)
+✔ spamming the attack button against a Hollow: it reads the spam, slips to Kage's other side and punishes (80.6784ms)
+✔ spamming the attack button against an Act I sub-boss: it reads the spam, slips to Kage's other side and punishes (127.522ms)
+✔ spamming the attack button against an Act II sub-boss: it reads the spam, slips to Kage's other side and punishes (85.2638ms)
+✔ spamming the attack button against an Act III sub-boss: it reads the spam, slips to Kage's other side and punishes (88.2467ms)
+✔ spamming the attack button against Raikon: it reads the spam, slips to Kage's other side and punishes (100.8183ms)
+✔ spamming the attack button against Akari: it reads the spam, slips to Kage's other side and punishes (93.4718ms)
+✔ spamming the attack button against Takashi: it reads the spam, slips to Kage's other side and punishes (95.0376ms)
+✔ spamming the attack button against a Core echo: it reads the spam, slips to Kage's other side and punishes (87.6424ms)
+✔ spamming the attack button against the Witness: it reads the spam, slips to Kage's other side and punishes (107.2523ms)
+✔ dash spam and jump spam are read as well (190.2997ms)
+✔ a varied attack never triggers the read (115.3823ms)
+✔ the Core runs its stretch, then the four echoes in order, then the Witness (0.2501ms)
+✔ each echo opens only after the one before it, and the Witness only after Hollow Rem (0.5585ms)
+✔ every echo grants gems on its first clear and no gear, ever (0.3347ms)
+✔ the echo gems are a first-clear reward; the stage card shows them (0.3165ms)
+✔ the echo gems are paid once ever: a New Game+ first clear pays only the usual first-clear gems (0.6331ms)
+✔ no echo stage lists any gear in its reward (0.1256ms)
+✔ each echo is a Hollow: violet, glitching, dissolving into ash, and not the placeholder rig (0.1219ms)
+✔ each echo keeps its original's silhouette: the same helmet and armour drawing, a corrupted copy of the blade (0.1221ms)
+✔ every echo fights in the single-bar boss format with one or two phases (0.1208ms)
+✔ each echo fights with corrupted versions of its original's own moves, violet and glitching (0.5092ms)
+✔ Hollow Raikon's Thunder Swing still sends a wave, but slower and lighter than Raikon's, never a second wave (0.1742ms)
+✔ Hollow Akari has Smoke Step, Twin Fang and a single False Opening, and no Blink or Petal Cross (0.2388ms)
+✔ Hollow Takashi has Earth Cleave, Guard Return and at most a short, broken Final Flow fragment (0.2633ms)
+✔ Hollow Rem runs Rem's fast, flowing family form from the Interlude, grown up and corrupted (0.2552ms)
+✔ the Core's scenes exist: the stretch opening, and Hollow Rem's defeat hinting that the real Rem is near (0.2299ms)
+✔ the Core stretch is Hollows only, the hardest Hollow mix in the game, in the Core environment (0.269ms)
+✔ every combat stage fights an enemy that exists, of the right weight class; scenes fight nobody (0.1475ms)
+✔ every chapter and stage arena exists (0.2563ms)
+✔ Echo Trials only sends enemies and arenas that exist (0.1123ms)
+✔ every enemy uses a weapon, AI profile and boss abilities that exist (1.3225ms)
+✔ gear marked exclusive is either locked outright or names an enemy that exists (0.1663ms)
+✔ every enemy wears a helmet and armour that resolve to gear or to a drawing the fighter knows (1.101ms)
+✔ every enemy weapon fights on a move-set that exists (0.1529ms)
+✔ gear rewards on campaign stages only name items that exist (0.1729ms)
+✔ the helper loads with the developer unlock off by default, and on when asked (0.0882ms)
+✔ dev mode: every chapter and stage is open on a fresh save, and stages complete in any order (0.4152ms)
+✔ dev mode: the whole Boss Rush roster is available and boss echoes come from every boss (0.209ms)
+✔ dev mode: the save owns every weapon, helmet and armour at level 1, with 99,999 coins, 999 gems and New Game+ open (0.4956ms)
+✔ dev mode plays on its own save key; the normal save is never read or deleted (0.2276ms)
+✔ the four modes exist in order, with player-facing names (0.1311ms)
+✔ each mode is harder than the one before: more health and damage, faster and more aggressive AI (0.219ms)
+✔ Normal keeps the original tuning: every multiplier is 1 and the combo branch stays at 15% (0.1129ms)
+✔ only Impossible adds unique combo variations (0.0957ms)
+✔ Easy widens the player dodge window by half (0.0743ms)
+✔ an unknown mode reads as Normal (0.0636ms)
+✔ a new save is on Normal and has not asked for a mode yet (0.0605ms)
+✔ picking a mode records it, and the chosen mode survives save and load (0.1184ms)
+✔ an unknown mode is refused, and a stored unknown mode loads as Normal (0.1012ms)
+✔ winning fights, levelling up and New Game+ never change the mode (0.1827ms)
+✔ erasing progress starts a new game, which asks for a mode again (0.0689ms)
+✔ on Normal a campaign foe has its authored stats scaled by its role (0.3084ms)
+✔ regular foes use the mode health and damage; sub-bosses and bosses use the boss multipliers (0.17ms)
+✔ enemy and boss stats ignore the player level, experience and gear (0.393ms)
+✔ Echo Trials foes climb with the wave on top of the mode (0.109ms)
+✔ New Game+ still sharpens foes as the authored curve (0.1002ms)
+✔ boss minions and shadow clones follow the mode too (0.2262ms)
+✔ on Normal a regular foe at the start of the story keeps its original AI tuning (0.2237ms)
+✔ Impossible reacts faster, attacks, guards and punishes more, and cuts its idle gaps (0.1232ms)
+✔ every AI profile gets sharper from Easy to Impossible (0.5186ms)
+✔ clones and minions keep their fixed aggression on Normal and follow the mode elsewhere (0.1497ms)
+✔ tuning hands out a fresh profile: the shared table is never changed (0.107ms)
+✔ each level needs 120 more XP than the last, starting at 200 (0.0651ms)
+✔ a new player has 232 health (220 plus the starting gear); each level adds 4 (0.132ms)
+✔ upgrading a weapon raises its shown stats; no shop weapon reaches 100 speed or reach (0.1457ms)
+✔ upgrade costs scale with the item price and level, rounded to 10 coins (0.0682ms)
+✔ gear you cannot afford, already own, or that is a boss trophy cannot be bought (0.1669ms)
+✔ upgrading spends the upgrade cost and stops at the cap (0.1064ms)
+✔ upgrading needs enough coins (0.074ms)
+✔ only owned gear can be equipped, into its own slot (0.0724ms)
+✔ there are two families, Order of Silence and Hollows, and five unit types (0.089ms)
+✔ each family has exactly one unit of every type, ten regular enemies in all (0.1718ms)
+✔ every regular enemy names its family and unit type, and fights on that unit type's AI profile (0.1008ms)
+✔ units are troops, not people: every name is the family name plus a unit name (0.0952ms)
+✔ the placeholder grunts are gone (0.0689ms)
+✔ every enemy id that campaign, stretch, Echo Trials and minion data name exists (0.3943ms)
+✔ stretches only send regular Order soldiers and Hollows; Echo Trials waves are regular Hollows (0.2605ms)
+✔ Order territory is held by the Order; the Prologue, the City of Echoes and the Core belong to the Hollows (0.2086ms)
+✔ every unit type is placed somewhere in the campaign stretches (0.1535ms)
+✔ bosses summon Order footmen, except in the City of Echoes and the Core, where Hollows answer (0.0775ms)
+✔ the Epilogue is the last stage, a story scene with no combat stage and no fight (0.1387ms)
+✔ Rem appears in the opened Core, older, and confirms why he erased Kage's memories (0.2626ms)
+✔ the beats come in story order: handoff, choice, collapse, transmission, who won, the swords, the walk, the end card (0.2729ms)
+✔ Kage hands Shinsen to Rem (0.1095ms)
+✔ the choice: shutting down frees the memories and ends the reconstructions; they choose together (0.2114ms)
+✔ Takashi's final transmission, word for word, from the real Takashi (0.1424ms)
+✔ the "who won?" exchange, word for word, in order (0.1064ms)
+✔ it ends on two silhouettes walking into dawn and the end card "Brothers until the end." (0.0928ms)
+✔ the epilogue art and adult Rem exist and draw (2.9702ms)
+✔ Mugen no Ha, the Kysmei Robe and the Kurokumo Yoroi are locked until the Epilogue is played (0.3687ms)
+✔ finishing the Epilogue grants them exactly once (0.4186ms)
+✔ Kurokumo Yoroi is given by Rem (0.1722ms)
+✔ the Shinsei Yoroi only drops from the Epilogue during New Game+ (0.4335ms)
+✔ no stage grants the Shinsei Yoroi outside an ngOnly reward (0.1178ms)
+✔ Mugen no Ha's rage art is Echo Replication, not the Crescent Moon placeholder (0.0702ms)
+✔ Echo Replication replays Kage's most recent landed string (0.3193ms)
+✔ Echo Replication copies grounded strikes only; with nothing landed it replays the blade's own string (0.2408ms)
+✖ gameplay lock: Kage vs order plays out exactly as recorded (176.3086ms)
+✖ gameplay lock: Kage vs hollow plays out exactly as recorded (311.4857ms)
+✖ gameplay lock: Kage vs garan plays out exactly as recorded (606.4773ms)
+✖ gameplay lock: Kage vs raikon plays out exactly as recorded (657.0847ms)
+✖ gameplay lock: Kage vs akari plays out exactly as recorded (530.1929ms)
+✖ gameplay lock: Kage vs takashi plays out exactly as recorded (447.1767ms)
+✖ gameplay lock: Kage vs witness plays out exactly as recorded (489.2374ms)
+✖ gameplay lock: Kage vs forms plays out exactly as recorded (411.5333ms)
+✖ gameplay lock: Kage vs dodge plays out exactly as recorded (215.6374ms)
+✖ gameplay lock: the script exercises Kage's whole kit and every foe's answers (0.8693ms)
+✔ gameplay lock: a recording is deterministic and blind to the cloth simulation (400.6161ms)
+✔ a new save owns and wears Kagetsu, the Crimson Scarf and the Tachibana Yoroi (0.3233ms)
+✔ upgrading Kagetsu raises its effective stats level by level (0.3257ms)
+✔ a boss weapon hits far harder than its style's shop weapon, at a fixed level (0.1559ms)
+✔ Kagetsu climbs from Common to Rare to Epic as it is upgraded (0.2429ms)
+✔ upgrades stop at each item's cap: shop weapons 8, helmets and armour 5, trophies cannot be upgraded (0.193ms)
+✔ even the starting gear gets tougher when upgraded (0.1612ms)
+✔ armour and helmets add defence and health that grow with each upgrade (0.1314ms)
+✔ better gear noticeably raises Kage's health, defence and damage (0.4226ms)
+✔ every boss weapon has at least 1.5x the total stats of the best fully upgraded shop weapon (0.4106ms)
+✔ trophies beat every fully upgraded shop item of their slot (0.4542ms)
+✔ every weapon, helmet and armour carries a lore line (0.3079ms)
+✔ the shop sells ten helmets and ten armours across Common, Rare and Epic (0.3868ms)
+✔ boss weapons and trophies are in the Armory but locked, with a hint, and cannot be bought (0.265ms)
+✔ Acts I to III (each boss and its four sub-bosses) and the Epilogue grant gear: the Core echoes grant gems, never gear (0.4747ms)
+✔ clearing a stage with a gear reward grants it once and reports it (15.0121ms)
+✔ a New Game+ only trophy drops only when the stage is cleared during New Game+ (10.0124ms)
+✔ the Prologue has exactly three clues, each with its own scene (0.232ms)
+✔ the clues are the broken recording, the photograph and the second message, in that order along the road (0.2404ms)
+✔ the Prologue has a single encounter: one Hollow that mimics Kage before it attacks (0.1962ms)
+✔ the Prologue's Hollow is a gentle tutorial Shade: same look, far less damage and some less health, on every mode (0.5728ms)
+✔ the Prologue opens on the one video card and closes with the memory-ash scene (0.1591ms)
+✔ the video card is still the only one in all scene data (0.1504ms)
+✔ completing the Prologue unlocks Act I's first stretch, and that survives a save round trip (0.4166ms)
+✔ the Prologue teaches move, jump, slash, block and dodge, in that order (0.2488ms)
+✔ a prompt shows once Kage reaches it and every earlier prompt is cleared (0.1893ms)
+✔ a prompt clears only when Kage performs its action while it shows (0.1816ms)
+✔ prompt labels match the input device in use (0.3159ms)
+✔ 10-data.js uses no DOM, canvas, storage, audio or input APIs (2.1807ms)
+✔ 11-sword-arcs.js uses no DOM, canvas, storage, audio or input APIs (0.4175ms)
+✔ 12-scenes.js uses no DOM, canvas, storage, audio or input APIs (0.4434ms)
+✔ 13-budo.js uses no DOM, canvas, storage, audio or input APIs (0.2295ms)
+✔ 15-logic.js uses no DOM, canvas, storage, audio or input APIs (0.7959ms)
+✔ the logic module loads under plain Node from the data tables alone (9.1663ms)
+✔ fight ratings: a loss is always C; S needs a dominant win (0.2046ms)
+✔ rating thresholds: 62 is A, 42 is B (0.1127ms)
+✔ first win on the Prologue stretch pays 105 coins and 80 XP and clears the stage (0.3196ms)
+✔ replaying a cleared stage pays half coins and is not a first clear (0.1902ms)
+✔ a flawless win earns a bonus gem and the flawless seal (0.1797ms)
+✔ a loss pays a quarter of the base coins and 20 XP per act difficulty (0.1801ms)
+✔ beating Raikon pays boss rewards and opens the Interlude exactly once (0.5975ms)
+✔ sub-bosses, the spar and the Core echoes pay sub-boss rewards scaled by their chapter (0.5532ms)
+✔ winning a stage that is still locked earns replay rewards and clears nothing (0.1887ms)
+✔ beating the Witness opens the Epilogue but New Game+ waits for the story to end (0.5292ms)
+✔ New Game+ raises rewards by 60% per cycle (0.1463ms)
+✔ enough XP levels the player up and carries the remainder over (0.1371ms)
+✔ the stage card previews the first-clear reward and the replay reward (0.2664ms)
+✔ Echo Trials waves pay rising coins and a gem every 5th wave (0.1285ms)
+✔ an Echo Trials run banks its coins and gems, 40 XP per wave, and tracks the best wave (0.1602ms)
+✔ a win on a stage that is still locked earns nothing and is flagged as rejected (0.1477ms)
+✔ a new save starts with 250 coins, 5 gems, level 1 and Kagetsu equipped (0.0879ms)
+✔ each default save is a fresh object (0.0734ms)
+✔ with no stored save, loading gives the default save without an error (0.1127ms)
+✔ a corrupt save falls back to the default save and reports the error (0.1316ms)
+✔ a stored value that is not an object is ignored (0.1242ms)
+✔ a saved game round-trips: progress, gear and settings survive save and load (0.1565ms)
+✔ an old save missing newer fields is filled in with defaults, keeping what it has (0.1583ms)
+✔ erasing progress gives a fresh save but keeps the player's settings (0.0814ms)
+✔ on first launch both saves from the old game are deleted and nothing carries over (0.1482ms)
+✔ a brand-new player gets a fresh default save that should be written, with nothing to delete (0.0985ms)
+✔ new saves use schema version 2 under a key different from both old keys (0.076ms)
+✔ a corrupt new save falls back to a fresh save, reports the error, and the old saves are still deleted (0.135ms)
+✔ a returning player keeps their Last Betrayal progress and is not given a fresh save (0.1355ms)
+✔ gear the game no longer has is dropped and the starting loadout is worn instead (0.1461ms)
+✔ an unreadable save is kept: openSave names a backup key and the raw text to copy there before starting fresh (0.1898ms)
+✔ clearing Akari's stage grants Shinsen exactly once (0.3553ms)
+✔ no other stage grants Shinsen: Akari's stage is its one source (0.1217ms)
+✔ Shinsen is boss tier: at least 1.5x the best fully upgraded shop weapon (0.1667ms)
+✔ Shinsen's rage art is Final Flow (0.0989ms)
+✔ Final Flow is several cuts in different directions, ending in one decisive horizontal cut (0.1941ms)
+✔ a boss can run Final Flow with its own tuning without changing the player's (0.1665ms)
+✔ every Final Flow cut swings a real move pose (0.1077ms)
+✔ Shinsen has its own move set: slower, heavier and harder-hitting than Kagetsu (0.2506ms)
+✔ Shinsen runs the father-style family form variations: a heavy rising cut and a broad horizontal flow (0.0874ms)
+✔ the Interlude is fought in the spar format: one round on a clock, with an interruption threshold (0.1359ms)
+✔ only the Interlude uses the spar format (0.1509ms)
+✔ Takashi interrupts when either brother drops to the threshold, or when the clock runs out (0.1347ms)
+✔ a spar blow never knocks a brother out: health stays above zero, so the interruption always comes first (0.096ms)
+✔ the interrupted spar completes the Interlude without a winner and opens Act II (0.3251ms)
+✔ the Interlude cannot be lost: even a result that says the player lost completes it, without a loss (0.2163ms)
+✔ replaying the spar still records no winner (0.1469ms)
+✔ the Interlude unlocks only after Raikon and comes right before Act II (0.1281ms)
+✔ young Kage fights with a bokken and fixed health: the player's real gear does not apply (0.1529ms)
+✔ young Rem is the Interlude's foe, fighting with a bokken in the family form, faster than Kage (7.6016ms)
+✔ the bokken is a wooden practice sword on the katana forms that does reduced damage (0.1702ms)
+✔ the family form runs stance, dash, rising cut, aerial follow-up, landing, then a finishing horizontal flow (0.2797ms)
+✔ every move the family form names exists, and aerial steps use the air cut (0.1313ms)
+✔ Rem runs the family form faster and more fluidly: shorter gaps, longer chains, more aerial follow-ups (0.1576ms)
+✔ young Kage's own bokken string is the form's rising cut into the horizontal flow, and its air cut is the aerial (0.1112ms)
+✔ an unknown style falls back to Kage's form (0.1147ms)
+✔ the Interlude opens and closes with memory scenes, and leaves "who won?" for the Epilogue (7.1939ms)
+✔ exactly one video placeholder exists in all scene data: the start of the Prologue (0.2172ms)
+✔ a stage plays the scene attached to a hook, and nothing for a hook it has no scene on (0.1013ms)
+✔ the Epilogue is a scene stage that plays its scene (0.0738ms)
+✔ a boss defeat, a stage end and a clue pickup can each carry a scene (17.328ms)
+✔ a hook naming a scene that does not exist plays nothing (7.5973ms)
+✔ played scenes and story flags are saved, survive a reload and New Game+ (0.396ms)
+✔ a reload drops seen scenes the game no longer has and keeps only true flags (0.3081ms)
+✔ every scene step is one of the known kinds (0.5742ms)
+✔ the cast has a portrait for every speaker the story needs (2.6528ms)
+✔ the shared illustrations exist and draw (2.6447ms)
+✔ every scene names only speakers and illustrations that exist (0.241ms)
+✔ the Prologue opening shows the ruins and Kage speaks after the video card; the photograph waits as a clue (0.1334ms)
+✔ every stretch stage is a wide level with encounters of Order soldiers and Hollows; placeholders have two and a clue (0.3204ms)
+✔ crossing a trigger starts the next uncleared encounter, and only that one (0.1051ms)
+✔ a gate blocks the way until its encounter is cleared, then the next gate does (0.1532ms)
+✔ the stretch completes only at the end with every encounter cleared (0.0847ms)
+✔ a stretch stage hands its level to the fight session; arena stages do not get one (0.1128ms)
+✔ winning a stretch completes it and unlocks the next stage (0.147ms)
+✔ a clue is recorded once, and only clues the stage has (0.238ms)
+✔ found clues survive saving and loading, and through New Game+ (0.1757ms)
+✔ clues for unknown stages or clues are dropped when a save loads (0.203ms)
+✔ a new save has found no clues (0.0755ms)
+✔ each Act I sub-boss has a fighting style with a school (82.9625ms)
+✔ kuroe: a fight runs for 60 game seconds without throwing, and the style's strings fire (357.976ms)
+✔ garan: a fight runs for 60 game seconds without throwing, and the style's strings fire (357.788ms)
+✔ hisame: a fight runs for 60 game seconds without throwing, and the style's strings fire (339.3671ms)
+✔ shiden: a fight runs for 60 game seconds without throwing, and the style's strings fire (264.4908ms)
+✔ kuroe: a cut turned aside by the staff is answered by a thrust (the riposte off his parry) (43.8961ms)
+✔ garan: a parried blow costs him far more posture than a plain parry, and a second breaks him (41.5241ms)
+✔ garan: Tsuppari drives four palms into a held guard and crushes posture (41.5655ms)
+✔ garan: a guard in front of him is clinched and thrown (36.783ms)
+✔ hisame: chased, she springs over Kage and lands at his back (Kochō), the fans following (34.9864ms)
+✔ hisame: a flurry is read; the fan turns the cut aside and the counter cut follows (44.6103ms)
+✔ shiden: the braced spear meets a rushing Kage with a counter-hit critical; left alone, it lifts (76.2037ms)
+✔ Akari and her Hollow echo each have their own style with an art (78.0333ms)
+✔ a 60-second fight against akari runs without throwing (302.8932ms)
+✔ a 60-second fight against hollow_akari runs without throwing (249.3127ms)
+✔ Utsusemi: she crosses through Kage to his back and the cut from behind is a critical (45.7084ms)
+✔ a guard raised in time turns the back cut aside (42.5069ms)
+✔ Kawarimi: a move Kage keeps repeating strikes a husk, and she is behind him (42.158ms)
+✔ Ashibari: the sweep goes under a held guard; a jump clears it (78.5971ms)
+✔ her thin posture: two parried fangs break it, and the next blow is a critical (37.1635ms)
+✔ caught as she lands, she is thrown off balance: her posture breaks (32.6129ms)
+✔ Hollow Akari's step sometimes misplaces it: it lands short, in front of Kage, and cuts nothing (35.7466ms)
+✔ the echo is reduced: no Kawarimi, no chain, a slower step than Akari's (39.3081ms)
+✔ the delayed fang: the second blade is held a beat, so an early parry spends itself on air (84.796ms)
+✔ a jump-in is answered from the ground: kunai thrown up at him, the rising fang if he lands on her (74.9775ms)
+✔ a guard held in front of her is bound by her chain from the second phase on (55.0342ms)
+✔ Hollow Akari: its blink (Hollow Step) can misplace it too (42.4771ms)
+✔ both foes fight in their own school (75.8734ms)
+✔ raikon: a minute of fighting a Kage who attacks now and then runs without error and uses the style (331.8736ms)
+✔ hollow_raikon: a minute of fighting a Kage who attacks now and then runs without error and uses the style (287.8627ms)
+✔ Redline Counter: a blow into the settled stance is turned aside and answered by an unblockable critical (41.7738ms)
+✔ Redline Counter: a blow already on its way as the stance forms lands as a plain hit (34.8824ms)
+✔ Redline Counter left alone is spent: his posture drops and he stands open (47.0959ms)
+✔ Ichi no Tachi: parried on the cut, he reels long and loses far more posture than a plain parry (36.8236ms)
+✔ Tai-atari breaks a held guard and the cut follows onto the open body (40.7264ms)
+✔ Raijin Daiko: a parried beat does not end the drum, the next beat comes (40.2215ms)
+✔ a jump-in on Raikon is met by the rising cut, as a critical (35.7093ms)
+✔ Hollow Raikon's Ichi no Tachi stutters: it releases later than Raikon's, and lighter (80.0819ms)
+✔ both foes fight their own style, with an art (71.8204ms)
+✔ a fight against each runs for 60 game seconds without throwing (614.5818ms)
+✔ the Iron Guard turns a varied cut aside, and the riposte comes at the fixed tempo with a glint (38.8167ms)
+✔ a repeated strike is always read; a varied one is never turned once his posture is below the floor (35.8907ms)
+✔ the exchange: Kage parries the riposte, it costs the father posture, and his kata goes on (43.743ms)
+✔ a riposte that finds Kage still reeling is a critical; the overhead crushes a held guard (69.8844ms)
+✔ the last beat of a kata parried leaves him open; his posture comes back when Kage stands off (40.2812ms)
+✔ Hollow Takashi keeps the Iron Guard and the kata, at its own lesser numbers (38.8ms)
+✔ the Iron Guard: a strike Kage used in his last few moves is parried; a fresh one lands (37.6295ms)
+✔ golden kunai: a fan of gold kunai; Kunai Execution pins Kage and cuts (94.7167ms)
+✔ the Yashiro Titan: he grows, armour rises, and a Titan Slash takes half of Kage's health and floors him (59.2783ms)
+✔ Titan Slash is a low sweep: a jump over it clears it (62.8025ms)
+✔ Heaven Cleaver takes 70% of Kage's health on the marked ground; stepping off the mark avoids it (106.7751ms)
+✔ the titan's other moves all run and hit: Blade Rain, Crushing Grasp, Titan Spear, Domain Pulse (261.34ms)
+✔ Tenrai: the domain turns the arena gold behind a shrine, and the divine thunder kills a Kage who does not break it (70.2997ms)
+✔ Tenrai: striking him hard enough during the channel breaks the domain and leaves him reeling (74.2437ms)
+✔ Takashi is the foe of the Act III boss stage, fought in the boss format (0.1739ms)
+✔ Takashi fights in three phases: the Unbroken Guard, the Yashiro Titan, then his domain (0.3946ms)
+✔ the Yashiro Titan's blows take a share of Kage's health: Titan Slash half, Heaven Cleaver 70% (0.1397ms)
+✔ the domain's channel is long enough to break and asks a real share of his health (0.1077ms)
+✔ every Takashi move has a call-out and a readable tell (0.1347ms)
+✔ his Final Flow, tuned for a boss, lands far harder than the old 0.8 placeholder (0.1868ms)
+✔ Guard Return reads a repeated attack, never a varied one (0.1865ms)
+✔ Takashi wields a plain gold-trailed blade, never Shinsen, in the Shinsen style (0.1212ms)
+✔ his family form is the shared pattern, grounded, heavier and slower than Kage's, cut with Shinsen's moves (0.2204ms)
+✔ Takashi kneels and escapes: no finisher, recorded as escaped, not killed (0.4628ms)
+✔ clearing Takashi's stage grants the Kasa exactly once, and never the Shinsei Yoroi (0.3697ms)
+✔ act3.boss never lists the Shinsei Yoroi: it stays New Game+ only (the Epilogue ticket wires it) (0.0854ms)
+✔ the Kasa's lore speaks of the road, his exile and who he was before (9.5329ms)
+✔ the pre-fight scene has Takashi see Shinsen in Kage's hands and confess the Echo System (0.2091ms)
+✔ the defeat scene reveals Rem in the Core, gives the route, and he leaves the Kasa behind (0.2159ms)
+✔ waves send only Hollows, and the first wave is one light Hollow (0.9288ms)
+✔ waves escalate: more Hollows and heavier units as the waves climb (0.2012ms)
+✔ the same wave and random function always give the same wave (0.2918ms)
+✔ boss echoes appear only on multiples of 5 (0.1874ms)
+✔ boss echoes are drawn only from bosses beaten in the story (1.0328ms)
+✔ sub-bosses, main bosses and the Core echoes all count as beaten bosses (0.149ms)
+✔ with no boss beaten, every 5th wave is an elite Hollow wave instead (0.1696ms)
+✔ the arena shifts through remembered places every few waves; a boss echo fights in its own arena (0.2754ms)
+✔ waves pay rising coins and a gem every 5th wave (0.0998ms)
+✔ a run banks its coins and gems, 40 XP per wave, and tracks the best wave (0.1204ms)
+✔ an older save keeps its best Survival wave as its best Echo Trials wave (0.1749ms)
+✔ the selected difficulty mode applies to Echo Trials foes and boss echoes (0.1751ms)
+✔ an elite Hollow is tougher than the same Hollow in a regular wave (0.0972ms)
+✔ Echo Trials fights one round per wave against a 90 s clock (0.0795ms)
+✔ a boss-echo wave has no clock and shows the boss's phases; Hollow waves keep the 90 s clock (0.17ms)
+✔ each shop weapon has its own rage art, with a name and a description (61.7914ms)
+✔ the foes that share a family keep the original one-beat rage arts (0.1002ms)
+✔ Shizuka cuts its own iai string, ending in the sheathe whose silent cut lands a beat later (0.1242ms)
+✔ each shop weapon but Kagetsu cuts its own signature forms; the foes keep the shared ones (0.1916ms)
+✔ the signature forms keep every direction rule (0.4096ms)
+✔ the weapons differ in pace, reach and mechanics, not only in name (67.6745ms)
+✔ each shop weapon draws its own redesigned blade, in every mode (69.7349ms)
+✔ kagetsu's rage art (crimsonMoon): the world holds, the foe is cut and bound, the finisher lands, the arena comes back (127.1392ms)
+✔ tsubame's rage art (swallowStorm): the world holds, the foe is cut and bound, the finisher lands, the arena comes back (119.5665ms)
+✔ shizuka's rage art (silentMoon): the world holds, the foe is cut and bound, the finisher lands, the arena comes back (84.8907ms)
+✔ onikiri's rage art (hellSplitter): the world holds, the foe is cut and bound, the finisher lands, the arena comes back (73.9848ms)
+✔ mizuchi's rage art (waterDragon): the world holds, the foe is cut and bound, the finisher lands, the arena comes back (82.2379ms)
+✔ yamigama's rage art (reaperRequiem): the world holds, the foe is cut and bound, the finisher lands, the arena comes back (86.4491ms)
+✔ iwakudaki's rage art (goldenQuake): the world holds, the foe is cut and bound, the finisher lands, the arena comes back (66.5829ms)
+✔ Shizuka's sheathe: the silent cut lands on its own, a beat after the blade has passed (50.1526ms)
+✔ footwork: Tsubame darts further on a dash than Kagetsu, Iwakudaki less (158.3908ms)
+✔ the phase state machine: each true-health threshold shifts the Witness (invulnerable while it speaks), then it fights (141.5358ms)
+✔ the attack state machine: every attack passes Telegraph, Startup, Active, Recovery and Cooldown in order (146.0568ms)
+✔ Void Slash: three crossing waves along the floor; a jump clears them (122.213ms)
+✔ the input modifier layer: a reversal is warned, then swaps left and right for its duration; the devices are untouched (77.9188ms)
+✔ Echo Bind locks the way away from the Witness; Null Protocol shows each locked ability to the HUD (129.7628ms)
+✔ the HUD presentation layer lies, but never touches the real health (82.7173ms)
+✔ Rage Suppression stops rage growing but keeps what Kage had (72.6993ms)
+✔ Health Drain: a tether drains Kage and heals the Witness until he gets out of its reach (71.7889ms)
+✔ Gravity Collapse pulls Kage toward the well; a dash escapes it (68.1834ms)
+✔ Echo Genesis: Kage freezes, the domain opens with three anchors; breaking them restores control and shatters it (81.2912ms)
+✔ an anchor breaks under Kage's blade (193.764ms)
+✖ Final Judgment: standing in it is ruinous; a guard raised at the flash denies it and staggers the Witness (196.5827ms)
+✔ pattern learning: an overused move draws a Phantom Counter; a varied kit does not (69.2873ms)
+✔ the defeat: the arena goes quiet and the Witness speaks its last line before the story (86.5645ms)
+✔ Echo Combo: a string of cuts, each its own hit, the last one floors Kage; phase III blinks to his other side (111.7193ms)
+✔ Orb Pulse fires a spread of orbs from its hand (74.1595ms)
+✔ Echo Breaker: it leaps over Kage and plunges the greatsword onto his spot, flooring him and sending floor waves both ways (45.0592ms)
+✔ the director: left to itself the Witness never stands free longer than its phase pace (257.0739ms)
+✔ a long fight: the Witness has several times a story boss's health (37.3943ms)
+✔ the Witness, Architect of Echoes, is the foe of core.witness, fought in the boss format with four phases (0.2646ms)
+✔ the phase state machine opens on the true health thresholds: 100 / 75 / 50 / 25 (0.3487ms)
+✔ each phase fights with the spec's attacks (0.6828ms)
+✔ every attack runs Telegraph -> Startup -> Active -> Recovery, then Cooldown, with a readable telegraph (1.4343ms)
+✔ the input modifier layer: bind, reverse, delay and lock, applied over the raw controls without changing them (0.8153ms)
+✔ every control modifier is warned first and lasts 0.5 to 1.2 seconds (0.2449ms)
+✔ the adaptive tracker reads overused attacks and a defensive habit (0.2409ms)
+✔ Void Slash is three waves low enough to jump; Final Judgment has a precise counter window (0.1136ms)
+✔ Echo Replication copies the last string that hit, not a later whiff (0.1838ms)
+✔ throws, grabs and rage arts are never copied, and a long string keeps only its last five moves (0.1317ms)
+✔ the same landed string three times running is marked as spam (0.1479ms)
+✔ the latest string with its own timing (the mirror) (0.1779ms)
+✔ Memory Break (Reality Rewrite's arena) turns through the remembered places (0.1076ms)
+✔ the Witness wields its own greatsword, Mugen no Ha: enemy-only, on the heavy cleaver forms, never copying Kage (0.0936ms)
+✔ the greatsword's moves: a heavy Echo Combo ending in a floor-splitting cleave, and Echo Breaker in every phase (0.1504ms)
+✔ defeat is reabsorb: winning records the Witness as reabsorbed, never killed; its last line is the spec's (0.4658ms)
+✔ core.witness grants no gear: Mugen no Ha and the Kysmei Robe wait for the Epilogue (0.2774ms)
+✔ the before scene reveals the reconstruction; the defeat scene is the final story cutscene (0.2081ms)
+ℹ tests 486
+ℹ suites 0
+ℹ pass 475
+ℹ fail 11
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 18486.832
+
+✖ failing tests:
+
+test at tests\gameplay-lock.test.js:41:5
+✖ gameplay lock: Kage vs order plays out exactly as recorded (176.3086ms)
+  AssertionError [ERR_ASSERTION]: Gameplay changed in the order fight. If this was intended, regenerate the snapshot (see the test header).
+  First differing frame: 0 (0.00 s).
+  At sample frame 0:
+  frame.fighters.1.hp: expected 170, got 139
+  First differing event #1:
+    expected {"f":304,"type":"dmg","att":"kage","def":"order_footman#2","move":"p1","dmg":14.2,"tier":0,"crit":false,"hp":155.8}
+    got      {"f":304,"type":"dmg","att":"kage","def":"order_footman#2","move":"p1","dmg":14.2,"tier":0,"crit":false,"hp":124.8}
+      at TestContext.<anonymous> (E:\PROJECTS\KAGE\KAGE\tests\gameplay-lock.test.js:58:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: undefined,
+    operator: 'fail',
+    diff: 'simple'
+  }
+
+test at tests\gameplay-lock.test.js:41:5
+✖ gameplay lock: Kage vs hollow plays out exactly as recorded (311.4857ms)
+  AssertionError [ERR_ASSERTION]: Gameplay changed in the hollow fight. If this was intended, regenerate the snapshot (see the test header).
+  First differing frame: 0 (0.00 s).
+  At sample frame 0:
+  frame.fighters.1.hp: expected 160, got 131
+  First differing event #1:
+    expected {"f":311,"type":"dmg","att":"kage","def":"hollow_shade#2","move":"p1","dmg":14.6,"tier":0,"crit":false,"hp":145.5}
+    got      {"f":311,"type":"dmg","att":"kage","def":"hollow_shade#2","move":"p1","dmg":14.6,"tier":0,"crit":false,"hp":116.5}
+      at TestContext.<anonymous> (E:\PROJECTS\KAGE\KAGE\tests\gameplay-lock.test.js:58:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: undefined,
+    operator: 'fail',
+    diff: 'simple'
+  }
+
+test at tests\gameplay-lock.test.js:41:5
+✖ gameplay lock: Kage vs garan plays out exactly as recorded (606.4773ms)
+  AssertionError [ERR_ASSERTION]: Gameplay changed in the garan fight. If this was intended, regenerate the snapshot (see the test header).
+  First differing frame: 0 (0.00 s).
+  At sample frame 0:
+  frame.fighters.1.hp: expected 420, got 470
+  First differing event #0:
+    expected {"f":344,"type":"move","who":"kage","move":"p1"}
+    got      {"f":345,"type":"move","who":"kage","move":"p1"}
+      at TestContext.<anonymous> (E:\PROJECTS\KAGE\KAGE\tests\gameplay-lock.test.js:58:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: undefined,
+    operator: 'fail',
+    diff: 'simple'
+  }
+
+test at tests\gameplay-lock.test.js:41:5
+✖ gameplay lock: Kage vs raikon plays out exactly as recorded (657.0847ms)
+  AssertionError [ERR_ASSERTION]: Gameplay changed in the raikon fight. If this was intended, regenerate the snapshot (see the test header).
+  First differing frame: 0 (0.00 s).
+  At sample frame 0:
+  frame.fighters.1.hp: expected 640, got 634
+  First differing event #1:
+    expected {"f":391,"type":"dmg","att":"raikon#2","def":"kage","move":"THUNDER","dmg":17.6,"tier":2,"crit":false,"hp":99982.4}
+    got      {"f":388,"type":"dmg","att":"raikon#2","def":"kage","move":"THUNDER","dmg":14.1,"tier":2,"crit":false,"hp":99985.9}
+      at TestContext.<anonymous> (E:\PROJECTS\KAGE\KAGE\tests\gameplay-lock.test.js:58:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: undefined,
+    operator: 'fail',
+    diff: 'simple'
+  }
+
+test at tests\gameplay-lock.test.js:41:5
+✖ gameplay lock: Kage vs akari plays out exactly as recorded (530.1929ms)
+  AssertionError [ERR_ASSERTION]: Gameplay changed in the akari fight. If this was intended, regenerate the snapshot (see the test header).
+  First differing frame: 0 (0.00 s).
+  At sample frame 0:
+  frame.fighters.1.hp: expected 600, got 610
+  First differing event #0:
+    expected {"f":349,"type":"ability","who":"akari#2","id":"smokeStep"}
+    got      {"f":349,"type":"ability","who":"akari#2","id":"blink"}
+      at TestContext.<anonymous> (E:\PROJECTS\KAGE\KAGE\tests\gameplay-lock.test.js:58:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: undefined,
+    operator: 'fail',
+    diff: 'simple'
+  }
+
+test at tests\gameplay-lock.test.js:41:5
+✖ gameplay lock: Kage vs takashi plays out exactly as recorded (447.1767ms)
+  AssertionError [ERR_ASSERTION]: Gameplay changed in the takashi fight. If this was intended, regenerate the snapshot (see the test header).
+  First differing frame: 0 (0.00 s).
+  At sample frame 0:
+  frame.fighters.1.hp: expected 680, got 830
+  First differing event #0:
+    expected {"f":362,"type":"ability","who":"takashi#2","id":"kunaiExecution"}
+    got      {"f":348,"type":"ability","who":"takashi#2","id":"kataDraw"}
+      at TestContext.<anonymous> (E:\PROJECTS\KAGE\KAGE\tests\gameplay-lock.test.js:58:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: undefined,
+    operator: 'fail',
+    diff: 'simple'
+  }
+
+test at tests\gameplay-lock.test.js:41:5
+✖ gameplay lock: Kage vs witness plays out exactly as recorded (489.2374ms)
+  AssertionError [ERR_ASSERTION]: Gameplay changed in the witness fight. If this was intended, regenerate the snapshot (see the test header).
+  First differing frame: 0 (0.00 s).
+  At sample frame 0:
+  frame.fighters.1.hp: expected 3600, got 4392
+  First differing event #1:
+    expected {"f":378,"type":"dmg","att":"witness#2","def":"kage","move":null,"dmg":13.4,"tier":2,"crit":false,"hp":99986.6}
+    got      {"f":376,"type":"dmg","att":"witness#2","def":"kage","move":null,"dmg":16.8,"tier":2,"crit":false,"hp":99983.2}
+      at TestContext.<anonymous> (E:\PROJECTS\KAGE\KAGE\tests\gameplay-lock.test.js:58:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: undefined,
+    operator: 'fail',
+    diff: 'simple'
+  }
+
+test at tests\gameplay-lock.test.js:41:5
+✖ gameplay lock: Kage vs forms plays out exactly as recorded (411.5333ms)
+  AssertionError [ERR_ASSERTION]: Gameplay changed in the forms fight. If this was intended, regenerate the snapshot (see the test header).
+  First differing frame: 0 (0.00 s).
+  At sample frame 0:
+  frame.fighters.1.hp: expected 170, got 139
+  First differing event #1:
+    expected {"f":311,"type":"dmg","att":"kage","def":"order_footman#2","move":"k2_up","dmg":2.6,"tier":2,"crit":false,"hp":167.4}
+    got      {"f":311,"type":"dmg","att":"kage","def":"order_footman#2","move":"k2_up","dmg":2.6,"tier":2,"crit":false,"hp":136.4}
+      at TestContext.<anonymous> (E:\PROJECTS\KAGE\KAGE\tests\gameplay-lock.test.js:58:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: undefined,
+    operator: 'fail',
+    diff: 'simple'
+  }
+
+test at tests\gameplay-lock.test.js:41:5
+✖ gameplay lock: Kage vs dodge plays out exactly as recorded (215.6374ms)
+  AssertionError [ERR_ASSERTION]: Gameplay changed in the dodge fight. If this was intended, regenerate the snapshot (see the test header).
+  First differing frame: 0 (0.00 s).
+  At sample frame 0:
+  frame.fighters.1.hp: expected 170, got 139
+  First differing event #0:
+    expected {"f":308,"type":"move","who":"kage","move":"p1"}
+    got      {"f":307,"type":"move","who":"kage","move":"p1"}
+      at TestContext.<anonymous> (E:\PROJECTS\KAGE\KAGE\tests\gameplay-lock.test.js:58:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: undefined,
+    operator: 'fail',
+    diff: 'simple'
+  }
+
+test at tests\gameplay-lock.test.js:65:1
+✖ gameplay lock: the script exercises Kage's whole kit and every foe's answers (0.8693ms)
+  AssertionError [ERR_ASSERTION]: takashi never uses an ability or changes phase
+      at TestContext.<anonymous> (E:\PROJECTS\KAGE\KAGE\tests\gameplay-lock.test.js:85:59)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests\witness-fight.test.js:191:1
+✖ Final Judgment: standing in it is ruinous; a guard raised at the flash denies it and staggers the Witness (196.5827ms)
+  AssertionError [ERR_ASSERTION]: the Witness reeled
+  
+  'idle' !== 'stun'
+  
+      at TestContext.<anonymous> (E:\PROJECTS\KAGE\KAGE\tests\witness-fight.test.js:202:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'idle',
+    expected: 'stun',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

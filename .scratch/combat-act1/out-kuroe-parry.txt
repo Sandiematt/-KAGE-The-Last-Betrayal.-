@@ -1,0 +1,4 @@
+[kuroe parry] kuroe vs parry bot · act1.sub1 · normal · gear 2 · style: Bōjutsu · Kukishin-ryū
+[kuroe parry]   Kage wins 21/30, loses 9, timeouts 0 · avg 45.6s · Kage hp left 17% · foe hp left 6% (foe 403 hp, Kage 249 hp)
+[kuroe parry]   per run: kageParries 1.2 · foeParries 4.3 · kageCrits 5.2 · foeCrits 2.7 · foeBroken 0 · kageBroken 0 · spamPunish 0.2 · throws 0.1 · styleStrings 19.1 · dmgToFoe 383 · dmgToKage 206
+[kuroe parry]   abilities: censure×118 roar×30
